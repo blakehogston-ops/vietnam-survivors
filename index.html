@@ -77,6 +77,13 @@ button.btn.alt{background:#6b5a2f;font-size:clamp(14px,3vw,20px);padding:8px 22p
 .tag.sel{background:linear-gradient(145deg,#f1e3a1,#cdb560 55%,#e6d68a);border-color:#e8c860;box-shadow:0 0 0 2px #e8c860,0 3px 0 #11160f;transform:translateY(-2px)}
 #csRec{position:relative;flex:1 1 420px;max-width:600px;min-width:290px;text-align:left;background:#d8cfa7;color:#2a2418;border:3px solid #6a5c34;border-radius:3px;padding:12px 14px 10px;box-shadow:0 6px 0 rgba(0,0,0,.45);background-image:repeating-linear-gradient(0deg,rgba(90,70,30,.07) 0 1px,transparent 1px 22px);font-size:clamp(11px,2.2vw,13px);line-height:1.45}
 #csRec .rh{display:flex;justify-content:space-between;border-bottom:2px solid #2a2418;padding-bottom:3px;margin-bottom:8px;font-weight:bold;letter-spacing:.12em;font-size:11px}
+.svcph{margin:0;width:124px;box-sizing:border-box;padding:5px 5px 4px;background:#f6f1e1;box-shadow:0 1px 3px rgba(0,0,0,.55);text-align:center;transform:rotate(-1.2deg)}
+.svcph .im{position:relative;line-height:0;background:#222}.svcph img{width:100%;height:auto;display:block;image-rendering:auto}
+.svcph .im:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,#3b3524 0 9px,transparent 9px) top left/100% 100% no-repeat,linear-gradient(225deg,#3b3524 0 9px,transparent 9px) top right/100% 100% no-repeat,linear-gradient(45deg,#3b3524 0 9px,transparent 9px) bottom left/100% 100% no-repeat,linear-gradient(315deg,#3b3524 0 9px,transparent 9px) bottom right/100% 100% no-repeat}
+.svcph figcaption{font:bold 8.5px/1.25 'Courier New',monospace;color:#2a2418;text-transform:none;letter-spacing:0;padding-top:4px}
+#csRec .pcol{display:flex;flex-direction:column;align-items:center;gap:8px;flex:0 0 auto}
+.srcard .svcph{margin:2px auto 8px;width:104px}
+@media (max-width:560px){.svcph{width:104px}}
 #csRec .rb{display:flex;gap:12px;align-items:flex-start}
 #csPort{flex:0 0 auto;width:112px;height:128px;border:3px solid #2a2418;background:#6b7d4c;image-rendering:pixelated}
 #csRec .fld{flex:1;display:grid;grid-template-columns:auto 1fr;gap:1px 8px;font-size:12px}
@@ -986,10 +993,30 @@ const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;r
 
 /* ====================== audio ====================== */
 /* legacy event name -> Sound Helper pack cue [cue, opts]. Everything else keeps the original in-game synth. */
-const CUEMAP={sf30:['ak47',{vol:.95}],m16:['m16'],m60:['m60',{shots:1}],thump:['m79',{burst:false}],claymore:['claymore'],mortar:['mortarThump'],rpg:['b40Launch'],boss:['bossSpawn'],level:['levelUpSwell'],pick:['uiTick'],ready:['readyTick'],chime:['boardingChime'],stage:['buildStageComplete'],medpack:['medpackPickup'],radio:['radioSquelch'],sigpop:['signalPop'],
+const CUEMAP={m1903:['boltRifleCrack'],sf30:['ak47',{vol:.95}],m16:['m16'],m60:['m60',{shots:1}],thump:['m79',{burst:false}],claymore:['claymore'],mortar:['mortarThump'],rpg:['b40Launch'],boss:['bossSpawn'],level:['levelUpSwell'],pick:['uiTick'],ready:['readyTick'],chime:['boardingChime'],stage:['buildStageComplete'],medpack:['medpackPickup'],radio:['radioSquelch'],sigpop:['signalPop'],
   d_thud:['deathBullet',{vol:.8}],d_wet:['deathBullet'],d_snap:['deathBullet'],d_boom:['deathExplosion'],d_fire:['deathFlame'],d_crunch:['deathHeavy'],d_big:['bigKill']};
 const CUEAIR={airstrafe:['airStrafe'],airnapalm:['napalmWhoomph'],refuel:['tankerFlyover',{flightLine:true}]};
 const RIBCUE={car:'combatAction',ph:'purpleHeart',bs:'bronzeStar',ss:'silverStar',nc:'navyCross',moh:'medalOfHonor'};
+/* Original synthesized M1903 .30-06 rifle crack (tier 2, runs through the cue-bus compressor + final limiter).
+   click (1-3 ms HP noise) -> supersonic crack (BP noise 2-5 kHz, ~80 ms) -> low boom (sine sweep 120->50 Hz + LP noise, ~220 ms)
+   -> distant echo tail (filtered noise, ~500 ms; ~250 ms and quieter under Low effects) -> bolt clack-clack ~0.5 s later.
+   Max 2 voices at once (a 3rd shot while two are ringing is dropped). */
+Cues.boltRifleCrack=function(ctx,dst,o){ o=o||{}; const t0=(o.when!=null?o.when:ctx.currentTime)+.002, low=(typeof LOWFX!=='undefined'&&LOWFX), nb=Snd.nb; if(!nb)return null;
+  const V=Snd._rv=(Snd._rv||[]).filter(e=>e>ctx.currentTime); if(V.length>=2)return null;
+  const tail=low?.25:.5, vol=(o.vol!=null?o.vol:1); V.push(t0+.75);
+  const out=ctx.createGain(); out.gain.value=vol; out.connect(dst);
+  const env=(g,t,a,pk,dur)=>{ g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(pk,t+a); g.gain.exponentialRampToValueAtTime(.0001,t+a+dur) };
+  const nz=(type,f0,f1,q,t,a,dur,pk)=>{ const s=ctx.createBufferSource(); s.buffer=nb; s.loop=true; const f=ctx.createBiquadFilter(); f.type=type; f.Q.value=q; f.frequency.setValueAtTime(f0,t); f.frequency.exponentialRampToValueAtTime(Math.max(40,f1),t+a+dur); const g=ctx.createGain(); env(g,t,a,pk,dur); s.connect(f); f.connect(g); g.connect(out); s.start(t,Math.random()*.5); s.stop(t+a+dur+.05) };
+  const sn=(type,f0,f1,t,a,dur,pk)=>{ const o2=ctx.createOscillator(); o2.type=type; o2.frequency.setValueAtTime(f0,t); o2.frequency.exponentialRampToValueAtTime(f1,t+a+dur); const g=ctx.createGain(); env(g,t,a,pk,dur); o2.connect(g); g.connect(out); o2.start(t); o2.stop(t+a+dur+.05) };
+  nz('highpass',6500,7500,.7,t0,.0004,.0026,1.15);                 /* 1) bright click, ~3 ms */
+  nz('bandpass',4800,2300,1.1,t0,.0008,.08,1.5);                   /* 2) supersonic crack, ~80 ms */
+  nz('bandpass',2600,1800,.8,t0+.004,.001,.05,.7);                 /*    crack body */
+  sn('sine',125,50,t0,.002,.22,1.25); nz('lowpass',700,110,.7,t0,.002,.17,.75);   /* 3) boom, ~220 ms */
+  nz('bandpass',950,260,.6,t0+.07,.025,tail,low?.07:.13);          /* 4) distant echo tail */
+  const ck=(t,f,v)=>{ nz('bandpass',f*1.8,f*1.3,3,t,.0005,.03,.5*v); sn('triangle',f,f*.6,t,.0005,.035,.28*v); sn('square',f*2.6,f*1.7,t,.0003,.012,.07*v) };   /* 5) bolt clack-clack, quieter */
+  ck(t0+.46,1250,.8); ck(t0+.58,980,.95);
+  return {out} };
+Cues.tiers.boltRifleCrack=2;
 const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
   init(){ if(this.ctx)return; try{
       const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
@@ -1015,7 +1042,7 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
     s.connect(f); f.connect(g); g.connect(this.master); s.start(t,Math.random()*.5); s.stop(t+dur+.02); },
   blip(f){ if(!this.ctx||this.muted||this.ctx.state!=='running')return; this.tone('square',f,f*1.18,.05,.028); this.tone('square',f*1.33,f*1.33,.06,.024,.065) },
   btick(p){ const c=this.ctx; if(!c||this.muted||c.state!=='running')return; const n=performance.now(); if(n-(this._bt||0)<110)return; this._bt=n; if(this.cbus){ this.cue('buildTick',{},Math.max(0,Math.min(1,p))); return } const f=300+Math.max(0,Math.min(1,p))*900; this.tone('square',f,f*.8,.05,.07); this.noise(.04,.1,2200,1200,'bandpass'); this.tone('sine',f*.5,f*.4,.07,.06) },
-  gap:{d_thud:.02,d_wet:.02,d_boom:.04,d_fire:.04,d_snap:.03,d_crunch:.03,d_big:.2,tune:3,bugle:1,whistle:1,m16:.05,sf30:.2,boltA:.2,boltB:.2,m60:.04,boom:.06,hit:.04,kill:.04,gem:.04,flame:.22,thud:.05,thump:.06,claymore:.08,jet:.5,radio:.5,rpg:.2,hurt:.1,punji:.12,mortar:.08,whistle:.06,m2:.045,vcshot:.1,hatch:.15,cannon:.12,brrt:.06,rumble:1,spray:1},
+  gap:{d_thud:.02,d_wet:.02,d_boom:.04,d_fire:.04,d_snap:.03,d_crunch:.03,d_big:.2,tune:3,bugle:1,whistle:1,m16:.05,sf30:.2,boltA:.2,boltB:.2,m1903:.25,m60:.04,boom:.06,hit:.04,kill:.04,gem:.04,flame:.22,thud:.05,thump:.06,claymore:.08,jet:.5,radio:.5,rpg:.2,hurt:.1,punji:.12,mortar:.08,whistle:.06,m2:.045,vcshot:.1,hatch:.15,cannon:.12,brrt:.06,rumble:1,spray:1},
   /* pack cues: routed through the compressor bus (Cues.createBus -> sfx master). Budget: max 18 non-tier-1 starts per 250 ms. */
   cue(name,opts,arg){ const c=this.ctx; if(!c||!this.cbus||this.muted||c.state!=='running'||typeof Cues==='undefined')return null; const f=Cues[name]; if(!f)return null; const now=performance.now(), tier=Cues.tiers[name]||2;
     this._cq=(this._cq||[]).filter(t=>now-t<250); if(tier>1&&this._cq.length>=18)return null; this._cq.push(now); this.cueN=(this.cueN||0)+1;
@@ -1040,6 +1067,7 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
       case 'jet': this.noise(1.5,.28,300,2600,'bandpass'); this.tone('sawtooth',90,230,1.2,.07); break;
       case 'radio': this.noise(.12,.22,3000,2000,'bandpass'); this.tone('square',1200,1200,.05,.05); this.tone('square',1500,1500,.05,.05,.1); break;
       case 'flame': this.noise(.3,.14,1400,500); break;
+      case 'm1903': this.noise(.16,.6,2600,500,'bandpass'); this.tone('sine',110,40,.18,.4); this.noise(.3,.12,900,160); this.noise(.03,.12,3000,2000,'bandpass',.46); this.noise(.03,.12,2600,1800,'bandpass',.58); break;
       case 'sf30': this.noise(.16,.5,2600,500,'bandpass'); this.tone('sine',110,40,.16,.3); this.noise(.5,.12,900,160); break;   // fallback if the pack is missing: heavy .30-06 crack
       case 'boltA': this.tone('square',1900,1300,.03,.05); this.noise(.035,.09,4200,3000,'bandpass'); this.tone('triangle',620,430,.07,.07); break;   // bolt lifted and drawn back
       case 'boltB': this.tone('square',1500,1050,.035,.055); this.noise(.04,.1,3600,2400,'bandpass'); this.tone('triangle',520,380,.08,.08); break;   // bolt pushed forward and locked
@@ -2509,7 +2537,7 @@ function update(dt){
   let [ix,iy]=g.demo?[Math.cos(g.t*.45),Math.sin(g.t*.45)]:(DBG.bot?(BOTF.move?BOTF.move():botVec()):inputVec());
   p.mv=ix!==0||iy!==0; const sp=150*speedMul()*(p.slow>0?.5:1); if(p.slow>0)p.slow-=dt;
   if(p.mv){p.x+=ix*sp*dt;p.y+=iy*sp*dt;p.anim+=dt*9;p.fx=ix;p.fy=iy}
-  if(p.invul>0)p.invul-=dt; if(p.hurtT>0)p.hurtT-=dt; if(g.hurt>0)g.hurt-=dt; if(g.muzzle>0)g.muzzle-=dt; if(g.bolt>0){ const b0=g.bolt; g.bolt-=dt; if(b0>.43&&g.bolt<=.43)Snd.play('boltA'); if(b0>.2&&g.bolt<=.2)Snd.play('boltB') }
+  if(p.invul>0)p.invul-=dt; if(p.hurtT>0)p.hurtT-=dt; if(g.hurt>0)g.hurt-=dt; if(g.muzzle>0)g.muzzle-=dt; if(g.bolt>0){ const b0=g.bolt; g.bolt-=dt; if(!Snd.cbus){ if(b0>.43&&g.bolt<=.43)Snd.play('boltA'); if(b0>.2&&g.bolt<=.2)Snd.play('boltB') } }
   if(regenR()>0&&p.hp<p.maxHp){p.hp=Math.min(p.maxHp,p.hp+regenR()*dt)}
   if(g.demo){p.hp=p.maxHp}
   g.shake*=Math.exp(-7*dt); if(g.banner){g.banner.t-=dt;if(g.banner.t<=0)g.banner=null}
@@ -2674,7 +2702,7 @@ function updateWeapons(dt){
       for(let i=0;i<s.pel&&bullets.length<540;i++){ const a=base+(rnd()-.5)*s.spread; addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,560+rnd()*80,s.dmg,1,.3,3,'#ffd9a0') } Snd.play('thump'); g.muzzle=.07; w.cd+=s.cd; }
     else if(id==='m1903'){ const t=nearestK(p.x,p.y,1,s.range)[0]; if(!t){w.cd=.05;continue} const a=Math.atan2(t.y-p.y,t.x-p.x);
       const b=addBullet(p.x+Math.cos(a)*22,p.y-3+Math.sin(a)*22,a,1150,s.dmg,s.pierce,s.range/1150+.05,2.4,'#ffe9a0'); b.ohk=1; b.tr=.075;
-      Snd.play('sf30'); g.muzzle=.11; g.bolt=.62; g.shake=Math.max(g.shake,2.2); w.cd+=s.cd; }
+      Snd.play('m1903'); g.muzzle=.11; g.bolt=.62; g.shake=Math.max(g.shake,2.2); w.cd+=s.cd; }
     else if(id==='m16'){ const ts=nearestK(p.x,p.y,s.shots,540); if(!ts.length){w.cd=.05;continue}
       for(let i=0;i<s.shots;i++){const t=ts[i%ts.length]; const a=Math.atan2(t.y-p.y,t.x-p.x)+(i>=ts.length?(rnd()-.5)*.25:0); addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,700,s.dmg,s.pierce,.85,3.2,'#fff3a0')}
       Snd.play('m16'); g.muzzle=.07; w.cd+=s.cd; }
@@ -3472,6 +3500,10 @@ function drawPortrait(cv2,id){ const c=cv2.getContext('2d'); c.imageSmoothingEna
   // peace-sign graffiti on the helmet side + "BORN TO..." doodle
   const af=CHD[id]&&CHD[id].label; if(!af){ c.strokeStyle='rgba(255,255,255,.75)'; c.lineWidth=2; const cx=cv2.width-24,cy=22; c.beginPath(); c.arc(cx,cy,10,0,TAU); c.moveTo(cx,cy-10); c.lineTo(cx,cy+10); c.moveTo(cx,cy); c.lineTo(cx-7,cy+7); c.moveTo(cx,cy); c.lineTo(cx+7,cy+7); c.stroke() }
   c.fillStyle='rgba(255,255,255,.55)'; c.font='bold 9px "Courier New"'; c.fillText(af?'USAF':'USMC',6,cv2.height-6) }
+/* real service photo of MSgt. Hogston (family photo, used with the owner's permission). Preloaded; if it fails to load the pixel portrait simply stands alone. */
+const HOGPH={url:'assets/hogston_profile.jpg',ok:false,bad:false,img:new Image()}; HOGPH.img.onload=()=>{HOGPH.ok=true}; HOGPH.img.onerror=()=>{HOGPH.bad=true}; try{ HOGPH.img.src=HOGPH.url }catch(e){ HOGPH.bad=true }
+const SVCPHOTO={radio:'MSgt. Hogston, USAF - Tanker Maintenance - Saltville, VA'};
+function svcPhoto(id){ const cap=SVCPHOTO[id]; if(!cap||HOGPH.bad)return ''; return `<figure class="svcph"><div class="im"><img src="${HOGPH.url}" alt="${cap}" onerror="HOGPH.bad=true;this.closest('figure').remove()"></div><figcaption>${cap}</figcaption></figure>` }
 function buildCharList(){ const el=$('csList'); el.innerHTML='';
   for(const id of CHORDER){ const D=CHD[id], t=chTier(id), b=document.createElement('button'); b.className='tag'+(id===SEL?' sel':''); b.dataset.id=id;
     b.innerHTML=`<b${D.card?' style="text-transform:none"':''}>${D.card?D.card[0]:D.nick}</b><i>${D.card?D.card[1]:D.rank+' '+D.nm.split(' ').pop()}</i><i class="pips">${'●'.repeat(t)}${'○'.repeat(5-t)}</i>`;
@@ -3480,7 +3512,7 @@ function selectChar(id){ if(!CHD[id])return; SEL=id; saveChars(); const D=CHD[id
   for(const b of $('csList').children)b.classList.toggle('sel',b.dataset.id===id);
   const lo=t?TIER_XP[t-1]:0, hi=t<5?TIER_XP[t]:TIER_XP[4], pct=t>=5?100:Math.round((x-lo)/(hi-lo)*100);
   $('csRec').innerHTML=`<div class="rh"><span>${D.svc||'U.S. MARINE CORPS'} · SERVICE RECORD</span><span>${D.sn?'SN '+D.sn:''}</span></div>
-   <div class="rb"><canvas id="csPort" width="112" height="128"></canvas><div class="fld"><span>RANK</span><b>${D.rank}</b><span>NAME</span><b>${D.nm}</b>${D.label?'':`<span>NICKNAME</span><b>"${D.nick}"</b>`}<span>HOMETOWN</span><b>${D.home}</b><span>MOS</span><b>${D.mos}</b>${D.age?`<span>AGE</span><b>${D.age}</b>`:''}<span>LOADOUT</span><b>${D.loadout}</b></div></div>
+   <div class="rb"><div class="pcol"><canvas id="csPort" width="112" height="128"></canvas>${svcPhoto(id)}</div><div class="fld"><span>RANK</span><b>${D.rank}</b><span>NAME</span><b>${D.nm}</b>${D.label?'':`<span>NICKNAME</span><b>"${D.nick}"</b>`}<span>HOMETOWN</span><b>${D.home}</b><span>MOS</span><b>${D.mos}</b>${D.age?`<span>AGE</span><b>${D.age}</b>`:''}<span>LOADOUT</span><b>${D.loadout}</b></div></div>
    <p>${D.bio.join(' ')}</p><div class="kn">KNOWN FOR: ${D.known}</div>${D.quote?`<div class="qt">"${D.quote}" — ${D.nick}</div>`:''}
    <div class="sp"><div><u>PASSIVE:</u> ${D.passive}</div><div><u>SPECIAL [SPACE / E]:</u> ${D.ab.nm} — ${D.ab.desc} <i>(${D.ab.cd}s)</i></div></div>
    ${ribRackHTML(id)}
@@ -4526,7 +4558,7 @@ const tierPct=x=>{ let t=0; while(t<5&&x>=TIER_XP[t])t++; if(t>=5)return 100; co
 function serviceCard(aw){ if(!aw)return ''; const D=CHD[aw.id], c=CHS[aw.id]||{}, xp=chXp(aw.id), x0=xp-aw.gain, t=aw.t1, nx=t>=5?null:TIER_XP[t];
   const earned=RIBBON_RACK_ORDER.filter(k=>c.rib&&c.rib[k]), fresh=(aw.rib||[]);
   setTimeout(()=>{ const b=document.querySelector('#stats .srbar i'); if(b)b.style.width=tierPct(xp)+'%' },80);
-  return `<div class="srcard"><div class="srh">SERVICE RECORD</div><div class="srn">${D.label||D.rank+' '+D.nick}</div><div class="srbar"><i style="width:${aw.t1>aw.t0?0:tierPct(x0)}%"></i></div>`+
+  return `<div class="srcard"><div class="srh">SERVICE RECORD</div><div class="srn">${D.label||D.rank+' '+D.nick}</div>${svcPhoto(aw.id)}<div class="srbar"><i style="width:${aw.t1>aw.t0?0:tierPct(x0)}%"></i></div>`+
    `<div class="srx">+${aw.gain} service XP · ${t>=5?'MAX TIER (5)':xp+' / '+nx+' to Tier '+(t+1)}${aw.t1>aw.t0?'<br><b style="color:#9be37a">TIER '+aw.t1+' UNLOCKED: '+D.perks[aw.t1-1].t+'</b>':''}</div>`+
    (earned.length?`<div class="srstrip">${earned.map(k=>`<img src="${ribURL(k,k==='moh',2)}" title="${RIB[k].nm}${fresh.indexOf(k)>=0?' (NEW)':''}" alt="${RIB[k].nm}" style="${fresh.indexOf(k)>=0?'outline:2px solid #ffd54a':''}">`).join('')}</div>`:'')+
    (fresh.length?'<div class="newrib">'+fresh.slice().sort((a,b)=>RIBBON_RACK_ORDER.indexOf(a)-RIBBON_RACK_ORDER.indexOf(b)).map(k=>`<div class="nr"><img src="${ribURL(k,true,3)}" alt=""><span><b>NEW: ${RIB[k].nm}</b><br>${RIB[k].how}</span></div>`).join('')+'</div>':'')+

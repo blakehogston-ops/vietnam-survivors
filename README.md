@@ -84,3 +84,8 @@ Art: Artist Helper's `ribbons.js` (kept in `assets/artist/`, inlined in `index.h
 
 ## Art drop-ins
 Pending Artist Helper pieces plug into the `ART` object near the top of the sprite code in `index.html` (`ART.portraits[charId]`, `ART.wallTiles`, `ART.decals`, `ART.cdRing`); until set, the built-in placeholders are used.
+
+
+## Country (Josh Johnson) rifle sound and Hogston service photo
+- The M1903 shot is an original synthesized cue (`Cues.boltRifleCrack`, tier 2): 1-3 ms click, ~80 ms supersonic crack, ~220 ms low boom, ~500 ms echo tail (~250 ms and quieter under Low effects) and a bolt clack-clack about 0.5 s later. It goes through the cue-bus compressor and the final limiter, honours mute, and allows at most 2 voices at once. Measured: no clipped frames.
+- MSgt. Hogston's character card and end-of-run card show a framed service photo (`assets/hogston_profile.jpg`, family photo used with the owner's permission, metadata stripped). It is preloaded; if it fails to load only the pixel portrait is shown. The original is kept out of git (`ref/` is ignored).
