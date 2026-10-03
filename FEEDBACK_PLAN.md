@@ -29,3 +29,8 @@ Batch 1 in one push, QA pass; then 8, 9, 11; then 12; then 10; Batch 3 one item 
 - Slot limits: 5 weapons + 5 support items OK?
 - Which pairs of items should combine first (any favorites)?
 - Should the bunker garrison replace the current patrol Marines, or add to them?
+
+## Team notes (plan only)
+- Artist Helper, art needs: Batch 1 = player ring + name tag, boots icon, flamethrower flame with brighter core. Batch 2 = icon redo (border color + silhouette per category: weapons / support / perks), calmer body-part and blood decals. Batch 3 = sandbag bunker, destroyed bunker, firing flash, river tile set, boat sprites, 4 recon-team figures (Vietnam Vet checks camo/period first). Cheapest first: player ring and icon redo.
+- QA, test plan per batch (one short round each): pits never in firebase square (10-min bot run); flamethrower range in px before/after + kills/min + FPS; menu text readable at 1280x720 and small phone; ring visible on all backgrounds in a crowd; boots stop pit damage; gib count + FPS vs current; slots full -> no new-item cards over many level-ups; icons distinct at real size; tutorial skippable and not replayed; bigger firebase secures in a sensible time at 60 FPS; each combo alone vs normal run at level 20+; bunkers: fire, die with garrison, shelter/leave, no stuck player; river/boats FPS; recon team HP/weapons per spec. Every batch also: clean private-window load, BUILD stamp, DBG.pad pass.
+- Dev debug hooks QA asked for (build with Batch 1): `?fps` readout adds gib count and slot counts (weapons/support used of max); `DBG.give('itemId', level)` to grant items; `DBG.fullSlots()` to fill categories.
