@@ -1,0 +1,31 @@
+# Tester feedback plan (Oct 3, 2026). PLAN ONLY, nothing built yet.
+Sizes: S = under an hour, M = a few hours, L = a day-sized chunk. Order is cheapest and highest impact first.
+
+## Batch 1: quick wins (all S; ship together)
+1. No punji pits inside the firebase. Pit spawner skips the square (FBW + margin) around any active firebase; delete pits already inside when it is secured.
+2. Flamethrower: range about 2x, more damage per tick, wider flame sprite so the range reads. Gamer re-checks balance.
+3. Menu text: shorten instructions to 3-4 bullet lines, larger font (min 16 px on phones), full detail behind a "?" or "How to play" screen.
+4. Item cards: one-sentence plain summary on the card, long blurb moved to a tap/hover "details" area.
+5. Declutter gibs: cap body parts per kill, shorter life, fade faster, fewer on screen (hard cap 40), and Low effects uses none. Keep blood decals but dimmer.
+6. Make the player obvious (already in backlog): ring + name tag, allies slightly dimmed.
+7. Steel-plate boots support item (historically, Panama-sole boots): makes the player immune to punji pits (Vietnam Vet to confirm the name).
+
+## Batch 2: clarity and level-up depth (M)
+8. Level-up slot limits per category (example: 5 weapons, 5 support items). Once full, level-up offers only upgrades for owned items, so max levels and evolutions arrive sooner. Needs Blake/Gamer to pick the numbers.
+9. Icons: redraw/recolor so each weapon and support item has a unique silhouette and color family (Artist Helper). Weapons = red/orange frame, support = blue/green frame.
+10. Declutter the screen in general: fewer overlapping effects, enemy hit flashes simpler, cap simultaneous tracers/smoke, enemy outlines vs. ground contrast, damage numbers off by default. Needs a playtest pass with screenshots at 300+ enemies.
+11. Tutorial: first run only, 4-5 short prompts (move, collect XP, pick an item, radio the LZ, extraction) with a skip, plus a "Tutorial" button on the menu. Mobile and controller prompts differ.
+12. Firebase walls: bigger footprint OR 2-3 concentric wall layers (inner sandbags, outer wire, optional third ring) that build in stages; breaches repair by engineers. Pathing and perf need testing.
+
+## Batch 3: big features (L)
+13. More evolutions: when two max-level items are held, they combine into a powerful evolution (e.g. flamethrower + napalm, Claymore + trip flares, etc.). Plan a combo table of 8-12 pairs, each with its own icon, sound and tuned numbers; Gamer balances so they carry the late game but are not instant wins. Do the table first (design only), then 3 at a time.
+14. Bunker garrison: when the firebase is secured, Marines man bunker emplacements and fire from inside; each bunker has HP and is destroyed before its Marines die. The player can enter any bunker for cover (protected but limited firing). Needs bunker art, enter/exit controls (button + controller), and allied AI changes.
+15. Rivers and boats: a real-looking river (animated water, banks, reeds) and clearer PBR/Swift boats, with a boat that can drop a 4-man recon team (MACV-SOG style: extra HP and maxed weapons, temporary). Needs water art (Artist Helper), boat sprites, a new river map section, and a landing event. Vietnam Vet to verify the boat type.
+
+## Suggested order when usage resets
+Batch 1 in one push, QA pass; then 8, 9, 11; then 12; then 10; Batch 3 one item at a time, in the order 13 (design), 14, 15.
+
+## Open questions for Blake
+- Slot limits: 5 weapons + 5 support items OK?
+- Which pairs of items should combine first (any favorites)?
+- Should the bunker garrison replace the current patrol Marines, or add to them?
