@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Vietnam Survivors — Hold the Line</title>
 <style>
 html,body{margin:0;height:100%;background:#0a170d;overflow:hidden;font-family:"Courier New",Courier,monospace;color:#f1ecd0;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -33,12 +36,15 @@ button.btn.alt{background:#6b5a2f;font-size:clamp(14px,3vw,20px);padding:8px 22p
 #topbtns{position:fixed;right:8px;top:34px;display:none;gap:6px;z-index:4}
 #topbtns button{width:40px;height:34px;font-size:16px;font-family:inherit;background:rgba(20,34,16,.8);color:#f1ecd0;border:2px solid #4a6b2f;border-radius:4px;cursor:pointer}
 #topbtns button:hover{background:#3a5a28}
+#fsHint{position:fixed;left:50%;top:80px;transform:translateX(-50%);max-width:86vw;padding:8px 12px;background:rgba(10,14,10,.92);border:2px solid #ffd54a;border-radius:6px;color:#f1ecd0;font-size:13px;line-height:1.35;text-align:center;z-index:12;display:none}
+#fsHint.show{display:block}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 
-<div id="topbtns"><button id="btnMute" title="Mute / unmute (M)">🔊</button><button id="btnPause" title="Pause (P / Esc)">❚❚</button></div>
+<div id="topbtns"><button id="btnMute" title="Mute / unmute (M)">🔊</button><button id="btnPause" title="Pause (P / Esc)">❚❚</button><button id="btnFull" title="Fullscreen (F)">⛶</button></div>
+<div id="fsHint">For fullscreen on iPhone: tap <b>Share</b> ▸ <b>Add to Home Screen</b>, then launch from the icon.</div>
 
 <div id="menu" class="overlay show">
   <h1>VIETNAM <span>SURVIVORS</span></h1>
@@ -1085,6 +1091,24 @@ function gameOver(){ state='over'; overAt=performance.now(); Snd.play('over'); c
 function showBest(){ let b=0; try{b=+localStorage.getItem('vs_best')||0}catch(e){} $('best').textContent=b?('Best survival: '+fmt(b)):''; }
 $('btnStart').onclick=startGame; $('btnRestart').onclick=startGame; $('btnMenu').onclick=toMenu; $('btnResume').onclick=resumeGame; $('btnQuit').onclick=toMenu; $('btnPause').onclick=()=>{state==='play'?pauseGame():resumeGame()};
 $('btnMute').onclick=()=>{Snd.init();Snd.resume();Snd.setMuted(!Snd.muted)};
+
+/* ---- fullscreen toggle (button + F key); Fullscreen API with webkit fallback; iOS Safari hint ---- */
+(function(){ const de=document.documentElement, btn=$('btnFull'), hint=$('fsHint');
+  const req=de.requestFullscreen||de.webkitRequestFullscreen, exit=document.exitFullscreen||document.webkitExitFullscreen;
+  const isFs=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
+  const standalone=navigator.standalone===true||(window.matchMedia&&(matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches));
+  const ios=/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  let ht=0; function showHint(){ hint.classList.add('show'); clearTimeout(ht); ht=setTimeout(()=>hint.classList.remove('show'),5000) }
+  function toggle(){ if(!req){ if(ios&&!standalone)showHint(); return }
+    try{ const r=isFs()?exit.call(document):req.call(de,{navigationUI:'hide'}); if(r&&r.catch)r.catch(()=>{}) }catch(e){} }
+  function sync(){ btn.textContent=isFs()?'🗗':'⛶'; btn.title=(isFs()?'Exit fullscreen':'Fullscreen')+' (F)'; resize(); setTimeout(resize,120); setTimeout(resize,400) }
+  ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,sync));
+  window.addEventListener('orientationchange',()=>setTimeout(resize,200));
+  if(!req&&(standalone||!ios))btn.style.display='none';
+  btn.onclick=()=>{ toggle(); btn.blur() };
+  document.addEventListener('keydown',e=>{ if(e.code==='KeyF'&&!e.repeat&&!e.ctrlKey&&!e.metaKey&&!e.altKey)toggle() });
+  window.__fs={toggle,isFs,req:!!req};
+})();
 document.addEventListener('keydown',e=>{
   keys[e.code]=true;
   if(e.code.startsWith('Arrow')||e.code==='Space')e.preventDefault();
