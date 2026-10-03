@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -2035,20 +2037,20 @@ const BVOX={n:8,raw:[],dec:[],src:null,gain:null,tok:0,t0:0,dur:0,log:[],
 function briefSpeakTTS(text){ const B=BR; if(!B)return;   /* BR is null once the briefing ends; late speech callbacks must not touch it */
   B.vox=false; B.ended=false; B.bidx=0; B.voice=false; if(Snd.muted||!window.speechSynthesis||!BVOICE){ return }
   try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.voice=BVOICE; u.lang=BVOICE.lang||'en-US'; u.pitch=0.05; u.rate=0.85; u.volume=Math.max(.15,Math.min(1,Snd.vol.sfx));
-    u.onboundary=e=>{ if(BR===B)B.bidx=Math.max(B.bidx,(e.charIndex||0)+(e.charLength||4)) }; u.onend=u.onerror=()=>{ if(BR===B)B.ended=true }; B.voice=true; B.utt=u; speechSynthesis.speak(u) }catch(e){ B.voice=false } }
-function briefSpeak(i){ if(!BR)return; const text=BRIEF_LINES[i].t; BriefSnd.blip(); BR.ended=false; BR.bidx=0; BR.voice=false; BR.vox=false; BR.vwait=0; BVOX.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}
+    u.onboundary=e=>{ if(BR===B)B.bidx=Math.max(B.bidx,(e.charIndex||0)+(e.charLength||4)) }; u.onend=u.onerror=()=>{ const b=BR; if(b&&b===B)b.ended=true }; B.voice=true; B.utt=u; speechSynthesis.speak(u) }catch(e){ B.voice=false } }
+function briefSpeak(i){ if(!BR)return; const text=BRIEF_LINES[i].t; try{BriefSnd.blip()}catch(e){} if(!BR)return; BR.ended=false; BR.bidx=0; BR.voice=false; BR.vox=false; BR.vwait=0; BVOX.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}
   if(Snd.muted){ BVOX.log.push({line:i+1,src:'muted'}); return }
   if(!Snd.ctx){ BVOX.log.push({line:i+1,src:'tts-noctx'}); briefSpeakTTS(text); return }
   const my=BR; BR.voice=true; BR.vox=true;   /* text reveal is paced by the clip; falls back to speech if it can't load */
-  BVOX.play(i,()=>{},()=>{ if(BR===my&&BR.page===i)BR.ended=true },()=>{ if(BR===my&&BR.page===i)briefSpeakTTS(text) }) }
+  BVOX.play(i,()=>{},()=>{ const b=BR; if(b&&b===my&&b.page===i)b.ended=true },()=>{ const b=BR; if(b&&b===my&&b.page===i)briefSpeakTTS(text) }) }
 function startBrief(){ BR={ph:0,page:0,t:0,typed:0,wait:0,ended:true,voice:false,bidx:0,px:0,py:0,pi:0,blip:0};
   state='brief'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{BVOX.prefetch()}catch(e){} }
 function endBrief(){ BVOX.stop(); BriefSnd.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{sessionStorage.setItem('vs_briefed','1')}catch(e){} BR=null; state='menu'; $('menu').classList.add('show'); $('topbtns').style.display='none'; last=performance.now() }
-function briefBegin(){ BR.ph=1; BR.page=0; BR.t=0; BR.typed=0; BR.wait=0; Snd.init(); Snd.resume(); setTimeout(()=>{ if(BR)BriefSnd.start() },120); briefSpeak(0) }
+function briefBegin(){ if(!BR)return; BR.ph=1; BR.page=0; BR.t=0; BR.typed=0; BR.wait=0; Snd.init(); Snd.resume(); setTimeout(()=>{ if(BR)BriefSnd.start() },120); briefSpeak(0) }
 function briefNext(){ if(!BR)return; if(BR.ph===0){ briefBegin(); return }
   const L=BRIEF_LINES[BR.page]; if(BR.typed<L.t.length){ BR.typed=L.t.length; return }
   BVOX.stop(); try{speechSynthesis.cancel()}catch(e){}
-  if(BR.page>=BRIEF_LINES.length-1){ endBrief(); return }
+  if(!BR)return; if(BR.page>=BRIEF_LINES.length-1){ endBrief(); return }
   BR.page++; BR.t=0; BR.typed=0; BR.wait=0; briefSpeak(BR.page) }
 function updateBrief(dt){ const B=BR; if(!B)return; B.t+=dt; if(B.ph===0)return; BriefSnd.tick(dt);
   const L=BRIEF_LINES[B.page], n=L.t.length; const prev=Math.floor(B.typed);
