@@ -25,10 +25,10 @@ Sizes: S = under an hour, M = a few hours, L = a day-sized chunk. Order is cheap
 ## Suggested order when usage resets
 Batch 1 in one push, QA pass; then 8, 9, 11; then 12; then 10; Batch 3 one item at a time, in the order 13 (design), 14, 15.
 
-## Open questions for Blake
-- Slot limits: 5 weapons + 5 support items OK?
-- Which pairs of items should combine first (any favorites)?
-- Should the bunker garrison replace the current patrol Marines, or add to them?
+## Decisions from Blake (Oct 3, 7:42 PM ET)
+- Slot limits: Gamer decides, based on what similar games do (Vampire Survivors uses 6 weapons + 6 passives; Gamer to recommend).
+- Combos: no favorites; every combo must feel clearly awesome when achieved (unique name, gold icon, sound, banner + screen flash, visibly different effect), balanced by Gamer so it helps win at high levels without making the game trivial.
+- Bunkers start EMPTY; patrol Marines automatically fill them. The player can still shelter in any bunker.
 
 ## Team notes (plan only)
 - Artist Helper, art needs: Batch 1 = player ring + name tag, boots icon, flamethrower flame with brighter core. Batch 2 = icon redo (border color + silhouette per category: weapons / support / perks), calmer body-part and blood decals. Batch 3 = sandbag bunker, destroyed bunker, firing flash, river tile set, boat sprites, 4 recon-team figures (Vietnam Vet checks camo/period first). Cheapest first: player ring and icon redo.
