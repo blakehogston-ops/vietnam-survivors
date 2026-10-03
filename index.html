@@ -210,7 +210,7 @@ function buildGore(){
   GIBSPR[10]=mkp(["KK.","KKK",".KK"],{K:'#2a2420'},2);                            // charred chunk
   GIBSPR[11]=mkp(["UU","UU","RR"],{U:'#58733a',R:'#c01a1a'},2);                   // spare (olive)
   // corpses: dimmed, flopped sprites over a blood pool
-  for(const k of ['vc','nva','officer','boss','rpg']){ const spr=SPR[k][0][0][0], w=spr.width,h=spr.height; CORPSE[k]=[];
+  for(const k of ['marine','vc','nva','officer','boss','rpg']){ const spr=SPR[k][0][0][0], w=spr.width,h=spr.height; CORPSE[k]=[];
     for(let v=0;v<2;v++){ const c=mk(h+18,w+14),x=c.getContext('2d'); x.imageSmoothingEnabled=false; const cx=c.width/2,cy=c.height/2;
       for(let yy=-w/2-5;yy<=w/2+5;yy+=2)for(let xx=-h/2-8;xx<=h/2+8;xx+=2){const d=Math.hypot(xx/(h/2+9),yy/(w/2+6))+(r()-.5)*.25; if(d<1){x.fillStyle=d<.55?'#9a1214':'#6a0b0d';x.fillRect(Math.round(cx+xx),Math.round(cy+yy),2,2)}}
       const t=mk(w,h),tx=t.getContext('2d'); tx.drawImage(spr,0,0); tx.globalCompositeOperation='source-atop'; tx.fillStyle='rgba(40,0,0,.34)'; tx.fillRect(0,0,w,h);
@@ -690,7 +690,7 @@ function startGame(){ if(!navigator.userActivation||navigator.userActivation.has
 function toMenu(){ state='menu'; ['over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('menu').classList.add('show'); $('topbtns').style.display='none'; showBest(); if(!DBG.nodemo)newGame(true); }
 function pauseGame(){ if(state==='play'){state='paused';$('pause').classList.add('show')} }
 function resumeGame(){ if(state==='paused'){state='play';$('pause').classList.remove('show');last=performance.now()} }
-function gameOver(){ state='over'; overAt=performance.now(); Snd.play('over'); const g=G; spawnDrops(g.p.x,g.p.y-6,0,0,40,200); addDecal(g.p.x,g.p.y+6,SPLAT[6],90,1.8); addDecal(g.p.x,g.p.y+8,CORPSE.vc[0],90,1);
+function gameOver(){ state='over'; overAt=performance.now(); Snd.play('over'); const g=G; spawnDrops(g.p.x,g.p.y-6,0,0,40,200); addDecal(g.p.x,g.p.y+6,SPLAT[6],90,1.8); addDecal(g.p.x,g.p.y+8,CORPSE.marine[0],90,1);
   let best=0; try{best=+localStorage.getItem('vs_best')||0; if(g.t>best){best=g.t;localStorage.setItem('vs_best',String(g.t))}}catch(e){}
   $('rank').textContent='Reached rank: '+rankFor(g.t);
   $('stats').innerHTML=`Survived <b>${fmt(g.t)}</b> &nbsp;·&nbsp; Enemies defeated <b>${g.kills}</b><br>Level <b>${g.p.lvl}</b> &nbsp;·&nbsp; Best time <b>${fmt(best)}</b>`;
@@ -842,8 +842,47 @@ buildSprites(); buildGore(); buildWorldArt(); Snd.setMuted(Snd.muted);
 if(DBG.nodemo){ G=null; newGame(false); } else newGame(true);
 showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
-window.__ms={get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={get Music(){return Music},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
+
+
+/* ====================== background music (original chiptune swamp-rock riff, WebAudio only) ====================== */
+const Music={timer:null,gain:null,t:0,step:0,bpm:100,on:false,lastG:null,
+  // original 4-bar riff in A minor pentatonic with a bluesy b5; values are semitones above A3 (null = rest)
+  GUIT:[[0,null,0,3, 5,null,6,7, 0,null,-2,0, 3,null,0,null],[0,null,0,3, 5,null,7,10, 7,null,5,3, 0,null,null,null]],
+  BARS:[[0,0],[1,0],[0,5],[1,-5]],           // [which riff bar, transpose]
+  BASSROOT:[0,0,5,7], BASS:{0:0,2:0,4:0,6:7,8:0,10:0,12:10,14:7},
+  start(){ if(this.timer||!Snd.ctx)return; const c=Snd.ctx; this.gain=c.createGain(); this.gain.gain.value=0; this.gain.connect(Snd.master); this.t=c.currentTime+.1; this.timer=setInterval(()=>this.tick(),25); },
+  tick(){ try{
+    const c=Snd.ctx; if(!c||c.state!=='running'||!this.gain)return;
+    const want=(state==='play'&&G&&!G.demo&&!Snd.muted), now=c.currentTime;
+    if(G!==this.lastG){this.lastG=G;this.step=0;this.bpm=100;this.t=now+.1}           // new game restarts the song
+    if(want!==this.on){ this.on=want; this.gain.gain.cancelScheduledValues(now); this.gain.gain.setTargetAtTime(want?.7:0,now,want?.04:.12); if(want)this.t=now+.05; }
+    if(!want)return;
+    if(this.t<now-.15)this.t=now+.05;
+    const lvl=G.p.lvl, target=100+Math.min(1,Math.max(0,(lvl-1)/19))*70;
+    while(this.t<now+.1){ this.bpm+=(target-this.bpm)*.05; const sd=60/this.bpm/4; this.playStep(this.step,this.t,sd,lvl); this.t+=sd; this.step=(this.step+1)%64; }
+  }catch(e){} },
+  osc(type,f,t,dur,vol,dest,detune){ const c=Snd.ctx,o=c.createOscillator(),g=c.createGain(); o.type=type; o.frequency.setValueAtTime(f,t); if(detune)o.detune.value=detune; g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(g); g.connect(dest); o.start(t); o.stop(t+dur+.03); return g },
+  guitar(t,f,dur,vol){ const c=Snd.ctx,fl=c.createBiquadFilter(); fl.type='lowpass'; fl.Q.value=3; fl.frequency.setValueAtTime(3200,t); fl.frequency.exponentialRampToValueAtTime(800,t+dur); fl.connect(this.gain);
+    this.osc('sawtooth',f,t,dur,vol,fl,0); this.osc('square',f,t,dur,vol*.6,fl,8) },
+  bass(t,f,dur,vol){ const c=Snd.ctx,fl=c.createBiquadFilter(); fl.type='lowpass'; fl.frequency.value=520; fl.connect(this.gain); this.osc('sawtooth',f,t,dur,vol,fl,0); this.osc('triangle',f/2,t,dur,vol*.8,fl,0) },
+  kick(t){ const c=Snd.ctx,o=c.createOscillator(),g=c.createGain(); o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(42,t+.14); g.gain.setValueAtTime(.45,t); g.gain.exponentialRampToValueAtTime(.0001,t+.2); o.connect(g); g.connect(this.gain); o.start(t); o.stop(t+.22) },
+  noise(t,dur,vol,type,freq){ const c=Snd.ctx,s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain(); s.buffer=Snd.nb; f.type=type; f.frequency.value=freq; g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur); s.connect(f); f.connect(g); g.connect(this.gain); s.start(t,Math.random()*.5); s.stop(t+dur+.02) },
+  snare(t,v){ this.noise(t,.13,.26*v,'bandpass',1900); this.osc('triangle',190,t,.08,.12*v,this.gain,0) },
+  hat(t,v){ this.noise(t,.035,.07*v,'highpass',7500) },
+  playStep(st,t,sd,lvl){
+    const bar=(st>>4)&3, s=st&15, [rb,tr]=this.BARS[bar];
+    const g=this.GUIT[rb][s];
+    if(g!==null){ const f=220*Math.pow(2,(g+tr)/12); this.guitar(t,f,sd*1.7,.075); if(lvl>=10)this.guitar(t,f*2,sd*1.4,.035) }
+    const b=this.BASS[s]; if(b!==undefined){ this.bass(t,55*Math.pow(2,(this.BASSROOT[bar]+b)/12),sd*1.8,.2) }
+    if(s===0||s===8||(lvl>=6&&s===10)||(lvl>=14&&s===3))this.kick(t);
+    if(s===4||s===12)this.snare(t,1);
+    if(bar===3&&lvl>=3&&s>=13)this.snare(t,.5);
+    if(lvl>=12&&s===15&&bar!==3)this.snare(t,.3);
+    if(lvl>=4){ if(lvl>=15)this.hat(t,s%2?.5:1); else if(lvl>=9){ if(s%2===0)this.hat(t,1) } else if(s%4===2)this.hat(t,1) }
+  }
+};
 
 /* audio unlock for mobile browsers (iOS needs a gesture + playback audio session) */
 (function(){
@@ -852,6 +891,7 @@ requestAnimationFrame(frame);
     try{ if(navigator.audioSession)navigator.audioSession.type='playback'; }catch(e){}
     try{
       Snd.init();
+      if(Snd.ctx)Music.start();
       if(Snd.ctx){
         if(Snd.ctx.state!=='running')Snd.ctx.resume();
         const b=Snd.ctx.createBuffer(1,1,22050),s=Snd.ctx.createBufferSource();
