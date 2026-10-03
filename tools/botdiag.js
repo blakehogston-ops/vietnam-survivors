@@ -9,14 +9,14 @@
 const {chromium}=require('playwright-core');
 const arg=(k,d)=>{const i=process.argv.indexOf('--'+k);return i>=0?process.argv[i+1]:d};
 const URL=arg('url','file://'+require('path').resolve(__dirname,'..','index.html'));
-const FB=process.argv.includes('--fb'), MISSION=process.argv.includes('--mission'), CHAR=arg('char','doc'), MINS=((MISSION||FB)&&!process.argv.includes('--minutes')?'':arg('minutes','5,10,15')).split(',').filter(Boolean).map(Number), RUNS=+arg('runs',1), LIMIT=+arg('limit',FB&&!MISSION?420:900), FBSUM=[], TRACE=process.argv.includes('--trace');
+const MISSION=process.argv.includes('--mission'), CHAR=arg('char','doc'), MINS=(MISSION&&!process.argv.includes('--minutes')?'':arg('minutes','5,10,15')).split(',').filter(Boolean).map(Number), RUNS=+arg('runs',1), LIMIT=+arg('limit',900);
 const SUMMARY=[];
 (async()=>{
   const browser=await chromium.launch({channel:'chrome',args:['--no-sandbox','--autoplay-policy=no-user-gesture-required']});
   for(let run=0;run<RUNS;run++){ const t00=Date.now();
     const pg=await browser.newPage({viewport:{width:1280,height:720}}); const errs=[]; pg.on('pageerror',e=>errs.push(e.message));
     await pg.goto(URL+'?nodemo&nointro&nobrief&bot&char='+CHAR+'&autostart'); await pg.waitForTimeout(800);
-    const report=await pg.evaluate(({MINS,MISSION,FB,LIMIT,TRACE})=>{
+    const report=await pg.evaluate(({MINS,MISSION,LIMIT})=>{
       const m=__ms,G0=()=>m.G; window.__simHold=true;
       const WPRI=['m16','m60','tank','m79','claymore','mortar','arclight','strafe','squad','howitzer','napalm','huey','flame','ranch','gunboat'];
       const PPRI={helmet:42,flak:44,regen:41,boots:36,magnet:30,radio:40,fm:34,demo:32,dustoff:46,kc135:49};
@@ -44,10 +44,9 @@ const SUMMARY=[];
       m.DBG.bot=true; m.DBG.god=false;
       const out=[], marks=MINS.map(v=>v*60); let mi=0, lastKills=0,lastDd=0,lastLvl=1; const per=[]; let minHp=999,t0=performance.now();
       const dt=1/60;
-      let exLog=null; const tr=[];
-      while((mi<marks.length||MISSION||FB)&&m.state==='play'&&G0().t<LIMIT){
-        const G=G0(); m.step(dt); minHp=Math.min(minHp,G.p.hp);
-        if(TRACE&&m.fbS&&Math.floor(m.fbS.age*2)%10===0&&Math.abs(m.fbS.age*2-Math.round(m.fbS.age*2))<dt*2&&tr.length<80){ const f=m.fbS; tr.push([+f.age.toFixed(1),f.state,+f.prog.toFixed(3),m.engs?m.engs.length:'?',m.enemies.length,Math.round(G.p.hp),m.strs?m.strs.length:'?']) }
+      let exLog=null;
+      while((mi<marks.length||MISSION)&&m.state==='play'&&G0().t<LIMIT){
+        const G=G0(); m.step(dt); minHp=Math.min(minHp,G.p.hp); (window.__hist=window.__hist||[]).push(G.p.hp); if(window.__hist.length>1200)window.__hist.shift(); if(G.p.hp<=0||m.state!=='play'){ const p=G.p; const near={}; for(const e of m.enemies){ if(Math.hypot(e.x-p.x,e.y-p.y)<60)near[e.type]=(near[e.type]||0)+1 } window.__death={t:Math.round(G.t),boss:G.boss&&!G.boss.dead?G.boss.name:null,near,eproj:m.eprojs.length,enemies:m.enemies.length,hp10:Math.round(window.__hist[Math.max(0,window.__hist.length-600)]),hp5:Math.round(window.__hist[Math.max(0,window.__hist.length-300)]),hp2:Math.round(window.__hist[Math.max(0,window.__hist.length-120)]),maxHp:p.maxHp,tanks:m.enemies.filter(e=>e.tank).length,rpgt:m.enemies.filter(e=>e.type==='rpgt').length} }
         if(Math.floor(G.t)%60===0&&G.t-Math.floor(G.t)<dt&&Math.floor(G.t)>0&&(per.length<Math.floor(G.t/60))){ per.push({min:per.length+1,lvl:G.p.lvl,kills:G.kills-lastKills,dps:Math.round(((G.dd||0)-lastDd)/60),hpMin:Math.round(minHp),enemies:m.enemies.length,fb:G.fbN}); lastKills=G.kills; lastDd=G.dd||0; minHp=999 }
         if(mi<marks.length&&G.t>=marks[mi]){ out.push({atMin:MINS[mi],alive:true,level:G.p.lvl,kills:G.kills,avgDps:Math.round((G.dd||0)/G.t),weapons:Object.keys(G.w).map(k=>k+G.w[k].lvl).join(' '),passives:Object.keys(G.ps).filter(k=>G.ps[k]).map(k=>k+G.ps[k]).join(' '),
             tankDeaths:(G.tlog||[]).map(q=>q.t+'s(age '+q.age+')'),bosses:(G.blog||[]).map(q=>({n:q.n,spawn:Math.round(q.t0),ttk:q.t1===null?null:+(q.t1-q.t0).toFixed(1)})),firebases:G.fbN,wallMs:Math.round(performance.now()-t0)}); mi++ }
@@ -56,32 +55,15 @@ const SUMMARY=[];
       // stall = minute with the lowest kills/lvl growth after minute 2, or lowest hp
       let stall=null; if(per.length>2){ const c=per.slice(2); stall=c.reduce((a,b)=>(b.dps<a.dps?b:a)); }
       { const G=G0(), e=G.ex; exLog={reached:e.reached,popped:e.popped,evac:e.evac,result:e.result||(m.state==='play'?'timeout':'?'),kind:e.kind,col:e.col,popAt:e.popped?Math.round(e.popAt):null,holdKills:e.holdKills,endT:Math.round(G.t),level:G.p.lvl,kills:G.kills,dropped:e.dropped,score:m.exScore(G)} }
-      const fbLog=(G0().fbLog||[]).map(l=>Object.assign({},l)); const endT=G0().t, died=m.state!=='play'&&G0().p.hp<=0;
-      for(const l of fbLog)l.endT=+(endT-l.t0).toFixed(1);
-      var fbRes={tr,fbLog,endT:Math.round(endT),died};
-      return {out,per,stall,exLog,fbRes};
-    },{MINS,MISSION,FB,LIMIT,TRACE});
+      return {out,per,stall,exLog,death:window.__death};
+    },{MINS,MISSION,LIMIT});
     console.log('=== run',run+1,'char',CHAR,'==='); for(const o of report.out)console.log(JSON.stringify(o));
     console.log('per-minute:'); for(const p of report.per)console.log(' ',JSON.stringify(p));
-    if(TRACE&&report.fbRes)console.log('trace [age,state,prog,engs,enemies,hp,structs]:',JSON.stringify(report.fbRes.tr));
-    if(report.fbRes&&report.fbRes.fbLog.length){ console.log('firebases:',JSON.stringify(report.fbRes.fbLog)); FBSUM.push(report.fbRes) }
-    if(report.exLog){ console.log('extraction:',JSON.stringify(report.exLog)); SUMMARY.push(report.exLog) }
+    if(report.death)console.log('DEATH',JSON.stringify(report.death)); if(report.exLog){ console.log('extraction:',JSON.stringify(report.exLog)); SUMMARY.push(report.exLog) }
     if(report.stall)console.log('weakest minute (lowest DPS after min 2):',JSON.stringify(report.stall));
     if(errs.length)console.log('PAGE ERRORS',errs.slice(0,5)); await pg.close();
   }
   await browser.close();
-  if(FBSUM.length){ // per call-in: survived first 90 s? survived first big wave? time to first turret / sandbag ring
-    const rows=[]; for(const r of FBSUM)for(const l of r.fbLog)rows.push(Object.assign({runEnd:l.endT,died:r.died},l));
-    const lostBy=(l,x)=>l.lostAt!==null&&l.lostAt<x;
-    const c90=rows.filter(l=>l.endT>=90||l.lostAt!==null), s90=c90.filter(l=>!lostBy(l,90));
-    const cb=rows.filter(l=>l.bigAt!==null?(l.endT>=l.bigAt+45||l.lostAt!==null):l.lostAt!==null), sb=cb.filter(l=>l.bigAt!==null&&!(l.lostAt!==null&&l.lostAt<l.bigAt+45));
-    const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1)+'s':'n/a', col=k=>rows.filter(l=>l[k]!==null).map(l=>l[k]);
-    console.log('=== FIREBASE SUMMARY ('+rows.length+' call-ins over '+FBSUM.length+' runs, char '+CHAR+') ===');
-    console.log('survived first 90 s       :',Math.round(s90.length/Math.max(1,c90.length)*100)+'% ('+s90.length+'/'+c90.length+')',' target >= 80%');
-    console.log('survived first big wave   :',Math.round(sb.length/Math.max(1,cb.length)*100)+'% ('+sb.length+'/'+cb.length+')',' target ~50%');
-    console.log('first turret built at     : avg',avg(col('turretAt')),' ('+col('turretAt').length+'/'+rows.length+' built one)   all 3 turret stage:',avg(col('turretsAt')));
-    console.log('sandbag ring complete at  : avg',avg(col('sandbagsAt')),' bunker:',avg(col('bunkerAt')),' crate delivered:',avg(col('crateAt')),' base finished:',avg(col('doneAt')));
-    console.log('first sapper / first tank : avg',avg(col('sapAt')),'/',avg(col('tankAt')),' repairs used:',rows.filter(l=>l.repairAt!==null).length) }
   if(SUMMARY.length){ const n=SUMMARY.length, c=f=>SUMMARY.filter(f).length, pc=k=>Math.round(k/n*100)+'% ('+k+'/'+n+')'; const by={}; SUMMARY.forEach(r=>by[r.result]=(by[r.result]||0)+1);
     console.log('=== EXTRACTION SUMMARY ('+n+' runs, char '+CHAR+') ===');
     console.log('reached LZ (10:00):',pc(c(r=>r.reached)),' target >= 70%');
