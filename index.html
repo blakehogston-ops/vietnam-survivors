@@ -986,7 +986,7 @@ const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;r
 
 /* ====================== audio ====================== */
 /* legacy event name -> Sound Helper pack cue [cue, opts]. Everything else keeps the original in-game synth. */
-const CUEMAP={m16:['m16'],m60:['m60',{shots:1}],thump:['m79',{burst:false}],claymore:['claymore'],mortar:['mortarThump'],rpg:['b40Launch'],boss:['bossSpawn'],level:['levelUpSwell'],pick:['uiTick'],ready:['readyTick'],chime:['boardingChime'],stage:['buildStageComplete'],medpack:['medpackPickup'],radio:['radioSquelch'],sigpop:['signalPop'],
+const CUEMAP={sf30:['ak47',{vol:.95}],m16:['m16'],m60:['m60',{shots:1}],thump:['m79',{burst:false}],claymore:['claymore'],mortar:['mortarThump'],rpg:['b40Launch'],boss:['bossSpawn'],level:['levelUpSwell'],pick:['uiTick'],ready:['readyTick'],chime:['boardingChime'],stage:['buildStageComplete'],medpack:['medpackPickup'],radio:['radioSquelch'],sigpop:['signalPop'],
   d_thud:['deathBullet',{vol:.8}],d_wet:['deathBullet'],d_snap:['deathBullet'],d_boom:['deathExplosion'],d_fire:['deathFlame'],d_crunch:['deathHeavy'],d_big:['bigKill']};
 const CUEAIR={airstrafe:['airStrafe'],airnapalm:['napalmWhoomph'],refuel:['tankerFlyover',{flightLine:true}]};
 const RIBCUE={car:'combatAction',ph:'purpleHeart',bs:'bronzeStar',ss:'silverStar',nc:'navyCross',moh:'medalOfHonor'};
@@ -1015,7 +1015,7 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
     s.connect(f); f.connect(g); g.connect(this.master); s.start(t,Math.random()*.5); s.stop(t+dur+.02); },
   blip(f){ if(!this.ctx||this.muted||this.ctx.state!=='running')return; this.tone('square',f,f*1.18,.05,.028); this.tone('square',f*1.33,f*1.33,.06,.024,.065) },
   btick(p){ const c=this.ctx; if(!c||this.muted||c.state!=='running')return; const n=performance.now(); if(n-(this._bt||0)<110)return; this._bt=n; if(this.cbus){ this.cue('buildTick',{},Math.max(0,Math.min(1,p))); return } const f=300+Math.max(0,Math.min(1,p))*900; this.tone('square',f,f*.8,.05,.07); this.noise(.04,.1,2200,1200,'bandpass'); this.tone('sine',f*.5,f*.4,.07,.06) },
-  gap:{d_thud:.02,d_wet:.02,d_boom:.04,d_fire:.04,d_snap:.03,d_crunch:.03,d_big:.2,tune:3,bugle:1,whistle:1,m16:.05,m60:.04,boom:.06,hit:.04,kill:.04,gem:.04,flame:.22,thud:.05,thump:.06,claymore:.08,jet:.5,radio:.5,rpg:.2,hurt:.1,punji:.12,mortar:.08,whistle:.06,m2:.045,vcshot:.1,hatch:.15,cannon:.12,brrt:.06,rumble:1,spray:1},
+  gap:{d_thud:.02,d_wet:.02,d_boom:.04,d_fire:.04,d_snap:.03,d_crunch:.03,d_big:.2,tune:3,bugle:1,whistle:1,m16:.05,sf30:.2,boltA:.2,boltB:.2,m60:.04,boom:.06,hit:.04,kill:.04,gem:.04,flame:.22,thud:.05,thump:.06,claymore:.08,jet:.5,radio:.5,rpg:.2,hurt:.1,punji:.12,mortar:.08,whistle:.06,m2:.045,vcshot:.1,hatch:.15,cannon:.12,brrt:.06,rumble:1,spray:1},
   /* pack cues: routed through the compressor bus (Cues.createBus -> sfx master). Budget: max 18 non-tier-1 starts per 250 ms. */
   cue(name,opts,arg){ const c=this.ctx; if(!c||!this.cbus||this.muted||c.state!=='running'||typeof Cues==='undefined')return null; const f=Cues[name]; if(!f)return null; const now=performance.now(), tier=Cues.tiers[name]||2;
     this._cq=(this._cq||[]).filter(t=>now-t<250); if(tier>1&&this._cq.length>=18)return null; this._cq.push(now); this.cueN=(this.cueN||0)+1;
@@ -1040,6 +1040,9 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
       case 'jet': this.noise(1.5,.28,300,2600,'bandpass'); this.tone('sawtooth',90,230,1.2,.07); break;
       case 'radio': this.noise(.12,.22,3000,2000,'bandpass'); this.tone('square',1200,1200,.05,.05); this.tone('square',1500,1500,.05,.05,.1); break;
       case 'flame': this.noise(.3,.14,1400,500); break;
+      case 'sf30': this.noise(.16,.5,2600,500,'bandpass'); this.tone('sine',110,40,.16,.3); this.noise(.5,.12,900,160); break;   // fallback if the pack is missing: heavy .30-06 crack
+      case 'boltA': this.tone('square',1900,1300,.03,.05); this.noise(.035,.09,4200,3000,'bandpass'); this.tone('triangle',620,430,.07,.07); break;   // bolt lifted and drawn back
+      case 'boltB': this.tone('square',1500,1050,.035,.055); this.noise(.04,.1,3600,2400,'bandpass'); this.tone('triangle',520,380,.08,.08); break;   // bolt pushed forward and locked
       case 'hit': this.tone('square',230,110,.04,.045); break;
       case 'kill': this.noise(.07,.12,2500,600,'highpass'); this.noise(.1,.16,650,140); this.tone('triangle',420,140,.07,.06); break;
       case 'gem': this.tone('sine',880+Math.random()*200,1500,.06,.07); break;
@@ -2159,6 +2162,7 @@ function updateGore(dt){
 function drawIcon(c,id,s){
   const u=s/16; const R=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(Math.round(x*u),Math.round(y*u),Math.ceil(w*u),Math.ceil(h*u))};
   switch(id){
+    case 'm1903': R(0,9,5,4,'#6b4426');R(4,8,6,2,'#6b4426');R(9,8,7,1,'#4a4b52');R(5,7,5,1,'#8a8f96');R(7,6,3,1,'#2b2b2b');R(5,10,2,3,'#3a2a18');R(15,8,1,1,'#aaa');break;
     case 'm16': R(0,8,4,4,'#2b2b2b');R(3,7,10,2,'#33343a');R(4,5,5,2,'#4a4b52');R(5,9,2,5,'#1c1c1c');R(4,9,2,3,'#2b2b2b');R(13,7,3,1,'#808080');R(13,8,2,1,'#555');break;
     case 'm60': R(0,8,4,4,'#6b4426');R(3,7,12,3,'#2e2e30');R(6,5,6,2,'#55565c');R(14,7,2,2,'#888');R(12,10,1,4,'#222');R(14,10,1,4,'#222');R(5,10,3,3,'#b79a3a');R(8,10,2,1,'#b79a3a');break;
     case 'm79': R(0,8,4,4,'#7a4a21');R(4,8,3,2,'#6b4426');R(7,6,8,4,'#4f5258');R(8,6,6,1,'#6a6e76');R(14,6,2,4,'#222');R(6,10,2,4,'#7a4a21');break;
@@ -2276,7 +2280,11 @@ const riverRow=cy=>hash2(cy*7+13,5)<.15, riverCol=cx=>hash2(11,cx*5+3)<.15, padd
 
 /* ====================== game data ====================== */
 const ITEMS={
-  m16:{kind:'w',name:'M16A1 Rifle',max:8,blurb:'Reliable rifle. Hits the nearest enemy.',
+  m1903:{kind:'w',name:'M1903 Springfield .30-06',nm:l=>l>=8?'M1903A4 Springfield (scoped)':'M1903 Springfield .30-06',max:8,req:()=>!!G&&G.char==='boone',
+    blurb:'Bolt-action .30-06, the old Marine sniper rifle. One loud round every ~1.5 s that kills ANY regular enemy outright (VC, NVA, officers, B-40 troopers) and keeps going through a line of them. Bosses and tanks only take heavy damage. Long range, visible tracer. Levels: faster bolt, more penetration, longer reach; level 8 (scoped) pierces everything in the line.',
+    stats:l=>({dmg:120+30*(l-1),cd:1.55*Math.pow(.93,l-1),pierce:l>=8?99:4+Math.floor(l/2),range:600+45*(l-1)}),
+    desc:s=>`Kills regulars outright · boss dmg ${s.dmg} · bolt ${s.cd.toFixed(2)}s · pierce ${s.pierce>=99?'all':s.pierce} · range ${s.range}`},
+  m16:{kind:'w',name:'M16A1 Rifle',max:8,req:()=>!G||G.char!=='boone',blurb:'Reliable rifle. Hits the nearest enemy.',
     stats:l=>({dmg:16+6*(l-1),cd:.55*Math.pow(.9,l-1),shots:l>=7?3:l>=4?2:1,pierce:l>=5?2:1}),
     desc:s=>`Dmg ${s.dmg} · ${(1/s.cd).toFixed(1)}/s · ${s.shots} target${s.shots>1?'s':''}${s.pierce>1?' · pierce':''}`},
   m60:{kind:'w',name:'M60 Machine Gun',max:8,blurb:'Belt-fed "Pig". Sustained 7.62 fire.',
@@ -2420,7 +2428,7 @@ function nearestK(x,y,k,maxD){const res=[],ds=[],m2=maxD*maxD;
     while(j>0&&ds[j-1]>ds[j]){let t=ds[j];ds[j]=ds[j-1];ds[j-1]=t;t=res[j];res[j]=res[j-1];res[j-1]=t;j--}}
   const B=G&&G.boss; if(B&&!B.dead&&k>=1){ const bx=B.x-x,by=B.y-y; if(bx*bx+by*by<m2){ const bi=res.indexOf(B); if(bi!==0){ if(bi>0)res.splice(bi,1); res.unshift(B); if(res.length>k)res.pop() } } }   // bosses draw everyone's fire
   return res}
-function addBullet(x,y,a,spd,dmg,pierce,life,r,col){bullets.push({x,y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,dmg,pierce,life,r,col,hit:[],a,tg:BTAG[col]||'rifle'})}
+function addBullet(x,y,a,spd,dmg,pierce,life,r,col){const o={x,y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,dmg,pierce,life,r,col,hit:[],a,tg:BTAG[col]||'rifle'}; bullets.push(o); return o}
 function hurtEnemy(e,d,kx,ky){ if(e.dead)return; if(e.armor){ d*=apHit?2.2:(d>=25?.5:.1) } if(G.char){ d*=G.cdm; if(dmgSrc===3)d*=G.flm; const cc=G.crit+(G.dead>0?.6:0); if(cc>0&&rnd()<cc){ d*=2; if(parts.length<(LOWFX?160:400))addPart(e.x,e.y-12,0,-30,.35,3,'#ffe58a',true,2) } } G.dd=(G.dd||0)+Math.min(d,Math.max(0,e.hp)); e.hp-=d; e.flash=.09; e.lt=DTAG||(dmgSrc===3?'fire':dmgSrc===2?'expl':'rifle'); e.lx=kx; e.ly=ky;
   if(e.hp>0&&drops.length<(LOWFX?110:300)&&(dmgSrc!==3||rnd()<.25)){ spawnDrops(e.x,e.y-6,kx,ky,e.boss?2:1+((rnd()*2)|0),95); if(rnd()<.05&&decals.length<DECAL_CAP)addDecal(e.x+(rnd()-.5)*10,e.y+6,SPLAT[8+((rnd()*2)|0)],22,.8) } if(!e.boss){e.kx+=kx;e.ky+=ky}else{e.kx+=kx*.1;e.ky+=ky*.1}
   if(e.hp<=0)killEnemy(e); else Snd.play('hit'); }
@@ -2501,7 +2509,7 @@ function update(dt){
   let [ix,iy]=g.demo?[Math.cos(g.t*.45),Math.sin(g.t*.45)]:(DBG.bot?(BOTF.move?BOTF.move():botVec()):inputVec());
   p.mv=ix!==0||iy!==0; const sp=150*speedMul()*(p.slow>0?.5:1); if(p.slow>0)p.slow-=dt;
   if(p.mv){p.x+=ix*sp*dt;p.y+=iy*sp*dt;p.anim+=dt*9;p.fx=ix;p.fy=iy}
-  if(p.invul>0)p.invul-=dt; if(p.hurtT>0)p.hurtT-=dt; if(g.hurt>0)g.hurt-=dt; if(g.muzzle>0)g.muzzle-=dt;
+  if(p.invul>0)p.invul-=dt; if(p.hurtT>0)p.hurtT-=dt; if(g.hurt>0)g.hurt-=dt; if(g.muzzle>0)g.muzzle-=dt; if(g.bolt>0){ const b0=g.bolt; g.bolt-=dt; if(b0>.43&&g.bolt<=.43)Snd.play('boltA'); if(b0>.2&&g.bolt<=.2)Snd.play('boltB') }
   if(regenR()>0&&p.hp<p.maxHp){p.hp=Math.min(p.maxHp,p.hp+regenR()*dt)}
   if(g.demo){p.hp=p.maxHp}
   g.shake*=Math.exp(-7*dt); if(g.banner){g.banner.t-=dt;if(g.banner.t<=0)g.banner=null}
@@ -2568,7 +2576,7 @@ function update(dt){
   for(let i=bullets.length-1;i>=0;i--){ const b=bullets[i]; b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt; let rm=b.life<=0;
     if(!rm){ const R=b.r+32,x0=Math.floor((b.x-R)/CS),x1=Math.floor((b.x+R)/CS),y0=Math.floor((b.y-R)/CS),y1=Math.floor((b.y+R)/CS);
       outer: for(let cx=x0;cx<=x1;cx++)for(let cy=y0;cy<=y1;cy++){ for(let j=head[((cx&63)<<6)|(cy&63)];j>=0;j=nextI[j]){ const e=enemies[j]; if(e.dead)continue;
-        const dx=e.x-b.x,dy=e.y-b.y,rr=e.r+b.r; if(dx*dx+dy*dy<rr*rr&&b.hit.indexOf(e)<0){ DTAG=b.tg; hurtEnemy(e,b.dmg,b.vx*.04,b.vy*.04); DTAG=''; b.hit.push(e); addPart(b.x,b.y,(rnd()-.5)*60,(rnd()-.5)*60,.2,2,'#ffe58a',true,5); if(--b.pierce<=0){rm=true;break outer} } } } }
+        const dx=e.x-b.x,dy=e.y-b.y,rr=e.r+b.r; if(dx*dx+dy*dy<rr*rr&&b.hit.indexOf(e)<0){ DTAG=b.tg; hurtEnemy(e,(b.ohk&&!e.boss&&!e.tank)?Math.max(b.dmg,e.hp+1):b.dmg,b.vx*.04,b.vy*.04); DTAG=''; b.hit.push(e); addPart(b.x,b.y,(rnd()-.5)*60,(rnd()-.5)*60,.2,2,'#ffe58a',true,5); if(--b.pierce<=0){rm=true;break outer} } } } }
     if(rm){bullets[i]=bullets[bullets.length-1];bullets.pop()} }
   // grenades
   for(let i=grenades.length-1;i>=0;i--){const q=grenades[i]; q.t+=dt; const k=Math.min(1,q.t/q.d); q.x=q.sx+(q.tx-q.sx)*k; q.y=q.sy+(q.ty-q.sy)*k; if(k>=1){explode(q.tx,q.ty,q.rad,q.dmg,200);grenades[i]=grenades[grenades.length-1];grenades.pop()}}
@@ -2664,6 +2672,9 @@ function updateWeapons(dt){
       for(let i=0;i<s.n&&knives.length<40;i++){ const a=base+(i-(s.n-1)/2)*.22; knives.push({x:p.x,y:p.y-4,vx:Math.cos(a)*430,vy:Math.sin(a)*430,rot:rnd()*TAU,life:s.range/430,dmg:s.dmg,pierce:s.pierce,hit:[]}) } Snd.play('thud'); w.cd+=s.cd; }
     else if(id==='shotgun'){ const t=nearestK(p.x,p.y,1,300)[0]; if(!t){w.cd=.05;continue} const base=Math.atan2(t.y-p.y,t.x-p.x);
       for(let i=0;i<s.pel&&bullets.length<540;i++){ const a=base+(rnd()-.5)*s.spread; addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,560+rnd()*80,s.dmg,1,.3,3,'#ffd9a0') } Snd.play('thump'); g.muzzle=.07; w.cd+=s.cd; }
+    else if(id==='m1903'){ const t=nearestK(p.x,p.y,1,s.range)[0]; if(!t){w.cd=.05;continue} const a=Math.atan2(t.y-p.y,t.x-p.x);
+      const b=addBullet(p.x+Math.cos(a)*22,p.y-3+Math.sin(a)*22,a,1150,s.dmg,s.pierce,s.range/1150+.05,2.4,'#ffe9a0'); b.ohk=1; b.tr=.075;
+      Snd.play('sf30'); g.muzzle=.11; g.bolt=.62; g.shake=Math.max(g.shake,2.2); w.cd+=s.cd; }
     else if(id==='m16'){ const ts=nearestK(p.x,p.y,s.shots,540); if(!ts.length){w.cd=.05;continue}
       for(let i=0;i<s.shots;i++){const t=ts[i%ts.length]; const a=Math.atan2(t.y-p.y,t.x-p.x)+(i>=ts.length?(rnd()-.5)*.25:0); addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,700,s.dmg,s.pierce,.85,3.2,'#fff3a0')}
       Snd.play('m16'); g.muzzle=.07; w.cd+=s.cd; }
@@ -2982,11 +2993,11 @@ const CHD={
   loadout:'M60 · M16A1',passive:'M60 fires 20% faster.',ab:{nm:'Pig Pile',cd:24,desc:'360° ring of M60 fire.'},
   base:{wr:{m60:.2}},start:{w:['m16','m60']},
   perks:[{t:'Damage +5%',m:{dmg:.05}},{t:'Pig Pile cooldown -15%',m:{ab:.15}},{t:'+20 max HP',m:{hp:20}},{t:'Damage +8%',m:{dmg:.08}},{t:'Damage taken -10%, Pig Pile -15%',m:{arm:.1,ab:.15}}]},
- boone:{rank:'PFC',nm:'Josh Johnson',nick:'Country',home:'Possum Trot, KY',mos:'Rifleman / Marksman',age:19,sn:'C-3319048',
+ boone:{rank:'PFC',nm:'Josh Johnson',nick:'Country',home:'Buffalo Gap, VA',mos:'Rifleman / Marksman',age:19,sn:'C-3319048',
   bio:["Never missed a squirrel in his life, and is ashamed to say how many that was. Shoots like he's got a personal grudge, talks like he's got all day.","Writes his mama weekly that it's \"pretty quiet over here.\""],
   known:"One shot, one \"well, that's that.\"",quote:"Y'all hold still, I'm fixin' to be right about this.",
-  loadout:'M16A1',passive:'15% chance for double-damage crits.',ab:{nm:'Dead-Eye',cd:30,desc:'6s: enemies slowed, crit chance +60%.'},
-  base:{crit:.15},start:{w:['m16']},
+  loadout:'M1903 .30-06 bolt-action',passive:'Every .30-06 round kills any regular outright and punches through a line of them (slow bolt cycle). 15% chance for double-damage crits.',ab:{nm:'Dead-Eye',cd:30,desc:'6s: enemies slowed, crit chance +60%.'},
+  base:{crit:.15},start:{w:['m1903'],drop:['m16']},
   perks:[{t:'Crit chance +5%',m:{crit:.05}},{t:'Dead-Eye cooldown -15%',m:{ab:.15}},{t:'Move speed +6%',m:{spd:.06}},{t:'Crit chance +6%',m:{crit:.06}},{t:'Damage +10%, Dead-Eye -15%',m:{dmg:.1,ab:.15}}]},
  skipper:{rank:'2ndLt',nm:'Patrick O\'Malley',nick:'Skipper',home:'Quincy, MA',mos:'Platoon Commander',age:23,sn:'O-0985521',
   bio:["Fresh out of Quantico with a spotless uniform and a map he trusts completely. The squad's real navigation is done by Sgt. Kowalski's gut.","Beloved by his men for one reason: he listens to the radioman."],
@@ -3870,7 +3881,7 @@ function drawHannah(U){ const g=G,h=g.han; if(!h)return; ctx.setTransform(1,0,0,
    Pop a signal (G / button) -> one-tap colour confirm -> Huey ETA 30 s (hot-LZ radio flavour on final) -> 45 s on the ground (~75 s hold).
    Stand within 60 px for 2 s to board = win. Dead, or the Huey lifts off empty = fail. All clocks are game-time (frozen by pause/level-up, never tied to the player). */
 const EXQ=new URLSearchParams(location.search).get('diff');
-const EX={LZ_T:600,FALL_T:540,INBOUND:30,GROUND:EXQ==='easy'?30:EXQ==='hard'?60:45,BOARD_R:60,BOARD_T:2,BOARD_DECAY:1.5,SPAWN_MUL:1.25,MAX_SIG:3,EXTRA_GAP:90,HOT_AT:8,HOT_LEN:3.6,LIFT:2.2,WAVE3:6,WAVE4:4,N3:16,N4:26,TOUCH_N:38};
+const EX={LZ_T:600,FALL_T:540,INBOUND:30,GROUND:EXQ==='easy'?30:EXQ==='hard'?60:45,BOARD_R:60,BOARD_T:2,BOARD_DECAY:1.5,SPAWN_MUL:1.25,MAX_SIG:3,EXTRA_GAP:90,HOT_AT:8,HOT_LEN:3.6,LIFT:2.2,WAVE3:6,WAVE4:4,N3:16,N4:26,TOUCH_N:38,COY_PER:.04,COY_MAX:1};   /* LZ hold waves grow +4% per living Company Marine (max +100%) so a 20-man company doesn't trivialise extraction */
 const SIGC={red:'#e8322a',yellow:'#f5d62a',green:'#36c44a',violet:'#a455e0',white:'#e8f4ff'};
 const SIGN=['red','yellow','green','violet'], SIGKINDS=['smoke','flare','mirror','strobe'];
 const sigLabel=it=>it.kind==='mirror'?'SIGNAL MIRROR':(it.col.toUpperCase()+' '+({smoke:'SMOKE',flare:'FLARE',strobe:'STROBE'}[it.kind]));
@@ -3935,7 +3946,7 @@ function updateExtraction(dt){ const g=G,p=g.p,ex=g.ex; if(g.demo||!ex||state===
   g.exHold=ex.ph===3||ex.ph===4;
   const hu=ex.huey;
   if(ex.ph===3||ex.ph===4){ ex.waveT=(ex.waveT===undefined?EX.WAVE3:ex.waveT)-dt;   // the whole hold is a siege: rings of infantry converge on the LZ
-    if(ex.waveT<=0){ ex.waveT=ex.ph===4?EX.WAVE4:EX.WAVE3; const lz=ex.lz, cap=enemyCap(g), n=Math.min(Math.max(0,cap-enemies.length),Math.round((ex.ph===4?EX.N4:EX.N3)+g.t/45)), R=Math.hypot(VW,VH)/2+120, a0=rnd()*TAU;
+    if(ex.waveT<=0){ ex.waveT=ex.ph===4?EX.WAVE4:EX.WAVE3; const lz=ex.lz, cap=enemyCap(g), n=Math.min(Math.max(0,cap-enemies.length),Math.round(((ex.ph===4?EX.N4:EX.N3)+g.t/45)*(1+Math.min(EX.COY_MAX,EX.COY_PER*coyAlive())))), R=Math.hypot(VW,VH)/2+120, a0=rnd()*TAU;
       for(let i=0;i<n;i++){ const a=a0+(rnd()-.5)*(i&1?TAU:2.2), r=rnd(); spawnEnemy(r<.15&&g.t>100?'officer':r<.5?'nva':'vc',lz.x+Math.cos(a)*(R+rnd()*80),lz.y+Math.sin(a)*(R+rnd()*80),true) } }
     ex.holdKills=g.kills-ex.k0;
     ex.pulseT-=dt; if(ex.pulseT<=0){ Snd.play('pulse'); ex.pulseT=ex.ph===4?(.55+.6*Math.max(0,1-ex.t/EX.GROUND)):1.1 } }
@@ -4063,7 +4074,7 @@ function hudSig(){ const b=$('sigBtn'), g=G, ex=g&&g.ex; const show=!!(g&&ex&&!g
   if(key!==sigLast){ sigLast=key; $('sigDot').style.background=SIGC[it.col]; $('sigNm').textContent=(ex.ph>=1?'POP ':'')+sigLabel(it)+(g.sig.length>1?' ×'+g.sig.length:''); b.classList.toggle('rdy',ex.ph>=1) } }
 
 /* ====================== WEAPON-SPECIFIC DEATHS (last damage source decides the effect) ====================== */
-const BTAG={'#fff0a0':'m50','#ffe58a':'m50','#ffc860':'mg','#ffd46a':'tracer','#ffd9a0':'shot'};
+const BTAG={'#ffe9a0':'m50','#fff0a0':'m50','#ffe58a':'m50','#ffc860':'mg','#ffd46a':'tracer','#ffd9a0':'shot'};
 const dying=[], HEAVY=[], wilt=new Map(), craterRec=[], SCORCH=[], CRATER=[], BARE=[], CV={}; let flashes=[], deathSndT=[], FIREBALL=null, SLASHC=null, KNIFEC=null, TRACKH=null, TRACKV=null;
 function buildDeathArt(){
   for(let v=0;v<3;v++){ const R=26+v*7, c=mk(R*2+8,R*2+8), x=c.getContext('2d'), cx=R+4;
@@ -4335,7 +4346,7 @@ function render(){
     const a=Math.atan2(q.ty-q.sy,q.tx-q.sx), z=Math.sin(Math.PI*k)*30; ctx.save(); ctx.translate(q.x,q.y-z); ctx.rotate(a); ctx.fillStyle='#4d5a3a'; ctx.fillRect(-8,-2.5,12,5); ctx.fillStyle='#c0392b'; ctx.fillRect(4,-2.5,5,5); ctx.fillStyle='#ffd54a'; ctx.fillRect(-12,-1.5,4,3); ctx.restore() }
   // bullets
   for(const k of knives){ ctx.save(); ctx.translate(k.x,k.y); ctx.rotate(k.rot); ctx.fillStyle='#d6dade'; ctx.beginPath(); ctx.moveTo(-8,-2.4); ctx.lineTo(7,-1.6); ctx.lineTo(12,1); ctx.lineTo(-8,2.6); ctx.fill(); ctx.fillStyle='#6b4426'; ctx.fillRect(-15,-2,7,4); ctx.restore() }
-  for(const b of bullets){ ctx.strokeStyle=b.col; ctx.lineWidth=b.r; ctx.lineCap='round'; ctx.globalAlpha=.9; ctx.beginPath(); ctx.moveTo(b.x,b.y); ctx.lineTo(b.x-b.vx*.028,b.y-b.vy*.028); ctx.stroke(); ctx.globalAlpha=1; ctx.fillStyle='#fff'; ctx.fillRect(b.x-1.5,b.y-1.5,3,3) }
+  for(const b of bullets){ ctx.strokeStyle=b.col; ctx.lineWidth=b.r; ctx.lineCap='round'; ctx.globalAlpha=.9; ctx.beginPath(); ctx.moveTo(b.x,b.y); ctx.lineTo(b.x-b.vx*(b.tr||.028),b.y-b.vy*(b.tr||.028)); ctx.stroke(); ctx.globalAlpha=1; ctx.fillStyle='#fff'; ctx.fillRect(b.x-1.5,b.y-1.5,3,3) }
   // rockets
   for(const q of rockets){ ctx.save(); ctx.translate(q.x,q.y); ctx.rotate(q.a); ctx.fillStyle='#6b6f66'; ctx.fillRect(-8,-2.5,14,5); ctx.fillStyle='#c0392b'; ctx.fillRect(6,-2.5,4,5); ctx.fillStyle='#ffd54a'; ctx.fillRect(-11,-1.5,4,3); ctx.restore() }
   // VC tracers (cosmetic only) + mortar rounds in flight + mortar tube
@@ -4350,7 +4361,9 @@ function render(){
     ctx.fillStyle='rgba(255,240,170,.2)'; ctx.beginPath(); ctx.ellipse(p.x,p.y+14,19,7,0,0,TAU); ctx.fill();
     if(!(p.invul>0&&Math.floor(tt*20)%2===0&&p.hurtT<=0)){
       const bob=p.mv&&fr?-1:0, a=g.aim, gx=Math.cos(a), gy=Math.sin(a);
-      const drawGun=()=>{ ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(p.x+gx*2,p.y+2+gy*2); ctx.lineTo(p.x+gx*19,p.y+2+gy*19); ctx.stroke(); ctx.strokeStyle='#3a3b41'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(p.x+gx*8,p.y+2+gy*8); ctx.lineTo(p.x+gx*19,p.y+2+gy*19); ctx.stroke(); ctx.strokeStyle='#26262a'; ctx.beginPath(); ctx.moveTo(p.x+gx*1,p.y+2+gy*1); ctx.lineTo(p.x+gx*9,p.y+2+gy*9); ctx.stroke(); };
+      const bolt=g.char==='boone'; const bu=bolt&&g.bolt>0?1-g.bolt/.62:1, back=bolt&&bu<1?Math.sin(Math.PI*Math.min(1,bu*1.15))*5:0;
+      const drawGun=bolt?()=>{ const L=30-back; ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=4.6; ctx.beginPath(); ctx.moveTo(p.x+gx*0,p.y+2+gy*0); ctx.lineTo(p.x+gx*L,p.y+2+gy*L); ctx.stroke(); ctx.strokeStyle='#6b4426'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(p.x+gx*1,p.y+2+gy*1); ctx.lineTo(p.x+gx*(L*.55),p.y+2+gy*(L*.55)); ctx.stroke(); ctx.strokeStyle='#4a4b52'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p.x+gx*(L*.5),p.y+2+gy*(L*.5)); ctx.lineTo(p.x+gx*L,p.y+2+gy*L); ctx.stroke();
+          if(bu>.12&&bu<.7){ const bx=p.x+gx*13-gy*3*(bu<.4?1:0), by=p.y+2+gy*13+gx*3*(bu<.4?1:0); ctx.fillStyle='#d8dde2'; ctx.fillRect(Math.round(bx)-1.5,Math.round(by)-1.5,3,3) } }:()=>{ ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(p.x+gx*2,p.y+2+gy*2); ctx.lineTo(p.x+gx*19,p.y+2+gy*19); ctx.stroke(); ctx.strokeStyle='#3a3b41'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(p.x+gx*8,p.y+2+gy*8); ctx.lineTo(p.x+gx*19,p.y+2+gy*19); ctx.stroke(); ctx.strokeStyle='#26262a'; ctx.beginPath(); ctx.moveTo(p.x+gx*1,p.y+2+gy*1); ctx.lineTo(p.x+gx*9,p.y+2+gy*9); ctx.stroke(); };
       const behind=gy<-.3; if(behind)drawGun();
       ctx.drawImage(spr,Math.round(p.x-spr.width/2),Math.round(p.y-spr.height*.56+bob));
       if(!behind)drawGun();
