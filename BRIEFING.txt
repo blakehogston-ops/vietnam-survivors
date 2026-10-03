@@ -4,10 +4,10 @@ commanders but NOT any real person). Voice: deep, gruff, slow (SpeechSynthesis, 
 Pins shown on the map: Hanoi, Khe Sanh, Quang Tri, Hue, Da Nang, Ia Drang (valley), Saigon. DMZ drawn as a red line.
 
 1. At ease, Marine. I'm Colonel Mercer. Take a good look at that map.
-2. Up here in I Corps we hold the northernmost provinces of South Vietnam. Khe Sanh. Quang Tri. Hue. Da Nang. Every hill, every road, every bridge matters.
+2. Up here in First Corps we hold the northernmost provinces of South Vietnam. Khe Sanh. Quang Tri. Hue. Da Nang. Every hill, every road, every bridge matters.
 3. Charlie knows this ground, and the North Vietnamese regulars come down the trail in strength. You'll face tunnels, punji pits, ambushes, mortars... and worse.
 4. Our mission is simple to say and hard to do: hold the line, look after the man beside you, and give the people of this country a chance to live free.
-5. It's hot, it's wet, and it's miserable out there. And I have never been prouder to serve alongside anyone than United States Marines.
+5. It's hot, it's wet, and it's miserable out there. And I have never been prouder to serve alongside anyone than the United States Marines.
 6. You're a credit to the Corps, Marine. Your Corps and your country are counting on you.
 7. You'll have a fire team on your flank, air and artillery on the radio, and a Huey waiting to take you in. Use all of it. Keep your head down and your eyes open.
 8. Good luck, Marine. Make every round count. Semper Fi.
@@ -15,3 +15,5 @@ Pins shown on the map: Hanoi, Khe Sanh, Quang Tri, Hue, Da Nang, Ia Drang (valle
 Notes for the reviewer: slang used = "Charlie", "I Corps", "fire team", "Huey", "Semper Fi". Rank = full colonel (O-6), silver eagles on collar.
 Question marks: Ia Drang (1965) was an Army / Central Highlands battle, shown only as a valley pin for flavor; pin dialogue
 focuses on I Corps (Khe Sanh, Quang Tri, Hue, Da Nang).
+
+RECORDED VOICE (v3): lines are voiced by Blake's own recording (audio/brief_01..08.mp3). Subtitles match the recording: line 2 is spoken "First Corps", line 5 includes "than the United States Marines". Browser speech is only a fallback if a clip fails to load.

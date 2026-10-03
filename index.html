@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<link rel="icon" href="data:,">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1960,10 +1961,10 @@ const VNP=[[62,6],[60,14],[54,20],[55,27],[58,34],[60,42],[58,50],[62,58],[64,66
 const BPINS=[{nm:'HANOI',x:42,y:9},{nm:'KHE SANH',x:44,y:30},{nm:'QUANG TRI',x:54,y:30},{nm:'HUE',x:56,y:35},{nm:'DA NANG',x:58,y:41},{nm:'IA DRANG',x:46,y:64},{nm:'SAIGON',x:50,y:90}];
 const BRIEF_LINES=[
  {t:"At ease, Marine. I'm Colonel Mercer. Take a good look at that map.",pin:-1},
- {t:"Up here in I Corps we hold the northernmost provinces of South Vietnam. Khe Sanh. Quang Tri. Hue. Da Nang. Every hill, every road, every bridge matters.",pin:[1,2,3,4]},
+ {t:"Up here in First Corps we hold the northernmost provinces of South Vietnam. Khe Sanh. Quang Tri. Hue. Da Nang. Every hill, every road, every bridge matters.",pin:[1,2,3,4]},
  {t:"Charlie knows this ground, and the North Vietnamese regulars come down the trail in strength. You'll face tunnels, punji pits, ambushes, mortars... and worse.",pin:[5,1]},
  {t:"Our mission is simple to say and hard to do: hold the line, look after the man beside you, and give the people of this country a chance to live free.",pin:[4]},
- {t:"It's hot, it's wet, and it's miserable out there. And I have never been prouder to serve alongside anyone than United States Marines.",pin:-1},
+ {t:"It's hot, it's wet, and it's miserable out there. And I have never been prouder to serve alongside anyone than the United States Marines.",pin:-1},
  {t:"You're a credit to the Corps, Marine. Your Corps and your country are counting on you.",pin:-1},
  {t:"You'll have a fire team on your flank, air and artillery on the radio, and a Huey waiting to take you in. Use all of it. Keep your head down and your eyes open.",pin:[4,2]},
  {t:"Good luck, Marine. Make every round count. Semper Fi.",pin:-1}];
@@ -2003,20 +2004,48 @@ function pickVoice(){ const vs=(window.speechSynthesis&&speechSynthesis.getVoice
   const male=v=>/david|mark|alex|daniel|fred|james|george|tom\b|guy|ryan|male|google uk english male|microsoft (david|mark|guy)/i.test(v.name)&&!/female|zira|samantha|susan|hazel|aria|jenny|victoria|karen|moira|tessa/i.test(v.name);
   BVOICE=us.find(male)||en.find(male)||us[0]||en[0]||null }
 if(window.speechSynthesis){ try{ speechSynthesis.addEventListener('voiceschanged',pickVoice); pickVoice() }catch(e){} }
-function briefSpeak(text){ BriefSnd.blip(); BR.ended=false; BR.bidx=0; BR.voice=false; if(Snd.muted||!window.speechSynthesis||!BVOICE){ return }
+/* Recorded Colonel voice (audio/brief_01..08.mp3, Blake's recording). Browser speech synthesis is only the FALLBACK if a clip fails to load/decode. */
+const BVOX={n:8,raw:[],dec:[],src:null,gain:null,tok:0,t0:0,dur:0,log:[],
+  url(i){ return 'audio/brief_0'+(i+1)+'.mp3' },
+  bytes(i){ if(this.raw[i])return this.raw[i];
+    const b=window.BRIEF_AUDIO_B64&&window.BRIEF_AUDIO_B64[i];   /* Steam/Electron (file://) build embeds the clips; the web build fetches the files */
+    this.raw[i]=b?new Promise(res=>{ const bin=atob(b), u=new Uint8Array(bin.length); for(let k=0;k<bin.length;k++)u[k]=bin.charCodeAt(k); res(u.buffer) })
+      :fetch(this.url(i)).then(r=>{ if(!r.ok)throw new Error('http '+r.status); return r.arrayBuffer() });
+    this.raw[i].catch(()=>{}); return this.raw[i] },
+  prefetch(){ for(let i=0;i<this.n;i++)this.bytes(i) },
+  buffer(i){ if(this.dec[i])return this.dec[i]; const c=Snd.ctx; if(!c)return Promise.reject(new Error('no audio context'));
+    this.dec[i]=this.bytes(i).then(ab=>new Promise((res,rej)=>{ const p=c.decodeAudioData(ab,res,rej); if(p&&p.catch)p.catch(rej) })); this.dec[i].catch(()=>{}); return this.dec[i] },
+  el(){ return this.src&&Snd.ctx?Math.max(0,Snd.ctx.currentTime-this.t0):0 },
+  stop(){ this.tok++; const s=this.src, g=this.gain; this.src=null; this.gain=null; if(!s)return; const c=Snd.ctx;
+    try{ s.onended=null; if(c){ const now=c.currentTime; g.gain.cancelScheduledValues(now); g.gain.setValueAtTime(g.gain.value,now); g.gain.linearRampToValueAtTime(0,now+.04); s.stop(now+.06) } else s.stop() }catch(e){}
+    setTimeout(()=>{ try{s.disconnect()}catch(e){} try{g&&g.disconnect()}catch(e){} },150) },
+  play(i,onStart,onEnd,onFail){ this.stop(); const tok=this.tok, timeout=new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),5000));
+    Promise.race([this.buffer(i),timeout]).then(buf=>{ if(tok!==this.tok||!BR)return; const c=Snd.ctx;
+      const s=c.createBufferSource(); s.buffer=buf; const g=c.createGain(); g.gain.value=1.5; s.connect(g); g.connect(Snd.master);
+      s.onended=()=>{ if(this.src===s){ this.src=null; try{g.disconnect()}catch(e){} onEnd() } };
+      this.src=s; this.gain=g; this.dur=buf.duration; this.t0=c.currentTime; s.start(); this.log.push({line:i+1,src:'clip'}); onStart() })
+    .catch(err=>{ if(tok!==this.tok||!BR)return; this.log.push({line:i+1,src:'fallback',err:String(err&&err.message||err)}); onFail() }) } };
+function briefSpeakTTS(text){ BR.vox=false; BR.ended=false; BR.bidx=0; BR.voice=false; if(Snd.muted||!window.speechSynthesis||!BVOICE){ return }
   try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.voice=BVOICE; u.lang=BVOICE.lang||'en-US'; u.pitch=0.05; u.rate=0.85; u.volume=Math.max(.15,Math.min(1,Snd.vol.sfx));
     u.onboundary=e=>{ BR.bidx=Math.max(BR.bidx,(e.charIndex||0)+(e.charLength||4)) }; u.onend=u.onerror=()=>{ BR.ended=true }; BR.voice=true; BR.utt=u; speechSynthesis.speak(u) }catch(e){ BR.voice=false } }
+function briefSpeak(i){ const text=BRIEF_LINES[i].t; BriefSnd.blip(); BR.ended=false; BR.bidx=0; BR.voice=false; BR.vox=false; BR.vwait=0; BVOX.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}
+  if(Snd.muted){ BVOX.log.push({line:i+1,src:'muted'}); return }
+  if(!Snd.ctx){ BVOX.log.push({line:i+1,src:'tts-noctx'}); briefSpeakTTS(text); return }
+  const my=BR; BR.voice=true; BR.vox=true;   /* text reveal is paced by the clip; falls back to speech if it can't load */
+  BVOX.play(i,()=>{},()=>{ if(BR===my&&BR.page===i)BR.ended=true },()=>{ if(BR===my&&BR.page===i)briefSpeakTTS(text) }) }
 function startBrief(){ BR={ph:0,page:0,t:0,typed:0,wait:0,ended:true,voice:false,bidx:0,px:0,py:0,pi:0,blip:0};
-  state='brief'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} }
-function endBrief(){ BriefSnd.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{sessionStorage.setItem('vs_briefed','1')}catch(e){} BR=null; state='menu'; $('menu').classList.add('show'); $('topbtns').style.display='none'; last=performance.now() }
-function briefBegin(){ BR.ph=1; BR.page=0; BR.t=0; BR.typed=0; BR.wait=0; Snd.init(); Snd.resume(); setTimeout(()=>{ if(BR)BriefSnd.start() },120); briefSpeak(BRIEF_LINES[0].t) }
+  state='brief'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{BVOX.prefetch()}catch(e){} }
+function endBrief(){ BVOX.stop(); BriefSnd.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{sessionStorage.setItem('vs_briefed','1')}catch(e){} BR=null; state='menu'; $('menu').classList.add('show'); $('topbtns').style.display='none'; last=performance.now() }
+function briefBegin(){ BR.ph=1; BR.page=0; BR.t=0; BR.typed=0; BR.wait=0; Snd.init(); Snd.resume(); setTimeout(()=>{ if(BR)BriefSnd.start() },120); briefSpeak(0) }
 function briefNext(){ if(!BR)return; if(BR.ph===0){ briefBegin(); return }
   const L=BRIEF_LINES[BR.page]; if(BR.typed<L.t.length){ BR.typed=L.t.length; return }
-  try{speechSynthesis.cancel()}catch(e){}
+  BVOX.stop(); try{speechSynthesis.cancel()}catch(e){}
   if(BR.page>=BRIEF_LINES.length-1){ endBrief(); return }
-  BR.page++; BR.t=0; BR.typed=0; BR.wait=0; briefSpeak(BRIEF_LINES[BR.page].t) }
+  BR.page++; BR.t=0; BR.typed=0; BR.wait=0; briefSpeak(BR.page) }
 function updateBrief(dt){ const B=BR; if(!B)return; B.t+=dt; if(B.ph===0)return; BriefSnd.tick(dt);
   const L=BRIEF_LINES[B.page], n=L.t.length; const prev=Math.floor(B.typed);
+  if(B.vox){ if(BVOX.src)B.bidx=Math.ceil(n*Math.min(1,BVOX.el()/Math.max(.5,BVOX.dur-.3)));   /* pace the text to the recording */
+    if(!B.ended&&Snd.ctx&&Snd.ctx.state!=='running'){ B.vwait=(B.vwait||0)+dt; if(B.vwait>3){ BVOX.stop(); BVOX.log.push({line:B.page+1,src:'fallback',err:'audio not running'}); B.vox=false; B.voice=false; B.ended=true } } }
   if(B.typed<n){ let cap=n; if(B.voice&&!B.ended&&B.bidx>0)cap=Math.min(n,B.bidx+14); const sp=B.voice?15:26; if(B.voice&&B.ended)B.typed=n; else B.typed=Math.min(cap,B.typed+dt*sp);
     if(!B.voice&&!Snd.muted&&Math.floor(B.typed)>prev&&(Math.floor(B.typed)&1)===0&&L.t[Math.floor(B.typed)]!==' ')Snd.blip(150+((Math.random()*5)|0)*18) }
   else { B.wait+=dt; if(B.wait>1.5&&(!B.voice||B.ended))briefNext() }
@@ -2971,7 +3000,7 @@ if(DBG.nodemo){ G=null; newGame(false); } else newGame(true);
 showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 { let bd=false; try{bd=sessionStorage.getItem('vs_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
-window.__ms={cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
 

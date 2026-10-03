@@ -1,0 +1,6 @@
+# raw/unprocessed recordings stay out of git (only the compressed audio/*.mp3 ships)
+*.wav
+*.aup4
+voice/
+ref/
+tools/node_modules/
