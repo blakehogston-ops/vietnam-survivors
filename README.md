@@ -14,3 +14,4 @@ A stylized browser arcade survival game (Vampire Survivors-style) set in Vietnam
 - VC fire cosmetic tracers and muzzle flashes at the player (no damage).
 - Spider-hole tunnel hatches pop open with dust and VC emerge from them.
 - More VC phrases in pixel-font speech bubbles ("Diddy mao!", "Long live Ho Chi Minh!", ...).
+- More support weapons (8 levels each): strafing runs (A-1H Skyraider, A-4E Skyhawk, F-4B Phantom II with cannon and Zuni rockets), armor support (M48A3 Patton, M67 "Zippo" flame tank from level 3, M551 Sheridan from level 6), B-52D Arc Light bomb strip (Agent Orange defoliant clouds from level 5), and UC-123 Ranch Hand spray runs (poison/slow clouds).
