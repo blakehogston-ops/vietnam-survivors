@@ -344,6 +344,418 @@ const TOP_OFF=["................","....CCCCCC......","...CCCYYCCC.....","...cccc
 const TOP_RPGT=[".......CC.....OO","......CCCC...TTO.",".....CCCCCC.TT...","...CCCCCCCCCT....","..cccccccccc.....","....SSSSSSSS....","....SESSSSES....","...UUUUUUUUUU...","..UUUUUUUUUUUU..","..SuUUBBBBUUuS..","...UUUUUUUUUU..."];
 const TOP_SAP=["................","....cccccccc....","....cccccccc....","....RRRRRRRR....","....SSSSSSSS....","....SESSSSES....","...UUUUUUUUUU.T.","..UUUUUUUUUUUTT.","..SuUUBBBBUUuSTT","...UUUUUUUUUU...","...UUUUUUUUUU..."];
 const TOP_RPG=["..............OO",".....CCCC...TTO.","....CCRCCC.TT...","...cccccccTT....","....SSSSSST.....","....SESSES......","...UUUUUUUU.....","..UUUUUUUUUU....","..SuUUUUUUUS....","..uUUBBBBUUu....","...UUUUUUUU....."];
+/* ====================== art drop-ins ======================
+   Artist Helper batch 1 (assets/artist/sprites_batch1.js, ribbons.js) is inlined here. Later pieces plug into ART below:
+   set a value and the game uses it instead of the built-in placeholder (no other code changes needed):
+     ART.portraits[charId] = canvas | 16x16-grid {top,pal}   character-select portrait (default: the character sprite on a jungle card)
+     ART.wallTiles = {sandbag:canvas, wire:canvas}              firebase wall tiles (default: the drawn sandbag / wire)
+     ART.decals = {...}                                         extra corpse/crater decals (default: procedural)
+     ART.cdRing = function(ctx,cx,cy,r,frac)                    air-call cooldown ring (default: the existing ring)
+*/
+const ART={portraits:{},wallTiles:null,decals:null,cdRing:null};
+/* --- Artist Helper batch 1: sprite grids --- */
+
+/* (a) MSgt. Hogston, USAF tanker maintenance. Patrol cap w/ OMS patch (Q/K pixels), round face, open collar over white
+ *     undershirt (W), E-7 chevrons on both sleeves (V), pens in left pocket (L), headset round the neck (G), holstered sidearm (K grip/O holster). */
+const TOP_HOGSTON = [
+  "................",
+  "....CCCCCCCC....",
+  "...CCCQKKQCCC...",
+  "...cccccccccc...",
+  "...SSSSSSSSSS...",
+  "...SSESSSSESS...",
+  "...UUgWWWWgUU...",
+  "..VVUGWWWWGLVV..",
+  "..SVuGUuUUGUVS..",
+  "..SuUUBBBBUKuS..",
+  "...UUUUUUUUOU..."
+];
+const PAL_HOGSTON = {C:'#74804a',c:'#566133',Q:'#d9d3a8',K:'#1a1a16',S:'#e2b98f',E:'#24180d',U:'#6a7a42',u:'#4f5d2e',
+  W:'#f4f2ea',G:'#2c2f33',g:'#555a60',V:'#a9bfdc',L:'#cfd3d8',B:'#3f301c',O:'#4a3320',P:'#66753f'};
+
+/* (b) Navy corpsman ("Doc"): camo helmet with red cross, white-khaki medical bag with red cross on the hip, tan strap. */
+const TOP_CORPSMAN = [
+  ".....CCCCCC.....",
+  "....CCCRRCCC....",
+  "....CcRRRRcC....",
+  "....cccRRccc....",
+  "....SSSSSSSS....",
+  "....SESSSSES....",
+  "...UTUUUUUUUU...",
+  "..UUuTUUUUUuUU..",
+  "..SUUuTUUUMMRMM.",
+  "..SuUUBTBBMRRRM.",
+  "...UUUUUUUMMRMM."
+];
+const PAL_CORPSMAN = {C:'#6e8b4a',c:'#4a6233',R:'#d62020',S:'#e2b98f',E:'#24180d',U:'#58733a',u:'#3f5528',T:'#b59a62',
+  B:'#4a3a22',M:'#ece6c8',P:'#5f7a3c'};
+
+/* (c) Marine rifleman skin-tone variants — same rig as TOP_MARINE (camo M1 helmet, flak jacket, rifle drawn by the game).
+ *     Differences are more than recolors: sideburn/hair pixels (H), helmet-cover markings, and small personal items. */
+// Washington (Black Marine): dark skin, short hair at the sideburns, white peace-mark dot on helmet cover, cigarette.
+const TOP_MARINE_WASHINGTON = [
+  ".....CCCCCC.....",
+  "....CCCCCCCC....",
+  "....CcCCWCcC....",
+  "....cccccccc....",
+  "....HSSSSSSH....",
+  "....SESSSSESW...",
+  "...UUUUUUUUUU...",
+  "..UUuUUUUUUuUU..",
+  "..SUUuUUUUuUUS..",
+  "..SuUUBBBBUUuS..",
+  "...UUUUUUUUUU..."
+];
+const PAL_MARINE_WASHINGTON = {C:'#6e8b4a',c:'#4a6233',S:'#7a4b2d',H:'#1b130e',E:'#120c08',W:'#f2efe4',U:'#58733a',u:'#3f5528',B:'#4a3a22',P:'#5f7a3c'};
+// Medium-brown skin (Hispanic / Native American / Pacific roster slot — pick a name later): black hair, rolled sleeves, gold crucifix (Y) at throat.
+const TOP_MARINE_MEDIUM = [
+  ".....CCCCCC.....",
+  "....CCCCCCCC....",
+  "....CcCCCCcC....",
+  "....ccccYccc....",
+  "....HSSSSSSH....",
+  "....SESSSSES....",
+  "...UUUUYYUUUU...",
+  "..SUuUUUUUUuUS..",
+  "..SUUuUUUUuUUS..",
+  "..SuUUBBBBUUuS..",
+  "...UUUUUUUUUU..."
+];
+const PAL_MARINE_MEDIUM = {C:'#6e8b4a',c:'#4a6233',S:'#b4774a',H:'#14100c',E:'#150e08',Y:'#e0c040',U:'#58733a',u:'#3f5528',B:'#4a3a22',P:'#5f7a3c'};
+// Fair, freckled redhead: red sideburns, freckles (F), helmet-band cigarette pack (W).
+const TOP_MARINE_FAIR = [
+  ".....CCCCCC.....",
+  "....CCCCCCCC....",
+  "....CcCCCCcC....",
+  "....ccWWcccc....",
+  "....RSSSSSSR....",
+  "....FESSSSEF....",
+  "...UUUUUUUUUU...",
+  "..UUuUUUUUUuUU..",
+  "..SUUuUUUUuUUS..",
+  "..SuUUBBBBUUuS..",
+  "...UUUUUUUUUU..."
+];
+const PAL_MARINE_FAIR = {C:'#6e8b4a',c:'#4a6233',S:'#f2d2b0',R:'#b5481f',F:'#cf8f6a',E:'#24180d',W:'#f2efe4',U:'#58733a',u:'#3f5528',B:'#4a3a22',P:'#5f7a3c'};
+
+/* (d) NVA regular: tan pith helmet with red star (R, gold border Y), khaki-green uniform, canvas chest rig (T), red collar tabs,
+ *     AK-style rifle in col 13 (K barrel / W stock) — uses the game's LEGS (with the rifle stock column), like TOP_NVA. */
+const TOP_NVA_REGULAR = [
+  ".....CCCCCC..K..",
+  "....CCCYRYCC.K..",
+  "...CCCRRRRCCCK..",
+  "..cccccccccc.W..",
+  "....SSSSSSSS.W..",
+  "....SESSSSES.W..",
+  "...UUURUURUUUW..",
+  "..UUUTUUUUTUUW..",
+  "..SuUTUUUUTUSSW.",
+  "..uUTBBBBBTUu.W.",
+  "...UUUUUUUU..W.."
+];
+const PAL_NVA_REGULAR = {C:'#a9ab6e',c:'#7d7a46',Y:'#e8c84a',R:'#d8271e',S:'#e2b98f',E:'#24180d',U:'#8f9358',u:'#6f7442',
+  T:'#b9b87c',B:'#4b3a22',K:'#c9ced4',W:'#6b4426',P:'#7f8450'};
+
+/* (e) B-40 (RPG-2) Rocket Trooper: distinct silhouette = rocket tube on the shoulder angled up-and-out with a big bright
+ *     orange/red warhead, olive bush hat with wide brim, bright orange scarf (A), black pajamas. Highest-contrast enemy sprite. */
+const TOP_B40 = [
+  "..............YA",
+  ".....CCCCCC..YRA",
+  "..cccCCCCCCccRRA",
+  "..ccccccccccOO..",
+  "....SSSSSSSOO...",
+  "....SESSSSOES...",
+  "...UUAAAAOUUU...",
+  "..UUuAAAOUUuUU..",
+  "..SUUuUOUUUuUS..",
+  "..SuUUBBBBUUuS..",
+  "...UUUUUUUUUU..."
+];
+const PAL_B40 = {C:'#6f7a3e',c:'#4d5629',Y:'#ffe14a',A:'#ff7a00',R:'#e0261b',S:'#dbb287',E:'#24180d',U:'#2e2e34',u:'#1e1e23',
+  O:'#9aa09a',B:'#7a6a3a',P:'#2e2e33'};
+
+const B1 = {
+  hogston:  {top:TOP_HOGSTON,  pal:PAL_HOGSTON,  legs:'LEGS0', label:'MSgt. Hogston, USAF'},
+  corpsman: {top:TOP_CORPSMAN, pal:PAL_CORPSMAN, legs:'LEGS0', label:'Navy corpsman'},
+  marineWashington: {top:TOP_MARINE_WASHINGTON, pal:PAL_MARINE_WASHINGTON, legs:'LEGS0', label:'Marine (Washington)'},
+  marineMedium:     {top:TOP_MARINE_MEDIUM,     pal:PAL_MARINE_MEDIUM,     legs:'LEGS0', label:'Marine (medium skin tone)'},
+  marineFair:       {top:TOP_MARINE_FAIR,       pal:PAL_MARINE_FAIR,       legs:'LEGS0', label:'Marine (fair, freckled)'},
+  nvaRegular: {top:TOP_NVA_REGULAR, pal:PAL_NVA_REGULAR, legs:'LEGS', label:'NVA regular'},
+  b40:        {top:TOP_B40,         pal:PAL_B40,         legs:'LEGS0', label:'B-40 Rocket Trooper'}
+};
+
+/* --- Artist Helper batch 1: ribbons + Medal of Honor --- */
+const RIBBONS = {
+ "car": {
+  "name": "Combat Action Ribbon",
+  "full": [
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB",
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB",
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB",
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB",
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB",
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB",
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB",
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB",
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB",
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB",
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB",
+   "RRRRRRRRRRYYYYYYYYYYrWWbYYYYYYYYYYBBBBBBBBBB"
+  ],
+  "compact": [
+   "RRRRRYYYYYrWbYYYYYBBBBB",
+   "RRRRRYYYYYrWbYYYYYBBBBB",
+   "RRRRRYYYYYrWbYYYYYBBBBB",
+   "RRRRRYYYYYrWbYYYYYBBBBB",
+   "RRRRRYYYYYrWbYYYYYBBBBB",
+   "RRRRRYYYYYrWbYYYYYBBBBB"
+  ],
+  "legend": {
+   "R": "#c8102e",
+   "Y": "#f2c230",
+   "r": "#c8102e",
+   "W": "#f4f4f4",
+   "b": "#1e3a8a",
+   "B": "#1e3a8a"
+  }
+ },
+ "ph": {
+  "name": "Purple Heart",
+  "full": [
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW",
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW",
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW",
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW",
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW",
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW",
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW",
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW",
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW",
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW",
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW",
+   "WWWWPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPWWWW"
+  ],
+  "compact": [
+   "WWPPPPPPPPPPPPPPPPPPPWW",
+   "WWPPPPPPPPPPPPPPPPPPPWW",
+   "WWPPPPPPPPPPPPPPPPPPPWW",
+   "WWPPPPPPPPPPPPPPPPPPPWW",
+   "WWPPPPPPPPPPPPPPPPPPPWW",
+   "WWPPPPPPPPPPPPPPPPPPPWW"
+  ],
+  "legend": {
+   "W": "#f4f4f4",
+   "P": "#5a2a82"
+  }
+ },
+ "bs": {
+  "name": "Bronze Star",
+  "full": [
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW",
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW",
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW",
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW",
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW",
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW",
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW",
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW",
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW",
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW",
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW",
+   "WSSSSSSSSSSSSSSSSSSWBBBBWSSSSSSSSSSSSSSSSSSW"
+  ],
+  "compact": [
+   "WSSSSSSSSSWBWSSSSSSSSSW",
+   "WSSSSSSSSSWBWSSSSSSSSSW",
+   "WSSSSSSSSSWBWSSSSSSSSSW",
+   "WSSSSSSSSSWBWSSSSSSSSSW",
+   "WSSSSSSSSSWBWSSSSSSSSSW",
+   "WSSSSSSSSSWBWSSSSSSSSSW"
+  ],
+  "legend": {
+   "W": "#f4f4f4",
+   "S": "#c8102e",
+   "B": "#1e3a8a"
+  }
+ },
+ "ss": {
+  "name": "Silver Star",
+  "full": [
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB",
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB",
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB",
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB",
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB",
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB",
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB",
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB",
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB",
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB",
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB",
+   "BBBWBBBBBBBWWWWWWWSSSSSSSSWWWWWWWBBBBBBBWBBB"
+  ],
+  "compact": [
+   "BWBBBWWWWSSSSSWWWWBBBWB",
+   "BWBBBWWWWSSSSSWWWWBBBWB",
+   "BWBBBWWWWSSSSSWWWWBBBWB",
+   "BWBBBWWWWSSSSSWWWWBBBWB",
+   "BWBBBWWWWSSSSSWWWWBBBWB",
+   "BWBBBWWWWSSSSSWWWWBBBWB"
+  ],
+  "legend": {
+   "B": "#1e3a8a",
+   "W": "#f4f4f4",
+   "S": "#c8102e"
+  }
+ },
+ "nc": {
+  "name": "Navy Cross",
+  "full": [
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN",
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN",
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN",
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN",
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN",
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN",
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN",
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN",
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN",
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN",
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN",
+   "NNNNNNNNNNNNNNNNNNWWWWWWWWNNNNNNNNNNNNNNNNNN"
+  ],
+  "compact": [
+   "NNNNNNNNNWWWWWNNNNNNNNN",
+   "NNNNNNNNNWWWWWNNNNNNNNN",
+   "NNNNNNNNNWWWWWNNNNNNNNN",
+   "NNNNNNNNNWWWWWNNNNNNNNN",
+   "NNNNNNNNNWWWWWNNNNNNNNN",
+   "NNNNNNNNNWWWWWNNNNNNNNN"
+  ],
+  "legend": {
+   "N": "#10214b",
+   "W": "#f4f4f4"
+  }
+ }
+};
+const MEDAL_OF_HONOR = {
+ "name": "Medal of Honor (Navy, neck ribbon)",
+ "grid": [
+  "lLLLLLL.............LLLLLLl",
+  ".lLLLLLL...........LLLLLLl.",
+  "..lLLLLLL.........LLLLLLl..",
+  "...lLLLLLL.......LLLLLLl...",
+  "....lLLLLLL.....LLLLLLl....",
+  ".....lLLLLLL...LLLLLLl.....",
+  "......lLLLLLL.LLLLLLl......",
+  ".......lLLLLLLLLLLLl.......",
+  "........lLLLLLLLLLl........",
+  "........lLLLLLLLLLl........",
+  "........lLLLLWLLLLl........",
+  "........lLLLLLLLLLl........",
+  "........lLLLWLWLLLl........",
+  "........lLLWLLLWLLl........",
+  "........lLLLWLWLLLl........",
+  "........lLLWLLLWLLl........",
+  "........lLLLWLWLLLl........",
+  "........lLLWLLLWLLl........",
+  "........lLLLLLLLLLl........",
+  "........lLLLLLLLLLl........",
+  "........lllllllllll........",
+  "............GgG............",
+  "............GgG............",
+  "............GgG............",
+  ".............g.............",
+  ".............G.............",
+  "............GGG............",
+  "............GGG............",
+  "............GGG............",
+  "...........HGGGg...........",
+  "...........GGGGG...........",
+  ".......HGHGGDDDGGggg.......",
+  "EeEGHGHGHGGDDHDDGGggggggEeE",
+  "eE..GHGHGGDHHHHHDGGgggg..EE",
+  "EE...GHGGDDHHHHHDDGggg...Ee",
+  "Ee.....HGDHHHHHHHDGg.....eE",
+  "eE......GDDHHHHHDDG......EE",
+  "EE......GGDHHHHHDGG......Ee",
+  "EeE.....HGGDDHDDGGg.....EeE",
+  ".EE.....GHGGDDDGGgg.....eE.",
+  ".Ee.....HGHGGGGGggg.....EE.",
+  "..EE...HGHGH...ggggg...EE..",
+  "..EeE..GHGH.....gggg..EEe..",
+  "...EEe.HG.........gg.EEe...",
+  "....eEEG...........gEEe....",
+  ".....EeE...........EEe.....",
+  "......EEeEE.....EeEEe......",
+  "........EEeEEeEEeEE........"
+ ],
+ "legend": {
+  "L": "#74aee0",
+  "l": "#4f8fc8",
+  "W": "#ffffff",
+  "G": "#d9a62b",
+  "g": "#9a6f12",
+  "H": "#f6dc7a",
+  "D": "#7a5410",
+  "E": "#3f8a3a",
+  "e": "#2a5e27"
+ },
+ "locked": [
+  "XXXXXXX.............XXXXXXX",
+  ".XXXXXXX...........XXXXXXX.",
+  "..XXXXXXX.........XXXXXXX..",
+  "...XXXXXXX.......XXXXXXX...",
+  "....XXXXXXX.....XXXXXXX....",
+  ".....XXXXXXX...XXXXXXX.....",
+  "......XXXXXXX.XXXXXXX......",
+  ".......XXXXXXXXXXXXX.......",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "........XXXXXXXXXXX........",
+  "............XXX............",
+  "............XXX............",
+  "............XXX............",
+  ".............X.............",
+  ".............X.............",
+  "............XXX............",
+  "............XXX............",
+  "............XXX............",
+  "...........XXXXX...........",
+  "...........XXXXX...........",
+  ".......XXXXXXXXXXXXX.......",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XX..XXXXXXXXXXXXXXXXXXX..XX",
+  "XX...XXXXXXXXXXXXXXXXX...XX",
+  "XX.....XXXXXXXXXXXXX.....XX",
+  "XX......XXXXXXXXXXX......XX",
+  "XX......XXXXXXXXXXX......XX",
+  "XXX.....XXXXXXXXXXX.....XXX",
+  ".XX.....XXXXXXXXXXX.....XX.",
+  ".XX.....XXXXXXXXXXX.....XX.",
+  "..XX...XXXXX...XXXXX...XX..",
+  "..XXX..XXXX.....XXXX..XXX..",
+  "...XXX.XX.........XX.XXX...",
+  "....XXXX...........XXXX....",
+  ".....XXX...........XXX.....",
+  "......XXXXX.....XXXXX......",
+  "........XXXXXXXXXXX........"
+ ],
+ "locked_legend": {
+  "X": "#2b2f36"
+ }
+};
+const RIBBON_RACK_ORDER = ['moh','nc','ss','bs','ph','car']; // highest precedence first
 const SPR={}, SQSPR={};
 const CHSPR={};
 function buildCharSprites(){
@@ -359,6 +771,11 @@ function buildCharSprites(){
     preacher:[mod({7:"..UUuUUYUUUuUU..",8:"..SUUuUYYUuUUS..",9:"..SuUUBYBBUUuS.."}),Object.assign({},MP,{Y:'#e0c040'})],
     chef:[["....WWWWWWWW....","....WWWWWWWW....","....wwwwwwww....","....SSSSSSSS....","....SESSSSES....","....SSSSSSSS....","..UUUUUUUUUUUU..",".UUWWWWWWWWWWUU.",".SUWWWWWWWWWWUS.",".SUWWrWWWWWrWUS.","..UUWWWWWWWWUU.."],Object.assign({},MP,{W:'#f4f1e6',w:'#d2cdb8',r:'#a8322a'})]
   };
+  /* diverse roster: skin tone, hair colour and sideburns per character (faces are stylised, never likenesses) */
+  const SK={dark:{S:'#7a4b2d',H:'#1b130e',E:'#120c08'},med:{S:'#b4774a',H:'#14100c',E:'#150e08'},tan:{S:'#c99066',H:'#2a1c10'},fair:{S:'#f2d2b0',H:'#b5481f',F:'#cf8f6a'},fairB:{S:'#f2d2b0',H:'#c9a44a'},sandy:{S:'#ecc9a2',H:'#8a6a3a',F:'#cf8f6a'},base:{H:'#5a3c20'}};
+  const WHO={doc:'med',hammer:'fairB',boone:'sandy',skipper:'fair',zippo:'dark',rat:'med',preacher:'tan',chef:'base'};
+  for(const k in V){ const sk=WHO[k]; if(!sk)continue; const t=V[k][0].slice(); if(t[4]==="....SSSSSSSS....")t[4]="....HSSSSSSH...."; if((sk==='fair'||sk==='sandy')&&t[5]==="....SESSSSES....")t[5]="....FESSSSEF...."; V[k][0]=t; V[k][1]=Object.assign({},V[k][1],SK[sk]) }
+  V.radio=[B1.hogston.top,B1.hogston.pal];   // MSgt. Hogston, USAF (Artist Helper batch 1; stylised, not a likeness)
   for(const k in V)CHSPR[k]=makeSprites(V[k][0],LEGS0,V[k][1],2);
 }
 
@@ -375,17 +792,21 @@ function buildSquadSprites(){
     corps:[mod({1:"....CCCRCCCC....",2:"....CcRRRcCC...."}),Object.assign({R:'#d02020'},MP)],
     radio:[mod({0:".....CCCCCC...K.",1:"....CCCCCCCC..K.",2:"....CcCCCCcC..K.",3:"....cccccccc..K.",4:"....SSSSSSSS..K.",5:"....SESSSSES..K.",6:"...UUUUUUUUUUOO.",7:"..UUuUUUUUUuUOO.",8:"..SUUuUUUUuUUOO."}),Object.assign({K:'#9aa0a6',O:'#3a3d36'},MP)]
   };
+  /* squad roster variety (batch 1 skin-tone variants): point man, marksman and M60 gunner get different faces; the corpsman is the batch-1 corpsman */
+  V.point=[B1.marineMedium.top,B1.marineMedium.pal]; V.m14=[B1.marineFair.top,B1.marineFair.pal];
+  { const t=B1.marineWashington.top.slice(); t[7]=V.m60[0][7]; t[8]=V.m60[0][8]; V.m60=[t,Object.assign({K:'#c8a63a'},B1.marineWashington.pal)] }
+  V.corps=[B1.corpsman.top,B1.corpsman.pal];
   for(const k in V)SQSPR[k]=makeSprites(V[k][0],LEGS0,V[k][1],2);
 }
 function buildSprites(){
   SPR.marine=makeSprites(TOP_MARINE,LEGS0,{C:'#6e8b4a',c:'#4a6233',S:'#e2b98f',E:'#24180d',U:'#58733a',u:'#3f5528',B:'#4a3a22',P:'#5f7a3c'},2);
   SPR.vc=makeSprites(TOP_VC,LEGS0,{C:'#dcc880',c:'#a8924a',S:'#dbb287',E:'#24180d',U:'#3a3a40',u:'#25252a',B:'#7a6a3a',P:'#2e2e33',K:'#aab0b6'},2);
-  SPR.nva=makeSprites(TOP_NVA,LEGS,{C:'#d3cb9c',c:'#a39b6a',R:'#d12f26',S:'#e2b98f',E:'#24180d',U:'#a89c5c',u:'#85793f',B:'#4b3a22',P:'#978b4e',K:'#c9ced4',W:'#6b4426'},2);
+  SPR.nva=makeSprites(TOP_NVA_REGULAR,LEGS,PAL_NVA_REGULAR,2); SPR.nvaOld=makeSprites(TOP_NVA,LEGS,{C:'#d3cb9c',c:'#a39b6a',R:'#d12f26',S:'#e2b98f',E:'#24180d',U:'#a89c5c',u:'#85793f',B:'#4b3a22',P:'#978b4e',K:'#c9ced4',W:'#6b4426'},2);
   SPR.officer=makeSprites(TOP_OFF,LEGS0,{C:'#5f6b36',c:'#3d4721',Y:'#d8352a',S:'#e2b98f',E:'#24180d',U:'#7f8a4a',u:'#5b6532',R:'#c0392b',B:'#3b2a1a',P:'#6d7640',K:'#e3e7ec',W:'#e0b43a'},3);
   SPR.boss=makeSprites(TOP_OFF,LEGS0,{C:'#2f3b1c',c:'#1f2812',Y:'#f0c640',S:'#e2b98f',E:'#24180d',U:'#46522a',u:'#2d361a',R:'#d03a2e',B:'#1b150c',P:'#38422a',K:'#f4f6f8',W:'#f0c640'},3);
   buildSquadSprites(); buildCharSprites();
   SPR.sapper=makeSprites(TOP_SAP,LEGS0,{c:'#2a2a2a',R:'#b02020',S:'#dbb287',E:'#24180d',U:'#3a3a40',u:'#25252a',B:'#7a6a3a',P:'#2e2e33',T:'#7a5a33'},2); buildEngSprites(); buildNTankSprites();
-  SPR.rpgt=makeSprites(TOP_RPGT,LEGS0,{C:'#dcc880',c:'#a8924a',S:'#dbb287',E:'#24180d',U:'#3a3a40',u:'#25252a',B:'#7a6a3a',P:'#2e2e33',T:'#4d5a3a',O:'#9a9e94'},2);
+  SPR.rpgt=makeSprites(TOP_B40,LEGS0,PAL_B40,2); SPR.rpgtOld=makeSprites(TOP_RPGT,LEGS0,{C:'#dcc880',c:'#a8924a',S:'#dbb287',E:'#24180d',U:'#3a3a40',u:'#25252a',B:'#7a6a3a',P:'#2e2e33',T:'#4d5a3a',O:'#9a9e94'},2);
   SPR.rpg=makeSprites(TOP_RPG,LEGS0,{C:'#d3cb9c',c:'#a39b6a',R:'#d12f26',S:'#e2b98f',E:'#24180d',U:'#8f8a4d',u:'#6c6a38',B:'#3b2a1a',P:'#7d7a42',T:'#4d5a3a',O:'#9a9e94'},3);
 }
 
@@ -3035,7 +3456,7 @@ if(DBG.nodemo){ G=null; newGame(false); } else newGame(true);
 showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 { let bd=false; try{bd=sessionStorage.getItem('vs_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
-window.__ms={runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
 
