@@ -2399,7 +2399,7 @@ const CS=48, head=new Int32Array(4096), nextI=new Int32Array(2400);
 const keys={}; const joy={on:false,id:-1,ox:0,oy:0,x:0,y:0};
 
 function newGame(demo){
-  medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
+  medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
   const t0=demo?150:DBG.t;
   G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
@@ -2902,6 +2902,323 @@ function updatePatrol(dt){ const g=G,p=g.p; if(g.demo||!g.char)return;
    survivors; hard cap COY.cap allied Marines of this perk alive at once. Cheap by design: slot-follow movement, staggered targeting (the
    shared memberCombat timer), contact checks every other frame, no pairwise separation.
    Medevac: a Red Cross Huey hovers over the player and heals everyone (player, squad, patrol, company, tank, engineers) for a % of max HP. */
+/* ---- Artist Helper: assets/artist/medevac_huey.js ---- */
+/* MEDEVAC HUEY (Red Cross "Dustoff" Huey). Original art. Top-down like drawHuey() in index.html; nose points +x (heading 0).
+   1) drawMedevacHuey(ctx,x,y,scale,rotorPhase[,heading])  - procedural, same style/scale as drawHuey (scale 1 = game px).
+        x,y = centre of the aircraft (same as drawHuey's x,y after the z-offset). rotorPhase: 0 or 1 (integer parity used; pass
+        Math.floor(time*N)) - the two blade positions. heading = radians, default 0 (use h.hd). Does NOT draw shadow / HP bar / rotor
+        disc glow beyond its own blur; caller keeps those. Adds: white square + red cross on roof AND tail boom, open side doors
+        (dark opening + tan litter), rotor blur disc.
+   2) MEDEVAC_HUEY.frames[0|1] - letter grids (48x48, nose right, 1 grid px = 2 game px -> draw with scale 2) + MEDEVAC_HUEY.legend.
+        '.' transparent. Rotate the canvas for heading. Fallback if you don't want the procedural version.  */
+const MEDEVAC_HUEY = {
+  w: 48, h: 48, gridPxPerGamePx: 0.5,
+  frames: [
+    ["................................................",
+     "...................b.b.b.b.b....................",
+     "................b.b.b.b.b.b.b.b.................",
+     "...............b.b.b.b.b.b.b.b.b.b..............",
+     "............b.b.b.b.b.b.b.b.b.b.b.b.............",
+     "...........b.b.b.b.b.b.b.b.b.b.b.b.b.b..........",
+     "..........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.........",
+     ".........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b........",
+     "........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.......",
+     ".......b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b......",
+     "......b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
+     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b......",
+     "....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
+     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b....",
+     "....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b...",
+     "...b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b....",
+     "..b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b...",
+     "...b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b..",
+     "..b.b.b.b.b.b.b.b.KKKKKKKKKKKKK.b.b.b.b.b.b.b...",
+     ".b.b.b.b.b.b.b.b.b.b.ZTTZ.Kb.b.b.b.b.b.b.b.b.b..",
+     "..b.b.b.b.b.b.b.b.bOOOOOOOOOO.b.b.b.b.b.b.b.b.b.",
+     "gDDD.b.b.b.b.b.b.OOODDDDDOOOCCCb.b.b.b.b.b.b.b..",
+     "gDDDb.bWRRW.b.b.bOODDWWRWWOCCCCCb.b.b.b.b.b.b.b.",
+     "gDDDDDDRRRRDDDDDOODDDWWRWWDCCcCC.b.b.b.b.b.b.b..",
+     "gDDDDDDRRRRDDDDDOODDDRRRMMDCCCCCBBBBBBBBBBBBBBB.",
+     ".b.b.b.WRRWb.b.b.OODDWWRWWOCCCCC.b.b.b.b.b.b.b..",
+     "..b.b.b.b.b.b.b.bOOODWWRWWOOCCC.b.b.b.b.b.b.b.b.",
+     ".b.b.b.b.b.b.b.b.b.OOOOOOOOOOb.b.b.b.b.b.b.b.b..",
+     "..b.b.b.b.b.b.b.b.b.bZTTZ.K.b.b.b.b.b.b.b.b.b.b.",
+     "...b.b.b.b.b.b.b.bKKKKKKKKKKKKKb.b.b.b.b.b.b.b..",
+     "..b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b...",
+     "...b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b..",
+     "....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b...",
+     "...b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b....",
+     "....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
+     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b....",
+     "......b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
+     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b......",
+     "......b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.......",
+     ".......b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b........",
+     "........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.........",
+     ".........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b..........",
+     "..........b.b.b.b.b.b.b.b.b.b.b.b.b.b...........",
+     ".............b.b.b.b.b.b.b.b.b.b.b.b............",
+     "..............b.b.b.b.b.b.b.b.b.b...............",
+     ".................b.b.b.b.b.b.b.b................",
+     "....................b.b.b.b.b...................",
+     "................................................"],
+    ["................................................",
+     "....................b.b.b.b.b...................",
+     ".................b.b.b.b.b.b.b.b................",
+     "..............b.b.b.b.b.b.b.b.b.b...............",
+     ".............b.b.b.b.b.b.b.b.b.b.b.b............",
+     "..........b.b.b.b.b.b.b.b.b.b.b.b.b.b...........",
+     ".........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b..........",
+     "........b.BBb.b.b.b.b.b.b.b.b.b.b.b.b.b.........",
+     ".......b.b.BBb.b.b.b.b.b.b.b.b.b.b.b.b.b........",
+     "......b.b.b.B.b.b.b.b.b.b.b.b.b.b.b.b.b.b.......",
+     ".....b.b.b.b.B.b.b.b.b.b.b.b.b.b.b.b.b.b.b......",
+     "......b.b.b.bBB.b.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
+     ".....b.b.b.b.bBB.b.b.b.b.b.b.b.b.b.b.b.b.b.b....",
+     "....b.b.b.b.b.bBB.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
+     "...b.b.b.b.b.b.bBb.b.b.b.b.b.b.b.b.b.b.b.b.b....",
+     "....b.b.b.b.b.b.bBb.b.b.b.b.b.b.b.b.b.b.b.b.b...",
+     "...b.b.b.b.b.b.b.BBb.b.b.b.b.b.b.b.b.b.b.b.b.b..",
+     "..b.b.b.b.b.b.b.b.BBb.b.b.b.b.b.b.b.b.b.b.b.b...",
+     "...b.b.b.b.b.b.b.bKKKKKKKKKKKKKb.b.b.b.b.b.b.b..",
+     "..b.b.b.b.b.b.b.b.b.BZTTZ.K.b.b.b.b.b.b.b.b.b.b.",
+     ".b.b.b.b.b.b.b.b.b.OOOOOOOOOOb.b.b.b.b.b.b.b.b..",
+     ".DDDb.b.b.b.b.b.bOOODDDDDOOOCCC.b.b.b.b.b.b.b.b.",
+     "gDDD.b.WRRWb.b.b.OODDWWRWWOCCCCC.b.b.b.b.b.b.b..",
+     "gDDDDDDRRRRDDDDDOODDDWWRWWDCCcCCb.b.b.b.b.b.b.b.",
+     ".DDDDDDRRRRDDDDDOODDDRRRMMDCCCCC.b.b.b.b.b.b.b..",
+     "..b.b.bWRRW.b.b.bOODDWWRWWOCCCCCb.b.b.b.b.b.b.b.",
+     ".b.b.b.b.b.b.b.b.OOODWWRWWOOCCCb.b.b.b.b.b.b.b..",
+     "..b.b.b.b.b.b.b.b.bOOOOOOOOOO.b.b.b.b.b.b.b.b.b.",
+     ".b.b.b.b.b.b.b.b.b.b.ZTTZ.KB.b.b.b.b.b.b.b.b.b..",
+     "..b.b.b.b.b.b.b.b.KKKKKKKKKKKKK.b.b.b.b.b.b.b...",
+     "...b.b.b.b.b.b.b.b.b.b.b.b.b.B.b.b.b.b.b.b.b.b..",
+     "..b.b.b.b.b.b.b.b.b.b.b.b.b.bBB.b.b.b.b.b.b.b...",
+     "...b.b.b.b.b.b.b.b.b.b.b.b.b.bBB.b.b.b.b.b.b....",
+     "....b.b.b.b.b.b.b.b.b.b.b.b.b.bBb.b.b.b.b.b.b...",
+     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.bBb.b.b.b.b.b....",
+     "....b.b.b.b.b.b.b.b.b.b.b.b.b.b.BBb.b.b.b.b.....",
+     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.b.BBb.b.b.b......",
+     "......b.b.b.b.b.b.b.b.b.b.b.b.b.b.BBb.b.b.b.....",
+     ".......b.b.b.b.b.b.b.b.b.b.b.b.b.b.B.b.b.b......",
+     "........b.b.b.b.b.b.b.b.b.b.b.b.b.b.B.b.b.......",
+     ".........b.b.b.b.b.b.b.b.b.b.b.b.b.bBB.b........",
+     "..........b.b.b.b.b.b.b.b.b.b.b.b.b.bBB.........",
+     "...........b.b.b.b.b.b.b.b.b.b.b.b.b.b..........",
+     "............b.b.b.b.b.b.b.b.b.b.b.b.............",
+     "...............b.b.b.b.b.b.b.b.b.b..............",
+     "................b.b.b.b.b.b.b.b.................",
+     "...................b.b.b.b.b....................",
+     "................................................"]
+  ],
+  legend: {K:'#1c1c1c', O:'#55633f', D:'#46523a', C:'#9fc4d2', c:'#d8eef4', Z:'#1a1a14', T:'#cdb98a', W:'#f4f1e6', R:'#cf2222', g:'#2b2b2b', B:'#1a1a1a', b:'#cfcfc6', M:'#333333'}
+};
+
+function drawMedevacHuey(ctx, x, y, scale, rotorPhase, heading) {
+  scale = scale || 1; rotorPhase = (rotorPhase | 0) & 1; heading = heading || 0;
+  const TAU = Math.PI * 2, fr = ctx.fillStyle;
+  ctx.save(); ctx.translate(Math.round(x), Math.round(y)); ctx.rotate(heading); ctx.scale(scale, scale);
+  // skids
+  ctx.fillStyle = '#1c1c1c'; ctx.fillRect(-12, -11, 26, 1.6); ctx.fillRect(-12, 9.4, 26, 1.6);
+  ctx.fillRect(-6, -11, 1.5, 8); ctx.fillRect(4, -11, 1.5, 8); ctx.fillRect(-6, 3, 1.5, 8); ctx.fillRect(4, 3, 1.5, 8);
+  // tail boom + fin
+  ctx.fillStyle = '#46523a'; ctx.fillRect(-44, -2, 34, 4); ctx.fillRect(-46, -7, 5, 8);
+  // tail-boom medevac marking: white square, red cross (visible even when the roof is hidden)
+  ctx.fillStyle = '#f4f1e6'; ctx.fillRect(-34, -4, 8, 8); ctx.fillStyle = '#cf2222'; ctx.fillRect(-31, -3.5, 2, 7); ctx.fillRect(-33.5, -1, 7, 2);
+  // fuselage
+  ctx.fillStyle = '#55633f'; ctx.beginPath(); ctx.ellipse(0, 0, 16, 8.5, 0, 0, TAU); ctx.fill();
+  ctx.fillStyle = '#46523a'; ctx.beginPath(); ctx.ellipse(-3, 0, 9, 6, 0, 0, TAU); ctx.fill();
+  // nose glass
+  ctx.fillStyle = '#9fc4d2'; ctx.beginPath(); ctx.ellipse(11, 0, 5.5, 5.5, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#d8eef4'; ctx.fillRect(10, -3, 2, 2);
+  // open side doors: dark opening, tan litter inside
+  ctx.fillStyle = '#1a1a14'; ctx.fillRect(-6, -10, 8, 2.6); ctx.fillRect(-6, 7.4, 8, 2.6);
+  ctx.fillStyle = '#cdb98a'; ctx.fillRect(-5, -9.6, 5, 1.6); ctx.fillRect(-5, 8, 5, 1.6);
+  // roof: big white square + red cross (same box as drawMedevac, slightly larger)
+  ctx.fillStyle = '#f4f1e6'; ctx.fillRect(-6, -6, 12, 12); ctx.fillStyle = '#cf2222'; ctx.fillRect(-1.8, -5, 3.6, 10); ctx.fillRect(-5, -1.8, 10, 3.6);
+  // tail rotor
+  ctx.fillStyle = 'rgba(210,210,210,.55)'; ctx.save(); ctx.translate(-45, -3); ctx.rotate(rotorPhase ? 1.1 : 0); ctx.fillRect(-5, -.8, 10, 1.6); ctx.restore();
+  // rotor blur disc + 2-phase blade
+  ctx.globalAlpha = .13; ctx.fillStyle = '#cfcfc6'; ctx.beginPath(); ctx.arc(0, 0, 47, 0, TAU); ctx.fill();
+  ctx.globalAlpha = .75; ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2.6; ctx.save(); ctx.rotate(rotorPhase ? .9 : 0);
+  ctx.beginPath(); ctx.moveTo(-47, 0); ctx.lineTo(47, 0); ctx.stroke(); ctx.restore(); ctx.globalAlpha = 1;
+  ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(0, 0, 3.5, 0, TAU); ctx.fill();
+  ctx.restore(); ctx.fillStyle = fr;
+}
+function drawMedevacHueyGrid(ctx, x, y, scale, rotorPhase, heading) {   // grid fallback, centred on x,y
+  const g = MEDEVAC_HUEY.frames[(rotorPhase | 0) & 1], s = 2 * (scale || 1);
+  ctx.save(); ctx.translate(Math.round(x), Math.round(y)); ctx.rotate(heading || 0);
+  for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) { const c = MEDEVAC_HUEY.legend[g[j][i]]; if (c) { ctx.fillStyle = c; ctx.fillRect((i - 24) * s, (j - 24) * s, s + .5, s + .5) } }
+  ctx.restore();
+}
+
+/* ---- Artist Helper: assets/artist/heal_pulse.js ---- */
+/* HEAL PULSE + rising plus particle. Original art.
+   1) drawHealPulse(ctx,x,y,t[,scale])  t = 0..1 (0 = just started, 1 = gone). Soft green-white expanding ring (radius ~6 -> ~46 game px),
+      ease-out, fades in the last 40%. Ground-level effect: draw it UNDER the unit's sprite, centred on its feet. Cheap: 1 arc + 1 gradient.
+   2) HEAL_PULSE.frames[0..4] - the same effect as 25x25 letter grids (ring grows, last two dithered/fading). Pick frame = min(4, floor(t*5)).
+      Draw at scale 2 (50 px) for a unit, or bigger for the medevac area. '.' transparent. Legend in HEAL_PULSE.legend.
+   3) HEAL_PLUS.frames[0|1] - 5x5 plus-sign particle (bright, then dim/small). drawHealPlus(ctx,x,y,t) = rises ~18 px and flips to
+      frame 1 at t>0.55; t = 0..1 life. Spawn 2-4 per healed unit, jitter x by a few px.  */
+const HEAL_PULSE = {
+  w: 25, h: 25,
+  frames: [
+    [".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     "..........GGGGG..........",
+     ".........GGWWWGG.........",
+     "........GGW...WGG........",
+     "........GW.....WG........",
+     "........GW.....WG........",
+     "........GW.....WG........",
+     "........GGW...WGG........",
+     ".........GGWWWGG.........",
+     "..........GGGGG..........",
+     ".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     "........................."],
+    [".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     "..........GGGGG..........",
+     "........GGGWWWGGG........",
+     ".......GGWWf.fWWGG.......",
+     "......GGW.f.f.f.WGG......",
+     "......GW.f.f.f.f.WG......",
+     ".....GGWf.f...f.fWGG.....",
+     ".....GWf.f.....f.fWG.....",
+     ".....GW.f.......f.WG.....",
+     ".....GWf.f.....f.fWG.....",
+     ".....GGWf.f...f.fWGG.....",
+     "......GW.f.f.f.f.WG......",
+     "......GGW.f.f.f.WGG......",
+     ".......GGWWf.fWWGG.......",
+     "........GGGWWWGGG........",
+     "..........GGGGG..........",
+     ".........................",
+     ".........................",
+     ".........................",
+     ".........................",
+     "........................."],
+    [".........................",
+     ".........................",
+     "............G............",
+     "........GGGGGGGGG........",
+     "......GGGWWWWWWWGGG......",
+     ".....GGWW.......WWGG.....",
+     "....GGW...........WGG....",
+     "....GW.............WG....",
+     "...GGW.............WGG...",
+     "...GW...............WG...",
+     "...GW...............WG...",
+     "...GW...............WG...",
+     "..GGW...............WGG..",
+     "...GW...............WG...",
+     "...GW...............WG...",
+     "...GW...............WG...",
+     "...GGW.............WGG...",
+     "....GW.............WG....",
+     "....GGW...........WGG....",
+     ".....GGWW.......WWGG.....",
+     "......GGGWWWWWWWGGG......",
+     "........GGGGGGGGG........",
+     "............G............",
+     ".........................",
+     "........................."],
+    [".........................",
+     ".........G.G.G.G.........",
+     "......G.w.......w.G......",
+     ".....G.w.........w.G.....",
+     "....G...............G....",
+     "...G.................G...",
+     "..G...................G..",
+     "...w.................w...",
+     "..w...................w..",
+     ".G.....................G.",
+     ".........................",
+     ".G.....................G.",
+     ".........................",
+     ".G.....................G.",
+     ".........................",
+     ".G.....................G.",
+     "..w...................w..",
+     "...w.................w...",
+     "..G...................G..",
+     "...G.................G...",
+     "....G...............G....",
+     ".....G.w.........w.G.....",
+     "......G.w.......w.G......",
+     ".........G.G.G.G.........",
+     "........................."],
+    ["..........g.g.g..........",
+     ".......g.g.....g.g.......",
+     "......g...........g......",
+     ".....g.............g.....",
+     "....g...............g....",
+     "...g.................g...",
+     "..g...................g..",
+     ".g.....................g.",
+     ".........................",
+     ".g.....................g.",
+     "g.......................g",
+     ".........................",
+     "g.......................g",
+     ".........................",
+     "g.......................g",
+     ".g.....................g.",
+     ".........................",
+     ".g.....................g.",
+     "..g...................g..",
+     "...g.................g...",
+     "....g...............g....",
+     ".....g.............g.....",
+     "......g...........g......",
+     ".......g.g.....g.g.......",
+     "..........g.g.g.........."]
+  ],
+  legend: {W:'#f4fff2', w:'#d8f5d8', G:'#7be07b', g:'#4fbf6a', f:'#a8ecb0'}
+};
+const HEAL_PLUS = {
+  w: 5, h: 5,
+  frames: [
+    ["..W..","..W..","WWWWW","..W..","..W.."],
+    [".....","..g..",".gWg.","..g..","....."]
+  ],
+  legend: { W:'#f4fff2', g:'#7be07b' }
+};
+function drawHealPulse(ctx, x, y, t, scale) {
+  scale = scale || 1; t = t < 0 ? 0 : t > 1 ? 1 : t;
+  const e = 1 - (1 - t) * (1 - t), r = (6 + 40 * e) * scale, a = t < .6 ? 1 : (1 - t) / .4;
+  ctx.save(); ctx.translate(Math.round(x), Math.round(y)); ctx.scale(1, .8);   // slight ground-plane squash like the game's shadows
+  const gr = ctx.createRadialGradient(0, 0, r * .45, 0, 0, r);
+  gr.addColorStop(0, 'rgba(160,240,170,0)'); gr.addColorStop(1, 'rgba(160,240,170,' + (.28 * a).toFixed(3) + ')');
+  ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
+  ctx.lineWidth = Math.max(1, (4 - 2.5 * t) * scale); ctx.strokeStyle = 'rgba(123,224,123,' + (.85 * a).toFixed(3) + ')';
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.lineWidth = Math.max(1, (1.6 - t) * scale); ctx.strokeStyle = 'rgba(244,255,242,' + a.toFixed(3) + ')';
+  ctx.beginPath(); ctx.arc(0, 0, r - 1.5 * scale, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+}
+function drawHealPlus(ctx, x, y, t, scale) {
+  scale = scale || 2; t = t < 0 ? 0 : t > 1 ? 1 : t;
+  const g = HEAL_PLUS.frames[t > .55 ? 1 : 0], px = scale;
+  ctx.save(); ctx.globalAlpha = t < .7 ? 1 : (1 - t) / .3; const ox = Math.round(x - 2.5 * px), oy = Math.round(y - 18 * t - 2.5 * px);
+  for (let j = 0; j < 5; j++) for (let i = 0; i < 5; i++) { const c = HEAL_PLUS.legend[g[j][i]]; if (c) { ctx.fillStyle = c; ctx.fillRect(ox + i * px, oy + j * px, px, px) } }
+  ctx.restore();
+}
+
 const COY={cap:30,per:5,hueys:4,recall:5,roles:['rifle','rifle','m14','m60','m79'],ringR:150,leash:820,hover:2.2};
 const MEDEVAC={R:620,hold:3.5,ticks:7};
 let coy=[],coyH=[],medevac=null,COYSPR=[],coyF=0;
@@ -2959,11 +3276,11 @@ function callMedevac(s){ const g=G,p=g.p, a=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+17
   medevac={x:p.x+Math.cos(a)*Rf,y:p.y+Math.sin(a)*Rf,a,ph:0,t:0,hold:0,tk:0,hd:a+Math.PI,rot:0,hp:1,mhp:0,hf:0,mf:[0,0],z:34,s,vs:60,medic:true};
   g.ms.calls++; g.banner={text:'DUSTOFF INBOUND, PATCH THEM UP',t:2.4,col:'#ff9a8a'}; Snd.cue('medevacCall'); Amb.support(8) }
 function medevacHeal(u,frac,scale){ if(u.hp<=0)return; const mx=u.maxHp||u.mhp, add=Math.min(mx-u.hp,mx*frac*scale); if(add<=0)return; u.hp+=add; u._mh=(u._mh||0)+add; G.ms.healed+=add }
-function updateMedevac(dt){ const g=G,p=g.p,h=medevac; if(g.demo||!g.char||!g.ms)return; if(!h)return; h.t+=dt; h.rot+=dt*34; if(!h.sa&&h.t>=.6){ h.sa=1; Snd.cue('medevacHuey') }
+function updateMedevac(dt){ const g=G,p=g.p,h=medevac; updateHealFx(dt); if(g.demo||!g.char||!g.ms)return; if(!h)return; h.t+=dt; h.rot+=dt*34; if(!h.sa&&h.t>=.6){ h.sa=1; Snd.cue('medevacHuey') }
   const hx=p.x, hy=p.y-6;
   if(h.ph===0){ const dx=hx-h.x, dy=hy-h.y, d=Math.hypot(dx,dy)||1, sp=Math.min(420,60+d*1.6); h.x+=dx/d*sp*dt; h.y+=dy/d*sp*dt; h.hd=turnTo(h.hd,Math.atan2(dy,dx),4*dt); if(d<14){ h.ph=1; h.hold=0; h.tk=0 } }
   else if(h.ph===1){ const k=Math.min(1,4*dt); h.x+=(hx-h.x)*k; h.y+=(hy-h.y)*k; h.hd=turnTo(h.hd,-Math.PI/2,2*dt); h.hold+=dt; h.tk+=dt; const iv=MEDEVAC.hold/MEDEVAC.ticks;
-    while(h.tk>=iv){ h.tk-=iv; const f=h.s.frac/MEDEVAC.ticks; const R2=MEDEVAC.R*MEDEVAC.R; for(const u of medevacUnits()){ const dx=u.x-p.x,dy=u.y-p.y; if(dx*dx+dy*dy>R2)continue; medevacHeal(u,f,1); if(u!==p&&rnd()<(LOWFX_ON()?.12:.4))addPart(u.x+(rnd()-.5)*12,u.y-8,0,-30,.7,3,'#ff7b7b',true,2) }
+    while(h.tk>=iv){ h.tk-=iv; const f=h.s.frac/MEDEVAC.ticks; const R2=MEDEVAC.R*MEDEVAC.R; const hl=[]; for(const u of medevacUnits()){ const dx=u.x-p.x,dy=u.y-p.y; if(dx*dx+dy*dy>R2)continue; medevacHeal(u,f,1); hl.push(u); if(u!==p&&rnd()<(LOWFX_ON()?.12:.4))addPart(u.x+(rnd()-.5)*12,u.y-8,0,-30,.7,3,'#ff7b7b',true,2) } spawnHealFx(hl);
       if(g.ms.snd!==1){ g.ms.snd=1; Snd.cue('medevacHeal') } }
     if(!LOWFX_ON()&&rnd()<dt*20){ addPart(p.x+(rnd()-.5)*20,p.y+4,(rnd()-.5)*30,-40-rnd()*30,1.1,5+rnd()*4,rnd()<.5?'#d22b2b':'#ff6a5a',false,.4) }
     if(h.hold>=MEDEVAC.hold){ // floating +HP text on up to 8 healed units, then clear the tallies
@@ -2971,9 +3288,16 @@ function updateMedevac(dt){ const g=G,p=g.p,h=medevac; if(g.demo||!g.char||!g.ms
       h.ph=2; h.vs=60; Snd.cue('medevacDeparture') } }
   else { h.vs=Math.min(440,h.vs+260*dt); h.hd=turnTo(h.hd,h.a,3*dt); h.x+=Math.cos(h.a)*h.vs*dt; h.y+=Math.sin(h.a)*h.vs*dt; if(Math.hypot(h.x-p.x,h.y-p.y)>Math.hypot(VW,VH)/2+300){ medevac=null; return } }
   if(h.ph<2&&!LOWFX_ON()&&rnd()<dt*22){ const a=rnd()*TAU; addPart(h.x+Math.cos(a)*14,h.y+8+Math.sin(a)*6,Math.cos(a)*80,Math.sin(a)*45,.5,3+rnd()*3,rnd()<.5?'#a8946a':'#8a7a52',false,2) } }
-function drawMedevac(){ const h=medevac; if(!h)return; drawHuey(h);
-  const x=Math.round(h.x), y=Math.round(h.y-h.z); ctx.save(); ctx.translate(x,y); ctx.rotate(h.hd);
-  ctx.fillStyle='#f4f1e6'; ctx.fillRect(-5,-5,10,10); ctx.fillStyle='#cf2222'; ctx.fillRect(-1.5,-4,3,8); ctx.fillRect(-4,-1.5,8,3); ctx.restore() }
+function drawMedevac(){ const h=medevac; if(!h)return; const x=Math.round(h.x), y=Math.round(h.y-h.z);
+  ctx.fillStyle='rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(Math.round(h.x)+8,Math.round(h.y)+6,38,11,h.hd,0,TAU); ctx.fill();
+  drawMedevacHuey(ctx,x,y,1,Math.floor(performance.now()/1000*18),h.hd) }
+/* heal pulses (Artist Helper heal_pulse.js): green ring under each healed unit, nearest first, hard cap MEDEVAC.fxMax live, none under Low effects; rising + particles for a few */
+const healFx=[]; MEDEVAC.fxMax=30;
+function spawnHealFx(units){ if(LOWFX_ON())return; const p=G.p; const arr=units.filter(u=>u.hp>0).sort((a,b)=>((a.x-p.x)**2+(a.y-p.y)**2)-((b.x-p.x)**2+(b.y-p.y)**2));
+  for(const u of arr){ if(healFx.length>=MEDEVAC.fxMax)break; if(u._pf>G.t-.8)continue; u._pf=G.t; healFx.push({u,t:0,k:0}); if(healFx.length<MEDEVAC.fxMax+10&&rnd()<.5)healFx.push({u,t:-.1,k:1,ox:(rnd()-.5)*12}) } }
+function updateHealFx(dt){ for(let i=healFx.length-1;i>=0;i--){ const q=healFx[i]; q.t+=dt/(q.k?.9:.8); if(q.t>=1||q.u.hp<=0){ healFx[i]=healFx[healFx.length-1]; healFx.pop() } } }
+function drawHealFx(camX,camY){ for(const q of healFx){ if(q.t<0)continue; const u=q.u; if(u.x<camX-60||u.x>camX+VW+60||u.y<camY-60||u.y>camY+VH+60)continue;
+    if(!q.k)drawHealPulse(ctx,Math.round(u.x),Math.round(u.y+8),q.t,u===G.p?1:.75); else drawHealPlus(ctx,Math.round(u.x+q.ox),Math.round(u.y-10),q.t) } }
 
 function updateKnives(dt){ for(let i=knives.length-1;i>=0;i--){ const k=knives[i]; k.x+=k.vx*dt; k.y+=k.vy*dt; k.rot+=dt*24; k.life-=dt; if(k.life<=0){ knives[i]=knives[knives.length-1]; knives.pop(); continue }
     const cx=Math.floor(k.x/CS),cy=Math.floor(k.y/CS); let dead=false;
@@ -4355,6 +4679,7 @@ function render(){
   for(let i=0;i<hshells.length;i++){ const q=hshells[i]; if(q.t<0)continue; const k=q.t/q.d, z=(1-k)*420; ctx.strokeStyle='rgba(255,230,160,.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(q.x,q.y-z); ctx.lineTo(q.x,q.y-z-26); ctx.stroke(); ctx.fillStyle='#2b2f2a'; ctx.fillRect(Math.round(q.x-2),Math.round(q.y-z-3),4,7) }
   if(G.mortarT>0||mshells.length){ const p2=G.p, px2=Math.round(p2.x-16), py2=Math.round(p2.y+8); ctx.fillStyle='rgba(0,0,0,.28)'; ctx.fillRect(px2-5,py2+3,12,3); ctx.save(); ctx.translate(px2,py2); ctx.rotate(-.35); ctx.fillStyle='#5c6068'; ctx.fillRect(-2,-13,4,14); ctx.fillStyle='#a9aeb6'; ctx.fillRect(-2,-13,4,2); ctx.restore(); ctx.fillStyle='#2a2a2a'; ctx.fillRect(px2-5,py2,10,3);
     if(G.mortarT>.3){ ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(px2-5,py2-13,4,0,TAU); ctx.fill() } }
+  drawHealFx(camX,camY);
   drawSquad(camX,camY);
   // player
   if(!g.hide){ const ps=(g.char&&CHSPR[g.char])||SPR.marine; const fr=p.mv?(Math.floor(p.anim)&1):0, flip=p.face>0?0:1; const spr=ps[fr][flip][(p.hurtT>0&&Math.floor(tt*30)%2)?1:0];
