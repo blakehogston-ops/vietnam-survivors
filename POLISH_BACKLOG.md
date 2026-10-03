@@ -54,3 +54,8 @@ LATER:
 - Ribbons: `DBG.grantRibbon(charId,id)`, `DBG.resetRibbons(charId|'all')`, `DBG.listRibbons()`.
 - Open: Low effects toggle (tiers from Sound Helper), favicon is a data URI (no 404).
 
+
+## Player highlight (requested by Blake, Oct 3, 2026 — do LATER, after the friends build is shared)
+- Make the main player clearly stand out from allies (squad, patrol, Company Marines, engineers, Hueys' crew): e.g. a soft ground ring or bright outline/arrow under the player, slightly brighter sprite, and a name tag; keep allies dimmer (yellow armband already marks Company).
+- Must stay cheap on phones: no extra per-frame gradients; cache the ring sprite; skip glow under Low effects (keep a simple ring).
+- Optional toggle in settings; check it reads well on all 3 skin-tone variants and in the dark/night lighting.
