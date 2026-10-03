@@ -7,5 +7,5 @@ const id=execSync('git rev-parse --short HEAD',{cwd:root}).toString().trim();
 const d=new Date().toLocaleString('sv-SE',{timeZone:'America/New_York',hour12:false}).slice(0,16);
 let s=fs.readFileSync(f,'utf8');
 s=s.replace(/const BUILD=\{id:'[^']*',date:'[^']*'\}/,`const BUILD={id:'${id}',date:'${d} ET'}`);
-s=s.replace(/(favicon\.png|favicon\.ico|apple-touch-icon\.png)\?v=[A-Za-z0-9]+/g,`$1?v=${id}`);
+s=s.replace(/(apple-touch-icon\.png)\?v=[A-Za-z0-9]+/g,`$1?v=${id}`);
 fs.writeFileSync(f,s); console.log('stamped',id,d,'ET');

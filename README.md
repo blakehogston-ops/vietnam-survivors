@@ -124,3 +124,5 @@ Walls (336 x 336 px, half-side `FBS` = 168), the wire (half-side 237), turret sl
 
 ## Level-up radio sound and rifle (Sound Helper 45-cue pack)
 - `perkRadio` (tier 1) plays once per level-up popup (0.5 s minimum gap, so chained popups do not stack); `boltRifleCrack` (tier 2) is the M1903 shot, and `boltCycle` (tier 2, 19 short sources) follows 0.4 s later, at most once per 0.9 s and skipped on Low-effects devices when more than 220 enemies are out. Everything runs through `Cues.createBus` (compressor) and the final limiter; measured peak 0.87 with 0 clipped frames in a heavy fight, 0.85 with 14 forced level-up radios on top.
+
+- QA part 1: favicon is an inline data-URI (no /favicon.ico request on Pages); end-of-run service card shows BEST WEAPON (per-weapon damage tracked in `G.wd`).

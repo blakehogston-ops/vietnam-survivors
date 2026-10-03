@@ -44,6 +44,7 @@
 
   // ---------------------------------------------------------------- low-level building blocks
   function track(out, node) {            // disconnect `out` once all its sources ended
+    if (!out || !node) return;
     out._n = (out._n || 0) + 1;
     node.onended = function () {
       if (--out._n <= 0) { try { out.disconnect(); } catch (e) { /* already gone */ } }
