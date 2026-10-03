@@ -66,7 +66,7 @@ Tools (`cd tools && npm i playwright-core`; they use the installed Chrome): `bot
 - **Medevac (level-up support perk, max Lv3, unlocks at player level 5):** a Red Cross UH-1 flies in, hovers over you ~3.5 s and heals everyone within `MEDEVAC.R` (620 px) over 7 ticks: you, squad, patrol, company Marines, tank, firebase engineers; 40 % / 60 % / 80 % of max HP by level, cooldown 90 s -12/Lv (own cooldown, not part of the air-support cap). It only comes when you are under 80 % HP or 3+ allies are under 60 %, never heals past max, floating +HP on up to 8 units, red smoke (reduced by Low effects). Art: Artist Helper `medevac_huey.js` (Red Cross Huey, 2 rotor phases) and `heal_pulse.js` (green-white ground ring + rising plus, at most `MEDEVAC.fxMax` = 30 live effects, nearest units first, skipped under Low effects). Separate from the one-time Dustoff revive. HUD pills (COMPANY / MEDEVAC) sit above the ability button.
 - **PFC Josh Johnson 'Country' (Buffalo Gap, VA):** starts with the **M1903 Springfield .30-06** (bolt-action) instead of the M16A1; the M16A1 is not offered to him as a level-up (everyone else is unchanged, and the patrol Marines keep M16A1s). `ITEMS.m1903.stats`: bolt `1.55 s x 0.93^(lvl-1)` (0.93 s at Lv8), pierce `4 + floor(lvl/2)` (Lv8 scoped: pierces the whole line), range `600 + 45 x (lvl-1)`, boss/tank damage `120 + 30 x (lvl-1)`. Any non-boss, non-tank enemy (VC, NVA, officer, B-40 trooper, sapper) dies to one round (`bullet.ohk`). Visible long tracer, bolt-cycle animation + two bolt clicks (`boltA`/`boltB`), heavy crack = pack cue `ak47` (request to Sound Helper: a dedicated tier-2 `boltRifleCrack` and `boltCycle`).
 - **Sound (Stage C):** the 42-cue pack (`assets/sound/sound_cues.js`, inlined) plays through `Cues.createBus` (compressor) into the SFX master, then a final limiter (-7 dB threshold, 14:1) so stacked guns/cues/music/voice stay under 1.0 (measured peak 0.91 over a 60 s heavy fight, 0 clipped frames; `?meter` adds a peak meter, `__ms.Snd.peakMax`). The cue bus ducks to about half while the Colonel's recorded voice or the briefing is playing. Legacy event names map to pack cues in `CUEMAP`/`CUEAIR` (guns, mortar, B-40, boss, level-up, UI, build stage, medic pack, signal pop, deaths, air strafe/napalm/tanker); everything else keeps the original in-game synth. Budget: 18 non-tier-1 cues per 250 ms. Low health: heartbeat cue + synced screen-edge pulse below 30 % HP.
-- **Low effects (Stage D):** Settings switch (main menu and pause menu). ON by default on touch devices (`pointer:coarse`), saved as `vs_lowfx`, `?lowfx=1/0` overrides. Caps: particles 210 (was 520, half the non-glow smoke dropped, bursts x0.55), decals 260 (700), drops 110 (300), rotor wash x0.3, enemy cap 420 (700), tier-3 sound cues off. Measured (headless Chrome, 4x CPU throttle, 390x844 @3x, t=600 bot fight): **30 avg / 15 min FPS off vs 41 avg / 30 min FPS on**; desktop stays 60 either way.
+- **Low effects (Stage D):** Settings switch (main menu and pause menu). ON by default on touch devices (`pointer:coarse`), saved as `lbo_lowfx`, `?lowfx=1/0` overrides. Caps: particles 210 (was 520, half the non-glow smoke dropped, bursts x0.55), decals 260 (700), drops 110 (300), rotor wash x0.3, enemy cap 420 (700), tier-3 sound cues off. Measured (headless Chrome, 4x CPU throttle, 390x844 @3x, t=600 bot fight): **30 avg / 15 min FPS off vs 41 avg / 30 min FPS on**; desktop stays 60 either way.
 - **Extraction (Stage E):** `EX` constants unchanged (bot, Doc, 24 runs: reach LZ 79 %, evacuated 46 %, inside the 45-55 % target; Hammer 75 % evacuated, so the bot favours some kits). Company + Medevac Lv2 from second zero lifted Doc to 100 % reach / 83 % evac, so LZ hold waves now grow `EX.COY_PER` (4 %) per living Company Marine, max `EX.COY_MAX` (+100 %): same bot with both perks maxed early is now 100 % reach / 58 % evac (12 runs). Players only get the perks after level 5-6 and must pick them over other upgrades.
 - **Service-record card:** end-of-run screen shows the character, an animated XP bar to the next tier, tier-unlock text, the earned-ribbon strip (new ones outlined and described) and the dedication to the Vietnam veterans and MSgt. Hogston. With `?fps`/`?bot`/`?debug` it also prints "killed by: <source>" and damage taken per source.
 
@@ -91,3 +91,36 @@ Pending Artist Helper pieces plug into the `ART` object near the top of the spri
 ## Country (Josh Johnson) rifle sound and Hogston service photo
 - The M1903 shot is an original synthesized cue (`Cues.boltRifleCrack`, tier 2): 1-3 ms click, ~80 ms supersonic crack, ~220 ms low boom, ~500 ms echo tail (~250 ms and quieter under Low effects) and a bolt clack-clack about 0.5 s later. It goes through the cue-bus compressor and the final limiter, honours mute, and allows at most 2 voices at once. Measured: no clipped frames.
 - MSgt. Hogston's character card and end-of-run card show a framed service photo (`assets/hogston_profile.jpg`, family photo used with the owner's permission, metadata stripped). It is preloaded; if it fails to load only the pixel portrait is shown. The original is kept out of git (`ref/` is ignored).
+
+## Controller support (browser Gamepad API, standard mapping: Xbox / PlayStation / Steam Deck)
+Plug in or pair a pad and press any button; a hint shows for a few seconds ("A: special  Start: pause"; PlayStation pads show Cross / Options). Keyboard, mouse and touch keep working; on touch devices the on-screen SIGNAL button is hidden while a pad is connected. Unplugging during play auto-pauses. Optional rumble on hits and on the special if the pad exposes `vibrationActuator`. Browsers only let a page use the pad after the first button press, and a pad press does not unlock Web Audio or fullscreen by itself: click or press a key once for sound, and Select (fullscreen) only works if the browser allows it without a mouse click (Steam/Electron build: yes).
+
+| Context | Button | Does |
+|---|---|---|
+| Play | Left stick / D-pad | Move (stick dead zone 0.2) |
+| Play | A (Cross), LT or RT | Special (= Space / E) |
+| Play | X (Square) | Pop the LZ signal (= G) |
+| Play | LB (L1) or R3 | Mute (= M) |
+| Play | Start (Options) | Pause (= P / Esc) |
+| Any | Select (Create) | Fullscreen (= F) |
+| Level-up | Stick / D-pad / LB / RB | Move the highlight on the cards (gold outline) |
+| Level-up | A / X / Y / B | Choose / Reroll (= R) / Banish (= B) / cancel a banish |
+| Menus, pause, game over | Stick / D-pad up-down | Move the highlight; left/right changes a slider by 10 |
+| Menus, pause, game over | A / B | Press the highlighted item / back (pause: resume, game over: main menu) |
+| Main menu | Start | Start Patrol (opens character select) |
+| Character select | Stick / D-pad / LB / RB, A (or Start), B | Change man, deploy, back |
+| Briefing | A / Start or B | Next line / skip |
+| Intro | any button | Skip |
+| Signal confirm | A (or Start) | Confirm the colour |
+
+QA hook (console): `DBG.pad.press('A')`, `DBG.pad.axes(1,0)`, `DBG.pad.info()`, `DBG.pad.connect()` / `DBG.pad.disconnect()` simulate a pad; mocking `navigator.getGamepads` also works. Button icons are text labels for now.
+
+## Firebase footprint is a SQUARE
+Walls (336 x 336 px, half-side `FBS` = 168), the wire (half-side 237), turret slots, the build-progress trace (it runs around the square outline, with the % in the middle), the radio-point site marker and call-in hold trace, and the Marines' hold ring are all square. Only the extraction LZ ring is a circle. Headless check: all 40 sandbags sit at Chebyshev distance 168 from the centre (Euclidean up to 228), wire at 237 (up to 322).
+
+## Build stamp and caching
+- The main menu and pause screen show `BUILD <hash> <date ET>` in the bottom-left corner. After every code commit run `node tools/stamp.js`, then commit and push the one-line stamp commit: it writes the short hash of the commit it follows (the code commit), the date, and the `?v=<hash>` cache-buster used on the favicon links, the Colonel's audio files and the Hogston photo.
+- GitHub Pages serves `index.html` with `Cache-Control: max-age=600`, so a visitor can see a page up to ~10 minutes old after a push (a hard refresh, or opening the URL with `?v=anything`, always fetches the new one). The page also carries `no-cache` meta tags and, two seconds after loading, asks the server (HEAD, no-store) whether `index.html` is newer than the copy it is running; if so it shows "A newer version of the game is available · click to reload".
+
+## Level-up radio sound and rifle (Sound Helper 45-cue pack)
+- `perkRadio` (tier 1) plays once per level-up popup (0.5 s minimum gap, so chained popups do not stack); `boltRifleCrack` (tier 2) is the M1903 shot, and `boltCycle` (tier 2, 19 short sources) follows 0.4 s later, at most once per 0.9 s and skipped on Low-effects devices when more than 220 enemies are out. Everything runs through `Cues.createBus` (compressor) and the final limiter; measured peak 0.87 with 0 clipped frames in a heavy fight, 0.85 with 14 forced level-up radios on top.

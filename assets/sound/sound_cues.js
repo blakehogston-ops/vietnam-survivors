@@ -183,6 +183,20 @@
     return 0.2;
   };
 
+  BODY.perkRadio = function (ctx, out, t) {
+    // level-up / perk-card popup, played OFTEN, so it is deliberately small and soft (replaces levelUpSwell on the cards; levelUpSwell stays in the pack).
+    // Radio transmission: push-to-talk click, ~0.25 s of band-limited static, two short RISING chirps (~0.15 s each, second one higher), un-key tick. ~0.8 s.
+    noise(ctx, out, { t: t, dur: 0.012, vol: 0.45, a: 0.0005, filters: [['bandpass', 2000, 2000, 1.2], ['highpass', 800]] });                 // PTT click
+    osc(ctx, out, { t: t, dur: 0.03, vol: 0.1, type: 'square', f0: 900, a: 0.002, filters: [['lowpass', 2500]] });
+    noise(ctx, out, { t: t + 0.03, dur: 0.25, vol: 0.42, a: 0.02, rel: 0.08, filters: [['bandpass', 1800, 1500, 2.2], ['highpass', 500]] });   // static
+    [[0.33, 880, 1320], [0.51, 1100, 1760]].forEach(function (c) {
+      osc(ctx, out, { t: t + c[0], dur: 0.15, vol: 0.34, type: 'triangle', f0: c[1], f1: c[2], a: 0.01, rel: 0.05,
+        filters: [['bandpass', (c[1] + c[2]) / 2, null, 1.2], ['highpass', 500]] });                                                           // chirp (speaker-band)
+    });
+    noise(ctx, out, { t: t + 0.33, dur: 0.33, vol: 0.04, a: 0.05, filters: [['bandpass', 2000, 1800, 1]] });                                  // faint hiss under the chirps
+    noise(ctx, out, { t: t + 0.72, dur: 0.015, vol: 0.28, filters: [['bandpass', 2400, 2400, 1]] });                                          // un-key tick
+    return 0.8;
+  };
   BODY.medpackPickup = function (ctx, out, t) {
     // warm, rising two-note chime (A4 -> E5, a perfect fifth up). Sits LOWER and softer than readyTick (1320/1760 Hz sines),
     // boardingChime (bell partials at 784/1175 Hz) and uiTick (square click): triangle + octave-down sine, lowpassed, with a slow bloom.
@@ -266,6 +280,40 @@
     osc(ctx, out, { t: t, dur: 0.04, vol: 0.14, type: 'square', f0: 95, a: 0.001, filters: [['lowpass', 500]] });
     noise(ctx, out, { t: t + 0.015, dur: 0.26, vol: 0.18, filters: [['bandpass', 650, 300, 0.7]] });
     return 0.32;
+  };
+  BODY.boltRifleCrack = function (ctx, out, t) {
+    // M1903 Springfield (.30-06) single shot: slower and louder than m16/ak47. A hard but not-so-bright crack (band 500 Hz to ~4 kHz,
+    // lower than m16), a heavy pitch-dropping body thump, and a LONG low-mid tail (bandpass ~600 -> 180 Hz, ~0.5 s) plus a brown-noise
+    // rumble, so it rings out like a big rifle over open ground. ~0.6 s.
+    noise(ctx, out, { t: t, dur: 0.09, vol: 0.5, a: 0.001, filters: [['highpass', 300], ['lowpass', 2200, 1000, 0.8]] });      // crack
+    thump(ctx, out, t, 120, 42, 0.22, 0.9);                                                                                       // heavy body
+    osc(ctx, out, { t: t, dur: 0.06, vol: 0.14, type: 'square', f0: 85, a: 0.001, filters: [['lowpass', 450]] });                 // chest punch
+    noise(ctx, out, { t: t + 0.01, dur: 0.6, vol: 0.5, a: 0.01, filters: [['bandpass', 650, 180, 0.8]] });                      // low-mid report tail
+    noise(ctx, out, { t: t + 0.03, dur: 0.6, vol: 0.3, brown: true, a: 0.03, filters: [['lowpass', 380]] });                     // rumble / far echo
+    noise(ctx, out, { t: t + 0.22, dur: 0.3, vol: 0.05, filters: [['bandpass', 900, 500, 0.9]] });                               // faint slap-back echo
+    return 0.6;
+  };
+  BODY.boltCycle = function (ctx, out, t) {
+    // bolt-action cycle, four metal events inside ~0.5 s: LIFT (handle up, quick click), PULL BACK (short rasp + end-stop clack),
+    // PUSH FORWARD (rasp + soft chamber tick), LOCK (handle down: the loudest, most solid clack). Small inharmonic metal partials,
+    // no low end, so it stays out of the way of the crack's tail. Meant to be quiet next to boltRifleCrack.
+    function clack(at, vol, f) {
+      noise(ctx, out, { t: at, dur: 0.012, vol: vol, a: 0.0005, filters: [['bandpass', f, f, 1.6], ['highpass', 1200]] });
+      [1, 2.31, 3.97].forEach(function (m, i) {
+        osc(ctx, out, { t: at, dur: 0.05 - i * 0.012, vol: vol * 0.45 / (i + 1), type: 'triangle', f0: f * m * 0.5, a: 0.0008 });
+      });
+    }
+    function rasp(at, dur, vol, f0, f1) {
+      noise(ctx, out, { t: at, dur: dur, vol: vol, a: dur * 0.2, filters: [['bandpass', f0, f1, 1.2], ['highpass', 1500]] });
+    }
+    clack(t, 0.5, 2600);                                       // lift
+    rasp(t + 0.1, 0.09, 0.14, 2400, 3200);                     // pull back, slide
+    clack(t + 0.2, 0.6, 2100);                                 // pull back, end stop
+    rasp(t + 0.29, 0.08, 0.12, 3200, 2400);                    // push forward, slide
+    clack(t + 0.37, 0.4, 3000);                                // chamber tick
+    clack(t + 0.45, 0.9, 1800);                                // lock (handle down), heaviest
+    thump(ctx, out, t + 0.45, 260, 140, 0.04, 0.1);
+    return 0.5;
   };
   BODY.claymore = function (ctx, out, t) {
     // short, sharp blast + scatter of steel balls (not a big fireball)
@@ -614,6 +662,7 @@
     tankLost:           { tier: 1, trim: 0.7 },
     uiTick:             { tier: 1, trim: 0.9 },
     levelUpSwell:       { tier: 1, trim: 0.8 },
+    perkRadio:          { tier: 1, trim: 0.4 },
     readyTick:          { tier: 1, trim: 0.9 },
     medpackPickup:      { tier: 1, trim: 0.8 },
     reinforcementCall:  { tier: 1, trim: 0.75 },
@@ -623,6 +672,8 @@
     m60:                { tier: 2, trim: 0.5 },
     m79:                { tier: 2, trim: 0.55 },
     ak47:               { tier: 2, trim: 0.55 },
+    boltRifleCrack:     { tier: 2, trim: 0.5 },
+    boltCycle:          { tier: 2, trim: 0.35 },
     claymore:           { tier: 2, trim: 0.55 },
     mortarThump:        { tier: 2, trim: 0.6 },
     airStrafe:          { tier: 2, group: 'air', trim: 0.7 },
