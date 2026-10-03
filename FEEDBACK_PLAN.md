@@ -34,3 +34,16 @@ Batch 1 in one push, QA pass; then 8, 9, 11; then 12; then 10; Batch 3 one item 
 - Artist Helper, art needs: Batch 1 = player ring + name tag, boots icon, flamethrower flame with brighter core. Batch 2 = icon redo (border color + silhouette per category: weapons / support / perks), calmer body-part and blood decals. Batch 3 = sandbag bunker, destroyed bunker, firing flash, river tile set, boat sprites, 4 recon-team figures (Vietnam Vet checks camo/period first). Cheapest first: player ring and icon redo.
 - QA, test plan per batch (one short round each): pits never in firebase square (10-min bot run); flamethrower range in px before/after + kills/min + FPS; menu text readable at 1280x720 and small phone; ring visible on all backgrounds in a crowd; boots stop pit damage; gib count + FPS vs current; slots full -> no new-item cards over many level-ups; icons distinct at real size; tutorial skippable and not replayed; bigger firebase secures in a sensible time at 60 FPS; each combo alone vs normal run at level 20+; bunkers: fire, die with garrison, shelter/leave, no stuck player; river/boats FPS; recon team HP/weapons per spec. Every batch also: clean private-window load, BUILD stamp, DBG.pad pass.
 - Dev debug hooks QA asked for (build with Batch 1): `?fps` readout adds gib count and slot counts (weapons/support used of max); `DBG.give('itemId', level)` to grant items; `DBG.fullSlots()` to fill categories.
+
+## DRAFT combo list (for Gamer to refine; descriptions give Artist Helper and Sound Helper something to design from)
+Existing: M60 + Ammo Pouch = AC-47 Spooky; Arc Light + KC-135 = Box Mission. New candidates, each = two max-level items:
+1. Flamethrower + Napalm = FIRESTORM: a rotating wall of fire circles the player and leaves burning ground.
+2. M79 + Demo Charges = THUMPER BARRAGE: each shot becomes a six-grenade cluster volley that chains explosions.
+3. Claymore + Radio = PERIMETER DEFENSE: claymores auto-plant in a ring around you and re-arm on a short timer.
+4. M1903 + FM Radio (spotter) = ONE SHOT, ONE KILL: every shot pierces the whole screen line and marks a target for guaranteed crits.
+5. Mortar + Howitzer = FIRE MISSION: a walking barrage sweeps across the screen in a line with a big final salvo.
+6. Huey + Medevac = ANGEL FLIGHT: a gunship pair covers you and heals Marines and you while flying.
+7. Squad + Company = FULL COMPANY ASSAULT: allies get armor, faster fire and a charge order that wipes a screen-wide wave.
+8. Gunboat + Strafe = BROWN WATER NAVY: a river gunboat plus A-1 Skyraider run clears a long lane.
+9. Grease Gun + Butcher Knives = MESS HALL MAYHEM (Cook): thrown knives spin back like boomerangs and ricochet; the Grease Gun fires in a full spray.
+Each combo: gold-bordered icon, banner + screen flash, shared "combo earned" fanfare (Sound Helper), plus its own short signature sound. Gamer balances and may swap pairs.
