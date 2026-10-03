@@ -1,4 +1,6 @@
-# Vietnam Survivors
+# Last Bird Out — Quang Tri, 1968
+
+*(formerly "Vietnam Survivors". The repo name and the URL `vietnam-survivors` are unchanged so existing links keep working. Saves migrate automatically: the old `vs_*` localStorage keys are copied once to `lbo_*` and never deleted.)*
 
 A stylized browser arcade survival game (Vampire Survivors-style) set in Vietnam, 1968. Play a US Marine against VC and NVA waves. Single HTML file, no assets.
 

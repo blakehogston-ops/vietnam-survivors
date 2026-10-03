@@ -9,7 +9,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Vietnam Survivors — Hold the Line</title>
+<title>Last Bird Out — Quang Tri, 1968</title>
+<meta name="description" content="Last Bird Out — Quang Tri, 1968. A top-down survival game: hold the line against the VC and NVA, call in air support, and make the last helicopter out.">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Last Bird Out">
+<meta property="og:title" content="Last Bird Out — Quang Tri, 1968">
+<meta property="og:description" content="Hold the line against the VC and NVA, look after the Marines beside you, and make it to the last bird out. Free to play in your browser.">
+<meta property="og:url" content="https://blakehogston-ops.github.io/vietnam-survivors/">
+<meta property="og:image" content="https://blakehogston-ops.github.io/vietnam-survivors/screenshot.png">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Last Bird Out — Quang Tri, 1968">
+<meta name="twitter:description" content="Hold the line against the VC and NVA and make it to the last bird out.">
+<meta name="twitter:image" content="https://blakehogston-ops.github.io/vietnam-survivors/screenshot.png">
+<meta name="apple-mobile-web-app-title" content="Last Bird Out">
 <style>
 html,body{margin:0;height:100%;background:#0a170d;overflow:hidden;overscroll-behavior:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;font-family:"Courier New",Courier,monospace;color:#f1ecd0;touch-action:none;user-select:none;-webkit-user-select:none}
 canvas#c{position:fixed;left:0;top:0;width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none}
@@ -136,8 +146,8 @@ button.btn.alt{background:#6b5a2f;font-size:clamp(14px,3vw,20px);padding:8px 22p
 <div id="fsHint">For fullscreen on iPhone: tap <b>Share</b> ▸ <b>Add to Home Screen</b>, then launch from the icon.</div>
 
 <div id="menu" class="overlay show">
-  <h1>VIETNAM <span>SURVIVORS</span></h1>
-  <div class="sub">I Corps · 1968 · Hold the line against the VC and NVA</div>
+  <h1>LAST BIRD <span>OUT</span></h1>
+  <div class="sub">Quang Tri, 1968 · I Corps · Hold the line against the VC and NVA</div>
   <button class="btn" id="btnStart">Start Patrol</button>
   <button class="btn alt" id="btnBrief">Replay Briefing</button>
   <label class="goresw" id="goreSw" title="Blood, gibs and corpses. OFF = enemies just poof into dust."><span>GORE</span><input type="checkbox" id="goreChk" checked><i></i><b id="goreTxt">ON</b></label>
@@ -960,6 +970,9 @@ button.btn.alt{background:#6b5a2f;font-size:clamp(14px,3vw,20px);padding:8px 22p
 
 </script>
 <script>
+/* Save migration (old name): progress/settings keys moved from vs_* to lbo_*. Old keys are COPIED once (never deleted, never overwriting a new value), so existing saves survive and an older cached page still finds its own data. */
+(function(){ try{ const ls=localStorage, ks=[]; for(let i=0;i<ls.length;i++){ const k=ls.key(i); if(k&&k.indexOf('vs_')===0)ks.push(k) }
+  for(const k of ks){ const nk='lbo_'+k.slice(3); if(ls.getItem(nk)===null){ const v=ls.getItem(k); if(v!==null)ls.setItem(nk,v) } } }catch(e){} })();
 (()=>{
 'use strict';
 /* ====================== setup ====================== */
@@ -1026,8 +1039,8 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
     }catch(e){this.ctx=null}},
   resume(){ if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume() },
   vol:{mus:.8,sfx:1},
-  setVol(k,v){ this.vol[k]=v; if(k==='mus'&&this.mbus)this.mbus.gain.value=v; if(k==='sfx'&&this.master)this.master.gain.value=v; try{localStorage.setItem('vs_vol_'+k,String(v))}catch(e){} document.querySelectorAll(k==='mus'?'.volM':'.volS').forEach(el=>{el.value=Math.round(v*100)}) },
-  setMuted(m){ this.muted=m; if(this.out)this.out.gain.value=m?0:.55; try{localStorage.setItem('vs_mute',m?'1':'0')}catch(e){} $('btnMute').textContent=m?'🔇':'🔊'; },
+  setVol(k,v){ this.vol[k]=v; if(k==='mus'&&this.mbus)this.mbus.gain.value=v; if(k==='sfx'&&this.master)this.master.gain.value=v; try{localStorage.setItem('lbo_vol_'+k,String(v))}catch(e){} document.querySelectorAll(k==='mus'?'.volM':'.volS').forEach(el=>{el.value=Math.round(v*100)}) },
+  setMuted(m){ this.muted=m; if(this.out)this.out.gain.value=m?0:.55; try{localStorage.setItem('lbo_mute',m?'1':'0')}catch(e){} $('btnMute').textContent=m?'🔇':'🔊'; },
   /* air-call sounds share a voice limit: only the 2 newest play at full volume, older ones duck */
   airPlay(kind){ const c=this.ctx; if(!c||!this.master||c.state!=='running')return; { const am=CUEAIR[kind]; if(am&&this.cbus){ this.cue(am[0],am[1]); return } } const now=c.currentTime; this._av=(this._av||[]).filter(v=>v.end>now);
     const bus=c.createGain(); bus.connect(this.master); const m=this.master; this.master=bus; try{ this.play(kind) }finally{ this.master=m }
@@ -1122,7 +1135,7 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
       case 'medpack': this.tone('sine',784,1047,.1,.14); this.tone('sine',1047,1568,.14,.14,.08); this.tone('triangle',392,392,.2,.06); break;
       case 'heal': this.tone('sine',523,784,.12,.15); this.tone('sine',784,1047,.15,.15,.09); break;
     }}};
-try{Snd.muted=localStorage.getItem('vs_mute')==='1'; for(const k of ['mus','sfx']){ const v=localStorage.getItem('vs_vol_'+k); if(v!==null&&!isNaN(+v))Snd.vol[k]=Math.max(0,Math.min(1,+v)) }}catch(e){}
+try{Snd.muted=localStorage.getItem('lbo_mute')==='1'; for(const k of ['mus','sfx']){ const v=localStorage.getItem('lbo_vol_'+k); if(v!==null&&!isNaN(+v))Snd.vol[k]=Math.max(0,Math.min(1,+v)) }}catch(e){}
 
 /* ====================== pixel sprites ====================== */
 const P16=r=>(r+'................').slice(0,16);
@@ -1601,12 +1614,12 @@ const MP={C:'#6e8b4a',c:'#4a6233',S:'#e2b98f',E:'#24180d',U:'#58733a',u:'#3f5528
 /* Company Reinforcement armband (Artist Helper, assets/artist/allied_armband.js): yellow band on both upper arms, painted on row 7 cols 2 and 13 */
 const ALLIED_BASE={top:[".....CCCCCC.....","....CCCCCCCC....","....CcCCCCcC....","....cccccccc....","....SSSSSSSS....","....SESSSSES....","...UUUUUUUUUU...","..UUuUUUUUUuUU..","..SUUuUUUUuUUS..","..SuUUBBBBUUuS..","...UUUUUUUUUU..."],pal:{C:'#6e8b4a',c:'#4a6233',S:'#e2b98f',E:'#24180d',U:'#58733a',u:'#3f5528',B:'#4a3a22',P:'#5f7a3c'}};
 function armband(top){ const g=top.map(r=>r.split('')); g[7][2]='A'; g[7][13]='A'; return g.map(r=>r.join('')) }
-/* LOW EFFECTS (Stage D): on by default on phones/touch devices, persistent (localStorage vs_lowfx), ?lowfx=1/0 overrides.
+/* LOW EFFECTS (Stage D): on by default on phones/touch devices, persistent (localStorage lbo_lowfx), ?lowfx=1/0 overrides.
    Caps particles / decals / drops, thins rotor wash, lowers the enemy cap (420 vs 700) and mutes tier-3 sound cues. */
 let LOWFX=false; const LOWFX_ON=()=>LOWFX, FXK=()=>LOWFX?.3:1;
-(function(){ let v=null; try{v=localStorage.getItem('vs_lowfx')}catch(e){} const touch=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window)||(navigator.maxTouchPoints>0);
+(function(){ let v=null; try{v=localStorage.getItem('lbo_lowfx')}catch(e){} const touch=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window)||(navigator.maxTouchPoints>0);
   LOWFX=params.has('lowfx')?params.get('lowfx')!=='0':(v===null?touch:v==='1') })();
-function setLowFx(v,silent){ LOWFX=!!v; if(!silent){ try{localStorage.setItem('vs_lowfx',LOWFX?'1':'0')}catch(e){} }
+function setLowFx(v,silent){ LOWFX=!!v; if(!silent){ try{localStorage.setItem('lbo_lowfx',LOWFX?'1':'0')}catch(e){} }
   document.querySelectorAll('.lowChk').forEach(c=>{ c.checked=LOWFX }); document.querySelectorAll('.lowTxt').forEach(t=>{ t.textContent=LOWFX?'ON':'OFF' }); document.querySelectorAll('.lowSw').forEach(w=>w.classList.toggle('off',!LOWFX));
   try{ Cues.setLowEffects(LOWFX) }catch(e){}
   DECAL_CAP=LOWFX?260:700; if(decals.length>DECAL_CAP){ decals.length=DECAL_CAP } decalI=0; if(LOWFX&&parts.length>210)parts.length=210 }
@@ -1683,8 +1696,8 @@ function buildGore(){
 }
 const BLOODC=['#d01818','#a00f10','#ff3030','#7a0a0c'];
 let DECAL_CAP=700;
-let GORE=true; try{GORE=localStorage.getItem('vs_gore')!=='0'}catch(e){}
-function setGore(v,silent){ GORE=!!v; try{localStorage.setItem('vs_gore',GORE?'1':'0')}catch(e){}
+let GORE=true; try{GORE=localStorage.getItem('lbo_gore')!=='0'}catch(e){}
+function setGore(v,silent){ GORE=!!v; try{localStorage.setItem('lbo_gore',GORE?'1':'0')}catch(e){}
   const c=document.getElementById('goreChk'),t=document.getElementById('goreTxt'),w=document.getElementById('goreSw'); if(c)c.checked=GORE; if(t)t.textContent=GORE?'ON':'OFF'; if(w)w.classList.toggle('off',!GORE);
   if(!silent&&window.onGoreChange)window.onGoreChange(GORE) }
 function addDecal(x,y,c,life,sc){ if(!GORE)return; const d={x,y,c,l:life,sc:sc||1}; if(decals.length<DECAL_CAP)decals.push(d); else {decals[decalI]=d; decalI=(decalI+1)%DECAL_CAP;} }
@@ -3395,10 +3408,10 @@ const TIER_XP=[350,1000,2200,4000,6500];   /* was [120,320,620,1050,1600] */
 const AIR_CDR_CAP=.45, AIR_CDR_CAP_HOGSTON=.55, AIR_FLOOR=5, AIR_FX_MAX=7, TANKER={cut:.15,gap:20,run:2.8};     // hard cap: total air-support cooldown reduction (all sources incl. KC-135 levels), and Hogston's refuel run
 const AIRIDS={boxmission:1,spooky:1,arclight:1,strafe:1,ranch:1,napalm:1,howitzer:1,mortar:1,gunboat:1};   // gets the character air bonus
 const AIRCALL={boxmission:1,spooky:1,arclight:1,strafe:1,ranch:1,napalm:1};   // true air support: hard cap + 5 s floor apply. Mortar/howitzer/gunboat are artillery and sit OUTSIDE the cap
-let CHS={}; try{CHS=JSON.parse(localStorage.getItem('vs_chars')||'{}')||{}}catch(e){CHS={}}
-let SEL='doc'; try{SEL=localStorage.getItem('vs_char')||'doc'}catch(e){}
+let CHS={}; try{CHS=JSON.parse(localStorage.getItem('lbo_chars')||'{}')||{}}catch(e){CHS={}}
+let SEL='doc'; try{SEL=localStorage.getItem('lbo_char')||'doc'}catch(e){}
 if(params.get('char'))SEL=params.get('char'); if(!CHD[SEL])SEL='doc';
-function saveChars(){ try{localStorage.setItem('vs_chars',JSON.stringify(CHS));localStorage.setItem('vs_char',SEL)}catch(e){} if(window.onCharsChange)window.onCharsChange() }
+function saveChars(){ try{localStorage.setItem('lbo_chars',JSON.stringify(CHS));localStorage.setItem('lbo_char',SEL)}catch(e){} if(window.onCharsChange)window.onCharsChange() }
 const chXp=id=>(CHS[id]&&CHS[id].xp)||0;
 function chTier(id){ const x=chXp(id); let t=0; while(t<5&&x>=TIER_XP[t])t++; return t }
 function chMods(id){ const m={}, t=chTier(id); for(let i=0;i<t;i++){ const pm=CHD[id].perks[i].m; for(const k in pm)m[k]=(m[k]||0)+pm[k] } return m }
@@ -3706,6 +3719,9 @@ function drawIntroOverlay(){ const I=INTRO, t=I.t; ctx.setTransform(1,0,0,1,0,0)
     if(t>.9&&t<6.2){ const a=Math.min(1,(6.2-t)*2), n=Math.min(full.length,Math.floor((t-.9)*16)); ctx.globalAlpha=a; ctx.font=`bold ${fs}px "Courier New",monospace`; ctx.textAlign='left'; ctx.lineWidth=fs/6; ctx.strokeStyle='#000'; ctx.lineJoin='round';
       const x=ox+dw*.07, y=oy+dh*.9; ctx.strokeText(full.slice(0,n),x,y); ctx.fillStyle='#f6f0cc'; ctx.fillText(full.slice(0,n),x,y);
       if(t>2.3){ const m=Math.min(sub.length,Math.floor((t-2.3)*30)); ctx.font=`bold ${fs*.5}px "Courier New",monospace`; ctx.strokeText(sub.slice(0,m),x,y+fs*.7); ctx.fillStyle='#e8c860'; ctx.fillText(sub.slice(0,m),x,y+fs*.7) } ctx.globalAlpha=1 } }
+  if(I.ph===1&&t>5.4&&t<8.1){ const s2=Math.min(W/320,H/180), dh2=180*s2, a=Math.min(1,(t-5.4)*2.5,(8.1-t)*3); ctx.globalAlpha=a; ctx.textAlign='center'; ctx.lineJoin='round'; ctx.strokeStyle='#000';   /* game title card */
+    const f1=Math.max(22,dh2/6); ctx.font=`bold ${f1}px Impact,"Arial Black",sans-serif`; ctx.lineWidth=f1/7; ctx.strokeText('LAST BIRD OUT',W/2,H*.4); ctx.fillStyle='#f0e6a8'; ctx.fillText('LAST BIRD OUT',W/2,H*.4);
+    const f2=Math.max(12,dh2/22); ctx.font=`bold ${f2}px "Courier New",monospace`; ctx.lineWidth=f2/4; ctx.strokeText('QUANG TRI, 1968',W/2,H*.4+f1*.7); ctx.fillStyle='#e8c860'; ctx.fillText('QUANG TRI, 1968',W/2,H*.4+f1*.7); ctx.globalAlpha=1 }
   if(I.flash>0&&I.ph===2){ ctx.fillStyle=`rgba(255,255,255,${Math.min(1,I.flash)})`; ctx.fillRect(0,0,W,H) }
   if(I.ph===1&&t>8.2){ ctx.fillStyle=`rgba(255,255,255,${Math.min(1,(t-8.2)/.4)})`; ctx.fillRect(0,0,W,H) }
   if(Math.floor(performance.now()/500)%2===0||I.t<1){ ctx.font=`bold ${Math.max(11,H/40)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.85)'; ctx.strokeStyle='#000'; ctx.lineWidth=3; const m='PRESS ANY KEY / TAP TO SKIP ▶'; ctx.strokeText(m,W-14,H-14); ctx.fillText(m,W-14,H-14) } }
@@ -3792,7 +3808,7 @@ function briefSpeak(i){ if(!BR)return; const text=BRIEF_LINES[i].t; try{BriefSnd
   BVOX.play(i,()=>{},()=>{ const b=BR; if(b&&b===my&&b.page===i)b.ended=true },()=>{ const b=BR; if(b&&b===my&&b.page===i)briefSpeakTTS(text) }) }
 function startBrief(){ BR={ph:0,page:0,t:0,typed:0,wait:0,ended:true,voice:false,bidx:0,px:0,py:0,pi:0,blip:0};
   state='brief'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{BVOX.prefetch()}catch(e){} }
-function endBrief(){ BVOX.stop(); BriefSnd.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{sessionStorage.setItem('vs_briefed','1')}catch(e){} BR=null; state='menu'; $('menu').classList.add('show'); $('topbtns').style.display='none'; last=performance.now() }
+function endBrief(){ BVOX.stop(); BriefSnd.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{sessionStorage.setItem('lbo_briefed','1')}catch(e){} BR=null; state='menu'; $('menu').classList.add('show'); $('topbtns').style.display='none'; last=performance.now() }
 function briefBegin(){ if(!BR)return; BR.ph=1; BR.page=0; BR.t=0; BR.typed=0; BR.wait=0; Snd.init(); Snd.resume(); setTimeout(()=>{ if(BR)BriefSnd.start() },120); briefSpeak(0) }
 function briefNext(){ if(!BR)return; if(BR.ph===0){ briefBegin(); return }
   const L=BRIEF_LINES[BR.page]; if(BR.typed<L.t.length){ BR.typed=L.t.length; return }
@@ -4547,7 +4563,7 @@ function gameOver(win,why){ state='over'; overAt=performance.now(); const g=G, e
   if(!win)Snd.play('over');
   if(!why){ spawnDrops(g.p.x,g.p.y-6,0,0,40,200); addDecal(g.p.x,g.p.y+6,SPLAT[6],90,1.8); addDecal(g.p.x,g.p.y+8,CORPSE.marine[0],90,1) }
   $('overTitle').textContent=win?'EVACUATED — GOOD HUSTLE, MARINE':why==='left'?'LEFT ON THE LZ — THE BIRD IS GONE':'MARINE DOWN — MEDEVAC';
-  let best=0; try{best=+localStorage.getItem('vs_best')||0; if(g.t>best){best=g.t;localStorage.setItem('vs_best',String(g.t))}; if(win&&!g.demo&&!DBG.bot)localStorage.setItem('vs_evacs',String((+localStorage.getItem('vs_evacs')||0)+1))}catch(e){}
+  let best=0; try{best=+localStorage.getItem('lbo_best')||0; if(g.t>best){best=g.t;localStorage.setItem('lbo_best',String(g.t))}; if(win&&!g.demo&&!DBG.bot)localStorage.setItem('lbo_evacs',String((+localStorage.getItem('lbo_evacs')||0)+1))}catch(e){}
   const aw=awardRun(true); $('rank').textContent=win?'Mission complete: extracted by UH-1 Huey':'Reached rank: '+rankFor(g.t);
   const sc=exScore(g);
   $('stats').innerHTML=`Survived <b>${fmt(g.t)}</b> &nbsp;·&nbsp; Enemies defeated <b>${g.kills}</b><br>Level <b>${g.p.lvl}</b> &nbsp;·&nbsp; Best time <b>${fmt(best)}</b>`+(ex&&ex.popped?`<br>LZ hold kills <b>${ex.holdKills}</b> &nbsp;·&nbsp; Mission score <b>${sc}</b>`:`<br>Mission score <b>${sc}</b>`)+serviceCard(aw)+((DBG.fps||DBG.bot||params.has('debug'))&&g.lastHit?'<div style="margin-top:8px;font:12px Courier New,monospace;color:#9be37a;text-align:left">DEBUG killed by: <b>'+g.lastHit.src+'</b> ('+g.lastHit.dmg+' dmg at '+fmt(g.lastHit.t)+')<br>damage taken: '+Object.entries(g.hs||{}).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+Math.round(v)).join(' · ')+'</div>':'');
@@ -4558,12 +4574,12 @@ const tierPct=x=>{ let t=0; while(t<5&&x>=TIER_XP[t])t++; if(t>=5)return 100; co
 function serviceCard(aw){ if(!aw)return ''; const D=CHD[aw.id], c=CHS[aw.id]||{}, xp=chXp(aw.id), x0=xp-aw.gain, t=aw.t1, nx=t>=5?null:TIER_XP[t];
   const earned=RIBBON_RACK_ORDER.filter(k=>c.rib&&c.rib[k]), fresh=(aw.rib||[]);
   setTimeout(()=>{ const b=document.querySelector('#stats .srbar i'); if(b)b.style.width=tierPct(xp)+'%' },80);
-  return `<div class="srcard"><div class="srh">SERVICE RECORD</div><div class="srn">${D.label||D.rank+' '+D.nick}</div>${svcPhoto(aw.id)}<div class="srbar"><i style="width:${aw.t1>aw.t0?0:tierPct(x0)}%"></i></div>`+
+  return `<div class="srcard"><div class="srh">LAST BIRD OUT · SERVICE RECORD</div><div class="srn">${D.label||D.rank+' '+D.nick}</div>${svcPhoto(aw.id)}<div class="srbar"><i style="width:${aw.t1>aw.t0?0:tierPct(x0)}%"></i></div>`+
    `<div class="srx">+${aw.gain} service XP · ${t>=5?'MAX TIER (5)':xp+' / '+nx+' to Tier '+(t+1)}${aw.t1>aw.t0?'<br><b style="color:#9be37a">TIER '+aw.t1+' UNLOCKED: '+D.perks[aw.t1-1].t+'</b>':''}</div>`+
    (earned.length?`<div class="srstrip">${earned.map(k=>`<img src="${ribURL(k,k==='moh',2)}" title="${RIB[k].nm}${fresh.indexOf(k)>=0?' (NEW)':''}" alt="${RIB[k].nm}" style="${fresh.indexOf(k)>=0?'outline:2px solid #ffd54a':''}">`).join('')}</div>`:'')+
    (fresh.length?'<div class="newrib">'+fresh.slice().sort((a,b)=>RIBBON_RACK_ORDER.indexOf(a)-RIBBON_RACK_ORDER.indexOf(b)).map(k=>`<div class="nr"><img src="${ribURL(k,true,3)}" alt=""><span><b>NEW: ${RIB[k].nm}</b><br>${RIB[k].how}</span></div>`).join('')+'</div>':'')+
    `<div class="srd">Dedicated to the Vietnam veterans, and to MSgt. Hogston, USAF.</div></div>` }
-function showBest(){ let b=0; try{b=+localStorage.getItem('vs_best')||0}catch(e){} let ev=0; try{ev=+localStorage.getItem('vs_evacs')||0}catch(e){} $('best').textContent=(b?('Best survival: '+fmt(b)):'')+(ev?(b?' · ':'')+'Evacuations: '+ev:''); }
+function showBest(){ let b=0; try{b=+localStorage.getItem('lbo_best')||0}catch(e){} let ev=0; try{ev=+localStorage.getItem('lbo_evacs')||0}catch(e){} $('best').textContent=(b?('Best survival: '+fmt(b)):'')+(ev?(b?' · ':'')+'Evacuations: '+ev:''); }
 $('btnStart').onclick=openCharSel; $('btnRestart').onclick=startGame; $('btnMenu').onclick=toMenu; $('btnResume').onclick=resumeGame; $('btnQuit').onclick=toMenu; $('btnPause').onclick=()=>{state==='play'?pauseGame():resumeGame()};
 document.querySelectorAll('.volM,.volS').forEach(el=>{ const k=el.classList.contains('volM')?'mus':'sfx'; el.value=Math.round(Snd.vol[k]*100); el.addEventListener('input',e=>{ Snd.setVol(k,e.target.value/100) }); el.addEventListener('keydown',e=>e.stopPropagation()); el.addEventListener('pointerdown',e=>e.stopPropagation()) });
 $('btnMute').onclick=()=>{Snd.init();Snd.resume();Snd.setMuted(!Snd.muted)};
@@ -4803,7 +4819,7 @@ buildSprites(); buildGore(); buildDeathArt(); buildExArt(); buildBubbles(); buil
 if(DBG.nodemo){ G=null; newGame(false); } else newGame(true);
 showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
-{ let bd=false; try{bd=sessionStorage.getItem('vs_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
+{ let bd=false; try{bd=sessionStorage.getItem('lbo_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
 window.__ms={get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,RIBBON_RACK_ORDER,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
