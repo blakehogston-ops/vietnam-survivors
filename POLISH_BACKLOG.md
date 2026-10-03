@@ -48,3 +48,9 @@ LATER:
 - Artist: full original art pass (portraits, intro, 5 map backdrops)
 - Sound: full original soundtrack + per-map ambience
 - QA: in-game performance readout + run log
+
+## QA / debug commands (see README "Debug & QA switches")
+- `DBG.bot=true` / `?bot` autopilot, `DBG.god`, `?t=N` start time, `DBG.fps=true` / `?fps` avg+min FPS readout (off by default), `dbgAirCd()`, `__ms.*` test handles, `tools/botrun.js --fb|--mission`, `tools/fbstress.js`.
+- Ribbons/medals debug commands: add here when the ribbon system lands.
+- Open: Low effects toggle (tiers from Sound Helper), favicon is a data URI (no 404).
+

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* Headless bot run for balance testing.
  *   cd tools && npm i playwright-core   (needs Chrome/Chromium)
- *   node botrun.js [--url file:///path/index.html] [--char doc] [--minutes 5,10,15] [--runs N] [--mission]
+ *   node botrun.js [--q 't=480'  (extra URL flags, e.g. debug start time)] [--url file:///path/index.html] [--char doc] [--minutes 5,10,15] [--runs N] [--mission]
  * --mission plays each run to its end (evacuation, death, or Huey leaving empty; capped at 15 min) and prints the EXTRACTION summary:
  *   % of runs that reach the LZ (10:00), % that pop a signal, % that evacuate, how failures happened, and hold kills.
  * Plays the game at max speed (no rendering) with a "typical player" build policy and a kiting bot, then reports for each
@@ -15,7 +15,7 @@ const SUMMARY=[];
   const browser=await chromium.launch({channel:'chrome',args:['--no-sandbox','--autoplay-policy=no-user-gesture-required']});
   for(let run=0;run<RUNS;run++){ const t00=Date.now();
     const pg=await browser.newPage({viewport:{width:1280,height:720}}); const errs=[]; pg.on('pageerror',e=>errs.push(e.message));
-    await pg.goto(URL+'?nodemo&nointro&nobrief&bot&char='+CHAR+'&autostart'); await pg.waitForTimeout(800);
+    await pg.goto(URL+'?nodemo&nointro&nobrief&bot&char='+CHAR+'&autostart'+(arg('q','')?'&'+arg('q',''):'')); await pg.waitForTimeout(800);
     const report=await pg.evaluate(({MINS,MISSION,FB,LIMIT,TRACE})=>{
       const m=__ms,G0=()=>m.G; window.__simHold=true;
       const WPRI=['m16','m60','tank','m79','claymore','mortar','arclight','strafe','squad','howitzer','napalm','huey','flame','ranch','gunboat'];

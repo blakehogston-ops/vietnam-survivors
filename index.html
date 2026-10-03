@@ -191,7 +191,8 @@ const cv=document.getElementById('c'), ctx=cv.getContext('2d');
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
 const BOTF={move:null,pick:null};
-const DBG={dbgAirCd:()=>window.dbgAirCd&&window.dbgAirCd(), t:+params.get('t')||0, god:params.has('god'), bot:params.has('bot'), nodemo:params.has('nodemo'), nointro:params.has('nointro'), nobrief:params.has('nobrief')};
+const DBG={dbgAirCd:()=>window.dbgAirCd&&window.dbgAirCd(), t:+params.get('t')||0, god:params.has('god'), bot:params.has('bot'), nodemo:params.has('nodemo'), nointro:params.has('nointro'), nobrief:params.has('nobrief'), fps:params.has('fps')};
+window.DBG=DBG;   /* QA/debug switches from the console: DBG.bot=true, DBG.god=true, DBG.fps=true (see README 'Debug & QA switches') */
 let W=800,H=600,zoom=1,VW=800,VH=600,UI=1,DPR=1,SA={t:0,r:0,b:0,l:0},PY=70;
 const COARSE=matchMedia('(pointer:coarse)');
 const SAEL=document.createElement('div'); SAEL.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)'; document.documentElement.appendChild(SAEL);
@@ -757,7 +758,7 @@ function killMember(m){ m.hp=0; const x=m.x,y=m.y;
   let left=0; for(const q of squad)if(q.hp>0)left++;
   if(left===0){ G.banner={text:'SQUAD DOWN! REQUESTING EXTRACT & RE-INSERT',t:2.4,col:'#ff8a6a'}; if(G.sqS)G.sqT=Math.min(G.sqT,G.sqS.cd*.4) } }
 /* squad and patrol Marines hold a ring just inside the sandbags while the player is near the firebase */
-function fbHoldSlot(m){ const f=fbS,p=G.p; if(!f||f.state==='inbound'||Math.hypot(p.x-f.x,p.y-f.y)>330)return null; const k=(m.slot|0), a=k*1.07+.5, R=64+(k&1)*16; return [f.x+Math.cos(a)*R,f.y+Math.sin(a)*R] }
+function fbHoldSlot(m){ const f=fbS,p=G.p; if(!f||f.state==='inbound'||Math.hypot(p.x-f.x,p.y-f.y)>460)return null; const k=(m.slot|0), a=k*1.07+.5, R=100+(k&1)*24; return [f.x+Math.cos(a)*R,f.y+Math.sin(a)*R] }
 function updateSquad(dt){
   const g=G,p=g.p, s=g.sqS; if(!s){ return }
   // formation direction trails the player's motion
@@ -1219,6 +1220,8 @@ function spawnEnemy(type,x,y,charge){ const d=ET[type]; if(enemies.length>=2300)
 /* firebase call-in pacing: ~25% enemy density for the first 30 s after the call-in, then a linear ramp to full over the next 60 s */
 function fbDens(){ const f=fbS; if(!f||f.age===undefined||f.age>=90)return 1; return f.age<30?.25:.25+.75*(f.age-30)/60 }
 function fbGrace(){ return !!(fbS&&fbS.age<30) }
+/* engineer grace: full protection for the first 40 s of a call-in, fading out over the next 20 s (so the early build always progresses) */
+function fbProt(){ const f=fbS; if(!f||f.age===undefined)return 0; return f.age<40?1:Math.max(0,1-(f.age-40)/20) }
 function fbCalm(){ const f=fbS; if(!f||f.age===undefined||f.age>=90)return 0; return f.age<30?1:1-(f.age-30)/60 }
 function pickType(){ const t=G.t, r=rnd(); if(fbGrace())return 'vc';
   const nva=t>30?Math.min(.5,.1+(t-30)/500):0, off=t>90?Math.min(.16,.04+(t-90)/1800):0;
@@ -1638,7 +1641,7 @@ const CHD={
   loadout:'M60 · M16A1',passive:'M60 fires 20% faster.',ab:{nm:'Pig Pile',cd:24,desc:'360° ring of M60 fire.'},
   base:{wr:{m60:.2}},start:{w:['m16','m60']},
   perks:[{t:'Damage +5%',m:{dmg:.05}},{t:'Pig Pile cooldown -15%',m:{ab:.15}},{t:'+20 max HP',m:{hp:20}},{t:'Damage +8%',m:{dmg:.08}},{t:'Damage taken -10%, Pig Pile -15%',m:{arm:.1,ab:.15}}]},
- boone:{rank:'Pfc',nm:'Clyde Boone',nick:'Country',home:'Possum Trot, KY',mos:'Rifleman / Marksman',age:19,sn:'C-3319048',
+ boone:{rank:'PFC',nm:'Josh Johnson',nick:'Country',home:'Possum Trot, KY',mos:'Rifleman / Marksman',age:19,sn:'C-3319048',
   bio:["Never missed a squirrel in his life, and is ashamed to say how many that was. Shoots like he's got a personal grudge, talks like he's got all day.","Writes his mama weekly that it's \"pretty quiet over here.\""],
   known:"One shot, one \"well, that's that.\"",quote:"Y'all hold still, I'm fixin' to be right about this.",
   loadout:'M16A1',passive:'15% chance for double-damage crits.',ab:{nm:'Dead-Eye',cd:30,desc:'6s: enemies slowed, crit chance +60%.'},
@@ -1676,7 +1679,7 @@ const CHD={
   loadout:'M79 Thumper',passive:'Grenade blast radius +20%.',ab:{nm:'Hallelujah',cd:30,desc:'Barrage of 14 grenades around you.'},
   base:{area:.2},start:{w:['m79']},
   perks:[{t:'Blast radius +5%',m:{area:.05}},{t:'Hallelujah cooldown -15%',m:{ab:.15}},{t:'+15 max HP',m:{hp:15}},{t:'Blast radius +8%',m:{area:.08}},{t:'Damage +8%, Hallelujah -15%',m:{dmg:.08,ab:.15}}]},
- chef:{rank:'Pfc',nm:'Delbert Crumpacker',nick:'Biscuit',home:'Bean Blossom, IN',mos:'Mess Cook (3371)',age:24,sn:'H-8120046',
+ chef:{rank:'PFC',nm:'Delbert Crumpacker',nick:'Biscuit',home:'Bean Blossom, IN',mos:'Mess Cook (3371)',age:24,sn:'H-8120046',
   bio:["Company cook who got tired of the complaints about the chow and decided to take it up with them personally. Wears an apron into combat, which is a dress code violation and also a threat.","Never seen without a knife, a ladle, or a story about the time he fed a general."],
   known:"Biscuits. And the occasional enemy's worst day.",quote:"Y'all hungry? 'Cause I got seconds.",
   loadout:'M3A1 Grease Gun · Butcher Knives',passive:'Slow, tough (+60 HP). C-rations & XP gems heal extra.',ab:{nm:'Hot Chow',cd:34,desc:'Heal 40% over 3s, damage taken -30% for 8s.'},
@@ -2025,10 +2028,11 @@ const BVOX={n:8,raw:[],dec:[],src:null,gain:null,tok:0,t0:0,dur:0,log:[],
       s.onended=()=>{ if(this.src===s){ this.src=null; try{g.disconnect()}catch(e){} onEnd() } };
       this.src=s; this.gain=g; this.dur=buf.duration; this.t0=c.currentTime; s.start(); this.log.push({line:i+1,src:'clip'}); onStart() })
     .catch(err=>{ if(tok!==this.tok||!BR)return; this.log.push({line:i+1,src:'fallback',err:String(err&&err.message||err)}); onFail() }) } };
-function briefSpeakTTS(text){ BR.vox=false; BR.ended=false; BR.bidx=0; BR.voice=false; if(Snd.muted||!window.speechSynthesis||!BVOICE){ return }
+function briefSpeakTTS(text){ const B=BR; if(!B)return;   /* BR is null once the briefing ends; late speech callbacks must not touch it */
+  B.vox=false; B.ended=false; B.bidx=0; B.voice=false; if(Snd.muted||!window.speechSynthesis||!BVOICE){ return }
   try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.voice=BVOICE; u.lang=BVOICE.lang||'en-US'; u.pitch=0.05; u.rate=0.85; u.volume=Math.max(.15,Math.min(1,Snd.vol.sfx));
-    u.onboundary=e=>{ BR.bidx=Math.max(BR.bidx,(e.charIndex||0)+(e.charLength||4)) }; u.onend=u.onerror=()=>{ BR.ended=true }; BR.voice=true; BR.utt=u; speechSynthesis.speak(u) }catch(e){ BR.voice=false } }
-function briefSpeak(i){ const text=BRIEF_LINES[i].t; BriefSnd.blip(); BR.ended=false; BR.bidx=0; BR.voice=false; BR.vox=false; BR.vwait=0; BVOX.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}
+    u.onboundary=e=>{ if(BR===B)B.bidx=Math.max(B.bidx,(e.charIndex||0)+(e.charLength||4)) }; u.onend=u.onerror=()=>{ if(BR===B)B.ended=true }; B.voice=true; B.utt=u; speechSynthesis.speak(u) }catch(e){ B.voice=false } }
+function briefSpeak(i){ if(!BR)return; const text=BRIEF_LINES[i].t; BriefSnd.blip(); BR.ended=false; BR.bidx=0; BR.voice=false; BR.vox=false; BR.vwait=0; BVOX.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}
   if(Snd.muted){ BVOX.log.push({line:i+1,src:'muted'}); return }
   if(!Snd.ctx){ BVOX.log.push({line:i+1,src:'tts-noctx'}); briefSpeakTTS(text); return }
   const my=BR; BR.voice=true; BR.vox=true;   /* text reveal is paced by the clip; falls back to speech if it can't load */
@@ -2100,9 +2104,13 @@ function drawBrief(){ const B=BR; ctx.setTransform(1,0,0,1,0,0); ctx.imageSmooth
   let idx=0; for(const ln of lines){ const part=shown.slice(idx,idx+ln.length+1).slice(0,Math.max(0,Math.min(ln.length,shown.length-idx))); ctx.fillText(part,bx+s*3,y); idx+=ln.length+1; y+=fs*1.25 }
   if(B.typed>=L.t.length&&Math.floor(performance.now()/350)%2===0){ ctx.fillStyle='#e8c030'; ctx.fillText('▼',bx+bw-s*6-fs*.5,by+bh-s*2-fs*.2) }
   ctx.font=`${Math.max(9,fs*.6)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='#9aa0b0'; ctx.fillText('TAP / CLICK / SPACE: NEXT   ·   '+(B.page+1)+'/'+BRIEF_LINES.length,bx+bw-s*2,by+bh-s*1.2);
-  { const sf=Math.max(11,Math.min(16,H/32)); ctx.font=`bold ${sf}px "Courier New",monospace`; ctx.textAlign='right'; ctx.lineWidth=3; ctx.strokeStyle='#000'; ctx.fillStyle='#e8c860'; const m='TAP HERE / ESC: SKIP ▶'; ctx.strokeText(m,W-10,H-10); ctx.fillText(m,W-10,H-10) } }
+  { /* skip hint: a pill that always fits inside the safe area (font shrinks to fit narrow screens); its rect is also the tap target */
+    const m='TAP HERE / ESC: SKIP ▶', mg=Math.max(14*DPR,Math.round(Math.min(W,H)*.03)), sx=Math.max(mg,SA.r*DPR+mg*.6), sb=Math.max(mg,SA.b*DPR+mg*.6); let sf=Math.max(11*DPR,Math.min(18*DPR,H/32));
+    ctx.font=`bold ${sf}px "Courier New",monospace`; let tw=ctx.measureText(m).width; const maxw=W-sx*2-sf*1.6; if(tw>maxw){ sf=Math.max(8,sf*maxw/tw); ctx.font=`bold ${sf}px "Courier New",monospace`; tw=ctx.measureText(m).width }
+    const pw=tw+sf*1.2, ph=sf*1.9, px=W-sx-pw, py=H-sb-ph; ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(px,py,pw,ph); ctx.strokeStyle='#e8c860'; ctx.lineWidth=Math.max(1,DPR); ctx.strokeRect(px+.5,py+.5,pw-1,ph-1);
+    ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillStyle='#e8c860'; ctx.fillText(m,px+pw-sf*.6,py+ph/2+sf*.05); ctx.textBaseline='alphabetic'; B.skipR=[px/DPR,py/DPR,(px+pw)/DPR,(py+ph)/DPR] } }
 window.addEventListener('keydown',e=>{ if(state!=='brief'||!BR||e.repeat)return; if(e.code==='Escape'||e.code==='Backspace'){ endBrief(); return } if(e.code==='KeyM')return; briefNext() });
-window.addEventListener('pointerdown',e=>{ if(state!=='brief'||!BR)return; if(e.clientX>innerWidth*.82&&e.clientY>innerHeight*.9&&BR.ph===1){ endBrief(); return } briefNext() });
+window.addEventListener('pointerdown',e=>{ if(state!=='brief'||!BR)return; { const r=BR.skipR, pad=10; if(BR.ph===1&&r&&e.clientX>=r[0]-pad&&e.clientX<=r[2]+pad&&e.clientY>=r[1]-pad&&e.clientY<=r[3]+pad){ endBrief(); return } } briefNext() });
 $('btnBrief').onclick=()=>startBrief();
 
 /* ====================== FIREBASE: radio LZ -> Huey + engineers -> phased build, turrets, sappers, enemy armor ====================== */
@@ -2118,12 +2126,22 @@ function nearCount(x,y,r){ const r2=r*r, cx=Math.floor(x/CS), cy=Math.floor(y/CS
 function spawnLz(){ const g=G,p=g.p,a=rnd()*TAU,d=430+rnd()*140; lzS={x:p.x+Math.cos(a)*d,y:p.y+Math.sin(a)*d,hold:0,name:FBNAMES[(g.lzN++)%8],age:0};
   g.banner={text:'RADIO POINT SPOTTED: LZ '+lzS.name,t:3,col:'#9be37a'}; Snd.play('radio') }
 function mkStr(type,x,y,ang,at){ const d=SD[type], m=(1+(G.fbN||0)*.15)*1.35; return {stg:3,type,x,y,ang:ang||0,at,hp:d.hp*m,mhp:d.hp*m,r:d.r,b:0,dead:false,cd:rnd()*.5,flash:0,mf:0,tg:null,tgT:0,burst:0,wob:rnd()*TAU,needed:true} }
-function fbLayout(f){ const L=[], C=f; const ring=(R,n,type,a0,at0,at1,skipGates,stg)=>{ for(let k=0;k<n;k++){ const a=a0+k/n*TAU; if(skipGates){ const deg=((a*180/Math.PI)%90+90)%90; if(deg<14||deg>76)continue } L.push([type,C.x+Math.cos(a)*R,C.y+Math.sin(a)*R,a,at0+(at1-at0)*k/n,stg]) } };
-  ring(112,24,'sandbag',0,.02,.28,true,0);                                             // stage 1: sandbag ring
-  L.push(['bunker',C.x-42,C.y-34,0,.33,1]);                                            // stage 2: bunker
-  const T=[['m2',45,.42],['m60',135,.48],['m2',225,.53],['m60',315,.58]]; for(const [ty,dg,at] of T){ const a=dg*Math.PI/180; L.push([ty,C.x+Math.cos(a)*92,C.y+Math.sin(a)*92,a,at,2]) }   // stage 3: turrets
-  ring(158,22,'wire',.07,.60,.72,true,3);                                              // then wire, tent, pad, and the heavy gun (needs the Chinook crate)
-  L.push(['tent',C.x-34,C.y+26,0,.76,3]); L.push(['pad',C.x+34,C.y-30,0,.82,3]); L.push(['rr106',C.x,C.y+52,Math.PI/2,.90,3]); return L }
+/* Firebase footprint: a SQUARE perimeter. Sandbag walls on the four sides (half-side FBS = 168 px, i.e. a 336 x 336 px site, 1.5x the old 112 px ring radius),
+   a gate gap in the middle of each side, turrets at the four corners and the four gate midpoints, bunker / medic tent / helipad / heavy gun inside,
+   and a barbed-wire square (half-side ~1.41 x FBS = 237 px, 1.5x the old 158 px) outside it. */
+const FBS=168, FBW=237;
+function fbLayout(f){ const L=[], C=f;
+  /* walk a square clockwise from its top-left corner; n posts per side at spacing 2h/n, skipping `gate` px either side of each side's midpoint */
+  const wall=(h,n,gate,type,at0,at1,stg)=>{ const pts=[]; for(let sd=0;sd<4;sd++)for(let k=0;k<n;k++){ const u=(k+.5)*2*h/n-h; if(Math.abs(u)<gate)continue;
+      let x,y; if(sd===0){x=u;y=-h} else if(sd===1){x=h;y=u} else if(sd===2){x=-u;y=h} else {x=-h;y=-u}
+      pts.push([type,C.x+x,C.y+y,(sd&1)?Math.PI/2:0,0,stg]) }
+    pts.forEach((q,i)=>{ q[4]=at0+(at1-at0)*i/pts.length; L.push(q) }) };
+  wall(FBS,12,40,'sandbag',.02,.28,0);                                                  // stage 1: sandbag square (4 walls, 56-px gates)
+  L.push(['bunker',C.x-72,C.y-62,0,.33,1]);                                            // stage 2: bunker inside
+  const T=[['m2',-1,-1,.40],['m60',1,-1,.44],['m2',1,1,.48],['m60',-1,1,.52],['m60',0,-1,.55],['m2',1,0,.58],['m60',0,1,.61],['m2',-1,0,.64]];   // stage 3: corner + midpoint turrets
+  for(const [ty,sx,sy,at] of T){ const inset=sx&&sy?26:30, x=sx*(FBS-inset), y=sy*(FBS-inset); L.push([ty,C.x+x,C.y+y,Math.atan2(sy||0,sx||0),at,2]) }
+  wall(FBW,13,44,'wire',.66,.76,3);                                                    // then wire, tent, pad, and the heavy gun (needs the Chinook crate)
+  L.push(['tent',C.x-96,C.y+76,0,.80,3]); L.push(['pad',C.x+92,C.y-80,0,.85,3]); L.push(['rr106',C.x,C.y+84,Math.PI/2,.92,3]); return L }
 function beginFirebase(){ const g=G; fbS={x:lzS.x,y:lzS.y,name:lzS.name,state:'inbound',prog:0,phase:-1,waveN:0,waveT:14,bigT:35,sapT:30,holdT:0,tier:1,supT:35,tankT:70,rb:[],rbT:0,lay:null,idx:0,hold:0,n:g.fbN+1,
     age:0,t0:g.t,sapAt:60+rnd()*15,st:[null,null,null],stLast:[0,0,0],repaired:false,crateOk:false,chCalled:false,crate:null,
     log:{n:g.fbN+1,t0:g.t,sandbagsAt:null,bunkerAt:null,turretAt:null,turretsAt:null,doneAt:null,bigAt:null,lostAt:null,repairAt:null,sapAt:null,tankAt:null,crateAt:null,builtAt:null}};
@@ -2152,7 +2170,7 @@ function destroyStruct(s){ s.dead=true; const big=!!FBSOLID[s.type]&&s.type!=='s
   if(s.type==='sandbag'||s.type==='wire'){ if(decals.length<DECAL_CAP&&GORE)addDecal(s.x,s.y+4,SPLAT[8+((rnd()*2)|0)],40,.8) }
   for(let i=chgs.length-1;i>=0;i--)if(chgs[i].s===s)chgs.splice(i,1);
   if(fbS&&(s.type!=='wire'))fbS.rb.push([s.type,s.x,s.y,s.ang,s.stg]) }
-function hurtEng(e,d){ if(e.hp<=0||e.inv>0)return; e.hp-=d; e.hf=.12; e.inv=.4; if(drops.length<300)spawnDrops(e.x,e.y-6,0,0,4,90); if(e.hp<=0)killEng(e) }
+function hurtEng(e,d){ if(e.hp<=0||e.inv>0)return; const pr=fbProt(); if(pr>0)d*=1-.85*pr; e.hp-=d; if(fbS&&fbS.age<40&&e.hp<1)e.hp=1; e.hf=.12; e.inv=.4; if(drops.length<300)spawnDrops(e.x,e.y-6,0,0,4,90); if(e.hp<=0)killEng(e) }
 function killEng(e){ e.hp=0; const x=e.x,y=e.y; spawnDrops(x,y-6,0,0,20,170); addDecal(x,y+5,SPLAT[(rnd()*6)|0],45,1); if(CORPSE.marine)addDecal(x,y+6,CORPSE.marine[(rnd()*2)|0],38,1);
   const ks=[11,3,4,(rnd()*3)|0,5]; for(let i=0;i<ks.length;i++){ const a=rnd()*TAU,v=60+rnd()*120; spawnGib(x,y,Math.cos(a)*v,Math.sin(a)*v,ks[i],1) } if(!GORE)burst(x,y,7,80,.45,3,['#d8d0b0','#9a9a8a'],false); Snd.play('thud');
   for(const c of chgs)if(c.eng===e)c.eng=null;
@@ -2174,7 +2192,7 @@ function updateEngineers(dt){ const g=G,p=g.p,f=fbS; let work=0;
   const cur=(f&&f.state!=='done')?strs.find(s=>!s.dead&&s.b<1):null;
   for(let i=engs.length-1;i>=0;i--){ const e=engs[i]; if(e.hp<=0){ engs.splice(i,1); continue }
     if(e.hf>0)e.hf-=dt; if(e.inv>0)e.inv-=dt;
-    e.danger=nearCount(e.x,e.y,100)*(Math.hypot(e.x-p.x,e.y-p.y)<230?.6:1);
+    e.danger=nearCount(e.x,e.y,100)*(Math.hypot(e.x-p.x,e.y-p.y)<230?.6:1); { const pr=fbProt(); if(pr>0){ e.danger*=1-.8*pr; if(pr>=1)e.danger=Math.min(e.danger,2.5) } }
     if(e.danger>=1&&e.inv<=0){ const near=nearCount(e.x,e.y,14); if(near>0)hurtEng(e,6*(1+g.t/900)); if(e.hp<=0)continue }
     const fire=e.danger>=3, panic=e.danger>=7; let spd=95*(fire?.45:1), tx=null,ty=null,mode='idle';
     if(e.job&&(chgs.indexOf(e.job)<0||e.job.s.dead)){ e.job=null }
@@ -2188,15 +2206,16 @@ function updateEngineers(dt){ const g=G,p=g.p,f=fbS; let work=0;
       else if(mode==='repair'&&e.tgS&&!e.tgS.dead){ e.tgS.hp=Math.min(e.tgS.mhp,e.tgS.hp+16*dt*(fire?.4:1)); e.sp-=dt; if(e.sp<=0){ e.sp=.3; addPart(e.x+e.face*8,e.y-4,(rnd()-.5)*40,-24,.3,2,'#ffe58a',true,3) } } }
     // engineer separation + slow leash if far from the player and under fire is handled by danger
     }
+  if(f&&f.state==='building'&&engs.length){ work=Math.max(work,engs.length*(f.age<45?.5:.25)) }   /* build progress never fully stalls while any engineer lives */
   if(f&&f.state==='building'){ f.prog=Math.min(f.crateOk?1:.86,f.prog+dt*(work/3)/FBBUILD); }
   return work }
 function updateStructures(dt){ const g=G,p=g.p,f=fbS; let live=0,padOk=false;
   for(let i=strs.length-1;i>=0;i--){ const s=strs[i]; if(s.dead){ strs.splice(i,1); continue } const b0=s.b; s.b=Math.min(1,s.b+dt/2.2); if(b0<1&&s.b>=1&&f&&f.log&&!f.log.turretAt&&(s.type==='m2'||s.type==='m60'))f.log.turretAt=+(G.t-f.t0).toFixed(1); if(s.flash>0)s.flash-=dt; if(s.mf>0)s.mf-=dt; if(FBSOLID[s.type]||s.type==='wire')live++;
     if(s.b<1)continue;
-    if(s.type==='tent'){ const R=95; if(p.hp<p.maxHp&&Math.hypot(p.x-s.x,p.y-s.y)<R){ p.hp=Math.min(p.maxHp,p.hp+4*dt); if(rnd()<dt*5)addPart(p.x+(rnd()-.5)*16,p.y-8,0,-24,.6,3,'#7be37a',true,2) }
+    if(s.type==='tent'){ const R=130; if(p.hp<p.maxHp&&Math.hypot(p.x-s.x,p.y-s.y)<R){ p.hp=Math.min(p.maxHp,p.hp+4*dt); if(rnd()<dt*5)addPart(p.x+(rnd()-.5)*16,p.y-8,0,-24,.6,3,'#7be37a',true,2) }
       for(const arr of [squad,pat])for(const m of arr)if(m.hp>0&&m.state==='ok'&&m.hp<m.mhp&&Math.hypot(m.x-s.x,m.y-s.y)<R)m.hp=Math.min(m.mhp,m.hp+4*dt);
       for(const e of engs)if(e.hp<e.mhp&&Math.hypot(e.x-s.x,e.y-s.y)<R)e.hp=Math.min(e.mhp,e.hp+4*dt) }
-    if(s.type==='pad'){ padOk=true; if(p.hp<p.maxHp&&Math.hypot(p.x-s.x,p.y-s.y)<70)p.hp=Math.min(p.maxHp,p.hp+2*dt) }
+    if(s.type==='pad'){ padOk=true; if(p.hp<p.maxHp&&Math.hypot(p.x-s.x,p.y-s.y)<90)p.hp=Math.min(p.maxHp,p.hp+2*dt) }
     if(s.type==='m2'||s.type==='m60'||s.type==='rr106'||s.type==='quad50'){ s.tgT-=dt; s.cd-=dt;
       const rng=s.type==='m2'?370:s.type==='m60'?430:s.type==='quad50'?410:500;
       if(s.tgT<=0){ s.tgT=.2+rnd()*.1; let best=null,bd=rng*rng; const heavy=(s.type==='rr106');
@@ -2220,14 +2239,14 @@ function spawnNTank(kind){ const f=fbS; if(!f)return null; const a=rnd()*TAU, R=
 function fbStages(f){ const g=G; for(let k=0;k<3;k++){ if(f.st[k]!=null)continue; if(f.idx<=f.stLast[k])break;
     let ok=true,any=false; for(const s of strs){ if(s.stg===k&&!s.dead){ any=true; if(s.b<1){ ok=false; break } } }
     if(ok&&any){ f.st[k]=+(g.t-f.t0).toFixed(1); if(k===0)f.log.sandbagsAt=f.st[k]; else if(k===1)f.log.bunkerAt=f.st[k]; else f.log.turretsAt=f.st[k];
-      g.banner={text:'STAGE '+(k+1)+'/3 COMPLETE: '+FBSTG[k],t:2.2,col:'#9be37a'}; Snd.play('stage'); ringBurst(f.x,f.y,50+k*10,['#9be37a','#fff'],24) }
+      g.banner={text:'STAGE '+(k+1)+'/3 COMPLETE: '+FBSTG[k],t:2.2,col:'#9be37a'}; Snd.play('stage'); ringBurst(f.x,f.y,75+k*15,['#9be37a','#fff'],24) }
     break } }
 function fbRepair(f){ const g=G; f.repaired=true; f.log.repairAt=+(g.t-f.t0).toFixed(1);
   for(const s of strs){ if(!s.dead&&s.type!=='wire')s.hp=Math.max(s.hp,s.mhp*.8) }
   for(const L of f.rb.splice(0)){ const s=mkStr(L[0],L[1],L[2],L[3],0); s.stg=L[4]===undefined?3:L[4]; s.b=.35; strs.push(s) }
   for(const e of engs)e.hp=e.mhp; while(engs.length<3)engs.push(mkEng(f.x+(engs.length-1)*14,f.y+18));
   if(f.state==='stalled')f.state='building';
-  g.banner={text:'EMERGENCY REPAIR! ENGINEERS RUSH THE LINE',t:3,col:'#9be37a'}; Snd.play('stage'); Snd.play('heal'); ringBurst(f.x,f.y,90,['#9be37a','#fff'],36); g.shake=Math.max(g.shake,4) }
+  g.banner={text:'EMERGENCY REPAIR! ENGINEERS RUSH THE LINE',t:3,col:'#9be37a'}; Snd.play('stage'); Snd.play('heal'); ringBurst(f.x,f.y,135,['#9be37a','#fff'],36); g.shake=Math.max(g.shake,4) }
 /* CH-47 Chinook: arrives once the build is underway, hovers over the site and lowers a sling-load crate (heavy supplies) on a cable */
 function spawnChinook(){ const f=fbS, a=rnd()*TAU, R=Math.hypot(VW,VH)/2+420;
   fbC={x:f.x+Math.cos(a)*R,y:f.y+Math.sin(a)*R,z:110,hd:a+Math.PI,rot:0,ch46:true,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,cab:0,lt:0,lt2:0,creakT:0,out:0,tx:f.x,ty:f.y-4,placed:false};
@@ -2254,7 +2273,7 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
   if(lzS)lzS.age+=dt;
   if(site){ const d=Math.hypot(p.x-site.x,p.y-site.y); if(d<58&&!p.mv){ site.hold=Math.min(1,(site.hold||0)+dt/4); if(((site.hold*4)|0)!==((site.hold*4-dt)|0))Snd.play('radio') } else site.hold=Math.max(0,(site.hold||0)-dt*(d<58?.4:1.2));
     if(site.hold>=1){ site.hold=0; if(lzS)beginFirebase(); else { callFbHeli('reinf',site.x,site.y); g.banner={text:'RADIO: ENGINEER REINFORCEMENTS INBOUND',t:2.4,col:'#9be37a'}; Snd.play('radio') } } }
-  const f=fbS; g.inFb=!!(f&&f.state==='done'&&Math.hypot(p.x-f.x,p.y-f.y)<135);
+  const f=fbS; g.inFb=!!(f&&f.state==='done'&&Math.max(Math.abs(p.x-f.x),Math.abs(p.y-f.y))<FBS+20);
   updateFbH(dt);
   if(!f){ engs.length=0; fbC=null; return }
   f.age+=dt;
@@ -2279,8 +2298,8 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
     if(f.bigT<=0){ if(!f.log.bigAt)f.log.bigAt=+(g.t-f.t0).toFixed(1); f.bigT=Math.max(32,52-g.fbN*4); const n=26+f.tier*10+Math.min(40,g.t/16); fbSpawnRing(n,true,2+f.tier); g.banner={text:'MASSIVE ASSAULT ON '+f.name+'!',t:2.4,col:'#ff6a4a'}; Snd.play('assault'); assaultCry(); G.shake=Math.max(G.shake,6) }
     else if(f.sapT<=0){ f.sapT=Math.max(9,20-f.tier*3); fbSpawnRing(0,false,1+f.tier) }
     // upgrades
-    if(f.tier===1&&f.holdT>110){ f.tier=2; strs.push(mkStr('quad50',f.x,f.y-48,-Math.PI/2,1)); strs.push(mkStr('m2',f.x+104,f.y,0,1)); strs.push(mkStr('m2',f.x-104,f.y,Math.PI,1)); g.banner={text:'UPGRADE: QUAD-50 AA MOUNT & EXTRA M2s',t:2.6,col:'#ffe58a'} }
-    else if(f.tier===2&&f.holdT>240){ f.tier=3; strs.push(mkStr('rr106',f.x+40,f.y+52,Math.PI/2,1)); strs.push(mkStr('m60',f.x,f.y-104,-Math.PI/2,1)); strs.push(mkStr('m60',f.x,f.y+104,Math.PI/2,1)); g.banner={text:'UPGRADE: SECOND 106mm RECOILLESS & M60 NESTS',t:2.6,col:'#ffe58a'} }
+    if(f.tier===1&&f.holdT>110){ f.tier=2; strs.push(mkStr('quad50',f.x,f.y-52,-Math.PI/2,1)); strs.push(mkStr('m2',f.x+104,f.y+10,0,1)); strs.push(mkStr('m2',f.x-104,f.y+10,Math.PI,1)); g.banner={text:'UPGRADE: QUAD-50 AA MOUNT & EXTRA M2s',t:2.6,col:'#ffe58a'} }
+    else if(f.tier===2&&f.holdT>240){ f.tier=3; strs.push(mkStr('rr106',f.x-50,f.y+84,Math.PI/2,1)); strs.push(mkStr('m60',f.x,f.y-108,-Math.PI/2,1)); strs.push(mkStr('m60',f.x+110,f.y+108,Math.PI/2,1)); g.banner={text:'UPGRADE: SECOND 106mm RECOILLESS & M60 NESTS',t:2.6,col:'#ffe58a'} }
     // helipad resupply
     if(f.padOk&&!fbH){ f.supT-=dt; if(f.supT<=0){ f.supT=50; const pad=strs.find(s=>s.type==='pad'&&!s.dead&&s.b>=1); if(pad){ callFbHeli('sup',pad.x,pad.y); g.banner={text:'HUEY RESUPPLY INBOUND TO THE HELIPAD',t:2,col:'#9be37a'} } } }
     // NVA armor
@@ -2289,16 +2308,16 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
 /* ---- enemy <-> firebase interaction ---- */
 function fbPickTarget(e){ const f=fbS; if(!f)return null; let best=null,bd=1e9; const sap=e.type==='sapper';
   for(const s of strs){ if(s.dead||s.b<1||s.type==='wire')continue; if(sap&&chgs.some(c=>c.s===s))continue; const dx=s.x-e.x,dy=s.y-e.y,d=dx*dx+dy*dy; if(d<bd){bd=d;best=s} }
-  if(!sap){ for(const g2 of engs){ const dx=g2.x-e.x,dy=g2.y-e.y,d=dx*dx+dy*dy*1.0; if(d<bd*.6){bd=d;best=g2} } }
+  if(!sap&&fbProt()<.5){ for(const g2 of engs){ const dx=g2.x-e.x,dy=g2.y-e.y,d=dx*dx+dy*dy*1.0; if(d<bd*.6){bd=d;best=g2} } }
   return best }
 function fbEnemy(e,dt,d){ // returns [dx,dy,dist,target] overriding the chase target, or null
   const f=fbS; if(!f||e.boss)return null; const fx=e.x-f.x,fy=e.y-f.y;
-  if(!e.siege&&fx*fx+fy*fy>520*520){ e.ft=null; return null }
+  if(!e.siege&&fx*fx+fy*fy>640*640){ e.ft=null; return null }
   e.ftT=(e.ftT||0)-dt; if(!e.ft||e.ft.dead||e.ft.hp<=0||e.ftT<=0){ e.ftT=.35+rnd()*.3; e.ft=fbPickTarget(e) }
   const t=e.ft; if(!t)return null;
   if(!e.siege&&!e.tank&&e.type!=='sapper'){ const pd=Math.hypot(G.p.x-e.x,G.p.y-e.y); if(pd<110)return null }
   const dx=t.x-e.x,dy=t.y-e.y; return [dx,dy,Math.hypot(dx,dy)||1,t] }
-function fbPass(e,dt){ const f=fbS; if(!f)return; const fx=e.x-f.x,fy=e.y-f.y; if(fx*fx+fy*fy>330*330)return;
+function fbPass(e,dt){ const f=fbS; if(!f)return; const fx=e.x-f.x,fy=e.y-f.y; if(fx*fx+fy*fy>440*440)return;
   for(const s of strs){ if(s.dead)continue; const dx=e.x-s.x,dy=e.y-s.y;
     if(s.type==='wire'){ if(dx*dx+dy*dy<(s.r+e.r*.5)*(s.r+e.r*.5)){ e.slow=Math.max(e.slow||0,.25); e.wt=(e.wt||0)+dt; if(e.wt>=.5){ e.wt=0; if(!e.tank){ e.hp-=2.5; if(e.hp<=0&&!e.dead){ killEnemy(e) } } hurtStruct(s,e.tank?18:4) } } continue }
     if(!FBSOLID[s.type]||s.b<1)continue; const mn=s.r+e.r*.7;
@@ -2324,6 +2343,7 @@ function ntankSprite(kind){ const w=kind==='t54'?92:84,h=kind==='t54'?56:50; con
       out[f][flip]=[mkc(false),mkc(true)] } } return out }
 function buildNTankSprites(){ SPR.pt76=ntankSprite('pt76'); SPR.t54=ntankSprite('t54'); }
 function drawStruct(s,tt){ const x=Math.round(s.x),y=Math.round(s.y), a=s.b<1?.45+.4*s.b:1; ctx.globalAlpha=a;
+  const vt=(s.type==='sandbag'||s.type==='wire')&&Math.abs(Math.sin(s.ang))>.7; if(vt){ ctx.save(); ctx.translate(x,y); ctx.rotate(Math.PI/2); ctx.translate(-x,-y) }   /* walls on the east / west sides run vertically */
   switch(s.type){
    case 'sandbag': ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(x-17,y+4,34,8); ctx.fillStyle='#b59e63'; ctx.fillRect(x-16,y-4,32,10); ctx.fillStyle='#d1ba7c'; ctx.fillRect(x-14,y-6,28,5); ctx.fillStyle='#8f7a45'; for(let k=-12;k<=12;k+=8)ctx.fillRect(x+k,y-6,1,11); ctx.fillRect(x-16,y,32,1); break;
    case 'bunker': ctx.fillStyle='rgba(0,0,0,.28)'; ctx.fillRect(x-26,y+10,52,8); ctx.fillStyle='#b59e63'; ctx.fillRect(x-25,y,50,14); ctx.fillStyle='#d1ba7c'; ctx.fillRect(x-23,y-3,46,5); ctx.fillStyle='#8f7a45'; for(let k=-20;k<=20;k+=10)ctx.fillRect(x+k,y-3,1,17); ctx.fillStyle='#5a4426'; ctx.fillRect(x-22,y-16,44,14); ctx.fillStyle='#7a5e36'; for(let k=0;k<4;k++)ctx.fillRect(x-22,y-16+k*3.6,44,2); ctx.fillStyle='#3d4a28'; ctx.fillRect(x-22,y-20,44,5); ctx.fillStyle='#1a140a'; ctx.fillRect(x-14,y-1,28,3); break;
@@ -2335,6 +2355,7 @@ function drawStruct(s,tt){ const x=Math.round(s.x),y=Math.round(s.y), a=s.b<1?.4
    case 'tent': ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(x-26,y+10,52,8); ctx.fillStyle='#6b7a4a'; ctx.beginPath(); ctx.moveTo(x-26,y+12); ctx.lineTo(x,y-16); ctx.lineTo(x+26,y+12); ctx.closePath(); ctx.fill(); ctx.fillStyle='#8a9a62'; ctx.beginPath(); ctx.moveTo(x-26,y+12); ctx.lineTo(x,y-16); ctx.lineTo(x,y+12); ctx.closePath(); ctx.fill(); ctx.fillStyle='#f4f4ea'; ctx.fillRect(x-8,y-2,16,12); ctx.fillStyle='#d02020'; ctx.fillRect(x-1,y,3,9); ctx.fillRect(x-4,y+3,9,3); break;
    case 'pad': ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(x-30,y+22,60,6); ctx.fillStyle='#55585a'; ctx.fillRect(x-30,y-28,60,56); ctx.fillStyle='#6a6d6f'; ctx.fillRect(x-28,y-26,56,52); ctx.strokeStyle='#e8e8e0'; ctx.lineWidth=3; ctx.strokeRect(x-24,y-22,48,44); ctx.fillStyle='#e8e8e0'; ctx.fillRect(x-9,y-12,4,24); ctx.fillRect(x+5,y-12,4,24); ctx.fillRect(x-9,y-2,18,4); ctx.fillStyle=(Math.floor(tt*2)%2)?'#ff5a3a':'#7a2a1a'; ctx.fillRect(x-30,y-28,4,4); ctx.fillRect(x+26,y-28,4,4); ctx.fillRect(x-30,y+24,4,4); ctx.fillRect(x+26,y+24,4,4); break;
   }
+  if(vt)ctx.restore();
   ctx.globalAlpha=1; if(s.flash>0){ ctx.fillStyle='rgba(255,255,255,.35)'; ctx.fillRect(x-s.r,y-s.r*.6,s.r*2,s.r*1.2) }
   if(s.hp<s.mhp&&s.type!=='wire'){ const r=Math.max(0,s.hp/s.mhp), w=Math.max(22,s.r*1.6), by=Math.round(y-s.r-12); ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(x-w/2-1,by-1,w+2,5); ctx.fillStyle='#2a2a22'; ctx.fillRect(x-w/2,by,w,3); ctx.fillStyle=r>.55?'#6fd04a':r>.28?'#f2b134':'#e03a2a'; ctx.fillRect(x-w/2,by,Math.round(w*r),3) }
   if(s.b<1){ ctx.strokeStyle='#ffe58a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,s.r+4,-Math.PI/2,-Math.PI/2+TAU*s.b); ctx.stroke() } }
@@ -2345,14 +2366,14 @@ function drawFirebase(camX,camY,tt){ const x0=camX-90,x1=camX+VW+90,y0=camY-90,y
       txt('LZ '+l.name,x,y-84,13,'#ffe58a','center'); if(l.hold>0){ ctx.strokeStyle='#9be37a'; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(x,y,48,-Math.PI/2,-Math.PI/2+TAU*l.hold); ctx.stroke(); txt('CALLING '+Math.round(l.hold*100)+'%',x,y+44,12,'#9be37a','center') } else txt('HOLD POSITION HERE TO CALL SUPPORT',x,y+44,10,'#e8e4cf','center') } }
   if(f){ if(f.state==='stalled'||f.state==='inbound'){ const x=Math.round(f.x),y=Math.round(f.y); if(f.state==='stalled'){ txt('RADIO FOR ENGINEERS',x,y-100,12,'#ff8a6a','center'); if(f.hold>0){ ctx.strokeStyle='#9be37a'; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(x,y,48,-Math.PI/2,-Math.PI/2+TAU*f.hold); ctx.stroke() } else { ctx.strokeStyle='rgba(255,230,120,.7)'; ctx.setLineDash([6,5]); ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,56,0,TAU); ctx.stroke(); ctx.setLineDash([]) } } }
     // build zone outline + ghost footprints of what is still to be built
-    if(f.state!=='done'){ const x=Math.round(f.x),y=Math.round(f.y); ctx.save(); ctx.strokeStyle='rgba(255,229,138,.55)'; ctx.lineWidth=2; ctx.setLineDash([9,7]); ctx.lineDashOffset=-tt*8; ctx.beginPath(); ctx.arc(x,y,122,0,TAU); ctx.stroke(); ctx.setLineDash([]);
+    if(f.state!=='done'){ const x=Math.round(f.x),y=Math.round(f.y); ctx.save(); ctx.strokeStyle='rgba(255,229,138,.55)'; ctx.lineWidth=2; ctx.setLineDash([9,7]); ctx.lineDashOffset=-tt*8; ctx.beginPath(); ctx.rect(x-FBS-18,y-FBS-18,2*FBS+36,2*FBS+36); ctx.stroke(); ctx.setLineDash([]);
       const cur=f.st.findIndex(v=>v==null);
       for(let i=f.idx;i<f.lay.length;i++){ const L=f.lay[i]; if(L[1]<x0||L[1]>x1||L[2]<y0||L[2]>y1)continue; const hot=L[5]===cur; ctx.strokeStyle=hot?'rgba(255,229,138,.7)':'rgba(255,229,138,.28)'; ctx.lineWidth=hot?1.6:1;
-        if(L[0]==='sandbag')ctx.strokeRect(L[1]-14,L[2]-5,28,9); else if(L[0]==='wire'){ ctx.beginPath(); ctx.moveTo(L[1]-8,L[2]-3); ctx.lineTo(L[1]+8,L[2]+3); ctx.moveTo(L[1]+8,L[2]-3); ctx.lineTo(L[1]-8,L[2]+3); ctx.stroke() } else if(L[0]==='bunker')ctx.strokeRect(L[1]-22,L[2]-18,44,32); else { ctx.beginPath(); ctx.arc(L[1],L[2],(SD[L[0]]||{r:14}).r,0,TAU); ctx.stroke() } }
+        if(L[0]==='sandbag'){ if(Math.abs(Math.sin(L[3]))>.7)ctx.strokeRect(L[1]-5,L[2]-14,9,28); else ctx.strokeRect(L[1]-14,L[2]-5,28,9) } else if(L[0]==='wire'){ ctx.beginPath(); if(Math.abs(Math.sin(L[3]))>.7){ ctx.moveTo(L[1]-3,L[2]-8); ctx.lineTo(L[1]+3,L[2]+8); ctx.moveTo(L[1]-3,L[2]+8); ctx.lineTo(L[1]+3,L[2]-8) } else { ctx.moveTo(L[1]-8,L[2]-3); ctx.lineTo(L[1]+8,L[2]+3); ctx.moveTo(L[1]+8,L[2]-3); ctx.lineTo(L[1]-8,L[2]+3) } ctx.stroke() } else if(L[0]==='bunker')ctx.strokeRect(L[1]-22,L[2]-18,44,32); else { ctx.beginPath(); ctx.arc(L[1],L[2],(SD[L[0]]||{r:14}).r,0,TAU); ctx.stroke() } }
       ctx.restore() }
     if(f.crate&&!f.crate.used)drawCrate(Math.round(f.crate.x),Math.round(f.crate.y)+4);
     // ground cover under the base
-    if(f.state!=='inbound'){ ctx.fillStyle='rgba(90,70,40,.18)'; ctx.beginPath(); ctx.arc(f.x,f.y,128,0,TAU); ctx.fill() }
+    if(f.state!=='inbound'){ ctx.fillStyle='rgba(90,70,40,.18)'; ctx.fillRect(f.x-FBS-10,f.y-FBS-10,2*FBS+20,2*FBS+20) }
     const order=['wire','sandbag','tent','pad','bunker','m2','m60','quad50','rr106']; for(const ty of order){ for(const s of strs){ if(s.type!==ty||s.dead||s.x<x0||s.x>x1||s.y<y0||s.y>y1)continue; drawStruct(s,tt) } }
     // flag once done
     if(f.state==='done'){ ctx.fillStyle='#d9d9d2'; ctx.fillRect(Math.round(f.x)-1,Math.round(f.y)-30,2,34); ctx.fillStyle='#c82020'; ctx.fillRect(Math.round(f.x)+1,Math.round(f.y)-30,14,9+Math.sin(tt*5)*1.2); ctx.fillStyle='#e8c030'; ctx.fillRect(Math.round(f.x)+1,Math.round(f.y)-26,14,2) }
@@ -2415,7 +2436,7 @@ function updateDust(dt){ const d=G.dust; if(!d)return; d.t+=dt; d.rot+=dt*38; if
 function drawDust(){ const d=G.dust; if(!d)return; const p=G.p, z=30+Math.min(1,d.t/.6)*30; drawHuey({x:p.x+Math.min(1,d.t/.6)*-30,y:p.y-4,z,hd:0,rot:d.rot,mf:[0,0],hf:0,hp:1,mhp:0}) }
 /* ---- AC-47 "Spooky": pylon turn, red tracer stream into one ground point ---- */
 function updateSpooky(dt){ const g=G,k=g.spk; if(!k)return; const p=g.p; k.t+=dt; if(k.t>=k.hold+1.2){ g.spk=null; return }
-  const f=fbS; let gx=p.x,gy=p.y; if(f&&f.state!=='lost'&&Math.hypot(p.x-f.x,p.y-f.y)<340){ gx=f.x; gy=f.y }
+  const f=fbS; let gx=p.x,gy=p.y; if(f&&f.state!=='lost'&&Math.hypot(p.x-f.x,p.y-f.y)<470){ gx=f.x; gy=f.y }
   const dx=gx-k.tx, dy=gy-k.ty, dd=Math.hypot(dx,dy); if(dd>1){ const v=Math.min(dd,(dd>160?190:105)*dt); k.tx+=dx/dd*v; k.ty+=dy/dd*v }
   k.ang+=dt*.6; k.ax=k.tx+Math.cos(k.ang)*k.R; k.ay=k.ty+Math.sin(k.ang)*k.R*.75; k.hd=Math.atan2(Math.cos(k.ang)*.75,-Math.sin(k.ang));
   const on=k.t>.9&&k.t<k.hold; k.fire=on; if(!on)return;
@@ -2989,8 +3010,16 @@ function render(){
 
 /* ====================== loop ====================== */
 const perf={frames:0,acc:0,worst:0};
+/* optional FPS readout (off by default): ?fps in the URL or DBG.fps=true. Shows avg and min FPS over the last 5 s, top-left under the safe area. */
+const FPSM={el:null,buf:[],acc:0};
+function fpsTick(dtRaw){ if(!DBG.fps){ if(FPSM.el&&FPSM.el.style.display!=='none')FPSM.el.style.display='none'; FPSM.buf.length=0; return }
+  if(!FPSM.el){ const d=document.createElement('div'); d.id='fpsBox'; d.style.cssText='position:fixed;left:calc(6px + env(safe-area-inset-left,0px));top:calc(6px + env(safe-area-inset-top,0px));z-index:50;font:bold 12px "Courier New",monospace;color:#9be37a;background:rgba(0,0,0,.6);padding:2px 6px;border-radius:3px;pointer-events:none;white-space:pre'; document.body.appendChild(d); FPSM.el=d }
+  if(FPSM.el.style.display==='none')FPSM.el.style.display='block';
+  if(dtRaw>0&&dtRaw<1){ FPSM.buf.push(dtRaw); FPSM.acc+=dtRaw; while(FPSM.acc>5&&FPSM.buf.length>1)FPSM.acc-=FPSM.buf.shift() }
+  FPSM.t=(FPSM.t||0)+dtRaw; if(FPSM.t>=.5&&FPSM.buf.length){ FPSM.t=0; let mx=0; for(const v of FPSM.buf)if(v>mx)mx=v; const avg=FPSM.buf.length/FPSM.acc; FPSM.avg=avg; FPSM.min=1/mx; FPSM.el.textContent='FPS avg '+avg.toFixed(0)+'  min '+(1/mx).toFixed(0) } }
+window.fpsStats=()=>({avg:FPSM.avg,min:FPSM.min});
 function frame(now){
-  let dt=(now-last)/1000; last=now; if(window.__simHold){ requestAnimationFrame(frame); return } if(dt>.05)dt=.05; if(dt<0)dt=0;
+  let dt=(now-last)/1000; last=now; fpsTick(dt); if(window.__simHold){ requestAnimationFrame(frame); return } if(dt>.05)dt=.05; if(dt<0)dt=0;
   if(state==='play'||(state==='menu'&&G&&G.demo))update(dt); else if(state==='intro')updateIntro(dt); else if(state==='brief')updateBrief(dt);
   hudAbil(); hudSig(); hudTanker(); const t0=performance.now(); if(state==='brief'&&BR){ drawBrief() } else if(state==='intro'&&INTRO&&INTRO.ph===1){ drawCargo(INTRO.t); drawIntroOverlay() } else { render(); if(state==='intro'&&INTRO)drawIntroOverlay() } const rt=performance.now()-t0; perf.frames++;perf.acc+=rt;perf.worst=Math.max(perf.worst,rt);
   requestAnimationFrame(frame);

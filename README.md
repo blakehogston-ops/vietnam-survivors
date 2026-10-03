@@ -36,3 +36,24 @@ A stylized browser arcade survival game (Vampire Survivors-style) set in Vietnam
   - Radio lines use period call-signs ("Broken Arrow", "Hot LZ", "Smoke's out", "Say again", "Contact, wait out", pilots' "Winchester" / "Bingo fuel", "Get on the bird!").
   - `node tools/botrun.js --mission --runs 12` plays whole missions and prints the % of runs that reach the LZ and that evacuate.
 - Historical fixes: M50A1 Ontos, UH-1E/CH-46 Marine insertion, A-4E/F-4B/A-6A strafing runs.
+
+## Debug & QA switches
+All are off by default. Use them as URL flags, or from the browser console (`DBG` is a global: `DBG.bot=true`, `DBG.god=true`, `DBG.fps=true`).
+
+| Switch | What it does |
+|---|---|
+| `?bot` / `DBG.bot=true` | The built-in autopilot plays (movement, level-up picks, signal confirm). `tools/botrun.js` uses it. |
+| `?god` / `DBG.god=true` | Player takes no damage. |
+| `?t=N` | Start the run at N seconds (gives a demo kit, fast-forwards the clock; an LZ appears 4 s later). Runs started this way do not award service XP. |
+| `?fps` / `DBG.fps=true` | Small top-left readout: **avg** and **min** FPS over the last 5 s (updates twice a second). `window.fpsStats()` returns `{avg,min}` for scripts. Off by default. |
+| `?nodemo` `?nointro` `?nobrief` `?autostart` `?brief` | Skip the attract-mode demo / cargo-bay intro / Colonel briefing, start straight into a run, or force the briefing. `?char=ID` picks the character. `?diff=easy|hard` changes the extraction hold. |
+| `dbgAirCd()` | Console: prints total air-support cooldown reduction and every air weapon's effective cooldown (Hogston -55 % vs -45 %). |
+| `__ms` | Console: internal handles for tests (`__ms.G`, `__ms.step(dt)`, `__ms.spawnLz()`, `__ms.beginFirebase()`, `__ms.fbS`, `__ms.runXpGain(G)` ...). |
+| Fast-forward | `?t=540` jumps near the 10:00 extraction; in a script call `__ms.step(1/60)` in a loop with `window.__simHold=true` (this is how the bots run a 12-minute mission in seconds). |
+| Ribbons / medals | (not built yet: debug commands will be added here) |
+
+Tools (`cd tools && npm i playwright-core`; they use the installed Chrome): `botrun.js` (balance/mission/firebase bot; `--fb` firebase metrics, `--q 't=480'` extra URL flags, prints per-run service XP old vs new), `botdiag.js` (diagnostic run), `fbstress.js` (firebase early-build stress test: injects N siege enemies during the first 45 s and checks the build keeps progressing).
+
+## Balance notes (latest)
+- **Firebase footprint:** square perimeter instead of a circle. Sandbag walls on four sides at half-side 168 px (a 336 x 336 px site, 1.5x the old 112 px radius), 56-px gates in the middle of each side, turrets at the four corners and the four gate midpoints (8 total), bunker / medic tent / helipad / 106mm inside, barbed-wire square at half-side 237 px (was radius 158). Same 3 build stages, progress bar and timings.
+- **Engineer grace:** for the first 40 s of a call-in engineers take 85 % less damage, cannot die, are not picked as targets, and do not panic or slow down under fire (protection fades out over the next 20 s). Build progress never fully stalls while any engineer lives (minimum work rate of half speed for the first 45 s, quarter speed after).
