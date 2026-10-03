@@ -844,6 +844,25 @@ showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 window.__ms={get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
+
+/* audio unlock for mobile browsers (iOS needs a gesture + playback audio session) */
+(function(){
+  let silent=null;
+  function unlock(){
+    try{ if(navigator.audioSession)navigator.audioSession.type='playback'; }catch(e){}
+    try{
+      Snd.init();
+      if(Snd.ctx){
+        if(Snd.ctx.state!=='running')Snd.ctx.resume();
+        const b=Snd.ctx.createBuffer(1,1,22050),s=Snd.ctx.createBufferSource();
+        s.buffer=b; s.connect(Snd.ctx.destination); s.start(0);
+      }
+      if(!silent){ silent=new Audio('data:audio/wav;base64,UklGRt0BAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YbkBAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA='); silent.loop=true; silent.volume=.01; const p=silent.play(); if(p&&p.catch)p.catch(()=>{}); }
+    }catch(e){}
+  }
+  ['touchstart','touchend','pointerdown','pointerup','mousedown','click','keydown'].forEach(ev=>window.addEventListener(ev,unlock,{passive:true}));
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&Snd.ctx&&Snd.ctx.state!=='running')Snd.ctx.resume(); });
+})();
 })();
 </script>
 </body>
