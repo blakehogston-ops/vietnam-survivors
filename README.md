@@ -20,3 +20,11 @@ A stylized browser arcade survival game (Vampire Survivors-style) set in Vietnam
 - **KC-135 Aerial Refueling** (5-level upgrade, available once you own Arc Light, strafing or Ranch Hand): shorter air-support cooldowns plus extra Arc Light bombs and strafing / Ranch Hand passes. A KC-135A Stratotanker with contrails also flies along high above every B-52 Arc Light run. *In memory of the KC-135 crew chiefs: they kept them flying.*
 - **Gore ON/OFF switch on the main menu** (saved in localStorage, default ON). OFF = no blood, decals, gibs or corpses; enemies just poof into dust and the red damage vignette stays mild.
 - Fullscreen button / F key.
+
+## Update notes
+- **Character select** with 9 service records, between-run progression, per-character abilities and a patrol squad; cargo-bay intro and launch briefing cutscene.
+- **Firebase system** (LZ radio, engineers, tiers, waves, sappers), NVA armor (PT-76 / T-54), B-40 and RPG-7 troopers, Hanoi Hannah radio event, Vietnamese/English shouts with an on-screen pixel font.
+- **Balance:** level-up rerolls and banishes, new passives (Radio Discipline, Field Manual, C-4 Demolition Kit, Dustoff), evolutions (AC-47 Spooky, Arc Light Box Mission), boss supply crates, softened enemy HP scaling. `tools/botrun.js` is a headless Playwright bot that plays a run in seconds and prints survival, DPS, boss time-to-kill and tank lifespan per minute (`node tools/botrun.js --minutes 5,10,15 --runs 3`).
+- **Weapon-specific deaths:** every kill reacts to what killed it (thud, wet impact, blast launch, burn to charred, Claymore snap, track crush, punji impale) with capped, oldest-first-fading stamped corpses and decals; mass kills fall back to a cheap path. Agent Orange wilts the foliage and leaves bare ground.
+- **Mobile:** safe-area aware HUD, 44px+ tap targets, stacked level-up cards in portrait, scrollable menus, zoom and pull-to-refresh blocked, orientation handling.
+- Historical fixes: M50A1 Ontos, UH-1E/CH-46 Marine insertion, A-4E/F-4B/A-6A strafing runs.
