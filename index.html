@@ -92,6 +92,7 @@ button.btn.alt{background:#6b5a2f;font-size:clamp(14px,3vw,20px);padding:8px 22p
 #csRec .tr .bar i{display:block;height:100%;background:#4a6b2f}
 #csRec .tr div.pk{opacity:.55}
 #csRec .tr div.pk.on{opacity:1;color:#27431a;font-weight:bold}
+.rack{margin:8px 0;border-top:1px dashed rgba(60,45,20,.5);padding-top:6px}.rkh{font:bold 11px 'Courier New',monospace;letter-spacing:.12em;margin-bottom:4px}.rk{display:flex;align-items:center;gap:8px;margin:3px 0;opacity:.62;font-size:12px;line-height:1.25}.rk.on{opacity:1}.rkimg{flex:0 0 90px;display:flex;justify-content:center}.rkimg.md{flex-basis:90px}.rkimg img{image-rendering:pixelated;max-width:90px;height:auto;box-shadow:0 1px 2px rgba(0,0,0,.5)}.rkimg.md img{box-shadow:none;max-height:64px;width:auto}.rkimg img.dim{filter:grayscale(1) brightness(.5)}.rk i{font-style:normal;opacity:.85}.newrib{margin:10px auto 0;max-width:520px;text-align:left}.newrib .nr{display:flex;gap:10px;align-items:center;margin:6px 0;color:#ffe58a;font-size:13px}.newrib img{image-rendering:pixelated;max-width:96px;flex:0 0 auto}
 .stamp{position:absolute;right:14px;bottom:44px;transform:rotate(-14deg);border:3px solid rgba(140,28,20,.55);color:rgba(140,28,20,.55);font-family:Impact,sans-serif;letter-spacing:.2em;padding:1px 10px;font-size:16px;pointer-events:none}
 .cs-btns{margin-top:10px}
 #abil{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:4;display:none;align-items:center;gap:8px;min-width:150px;height:46px;padding:0 12px;font-family:Impact,sans-serif;letter-spacing:.1em;font-size:15px;color:#f6f0cc;background:#2c4a22;border:3px solid #1d2f14;border-radius:23px;overflow:hidden;cursor:pointer;box-shadow:0 3px 0 #11160f;touch-action:manipulation}
@@ -1582,7 +1583,7 @@ function newGame(demo){
   sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
   const t0=demo?150:DBG.t;
   G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,
-    spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,
+    spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:100,maxHp:100,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,banned:{},dustUsed:false,spk:null,dust:null,surgeN:0,
     tankRot:0,nextRpgT:240,rpgSeen:false,sqT:.8,sqS:null,sqL:0,fdx:0,fdy:1,nextTunnel:t0+2,nextVc:0,mortarT:0,hueyUnlocked:false,nextPit:t0+1.5,nextShout:t0+3,han:null,nextHan:(DBG.t>0?t0+6:t0+250+rnd()*120),cryQ:0,lastShout:-1,aim:0,hasTarget:false,flameAng:0,pending:0,boss:null,levelTimer:0,botTimer:0};
@@ -1616,7 +1617,7 @@ function dropGem(x,y,v,type){ if(gems.length>420){addXp(v);return} gems.push({x:
 function killEnemy(e){ e.dead=true; G.kills++;
   const x=e.x,y=e.y; if(e.tank)tankWreck(e); else if(e.boss)goreKill(e); else deathFx(e); if(!GORE&&e.boss)burst(x,y,e.boss?20:6,e.boss?140:80,.4,e.boss?5:3,['#d8d0b0','#9a9a8a','#bdb596'],false);
   if(e.boss)Snd.play('boom'); else if(!e.tank&&G.demo)Snd.play('kill');
-  if(e.boss){ if(G.blog){ const bl=G.blog.filter(q=>q.t1===null); if(bl.length)bl[0].t1=G.t } G.shake=Math.max(G.shake,22); G.boss=null; G.banner={text:e.name.toUpperCase()+' DEFEATED!',t:3,col:'#9be37a'};
+  if(e.boss){ { const rb=G.rb; if(rb){ rb.bossK++; if(allyCount()>=4)rb.ssK++ } } if(G.blog){ const bl=G.blog.filter(q=>q.t1===null); if(bl.length)bl[0].t1=G.t } G.shake=Math.max(G.shake,22); G.boss=null; G.banner={text:e.name.toUpperCase()+' DEFEATED!',t:3,col:'#9be37a'};
     for(let i=0;i<10;i++)dropGem(x,y,8,2); dropGem(x,y,0,3);dropGem(x,y,0,3); dropCrate(x,y); if(e.sigKind&&!G.demo){ dropSig(x+26,y+10,e.sigKind); gunny('Contact, wait out... Big dog is down! He dropped a '+(e.sigKind==='smoke'?'smoke grenade':'flare')+' - grab it, that is your ticket out.',5.2) } }
   else { const v=e.v; dropGem(x,y,v,v>=5?1:0); if(rnd()<(e.type==='officer'?.07:.006))dropGem(x,y,0,3); }
 }
@@ -1757,7 +1758,7 @@ function update(dt){
     addPart(q.x-q.vx*.02,q.y-q.vy*.02,(rnd()-.5)*20,(rnd()-.5)*20,.4,3.5,rnd()<.5?'#cfcab8':'#ff9b21',false,2);
     if(!boom){const cx=Math.floor(q.x/CS),cy=Math.floor(q.y/CS); out2: for(let ox=-1;ox<=1;ox++)for(let oy=-1;oy<=1;oy++)for(let j=head[(((cx+ox)&63)<<6)|((cy+oy)&63)];j>=0;j=nextI[j]){const e=enemies[j];if(e.dead)continue;const dx=e.x-q.x,dy=e.y-q.y,rr=e.r+6;if(dx*dx+dy*dy<rr*rr){boom=true;break out2}}}
     if(boom){explode(q.x,q.y,q.rad,q.dmg,260);rockets[i]=rockets[rockets.length-1];rockets.pop()} }
-  updateHazards(dt); updatePits(dt); updateBubbles(dt); updateSupport(dt); updateAir(dt); updateTanks(dt); updateSquad(dt); updatePatrol(dt); updateIntroH(dt); updateFirebase(dt); updateHannah(dt); updateSpooky(dt); updateCrates(dt); updateExtraction(dt); if(DBG.bot&&g.ex.ph===1&&g.sig.length)popSignal(); updateDust(dt); updateDying(dt); charTick(dt); updateKnives(dt); updateIns(dt); updateCrashes(dt); for(const h of hueys)if(h.hf>0)h.hf-=dt; for(const h of ins)if(h.hf>0)h.hf-=dt; updateClouds(dt); updateTunnels(dt); updateVcFire(dt); updateGore(dt);
+  updateHazards(dt); updatePits(dt); updateBubbles(dt); updateSupport(dt); updateAir(dt); updateTanks(dt); updateSquad(dt); updatePatrol(dt); updateIntroH(dt); updateFirebase(dt); ribTrack(dt); updateHannah(dt); updateSpooky(dt); updateCrates(dt); updateExtraction(dt); if(DBG.bot&&g.ex.ph===1&&g.sig.length)popSignal(); updateDust(dt); updateDying(dt); charTick(dt); updateKnives(dt); updateIns(dt); updateCrashes(dt); for(const h of hueys)if(h.hf>0)h.hf-=dt; for(const h of ins)if(h.hf>0)h.hf-=dt; updateClouds(dt); updateTunnels(dt); updateVcFire(dt); updateGore(dt);
   // gems
   const mr=magR(),mr2=mr*mr;
   for(let i=gems.length-1;i>=0;i--){const q=gems[i]; const dx=p.x-q.x,dy=p.y-q.y,d2=dx*dx+dy*dy; if(!q.pull&&d2<mr2)q.pull=true;
@@ -2121,14 +2122,53 @@ function saveChars(){ try{localStorage.setItem('vs_chars',JSON.stringify(CHS));l
 const chXp=id=>(CHS[id]&&CHS[id].xp)||0;
 function chTier(id){ const x=chXp(id); let t=0; while(t<5&&x>=TIER_XP[t])t++; return t }
 function chMods(id){ const m={}, t=chTier(id); for(let i=0;i<t;i++){ const pm=CHD[id].perks[i].m; for(const k in pm)m[k]=(m[k]||0)+pm[k] } return m }
+/* ====================== ribbons & medals ======================
+   Earned per character at the END of a run (death or extraction) only; quitting to the menu never grants one. Each ribbon unlocks once per character
+   and is saved in CHS[id].rib. Conditions are deliberately demanding (see POLISH_BACKLOG / README). IDs and rack order come from Artist Helper's ribbons.js. */
+const RIB={
+ car:{nm:'Combat Action Ribbon',how:'Survive 4:00 and defeat 250 enemies in one patrol.'},
+ ph:{nm:'Purple Heart',how:'Fall below 25% HP, recover past 60%, and still be alive after 6:00.'},
+ bs:{nm:'Bronze Star',how:'Defeat 6,000 enemies in one patrol, or 20 bosses over your career with this Marine.'},
+ ss:{nm:'Silver Star',how:'Kill 2 bosses in one patrol, each time with 4+ Marines of your squad still standing.'},
+ nc:{nm:'Navy Cross',how:'Get extracted after killing 2+ bosses, holding the Hot LZ for 1,500+ kills (or 600+ on ?diff=hard).'},
+ moh:{nm:'Medal of Honor',how:'Get extracted with 3+ boss kills and 5+ Marines still standing, after dropping under 15% HP while holding the LZ - and no Dustoff. Very rare.'}
+};
+const allyCount=()=>{ let n=0; for(const m of squad)if(m.hp>0&&m.state==='ok')n++; for(const m of pat)if(m.hp>0&&m.state==='ok')n++; return n };
+function ribTrack(dt){ const g=G; if(!g||!g.rb||g.demo)return; const p=g.p, f=p.hp/p.maxHp, rb=g.rb; if(f<rb.minF)rb.minF=f; if(f<.25){ rb.dip=true; rb.rec=false } else if(rb.dip&&f>=.6)rb.rec=true;
+  if(g.ex&&g.ex.popped&&!g.ex.result&&f<rb.holdMin)rb.holdMin=f }
+function ribCheck(g,id){ const rb=g.rb||{}, ex=g.ex||{}, win=!!ex.evac, hard=EXQ==='hard', c=CHS[g.char]||{};
+  switch(id){
+   case 'car': return g.t>=240&&g.kills>=250;
+   case 'ph': return !!(rb.dip&&rb.rec)&&g.t>=360;
+   case 'bs': return g.kills>=6000||((c.bk|0)+rb.bossK)>=20;
+   case 'ss': return rb.ssK>=2;
+   case 'nc': return win&&rb.bossK>=2&&ex.holdKills>=(hard?600:1500);
+   case 'moh': return win&&rb.bossK>=3&&allyCount()>=5&&rb.holdMin<=.15&&!g.dustUsed;
+  } return false }
+function awardRibbons(g,c){ const got=[]; c.rib=c.rib||{}; for(const id of RIBBON_RACK_ORDER.slice().reverse()){ if(c.rib[id])continue; if(ribCheck(g,id)){ c.rib[id]={t:Date.now()}; got.push(id) } }
+  c.bk=(c.bk|0)+((g.rb&&g.rb.bossK)|0); return got }
+const RIBCV={};
+function ribCanvas(id,compact,locked){ const k=id+(compact?'c':'f')+(locked?'L':''); if(RIBCV[k])return RIBCV[k];
+  let rows,leg; if(id==='moh'){ rows=locked?MEDAL_OF_HONOR.locked:MEDAL_OF_HONOR.grid; leg=locked?MEDAL_OF_HONOR.locked_legend:MEDAL_OF_HONOR.legend } else { const R=RIBBONS[id]; rows=compact?R.compact:R.full; leg=R.legend }
+  const h=rows.length,w=rows[0].length, c=mk(w,h), x=c.getContext('2d'); for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++){ const col=leg[rows[yy][xx]]; if(col){ x.fillStyle=col; x.fillRect(xx,yy,1,1) } } return RIBCV[k]=c }
+const RIBURL={};
+function ribURL(id,compact,sc,locked){ const k=id+compact+sc+locked; if(RIBURL[k])return RIBURL[k]; const src=ribCanvas(id,compact,locked), c=mk(src.width*sc,src.height*sc), x=c.getContext('2d'); x.imageSmoothingEnabled=false; x.drawImage(src,0,0,c.width,c.height); return RIBURL[k]=c.toDataURL() }
+function ribRackHTML(id){ const c=CHS[id]||{}, r=c.rib||{}; let n=0; RIBBON_RACK_ORDER.forEach(k=>{ if(r[k])n++ });
+  return `<div class="rack"><div class="rkh">RIBBONS &amp; MEDALS · ${n}/${RIBBON_RACK_ORDER.length}</div>`+RIBBON_RACK_ORDER.map(k=>{ const got=!!r[k], isM=k==='moh';
+    return `<div class="rk${got?' on':''}"><span class="rkimg ${isM?'md':''}"><img src="${isM?ribURL(k,false,2,!got):ribURL(k,false,2)}" alt="" ${got||isM?'':'class="dim"'}></span><span class="rkt"><b>${got||!isM?RIB[k].nm:'Medal of Honor (locked)'}</b>${got?' ✔':''}<br><i>${RIB[k].how}</i></span></div>` }).join('')+'</div>' }
+function ribFanfare(ids){ try{ if(window.Cues&&Snd.cueRibbon)Snd.cueRibbon(ids) }catch(e){} }
+/* QA: DBG.grantRibbon(charId,'bs'), DBG.resetRibbons(charId|'all'), DBG.listRibbons() */
+DBG.grantRibbon=(cid,rid)=>{ if(!CHD[cid]||!RIB[rid])return console.log('usage: DBG.grantRibbon(charId, ribbonId) charIds:',CHORDER.join(','),'ribbons:',RIBBON_RACK_ORDER.join(',')); const c=CHS[cid]||(CHS[cid]={xp:0,runs:0,best:0,kills:0}); (c.rib=c.rib||{})[rid]={t:Date.now(),dbg:1}; saveChars(); try{ if($('charsel').classList.contains('show'))selectChar(SEL) }catch(e){} return DBG.listRibbons(cid) };
+DBG.resetRibbons=(cid)=>{ const ids=(!cid||cid==='all')?Object.keys(CHS):[cid]; for(const i of ids){ if(CHS[i]){ delete CHS[i].rib; CHS[i].bk=0 } } saveChars(); try{ if($('charsel').classList.contains('show'))selectChar(SEL) }catch(e){} return DBG.listRibbons() };
+DBG.listRibbons=(cid)=>{ const out={}; for(const i of (cid?[cid]:CHORDER)){ out[i]=RIBBON_RACK_ORDER.filter(k=>CHS[i]&&CHS[i].rib&&CHS[i].rib[k]) } console.table?console.table(Object.keys(out).map(k=>({char:k,ribbons:out[k].join(' ')||'-'}))):console.log(out); return out };
 /* service-record XP for one run. Tuned so a good ~12-min run is ~700-1000 XP and tier 5 (6500 XP) takes about 8-10 such runs; a short run earns proportionally little */
 function runXpGain(g,sumL,maxed){ if(sumL===undefined){ sumL=0;maxed=0; for(const id in g.w){ sumL+=g.w[id].lvl; if(g.w[id].lvl>=ITEMS[id].max)maxed++ } }
   return Math.floor(g.t/6+g.kills/12+sumL*2+maxed*25+g.bossN*25+(g.ex&&g.ex.evac?150:0)+(g.ex?Math.floor(g.ex.holdKills/12):0)) }
 function runXpGainOld(g){ let sumL=0,maxed=0; for(const id in g.w){ sumL+=g.w[id].lvl; if(g.w[id].lvl>=ITEMS[id].max)maxed++ } return Math.floor(g.t/6+g.kills/4+sumL*3+maxed*40+g.bossN*25+(g.ex&&g.ex.evac?150:0)+(g.ex?Math.floor(g.ex.holdKills/4):0)) }   /* kept only so tools/botrun.js can print before/after */
-function awardRun(){ const g=G; if(!g||g.demo||g.awarded||!g.char||DBG.t>0)return null; g.awarded=true;
+function awardRun(ended){ const g=G; if(!g||g.demo||g.awarded||!g.char||DBG.t>0)return null; g.awarded=true;
   let sumL=0,maxed=0; for(const id in g.w){ sumL+=g.w[id].lvl; if(g.w[id].lvl>=ITEMS[id].max)maxed++ }
   const gain=runXpGain(g,sumL,maxed); const c=CHS[g.char]||(CHS[g.char]={xp:0,runs:0,best:0,kills:0});
-  const t0=chTier(g.char); c.xp+=gain; c.runs++; c.kills+=g.kills; c.best=Math.max(c.best,Math.floor(g.t)); const t1=chTier(g.char); saveChars(); return {gain,t0,t1,id:g.char} }
+  const t0=chTier(g.char); c.xp+=gain; c.runs++; c.kills+=g.kills; c.best=Math.max(c.best,Math.floor(g.t)); const t1=chTier(g.char); const rib=ended?awardRibbons(g,c):[]; saveChars(); return {gain,t0,t1,id:g.char,rib} }
 const CHDEF=()=>({sidearm:false,rfCd:0,rfRun:null,rfN:0,char:null,cdm:1,crit:0,flm:1,area:0,air:0,sq:{hp:0,dm:0,fast:0},aura:0,hpB:0,spdB:0,armB:0,regB:0,xpB:0,magB:0,abCd:0,abMax:0,rally:0,dead:0,rr:0,chow:0,full:0,gemHeal:0,detect:false,wr:{},awarded:false});
 function applyChar(demo){ const g=G; Object.assign(g,CHDEF()); if(demo)return;
   const id=SEL, D=CHD[id], B=D.base, m=chMods(id); g.char=id;
@@ -2190,6 +2230,7 @@ function selectChar(id){ if(!CHD[id])return; SEL=id; saveChars(); const D=CHD[id
    <div class="rb"><canvas id="csPort" width="112" height="128"></canvas><div class="fld"><span>RANK</span><b>${D.rank}</b><span>NAME</span><b>${D.nm}</b>${D.label?'':`<span>NICKNAME</span><b>"${D.nick}"</b>`}<span>HOMETOWN</span><b>${D.home}</b><span>MOS</span><b>${D.mos}</b>${D.age?`<span>AGE</span><b>${D.age}</b>`:''}<span>LOADOUT</span><b>${D.loadout}</b></div></div>
    <p>${D.bio.join(' ')}</p><div class="kn">KNOWN FOR: ${D.known}</div>${D.quote?`<div class="qt">"${D.quote}" — ${D.nick}</div>`:''}
    <div class="sp"><div><u>PASSIVE:</u> ${D.passive}</div><div><u>SPECIAL [SPACE / E]:</u> ${D.ab.nm} — ${D.ab.desc} <i>(${D.ab.cd}s)</i></div></div>
+   ${ribRackHTML(id)}
    <div class="tr"><b>SERVICE TIER ${t}/5</b> · ${x} XP · ${c.runs||0} patrols · best ${fmt(c.best||0)}<div class="bar"><i style="width:${pct}%"></i></div>
    ${D.perks.map((p,i)=>`<div class="pk${i<t?' on':''}">${i<t?'✔':'🔒'} Tier ${i+1} (${TIER_XP[i]} XP): ${p.t}</div>`).join('')}</div><div class="stamp">${t>=5?'VETERAN':'CONFIDENTIAL'}</div>`;
   drawPortrait($('csPort'),id) }
@@ -3222,9 +3263,10 @@ function gameOver(win,why){ state='over'; overAt=performance.now(); const g=G, e
   if(!why){ spawnDrops(g.p.x,g.p.y-6,0,0,40,200); addDecal(g.p.x,g.p.y+6,SPLAT[6],90,1.8); addDecal(g.p.x,g.p.y+8,CORPSE.marine[0],90,1) }
   $('overTitle').textContent=win?'EVACUATED — GOOD HUSTLE, MARINE':why==='left'?'LEFT ON THE LZ — THE BIRD IS GONE':'MARINE DOWN — MEDEVAC';
   let best=0; try{best=+localStorage.getItem('vs_best')||0; if(g.t>best){best=g.t;localStorage.setItem('vs_best',String(g.t))}; if(win&&!g.demo&&!DBG.bot)localStorage.setItem('vs_evacs',String((+localStorage.getItem('vs_evacs')||0)+1))}catch(e){}
-  const aw=awardRun(); $('rank').textContent=win?'Mission complete: extracted by UH-1 Huey':'Reached rank: '+rankFor(g.t);
+  const aw=awardRun(true); $('rank').textContent=win?'Mission complete: extracted by UH-1 Huey':'Reached rank: '+rankFor(g.t);
   const sc=exScore(g);
-  $('stats').innerHTML=`Survived <b>${fmt(g.t)}</b> &nbsp;·&nbsp; Enemies defeated <b>${g.kills}</b><br>Level <b>${g.p.lvl}</b> &nbsp;·&nbsp; Best time <b>${fmt(best)}</b>`+(ex&&ex.popped?`<br>LZ hold kills <b>${ex.holdKills}</b> &nbsp;·&nbsp; Mission score <b>${sc}</b>`:`<br>Mission score <b>${sc}</b>`)+(aw?`<br><span style="color:#e8c860">${CHD[aw.id].label||CHD[aw.id].rank+' '+CHD[aw.id].nick}: +${aw.gain} service XP${aw.t1>aw.t0?' · TIER '+aw.t1+' UNLOCKED: '+CHD[aw.id].perks[aw.t1-1].t:''}</span>`:'');
+  $('stats').innerHTML=`Survived <b>${fmt(g.t)}</b> &nbsp;·&nbsp; Enemies defeated <b>${g.kills}</b><br>Level <b>${g.p.lvl}</b> &nbsp;·&nbsp; Best time <b>${fmt(best)}</b>`+(ex&&ex.popped?`<br>LZ hold kills <b>${ex.holdKills}</b> &nbsp;·&nbsp; Mission score <b>${sc}</b>`:`<br>Mission score <b>${sc}</b>`)+(aw?`<br><span style="color:#e8c860">${CHD[aw.id].label||CHD[aw.id].rank+' '+CHD[aw.id].nick}: +${aw.gain} service XP${aw.t1>aw.t0?' · TIER '+aw.t1+' UNLOCKED: '+CHD[aw.id].perks[aw.t1-1].t:''}</span>`:'')+(aw&&aw.rib&&aw.rib.length?'<div class="newrib">'+aw.rib.slice().sort((a,b)=>RIBBON_RACK_ORDER.indexOf(a)-RIBBON_RACK_ORDER.indexOf(b)).map(k=>`<div class="nr"><img src="${ribURL(k,true,3)}" alt=""><span><b>NEW: ${RIB[k].nm}</b><br>${RIB[k].how}</span></div>`).join('')+'</div>':'');
+  if(aw&&aw.rib&&aw.rib.length)ribFanfare(aw.rib);
   setTimeout(()=>{ if(state==='over')$('over').classList.add('show') },700); }
 function showBest(){ let b=0; try{b=+localStorage.getItem('vs_best')||0}catch(e){} let ev=0; try{ev=+localStorage.getItem('vs_evacs')||0}catch(e){} $('best').textContent=(b?('Best survival: '+fmt(b)):'')+(ev?(b?' · ':'')+'Evacuations: '+ev:''); }
 $('btnStart').onclick=openCharSel; $('btnRestart').onclick=startGame; $('btnMenu').onclick=toMenu; $('btnResume').onclick=resumeGame; $('btnQuit').onclick=toMenu; $('btnPause').onclick=()=>{state==='play'?pauseGame():resumeGame()};
@@ -3456,7 +3498,7 @@ if(DBG.nodemo){ G=null; newGame(false); } else newGame(true);
 showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 { let bd=false; try{bd=sessionStorage.getItem('vs_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
-window.__ms={CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={ribCheck,RIBBON_RACK_ORDER,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
 

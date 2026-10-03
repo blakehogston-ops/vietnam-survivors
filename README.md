@@ -50,7 +50,7 @@ All are off by default. Use them as URL flags, or from the browser console (`DBG
 | `dbgAirCd()` | Console: prints total air-support cooldown reduction and every air weapon's effective cooldown (Hogston -55 % vs -45 %). |
 | `__ms` | Console: internal handles for tests (`__ms.G`, `__ms.step(dt)`, `__ms.spawnLz()`, `__ms.beginFirebase()`, `__ms.fbS`, `__ms.runXpGain(G)` ...). |
 | Fast-forward | `?t=540` jumps near the 10:00 extraction; in a script call `__ms.step(1/60)` in a loop with `window.__simHold=true` (this is how the bots run a 12-minute mission in seconds). |
-| Ribbons / medals | (not built yet: debug commands will be added here) |
+| Ribbons / medals | Console: `DBG.grantRibbon('doc','bs')` (ids: `car ph bs ss nc moh`), `DBG.resetRibbons('doc')` or `DBG.resetRibbons('all')`, `DBG.listRibbons()` / `DBG.listRibbons('doc')`. Character ids: `doc hammer boone skipper zippo rat radio preacher chef`. |
 
 Tools (`cd tools && npm i playwright-core`; they use the installed Chrome): `botrun.js` (balance/mission/firebase bot; `--fb` firebase metrics, `--q 't=480'` extra URL flags, prints per-run service XP old vs new), `botdiag.js` (diagnostic run), `fbstress.js` (firebase early-build stress test: injects N siege enemies during the first 45 s and checks the build keeps progressing).
 
@@ -58,3 +58,20 @@ Tools (`cd tools && npm i playwright-core`; they use the installed Chrome): `bot
 - **Firebase footprint:** square perimeter instead of a circle. Sandbag walls on four sides at half-side 168 px (a 336 x 336 px site, 1.5x the old 112 px radius), 56-px gates in the middle of each side, turrets at the four corners and the four gate midpoints (8 total), bunker / medic tent / helipad / 106mm inside, barbed-wire square at half-side 237 px (was radius 158). Same 3 build stages, progress bar and timings.
 - **Engineer grace:** for the first 40 s of a call-in engineers take 85 % less damage, cannot die, are not picked as targets, and do not panic or slow down under fire (protection fades out over the next 20 s). Build progress never fully stalls while any engineer lives (minimum work rate of half speed for the first 45 s, quarter speed after).
 - **Service tiers:** `TIER_XP = [350, 1000, 2200, 4000, 6500]` (was `[120, 320, 620, 1050, 1600]`). Run XP = `time/6 + kills/12 + 2 x weapon levels + 25 x maxed weapons + 25 x bosses + 150 if extracted + hold kills/12` (was kills/4, 3x levels, 40x maxed, hold kills/4). A good 12-min run is roughly 700-1000 XP, so tier 5 takes about 8-10 full runs; short runs earn proportionally little. Existing saves keep their XP; their tier is recomputed from the new table.
+
+## Ribbons & medals
+Six awards per character, shown highest first as a rack on the character-select service record with "how to earn it" text (unearned ones are dimmed; the Medal of Honor is a locked silhouette until earned). Stored per character in `localStorage` (`vs_chars`), each unlocks once, and **only at the end of a patrol (death or extraction)** - quitting to the menu, skipping or closing the tab grants nothing. New awards are listed on the end-of-run screen.
+
+| Ribbon | Earned by |
+|---|---|
+| Combat Action Ribbon (`car`) | Survive 4:00 and defeat 250 enemies in one patrol |
+| Purple Heart (`ph`) | Fall below 25% HP, recover past 60%, and still be alive after 6:00 |
+| Bronze Star (`bs`) | 6,000 kills in one patrol, or 20 boss kills over your career with that Marine |
+| Silver Star (`ss`) | Kill 2 bosses in one patrol, each with 4+ squad Marines standing |
+| Navy Cross (`nc`) | Extracted after 2+ boss kills and 1,500+ LZ-hold kills (600+ on `?diff=hard`) |
+| Medal of Honor (`moh`) | Extracted with 3+ boss kills and 5+ Marines standing, after dropping under 15% HP during the LZ hold, no Dustoff |
+
+Art: Artist Helper's `ribbons.js` (kept in `assets/artist/`, inlined in `index.html`). Stripe patterns are from the official specs cited in `assets/artist/README.md`; they still need Vietnam Vet's review (CAR left/right orientation).
+
+## Art drop-ins
+Pending Artist Helper pieces plug into the `ART` object near the top of the sprite code in `index.html` (`ART.portraits[charId]`, `ART.wallTiles`, `ART.decals`, `ART.cdRing`); until set, the built-in placeholders are used.

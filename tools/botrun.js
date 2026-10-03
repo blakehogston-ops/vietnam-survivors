@@ -55,7 +55,7 @@ const SUMMARY=[];
       if(mi<marks.length&&m.state!=='play'){ const G=G0(); out.push({atMin:MINS[mi],alive:false,diedAtSec:Math.round(G.t),xpNew:m.runXpGain(G),xpOld:m.runXpGainOld(G),level:G.p.lvl,kills:G.kills,avgDps:Math.round((G.dd||0)/Math.max(1,G.t)),weapons:Object.keys(G.w).map(k=>k+G.w[k].lvl).join(' '),bosses:(G.blog||[]).map(q=>({n:q.n,spawn:Math.round(q.t0),ttk:q.t1===null?null:+(q.t1-q.t0).toFixed(1)})),tankDeaths:(G.tlog||[]).map(q=>q.t+'s(age '+q.age+')')}) }
       // stall = minute with the lowest kills/lvl growth after minute 2, or lowest hp
       let stall=null; if(per.length>2){ const c=per.slice(2); stall=c.reduce((a,b)=>(b.dps<a.dps?b:a)); }
-      { const G=G0(), e=G.ex; exLog={reached:e.reached,popped:e.popped,evac:e.evac,result:e.result||(m.state==='play'?'timeout':'?'),kind:e.kind,col:e.col,popAt:e.popped?Math.round(e.popAt):null,holdKills:e.holdKills,endT:Math.round(G.t),level:G.p.lvl,kills:G.kills,dropped:e.dropped,score:m.exScore(G)} }
+      { const G=G0(), e=G.ex; exLog={rib:m.RIBBON_RACK_ORDER.filter(k=>m.ribCheck(G0(),k)).join(' '),reached:e.reached,popped:e.popped,evac:e.evac,result:e.result||(m.state==='play'?'timeout':'?'),kind:e.kind,col:e.col,popAt:e.popped?Math.round(e.popAt):null,holdKills:e.holdKills,endT:Math.round(G.t),level:G.p.lvl,kills:G.kills,dropped:e.dropped,score:m.exScore(G)} }
       const fbLog=(G0().fbLog||[]).map(l=>Object.assign({},l)); const endT=G0().t, died=m.state!=='play'&&G0().p.hp<=0;
       for(const l of fbLog)l.endT=+(endT-l.t0).toFixed(1);
       var fbRes={tr,fbLog,endT:Math.round(endT),died};
@@ -88,5 +88,6 @@ const SUMMARY=[];
     console.log('popped signal     :',pc(c(r=>r.popped)));
     console.log('evacuated         :',pc(c(r=>r.evac)),' target 40-50%');
     console.log('results           :',JSON.stringify(by));
+    { const cnt={}; SUMMARY.forEach(r=>(r.rib||'').split(' ').filter(Boolean).forEach(k=>cnt[k]=(cnt[k]||0)+1)); console.log('ribbons the bot would earn (of '+n+' runs):',JSON.stringify(cnt)) }
     const hk=SUMMARY.filter(r=>r.popped).map(r=>r.holdKills); if(hk.length)console.log('avg hold kills    :',Math.round(hk.reduce((a,b)=>a+b,0)/hk.length)) }
 })();
