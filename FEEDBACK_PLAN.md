@@ -71,3 +71,12 @@ Open for Blake/Gamer: which characters start unlocked, and should Hogston be unl
 - Art/sound: Artist Helper's shared locked-card style (darkened portrait + padlock + progress bar) and an UNLOCKED banner frame; Sound Helper's shared "character unlocked" cue, a quieter "denied" click, and a longer bugle phrase for Hogston.
 - Gamer flag: Hammer's "survive 8 minutes" may be too long for a first-time player; check the 2-3 starting characters can reach most conditions.
 - Vietnam Vet/Sound Helper: unlock/combo bugle phrases use a rising 'Assembly'-style call, never Taps (including the Hogston unlock).
+
+## More realistic sound (Blake, Oct 3, 8:05 PM ET) — PLAN ONLY, size M-L
+Today every sound is synthesized in code (Sound Helper's 45-cue pack), so none are real recordings. Realistic = swap in real recorded samples for the sounds heard most, keeping the synth as the fallback.
+Steps:
+1. Sound Helper picks the ~15 most-heard sounds to replace first: M16, M60, AK-47, M1903 shot + bolt, M79 thump, mortar/howitzer, explosions, Huey rotor + distant Huey, flamethrower, A/C-47 minigun, radio squelch/chatter, PBR/boat engine, tank cannon, footsteps/ambience (jungle).
+2. Source ONLY from licenses that allow commercial use (needed for Steam): CC0 / public domain libraries (e.g. Freesound CC0 filter, OpenGameArt CC0, Sonniss GDC free bundles to be checked for terms) or a paid pack Blake buys. Nothing taken from movies/games/YouTube. Copyright and IP Auditor logs every file (source URL, author, license) in ASSET_LICENSE_LOG.md before it ships. I have not verified any specific library's terms yet.
+3. Implementation (me): load samples as short compressed audio (OGG/MP3, aim for <= 1.5 MB total for the first batch so the page stays fast on phones), decode once, play through the existing compressor bus + limiter, keep tiers/throttling, per-sound random pitch +/-5% and 2-3 variants to avoid repetition, fall back to synth if a file fails. Steam copy embeds them as before.
+4. QA: sizes, load time on a throttled phone profile, no clipping on the bus in a heavy fight, mute/ducking still correct.
+Open for Blake: free CC0 samples first (no cost, more work to find good ones) or budget for a paid military/gunfire pack (fast, ~$20-60)? Real-world note: no one has listened to the current synth sounds on a real speaker yet, so a quick listening test from Blake of the current top sounds would show which ones bother him most.
