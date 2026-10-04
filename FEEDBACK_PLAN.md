@@ -47,3 +47,17 @@ Existing: M60 + Ammo Pouch = AC-47 Spooky; Arc Light + KC-135 = Box Mission. New
 8. Gunboat + Strafe = BROWN WATER NAVY: a river gunboat plus A-1 Skyraider run clears a long lane.
 9. Grease Gun + Butcher Knives = MESS HALL MAYHEM (Cook): thrown knives spin back like boomerangs and ricochet; the Grease Gun fires in a full spray.
 Each combo: gold-bordered icon, banner + screen flash, shared "combo earned" fanfare (Sound Helper), plus its own short signature sound. Gamer balances and may swap pairs.
+
+## Unlockable characters (Blake, Oct 3, 8:01 PM ET) — PLAN ONLY, size M (Batch 2)
+Idea: start with 2-3 characters available; the rest are locked on character select (silhouette + "Unlock: ..." line) and unlock by playing. Saved in localStorage (lbo_* keys), shown with a banner + sound the first time it happens, and checked at end-of-run.
+Proposed starting roster: the Rifleman/default Marine plus Doc (corpsman) are free. Suggested unlocks (Gamer to tune):
+- Hammer (M60): survive 8 minutes in one run.
+- Country (M1903): get 100 kills with a single weapon / reach level 10.
+- Radio: secure a firebase once.
+- Skipper (squad leader): extract successfully once.
+- Zippo (flamethrower): kill 500 enemies total.
+- Cook: reach service tier 2 (or collect 10 ribbons' worth of XP).
+- MSgt. Hogston (tribute character): unlock after earning a Bronze Star ribbon, or reach tier 3, so it feels earned and special.
+- Washington variants / skin tones: free cosmetic choices, not locked.
+Implementation: add `unlock:{type,n}` to each character def; track lifetime stats (kills, best time, firebases secured, extractions) if not already saved; locked card shows progress "3/5". Debug: `DBG.unlockAll()` and `DBG.resetUnlocks()` for QA. Controller: locked cards focusable but not selectable. Steam: tie unlocks to achievements later.
+Open for Blake/Gamer: which characters start unlocked, and should Hogston be unlockable or available at start?
