@@ -70,3 +70,4 @@ Open for Blake/Gamer: which characters start unlocked, and should Hogston be unl
 - Debug for QA: `DBG.unlockAll()`, `DBG.lockAll()`, `DBG.unlock(id)`, `DBG.unlockProgress()`.
 - Art/sound: Artist Helper's shared locked-card style (darkened portrait + padlock + progress bar) and an UNLOCKED banner frame; Sound Helper's shared "character unlocked" cue, a quieter "denied" click, and a longer bugle phrase for Hogston.
 - Gamer flag: Hammer's "survive 8 minutes" may be too long for a first-time player; check the 2-3 starting characters can reach most conditions.
+- Vietnam Vet/Sound Helper: unlock/combo bugle phrases use a rising 'Assembly'-style call, never Taps (including the Hogston unlock).
