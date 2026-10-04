@@ -61,3 +61,12 @@ Proposed starting roster: the Rifleman/default Marine plus Doc (corpsman) are fr
 - Washington variants / skin tones: free cosmetic choices, not locked.
 Implementation: add `unlock:{type,n}` to each character def; track lifetime stats (kills, best time, firebases secured, extractions) if not already saved; locked card shows progress "3/5". Debug: `DBG.unlockAll()` and `DBG.resetUnlocks()` for QA. Controller: locked cards focusable but not selectable. Steam: tie unlocks to achievements later.
 Open for Blake/Gamer: which characters start unlocked, and should Hogston be unlockable or available at start?
+
+### Unlock updates (Oct 3, 8:04 PM ET)
+- Blake: "100 kills with one weapon is too easy." Country's unlock becomes 1,500 kills with a single weapon in one run (placeholder). Gamer must set the real number from bot-run kill data so it takes several good runs.
+- Existing saves (QA): anyone with a save from before the unlock update keeps ALL current characters unlocked (grandfathered; flag `lbo_unlock_v1` set on first load of the new build). Fresh saves start locked. Needs a test with an old-key save.
+- Triggers fire once only: record unlocked ids in storage before showing the banner; quitting, dying, or reloading mid-run cannot grant or re-trigger early; progress counters persist.
+- Locked cards: not selectable by mouse, keyboard, touch or controller; "denied" click plays; a fresh save always has a valid default character.
+- Debug for QA: `DBG.unlockAll()`, `DBG.lockAll()`, `DBG.unlock(id)`, `DBG.unlockProgress()`.
+- Art/sound: Artist Helper's shared locked-card style (darkened portrait + padlock + progress bar) and an UNLOCKED banner frame; Sound Helper's shared "character unlocked" cue, a quieter "denied" click, and a longer bugle phrase for Hogston.
+- Gamer flag: Hammer's "survive 8 minutes" may be too long for a first-time player; check the 2-3 starting characters can reach most conditions.
