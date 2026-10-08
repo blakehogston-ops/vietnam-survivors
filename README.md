@@ -6,6 +6,18 @@ A stylized browser arcade survival game (Vampire Survivors-style) set in Vietnam
 
 **Mature: stylized violence** - cartoon pixel blood and gore.
 
+## Stage 1 — Quang Tri loop (branch `quangtri`, preview at `/next/`)
+Preview: https://blakehogston-ops.github.io/vietnam-survivors/next/ (the site root stays on the friends build). Design: `DESIGN_QUANG_TRI.md`.
+- **The fifteen:** Doc + 14 named Marines come in on three Hueys (4+5+5). The Hueys leave. Dead Marines stay dead and their bodies stay where they fell. No Company, Squad or patrol refills and no Medevac perk. The count under the timer only goes down.
+- **Signal:** the NVA commander (first boss, ~3:00) carries the smoke. Kill him and there is one quiet second (hit-stop, music ducks, canister hits). The canister makes a short coloured column: red banded, yellow solid, green two fingers, violet spiral, always drawn at 2x. Walk into it. The ground says "Smoke out.", the pilot names the colour he sees, and Doc taps ROGER (Enter / A) or NEGATIVE · SAY AGAIN (Esc / B). No timer. Charlie sometimes pops his own colour, and the pilot can mis-call. A wrong ROGER sends the bird to a clearing 520–720 px away. If there is no signal by 9:00, a mirror comes down by air.
+- **Line under the timer:** NO SIGNAL → `<COLOR> SMOKE — Nm` with a live arrow → `HOLD FOR LZ — 10:00` → BIRD INBOUND → BIRD LIFTS. Under it: `MARINES n`.
+- **Pad:** a marked circle, telegraphed at 8:00. The bird sets down at 10:00 (or 30 s after a late confirm). Boarding needs Doc plus at least one other living Marine on the circle for 2 s. The bird leaves on its clock (45 s on the deck). Its door gunners work the area around the pad on short final.
+- **Cards:** the death card gives one plain fact. The win card shows GOT ON (names), LOADED (bodies on the pad), LEFT BEHIND, then kills · time · seed in small type. Both keep the service record and the Hogston dedication. `?seed=N` replays a seed, and a fresh launch never repeats the last seed.
+- **Saves:** prefix `lbo2_` (old `lbo_` saves are not read). On a fresh save only Doc is open. The other records open the first time Doc extracts.
+- **First level-up** is forced: one card, Magnet.
+- **Hidden QA:** `DBG.runLog()` lists per run the first Marine death time, smoke-drop→Doc seconds, and Doc's off-pad seconds during the hold. `DBG.smokeTest=true` draws all four smoke columns.
+- **Art:** Artist Helper sheet 1 (`assets/art/sheet1.js`, `assets/art/huey.js`), swapped in by sheet name (`SHEET_ENEMY`, `SHEET_CHAR`, `SHEET_SMOKE`). A missing sheet name falls back to the old sprite. Tracers: US red, enemy green.
+
 ## Features
 - Original Southeast Asian pentatonic lounge music (WebAudio): plucked zither arpeggios, bowed erhu-style lead with vibrato, wood block / bell / shaker. Tempo scales ~90 BPM (level 1) to ~150 BPM (level 20).
 - Distant UH-1 "Huey" helicopter ambience every 20-40 s (quiet, panning).
