@@ -38,8 +38,8 @@
     ranch_hand_flyover: { cat: 'air',       prio: 4, gain: 0.820 },                                  // STAND-IN C-130 for the C-123
     tandem_rotor_flyby: { cat: 'rotor',     prio: 5, gain: 1.000, out: 'rotor' },                    // STAND-IN Chinook for a CH-46 (disabled)
     // turret build clunks (sample-only Cues.turretCorner / turretMid, tier-2 trim 0.7 applied by the Cues wrapper)
-    turret_corner_build: { cat: 'build',    prio: 2, gain: 0.294 },                                  // sandbag thud + deep ammo-box clunk
-    turret_mid_build:   { cat: 'build',     prio: 2, gain: 0.230 },                                  // sandbag thud + light metal clink
+    turret_corner_build: { cat: 'build',    prio: 2, gain: 0.208 },                                  // sandbag thud + deep ammo-box clunk
+    turret_mid_build:   { cat: 'build',     prio: 2, gain: 0.163 },                                  // sandbag thud + light metal clink
     m16_single:         { cat: 'gun',       prio: 1, gain: 0.351, vary: true, maxDur: 0.6 },
     m16_burst:          { cat: 'gun',       prio: 1, gain: 0.336, vary: true, maxDur: 1.0, burstOf: 'm16_single', rate: 12.5, rounds: [3, 5], maxRounds: 5 },  // 20-rd mags, 3-5 rd bursts (FFSL AR-15 rounds)
     m60_burst:          { cat: 'gun',       prio: 2, gain: 0.176, vary: true },
