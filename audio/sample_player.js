@@ -36,7 +36,7 @@
     jet_flyby:          { cat: 'air',       prio: 4, gain: 0.958 },                                  // STAND-IN F-4/F-5 low pass; before the bomb
     skyraider_flyby:    { cat: 'air',       prio: 4, gain: 0.834 },                                  // A-1H (P-47D mixed in)
     ranch_hand_flyover: { cat: 'air',       prio: 4, gain: 0.820 },                                  // STAND-IN C-130 for the C-123
-    tandem_rotor_flyby: { cat: 'rotor',     prio: 5, gain: 1.000, out: 'rotor' },                    // STAND-IN Chinook for a CH-46 (disabled)
+    tandem_rotor_flyby: { cat: 'rotor',     prio: 5, gain: 1.000, out: 'rotor' },                    // STAND-IN for the CH-46 Sea Knight (tandem-rotor recording; enabled by the game build)
     // turret build clunks (sample-only Cues.turretCorner / turretMid, tier-2 trim 0.7 applied by the Cues wrapper)
     turret_corner_build: { cat: 'build',    prio: 2, gain: 0.208 },                                  // sandbag thud + deep ammo-box clunk
     turret_mid_build:   { cat: 'build',     prio: 2, gain: 0.163 },                                  // sandbag thud + light metal clink
@@ -422,7 +422,7 @@
     P.m79Impact = function (o) { return P.play('m79_impact', o || {}); };
     // flyby(type, { when, vol, bombAt, bomb }): type = 'jet' | 'skyraider' | 'ranchHand' | 'tandemRotor' | 'huey'.
     // jet + bombAt: the pass starts cues.jetFlyby.leadMs (3 s) before bombAt so the jet goes over before the distant
-    // bomb; bomb: true also plays bomb_distant at bombAt. tandemRotor is disabled in the manifest (null unless loaded).
+    // bomb; bomb: true also plays bomb_distant at bombAt. tandemRotor = the CH-46 Sea Knight (enabled in the game's manifest).
     P.flyby = function (type, o) {
       o = o || {}; if (!ctx) return null; var slot = FLYBYS[type];
       if (!slot) { info('unknown flyby "' + type + '" (use ' + Object.keys(FLYBYS).join('|') + ')'); return null; }

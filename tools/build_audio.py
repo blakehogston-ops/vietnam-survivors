@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Copy Sound Helper's real-sample layer into the game (audio/...). Oct 8 rule: recopy ALL of samples/ogg + samples/m4a,
 sample_player.js, samples/manifest.js and THIRD_PARTY_AUDIO.txt after deleting the old copies (nothing stale stays).
-Disabled manifest slots (bugle, tandem rotor, river map) ship as files but are never loaded.
+The tandem rotor (CH-46 Sea Knight stand-in) is ENABLED by this build (Oct 8, Blake: supply + insertion Sea Knights use flyby('tandemRotor'));
+the bugle and the river-map batch 3 are held back entirely (no file, no manifest slot).
 Fails if any file or manifest entry still comes from a banned source (areniporgen, MultiMax2121, Mozfoo, qubodup).
 usage: python3 tools/build_audio.py [/workspace/sound_pack]"""
 import json, os, re, shutil, subprocess, sys
@@ -27,8 +28,12 @@ for k in HOLD:
         for d, ext in (('ogg', '.ogg'), ('m4a', '.m4a')):
             q = os.path.join(OUT, 'samples', d, nm + ext)
             if os.path.exists(q): os.remove(q); held.append(nm + ext)
+# CH-46 Sea Knight: re-enable the tandem-rotor fly-by (Sound Helper ships it disabled; its surrey_film credit is in the in-game block)
+ENABLE = ['tandem_rotor_flyby']
+for k in ENABLE:
+    assert k in M0['slots'], ('slot to enable is missing', k); M0['slots'][k].pop('disabled', None)
 M0['base'] = 'audio/samples/'
-open(os.path.join(OUT, 'samples', 'manifest.js'), 'w').write("/* Sound Helper's samples/manifest.js, copied by tools/build_audio.py: base set to the game's audio/samples/; river-map batch 3 and the bugle are held back until the map build. */\n(function(root){ var SAMPLE_MANIFEST=" + json.dumps(M0, indent=1) + ";\n if(typeof module!=='undefined'&&module.exports)module.exports={SAMPLE_MANIFEST:SAMPLE_MANIFEST}; else root.SAMPLE_MANIFEST=SAMPLE_MANIFEST; })(typeof window!=='undefined'?window:this);\n")
+open(os.path.join(OUT, 'samples', 'manifest.js'), 'w').write("/* Sound Helper's samples/manifest.js, copied by tools/build_audio.py: base set to the game's audio/samples/; river-map batch 3 and the bugle are held back until the map build; the tandem rotor (CH-46 Sea Knight) is enabled. */\n(function(root){ var SAMPLE_MANIFEST=" + json.dumps(M0, indent=1) + ";\n if(typeof module!=='undefined'&&module.exports)module.exports={SAMPLE_MANIFEST:SAMPLE_MANIFEST}; else root.SAMPLE_MANIFEST=SAMPLE_MANIFEST; })(typeof window!=='undefined'?window:this);\n")
 shutil.copy2(os.path.join(SP, 'samples', 'LICENSES.md'), os.path.join(OUT, 'samples', 'LICENSES.md'))
 tp = os.path.join(SP, 'THIRD_PARTY_AUDIO.txt')
 if os.path.exists(tp): shutil.copy2(tp, os.path.join(OUT, 'THIRD_PARTY_AUDIO.txt'))
@@ -40,6 +45,9 @@ PATCH = [
  ("      if (!makeRoom(s, t, plan.dur)) { stats.dropped++; return null; }\n      return handle(startVoice(slot, s, buf, t, o, s.maxDur, plan));",
   "      if (o.warnVoice) { var wv = startVoice(slot, s, buf, t, o, s.maxDur, plan); wv.cat = 'warn'; wv.prio = 99; stats.warnVoices = (stats.warnVoices || 0) + 1; return handle(wv); }   /* game patch: warning voice outside the caps */\n      if (!makeRoom(s, t, plan.dur)) { stats.dropped++; return null; }\n      return handle(startVoice(slot, s, buf, t, o, s.maxDur, plan));"),
  ("h = P.play(slot, Object.assign({}, o, { when: at }));", "h = P.play(slot, Object.assign({}, o, { when: at, warnVoice: true }));"),
+ # labels only (game build enables the slot for the CH-46 Sea Knight)
+ ("// STAND-IN Chinook for a CH-46 (disabled)", "// STAND-IN for the CH-46 Sea Knight (tandem-rotor recording; enabled by the game build)"),
+ ("tandemRotor is disabled in the manifest (null unless loaded).", "tandemRotor = the CH-46 Sea Knight (enabled in the game's manifest)."),
 ]
 for a, b in PATCH:
     assert P.count(a) == 1, ('sample_player.js patch anchor not found', a[:60]); P = P.replace(a, b)

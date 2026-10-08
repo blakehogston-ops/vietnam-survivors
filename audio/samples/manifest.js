@@ -1,4 +1,4 @@
-/* Sound Helper's samples/manifest.js, copied by tools/build_audio.py: base set to the game's audio/samples/; river-map batch 3 and the bugle are held back until the map build. */
+/* Sound Helper's samples/manifest.js, copied by tools/build_audio.py: base set to the game's audio/samples/; river-map batch 3 and the bugle are held back until the map build; the tandem rotor (CH-46 Sea Knight) is enabled. */
 (function(root){ var SAMPLE_MANIFEST={
  "base": "audio/samples/",
  "formats": [
@@ -198,7 +198,6 @@
   },
   "tandem_rotor_flyby": {
    "batch": 2,
-   "disabled": true,
    "files": [
     "tandem_rotor_flyby_1"
    ]

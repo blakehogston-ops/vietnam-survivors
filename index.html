@@ -119,7 +119,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 #csRec .tr .bar i{display:block;height:100%;background:#4a6b2f}
 #csRec .tr div.pk{opacity:.55}
 #csRec .tr div.pk.on{opacity:1;color:#27431a;font-weight:bold}
-.rack{margin:8px 0;border-top:1px dashed rgba(60,45,20,.5);padding-top:6px}.rkh{font:bold 11px 'Courier New',monospace;letter-spacing:.12em;margin-bottom:4px}.rk{display:flex;align-items:center;gap:8px;margin:3px 0;opacity:.62;font-size:12px;line-height:1.25}.rk.on{opacity:1}.rkimg{flex:0 0 90px;display:flex;justify-content:center}.rkimg.md{flex-basis:90px}.rkimg img{image-rendering:pixelated;max-width:90px;height:auto;box-shadow:0 1px 2px rgba(0,0,0,.5)}.rkimg.md img{box-shadow:none;max-height:64px;width:auto}.rkimg img.dim{filter:grayscale(1) brightness(.5)}.rk i{font-style:normal;opacity:.85}.newrib{margin:10px auto 0;max-width:520px;text-align:left}.newrib .nr{display:flex;gap:10px;align-items:center;margin:6px 0;color:#ffe58a;font-size:13px}.newrib img{image-rendering:pixelated;max-width:96px;flex:0 0 auto}
+.rack{margin:8px 0;border-top:1px dashed rgba(60,45,20,.5);padding-top:6px}.rkh{font:bold 11px 'Courier New',monospace;letter-spacing:.12em;margin-bottom:4px}.rk{display:flex;align-items:center;gap:8px;margin:3px 0;opacity:.62;font-size:12px;line-height:1.25}.rk.on{opacity:1}.rkimg{flex:0 0 90px;display:flex;justify-content:center}.rkimg.bd{flex-basis:90px}.rkimg img{image-rendering:pixelated;max-width:90px;height:auto;box-shadow:0 1px 2px rgba(0,0,0,.5)}.rkimg.bd img{box-shadow:none;width:48px;height:48px}.rkimg img.dim{filter:grayscale(1) brightness(.5)}.rk i{font-style:normal;opacity:.85}.newrib{margin:10px auto 0;max-width:520px;text-align:left}.newrib .nr{display:flex;gap:10px;align-items:center;margin:6px 0;color:#ffe58a;font-size:13px}.newrib img{image-rendering:pixelated;max-width:96px;flex:0 0 auto}.newrib .nr.bdg img{width:48px;height:48px;margin:0 10px}.srstrip img.bdg{width:48px;height:48px}
 .stamp{position:absolute;right:14px;bottom:44px;transform:rotate(-14deg);border:3px solid rgba(140,28,20,.55);color:rgba(140,28,20,.55);font-family:Impact,sans-serif;letter-spacing:.2em;padding:1px 10px;font-size:16px;pointer-events:none}
 .cs-btns{margin-top:10px}
 #abil{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:4;display:none;align-items:center;gap:8px;min-width:150px;height:46px;padding:0 12px;font-family:Impact,sans-serif;letter-spacing:.1em;font-size:15px;color:#f6f0cc;background:#2c4a22;border:3px solid #1d2f14;border-radius:23px;overflow:hidden;cursor:pointer;box-shadow:0 3px 0 #11160f;touch-action:manipulation}
@@ -1078,7 +1078,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 </script>
 <script src="assets/art/sheet1.js?v=5ca786e"></script>
 <script src="assets/art/huey_hivis.js?v=5ca786e"></script>
-<script src="assets/art/doc_hivis.js?v=5ca786e"></script><script src="assets/art/marines_tall.js?v=5ca786e"></script><script defer src="audio/sample_player.js?v=5ca786e"></script><script defer src="audio/samples/manifest.js?v=5ca786e"></script>
+<script src="assets/art/doc_hivis.js?v=5ca786e"></script><script src="assets/art/marines_tall.js?v=5ca786e"></script><script src="assets/art/heroes_tall.js?v=5ca786e"></script><script defer src="audio/sample_player.js?v=5ca786e"></script><script defer src="audio/samples/manifest.js?v=5ca786e"></script>
 <script>
 /* BUILD STAMP: set by tools/stamp.js (run after every code commit; it records that commit's short hash + date). Also the ?v= cache-buster for audio / images / icons. */
 const BUILD={id:'5ca786e',date:'2026-10-08 00:15 ET'}, AV='?v='+BUILD.id;
@@ -1129,7 +1129,7 @@ const SYNTHW={m16:1,m60:1,thump:1,m79:1,claymore:1,m1903:1,boltA:1,boltB:1,canno
 const CUEMAP={lvlRadio:['perkRadio'],m1903:['boltRifleCrack'],sf30:['ak47',{vol:.95}],m16:['m16'],m60:['m60',{shots:1}],thump:['m79',{burst:false}],claymore:['claymore'],mortar:['mortarThump'],rpg:['b40Launch'],boss:['bossSpawn'],level:['levelUpSwell'],pick:['uiTick'],ready:['readyTick'],chime:['boardingChime'],stage:['buildStageComplete'],medpack:['medpackPickup'],radio:['radioSquelch'],sigpop:['signalPop'],
   d_thud:['deathBullet',{vol:.8}],d_wet:['deathBullet'],d_snap:['deathBullet'],d_boom:['deathExplosion'],d_fire:['deathFlame'],d_crunch:['deathHeavy'],d_big:['bigKill']};
 const CUEAIR={airstrafe:['airStrafe'],airnapalm:['napalmWhoomph'],refuel:['tankerFlyover',{flightLine:true}]};
-const RIBCUE={car:'combatAction',ph:'purpleHeart',bs:'bronzeStar',ss:'silverStar',nc:'navyCross',moh:'medalOfHonor'};
+const RIBCUE={car:'combatAction',ph:'purpleHeart',bs:'bronzeStar',ss:'silverStar',nc:'navyCross',lbo:'lastBirdOut'};   /* 'medalOfHonor' bugle: tribute cards only, never from gameplay */
 const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
   init(){ if(this.ctx)return; try{
       const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
@@ -1162,7 +1162,9 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
     try{ return arg!==undefined?f(c,this.cbus,arg,opts||{}):f(c,this.cbus,opts||{}) }catch(e){ return null } },
   /* M1903 bolt clack-clack from the pack (boltCycle: 19 tiny sources): 0.4 s after the shot, at most one per 0.9 s, skipped on Low-effects devices in a heavy fight */
   boltCycleLater(){ SAMP.slot('m1903_bolt'); return; const c=this.ctx; if(!c||!this.cbus||this.muted||c.state!=='running')return; if(typeof LOWFX!=='undefined'&&LOWFX&&enemies.length>220)return; const n=performance.now(); if(n-(this._bcT||0)<900)return; this._bcT=n; this.cue('boltCycle',{when:c.currentTime+.4}) },
-  cueRibbon(ids){ let best=-1,nm=null; const ord=['car','ph','bs','ss','nc','moh']; for(const id of ids){ const k=ord.indexOf(id); if(k>best){best=k;nm=RIBCUE[id]} } if(nm){ this.cue('ribbonPin'); this.cue('ribbonBugle',{when:this.ctx?this.ctx.currentTime+.25:0},nm) } },
+  cueRibbon(ids){ let best=-1,nm=null; const ord=['car','ph','bs','ss','nc','lbo']; for(const id of ids){ const k=ord.indexOf(id); if(k>best){best=k;nm=RIBCUE[id]} } if(!nm)return; this.cue('ribbonPin');
+    if(nm==='lastBirdOut'){ const c=this.ctx; if(c){ const r=SAMP.fly('huey',{when:c.currentTime+.25}); if(r)RotorS.fbUntil=c.currentTime+12.5; this.lboFly=(this.lboFly||0)+1 } return }   /* Last Bird Out: pin, then the real Huey fly-by ~0.25 s later; no bugle */
+    this.cue('ribbonBugle',{when:this.ctx?this.ctx.currentTime+.25:0},nm) },
   /* per frame: duck the cue bus under the Colonel's recorded voice; optional peak meter (?meter) for QA */
   duckTick(){ const c=this.ctx; if(!c||!this.cbus)return; const qd=!!(typeof G!=='undefined'&&G&&G.quiet>0); if(this.mbus&&qd!==this._qd&&!SAMP.on){ this._qd=qd; try{ this.mbus.gain.setTargetAtTime(qd?this.vol.mus*.12:this.vol.mus,c.currentTime,qd?.04:.4) }catch(e){} }
     const want=qd?.3:(BVOX.src||BriefSnd.on)?.5:.9; if(want!==this._dk){ this._dk=want; try{ this.cbus.gainNode.gain.setTargetAtTime(want,c.currentTime,.12) }catch(e){} }
@@ -1688,7 +1690,225 @@ const MEDAL_OF_HONOR = {
   "X": "#2b2f36"
  }
 };
-const RIBBON_RACK_ORDER = ['moh','nc','ss','bs','ph','car']; // highest precedence first
+/* MEDAL_OF_HONOR above is kept ONLY for the Ballard and Taylor tribute cards (real recipients); it is never earned in gameplay and never in a rack. */
+/* --- Artist Helper: 'Last Bird Out' badge (assets/artist/last_bird_out_badge.js): the gameplay top unlock that replaced the old gameplay MoH.
+   Round unit-patch, NOT a medal: size24 / size48 / locked24 / locked48, each {grid, legend}. --- */
+const LAST_BIRD_OUT_BADGE = {
+ "name": "Last Bird Out",
+ "kind": "achievement badge (unit-patch style, NOT a medal or ribbon)",
+ "size24": {
+  "grid": [
+   ".........KKKKKK.........",
+   ".......KKRRRRRRKK.......",
+   ".....KKRRNNNNNNRRKK.....",
+   "....KRRNNNNNNNNNNRRK....",
+   "...KRRNNNNbbbbbbbbRrK...",
+   "..KRRNNNoNNNNNNoNNNrrK..",
+   "..KRNNNNooNNNlllllONrK..",
+   ".KRNNNNNUUVVOOOddOGGNrK.",
+   ".KRNNNNNUVVVNoOddOOGOrK.",
+   "KRNNNNNUVVVvNNkNNNkNNNrK",
+   "KRNNNNNUVVvvNkkkkkkkkNrK",
+   "KRNNNNUVVvvNNNNNNNNNNNrK",
+   "KRNNNNUVvvvNNNNNNNNNNNrK",
+   "KRNNNNVVvvNNNNNNNNNNNNrK",
+   "KRNNNNVvvVNNNNNNNNNNNNrK",
+   ".KRNNNNVVvNNNNNNNNNNNrK.",
+   ".KRNNNUVvvNNNNNNNNNNNrK.",
+   "..KRmhVVvmmmmmmmhhmmrK..",
+   "..KRRghvVmmmmmmhgghrrK..",
+   "...KrrgVvhhhhhhgggrrK...",
+   "....KrrggggggggggrrK....",
+   ".....KKrrggggggrrKK.....",
+   ".......KKrrrrrrKK.......",
+   ".........KKKKKK........."
+  ],
+  "legend": {
+   "K": "#1a1c12",
+   "R": "#ddd6b4",
+   "r": "#a8a283",
+   "N": "#26344b",
+   "m": "#3a4c68",
+   "g": "#2a3a24",
+   "h": "#3c5130",
+   "U": "#e3d3fb",
+   "V": "#a77fe0",
+   "v": "#6f4fa8",
+   "l": "#a9ba6a",
+   "O": "#7a8a44",
+   "o": "#4f5c2c",
+   "G": "#a9c0cc",
+   "d": "#151a12",
+   "b": "#cfd3c6",
+   "k": "#7d8277"
+  }
+ },
+ "size48": {
+  "grid": [
+   "....................KKKKKKKK....................",
+   "................KKKKRRRRRRRRKKKK................",
+   "..............KKRRRRRRRRRRRRRRRRKK..............",
+   "............KKRRRRRRKKKKKKKKRRRRRRKK............",
+   "...........KRRRRRKKKNNNNNNNNKKKRRRRRK...........",
+   ".........KKRRRKKKNNNNNNNNNNNNNNKKKRRRKK.........",
+   "........KRRRRKKNNNNNNbbbbbbbbbbbbKKRRRRK........",
+   ".......KRRRKKNNNNNNNNNNNNNNNNooNNNNKKRRRK.......",
+   "......KRRRKKNNNNNNbNNNNNNNNNNooNNNNNKKRrrK......",
+   ".....KRRRKNNNNNNNNboNNNNNNNllllllllNNNKrrrK.....",
+   ".....KRRKNNNNNNNNNbooNNNNNllOOOOOOOOONNKrrK.....",
+   "....KRRKKNNNNNNNNNboooOOOOOOOOOOOOOOGGGKKrrK....",
+   "...KRRRKNNNNNNNNNNNUUUVVOOOOOddddOOOOGGGKrrrK...",
+   "...KRRKNNNNNNNNNUUUUUVVVVOOOOddddOOOOOOGOKrrK...",
+   "..KRRKKNNNNNNNNUUUUUVVVVVvoooddddoooooOOoKKrrK..",
+   "..KRRKNNNNNNNNUUUUUVVVVVvvNNooooooooooNNNNKrrK..",
+   ".KRRRKNNNNNNNNUUUUVVVVVvvvNNkNNNNNNkNNNNNNKrrrK.",
+   ".KRRKNNNNNNNNNUUVVVVVVvvvvNNkNNNNNNkNNNNNNNKrrK.",
+   ".KRRKNNNNNNNNUUVVVVVVvvvvNkkkkkkkkkkkkkkkNNKrrK.",
+   ".KRRKNNNNNNNUUVVVVVVvvvvNNNNNNNNNNNNNNNNNNNKrrK.",
+   "KRRKNNNNNNNNUUVVVVvvvvvNNNNNNNNNNNNNNNNNNNNNKrrK",
+   "KRRKNNNNNNNNUUVVVvvvvvNNNNNNNNNNNNNNNNNNNNNNKrrK",
+   "KRRKNNNNNNNNUVVVvvvvvNNNNNNNNNNNNNNNNNNNNNNNKrrK",
+   "KRRKNNNNNNNNVVVVvvvvvNNNNNNNNNNNNNNNNNNNNNNNKrrK",
+   "KRRKNNNNNNNNNVVvvvvvvNNNNNNNNNNNNNNNNNNNNNNNKrrK",
+   "KRRKNNNNNNNNNUvvvvvvvNNNNNNNNNNNNNNNNNNNNNNNKrrK",
+   "KRRKNNNNNNNNUVVVVvvvvNNNNNNNNNNNNNNNNNNNNNNNKrrK",
+   "KRRKNNNNNNNNUUVVvvvvNNNNNNNNNNNNNNNNNNNNNNNNKrrK",
+   ".KRRKNNNNNNNUUVvvvvNNNNNNNNNNNNNNNNNNNNNNNNKrrK.",
+   ".KRRKNNNNNNNUVVVvvvNNNNNNNNNNNNNNNNNNNNNNNNKrrK.",
+   ".KRRKNNNNNNNVVVvvvvNNNNNNNNNNNNNNNNNNNNNNNNKrrK.",
+   ".KRRRKNNNNNNNVvvvvVvNNNNNNNNNNNNNNNNNNNNNNKrrrK.",
+   "..KRRKNNNNNNNUVVVVvvNNNNNNNNNNNNNNNNNNNNNNKrrK..",
+   "..KRRKKmmmmmmUVVVvvmmmmmmmmmmmmmmmmmmmmmmKKrrK..",
+   "...KRRKhmmmmmUVVvvvmmmmmmmmmmmmmmhhmmmmmmKrrK...",
+   "...KRRRKhmhmmVVVvvmmmmmmmmmmmmmmhgghmhmmKrrrK...",
+   "....KRRKKhghmVVvvvmmmmmmmmmmmmmhgggghghKKrrK....",
+   ".....KRRKgggmmUvVvmmmmmmmmmmmmmggggggggKrrK.....",
+   ".....KRRRKgghhUVvvhhhhhhhhhhhhhgggggggKrrrK.....",
+   "......KRrrKKgggvvgggggggggggggggggggKKrrrK......",
+   ".......KrrrKKggggggggggggggggggggggKKrrrK.......",
+   "........KrrrrKKggggggggggggggggggKKrrrrK........",
+   ".........KKrrrKKKggggggggggggggKKKrrrKK.........",
+   "...........KrrrrrKKKggggggggKKKrrrrrK...........",
+   "............KKrrrrrrKKKKKKKKrrrrrrKK............",
+   "..............KKrrrrrrrrrrrrrrrrKK..............",
+   "................KKKKrrrrrrrrKKKK................",
+   "....................KKKKKKKK...................."
+  ],
+  "legend": {
+   "K": "#1a1c12",
+   "R": "#ddd6b4",
+   "r": "#a8a283",
+   "N": "#26344b",
+   "m": "#3a4c68",
+   "g": "#2a3a24",
+   "h": "#3c5130",
+   "U": "#e3d3fb",
+   "V": "#a77fe0",
+   "v": "#6f4fa8",
+   "l": "#a9ba6a",
+   "O": "#7a8a44",
+   "o": "#4f5c2c",
+   "G": "#a9c0cc",
+   "d": "#151a12",
+   "b": "#cfd3c6",
+   "k": "#7d8277"
+  }
+ },
+ "locked24": {
+  "grid": [
+   ".........KKKKKK.........",
+   ".......KKYYYYYYKK.......",
+   ".....KKYYXXXXXXYYKK.....",
+   "....KYYXXXXXXXXXXYYK....",
+   "...KYYXXXXZZZZZZZZYYK...",
+   "..KYYXXXZXXXXXXZXXXYYK..",
+   "..KYXXXXZZXXXZZZZZZXYK..",
+   ".KYXXXXXZZZZZZZZZZZZXYK.",
+   ".KYXXXXXZZZZXZZZZZZZZYK.",
+   "KYXXXXXZZZZZXXZXXXZXXXYK",
+   "KYXXXXXZZZZZXZZZZZZZZXYK",
+   "KYXXXXZZZZZXXXXXXXXXXXYK",
+   "KYXXXXZZZZZXXXXXXXXXXXYK",
+   "KYXXXXZZZZXXXXXXXXXXXXYK",
+   "KYXXXXZZZZXXXXXXXXXXXXYK",
+   ".KYXXXXZZZXXXXXXXXXXXYK.",
+   ".KYXXXZZZZXXXXXXXXXXXYK.",
+   "..KYXXZZZXXXXXXXXXXXYK..",
+   "..KYYXXZZXXXXXXXXXXYYK..",
+   "...KYYXZZXXXXXXXXXYYK...",
+   "....KYYXXXXXXXXXXYYK....",
+   ".....KKYYXXXXXXYYKK.....",
+   ".......KKYYYYYYKK.......",
+   ".........KKKKKK........."
+  ],
+  "legend": {
+   "K": "#1a1c12",
+   "Y": "#5a5f67",
+   "X": "#2b2f36",
+   "Z": "#41464f"
+  }
+ },
+ "locked48": {
+  "grid": [
+   "....................KKKKKKKK....................",
+   "................KKKKYYYYYYYYKKKK................",
+   "..............KKYYYYYYYYYYYYYYYYKK..............",
+   "............KKYYYYYYKKKKKKKKYYYYYYKK............",
+   "...........KYYYYYKKKXXXXXXXXKKKYYYYYK...........",
+   ".........KKYYYKKKXXXXXXXXXXXXXXKKKYYYKK.........",
+   "........KYYYYKKXXXXXXZZZZZZZZZZZZKKYYYYK........",
+   ".......KYYYKKXXXXXXXXXXXXXXXXZZXXXXKKYYYK.......",
+   "......KYYYKKXXXXXXZXXXXXXXXXXZZXXXXXKKYYYK......",
+   ".....KYYYKXXXXXXXXZZXXXXXXXZZZZZZZZXXXKYYYK.....",
+   ".....KYYKXXXXXXXXXZZZXXXXXZZZZZZZZZZZXXKYYK.....",
+   "....KYYKKXXXXXXXXXZZZZZZZZZZZZZZZZZZZZZKKYYK....",
+   "...KYYYKXXXXXXXXXXXZZZZZZZZZZZZZZZZZZZZZKYYYK...",
+   "...KYYKXXXXXXXXXZZZZZZZZZZZZZZZZZZZZZZZZZKYYK...",
+   "..KYYKKXXXXXXXXZZZZZZZZZZZZZZZZZZZZZZZZZZKKYYK..",
+   "..KYYKXXXXXXXXZZZZZZZZZZZZXXZZZZZZZZZZXXXXKYYK..",
+   ".KYYYKXXXXXXXXZZZZZZZZZZZZXXZXXXXXXZXXXXXXKYYYK.",
+   ".KYYKXXXXXXXXXZZZZZZZZZZZZXXZXXXXXXZXXXXXXXKYYK.",
+   ".KYYKXXXXXXXXZZZZZZZZZZZZXZZZZZZZZZZZZZZZXXKYYK.",
+   ".KYYKXXXXXXXZZZZZZZZZZZZXXXXXXXXXXXXXXXXXXXKYYK.",
+   "KYYKXXXXXXXXZZZZZZZZZZZXXXXXXXXXXXXXXXXXXXXXKYYK",
+   "KYYKXXXXXXXXZZZZZZZZZZXXXXXXXXXXXXXXXXXXXXXXKYYK",
+   "KYYKXXXXXXXXZZZZZZZZZXXXXXXXXXXXXXXXXXXXXXXXKYYK",
+   "KYYKXXXXXXXXZZZZZZZZZXXXXXXXXXXXXXXXXXXXXXXXKYYK",
+   "KYYKXXXXXXXXXZZZZZZZZXXXXXXXXXXXXXXXXXXXXXXXKYYK",
+   "KYYKXXXXXXXXXZZZZZZZZXXXXXXXXXXXXXXXXXXXXXXXKYYK",
+   "KYYKXXXXXXXXZZZZZZZZZXXXXXXXXXXXXXXXXXXXXXXXKYYK",
+   "KYYKXXXXXXXXZZZZZZZZXXXXXXXXXXXXXXXXXXXXXXXXKYYK",
+   ".KYYKXXXXXXXZZZZZZZXXXXXXXXXXXXXXXXXXXXXXXXKYYK.",
+   ".KYYKXXXXXXXZZZZZZZXXXXXXXXXXXXXXXXXXXXXXXXKYYK.",
+   ".KYYKXXXXXXXZZZZZZZXXXXXXXXXXXXXXXXXXXXXXXXKYYK.",
+   ".KYYYKXXXXXXXZZZZZZZXXXXXXXXXXXXXXXXXXXXXXKYYYK.",
+   "..KYYKXXXXXXXZZZZZZZXXXXXXXXXXXXXXXXXXXXXXKYYK..",
+   "..KYYKKXXXXXXZZZZZZXXXXXXXXXXXXXXXXXXXXXXKKYYK..",
+   "...KYYKXXXXXXZZZZZZXXXXXXXXXXXXXXXXXXXXXXKYYK...",
+   "...KYYYKXXXXXZZZZZXXXXXXXXXXXXXXXXXXXXXXKYYYK...",
+   "....KYYKKXXXXZZZZZXXXXXXXXXXXXXXXXXXXXXKKYYK....",
+   ".....KYYKXXXXXZZZZXXXXXXXXXXXXXXXXXXXXXKYYK.....",
+   ".....KYYYKXXXXZZZZXXXXXXXXXXXXXXXXXXXXKYYYK.....",
+   "......KYYYKKXXXZZXXXXXXXXXXXXXXXXXXXKKYYYK......",
+   ".......KYYYKKXXXXXXXXXXXXXXXXXXXXXXKKYYYK.......",
+   "........KYYYYKKXXXXXXXXXXXXXXXXXXKKYYYYK........",
+   ".........KKYYYKKKXXXXXXXXXXXXXXKKKYYYKK.........",
+   "...........KYYYYYKKKXXXXXXXXKKKYYYYYK...........",
+   "............KKYYYYYYKKKKKKKKYYYYYYKK............",
+   "..............KKYYYYYYYYYYYYYYYYKK..............",
+   "................KKKKYYYYYYYYKKKK................",
+   "....................KKKKKKKK...................."
+  ],
+  "legend": {
+   "K": "#1a1c12",
+   "Y": "#5a5f67",
+   "X": "#2b2f36",
+   "Z": "#41464f"
+  }
+ }
+};
+const RIBBON_RACK_ORDER = ['nc','ss','bs','ph','car']; // Artist Helper's gameplay ribbon rack, highest precedence first ('moh' removed: tribute cards only)
+const RIB_ORDER = ['lbo'].concat(RIBBON_RACK_ORDER);   // service-record rack = the Last Bird Out badge, then the ribbons
 /* NVA medic pack pickup sprite (Artist Helper, assets/artist/medpack.js): 12x10 grid + legend, drawn at 2x */
 const MEDPACK={grid:["....OOOO....","...OssssO...","..OOOOOOOO..",".OGGGGGGGGO.",".OGWWWWWWGO.",".OGWWRRWWGO.",".OGWRRRRWGO.",".OGWWRRWWGO.",".OGGGGGGGGO.","..OOOOOOOO.."],legend:{O:'#1c1a12',s:'#8a7a4a',G:'#5b6b36',W:'#f1efe6',R:'#d2261b'}};
 let MEDSPR=null; (function(){ const sc=2, rows=(ART.medpack||MEDPACK).grid, pal=(ART.medpack||MEDPACK).legend, c=document.createElement('canvas'); c.width=rows[0].length*sc; c.height=rows.length*sc; const x=c.getContext('2d'); rows.forEach((r,yy)=>{ for(let xx=0;xx<r.length;xx++){ const col=pal[r[xx]]; if(col){ x.fillStyle=col; x.fillRect(xx*sc,yy*sc,sc,sc) } } }); MEDSPR=c })();
@@ -1778,6 +1998,7 @@ function applySheet(){ if(!window.SHEET1||!SHEET1.sprites)return; try{
   for(const k in SHEET_ENEMY)if(hasSheet(SHEET_ENEMY[k])){ SPR[k]=sheetSprites(SHEET_ENEMY[k]); for(const t in ET)if(ET[t].spr===k&&!ET[t].boss)ET[t].ds=1 }
   bossScale();
   for(const k in SHEET_CHAR)if(hasSheet(SHEET_CHAR[k]))CHSPR[k]=sheetSprites(SHEET_CHAR[k]);
+  if(SHEET1.heroesTall&&SHEET1.HERO_ID)for(const k in CHD){ const n=SHEET1.HERO_ID[k]; if(n&&hasSheet(n))CHSPR[k]=sheetSprites(n) }   /* heroes_tall.js: the 8 heroes + Doc at 26x37 (portraits use the same art) */
   if(hasSheet('paddy')){ const P=SHEET1.sprites.paddy, B=SHEET1.bake(2).paddy, fl=B[Math.max(0,P.names.indexOf('flooded'))].n, dk=B[Math.max(0,P.names.indexOf('dike'))].n, T=256, c=TILE_P.getContext('2d'), tw=fl.width;
     c.imageSmoothingEnabled=false; for(let y=0;y<T;y+=tw)for(let x=0;x<T;x+=tw)c.drawImage((y%128===0)?dk:fl,x,y) }
   SHEET1.bake(SHEET_SCALE_SMOKE); SHEET1.bake(1);
@@ -1981,7 +2202,7 @@ function updateSupport(dt){
   // UH-1 Huey door gunners
   for(let i=hueys.length-1;i>=0;i--){ const h=hueys[i], s=h.s; CURW=h.wid||''; h.t+=dt; h.rot+=dt*34;
     const tin=1.7,tout=1.7; let R; const sm=k=>k*k*(3-2*k);
-    if(h.t<tin)R=700-470*sm(h.t/tin); else if(h.t<tin+h.hold)R=230+14*Math.sin(h.t*1.3); else { const k=(h.t-tin-h.hold)/tout; if(k>=1){hueys.splice(i,1);continue} R=230+520*sm(k) }
+    if(h.t<tin)R=700-470*sm(h.t/tin); else if(h.t<tin+h.hold)R=230+14*Math.sin(h.t*1.3); else { if(!h.win){ h.win=1; SAMP.winchester(tout+.7) } const k=(h.t-tin-h.hold)/tout; if(k>=1){hueys.splice(i,1);continue} R=230+520*sm(k) }
     h.a+=dt*.95; h.x=p.x+Math.cos(h.a)*R; h.y=p.y+Math.sin(h.a)*R; h.hd=h.a+Math.PI/2;
     if(R<440){ for(let gi=0;gi<2;gi++){ if(h.mf[gi]>0)h.mf[gi]-=dt; h.gcd[gi]-=dt; if(h.gcd[gi]>0)continue;
         const side=gi?1:-1, mz=h.muz&&h.muz[gi], ax=mz?mz[0]:h.x+Math.cos(h.hd+side*Math.PI/2)*10, ay=mz?mz[1]:h.y-34+Math.sin(h.hd+side*Math.PI/2)*10;   /* red tracers start at the sprite's M60 muzzles */
@@ -2232,13 +2453,13 @@ function updateIns(dt){
   const p=G.p, s=G.sqS;
   for(let i=ins.length-1;i>=0;i--){ const h=ins[i]; h.t+=dt; h.rot+=dt*34; if(h.mf[0]>0)h.mf[0]=0;
     const hx=p.x+Math.cos(h.a)*h.off, hy=p.y+Math.sin(h.a)*h.off;
-    if(h.ph===0){ const dx=hx-h.x, dy=hy-h.y, d=Math.hypot(dx,dy)||1, sp=Math.min(380,60+d*1.4); h.x+=dx/d*sp*dt; h.y+=dy/d*sp*dt; h.hd=turnTo(h.hd,Math.atan2(dy,dx),4*dt); if(d<12){ h.ph=1; h.dT=.35 } }
+    if(h.ph===0){ const dx=hx-h.x, dy=hy-h.y, d=Math.hypot(dx,dy)||1, sp=Math.min(380,60+d*1.4); if(h.ch46&&d<420)SeaKnightS.cue(h,'in'); h.x+=dx/d*sp*dt; h.y+=dy/d*sp*dt; h.hd=turnTo(h.hd,Math.atan2(dy,dx),4*dt); if(d<12){ h.ph=1; h.dT=.35 } }
     else if(h.ph===1){ const k=Math.min(1,3*dt); h.x+=(hx-h.x)*k; h.y+=(hy-h.y)*k; h.hd=turnTo(h.hd,Math.atan2(p.y-h.y,p.x-h.x),3*dt);
       h.dT-=dt;
       if(h.di<h.need.length){ if(h.dT<=0&&squad.length<8){ const role=h.need[h.di], slot=SQROLES.indexOf(role); h.di++; h.dT=.26;
           const sp=SQSPR[role]; squad.push({role,slot,state:'rope',rt:0,hx:h.x+(h.di&1?9:-9),hy:h.y+4,lx:h.x+(rnd()-.5)*56,ly:h.y+22+rnd()*26,x:h.x,y:h.y+4,rz:34,hp:s.hp,mhp:s.hp,lv:G.sqL,face:1,anim:rnd()*4,mv:false,cd:.4+rnd()*.5,tg:null,tgT:rnd()*.2,mf:0,hf:0,inv:0,aim:0,ph:rnd()*TAU}) } }
       else { h.endT+=dt; if(h.endT>.9)h.ph=2 } }
-    else { h.vs=Math.min(430,h.vs+260*dt); h.hd=turnTo(h.hd,h.a,3*dt); h.x+=Math.cos(h.a)*h.vs*dt; h.y+=Math.sin(h.a)*h.vs*dt;
+    else { if(h.ch46)SeaKnightS.cue(h,'out'); h.vs=Math.min(430,h.vs+260*dt); h.hd=turnTo(h.hd,h.a,3*dt); h.x+=Math.cos(h.a)*h.vs*dt; h.y+=Math.sin(h.a)*h.vs*dt;
       if(Math.hypot(h.x-p.x,h.y-p.y)>Math.hypot(VW,VH)/2+280){ ins.splice(i,1); continue } }
     if(h.ph<2&&rnd()<dt*22*FXK()){ const a=rnd()*TAU; addPart(h.x+Math.cos(a)*14,h.y+8+Math.sin(a)*6,Math.cos(a)*70,Math.sin(a)*40,.5,3+rnd()*3,rnd()<.5?'#a8946a':'#8a7a52',false,2) }
   }
@@ -3588,7 +3809,9 @@ const TIER_XP=[350,1000,2200,4000,6500];   /* was [120,320,620,1050,1600] */
 const AIR_CDR_CAP=.45, AIR_CDR_CAP_HOGSTON=.55, AIR_FLOOR=5, AIR_FX_MAX=7, TANKER={cut:.15,gap:20,run:2.8};     // hard cap: total air-support cooldown reduction (all sources incl. KC-135 levels), and Hogston's refuel run
 const AIRIDS={boxmission:1,spooky:1,arclight:1,strafe:1,ranch:1,napalm:1,howitzer:1,mortar:1,gunboat:1};   // gets the character air bonus
 const AIRCALL={boxmission:1,spooky:1,arclight:1,strafe:1,ranch:1,napalm:1};   // true air support: hard cap + 5 s floor apply. Mortar/howitzer/gunboat are artillery and sit OUTSIDE the cap
-function loadChars(){ try{ return JSON.parse(localStorage.getItem('lbo2_chars')||'{}')||{} }catch(e){ return {} } }
+function loadChars(){ let o; try{ o=JSON.parse(localStorage.getItem('lbo2_chars')||'{}')||{} }catch(e){ return {} } return migrateRib(o) }
+/* Oct 8: the gameplay 'moh' award became 'lbo' (Last Bird Out). An already-earned rib.moh keeps the badge under the new id; nothing else carries over. */
+function migrateRib(o){ for(const k in o){ const c=o[k], r=c&&c.rib; if(r&&r.moh){ if(!r.lbo)r.lbo=Object.assign({},r.moh,{from:'moh'}); delete r.moh } else if(r&&('moh' in r))delete r.moh } return o }
 let CHS=loadChars(); window.addEventListener('storage',e=>{ if(e.key==='lbo2_chars')CHS=loadChars() });   /* another tab finished a patrol */
 /* debug runs (?t=, &god, ?give, ?char= on a closed record, DBG.give / DBG.grantRibbon during the run) never open records or write records or medals */
 function dbgMark(){ const g=G; if(!g||g.demo)return; if(ALLU||DBG.t>0||DBG.god||DBG.used||params.has('give')||(params.get('char')&&!chOpenRaw(params.get('char'))))g.dbg=true }
@@ -3614,7 +3837,7 @@ const RIB={
  bs:{nm:'Bronze Star',how:'Defeat 6,000 enemies in one patrol, or 20 bosses over your career with this Marine.'},
  ss:{nm:'Silver Star',how:'Kill 2 bosses in one patrol, each time with 4+ Marines of your squad still standing.'},
  nc:{nm:'Navy Cross',how:'Get extracted after killing 2+ bosses, holding the Hot LZ for 1,500+ kills (or 600+ on ?diff=hard).'},
- moh:{nm:'Medal of Honor',how:'Get extracted with 3+ boss kills and 5+ Marines still standing, after dropping under 15% HP while holding the LZ - and no Dustoff. Very rare.'}
+ lbo:{nm:'Last Bird Out',how:'Get 12 of the 15 out on the last bird (12 or more aboard at extraction, you included).'}
 };
 const allyCount=()=>{ let n=0; for(const m of squad)if(m.hp>0&&m.state==='ok')n++; for(const m of pat)if(m.hp>0&&m.state==='ok')n++; return n };
 function ribTrack(dt){ const g=G; if(!g||!g.rb||g.demo)return; const p=g.p, f=p.hp/p.maxHp, rb=g.rb; if(f<rb.minF)rb.minF=f; if(f<.25){ rb.dip=true; rb.rec=false } else if(rb.dip&&f>=.6)rb.rec=true;
@@ -3626,25 +3849,26 @@ function ribCheck(g,id){ const rb=g.rb||{}, ex=g.ex||{}, win=!!ex.evac, hard=EXQ
    case 'bs': return g.kills>=6000||((c.bk|0)+rb.bossK)>=20;
    case 'ss': return rb.ssK>=2;
    case 'nc': return win&&rb.bossK>=2&&ex.holdKills>=(hard?600:1500);
-   case 'moh': return win&&rb.bossK>=3&&allyCount()>=5&&rb.holdMin<=.15&&!g.dustUsed;
+   case 'lbo': return win&&lboAboard(g)>=12;   /* 12+ of the 15 aboard, counted like the evac card's GOT ON line (the player + the Marines who got on) */
   } return false }
-function awardRibbons(g,c){ const got=[]; c.rib=c.rib||{}; for(const id of RIBBON_RACK_ORDER.slice().reverse()){ if(c.rib[id])continue; if(ribCheck(g,id)){ c.rib[id]={t:Date.now()}; got.push(id) } }
+const lboAboard=g=>{ const ex=g&&g.ex; return ex&&ex.evac?1+((ex.gotOn||[]).length):0 };
+function awardRibbons(g,c){ const got=[]; c.rib=c.rib||{}; for(const id of RIB_ORDER.slice().reverse()){ if(c.rib[id])continue; if(ribCheck(g,id)){ c.rib[id]={t:Date.now()}; got.push(id) } }
   c.bk=(c.bk|0)+((g.rb&&g.rb.bossK)|0); return got }
 const RIBCV={};
 function ribCanvas(id,compact,locked){ const k=id+(compact?'c':'f')+(locked?'L':''); if(RIBCV[k])return RIBCV[k];
-  let rows,leg; if(id==='moh'){ rows=locked?MEDAL_OF_HONOR.locked:MEDAL_OF_HONOR.grid; leg=locked?MEDAL_OF_HONOR.locked_legend:MEDAL_OF_HONOR.legend } else { const R=RIBBONS[id]; rows=compact?R.compact:R.full; leg=R.legend }
+  let rows,leg; if(id==='lbo'){ const B=LAST_BIRD_OUT_BADGE[(locked?'locked':'size')+(compact?'24':'48')]; rows=B.grid; leg=B.legend } else { const R=RIBBONS[id]; rows=compact?R.compact:R.full; leg=R.legend }
   const h=rows.length,w=rows[0].length, c=mk(w,h), x=c.getContext('2d'); for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++){ const col=leg[rows[yy][xx]]; if(col){ x.fillStyle=col; x.fillRect(xx,yy,1,1) } } return RIBCV[k]=c }
 const RIBURL={};
 function ribURL(id,compact,sc,locked){ const k=id+compact+sc+locked; if(RIBURL[k])return RIBURL[k]; const src=ribCanvas(id,compact,locked), c=mk(src.width*sc,src.height*sc), x=c.getContext('2d'); x.imageSmoothingEnabled=false; x.drawImage(src,0,0,c.width,c.height); return RIBURL[k]=c.toDataURL() }
-function ribRackHTML(id){ const c=CHS[id]||{}, r=c.rib||{}; let n=0; RIBBON_RACK_ORDER.forEach(k=>{ if(r[k])n++ });
-  return `<div class="rack"><div class="rkh">RIBBONS &amp; MEDALS · ${n}/${RIBBON_RACK_ORDER.length}</div>`+RIBBON_RACK_ORDER.map(k=>{ const got=!!r[k], isM=k==='moh';
-    return `<div class="rk${got?' on':''}"><span class="rkimg ${isM?'md':''}"><img src="${isM?ribURL(k,false,2,!got):ribURL(k,false,2)}" alt="" ${got||isM?'':'class="dim"'}></span><span class="rkt"><b>${got||!isM?RIB[k].nm:'Medal of Honor (locked)'}</b>${got?' ✔':''}<br><i>${RIB[k].how}</i></span></div>` }).join('')+'</div>' }
+function ribRackHTML(id){ const c=CHS[id]||{}, r=c.rib||{}; let n=0; RIB_ORDER.forEach(k=>{ if(r[k])n++ });
+  return `<div class="rack"><div class="rkh">RIBBONS &amp; BADGE · ${n}/${RIB_ORDER.length}</div>`+RIB_ORDER.map(k=>{ const got=!!r[k], isB=k==='lbo';   /* the badge is square (48x48 at 1x), the ribbons 44x12 at 2x */
+    return `<div class="rk${got?' on':''}"><span class="rkimg ${isB?'bd':''}"><img src="${isB?ribURL(k,false,1,!got):ribURL(k,false,2)}" alt="" ${got||isB?'':'class="dim"'}></span><span class="rkt"><b>${got||!isB?RIB[k].nm:'Last Bird Out (locked)'}</b>${got?' ✔':''}<br><i>${RIB[k].how}</i></span></div>` }).join('')+'</div>' }
 function ribFanfare(ids){ try{ if(window.Cues&&Snd.cueRibbon)Snd.cueRibbon(ids) }catch(e){} }
 /* QA: DBG.grantRibbon(charId,'bs'), DBG.resetRibbons(charId|'all'), DBG.listRibbons() */
 DBG.give=(id,l)=>{ DBG.used=true; if(G&&!G.demo)G.dbg=true; if(!G||!ITEMS[id]||ITEMS[id].kind!=='w')return console.log('usage: DBG.give(weaponId, level) e.g. DBG.give("company",1), DBG.give("medevac",2)'); G.w[id]={lvl:l||1,cd:.2,tick:0}; return G.w[id] };
-DBG.grantRibbon=(cid,rid)=>{ DBG.used=true; if(G&&!G.demo)G.dbg=true; if(!CHD[cid]||!RIB[rid])return console.log('usage: DBG.grantRibbon(charId, ribbonId) charIds:',CHORDER.join(','),'ribbons:',RIBBON_RACK_ORDER.join(',')); const c=CHS[cid]||(CHS[cid]={xp:0,runs:0,best:0,kills:0}); (c.rib=c.rib||{})[rid]={t:Date.now(),dbg:1}; saveChars(); try{ if($('charsel').classList.contains('show'))selectChar(SEL) }catch(e){} return DBG.listRibbons(cid) };
+DBG.grantRibbon=(cid,rid)=>{ DBG.used=true; if(G&&!G.demo)G.dbg=true; if(!CHD[cid]||!RIB[rid])return console.log('usage: DBG.grantRibbon(charId, ribbonId) charIds:',CHORDER.join(','),'ribbons:',RIB_ORDER.join(',')); const c=CHS[cid]||(CHS[cid]={xp:0,runs:0,best:0,kills:0}); (c.rib=c.rib||{})[rid]={t:Date.now(),dbg:1}; saveChars(); try{ if($('charsel').classList.contains('show'))selectChar(SEL) }catch(e){} return DBG.listRibbons(cid) };
 DBG.resetRibbons=(cid)=>{ const ids=(!cid||cid==='all')?Object.keys(CHS):[cid]; for(const i of ids){ if(CHS[i]){ delete CHS[i].rib; CHS[i].bk=0 } } saveChars(); try{ if($('charsel').classList.contains('show'))selectChar(SEL) }catch(e){} return DBG.listRibbons() };
-DBG.listRibbons=(cid)=>{ const out={}; for(const i of (cid?[cid]:CHORDER)){ out[i]=RIBBON_RACK_ORDER.filter(k=>CHS[i]&&CHS[i].rib&&CHS[i].rib[k]) } console.table?console.table(Object.keys(out).map(k=>({char:k,ribbons:out[k].join(' ')||'-'}))):console.log(out); return out };
+DBG.listRibbons=(cid)=>{ const out={}; for(const i of (cid?[cid]:CHORDER)){ out[i]=RIB_ORDER.filter(k=>CHS[i]&&CHS[i].rib&&CHS[i].rib[k]) } console.table?console.table(Object.keys(out).map(k=>({char:k,ribbons:out[k].join(' ')||'-'}))):console.log(out); return out };
 /* service-record XP for one run. Tuned so a good ~12-min run is ~700-1000 XP and tier 5 (6500 XP) takes about 8-10 such runs; a short run earns proportionally little */
 function runXpGain(g,sumL,maxed){ if(sumL===undefined){ sumL=0;maxed=0; for(const id in g.w){ sumL+=g.w[id].lvl; if(g.w[id].lvl>=ITEMS[id].max)maxed++ } }
   return Math.floor(g.t/6+g.kills/12+sumL*2+maxed*25+g.bossN*25+(g.ex&&g.ex.evac?150:0)+(g.ex?Math.floor(g.ex.holdKills/12):0)) }
@@ -4104,7 +4328,7 @@ function fbLayout(f){ const L=[], C=f;
   L.push(['bunker',C.x-72,C.y-62,0,.33,1]);                                            // stage 2: bunker inside
   const T=[['m2',-1,-1,.40],['m60',1,-1,.44],['m2',1,1,.48],['m60',-1,1,.52],['m60',0,-1,.55],['m2',1,0,.58],['m60',0,1,.61],['m2',-1,0,.64]];   // stage 3: corner + midpoint turrets
   for(const [ty,sx,sy,at] of T){ const inset=sx&&sy?26:30, x=sx*(FBS-inset), y=sy*(FBS-inset); L.push([ty,C.x+x,C.y+y,Math.atan2(sy||0,sx||0),at,2]) }
-  wall(FBW,13,44,'wire',.66,.76,3);                                                    // then wire, tent, pad, and the heavy gun (needs the Chinook crate)
+  wall(FBW,13,44,'wire',.66,.76,3);                                                    // then wire, tent, pad, and the heavy gun (needs the Sea Knight crate)
   L.push(['tent',C.x-96,C.y+76,0,.80,3]); L.push(['pad',C.x+92,C.y-80,0,.85,3]); L.push(['rr106',C.x,C.y+84,Math.PI/2,.92,3]); return L }
 function beginFirebase(){ const g=G; fbS={x:lzS.x,y:lzS.y,name:lzS.name,state:'inbound',prog:0,phase:-1,waveN:0,waveT:14,bigT:35,sapT:30,holdT:0,tier:1,supT:35,tankT:70,rb:[],rbT:0,lay:null,idx:0,hold:0,n:g.fbN+1,
     age:0,t0:g.t,sapAt:60+rnd()*15,st:[null,null,null],stLast:[0,0,0],repaired:false,crateOk:false,chCalled:false,crate:null,
@@ -4211,21 +4435,22 @@ function fbRepair(f){ const g=G; f.repaired=true; f.log.repairAt=+(g.t-f.t0).toF
   for(const e of engs)e.hp=e.mhp; while(engs.length<3)engs.push(mkEng(f.x+(engs.length-1)*14,f.y+18));
   if(f.state==='stalled')f.state='building';
   g.banner={text:'EMERGENCY REPAIR! ENGINEERS RUSH THE LINE',t:3,col:'#9be37a'}; Snd.play('stage'); Snd.play('heal'); ringBurst(f.x,f.y,135,['#9be37a','#fff'],36); g.shake=Math.max(g.shake,4) }
-/* CH-47 Chinook: arrives once the build is underway, hovers over the site and lowers a sling-load crate (heavy supplies) on a cable */
-function spawnChinook(){ const f=fbS, a=rnd()*TAU, R=Math.hypot(VW,VH)/2+420;
+/* CH-46 Sea Knight: arrives once the build is underway, hovers over the site and lowers a sling-load crate (heavy supplies) on a cable.
+   Sound: the real tandem-rotor fly-by (SamplePlayer.flyby('tandemRotor')) on the way in, over the hover and on the way out (SeaKnightS) */
+function spawnSeaKnight(){ const f=fbS, a=rnd()*TAU, R=Math.hypot(VW,VH)/2+420;
   fbC={x:f.x+Math.cos(a)*R,y:f.y+Math.sin(a)*R,z:110,hd:a+Math.PI,rot:0,ch46:true,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,cab:0,lt:0,lt2:0,creakT:0,out:0,tx:f.x,ty:f.y-4,placed:false};
-  annc('chinook','huey',{text:'RADIO: CHINOOK INBOUND WITH HEAVY SUPPLIES',t:2.6,col:'#9be37a'}); Snd.play('radio') }
-function updateChinook(dt){ const f=fbS,c=fbC; if(!f){ fbC=null; return }
-  if(!c){ if(f.state==='building'&&!f.chCalled&&f.prog>=.12){ f.chCalled=true; spawnChinook() } return }
+  annc('seaknight','huey',{text:'RADIO: SEA KNIGHT (CH-46) INBOUND WITH HEAVY SUPPLIES',t:2.6,col:'#9be37a'}); Snd.play('radio') }
+function updateSeaKnight(dt){ const f=fbS,c=fbC; if(!f){ fbC=null; return }
+  if(!c){ if(f.state==='building'&&!f.chCalled&&f.prog>=.12){ f.chCalled=true; spawnSeaKnight() } return }
   c.t+=dt; c.rot+=dt*20; const p=G.p;
-  if(c.ph===0){ const dx=c.tx-c.x,dy=c.ty-c.y,d=Math.hypot(dx,dy)||1, sp=Math.min(230,40+d*.9); c.x+=dx/d*sp*dt; c.y+=dy/d*sp*dt; c.hd=turnTo(c.hd,Math.atan2(dy,dx),1.6*dt); if(d<320)c.z+=(58-c.z)*Math.min(1,dt*1.3); if(d<14){ c.ph=1; c.lt=0; c.hd=turnTo(c.hd,0,3) } }
+  if(c.ph===0){ const dx=c.tx-c.x,dy=c.ty-c.y,d=Math.hypot(dx,dy)||1, sp=Math.min(230,40+d*.9); if(d<330)SeaKnightS.cue(c,'in'); c.x+=dx/d*sp*dt; c.y+=dy/d*sp*dt; c.hd=turnTo(c.hd,Math.atan2(dy,dx),1.6*dt); if(d<320)c.z+=(58-c.z)*Math.min(1,dt*1.3); if(d<14){ c.ph=1; c.lt=0; c.hd=turnTo(c.hd,0,3) } }
   else if(c.ph===1){ c.lt+=dt; c.z+=(58-c.z)*Math.min(1,dt*3); if(!c.placed){ c.cab=Math.min(1,c.lt/3.6);
       if(c.cab>=1){ c.placed=true; f.crateOk=true; f.crate={x:c.tx,y:c.ty,used:false}; f.log.crateAt=+(G.t-f.t0).toFixed(1); burst(c.tx,c.ty+6,16,80,.6,3,['#a8946a','#8a7a52'],false); Snd.play('thud'); G.banner={text:'HEAVY SUPPLIES ON THE GROUND',t:2.6,col:'#ffe58a'} } }
     else { c.lt2+=dt; c.cab=0; if(c.lt2>1.4){ c.ph=2; c.ex=c.hd+(rnd()-.5)*.8 } }
-    c.creakT-=dt; if(c.creakT<=0&&!c.placed){ c.creakT=.5+rnd()*.5; Snd.play('creak') } }
-  else { c.out+=dt; c.z+=(40*c.out+8)*dt; c.hd=turnTo(c.hd,c.ex,1.2*dt); c.x+=Math.cos(c.hd)*(40+160*c.out)*dt; c.y+=Math.sin(c.hd)*(40+160*c.out)*dt; if(c.out>9||Math.hypot(c.x-p.x,c.y-p.y)>1500)fbC=null }
+    if(c.lt>2.2)SeaKnightS.cue(c,'hover'); c.creakT-=dt; if(c.creakT<=0&&!c.placed){ c.creakT=.5+rnd()*.5; Snd.play('creak') } }
+  else { SeaKnightS.cue(c,'out'); c.out+=dt; c.z+=(40*c.out+8)*dt; c.hd=turnTo(c.hd,c.ex,1.2*dt); c.x+=Math.cos(c.hd)*(40+160*c.out)*dt; c.y+=Math.sin(c.hd)*(40+160*c.out)*dt; if(c.out>9||Math.hypot(c.x-p.x,c.y-p.y)>1500)fbC=null }
   if(fbC&&c.z<70&&rnd()<dt*60*FXK()){ const a=rnd()*TAU, v=80+rnd()*100; addPart(c.x+Math.cos(a)*14,c.y+10+Math.sin(a)*6,Math.cos(a)*v,Math.sin(a)*v*.7,.7,3+rnd()*3,['#a8946a','#8a7a52','#4f7a3a','#6f9a4a'][(rnd()*4)|0],false,1.6) } }
-function drawChinookLoad(c){ if(c.placed||c.ph>=2)return; const zc=Math.max(0,(c.z-12)*(1-c.cab)), sw=Math.sin(c.t*2.1)*2.2*(1-c.cab), bx=Math.round(c.x+sw), by=Math.round(c.y-zc);
+function drawSeaKnightLoad(c){ if(c.placed||c.ph>=2)return; const zc=Math.max(0,(c.z-12)*(1-c.cab)), sw=Math.sin(c.t*2.1)*2.2*(1-c.cab), bx=Math.round(c.x+sw), by=Math.round(c.y-zc);
   ctx.fillStyle='rgba(0,0,0,.22)'; ctx.fillRect(bx-9,Math.round(c.y)+5,18,5);
   ctx.strokeStyle='#2a2a22'; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(Math.round(c.x)-6,Math.round(c.y-c.z)+2); ctx.lineTo(bx,by-10); ctx.moveTo(Math.round(c.x)+6,Math.round(c.y-c.z)+2); ctx.lineTo(bx,by-10); ctx.stroke();
   drawCrate(bx,by) }
@@ -4258,7 +4483,7 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
   const ph=Math.min(4,Math.floor(f.prog/.2)); if(f.state==='building'&&ph>f.phase){ if(ph>=2){ g.banner={text:'FIREBASE '+f.name+' · PHASE '+(ph+1)+': '+FBPH[ph],t:2.4,col:'#ffe58a'}; Snd.play('radio') } f.phase=ph }
   if(f.phase<0)f.phase=0;
   if(f.state==='building'&&f.prog>=1&&f.crateOk){ f.state='done'; f.doneAt=g.t; f.log.doneAt=+(g.t-f.t0).toFixed(1); g.fbN++; g.banner={text:'FIREBASE '+f.name+' SECURED! HOLD IT, MARINE!',t:3.4,col:'#9be37a'}; Snd.play('radio'); G.shake=Math.max(G.shake,4); ringBurst(f.x,f.y,60,['#ffe58a','#fff'],30) }
-  updateEngineers(dt); updateStructures(dt); updateCharges(dt); fbStages(f); updateChinook(dt);
+  updateEngineers(dt); updateStructures(dt); updateCharges(dt); fbStages(f); updateSeaKnight(dt);
   { // one free emergency repair when the site is nearly gone
     if(!f.repaired&&f.state!=='inbound'){ let sh=0,sm=0,cnt=0; for(const s of strs){ if(s.dead||s.b<1||s.type==='wire')continue; sh+=s.hp; sm+=s.mhp; cnt++ } sm+=f.rb.length*150; if(cnt>=3&&sh/Math.max(1,sm)<.25)fbRepair(f) } }
   // player repair (hold still next to a damaged structure)
@@ -4364,7 +4589,7 @@ function drawFirebase(camX,camY,tt){ const x0=camX-90,x1=camX+VW+90,y0=camY-90,y
     ctx.strokeStyle=fr>.4?'#ffcf5a':'#ff3a2a'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(x,y-2,13,-Math.PI/2,-Math.PI/2+TAU*fr); ctx.stroke(); txt(Math.ceil(left)+'',x,y-18,13,fr>.4?'#fff':'#ff6a4a','center');
     if(c.df>0){ ctx.fillStyle='#000'; ctx.fillRect(x-13,y+12,26,5); ctx.fillStyle='#9be37a'; ctx.fillRect(x-12,y+13,Math.round(24*Math.min(1,c.df)),3) } }
   if(fbH)drawHuey(fbH);
-  if(fbC){ drawChinookLoad(fbC); drawHuey(fbC) }
+  if(fbC){ drawSeaKnightLoad(fbC); drawHuey(fbC) }
   // enemy tank HP bars
   for(const e of enemies){ if(!e.tank||e.dead||e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue; const r=Math.max(0,e.hp/e.mhp), w=54, bx=Math.round(e.x-w/2), by=Math.round(e.y-e.ds*40); ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(bx-1,by-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,5); ctx.fillStyle='#d2342a'; ctx.fillRect(bx,by,Math.round(w*r),5); txt(e.type==='t54'?'T-54':'PT-76',e.x,by-3,10,'#ffb09a','center') } }
 /* square trace: path along the perimeter of a square (half-side h) starting at top-middle, clockwise, covering fraction fr (0..1) of the 8h perimeter */
@@ -4832,13 +5057,14 @@ const HIT_FACT={'punji pit':'a punji pit he walked over','satchel charge':'a sat
   'VC melee':'a VC at close range','NVA melee':'NVA regulars at close range','NVA officer melee':'an NVA officer at close range','sapper blast':"a sapper's charge",
   'B-40 trooper melee':'a B-40 trooper at close range','RPG gunner melee':'the RPG heavy','NVA tank':'an NVA tank','boss NVA Commander':'the NVA commander','boss RPG Heavy':'the RPG heavy'};
 const mDist=(dx,dy)=>Math.max(1,Math.round(Math.hypot(dx,dy)/10))+'m '+dirWord(dx,dy).toLowerCase();
-function deathFact(g){ const ex=g.ex||{}, p=g.p, lh=g.lastHit;   /* one plain fact - never a debug string */
+const charNick=g=>((g&&CHD[g.char])||CHD.doc).nick;   /* the character actually played (Doc, Hammer, Country, ...) */
+function deathFact(g){ const ex=g.ex||{}, p=g.p, lh=g.lastHit, who=charNick(g);   /* one plain fact - never a debug string */
   if(ex.result==='left'){ return 'The Huey waited '+(ex.waited||EX.GROUND)+' seconds'+((onPad(p.x,p.y)&&!ex.ramp)?' with no other Marine on the ramp.':'.') }
-  if(lh&&lh.src==='punji pit'&&g.t-lh.t<4)return 'Doc went down to '+HIT_FACT['punji pit']+'.';
+  if(lh&&lh.src==='punji pit'&&g.t-lh.t<4)return who+' went down to '+HIT_FACT['punji pit']+'.';
   if((ex.ph===1||ex.ph===2)&&ex.sig){ return 'The '+(ex.sig.kind==='mirror'?'mirror':'smoke')+' was '+mDist(ex.sig.x-p.x,ex.sig.y-p.y)+'.' }
   if((ex.ph===4||ex.ph===5)&&ex.pad&&!onPad(p.x,p.y)){ return 'The pad was '+mDist(ex.pad.x-p.x,ex.pad.y-p.y)+'.' }
-  if(lh&&HIT_FACT[lh.src])return 'Doc went down to '+HIT_FACT[lh.src]+'.'; if(lh&&lh.src&&lh.src.indexOf('boss ')===0)return 'Doc went down to the '+lh.src.slice(5)+'.';
-  return 'Doc went down at '+fmt(g.t)+'.' }
+  if(lh&&HIT_FACT[lh.src])return who+' went down to '+HIT_FACT[lh.src]+'.'; if(lh&&lh.src&&lh.src.indexOf('boss ')===0)return who+' went down to the '+lh.src.slice(5)+'.';
+  return who+' went down at '+fmt(g.t)+'.' }
 const recOpen=()=>{ try{ return localStorage.getItem('lbo2_open')==='1' }catch(e){ return false } };
 function gameOver(win,why){ state='over'; overAt=performance.now(); const g=G, ex=g.ex; $('sigask').classList.remove('show');
   if(ex&&!ex.result)ex.result=['died-no-signal','died-smoke-out','died-smoke-out','died-waiting-for-bird','died-bird-inbound','died-bird-down','died-bird-down','died-bird-down'][ex.ph|0]||'died';
@@ -4854,7 +5080,7 @@ function gameOver(win,why){ state='over'; overAt=performance.now(); const g=G, e
       ((ex.left&&ex.left.length)?`<div class="oclf"><b>LEFT BEHIND:</b> ${ex.left.join(', ')}</div>`:'')+
       `<div class="ocopt"><b>OPTIONAL CALL:</b> ${ex.optCall?ex.optCall:'none'}</div>`+
       (opened?'<div class="ocop">The other service records are open.</div>':'')+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')); $('overSvc').innerHTML=serviceCard(aw) }
-  else { $('overTitle').textContent=why==='left'?'LEFT ON THE LZ — THE BIRD IS GONE':'DOC IS DOWN'; $('rank').textContent='';
+  else { $('overTitle').textContent=why==='left'?'LEFT ON THE LZ — THE BIRD IS GONE':charNick(g).toUpperCase()+' IS DOWN'; $('rank').textContent='';
     $('stats').innerHTML=`<div class="ocfact">${deathFact(g)}</div>`+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')); $('overSvc').innerHTML=serviceCard(aw) }
   if(aw&&aw.rib&&aw.rib.length)ribFanfare(aw.rib);
   setTimeout(()=>{ if(state==='over')$('over').classList.add('show') },700); }
@@ -4865,12 +5091,12 @@ const fmt0=n=>Math.round(n).toLocaleString('en-US');
 function bestWeapon(g){ let bk=null,bd=0,tot=0; const wd=(g&&g.wd)||{}; for(const k in wd){ const it=ITEMS[k]; if(!it||it.kind!=='w')continue; tot+=wd[k]; if(wd[k]>bd){ bd=wd[k]; bk=k } } if(!bk||bd<1)return null;
   const it=ITEMS[bk], lv=(g.w[bk]&&g.w[bk].lvl)||1; return {id:bk,nm:(typeof it.nm==='function'?it.nm(lv):it.name)||bk,lvl:lv,dmg:Math.round(bd),pct:tot>0?Math.round(bd/tot*100):100} }
 function serviceCard(aw){ if(!aw)return ''; const D=CHD[aw.id], c=CHS[aw.id]||{}, xp=chXp(aw.id), x0=xp-aw.gain, t=aw.t1, nx=t>=5?null:TIER_XP[t];
-  const earned=RIBBON_RACK_ORDER.filter(k=>c.rib&&c.rib[k]), fresh=(aw.rib||[]);
+  const earned=RIB_ORDER.filter(k=>c.rib&&c.rib[k]), fresh=(aw.rib||[]);
   setTimeout(()=>{ const b=document.querySelector('#overSvc .srbar i'); if(b)b.style.width=tierPct(xp)+'%' },80);
   return `<div class="srcard"><div class="srh">LAST BIRD OUT · SERVICE RECORD</div><div class="srn">${D.label||D.rank+' '+D.nick}</div>${svcPhoto(aw.id)}<div class="srbar"><i style="width:${aw.t1>aw.t0?0:tierPct(x0)}%"></i></div>`+
    (()=>{ const bw=bestWeapon(G); return bw?`<div class="srx srbw">BEST WEAPON: <b>${bw.nm}</b><br>${fmt0(bw.dmg)} damage dealt · ${bw.pct}% of your weapon damage</div>`:'' })()+`<div class="srx">+${aw.gain} service XP · ${t>=5?'MAX TIER (5)':xp+' / '+nx+' to Tier '+(t+1)}${aw.t1>aw.t0?'<br><b style="color:#9be37a">TIER '+aw.t1+' UNLOCKED: '+D.perks[aw.t1-1].t+'</b>':''}</div>`+
-   (earned.length?`<div class="srstrip">${earned.map(k=>`<img src="${ribURL(k,k==='moh',2)}" title="${RIB[k].nm}${fresh.indexOf(k)>=0?' (NEW)':''}" alt="${RIB[k].nm}" style="${fresh.indexOf(k)>=0?'outline:2px solid #ffd54a':''}">`).join('')}</div>`:'')+
-   (fresh.length?'<div class="newrib">'+fresh.slice().sort((a,b)=>RIBBON_RACK_ORDER.indexOf(a)-RIBBON_RACK_ORDER.indexOf(b)).map(k=>`<div class="nr"><img src="${ribURL(k,true,3)}" alt=""><span><b>NEW: ${RIB[k].nm}</b><br>${RIB[k].how}</span></div>`).join('')+'</div>':'')+
+   (earned.length?`<div class="srstrip">${earned.map(k=>`<img src="${k==='lbo'?ribURL(k,false,1):ribURL(k,false,2)}" class="${k==='lbo'?'bdg':''}" title="${RIB[k].nm}${fresh.indexOf(k)>=0?' (NEW)':''}" alt="${RIB[k].nm}" style="${fresh.indexOf(k)>=0?'outline:2px solid #ffd54a':''}">`).join('')}</div>`:'')+
+   (fresh.length?'<div class="newrib">'+fresh.slice().sort((a,b)=>RIB_ORDER.indexOf(a)-RIB_ORDER.indexOf(b)).map(k=>`<div class="nr${k==='lbo'?' bdg':''}"><img src="${k==='lbo'?ribURL(k,false,1):ribURL(k,true,3)}" alt=""><span><b>NEW: ${RIB[k].nm}</b><br>${RIB[k].how}</span></div>`).join('')+'</div>':'')+
    `</div>` }
 function showBest(){ let b=0; try{b=+localStorage.getItem('lbo2_best')||0}catch(e){} let ev=0; try{ev=+localStorage.getItem('lbo2_evacs')||0}catch(e){} $('best').textContent=(b?('Best survival: '+fmt(b)):'')+(ev?(b?' · ':'')+'Evacuations: '+ev:''); }
 $('btnStart').onclick=openCharSel; $('btnRestart').onclick=startGame; $('btnMenu').onclick=toMenu; $('btnResume').onclick=resumeGame; $('btnQuit').onclick=toMenu; $('btnPause').onclick=()=>{state==='play'?pauseGame():resumeGame()};
@@ -5115,17 +5341,19 @@ function render(){
   drawHealFx(camX,camY);
   drawSquad(camX,camY);
   // player
-  if(!g.hide){ const ps=(g.char&&CHSPR[g.char])||SPR.marine; const fr=p.mv?(Math.floor(p.anim)&1):0, flip=p.face>0?0:1; const spr=((!p.mv&&ps.idle)?ps.idle:ps[fr])[flip][(p.hurtT>0&&Math.floor(tt*30)%2)?1:0];
+  if(!g.hide){ const ps=(g.char&&CHSPR[g.char])||SPR.marine; const fr=p.mv?(Math.floor(p.anim)&1):0, flip=p.face>0?0:1; const hw=(p.hurtT>0&&Math.floor(tt*30)%2)?1:0, spr=((!p.mv&&ps.idle)?ps.idle:ps[fr])[flip][hw];
+    const HT=!!(g.char&&window.SHEET1&&SHEET1.drawHero&&SHEET1.HERO_ID&&hasSheet(SHEET1.HERO_ID[g.char]||''));   /* heroes_tall.js: drawn from the feet, weapon line from the hand point (16 px up); hitbox unchanged */
     drawDocRing(p.x,p.y+13);   /* yellow ring under Doc (the player) only */
     if(!(p.invul>0&&Math.floor(tt*20)%2===0&&p.hurtT<=0)){
-      const bob=p.mv&&fr?-1:0, a=g.aim, gx=Math.cos(a), gy=Math.sin(a);
+      const bob=p.mv&&fr?-1:0, a=g.aim, gx=Math.cos(a), gy=Math.sin(a), fy=Math.round(p.y+13+bob), hy=HT?fy-16*SHEET_SCALE_MEN:p.y+2;
       const bolt=g.char==='boone'; const bu=bolt&&g.bolt>0?1-g.bolt/.62:1, back=bolt&&bu<1?Math.sin(Math.PI*Math.min(1,bu*1.15))*5:0;
-      const drawGun=bolt?()=>{ const L=30-back; ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=4.6; ctx.beginPath(); ctx.moveTo(p.x+gx*0,p.y+2+gy*0); ctx.lineTo(p.x+gx*L,p.y+2+gy*L); ctx.stroke(); ctx.strokeStyle='#6b4426'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(p.x+gx*1,p.y+2+gy*1); ctx.lineTo(p.x+gx*(L*.55),p.y+2+gy*(L*.55)); ctx.stroke(); ctx.strokeStyle='#4a4b52'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p.x+gx*(L*.5),p.y+2+gy*(L*.5)); ctx.lineTo(p.x+gx*L,p.y+2+gy*L); ctx.stroke();
-          if(bu>.12&&bu<.7){ const bx=p.x+gx*13-gy*3*(bu<.4?1:0), by=p.y+2+gy*13+gx*3*(bu<.4?1:0); ctx.fillStyle='#d8dde2'; ctx.fillRect(Math.round(bx)-1.5,Math.round(by)-1.5,3,3) } }:()=>{ ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(p.x+gx*2,p.y+2+gy*2); ctx.lineTo(p.x+gx*19,p.y+2+gy*19); ctx.stroke(); ctx.strokeStyle='#3a3b41'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(p.x+gx*8,p.y+2+gy*8); ctx.lineTo(p.x+gx*19,p.y+2+gy*19); ctx.stroke(); ctx.strokeStyle='#26262a'; ctx.beginPath(); ctx.moveTo(p.x+gx*1,p.y+2+gy*1); ctx.lineTo(p.x+gx*9,p.y+2+gy*9); ctx.stroke(); };
+      const drawGun=bolt?()=>{ const L=30-back; ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=4.6; ctx.beginPath(); ctx.moveTo(p.x+gx*0,hy+gy*0); ctx.lineTo(p.x+gx*L,hy+gy*L); ctx.stroke(); ctx.strokeStyle='#6b4426'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(p.x+gx*1,hy+gy*1); ctx.lineTo(p.x+gx*(L*.55),hy+gy*(L*.55)); ctx.stroke(); ctx.strokeStyle='#4a4b52'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p.x+gx*(L*.5),hy+gy*(L*.5)); ctx.lineTo(p.x+gx*L,hy+gy*L); ctx.stroke();
+          if(bu>.12&&bu<.7){ const bx=p.x+gx*13-gy*3*(bu<.4?1:0), by=hy+gy*13+gx*3*(bu<.4?1:0); ctx.fillStyle='#d8dde2'; ctx.fillRect(Math.round(bx)-1.5,Math.round(by)-1.5,3,3) } }:()=>{ ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(p.x+gx*2,hy+gy*2); ctx.lineTo(p.x+gx*19,hy+gy*19); ctx.stroke(); ctx.strokeStyle='#3a3b41'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(p.x+gx*8,hy+gy*8); ctx.lineTo(p.x+gx*19,hy+gy*19); ctx.stroke(); ctx.strokeStyle='#26262a'; ctx.beginPath(); ctx.moveTo(p.x+gx*1,hy+gy*1); ctx.lineTo(p.x+gx*9,hy+gy*9); ctx.stroke(); };
       const behind=gy<-.3; if(behind)drawGun();
-      ctx.drawImage(spr,Math.round(p.x-spr.width/2),Math.round((spr.feet?p.y+13-spr.feet:p.y-spr.height*.56)+bob));   /* sheet sprites: feet on the ring (Doc hi-vis is 30x40, feet unchanged) */
+      if(HT){ ctx.fillStyle='rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(Math.round(p.x),fy-1,10,3,0,0,TAU); ctx.fill(); SHEET1.drawHero(ctx,g.char,p.mv?(fr?'walk2':'walk1'):'idle',Math.round(p.x),fy,SHEET_SCALE_MEN,!!flip,!!hw) }
+      else ctx.drawImage(spr,Math.round(p.x-spr.width/2),Math.round((spr.feet?p.y+13-spr.feet:p.y-spr.height*.56)+bob));   /* sheet sprites: feet on the ring (Doc hi-vis is 30x40, feet unchanged) */
       if(!behind)drawGun();
-      if(g.muzzle>0){ const mx=p.x+gx*24,my=p.y+2+gy*24; ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(mx,my,6+rnd()*3,0,TAU); ctx.fill(); ctx.fillStyle='#ff9b21'; ctx.beginPath(); ctx.arc(mx,my,3,0,TAU); ctx.fill() } } }
+      if(g.muzzle>0){ const mx=p.x+gx*24,my=hy+gy*24; ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(mx,my,6+rnd()*3,0,TAU); ctx.fill(); ctx.fillStyle='#ff9b21'; ctx.beginPath(); ctx.arc(mx,my,3,0,TAU); ctx.fill() } } }
   // particles
   for(let pass=0;pass<2;pass++){ if(pass===1)ctx.globalCompositeOperation='lighter';
     for(const q of parts){ if(q.g!==pass)continue; ctx.globalAlpha=Math.max(0,q.l/q.ml); ctx.fillStyle=q.c; const s=q.s*(pass?(.5+.5*q.l/q.ml):1); ctx.fillRect(q.x-s/2,q.y-s/2,s,s) }
@@ -5206,7 +5434,7 @@ if(DBG.nodemo){ G=null; newGame(false); } else newGame(true);
 showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 { let bd=false; try{bd=sessionStorage.getItem('lbo2_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
-window.__ms={get SAMP(){return SAMP},get RMUS(){return RMUS},get RotorS(){return RotorS},get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,RIBBON_RACK_ORDER,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={get SAMP(){return SAMP},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
 
@@ -5241,7 +5469,7 @@ const SAMP={on:false,real:{},st:{b40:0,b40Late:0,b40Silent:0,charge:0,chargeLate
     try{ SamplePlayer.m79({impactAt:Snd.ctx.currentTime+Math.max(0,q0.d-q0.t)}) }catch(e){} },
   tail(){ const out=[]; for(let i=grenades.length-1;i>=0&&!grenades[i].m79;i--)out.push(grenades[i]); return out },
   impact(kind){ this.slot(kind==='m79'?'m79_impact':'mortar_impact') },
-  fly(type,o){ const sl=({jet:'jet_flyby',skyraider:'skyraider_flyby',ranchHand:'ranch_hand_flyover',huey:'huey_flyby'})[type]; if(!this.ok(sl)||!SamplePlayer.hasSample(sl))return null; const r=SamplePlayer.flyby(type,o||{}); this.st.fly++; if(r&&r.late)this.st.flyLate++; return r },
+  fly(type,o){ const sl=({jet:'jet_flyby',skyraider:'skyraider_flyby',ranchHand:'ranch_hand_flyover',huey:'huey_flyby',tandemRotor:'tandem_rotor_flyby'})[type]; if(!this.ok(sl)||!SamplePlayer.hasSample(sl))return null; const r=SamplePlayer.flyby(type,o||{}); this.st.fly++; if(r&&r.late)this.st.flyLate++; return r },
   turret(pos){ if(this.on)SamplePlayer.turretFire(pos) },
   build(pos){ if(this.on&&!Snd.muted)try{ SamplePlayer.turretBuild(pos) }catch(e){} },
   stepT:0,
@@ -5250,7 +5478,11 @@ const SAMP={on:false,real:{},st:{b40:0,b40Late:0,b40Silent:0,charge:0,chargeLate
   b40Ready(){ return this.on&&this.real.b40_launch==='sample'&&SamplePlayer.hasSample('b40_launch') },
   b40(flight){ if(!this.b40Ready())return false; const c=Snd.ctx; if(Snd.muted||c.state!=='running')return true; const r=SamplePlayer.b40Launch({impactAt:c.currentTime+flight}); this.st.b40++; if(r&&r.late)this.st.b40Late++; if(!r||!r.played)this.st.b40Silent++; return true },
   charge(){ if(!this.on||this.real.whistle!=='sample'||!SamplePlayer.hasSample('whistle'))return false; const c=Snd.ctx; if(Snd.muted||c.state!=='running')return true; const r=SamplePlayer.chargeWarning({chargeAt:c.currentTime+EXW.CHARGE+.02}); this.st.charge++; if(r&&r.late)this.st.chargeLate++; if(!r||!r.played)this.st.chargeSilent++; return true },
-  smokeDrop(){ if(this.on&&!Snd.muted)try{ SamplePlayer.smokeDropMoment({}) }catch(e){} } };
+  smokeDrop(){ if(this.on&&!Snd.muted)try{ SamplePlayer.smokeDropMoment({}) }catch(e){} },
+  /* Winchester (Sound Helper's design note: 'sky magazine hit Winchester: music ducks under the rotor'). The game has no player ammo, so the
+     sky magazine is the door-gun Huey: when its time on station is up it is out of ammo and breaks off. Music ducks -12 dB, the rotor stays; release is
+     scheduled at once (the bird is gone ~2.4 s later), so a run ending mid-duck can never leave the music ducked. */
+  winchester(hold){ if(!this.on||Snd.muted||!Snd.ctx||Snd.ctx.state!=='running')return; try{ SamplePlayer.winchester(); SamplePlayer.winchesterRelease({when:Snd.ctx.currentTime+(hold||2.4)}); this.st.winch=(this.st.winch||0)+1 }catch(e){} } };
 window.SAMP=SAMP;
 /* visible Hueys: ONE real rotor loop on its own bus, level/pan from the nearest visible bird (the generated rotor is never layered on it) */
 const RotorS={h:null,
@@ -5264,6 +5496,15 @@ const RotorS={h:null,
     if(!best||bd>1600){ this.stop(); if(this.fbUntil&&now<this.fbUntil){ SAMP.rotEnv.gain.setTargetAtTime(.9,now,.2); if(SAMP.rotPan)SAMP.rotPan.pan.setTargetAtTime(0,now,.3) } return true }
     if(!this.h)this.h=SamplePlayer.play('huey_rotor_loop'); const v=Math.pow(Math.max(0,1-bd/1500),1.5); SAMP.rotEnv.gain.setTargetAtTime(.05+v*1.1,now,.2); if(SAMP.rotPan)SAMP.rotPan.pan.setTargetAtTime(Math.max(-1,Math.min(1,(best.x-p.x)/700)),now,.2); return true },
   stop(){ if(this.h){ try{ this.h.stop(.6) }catch(e){} this.h=null } } };
+/* CH-46 Sea Knights (the firebase supply bird and the 8-man squad insertion): the real tandem-rotor fly-by clip (SamplePlayer.flyby('tandemRotor'),
+   a 4 s stand-in recording) once per moment: coming in, over the hover (supply bird) and going out. Own panner + level, straight to master,
+   so the Huey loop's level never rides on it. Uses Math.random-free code: never touches the seeded game RNG. */
+const SeaKnightS={
+  ok(){ return !!(SAMP.on&&!Snd.muted&&SAMP.real.tandem_rotor_flyby==='sample'&&SamplePlayer.hasSample('tandem_rotor_flyby')) },
+  bus(){ if(this.g||!Snd.ctx)return this.g; const c=Snd.ctx; this.g=c.createGain(); this.pan=c.createStereoPanner?c.createStereoPanner():null; if(this.pan){ this.g.connect(this.pan); this.pan.connect(Snd.master) } else this.g.connect(Snd.master); return this.g },
+  cue(h,tag){ const k='_sk'+tag; if(h[k])return; h[k]=1; const g=G, p=g&&g.p; if(!p||g.demo||state!=='play'||!this.ok())return; const d=Math.hypot(h.x-p.x,h.y-p.y); if(d>1500)return;
+    const b=this.bus(), now=Snd.ctx.currentTime; b.gain.setValueAtTime(Math.max(.3,1-d/1500),now); if(this.pan)this.pan.pan.setValueAtTime(Math.max(-1,Math.min(1,(h.x-p.x)/600)),now);
+    const r=SAMP.fly('tandemRotor',{dest:b}); if(r){ this.n=(this.n||0)+1; (this.log||(this.log=[])).push(tag) } return r } };
 /* combat music: Blake's PSYCH ROCK pick, one file; intense = full mix, calm = live ~700 Hz low-pass at -10 dB; fetched after the menu shows */
 const RMUS={buf:null,ab:null,cur:null,
   fetch(){ if(this.ab||this.buf||this.busy)return; this.busy=1; let fmt='ogg'; try{ const a=document.createElement('audio'); if(!a.canPlayType('audio/ogg; codecs="vorbis"'))fmt='m4a' }catch(e){}
@@ -5290,7 +5531,8 @@ const Rotor={cur:null,
     src.start(now); lfo.start(now); th.start(now); return {env,lp,lfo,pan,nodes:[src,lfo,th]} },
   kill(now){ const k=this.cur; this.cur=null; if(!k)return; try{ k.env.gain.cancelScheduledValues(now); k.env.gain.setTargetAtTime(0,now,.1); k.nodes.forEach(n=>{try{n.stop(now+.6)}catch(e){}}) }catch(e){} } };
 Object.assign(Snd.gap,{shellwhistle:.06,m79:.05,grease:.05,m14:.05,m1911:.05,ithaca:.2,knives:.08,zuni:.1,tank_cannon:.2,ontos:.1,enemy_cannon:.2,rr106:.3,minigun:.1,napalm:1,refuel:1,stage:.5,creak:.35,sigpop:.3,sigflare:.3,sigmirror:.3,sigstrobe:.3,chime:.5,pulse:.3,evac:1});
-/* Chinook: deeper, slower tandem-rotor thump (reuses the Huey chopper voice, pitched down) */
+/* CH-46 Sea Knight (supply bird): generated deeper, slower tandem-rotor thump (the Huey chopper voice, pitched down). Fallback ONLY:
+   when the real tandem_rotor_flyby clip is loaded the Sea Knights use SamplePlayer.flyby('tandemRotor') (SeaKnightS) and this stays off (never both) */
 const ChSnd={cur:null,
   tick(want,prox,pan,now){ const c=Snd.ctx; if(!c||c.state!=='running')return;
     if(!want||Snd.muted){ if(this.cur){ const k=this.cur; this.cur=null; try{ k.env.gain.cancelScheduledValues(now); k.env.gain.setTargetAtTime(0,now,.15); k.nodes.forEach(n=>{try{n.stop(now+.8)}catch(e){}}) }catch(e){} } return }
@@ -5359,7 +5601,7 @@ const Music={timer:null,gain:null,send:null,t:0,step:0,abs:0,bpm:90,on:false,las
     if(playing!==this.con){ this.con=playing; if(playing){ Combat.on(now); Combat.cgw=1; if(RMUS.buf){ this._rmOff=0 } } else Combat.off(now) }
     if(state!=='intro')Amb.tick(playing,now);
     { const ca=playing?fbCalm():0, f=playing?fbS:null; Calm.tick(ca,now,dt); if(playing&&Combat.cg&&!RMUS.buf){ const w=1-.7*ca; if(Math.abs(w-(Combat.cgw===undefined?1:Combat.cgw))>.02){ Combat.cgw=w; Combat.cg.gain.setTargetAtTime(w,now,.6) } }
-      const ch=playing?fbC:null, pr=ch?Math.max(0,1-Math.hypot(ch.x-G.p.x,ch.y-G.p.y)/800):0; ChSnd.tick(!!ch,pr,ch?Math.max(-1,Math.min(1,(ch.x-G.p.x)/500)):0,now) }
+      const ch=playing&&!SeaKnightS.ok()?fbC:null, pr=ch?Math.max(0,1-Math.hypot(ch.x-G.p.x,ch.y-G.p.y)/800):0; ChSnd.tick(!!ch,pr,ch?Math.max(-1,Math.min(1,(ch.x-G.p.x)/500)):0,now) }
     { const sdt=Math.min(.1,Math.max(0,now-(RotorS.lastT||now))); RotorS.lastT=now; if(playing)SAMP.steps(sdt) }
     { const ex=G&&G.ex; if(!RotorS.tick(playing,now))Rotor.tick(!!(playing&&ex&&ex.ph>=4&&ex.ph<=7),ex?ex.prox:0,ex?ex.pan:0,now); else if(Rotor.cur)Rotor.kill(now) }   /* never both on one bird */
     if(RMUS.tick(playing,now,dt)){ if(Combat.cg&&!this._rmOff){ this._rmOff=1; Combat.cg.gain.cancelScheduledValues(now); Combat.cg.gain.setTargetAtTime(0,now,.3) } if(playing){ const tgt=Combat.intensity(); Combat.ci+=(tgt-Combat.ci)*Math.min(1,dt*.6); Bf.tick(now,dt,Combat.ci) } }
