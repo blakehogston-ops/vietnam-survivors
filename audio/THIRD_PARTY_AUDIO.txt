@@ -1,0 +1,475 @@
+THIRD-PARTY AUDIO (this build: 85 files; held back until the map build: bugle_felixblume_1, pbr_engine_loop_1, river_ambience_loop_1, river_ambience_loop_auxide) - Last Bird Out: Quang Tri, 1968
+==================================================
+Generated 2026-10-07 (ET) from samples/ogg/ (89 files; each also ships as .m4a). Full source rows,
+page quotes and processing notes: samples/LICENSES.md. Licence audit: LICENSE_AUDIT.md.
+
+All files below are edited excerpts (trimmed, mono, level-adjusted, some filtered / looped / layered)
+of the original recordings, which remain available DRM-free at the source links.
+Third-party assets included under Creative Commons or other open licences are licensed to you under
+those licences; nothing in the game's EULA limits your rights under them.
+
+Status: the follow-up licence audit (Copyright and IP Auditor) PASSED this build on Oct 8, 2026, with conditions:
+ear checks are still needed on the greenbastardd mortar launch cuts (68.03 / 28.89 / 96.04 s; radio chatter under
+the tails), the Fight2FlyPhoto Skyraider 6.0-10.5 s cut (airshow crowd / announcer) and the Kostrava impacts
+(mortar_impact_1/2, m79_impact_1). Disabled / pending files (bugle, tandem rotor, river map) are listed because
+they are in samples/ogg/; strip them from a package or keep crediting them.
+
+------------------------------------------------------------------
+CREDITS
+------------------------------------------------------------------
+SOUND EFFECTS (Creative Commons Attribution)
+- "UH-1 "Huey" Iroquois Helicopter" by OroborosNZ, https://freesound.org/people/OroborosNZ/sounds/157722/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, looped, level-adjusted.
+- "Explosion" from "2 High Quality Explosions", (c) Michel Baradari (apollo-music.de), https://opengameart.org/content/2-high-quality-explosions, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: low-pass filtered, echo added, shortened.
+- Footsteps from "Footsteps on different surfaces" by congusbongus, https://opengameart.org/content/footsteps-on-different-surfaces, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). That pack is derived from: "footstep-wood.wav", "footstep-grass.wav" and "footstep-concrete.wav" by swuing (https://freesound.org/people/swuing/sounds/38876/, https://freesound.org/people/swuing/sounds/38874/, https://freesound.org/people/swuing/sounds/38873/); "boots on aluminum ladder 01" by Eelke (https://freesound.org/people/Eelke/sounds/462598/); "Water Footsteps" by EminYILDIRIM (https://freesound.org/people/EminYILDIRIM/sounds/608663/). The original recordings are licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), as shown on their Freesound pages. Further edited for this game: trimmed, level-matched, peak-limited.
+- "referee_whistle_01.wav" by joedeshon, https://freesound.org/people/joedeshon/sounds/78508/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, level.
+- "Old rusty police whistle being blowen.wav" by bigal13, https://freesound.org/people/bigal13/sounds/654496/, and "WHSTMech-Blue Snowball Microphone_Whistle, Pea, Blow, Distant_Nicholas Judy_TDC" by designerschoice (recorded by Nicholas Judy), https://freesound.org/people/designerschoice/sounds/815647/. Both CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, level.
+- "JetDielefsiF5Good_ST.wav" by kleanthism, https://freesound.org/people/kleanthism/sounds/183627/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, mixed to mono, faded in and out, level.
+- "A-1H Skyraider and P-47D Thunderbolt Flyby" by Fight2FlyPhoto, https://freesound.org/people/Fight2FlyPhoto/sounds/143564/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, mixed to mono, faded in and out, level.
+- "c130_swamp.wav" by gezortenplotz, https://freesound.org/people/gezortenplotz/sounds/151828/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, mono, filtered, faded in and out, level.
+- "sandbag.wav" by FreqMan, https://freesound.org/people/FreqMan/sounds/43607/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, low-pass filtered, layered with other sounds, level.
+- "Metal being dropped on concrete surface" by FartBiscuit1700, https://freesound.org/people/FartBiscuit1700/sounds/322477/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, filtered, layered with other sounds, level.
+- (only if used; not in the build) "Military exercise.wav" by juskiddink, https://freesound.org/people/juskiddink/sounds/64647/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
+
+MUSIC
+- (if used) For each Kevin MacLeod track: "Title" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / https://creativecommons.org/licenses/by/4.0/ (AM-radio filter added by [studio]).
+- (if used) "Komodo Dragon (Instrumental)" by Lemon Knife, https://freemusicarchive.org/music/lemon-knife/reptile-wisdom-instrumentals/komodo-dragon-instrumental/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
+
+COURTESY CREDITS (CC0 / public domain / Pixabay; not required)
+Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney); Rmutt; FranklinRook1984; Zagge28; Kostrava; AslakHostaker; JovianSounds; Nox_Sound; j1987; conleec; klangfabrik; LeMudCrab; vabadus; barryshamir; greenbastardd; surrey_film; hotdogtornados; pdsounds.org (Marcus Kuerten, Stephan Möbius); "PSYCH ROCK" by fredsylvestre66 via Pixabay; U.S. Marine Band.
+
+------------------------------------------------------------------
+SOUND EFFECT FILES (samples/)
+------------------------------------------------------------------
+samples/ogg/ak47_burst_1.ogg + samples/m4a/ak47_burst_1.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AK-47 C_27P / C_29P
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/ak47_burst_2.ogg + samples/m4a/ak47_burst_2.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AK-47 C_27P / C_29P
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/ak47_burst_3.ogg + samples/m4a/ak47_burst_3.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AK-47 C_27P / C_29P
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/ak47_burst_4.ogg + samples/m4a/ak47_burst_4.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AK-47 C_27P / C_29P
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/ak47_single_1.ogg + samples/m4a/ak47_single_1.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AK-47 C_27P / C_29P
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/ak47_single_2.ogg + samples/m4a/ak47_single_2.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AK-47 C_27P / C_29P
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/ak47_single_3.ogg + samples/m4a/ak47_single_3.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AK-47 C_27P / C_29P
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/b40_launch_1.ogg + samples/m4a/b40_launch_1.m4a
+    Source: klangfabrik, "rpg launcher  three shots.wav" (RPG stand-in for the B-40)
+    Link:   https://freesound.org/people/klangfabrik/sounds/249298/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/b40_launch_2.ogg + samples/m4a/b40_launch_2.m4a
+    Source: klangfabrik, "rpg launcher  three shots.wav" (RPG stand-in for the B-40)
+    Link:   https://freesound.org/people/klangfabrik/sounds/249298/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/b40_launch_long_1.ogg + samples/m4a/b40_launch_long_1.m4a
+    Source: klangfabrik, "rpg launcher  three shots.wav" (RPG stand-in for the B-40)
+    Link:   https://freesound.org/people/klangfabrik/sounds/249298/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/b40_launch_long_2.ogg + samples/m4a/b40_launch_long_2.m4a
+    Source: klangfabrik, "rpg launcher  three shots.wav" (RPG stand-in for the B-40)
+    Link:   https://freesound.org/people/klangfabrik/sounds/249298/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/bomb_distant_1.ogg + samples/m4a/bomb_distant_1.m4a
+    Source: "Explosion" from "2 High Quality Explosions", (c) Michel Baradari (apollo-music.de)
+    Link:   https://opengameart.org/content/2-high-quality-explosions
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/bomb_distant_2.ogg + samples/m4a/bomb_distant_2.m4a
+    Source: Kostrava, "distant explosions"
+    Link:   https://freesound.org/people/Kostrava/sounds/320788/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/bomb_distant_3.ogg + samples/m4a/bomb_distant_3.m4a
+    Source: Kostrava, "distant explosions"
+    Link:   https://freesound.org/people/Kostrava/sounds/320788/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/bomb_distant_4.ogg + samples/m4a/bomb_distant_4.m4a
+    Source: Kostrava, "distant explosions"
+    Link:   https://freesound.org/people/Kostrava/sounds/320788/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/flamethrower_burst_1.ogg + samples/m4a/flamethrower_burst_1.m4a
+    Source: AslakHostaker, "Flamethrower_Weapon_Short_Medium_Bursts.wav"
+    Link:   https://freesound.org/people/AslakHostaker/sounds/395038/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/flamethrower_burst_2.ogg + samples/m4a/flamethrower_burst_2.m4a
+    Source: AslakHostaker, "Flamethrower_Weapon_Short_Medium_Bursts.wav"
+    Link:   https://freesound.org/people/AslakHostaker/sounds/395038/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/flamethrower_loop_1.ogg + samples/m4a/flamethrower_loop_1.m4a
+    Source: AslakHostaker, "Flamethrower_Weapon_Long_Bursts.wav"
+    Link:   https://freesound.org/people/AslakHostaker/sounds/395039/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/flamethrower_torch_burst.ogg + samples/m4a/flamethrower_torch_burst.m4a
+    Source: Marcus Kuerten (pdsounds.org), "bitumenbahn"
+    Link:   http://pdsounds.tuxfamily.org/
+    Licence: public domain dedication (uploader), http://pdsounds.tuxfamily.org/license.txt
+
+samples/ogg/flamethrower_torch_loop.ogg + samples/m4a/flamethrower_torch_loop.m4a
+    Source: Marcus Kuerten (pdsounds.org), "bitumenbahn"
+    Link:   http://pdsounds.tuxfamily.org/
+    Licence: public domain dedication (uploader), http://pdsounds.tuxfamily.org/license.txt
+
+samples/ogg/huey_flyby_1.ogg + samples/m4a/huey_flyby_1.m4a
+    Source: OroborosNZ, "UH-1 "Huey" Iroquois Helicopter"
+    Link:   https://freesound.org/people/OroborosNZ/sounds/157722/
+    Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/huey_flyby_2.ogg + samples/m4a/huey_flyby_2.m4a
+    Source: Rmutt, "UH-1 helicopter.wav"
+    Link:   https://freesound.org/people/Rmutt/sounds/156906/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/huey_rotor_loop_1.ogg + samples/m4a/huey_rotor_loop_1.m4a
+    Source: OroborosNZ, "UH-1 "Huey" Iroquois Helicopter"
+    Link:   https://freesound.org/people/OroborosNZ/sounds/157722/
+    Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/huey_rotor_loop_rmutt.ogg + samples/m4a/huey_rotor_loop_rmutt.m4a
+    Source: Rmutt, "UH-1 helicopter.wav"
+    Link:   https://freesound.org/people/Rmutt/sounds/156906/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/jet_flyby_1.ogg + samples/m4a/jet_flyby_1.m4a
+    Source: kleanthism, "JetDielefsiF5Good_ST.wav" (jet stand-in)
+    Link:   https://freesound.org/people/kleanthism/sounds/183627/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/m16_ar15_mid_1.ogg + samples/m4a/m16_ar15_mid_1.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AR-15 D_32P / D_24P (AR-15 stand-in for the M16A1)
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/m16_ar15_mid_2.ogg + samples/m4a/m16_ar15_mid_2.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AR-15 D_32P / D_24P (AR-15 stand-in for the M16A1)
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/m16_ar15_near_1.ogg + samples/m4a/m16_ar15_near_1.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AR-15 D_32P / D_24P (AR-15 stand-in for the M16A1)
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/m16_ar15_near_2.ogg + samples/m4a/m16_ar15_near_2.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AR-15 D_32P / D_24P (AR-15 stand-in for the M16A1)
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/m16_burst_1.ogg + samples/m4a/m16_burst_1.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AR-15 D_32P / D_24P (AR-15 stand-in for the M16A1)
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/m16_burst_2.ogg + samples/m4a/m16_burst_2.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AR-15 D_32P / D_24P (AR-15 stand-in for the M16A1)
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/m60_burst_1.ogg + samples/m4a/m60_burst_1.m4a
+    Source: FranklinRook1984, "Authentic M60 Firing.mp3"
+    Link:   https://freesound.org/people/FranklinRook1984/sounds/538302/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/m60_burst_2.ogg + samples/m4a/m60_burst_2.m4a
+    Source: FranklinRook1984, "Authentic M60 Firing.mp3"
+    Link:   https://freesound.org/people/FranklinRook1984/sounds/538302/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/m79_impact_1.ogg + samples/m4a/m79_impact_1.m4a
+    Source: Kostrava, "distant explosions"
+    Link:   https://freesound.org/people/Kostrava/sounds/320788/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/m79_launch_1.ogg + samples/m4a/m79_launch_1.m4a
+    Source: LeMudCrab, "Grenade Launcher" (M203/M320 stand-in for the M79)
+    Link:   https://freesound.org/people/LeMudCrab/sounds/163458/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/m79_launch_alt_barryshamir.ogg + samples/m4a/m79_launch_alt_barryshamir.m4a
+    Source: barryshamir, "Two grenade launcger dummy rounds"
+    Link:   https://freesound.org/people/barryshamir/sounds/834235/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/m79_launch_alt_vabadus.ogg + samples/m4a/m79_launch_alt_vabadus.m4a
+    Source: vabadus, "M16A2 with M203 fires a M406 HE round"
+    Link:   https://freesound.org/people/vabadus/sounds/151077/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/mortar_impact_1.ogg + samples/m4a/mortar_impact_1.m4a
+    Source: Kostrava, "distant explosions"
+    Link:   https://freesound.org/people/Kostrava/sounds/320788/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/mortar_impact_2.ogg + samples/m4a/mortar_impact_2.m4a
+    Source: Kostrava, "distant explosions"
+    Link:   https://freesound.org/people/Kostrava/sounds/320788/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/mortar_incoming_1.ogg + samples/m4a/mortar_incoming_1.m4a
+    Source: Zagge28, "Incoming mortar 1"
+    Link:   https://freesound.org/people/Zagge28/sounds/241840/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/mortar_launch_1.ogg + samples/m4a/mortar_launch_1.m4a
+    Source: greenbastardd, "mortar line.wav"
+    Link:   https://freesound.org/people/greenbastardd/sounds/240567/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/mortar_launch_2.ogg + samples/m4a/mortar_launch_2.m4a
+    Source: greenbastardd, "mortar line.wav"
+    Link:   https://freesound.org/people/greenbastardd/sounds/240567/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/mortar_launch_3.ogg + samples/m4a/mortar_launch_3.m4a
+    Source: greenbastardd, "mortar line.wav"
+    Link:   https://freesound.org/people/greenbastardd/sounds/240567/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/pbr_50cal_burst_1.ogg + samples/m4a/pbr_50cal_burst_1.m4a
+    Source: klangfabrik, "50 CAL Machine Gun.wav" (stand-in)
+    Link:   https://freesound.org/people/klangfabrik/sounds/249146/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/pbr_50cal_burst_2.ogg + samples/m4a/pbr_50cal_burst_2.m4a
+    Source: klangfabrik, "50 CAL Machine Gun.wav" (stand-in)
+    Link:   https://freesound.org/people/klangfabrik/sounds/249146/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/radio_squelch_1.ogg + samples/m4a/radio_squelch_1.m4a
+    Source: Stephan (pdsounds.org), "STE-011" radio short wave
+    Link:   http://pdsounds.tuxfamily.org/
+    Licence: public domain dedication (uploader), http://pdsounds.tuxfamily.org/license.txt
+
+samples/ogg/radio_squelch_2.ogg + samples/m4a/radio_squelch_2.m4a
+    Source: Stephan (pdsounds.org), "STE-011" radio short wave
+    Link:   http://pdsounds.tuxfamily.org/
+    Licence: public domain dedication (uploader), http://pdsounds.tuxfamily.org/license.txt
+
+samples/ogg/radio_squelch_3.ogg + samples/m4a/radio_squelch_3.m4a
+    Source: JovianSounds, "Radio Sign Off / Squelch"
+    Link:   https://freesound.org/people/JovianSounds/sounds/524205/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/ranch_hand_flyover_1.ogg + samples/m4a/ranch_hand_flyover_1.m4a
+    Source: gezortenplotz, "c130_swamp.wav" (C-130 stand-in for the C-123)
+    Link:   https://freesound.org/people/gezortenplotz/sounds/151828/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/rpd_burst_1.ogg + samples/m4a/rpd_burst_1.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AK-47 C_27P, edited (RPD stand-in)
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/rpd_burst_2.ogg + samples/m4a/rpd_burst_2.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AK-47 C_27P, edited (RPD stand-in)
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/sks_single_1.ogg + samples/m4a/sks_single_1.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), SKS U_14P
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/sks_single_2.ogg + samples/m4a/sks_single_2.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), SKS U_14P
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/sks_single_3.ogg + samples/m4a/sks_single_3.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), SKS U_14P
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/sks_single_4.ogg + samples/m4a/sks_single_4.m4a
+    Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), SKS U_14P
+    Link:   https://opengameart.org/content/the-free-firearm-sound-library
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/skyraider_flyby_1.ogg + samples/m4a/skyraider_flyby_1.m4a
+    Source: Fight2FlyPhoto, "A-1H Skyraider and P-47D Thunderbolt Flyby"
+    Link:   https://freesound.org/people/Fight2FlyPhoto/sounds/143564/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_boards_1.ogg + samples/m4a/step_boards_1.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (wood), derived from swuing "footstep-wood.wav"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/swuing/sounds/38876/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_boards_2.ogg + samples/m4a/step_boards_2.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (wood), derived from swuing "footstep-wood.wav"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/swuing/sounds/38876/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_boards_3.ogg + samples/m4a/step_boards_3.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (wood), derived from swuing "footstep-wood.wav"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/swuing/sounds/38876/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_deck_1.ogg + samples/m4a/step_deck_1.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (metal), derived from Eelke "boots on aluminum ladder 01"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/Eelke/sounds/462598/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_deck_2.ogg + samples/m4a/step_deck_2.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (metal), derived from Eelke "boots on aluminum ladder 01"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/Eelke/sounds/462598/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_deck_3.ogg + samples/m4a/step_deck_3.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (metal), derived from Eelke "boots on aluminum ladder 01"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/Eelke/sounds/462598/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_deck_conleec_1.ogg + samples/m4a/step_deck_conleec_1.m4a
+    Source: conleec, "FOLEY_Footsteps_Metal_001.wav"
+    Link:   https://freesound.org/people/conleec/sounds/148462/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/step_deck_conleec_2.ogg + samples/m4a/step_deck_conleec_2.m4a
+    Source: conleec, "FOLEY_Footsteps_Metal_001.wav"
+    Link:   https://freesound.org/people/conleec/sounds/148462/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/step_deck_conleec_3.ogg + samples/m4a/step_deck_conleec_3.m4a
+    Source: conleec, "FOLEY_Footsteps_Metal_001.wav"
+    Link:   https://freesound.org/people/conleec/sounds/148462/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/step_mud_1.ogg + samples/m4a/step_mud_1.m4a
+    Source: Nox_Sound, "Footsteps_Mountain_Boots_Mud_Mono.wav"
+    Link:   https://freesound.org/people/Nox_Sound/sounds/548384/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/step_mud_2.ogg + samples/m4a/step_mud_2.m4a
+    Source: Nox_Sound, "Footsteps_Mountain_Boots_Mud_Mono.wav"
+    Link:   https://freesound.org/people/Nox_Sound/sounds/548384/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/step_mud_3.ogg + samples/m4a/step_mud_3.m4a
+    Source: Nox_Sound, "Footsteps_Mountain_Boots_Mud_Mono.wav"
+    Link:   https://freesound.org/people/Nox_Sound/sounds/548384/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/step_mud_4.ogg + samples/m4a/step_mud_4.m4a
+    Source: Nox_Sound, "Footsteps_Mountain_Boots_Mud_Mono.wav"
+    Link:   https://freesound.org/people/Nox_Sound/sounds/548384/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/step_mud_grass_1.ogg + samples/m4a/step_mud_grass_1.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (grass), derived from swuing "footstep-grass.wav"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/swuing/sounds/38874/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_mud_grass_2.ogg + samples/m4a/step_mud_grass_2.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (grass), derived from swuing "footstep-grass.wav"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/swuing/sounds/38874/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_mud_grass_3.ogg + samples/m4a/step_mud_grass_3.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (grass), derived from swuing "footstep-grass.wav"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/swuing/sounds/38874/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_water_1.ogg + samples/m4a/step_water_1.m4a
+    Source: j1987, "puddlewalk.wav"
+    Link:   https://freesound.org/people/j1987/sounds/106395/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/step_water_2.ogg + samples/m4a/step_water_2.m4a
+    Source: j1987, "puddlewalk.wav"
+    Link:   https://freesound.org/people/j1987/sounds/106395/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/step_water_3.ogg + samples/m4a/step_water_3.m4a
+    Source: j1987, "puddlewalk.wav"
+    Link:   https://freesound.org/people/j1987/sounds/106395/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/step_water_4.ogg + samples/m4a/step_water_4.m4a
+    Source: j1987, "puddlewalk.wav"
+    Link:   https://freesound.org/people/j1987/sounds/106395/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/step_water_cb_1.ogg + samples/m4a/step_water_cb_1.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (water), derived from EminYILDIRIM "Water Footsteps" and swuing "footstep-concrete.wav"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/EminYILDIRIM/sounds/608663/  https://freesound.org/people/swuing/sounds/38873/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_water_cb_2.ogg + samples/m4a/step_water_cb_2.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (water), derived from EminYILDIRIM "Water Footsteps" and swuing "footstep-concrete.wav"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/EminYILDIRIM/sounds/608663/  https://freesound.org/people/swuing/sounds/38873/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/step_water_cb_3.ogg + samples/m4a/step_water_cb_3.m4a
+    Source: congusbongus, "Footsteps on different surfaces" (water), derived from EminYILDIRIM "Water Footsteps" and swuing "footstep-concrete.wav"
+    Link:   https://opengameart.org/content/footsteps-on-different-surfaces  https://freesound.org/people/EminYILDIRIM/sounds/608663/  https://freesound.org/people/swuing/sounds/38873/
+    Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) for the pack; originals CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/tandem_rotor_flyby_1.ogg + samples/m4a/tandem_rotor_flyby_1.m4a
+    Source: surrey_film, "Chinook rotor slap in high wind.aif" (Chinook stand-in for the CH-46)
+    Link:   https://freesound.org/people/surrey_film/sounds/84472/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/turret_corner_build_1.ogg + samples/m4a/turret_corner_build_1.m4a
+    Source: FreqMan, "sandbag.wav"; hotdogtornados, "Ammo Box.wav"
+    Link:   https://freesound.org/people/FreqMan/sounds/43607/  https://freesound.org/people/hotdogtornados/sounds/240329/
+    Licence: FreqMan: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED; hotdogtornados: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/turret_mid_build_1.ogg + samples/m4a/turret_mid_build_1.m4a
+    Source: FreqMan, "sandbag.wav"; FartBiscuit1700, "Metal being dropped on concrete surface"
+    Link:   https://freesound.org/people/FreqMan/sounds/43607/  https://freesound.org/people/FartBiscuit1700/sounds/322477/
+    Licence: FreqMan: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED; FartBiscuit1700: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/whistle_1.ogg + samples/m4a/whistle_1.m4a
+    Source: joedeshon, "referee_whistle_01.wav"
+    Link:   https://freesound.org/people/joedeshon/sounds/78508/
+    Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/whistle_alt_pea_distant.ogg + samples/m4a/whistle_alt_pea_distant.m4a
+    Source: designerschoice (recorded by Nicholas Judy), "WHSTMech-Blue Snowball Microphone_Whistle, Pea, Blow, Distant_Nicholas Judy_TDC"
+    Link:   https://freesound.org/people/designerschoice/sounds/815647/
+    Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/whistle_alt_police.ogg + samples/m4a/whistle_alt_police.m4a
+    Source: bigal13, "Old rusty police whistle being blowen.wav"
+    Link:   https://freesound.org/people/bigal13/sounds/654496/
+    Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+------------------------------------------------------------------
+MUSIC FILES (music/)
+------------------------------------------------------------------
+music/combat_loop.ogg + music/combat_loop.m4a (+ music/combat_loop_calm_preview.ogg, preview only, do not ship)
+    Source: "PSYCH ROCK" by fredsylvestre66 (Pixabay)
+    Link:   https://pixabay.com/music/rock-psych-rock-291828/
+    Licence: Pixabay Content License (https://pixabay.com/service/terms/); no attribution required.
+             No standalone distribution (no OST / soundtrack DLC), never register in Content ID (LICENSE_AUDIT.md 2.6).
