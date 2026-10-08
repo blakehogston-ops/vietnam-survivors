@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACl0lEQVR42tWXsW4TQRCGv9ndi+PYKIpEIkQZCWhQaCnoeIEUvAJCAsEbINHRg0DiJXgCHoCaDgoKKgRClhU7PvvudijOF/vu1skdcRKx0krW3nrmn39m/t2Vuw/2lSschisebtUH1fUSIyLtALjIIsB5YRQ2stQ3A+C9EkWW+w/3iSJ7biZEhCTJ+PzpO0mSYYycDsA6mU+DdWYtALwq1gleBfUrGFDNnd8+2MU6YfDnaK01cOvgOlmqfPvymyxVipJYyYD36y1C684oQtXyPGtU8Rk5fX/Vfo2BIvJmeYWtqLw2TZsBL3zoPAJXzb0YWWlIgMRDN4JXh7C1ka8fz+DlR5gkEJlw66qCscKde7ulWnD13Ff+uMy1QDcStjrQ6+RAThjp5L+TVEsBSCU3VZZrNVB1/uvnEPVK5qG/KXx4tk2/KyBQaIu18PoRjCbKk3dDRrFiTe5878Z2CUTVjzsrZ+p1PsH7XKi8B2MELexqsZ5P9dpYQV3jNjIwmymP3w7pd3Mmeps5gnE8j3yipGkePesGMA+UcawgMIoXuR5PlVGsjGNlw7XTh9YAIgdJojx9Pyx9SxIlcu0PL9dEywnIw/Fs4UwAI1LbtuoIDgIQWajTIvHC3s3tlWJU7fPgPlMGVvVzAiDL8tw2Pfwa78u0BjxbWnMieQv9+DoIUn0hY962IgEGLgtAsAYo5iU5r3eBVrT/Aka1M1zhOJ6kKMp4MA1ew9riCt0PRITeToflvggyEALQRZqnRyEOtUlxRZaGQiRACvRFeLNzjZ4I2SllooAFxqq8GBwx0vy81//yZbQc0USV54N2t+RYFdvgYePCEis1KMctjxkbsBM6Gly9SrtB3NJSIMJXEqmBaMjAv7wJm9n4C5YJNYm2sM4vAAAAAElFTkSuQmCC">   <!-- data URI: no /favicon.ico request, so nothing to 404 on a Pages project site -->
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=bb1b13c">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=e0f119d">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -140,13 +140,17 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 #sigask .who{color:#e8c030;font-weight:bold;font-size:13px;margin-bottom:4px}
 #sigQ{color:#f6f6e6;font-size:clamp(16px,3.6vw,22px);line-height:1.3}
 #sigSw{width:96px;height:96px;border-radius:50%;margin:16px auto 6px;display:flex;align-items:center;justify-content:center;font-family:Impact,sans-serif;letter-spacing:.1em;font-size:18px;border:4px solid #fff;box-shadow:0 0 22px rgba(255,255,255,.35)}
-.ocfact{font-size:clamp(18px,4.2vw,26px);color:#ffe9c8;margin:6px 0 4px;line-height:1.25}.ocsm{font-size:11px;color:#a9b090;margin:2px 0 6px;letter-spacing:.04em}.ocon,.ocld,.oclf{font-size:clamp(13px,2.8vw,16px);line-height:1.4;margin:3px auto;max-width:560px;text-align:left}.ocon b{color:#9be37a}.ocld b{color:#ffe58a}.oclf b{color:#ff9a7a}.ocop{color:#9be37a;font-size:13px;margin:4px 0}
+.ocfact{font-size:clamp(18px,4.2vw,26px);color:#ffe9c8;margin:6px 0 4px;line-height:1.25}.ocsm{font-size:11px;color:#a9b090;margin:2px 0 6px;letter-spacing:.04em}.ocon,.ocld,.oclf{font-size:clamp(13px,2.8vw,16px);line-height:1.4;margin:3px auto;max-width:560px;text-align:left}.ocon b{color:#9be37a}.ocld b{color:#ffe58a}.oclf b{color:#ff9a7a}.ocop{color:#9be37a;font-size:13px;margin:4px 0}.ocopt{font-size:13px;color:#d8cf9e;margin:3px 0}
+#overDed{font-size:12px;margin-top:6px}
+@media (min-width:900px){ #over.show{display:grid;grid-template-columns:minmax(0,680px) minmax(0,440px);column-gap:22px;align-content:start;justify-content:center}
+  #over>*{grid-column:1} #over>#overSvc{grid-column:2;grid-row:1 / span 8;align-self:start} #over #stats{margin:4px 0 6px} #over .btn{justify-self:center} #over .srcard{margin-top:0} }
 #sigask .sigbtns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}#sigask .note{font-size:12px;color:#9aa5b8;margin-bottom:8px;max-width:420px}
 @media (pointer:coarse){#sigBtn{height:54px;bottom:calc(138px + env(safe-area-inset-bottom,0px));font-size:16px;border-radius:27px}#sigBtn span{display:none}#abil span{display:none}#topbtns{gap:8px}#topbtns button{width:46px;height:44px;font-size:19px;border-radius:8px}.card .key,.lutool small{display:none}#abil{height:54px;min-width:160px;border-radius:27px;font-size:16px}button.btn{min-height:48px}.tag{min-height:62px}}
 @media (max-width:560px){#cards{flex-direction:column;flex-wrap:nowrap;align-items:center;gap:8px;width:100%}.card{width:100%;max-width:380px;min-height:0;padding:8px 10px;gap:3px}.card .nm{font-size:18px}.card canvas{width:44px;height:44px}.card .ds{font-size:12px}#luTools{gap:10px;margin-top:10px}.lutool{min-width:140px;min-height:48px}h1{font-size:clamp(30px,11vw,52px)}.help{font-size:12px;padding:8px 10px}.vols input{width:90px}#csRec{min-width:0;flex:1 1 100%}.cs-wrap{gap:8px}#fsHint{top:100px}}
 @media (max-height:480px) and (orientation:landscape){#cards{gap:8px;flex-wrap:nowrap}.card{width:min(230px,30vw);min-height:0;padding:6px 8px;gap:2px}.card canvas{width:40px;height:40px}.card .nm{font-size:16px}.card .ds{font-size:11px;line-height:1.25}.overlay{padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom))}h1{font-size:clamp(26px,7vh,44px)}h2{font-size:clamp(22px,6vh,36px);margin-bottom:4px}.sub{margin:4px 0 10px}.help{margin-top:8px;font-size:11px;line-height:1.35}button.btn{padding:8px 26px;font-size:20px}#luTools{margin-top:8px}.goresw{margin-top:8px}.vols{margin-top:6px}#stats{line-height:1.4;margin:4px 0 8px}}
 @media (max-width:640px){#csList{grid-template-columns:repeat(3,1fr);width:100%}.tag{font-size:10px;padding-left:14px}#csPort{width:84px;height:96px}}
 .vols{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:12px;font-size:12px;color:#d4d8b5;letter-spacing:.06em}.vols label{display:flex;align-items:center;gap:6px}.vols input{width:110px;accent-color:#c9a13a}
+.credits{max-width:720px;margin:8px auto 0;text-align:left;font-size:11px;color:#bdb39a}.credits summary{cursor:pointer;text-align:center;color:#d8cfa8;font-weight:bold;letter-spacing:.5px}.credits .crbody{max-height:220px;overflow:auto;padding:6px 10px;background:rgba(0,0,0,.35);border:1px solid #4a4636;margin-top:4px}.credits p{margin:4px 0;line-height:1.35}.credits a{color:#9fc3e8;word-break:break-all}.credits .crswap{color:#e8b04a}
 </style>
 </head>
 <body>
@@ -178,6 +182,16 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   <div class="foot" id="best"></div>
   <div class="tribute">✦ In memory of the KC-135 crew chiefs: they kept them flying. ✦</div>
   <div class="foot">A stylized arcade tribute to the Marines who served in Vietnam.<br><b style="color:#d65a4a">Mature: stylized violence</b> — cartoon pixel blood &amp; gore.</div>
+<details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">
+<p><b>Sound effects (Creative Commons Attribution)</b></p>
+<p>"UH-1 "Huey" Iroquois Helicopter" by OroborosNZ, <a href="https://freesound.org/people/OroborosNZ/sounds/157722/" target="_blank" rel="noopener">https://freesound.org/people/OroborosNZ/sounds/157722/</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Edited: trimmed, looped, level-adjusted.</p>
+<p>"Explosion" from "2 High Quality Explosions", (c) Michel Baradari (apollo-music.de), <a href="https://opengameart.org/content/2-high-quality-explosions" target="_blank" rel="noopener">https://opengameart.org/content/2-high-quality-explosions</a>, licensed <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>. Edited: low-pass filtered, echo added, shortened.</p>
+<p>"referee_whistle_01.wav" by joedeshon, <a href="https://freesound.org/people/joedeshon/sounds/78508/" target="_blank" rel="noopener">https://freesound.org/people/joedeshon/sounds/78508/</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Edited: trimmed, level.</p>
+<p>"Old rusty police whistle being blowen.wav" by bigal13, <a href="https://freesound.org/people/bigal13/sounds/654496/" target="_blank" rel="noopener">https://freesound.org/people/bigal13/sounds/654496/</a>, and "WHSTMech-Blue Snowball Microphone_Whistle, Pea, Blow, Distant_Nicholas Judy_TDC" by designerschoice (recorded by Nicholas Judy), <a href="https://freesound.org/people/designerschoice/sounds/815647/" target="_blank" rel="noopener">https://freesound.org/people/designerschoice/sounds/815647/</a>. Both licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Edited: trimmed, level.</p>
+<p><b>Music:</b> "PSYCH ROCK" by fredsylvestre66 via Pixabay, used under the <a href="https://pixabay.com/service/license-summary/" target="_blank" rel="noopener">Pixabay Content License</a>. Calm passages use the same track through a low-pass filter.</p>
+<p><b>Courtesy credits (CC0 / public domain; not required):</b> Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney); FranklinRook1984; Rmutt; Zagge28; Kostrava; JovianSounds; klangfabrik; AslakHostaker; LeMudCrab; vabadus; barryshamir; pdsounds.org (Marcus Kuerten, Stephan Möbius); qubodup, mortar launch, <a href="https://freesound.org/people/qubodup/sounds/184382/" target="_blank" rel="noopener">https://freesound.org/people/qubodup/sounds/184382/</a> <i class="crswap">(swap-before-release)</i>.</p>
+<p class="crtp" id="crTP"></p>
+</div></details>
 </div>
 
 <div id="charsel" class="overlay">
@@ -189,7 +203,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <div id="sigask" class="overlay">
   <div class="rbox"><canvas id="sigPort" width="36" height="40"></canvas><div><div class="who" id="sigWho">BIRD · UH-1E</div><div id="sigQ">"Doc, Bird. I've got red. Over."</div></div></div>
   <div id="sigSw">RED</div>
-  <div class="note">You popped smoke. The pilot names the color he sees - check it against your line. Charlie pops his own smoke. No timer.</div>
+  <div class="note" id="sigNote">Smoke out. The pilot names the color he sees - check it against your line. Charlie pops his own smoke. No timer.</div>
   <div class="sigbtns"><button class="btn" id="btnSigOk">CONFIRM</button><button class="btn alt" id="btnSigNo">NEGATIVE</button></div>
 </div>
 <div id="padHint" aria-live="polite"></div>
@@ -213,15 +227,27 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   <div class="padKeys padPause"></div>
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label>
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
+  <details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">
+<p><b>Sound effects (Creative Commons Attribution)</b></p>
+<p>"UH-1 "Huey" Iroquois Helicopter" by OroborosNZ, <a href="https://freesound.org/people/OroborosNZ/sounds/157722/" target="_blank" rel="noopener">https://freesound.org/people/OroborosNZ/sounds/157722/</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Edited: trimmed, looped, level-adjusted.</p>
+<p>"Explosion" from "2 High Quality Explosions", (c) Michel Baradari (apollo-music.de), <a href="https://opengameart.org/content/2-high-quality-explosions" target="_blank" rel="noopener">https://opengameart.org/content/2-high-quality-explosions</a>, licensed <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>. Edited: low-pass filtered, echo added, shortened.</p>
+<p>"referee_whistle_01.wav" by joedeshon, <a href="https://freesound.org/people/joedeshon/sounds/78508/" target="_blank" rel="noopener">https://freesound.org/people/joedeshon/sounds/78508/</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Edited: trimmed, level.</p>
+<p>"Old rusty police whistle being blowen.wav" by bigal13, <a href="https://freesound.org/people/bigal13/sounds/654496/" target="_blank" rel="noopener">https://freesound.org/people/bigal13/sounds/654496/</a>, and "WHSTMech-Blue Snowball Microphone_Whistle, Pea, Blow, Distant_Nicholas Judy_TDC" by designerschoice (recorded by Nicholas Judy), <a href="https://freesound.org/people/designerschoice/sounds/815647/" target="_blank" rel="noopener">https://freesound.org/people/designerschoice/sounds/815647/</a>. Both licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. Edited: trimmed, level.</p>
+<p><b>Music:</b> "PSYCH ROCK" by fredsylvestre66 via Pixabay, used under the <a href="https://pixabay.com/service/license-summary/" target="_blank" rel="noopener">Pixabay Content License</a>. Calm passages use the same track through a low-pass filter.</p>
+<p><b>Courtesy credits (CC0 / public domain; not required):</b> Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney); FranklinRook1984; Rmutt; Zagge28; Kostrava; JovianSounds; klangfabrik; AslakHostaker; LeMudCrab; vabadus; barryshamir; pdsounds.org (Marcus Kuerten, Stephan Möbius); qubodup, mortar launch, <a href="https://freesound.org/people/qubodup/sounds/184382/" target="_blank" rel="noopener">https://freesound.org/people/qubodup/sounds/184382/</a> <i class="crswap">(swap-before-release)</i>.</p>
+<p class="crtp" id="crTP2"></p>
+</div></details>
 </div>
 
 <div id="over" class="overlay">
   <h2 id="overTitle">MARINE DOWN — MEDEVAC</h2>
   <div class="sub" id="rank" style="margin:0"></div>
   <div id="stats"></div>
-  <div class="tribute">✦ In memory of the KC-135 crew chiefs: they kept them flying. ✦</div>
+  <div class="srd" id="overDed">Dedicated to the Vietnam veterans, and to MSgt Hogston, USAF.</div>
+  <div class="tribute" id="overTrib">✦ In memory of the KC-135 crew chiefs: they kept them flying. ✦</div>
   <button class="btn" id="btnRestart">Back in the Bush</button>
   <button class="btn alt" id="btnMenu">Main menu</button>
+  <div id="overSvc"></div>
 </div>
 
 <script>/* ===== Sound Helper cue pack (sound_pack/sound_cues.js, 45 original synth cues, no samples) ===== */
@@ -1036,12 +1062,12 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   else root.Cues = Cues;
 })(typeof self !== 'undefined' ? self : this);
 </script>
-<script src="assets/art/sheet1.js?v=bb1b13c"></script>
-<script src="assets/art/huey_hivis.js?v=bb1b13c"></script>
-<script src="assets/art/doc_hivis.js?v=bb1b13c"></script>
+<script src="assets/art/sheet1.js?v=e0f119d"></script>
+<script src="assets/art/huey_hivis.js?v=e0f119d"></script>
+<script src="assets/art/doc_hivis.js?v=e0f119d"></script><script src="assets/art/marines_tall.js?v=e0f119d"></script><script defer src="audio/sample_player.js?v=e0f119d"></script><script defer src="audio/samples/manifest.js?v=e0f119d"></script>
 <script>
 /* BUILD STAMP: set by tools/stamp.js (run after every code commit; it records that commit's short hash + date). Also the ?v= cache-buster for audio / images / icons. */
-const BUILD={id:'bb1b13c',date:'2026-10-07 22:53 ET'}, AV='?v='+BUILD.id;
+const BUILD={id:'e0f119d',date:'2026-10-07 23:59 ET'}, AV='?v='+BUILD.id;
 /* Quang Tri preview (Stage 1): saves use the lbo2_ prefix; old vs_/lbo_ saves are never read or touched. */
 (()=>{
 'use strict';
@@ -1095,7 +1121,7 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
       this.ctx=new AC(); this.out=this.ctx.createGain(); this.out.gain.value=this.muted?0:.55; this.lim=this.ctx.createDynamicsCompressor(); this.lim.threshold.value=-7; this.lim.knee.value=4; this.lim.ratio.value=14; this.lim.attack.value=.002; this.lim.release.value=.16; this.out.connect(this.lim); this.lim.connect(this.ctx.destination);   /* final limiter: stops clipping when guns, cues, music and the Colonel stack */ this.master=this.ctx.createGain(); this.master.gain.value=this.vol.sfx; this.master.connect(this.out); this.mbus=this.ctx.createGain(); this.mbus.gain.value=this.vol.mus; this.mbus.connect(this.out);
       try{ this.cbus=Cues.createBus(this.ctx,this.master,.9); if(typeof LOWFX!=='undefined')Cues.setLowEffects(LOWFX); if(params.has('meter')){ this.an=this.ctx.createAnalyser(); this.an.fftSize=1024; this.lim.connect(this.an); this.anB=new Float32Array(1024) } }catch(e){ this.cbus=null }
       const len=this.ctx.sampleRate; this.nb=this.ctx.createBuffer(1,len,this.ctx.sampleRate); const d=this.nb.getChannelData(0); for(let i=0;i<len;i++)d[i]=Math.random()*2-1;
-    }catch(e){this.ctx=null}},
+    }catch(e){this.ctx=null} try{ SAMP.init(); RMUS.decode() }catch(e){} },
   resume(){ if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume() },
   vol:{mus:.8,sfx:1},
   setVol(k,v){ this.vol[k]=v; if(k==='mus'&&this.mbus)this.mbus.gain.value=v; if(k==='sfx'&&this.master)this.master.gain.value=v; try{localStorage.setItem('lbo2_vol_'+k,String(v))}catch(e){} document.querySelectorAll(k==='mus'?'.volM':'.volS').forEach(el=>{el.value=Math.round(v*100)}) },
@@ -1123,10 +1149,11 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
   boltCycleLater(){ const c=this.ctx; if(!c||!this.cbus||this.muted||c.state!=='running')return; if(typeof LOWFX!=='undefined'&&LOWFX&&enemies.length>220)return; const n=performance.now(); if(n-(this._bcT||0)<900)return; this._bcT=n; this.cue('boltCycle',{when:c.currentTime+.4}) },
   cueRibbon(ids){ let best=-1,nm=null; const ord=['car','ph','bs','ss','nc','moh']; for(const id of ids){ const k=ord.indexOf(id); if(k>best){best=k;nm=RIBCUE[id]} } if(nm){ this.cue('ribbonPin'); this.cue('ribbonBugle',{when:this.ctx?this.ctx.currentTime+.25:0},nm) } },
   /* per frame: duck the cue bus under the Colonel's recorded voice; optional peak meter (?meter) for QA */
-  duckTick(){ const c=this.ctx; if(!c||!this.cbus)return; const qd=!!(typeof G!=='undefined'&&G&&G.quiet>0); if(this.mbus&&qd!==this._qd){ this._qd=qd; try{ this.mbus.gain.setTargetAtTime(qd?this.vol.mus*.12:this.vol.mus,c.currentTime,qd?.04:.4) }catch(e){} }
+  duckTick(){ const c=this.ctx; if(!c||!this.cbus)return; const qd=!!(typeof G!=='undefined'&&G&&G.quiet>0); if(this.mbus&&qd!==this._qd&&!SAMP.on){ this._qd=qd; try{ this.mbus.gain.setTargetAtTime(qd?this.vol.mus*.12:this.vol.mus,c.currentTime,qd?.04:.4) }catch(e){} }
     const want=qd?.3:(BVOX.src||BriefSnd.on)?.5:.9; if(want!==this._dk){ this._dk=want; try{ this.cbus.gainNode.gain.setTargetAtTime(want,c.currentTime,.12) }catch(e){} }
     if(this.an){ this.an.getFloatTimeDomainData(this.anB); let m=0; for(let i=0;i<1024;i++){ const v=Math.abs(this.anB[i]); if(v>m)m=v } this.peak=m; if(m>(this.peakMax||0))this.peakMax=m; if(m>=.999)this.clipN=(this.clipN||0)+1 } },
   play(n){ if(!this.ctx||this.muted||this.ctx.state!=='running')return; const now=performance.now()/1000; const g=this.gap[n]||0; if(now-(this.last[n]||0)<g)return; this.last[n]=now;
+    if(SAMP.take(n))return; if(n==='m79')n='thump';   /* real sample (or deliberate silence for a licence-blocked slot) replaces the synth cue */
     { const cm=CUEMAP[n]; if(cm&&this.cbus){ this.cue(cm[0],cm[1]); return } }
     switch(n){
       case 'grease': R(0,7,3,5,'#3a3a3a');R(2,6,11,3,'#4a4b52');R(13,7,3,1,'#222');R(5,9,2,5,'#222');R(8,9,1,3,'#555');break;
@@ -1168,7 +1195,7 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
       case 'over': [400,330,262,196].forEach((f,i)=>this.tone('triangle',f,f*.9,.4,.22,i*.28)); break;
       case 'punji': this.noise(.12,.3,2600,500,'bandpass'); this.tone('sawtooth',210,70,.16,.16); this.noise(.2,.2,700,150); break;
       case 'mortar': this.tone('sine',170,48,.2,.34); this.noise(.14,.26,1000,200); this.tone('triangle',620,300,.12,.06,.03); break;
-      case 'whistle': this.tone('sine',1500,420,.65,.045); break;
+      case 'shellwhistle': this.tone('sine',1500,420,.65,.045); break;
       case 'm2': this.noise(.1,.38,2300,420,'bandpass'); this.tone('square',130,55,.07,.12); break;
       case 'vcshot': this.noise(.04,.045,3200,1600,'bandpass'); break;
       case 'hatch': this.noise(.22,.26,900,260); this.tone('triangle',170,90,.16,.12); break;
@@ -1880,7 +1907,7 @@ function buildBubbles(){ BUBSPR.length=0; const PX=2; for(const ph of PHRASES){ 
     x.fillStyle='#fff8e0'; x.fillRect(tx-PX,Hb-PX,2*PX,PX*2);
     lines.forEach((T,li)=>{ let cx=3*PX+Math.floor((mc-T.length)*6*PX/2); for(const ch of T){ if(ch!==' ')drawGlyph(x,ch,cx,(2+li*lh+mh)*PX,PX); cx+=6*PX } });
     BUBSPR.push(c) } }
-function assaultCry(){ if(G.demo)return; G.cryQ=4; Snd.play('bugle'); Snd.play('whistle') }
+function assaultCry(){ if(G.demo)return; G.cryQ=4; Snd.play('bugle'); if(!SAMP.charge())Snd.play('whistle') }
 function onScreen(e,m){ const p=G.p; return Math.abs(e.x-p.x)<VW/2-m&&Math.abs(e.y-p.y)<VH/2-m }
 function updateBubbles(dt){
   const g=G; if(g.cryQ>0){ g.cryQ-=dt; if(bubbles.length<3&&enemies.length){ for(let k=0;k<12;k++){ const e=enemies[(rnd()*enemies.length)|0]; if(!e||e.dead||(e.type!=='vc'&&e.type!=='nva')||e.bub||!onScreen(e,30))continue; e.bub=true; bubbles.push({e,pi:XPI,t:0,life:2.6}); g.cryQ=0; break } } } for(let i=bubbles.length-1;i>=0;i--){ const b=bubbles[i]; b.t+=dt; const e=b.e;
@@ -1909,14 +1936,14 @@ function updateSupport(dt){
   for(let i=mshells.length-1;i>=0;i--){ const q=mshells[i]; CURW=q.wid||''; q.t+=dt; if(q.t<0)continue;
     if(!q.fired){ q.fired=true; Snd.play('mortar'); addPart(p.x-8,p.y-4,(rnd()-.5)*20,-30-rnd()*20,.6,4+rnd()*3,'#c8c8c0',false,1.5) }
     const k=Math.min(1,q.t/q.d); q.x=q.sx+(q.tx-q.sx)*k; q.y=q.sy+(q.ty-q.sy)*k; q.z=Math.sin(Math.PI*k)*150;
-    if(k>.62&&!q.w){ q.w=true; Snd.play('whistle') }
+    if(k>.62&&!q.w){ q.w=true; Snd.play('shellwhistle') }
     if(k>=1){ explode(q.tx,q.ty,q.rad,q.dmg,230); mshells[i]=mshells[mshells.length-1]; mshells.pop() } }
   // 105mm fire missions
   for(let i=hbars.length-1;i>=0;i--){ const b=hbars[i]; CURW=b.wid||''; b.t+=dt;
     if(b.t<b.delay){ if(rnd()<.8)addPart(b.cx+(rnd()-.5)*10,b.cy+(rnd()-.5)*10,(rnd()-.5)*14,-34-rnd()*26,1.3,5+rnd()*4,rnd()<.5?'#e8d84a':'#fff2a0',false,.4); continue }
     const s=b.s; for(let k=0;k<s.n;k++){ const a=rnd()*TAU,d=Math.sqrt(rnd())*s.spread; hshells.push({wid:CURW,x:b.cx+Math.cos(a)*d,y:b.cy+Math.sin(a)*d,t:-k*s.gap-rnd()*.05,d:.5,dmg:s.dmg,rad:s.rad,w:false}) }
     hbars[i]=hbars[hbars.length-1]; hbars.pop() }
-  for(let i=hshells.length-1;i>=0;i--){ const q=hshells[i]; CURW=q.wid||''; q.t+=dt; if(q.t>=0&&!q.w){q.w=true;Snd.play('whistle')}
+  for(let i=hshells.length-1;i>=0;i--){ const q=hshells[i]; CURW=q.wid||''; q.t+=dt; if(q.t>=0&&!q.w){q.w=true;Snd.play('shellwhistle')}
     if(q.t>=q.d){ explode(q.x,q.y,q.rad,q.dmg,q.big?340:280); if(q.ao)addCloud(q.x,q.y,q.ao.r,q.ao.life,q.ao.dmg,true); G.shake=Math.max(G.shake,q.big?10:5); hshells[i]=hshells[hshells.length-1]; hshells.pop() } }
   // PBR river patrol boat
   for(let i=boats.length-1;i>=0;i--){ const b=boats[i], s=b.s; CURW=b.wid||''; b.t+=dt; const r=b.r;
@@ -2201,6 +2228,7 @@ function updateIns(dt){
     if(h.ph<2&&rnd()<dt*22*FXK()){ const a=rnd()*TAU; addPart(h.x+Math.cos(a)*14,h.y+8+Math.sin(a)*6,Math.cos(a)*70,Math.sin(a)*40,.5,3+rnd()*3,rnd()<.5?'#a8946a':'#8a7a52',false,2) }
   }
 }
+const TALLM=m=>{ const S=window.SHEET1; if(!S||!S.marinesTall||!S.drawMarine)return null; const nm=m.coy?S.MARINE_COY[(m.cv|0)%S.MARINE_COY.length]:(S.MARINE_ROLE[m.role]||'marineRifle'), sp=S.sprites[nm]; return sp?{h:sp.h,grip:sp.gripY||16}:null };   /* labels/HP bars use the sprite's .h */
 function drawSquad(camX,camY){
   const x0=camX-50,x1=camX+VW+50,y0=camY-50,y1=camY+VH+50;
   for(const h of coyH){ if(h.t>=0&&h.ph===1&&h.di<=h.left){ ctx.strokeStyle='#c8b890'; ctx.lineWidth=1.5; for(const sd of [-9,9]){ ctx.beginPath(); ctx.moveTo(h.x+sd,h.y-34); ctx.lineTo(h.x+sd,h.y+6); ctx.stroke() } } }
@@ -2208,16 +2236,17 @@ function drawSquad(camX,camY){
   for(const m of squad.concat(pat,coy)){ if(m.hid||m.x<x0||m.x>x1||m.y<y0||m.y>y1)continue;
     const R=SQR[m.role], ps=m.coy?COYSPR[m.cv]:SQSPR[m.role], fr=m.mv?(Math.floor(m.anim)&1):0, flip=m.face>0?0:1, spr=ps[fr][flip][m.hf>0?1:0], z=m.rz||0;
     if(z>0){ ctx.fillStyle='rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(m.x,m.y+13,9,3.5,0,0,TAU); ctx.fill() }
-    const bob=m.mv&&fr?-1:0, gx=Math.cos(m.aim), gy=Math.sin(m.aim), sy=Math.round(m.y-spr.height*.56+bob-z), gy0=m.y+2-z;
+    /* tall Marines (marines_tall.js, 26x37, feet-anchored): feet where the old 38 px sprite's feet were (m.y+13); weapon line from the hand point; hitbox unchanged */
+    const TM=TALLM(m), bob=m.mv&&fr?-1:0, gx=Math.cos(m.aim), gy=Math.sin(m.aim), fy=Math.round(m.y+13+bob-z), topY=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56+bob-z), sy=topY, gy0=TM?fy-TM.grip*SHEET_SCALE_MEN:m.y+2-z;
     const gun=()=>{ ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=4.2; ctx.beginPath(); ctx.moveTo(m.x+gx*2,gy0+gy*2); ctx.lineTo(m.x+gx*R.len,gy0+gy*R.len); ctx.stroke(); ctx.strokeStyle=R.gc; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(m.x+gx*3,gy0+gy*3); ctx.lineTo(m.x+gx*R.len,gy0+gy*R.len); ctx.stroke() };
     const behind=gy<-.3&&!z; if(behind)gun();
-    ctx.drawImage(spr,Math.round(m.x-spr.width/2),sy);
+    if(TM)SHEET1.drawMarine(ctx,m.role,m.mv?1+fr:0,Math.round(m.x),fy,SHEET_SCALE_MEN,!!flip,m.hf>0,m.coy?(m.cv|0):undefined); else ctx.drawImage(spr,Math.round(m.x-spr.width/2),sy);
     if(!behind)gun();
     if(m.mf>0){ const mx=m.x+gx*(R.len+4), my=gy0+gy*(R.len+4); ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(mx,my,3.6+rnd()*1.5,0,TAU); ctx.fill(); ctx.fillStyle='#ff9b21'; ctx.beginPath(); ctx.arc(mx,my,1.8,0,TAU); ctx.fill() }
     // HP bar
-    if(!z&&!(m.coy&&m.hp>=m.mhp)){ const r=Math.max(0,m.hp/m.mhp), w=22, bx=Math.round(m.x-w/2), by=Math.round(m.y-spr.height*.56-8); ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,5); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,3);
+    if(!z&&!(m.coy&&m.hp>=m.mhp)){ const r=Math.max(0,m.hp/m.mhp), w=22, bx=Math.round(m.x-w/2), by=Math.round((TM?fy-bob-TM.h*SHEET_SCALE_MEN:m.y-spr.height*.56)-8); ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,5); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,3);
       ctx.fillStyle=r>.55?'#6fd04a':r>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,Math.round(w*r),3) }
-    if(m.role==='corps'&&!z){ ctx.fillStyle='#d02020'; ctx.fillRect(Math.round(m.x)-1,Math.round(m.y-spr.height*.56-14),3,1); ctx.fillRect(Math.round(m.x),Math.round(m.y-spr.height*.56-15),1,3) }
+    if(m.role==='corps'&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56); ctx.fillStyle='#d02020'; ctx.fillRect(Math.round(m.x)-1,cy-14,3,1); ctx.fillRect(Math.round(m.x),cy-15,1,3) }
   }
 }
 
@@ -2698,7 +2727,8 @@ function update(dt){
     if(e.type==='rpgt'){ e.cdash-=dt;
       if(d>330)spd*=1; else if(d>250)spd=0; else spd=-spd*.8;
       if(e.cdash<=0){ if(!onScreen(e,30)||e.em>0){ e.cdash=.5 } else { e.cdash=5+rnd()*2.5; const tg=trooperTarget(e);
-          eprojs.push({sx:e.x,sy:e.y-14,x:e.x,y:e.y-14,tx:tg.tx,ty:tg.ty,t:0,d:e.rpg7?.85:1.15,rad:e.rpg7?56:50,dmg:e.rpg7?20:16,sdm:e.rpg7?60:45,tr:1,trk:tg.trk,toff:tg.off,tdm:e.rpg7?78:62}); Snd.play('rpg');
+          { const fl=e.rpg7?.85:1.15, w0=SAMP.b40Ready()?Math.max(0,EXW.B40-fl+.02):0;   /* with the real B-40 cue, a short rocket waits so its bang can lead the impact by >= 1 s */
+          eprojs.push({sx:e.x,sy:e.y-14,x:e.x,y:e.y-14,tx:tg.tx,ty:tg.ty,t:-w0,d:fl,rad:e.rpg7?56:50,dmg:e.rpg7?20:16,sdm:e.rpg7?60:45,tr:1,trk:tg.trk,toff:tg.off,tdm:e.rpg7?78:62}); if(!SAMP.b40(w0+fl))Snd.play('rpg') }
           addPart(e.x,e.y-12,0,0,.5,7,'#cfcab8',false,2) } } }
     else if(e.type==='rpg'){ e.cdash-=dt;
       if(d>240)spd*=1; else if(d>150)spd=0; else spd=-spd*.7;
@@ -2707,7 +2737,7 @@ function update(dt){
         for(let k=0;k<nR;k++){ const lead=p.mv?.55:0; let tx=p.x+(p.mv?p.fx*150*speedMul()*lead:0)+(k?(rnd()-.5)*140:0), ty=p.y+(p.mv?p.fy*150*speedMul()*lead:0)+(k?(rnd()-.5)*140:0);
           if(!k){ const tk=tanks[0]; if(tk&&!tk.dead&&rnd()<.4&&Math.hypot(tk.x-e.x,tk.y-e.y)<520){ tx=tk.x; ty=tk.y } }
           eprojs.push({sx:e.x,sy:e.y-18,x:e.x,y:e.y-18,tx,ty,t:-k*.25,d:1.25,rad:58,dmg:20+G.bossN*3}) }
-        Snd.play('rpg'); } }
+        if(!SAMP.b40(1.25))Snd.play('rpg'); } }
     else if(e.type==='sapper'){ if(e.flee>0){ e.flee-=dt; const ax=e.x-(fbS?fbS.x:p.x), ay=e.y-(fbS?fbS.y:p.y), al=Math.hypot(ax,ay)||1; dx=ax; dy=ay; d=al; spd*=1.25; if(e.flee<=0){ e.dead=true; burst(e.x,e.y,6,60,.4,3,['#8a8574','#6d675a'],false) } }
       else if(ftT&&ftT.type&&d<(ftT.r||10)+e.r+8){ if(plantCharge(ftT)){ e.flee=1.4 } else spd=0 } }
     else if(e.tank){ e.cdash-=dt; let T=ftT; if(!T){ const tk=tanks[0]; T=(tk&&!tk.dead&&Math.hypot(tk.x-e.x,tk.y-e.y)<800)?tk:{x:p.x,y:p.y,hp:1,r:10,player:1} }
@@ -3407,7 +3437,7 @@ function insertFifteen(){ const g=G,p=g.p, a0=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+
   comp.hueyAt=g.t+1; comp.dropAt=g.t+3 }
 function coyFreeSlot(){ const used=new Set(); for(const m of coy)used.add(m.slot); let i=0; while(used.has(i))i++; return i }
 function updateCompany(dt){ const g=G,p=g.p; if(g.demo||!g.char||!g.cs)return; coyF++;
-  { const cp=g.cs.comps[g.cs.comps.length-1]; if(cp&&!cp.hs&&g.t>=cp.hueyAt){ cp.hs=1; Snd.cue('reinforcementHueys') } }   /* ~4 s cue, touches down ~3 s in = when the Marines rope down (dropAt) */
+  { const cp=g.cs.comps[g.cs.comps.length-1]; if(cp&&!cp.hs&&g.t>=cp.hueyAt){ cp.hs=1; (RotorS.ok()||Snd.cue('reinforcementHueys')) } }   /* ~4 s cue, touches down ~3 s in = when the Marines rope down (dropAt) */
   if(!g._gv&&params.has('give')){ g._gv=1; for(const q of params.get('give').split(',')){ const [id,l]=q.split(':'); if(ITEMS[id]&&ITEMS[id].kind==='w')g.w[id]={lvl:+l||1,cd:.2,tick:0} } }   /* QA: ?give=company:2,medevac:3 */
   // Hueys
   for(let i=coyH.length-1;i>=0;i--){ const h=coyH[i]; h.t+=dt; if(h.t<0)continue; h.rot+=dt*34;
@@ -3418,7 +3448,7 @@ function updateCompany(dt){ const g=G,p=g.p; if(g.demo||!g.char||!g.cs)return; c
             coy.push({role,nm:q15?Q15.names[h.base+h.di]:null,slot:sl,cv,coy:true,pat:true,comp:h.comp,state:'rope',rt:0,hx:h.x+(h.di&1?9:-9),hy:h.y+4,lx:h.x+(rnd()-.5)*50,ly:h.y+22+rnd()*26,x:h.x,y:h.y+4,rz:34,hp:hp0,mhp:hp0,dm:S.dm*(1+g.sq.dm),face:1,anim:rnd()*4,mv:false,cd:.4+rnd()*.5,tg:null,tgT:rnd()*.3,mf:0,hf:0,inv:0,aim:0,ph:rnd()*TAU,born:g.t});
             h.comp.alive++; h.comp.dr=(h.comp.dr||0)+1; g.cs.dropped++; if(h.comp.alive>g.cs.peak)g.cs.peak=h.comp.alive; }
           h.di++; h.dT=.28 } }
-      else if(h.di>=h.left){ h.endT+=dt; if(h.endT>.8){ h.ph=2; if(!h.comp.dep){ h.comp.dep=1; Snd.cue('hueyDeparture') } } } }
+      else if(h.di>=h.left){ h.endT+=dt; if(h.endT>.8){ h.ph=2; if(!h.comp.dep){ h.comp.dep=1; (RotorS.ok()||Snd.cue('hueyDeparture')) } } } }
     else { h.vs=Math.min(440,h.vs+260*dt); h.hd=turnTo(h.hd,a,3*dt); h.x+=Math.cos(a)*h.vs*dt; h.y+=Math.sin(a)*h.vs*dt;
       if(Math.hypot(h.x-p.x,h.y-p.y)>Math.hypot(VW,VH)/2+300){ coyH.splice(i,1); continue } }
     if(h.ph<2&&!LOWFX_ON()&&rnd()<dt*18){ const b=rnd()*TAU; addPart(h.x+Math.cos(b)*14,h.y+8+Math.sin(b)*6,Math.cos(b)*70,Math.sin(b)*40,.5,3+rnd()*3,rnd()<.5?'#a8946a':'#8a7a52',false,2) } }
@@ -3451,7 +3481,7 @@ function callMedevac(s){ const g=G,p=g.p, a=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+17
   medevac={x:p.x+Math.cos(a)*Rf,y:p.y+Math.sin(a)*Rf,a,ph:0,t:0,hold:0,tk:0,hd:a+Math.PI,rot:0,hp:1,mhp:0,hf:0,mf:[0,0],z:34,s,vs:60,medic:true};
   g.ms.calls++; g.banner={text:'DUSTOFF INBOUND, PATCH THEM UP',t:2.4,col:'#ff9a8a'}; Snd.cue('medevacCall'); Amb.support(8) }
 function medevacHeal(u,frac,scale){ if(u.hp<=0)return; const mx=u.maxHp||u.mhp, add=Math.min(mx-u.hp,mx*frac*scale); if(add<=0)return; u.hp+=add; u._mh=(u._mh||0)+add; G.ms.healed+=add }
-function updateMedevac(dt){ const g=G,p=g.p,h=medevac; updateHealFx(dt); if(g.demo||!g.char||!g.ms)return; if(!h)return; h.t+=dt; h.rot+=dt*34; if(!h.sa&&h.t>=.6){ h.sa=1; Snd.cue('medevacHuey') }
+function updateMedevac(dt){ const g=G,p=g.p,h=medevac; updateHealFx(dt); if(g.demo||!g.char||!g.ms)return; if(!h)return; h.t+=dt; h.rot+=dt*34; if(!h.sa&&h.t>=.6){ h.sa=1; (RotorS.ok()||Snd.cue('medevacHuey')) }
   const hx=p.x, hy=p.y-6;
   if(h.ph===0){ const dx=hx-h.x, dy=hy-h.y, d=Math.hypot(dx,dy)||1, sp=Math.min(420,60+d*1.6); h.x+=dx/d*sp*dt; h.y+=dy/d*sp*dt; h.hd=turnTo(h.hd,Math.atan2(dy,dx),4*dt); if(d<14){ h.ph=1; h.hold=0; h.tk=0 } }
   else if(h.ph===1){ const k=Math.min(1,4*dt); h.x+=(hx-h.x)*k; h.y+=(hy-h.y)*k; h.hd=turnTo(h.hd,-Math.PI/2,2*dt); h.hold+=dt; h.tk+=dt; const iv=MEDEVAC.hold/MEDEVAC.ticks;
@@ -3460,7 +3490,7 @@ function updateMedevac(dt){ const g=G,p=g.p,h=medevac; updateHealFx(dt); if(g.de
     if(!LOWFX_ON()&&rnd()<dt*20){ addPart(p.x+(rnd()-.5)*20,p.y+4,(rnd()-.5)*30,-40-rnd()*30,1.1,5+rnd()*4,rnd()<.5?'#d22b2b':'#ff6a5a',false,.4) }
     if(h.hold>=MEDEVAC.hold){ // floating +HP text on up to 8 healed units, then clear the tallies
       let shown=0; for(const u of medevacUnits()){ if(u._mh>0){ if(u===p||shown<8){ if(u!==p)shown++; ftexts.push({x:u.x,y:u.y-22,t:0,s:'+'+Math.round(u._mh)+' HP',c:'#ff9a9a'}) } u._mh=0 } }
-      h.ph=2; h.vs=60; Snd.cue('medevacDeparture') } }
+      h.ph=2; h.vs=60; (RotorS.ok()||Snd.cue('medevacDeparture')) } }
   else { h.vs=Math.min(440,h.vs+260*dt); h.hd=turnTo(h.hd,h.a,3*dt); h.x+=Math.cos(h.a)*h.vs*dt; h.y+=Math.sin(h.a)*h.vs*dt; if(Math.hypot(h.x-p.x,h.y-p.y)>Math.hypot(VW,VH)/2+300){ medevac=null; return } }
   if(h.ph<2&&!LOWFX_ON()&&rnd()<dt*22){ const a=rnd()*TAU; addPart(h.x+Math.cos(a)*14,h.y+8+Math.sin(a)*6,Math.cos(a)*80,Math.sin(a)*45,.5,3+rnd()*3,rnd()<.5?'#a8946a':'#8a7a52',false,2) } }
 function drawMedevac(){ const h=medevac; if(!h)return; const x=Math.round(h.x), y=Math.round(h.y-h.z);
@@ -3542,11 +3572,18 @@ const TIER_XP=[350,1000,2200,4000,6500];   /* was [120,320,620,1050,1600] */
 const AIR_CDR_CAP=.45, AIR_CDR_CAP_HOGSTON=.55, AIR_FLOOR=5, AIR_FX_MAX=7, TANKER={cut:.15,gap:20,run:2.8};     // hard cap: total air-support cooldown reduction (all sources incl. KC-135 levels), and Hogston's refuel run
 const AIRIDS={boxmission:1,spooky:1,arclight:1,strafe:1,ranch:1,napalm:1,howitzer:1,mortar:1,gunboat:1};   // gets the character air bonus
 const AIRCALL={boxmission:1,spooky:1,arclight:1,strafe:1,ranch:1,napalm:1};   // true air support: hard cap + 5 s floor apply. Mortar/howitzer/gunboat are artillery and sit OUTSIDE the cap
-let CHS={}; try{CHS=JSON.parse(localStorage.getItem('lbo2_chars')||'{}')||{}}catch(e){CHS={}}
+function loadChars(){ try{ return JSON.parse(localStorage.getItem('lbo2_chars')||'{}')||{} }catch(e){ return {} } }
+let CHS=loadChars(); window.addEventListener('storage',e=>{ if(e.key==='lbo2_chars')CHS=loadChars() });   /* another tab finished a patrol */
+/* debug runs (?t=, &god, ?give, ?char= on a closed record, DBG.give / DBG.grantRibbon during the run) never open records or write records or medals */
+function dbgMark(){ const g=G; if(!g||g.demo)return; if(ALLU||DBG.t>0||DBG.god||DBG.used||params.has('give')||(params.get('char')&&!chOpenRaw(params.get('char'))))g.dbg=true }
 let SEL='doc'; try{SEL=localStorage.getItem('lbo2_char')||'doc'}catch(e){}
 if(params.get('char'))SEL=params.get('char'); if(!CHD[SEL])SEL='doc';
 /* Stage 1: on a fresh save Doc is the only open record; every other record opens the first time Doc comes home (lbo2_open). */
-function chOpen(id){ if(id==='doc')return true; try{ return localStorage.getItem('lbo2_open')==='1' }catch(e){ return false } }
+function chOpenSave(id){ if(id==='doc')return true; try{ return localStorage.getItem('lbo2_open')==='1' }catch(e){ return false } }
+/* ?all (tester build): every Marine selectable for this session only; nothing is written to the lbo2_ save and the run is a debug run */
+const ALLU=params.has('all');
+function chOpen(id){ return ALLU||chOpenSave(id) }
+const chOpenRaw=id=>chOpenSave(id);
 if(!chOpen(SEL))SEL='doc';
 function saveChars(){ try{localStorage.setItem('lbo2_chars',JSON.stringify(CHS));localStorage.setItem('lbo2_char',SEL)}catch(e){} if(window.onCharsChange)window.onCharsChange() }
 const chXp=id=>(CHS[id]&&CHS[id].xp)||0;
@@ -3588,15 +3625,15 @@ function ribRackHTML(id){ const c=CHS[id]||{}, r=c.rib||{}; let n=0; RIBBON_RACK
     return `<div class="rk${got?' on':''}"><span class="rkimg ${isM?'md':''}"><img src="${isM?ribURL(k,false,2,!got):ribURL(k,false,2)}" alt="" ${got||isM?'':'class="dim"'}></span><span class="rkt"><b>${got||!isM?RIB[k].nm:'Medal of Honor (locked)'}</b>${got?' ✔':''}<br><i>${RIB[k].how}</i></span></div>` }).join('')+'</div>' }
 function ribFanfare(ids){ try{ if(window.Cues&&Snd.cueRibbon)Snd.cueRibbon(ids) }catch(e){} }
 /* QA: DBG.grantRibbon(charId,'bs'), DBG.resetRibbons(charId|'all'), DBG.listRibbons() */
-DBG.give=(id,l)=>{ if(!G||!ITEMS[id]||ITEMS[id].kind!=='w')return console.log('usage: DBG.give(weaponId, level) e.g. DBG.give("company",1), DBG.give("medevac",2)'); G.w[id]={lvl:l||1,cd:.2,tick:0}; return G.w[id] };
-DBG.grantRibbon=(cid,rid)=>{ if(!CHD[cid]||!RIB[rid])return console.log('usage: DBG.grantRibbon(charId, ribbonId) charIds:',CHORDER.join(','),'ribbons:',RIBBON_RACK_ORDER.join(',')); const c=CHS[cid]||(CHS[cid]={xp:0,runs:0,best:0,kills:0}); (c.rib=c.rib||{})[rid]={t:Date.now(),dbg:1}; saveChars(); try{ if($('charsel').classList.contains('show'))selectChar(SEL) }catch(e){} return DBG.listRibbons(cid) };
+DBG.give=(id,l)=>{ DBG.used=true; if(G&&!G.demo)G.dbg=true; if(!G||!ITEMS[id]||ITEMS[id].kind!=='w')return console.log('usage: DBG.give(weaponId, level) e.g. DBG.give("company",1), DBG.give("medevac",2)'); G.w[id]={lvl:l||1,cd:.2,tick:0}; return G.w[id] };
+DBG.grantRibbon=(cid,rid)=>{ DBG.used=true; if(G&&!G.demo)G.dbg=true; if(!CHD[cid]||!RIB[rid])return console.log('usage: DBG.grantRibbon(charId, ribbonId) charIds:',CHORDER.join(','),'ribbons:',RIBBON_RACK_ORDER.join(',')); const c=CHS[cid]||(CHS[cid]={xp:0,runs:0,best:0,kills:0}); (c.rib=c.rib||{})[rid]={t:Date.now(),dbg:1}; saveChars(); try{ if($('charsel').classList.contains('show'))selectChar(SEL) }catch(e){} return DBG.listRibbons(cid) };
 DBG.resetRibbons=(cid)=>{ const ids=(!cid||cid==='all')?Object.keys(CHS):[cid]; for(const i of ids){ if(CHS[i]){ delete CHS[i].rib; CHS[i].bk=0 } } saveChars(); try{ if($('charsel').classList.contains('show'))selectChar(SEL) }catch(e){} return DBG.listRibbons() };
 DBG.listRibbons=(cid)=>{ const out={}; for(const i of (cid?[cid]:CHORDER)){ out[i]=RIBBON_RACK_ORDER.filter(k=>CHS[i]&&CHS[i].rib&&CHS[i].rib[k]) } console.table?console.table(Object.keys(out).map(k=>({char:k,ribbons:out[k].join(' ')||'-'}))):console.log(out); return out };
 /* service-record XP for one run. Tuned so a good ~12-min run is ~700-1000 XP and tier 5 (6500 XP) takes about 8-10 such runs; a short run earns proportionally little */
 function runXpGain(g,sumL,maxed){ if(sumL===undefined){ sumL=0;maxed=0; for(const id in g.w){ sumL+=g.w[id].lvl; if(g.w[id].lvl>=ITEMS[id].max)maxed++ } }
   return Math.floor(g.t/6+g.kills/12+sumL*2+maxed*25+g.bossN*25+(g.ex&&g.ex.evac?150:0)+(g.ex?Math.floor(g.ex.holdKills/12):0)) }
 function runXpGainOld(g){ let sumL=0,maxed=0; for(const id in g.w){ sumL+=g.w[id].lvl; if(g.w[id].lvl>=ITEMS[id].max)maxed++ } return Math.floor(g.t/6+g.kills/4+sumL*3+maxed*40+g.bossN*25+(g.ex&&g.ex.evac?150:0)+(g.ex?Math.floor(g.ex.holdKills/4):0)) }   /* kept only so tools/botrun.js can print before/after */
-function awardRun(ended){ const g=G; if(!g||g.demo||g.awarded||!g.char||DBG.t>0)return null; g.awarded=true;
+function awardRun(ended){ const g=G; dbgMark(); if(!g||g.demo||g.awarded||!g.char||DBG.t>0||g.dbg)return null; g.awarded=true; CHS=loadChars();   /* merge with the saved record (another tab may have written it) */
   let sumL=0,maxed=0; for(const id in g.w){ sumL+=g.w[id].lvl; if(g.w[id].lvl>=ITEMS[id].max)maxed++ }
   const gain=runXpGain(g,sumL,maxed); const c=CHS[g.char]||(CHS[g.char]={xp:0,runs:0,best:0,kills:0});
   const t0=chTier(g.char); c.xp+=gain; c.runs++; c.kills+=g.kills; c.best=Math.max(c.best,Math.floor(g.t)); const t1=chTier(g.char); const rib=ended?awardRibbons(g,c):[]; saveChars(); return {gain,t0,t1,id:g.char,rib} }
@@ -3630,7 +3667,7 @@ function useAbility(){ const g=G; if(!g||g.demo||!g.char||state!=='play'||g.abCd
    case 'rat': g.rr=3; p.invul=Math.max(p.invul,3); break;
    case 'radio': { const s=ITEMS.howitzer.stats(Math.max(1,(g.w.howitzer&&g.w.howitzer.lvl)||1)); const c0=clump(430,130,12); for(let i=0;i<4;i++){ hbars.push({wid:CURW,cx:c0[0]+(rnd()-.5)*90,cy:c0[1]+(rnd()-.5)*90,t:-i*.45,delay:2.1,s}) } break }
    case 'preacher': { const s=ITEMS.m79.stats(Math.max(1,(g.w.m79&&g.w.m79.lvl)||1)); for(let i=0;i<14;i++){ let tx,ty; const e=enemies.length?enemies[(rnd()*enemies.length)|0]:null; if(e&&!e.dead&&Math.hypot(e.x-p.x,e.y-p.y)<330){tx=e.x;ty=e.y}else{const a=rnd()*TAU,r=90+rnd()*200;tx=p.x+Math.cos(a)*r;ty=p.y+Math.sin(a)*r}
-      grenades.push({wid:CURW,sx:p.x,sy:p.y,x:p.x,y:p.y,tx,ty,t:-i*.09,d:.7,dmg:s.dmg,rad:s.rad*(1+g.area)}) } Snd.play('thump'); break }
+      grenades.push({wid:CURW,sx:p.x,sy:p.y,x:p.x,y:p.y,tx,ty,t:-i*.09,d:.7,dmg:s.dmg,rad:s.rad*(1+g.area)}) } Snd.play('m79'); break }
    case 'chef': g.chow=3; g.full=8; ringBurst(p.x,p.y,36,['#fff','#e8c860'],20); Snd.play('heal'); break;
   }
   hudAbil(); return true }
@@ -3658,7 +3695,7 @@ function buildCharList(){ const el=$('csList'); el.innerHTML='';
   for(const id of CHORDER){ const D=CHD[id], t=chTier(id), b=document.createElement('button'), op=chOpen(id); b.className='tag'+(id===SEL?' sel':'')+(op?'':' lk'); b.dataset.id=id;
     b.innerHTML=`<b${D.card?' style="text-transform:none"':''}>${op?'':'🔒 '}${D.card?D.card[0]:D.nick}</b><i>${D.card?D.card[1]:D.rank+' '+D.nm.split(' ').pop()}</i>${op?`<i class="pips">${'●'.repeat(t)}${'○'.repeat(5-t)}</i>`:'<i class="lkt">Opens when Doc comes home.</i>'}`;
     b.onclick=()=>selectChar(id); el.appendChild(b) } }
-function selectChar(id){ if(!CHD[id])return; const op=chOpen(id); SEL=id; if(op)saveChars(); const D=CHD[id], t=chTier(id), x=chXp(id), c=CHS[id]||{runs:0,best:0,kills:0};
+function selectChar(id){ if(!CHD[id])return; const op=chOpen(id); SEL=id; if(op&&chOpenSave(id))try{localStorage.setItem('lbo2_char',SEL)}catch(e){}   /* ?all never saves a pick the real record has not opened */   /* picking a Marine never rewrites the records (a stale tab used to overwrite a finished patrol) */ const D=CHD[id], t=chTier(id), x=chXp(id), c=CHS[id]||{runs:0,best:0,kills:0};
   for(const b of $('csList').children)b.classList.toggle('sel',b.dataset.id===id);
   const lo=t?TIER_XP[t-1]:0, hi=t<5?TIER_XP[t]:TIER_XP[4], pct=t>=5?100:Math.round((x-lo)/(hi-lo)*100);
   $('csRec').innerHTML=`<div class="rh"><span>${D.svc||'U.S. MARINE CORPS'} · SERVICE RECORD</span><span>${D.sn?'SN '+D.sn:''}</span></div>
@@ -4421,7 +4458,10 @@ const EX={DROP_T:180,PAD_T:480,FALL_T:540,LZ_T:600,INBOUND:30,GROUND:EXQ==='easy
   HOT_AT:8,HOT_LEN:3.6,LIFT:2.2,WAVE3:6,WAVE4:4,N3:8,N4:14,TOUCH_N:24,COY_PER:.01,COY_MAX:.15,OFF_GRACE:2,SEE_T:1.5,ASK_GRACE:.4,GUN_AT:8,GUN_R:300,GUN_DMG:70,GUN_CD:.09,WRONG_MIN:520,WRONG_MAX:720,CHARLIE_P:.5};
 const SIGC={red:'#e8322a',yellow:'#f5d62a',green:'#36c44a',violet:'#a455e0',white:'#e8f4ff'};
 const SIGN=['red','yellow','green','violet'];
-const sigName=(kind,col)=>kind==='mirror'?'SIGNAL MIRROR':col.toUpperCase()+' SMOKE';
+const sigName=(kind,col)=>kind==='mirror'?'SIGNAL MIRROR':kind==='flare'?col.toUpperCase()+' FLARE':col.toUpperCase()+' SMOKE';
+const SIGNOTE={smoke:'Smoke out. The pilot names the color he sees - check it against your line. Charlie pops his own smoke. No timer.',
+  mirror:'Mirror flashing. The pilot calls the flash he sees - roger it only if that is your mirror. No timer.',
+  flare:'Flare up. The pilot names the flare color he sees - check it against your line. No timer.'};
 const sigLabel=it=>sigName(it.kind,it.col);
 let sigs=[], exMsg=null, exQ=[], exStack=0, GUNNY=null;
 function mkEx(){ return {ph:0,t:0,sig:null,charlie:null,charlieAt:null,pad:null,padShown:false,padCol:'violet',wrong:false,at:null,idCol:null,misId:false,inC:false,inS:false,
@@ -4436,7 +4476,7 @@ function updateGunny(dt){ const m=exMsg; if(!m)return; const pr=Math.floor(m.t*4
   if(m.t>m.dur){ exMsg=exQ.shift()||null; if(exMsg)Snd.play('radio') } }
 /* ---- the signal drop ---- */
 function commanderDrop(x,y){ const g=G,ex=g&&g.ex; if(!ex||g.demo||ex.ph!==0)return; const col=SIGN[(rnd()*4)|0];
-  ex.sig={x,y,kind:'smoke',col,z:70,land:false}; ex.kind='smoke'; ex.col=col; ex.ph=1; ex.dropAt=g.t; g.quiet=EX.QUIET;   /* one quiet second: hit-stop + music duck, the canister hits, then the fight returns */
+  ex.sig={x,y,kind:'smoke',col,z:70,land:false}; ex.kind='smoke'; ex.col=col; ex.ph=1; ex.dropAt=g.t; g.quiet=EX.QUIET; SAMP.smokeDrop();   /* one quiet second: hit-stop + music duck, the canister hits, then the fight returns */
   ex.charlieAt=rnd()<EX.CHARLIE_P?g.t+12+rnd()*22:null;
   g.banner={text:'COMMANDER DOWN · '+sigName('smoke',col),t:3.2,col:SIGC[col]};
   gunny('Their commander is down and he dropped a smoke canister. Get to it, Doc - the bird needs to see it.',5,1) }
@@ -4454,13 +4494,13 @@ const exBlocked=(x,y)=>{ const ex=G&&G.ex; return !!(ex&&ex.pad&&ex.ph>=3&&ex.ph
 const onPad=(x,y)=>{ const ex=G.ex; return !!(ex.pad&&Math.hypot(x-ex.pad.x,y-ex.pad.y)<=EX.PAD_R) };
 function popSignal(){ return false }   /* no pop key any more: the smoke column is already burning where it fell */
 /* ---- confirm (one tap, no timer) ---- */
-function openConfirm(at){ const g=G,ex=g.ex; ex.ph=2; ex.at=at; ex.sayAgain=false; gunny('Bird, Doc. Smoke out. Over.',2.4,1,'DOC');
+function openConfirm(at){ const g=G,ex=g.ex; ex.ph=2; ex.at=at; ex.sayAgain=false; const kd=at==='charlie'?'smoke':ex.sig.kind; gunny(kd==='mirror'?'Bird, Doc. Mirror flashing. Over.':kd==='flare'?'Bird, Doc. Flare up. Over.':'Bird, Doc. Smoke out. Over.',2.4,1,'DOC');
   if(at==='charlie')ex.idCol=ex.charlie.col;
   else if(ex.sig.kind==='mirror')ex.idCol='white';
   else if(ex.charlie&&!ex.misId){ ex.misId=true; ex.idCol=rnd()<.5?ex.charlie.col:ex.sig.col } else ex.idCol=ex.sig.col;
   Snd.play('radio'); state='sig'; showSigAsk() }
-function showSigAsk(){ const ex=G.ex, col=ex.idCol, c=SIGC[col], mir=col==='white';
-  $('sigQ').textContent=(ex.sayAgain?'"Doc, Bird. Say again... ':'"Doc, Bird. ')+(mir?"I've got your mirror flash. Over.\"":"I've got "+col+'. Over."');   /* the ground says "Smoke out"; the pilot names the color; the ground confirms "Roger <color>" - the ground never names it first */
+function showSigAsk(){ const ex=G.ex, col=ex.idCol, c=SIGC[col], mir=col==='white', kd=mir?'mirror':(ex.at==='real'&&ex.sig&&ex.sig.kind==='flare')?'flare':'smoke';
+  $('sigQ').textContent=(ex.sayAgain?'"Doc, Bird. Say again... ':'"Doc, Bird. ')+(mir?"I've got your mirror flash. Over.\"":kd==='flare'?"I've got a "+col+' flare. Over."':"I've got "+col+'. Over."'); $('sigNote').textContent=SIGNOTE[kd];   /* the ground says "Smoke out"; the pilot names the color; the ground confirms "Roger <color>" - the ground never names it first */
   $('sigSw').style.background='radial-gradient(circle at 35% 30%,#fff8 0,'+c+' 38%,'+c+'cc 100%)'; $('sigSw').textContent=mir?'FLASH':col.toUpperCase();
   $('sigSw').style.color=(col==='yellow'||col==='white')?'#222':'#fff';
   $('btnSigOk').textContent=(mir?'ROGER MIRROR':'ROGER '+col.toUpperCase())+(PAD.on?'  ['+PAD.pn('A').split(' ')[0]+']':'  [ENTER]');
@@ -4476,13 +4516,17 @@ function answerSignal(yes){ const g=G,ex=g&&g.ex; if(!ex||ex.ph!==2)return; clos
   if(yes){ placePad(ex.at==='real'&&ex.idCol===ex.sig.col); return }
   if(ex.at==='real'&&ex.idCol!==ex.sig.col){ ex.idCol=ex.sig.col; ex.sayAgain=true; gunny('Bird, Doc. Negative. Say again. Over.',3.2,1,'DOC'); state='sig'; showSigAsk(); return }
   ex.ph=1; if(ex.at==='charlie')ex.inC=true; else ex.inS=true; gunny('Bird, Doc. Negative, not my smoke. Wait one. Over.  -  Bird: Wilco, holding. Over.',3.6,1,'DOC') }
+function planPad(){ const g=G,ex=g.ex,p=g.p; let q; if(ex.sig&&ex.sig.land)q=pickLz(ex.sig.x,ex.sig.y); else { const a=rnd()*TAU; q=pickLz(p.x+Math.cos(a)*220,p.y+Math.sin(a)*220) }
+  ex.pad={x:q.x,y:q.y}; ex.padPlan=true; ex.padShown=true; if(ex.sig)ex.padCol=ex.sig.col; else ex.padCol='yellow';
+  g.banner={text:'PAD MARKED · BIRD AT '+fmt(EX.LZ_T),t:3.2,col:'#9be37a'}; Snd.play('level');
+  gunny(ex.ph===0?"Pad is marked. Bird sets down at "+fmt(EX.LZ_T)+" - but he still needs your signal. Find that commander.":"Pad is marked. Confirm your signal with the bird, then get your Marines on that circle.",4.6,1) }
 function placePad(right){ const g=G,ex=g.ex,p=g.p; ex.ph=3; ex.confAt=g.t; ex.popped=true; ex.wrong=!right; ex.padCol=right?ex.sig.col:ex.idCol;
-  let q; if(right)q=pickLz(ex.sig.x,ex.sig.y); else { const a=rnd()*TAU, d=EX.WRONG_MIN+rnd()*(EX.WRONG_MAX-EX.WRONG_MIN); q=pickLz(p.x+Math.cos(a)*d,p.y+Math.sin(a)*d) }
+  let q; if(right)q=ex.padPlan&&ex.pad?{x:ex.pad.x,y:ex.pad.y}:pickLz(ex.sig.x,ex.sig.y); else { const a=rnd()*TAU, d=EX.WRONG_MIN+rnd()*(EX.WRONG_MAX-EX.WRONG_MIN); q=pickLz(p.x+Math.cos(a)*d,p.y+Math.sin(a)*d) }
   ex.pad={x:q.x,y:q.y}; ex.landT=Math.max(EX.LZ_T,g.t+EX.INBOUND); if(g.t>=EX.PAD_T)ex.padShown=true;
   g.banner={text:'HOLD FOR LZ · '+fmt(ex.landT),t:3,col:SIGC[ex.col==='white'?'yellow':ex.col]}; Snd.play('radio');
   gunny('Bird, Doc. Roger '+(ex.idCol==='white'?'mirror':ex.idCol)+'. Over.  -  Bird: Wilco. Setting down at '+fmt(ex.landT)+'. Over.',4.6,1,'DOC') }
 /* ---- the per-frame mission driver (own clocks; never depends on player hp or camera) ---- */
-function updateExtraction(dt){ const g=G,p=g.p,ex=g.ex; if(g.demo||!ex||state==='over')return;
+function updateExtraction(dt){ const g=G,p=g.p,ex=g.ex; if(g.demo||!ex||state==='over')return; if(ALLU||DBG.god||DBG.t>0||DBG.used)g.dbg=true;
   updateGunny(dt);
   if(!ex.intro&&g.t>=(DBG.t|0)+6){ ex.intro=true; if(!DBG.t)gunny("Gunny here. Fifteen of you on the ground. Their commander carries the smoke - drop him, find it, and get your Marines to the pad. Bird sets down at ten mikes.",6.4) }
   if(!ex.five&&g.t>=300&&ex.ph<=1){ ex.five=true; gunny(ex.ph===1?"Five mikes. Your smoke is still burning out there - follow the arrow.":"Five mikes. No signal yet. Find that commander.",4) }
@@ -4492,6 +4536,7 @@ function updateExtraction(dt){ const g=G,p=g.p,ex=g.ex; if(g.demo||!ex||state===
     ex.charlie={x:ex.sig.x+Math.cos(a)*d,y:ex.sig.y+Math.sin(a)*d,col:others[(rnd()*others.length)|0]} }
   if(ex.ph===1){ const s=ex.sig; if(s&&s.land){ const ds=Math.hypot(p.x-s.x,p.y-s.y); if(ds<EX.REACH_R&&p.hp>0){ if(ex.reachAt===null)ex.reachAt=Math.max(g.t,s.landAt||g.t); if(!ex.inS&&g.t-(s.landAt||0)>=EX.SEE_T){ openConfirm('real'); return } } else if(ds>EX.REACH_R+24)ex.inS=false }
     const c=ex.charlie; if(c&&ex.ph===1){ const dc=Math.hypot(p.x-c.x,p.y-c.y); if(dc<EX.REACH_R&&p.hp>0){ if(!ex.inC){ openConfirm('charlie'); return } } else if(dc>EX.REACH_R+24)ex.inC=false } }
+  if(ex.ph<=2&&!ex.padPlan&&g.t>=EX.PAD_T)planPad();   /* 8:00: the pad is marked whether or not the signal is confirmed */
   if(ex.ph===3){ if(!ex.padShown&&g.t>=EX.PAD_T){ ex.padShown=true; g.banner={text:'PAD MARKED · BIRD AT '+fmt(ex.landT),t:3,col:'#9be37a'}; Snd.play('level'); gunny("Pad is marked. Bird sets down at "+fmt(ex.landT)+". Get your Marines on that circle.",4.2,1) }
     if(g.t>=ex.landT-EX.INBOUND)startInbound() }
   g.exHold=ex.ph===4||ex.ph===5;
@@ -4567,13 +4612,13 @@ function drawSigIcon(c,x,y,r,it,tt){ c.fillStyle='#1b1b18'; c.fillRect(x-r*.5,y-
 function drawExGround(tt){ const g=G,ex=g.ex; if(!ex)return;
   const can=(s)=>{ ctx.fillStyle='rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(s.x,s.y+2,10,4,0,0,TAU); ctx.fill() };
   if(ex.sig&&ex.sig.land&&!(ex.ph>=3&&!ex.wrong))can(ex.sig); if(ex.charlie)can(ex.charlie);
-  if(ex.pad&&ex.padShown&&ex.ph>=3&&ex.ph<=7){ const lz=ex.pad, R=EX.PAD_R, c=SIGC[ex.padCol==='white'?'yellow':ex.padCol];
+  if(ex.pad&&ex.padShown&&(ex.ph>=3||ex.padPlan)&&ex.ph<=7){ const lz=ex.pad, R=EX.PAD_R, c=SIGC[ex.padCol==='white'?'yellow':ex.padCol];
     ctx.save(); ctx.globalAlpha=.4; ctx.fillStyle='#8f7a4e'; ctx.beginPath(); ctx.ellipse(lz.x,lz.y+4,R+20,(R+20)*.7,0,0,TAU); ctx.fill(); ctx.restore();
     const pulse=1+.05*Math.sin(tt*5); ctx.save(); ctx.translate(lz.x,lz.y+2); ctx.scale(1,.78); ctx.lineWidth=6; ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.beginPath(); ctx.arc(0,0,R*pulse+2,0,TAU); ctx.stroke();
     ctx.setLineDash([14,10]); ctx.lineDashOffset=-tt*20; ctx.strokeStyle=ex.ph===3&&!ex.padShown?'#fff':'#f2e8c0'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(0,0,R*pulse,0,TAU); ctx.stroke(); ctx.setLineDash([]);
     if(ex.board>0){ ctx.strokeStyle='#9be37a'; ctx.lineWidth=8; ctx.beginPath(); ctx.arc(0,0,R*pulse-9,-Math.PI/2,-Math.PI/2+TAU*Math.min(1,ex.board/EX.BOARD_T)); ctx.stroke() }
     ctx.fillStyle='rgba(255,255,255,.6)'; ctx.fillRect(-14,-14,5,28); ctx.fillRect(9,-14,5,28); ctx.fillRect(-14,-3,28,6); ctx.restore();
-    if(ex.ph===3)txt('PAD · '+fmt(ex.landT),lz.x,lz.y+R*.78+18,12,'#f2e8c0','center') } }
+    if(ex.ph===3)txt('PAD · '+fmt(ex.landT),lz.x,lz.y+R*.78+18,12,'#f2e8c0','center'); else if(ex.ph<3)txt('PAD · NEEDS YOUR SIGNAL',lz.x,lz.y+R*.78+18,12,'#f2e8c0','center') } }
 /* smoke columns + the bird: drawn above the men so the column reads */
 function drawExAir(tt){ const g=G,ex=g.ex; if(!ex)return;
   if(DBG.smokeTest){ const p=g.p; SIGN.forEach((c,i)=>drawSigFx(p.x-240+i*160,p.y-70,'smoke',c,tt,1)) }   /* QA only (console: DBG.smokeTest=true) - all four smoke columns side by side */
@@ -4612,26 +4657,29 @@ const DIR8=['EAST','SOUTHEAST','SOUTH','SOUTHWEST','WEST','NORTHWEST','NORTH','N
 const dirWord=(dx,dy)=>DIR8[((Math.round(Math.atan2(dy,dx)/(Math.PI/4))%8)+8)%8];
 /* the permanent line under the timer: what Doc is doing right now (+ live distance/arrow), and the count of the fifteen */
 function exTarget(){ const g=G,ex=g.ex; if(!ex)return null;
-  if((ex.ph===1||ex.ph===2)&&ex.sig)return ex.sig; if(ex.ph>=3&&ex.ph<=5&&ex.pad&&(ex.padShown||ex.ph>=4))return (ex.ph===5&&ex.huey)?ex.huey:ex.pad; return null }
+  if((ex.ph===1||ex.ph===2)&&ex.sig)return ex.sig; if(ex.ph===0&&ex.padPlan&&ex.pad)return ex.pad; if(ex.ph>=3&&ex.ph<=5&&ex.pad&&(ex.padShown||ex.ph>=4))return (ex.ph===5&&ex.huey)?ex.huey:ex.pad; return null }
 function sigLine(){ const g=G,ex=g.ex,p=g.p; if(!ex)return {t:'',c:'#fff'};
   const T=exTarget(), dm=T?Math.round(Math.hypot(T.x-p.x,T.y-p.y)/10):0;
-  if(ex.ph===0)return {t:'NO SIGNAL',c:'#c8c8b0'};
-  if(ex.ph===1||ex.ph===2)return {t:sigName(ex.sig.kind,ex.sig.col)+' — '+dm+'m',c:SIGC[ex.sig.col==='white'?'yellow':ex.sig.col],T};
+  const pdm=ex.pad?Math.round(Math.hypot(ex.pad.x-p.x,ex.pad.y-p.y)/10):0;
+  if(ex.ph===0)return ex.padPlan?{t:'NO SIGNAL  ·  PAD '+pdm+'m',c:'#c8c8b0',T}:{t:'NO SIGNAL',c:'#c8c8b0'};
+  if(ex.ph===1||ex.ph===2)return {t:sigName(ex.sig.kind,ex.sig.col)+' — '+dm+'m'+(ex.padPlan?'  ·  PAD MARKED':''),c:SIGC[ex.sig.col==='white'?'yellow':ex.sig.col],T};
   if(ex.ph===3)return {t:'HOLD FOR LZ — '+fmt(ex.landT)+(ex.padShown?'  ·  PAD '+dm+'m':''),c:'#9be37a',T:ex.padShown?T:null};
-  if(ex.ph===4)return {t:'BIRD INBOUND — '+fmt(Math.ceil(EX.INBOUND-ex.t))+(onPad(p.x,p.y)?'  ·  ON THE PAD':'  ·  PAD '+dm+'m'),c:onPad(p.x,p.y)?'#9be37a':'#ffcf5a',T:onPad(p.x,p.y)?null:T};
+  if(ex.ph===4)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(EX.INBOUND-ex.t))+(onPad(p.x,p.y)?'  ·  ON THE PAD':'  ·  PAD '+dm+'m'),c:onPad(p.x,p.y)?'#9be37a':'#ffcf5a',T:onPad(p.x,p.y)?null:T};
   if(ex.ph===5){ const left=Math.max(0,EX.GROUND-ex.t), inR=onPad(p.x,p.y); const ow=!inR&&ex.offWarn; return {t:'BIRD LIFTS — '+fmt(Math.ceil(left))+'  ·  '+(ow?'GET ON THE PAD '+dm+'m':!inR?'PAD '+dm+'m':ex.ramp?'BOARDING':'NEED ONE MORE MARINE ON THE RAMP'),c:(left<10||ow)?'#ff6a4a':'#9be37a',T:inR?null:T} }
   if(ex.ph===6)return {t:'EXTRACTED',c:'#9be37a'}; return {t:'THE BIRD IS GONE',c:'#ff6a4a'} }
 const q15Alive=()=>{ const g=G; return (g.p.hp>0?1:0)+coyAlive()+coyIncoming() };
+function hudArrowGlyph(c,U,col){ c.fillStyle=col; c.strokeStyle='#000'; c.lineWidth=2; c.beginPath(); c.moveTo(11*U,0); c.lineTo(2*U,-7*U); c.lineTo(2*U,-2.5*U); c.lineTo(-7*U,-2.5*U); c.lineTo(-7*U,2.5*U); c.lineTo(2*U,2.5*U); c.lineTo(2*U,7*U); c.closePath(); c.stroke(); c.fill() }   /* points along +x */
+window.hudArrowGlyph=hudArrowGlyph;
 function drawSigLine(U,oy){ const g=G,p=g.p,ex=g.ex; if(!ex||g.demo)return; const L=sigLine(), y=oy+80*U, fs=15*U;
   ctx.font=`bold ${fs}px "Courier New",monospace`; const w=ctx.measureText(L.t).width, aw=L.T?20*U:0, x0=W/2-(w+aw)/2;
   ctx.fillStyle='rgba(8,14,9,.72)'; ctx.fillRect(x0-8*U,y-15*U,w+aw+16*U,21*U);
   txt(L.t,x0,y,fs,L.c,'left');
-  if(L.T){ const a=Math.atan2(L.T.y-p.y,L.T.x-p.x); ctx.save(); ctx.translate(x0+w+12*U,y-5*U); ctx.rotate(a); ctx.fillStyle=L.c; ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(9*U,0); ctx.lineTo(-6*U,-6*U); ctx.lineTo(-3*U,0); ctx.lineTo(-6*U,6*U); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore() }
+  if(L.T){ const a=Math.atan2(L.T.y-p.y,L.T.x-p.x); ctx.save(); ctx.translate(x0+w+12*U,y-5*U); ctx.rotate(a); { const M=ctx.getTransform(); window.__hudArrow={a:Math.atan2(M.b,M.a),sx:M.e,sy:M.f,col:L.c,u:U,tx:L.T.x,ty:L.T.y,px:p.x,py:p.y,cx:RCAM.x,cy:RCAM.y,z:zoom,line:L.t,n:(window.__hudArrow?window.__hudArrow.n:0)+1} } hudArrowGlyph(ctx,U,L.c); ctx.restore() }   /* shaft + head: the old notched dart read backwards (QA saw it as up-right when it pointed down-left) */
   if(g.q15)txt('MARINES '+q15Alive(),W/2,y+19*U,12*U,'#e8e0b8','center') }
 function drawExHud(U,camX,camY,tt){ const g=G,p=g.p,ex=g.ex; exStack=0; if(!ex||g.demo)return; ctx.setTransform(1,0,0,1,0,0);
   const bw=Math.min(W-16*U-(SA.l+SA.r)*DPR,430*U), bx=W/2-bw/2; let y=exTop(U);
   // edge arrow to the smoke / pad / bird when it is off screen
-  const T=exTarget(); if(T){ const c=ex.ph<=2?SIGC[ex.sig.col==='white'?'yellow':ex.sig.col]:'#9be37a', dx=T.x-p.x,dy=T.y-p.y,d=Math.hypot(dx,dy), on=Math.abs(dx)<VW/2-40&&Math.abs(dy)<VH/2-40, big=ex.ph>=4?1.25:1, lab=ex.ph<=2?(ex.sig.kind==='mirror'?'MIRROR':'SMOKE'):ex.ph===5?'BIRD':'PAD';
+  const T=exTarget(); if(T){ const sg=ex.ph>=1&&ex.ph<=2&&ex.sig, c=sg?SIGC[ex.sig.col==='white'?'yellow':ex.sig.col]:'#9be37a', dx=T.x-p.x,dy=T.y-p.y,d=Math.hypot(dx,dy), on=Math.abs(dx)<VW/2-40&&Math.abs(dy)<VH/2-40, big=ex.ph>=4?1.25:1, lab=sg?(ex.sig.kind==='mirror'?'MIRROR':ex.sig.kind==='flare'?'FLARE':'SMOKE'):ex.ph===5?'BIRD':'PAD';
     if(!on){ const a=Math.atan2(dy,dx), [ax,ay]=edgeArrow(a,U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle=c; ctx.strokeStyle='#000'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(22*U*big,0); ctx.lineTo(-10*U*big,-14*U*big); ctx.lineTo(-10*U*big,14*U*big); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
       txt(lab+' '+Math.round(d/10)+'m',ax,ay+(ay>H/2?-22*U:30*U),13*U,c,'center') } }
   // Gunny radio box (colonel's style: black frame, silver bevel, navy panel, gold name)
@@ -4782,15 +4830,16 @@ function gameOver(win,why){ state='over'; overAt=performance.now(); const g=G, e
   if(!win)Snd.play('over');
   if(!why){ spawnDrops(g.p.x,g.p.y-6,0,0,40,200); addDecal(g.p.x,g.p.y+6,SPLAT[6],90,1.8); addDecal(g.p.x,g.p.y+8,CORPSE.marine[0],90,1) }
   RUNLOGS.push(runLogOf(g)); if(RUNLOGS.length>50)RUNLOGS.shift();
-  let opened=false; try{ const best=+localStorage.getItem('lbo2_best')||0; if(g.t>best)localStorage.setItem('lbo2_best',String(g.t)); if(win&&!g.demo){ if(!DBG.bot)localStorage.setItem('lbo2_evacs',String((+localStorage.getItem('lbo2_evacs')||0)+1)); if(g.char==='doc'&&!recOpen()){ localStorage.setItem('lbo2_open','1'); opened=true } } }catch(e){}
+  dbgMark(); let opened=false; if(!g.dbg&&!g.demo)try{ const best=+localStorage.getItem('lbo2_best')||0; if(g.t>best)localStorage.setItem('lbo2_best',String(g.t)); if(win&&!g.demo){ if(!DBG.bot)localStorage.setItem('lbo2_evacs',String((+localStorage.getItem('lbo2_evacs')||0)+1)); if(g.char==='doc'&&!recOpen()){ localStorage.setItem('lbo2_open','1'); opened=true } } }catch(e){}
   const aw=awardRun(true), sm=t=>`<div class="ocsm">${t}</div>`, seedTx='Seed '+g.seed, D=CHD[g.char]||CHD.doc;
   if(win){ $('overTitle').textContent='EXTRACTED — THE BIRD IS OUT'; $('rank').textContent='';
     const on=[D.nick+' ('+D.rank+' '+D.nm.split(' ').pop()+')'].concat(ex.gotOn||[]);
     $('stats').innerHTML=`<div class="ocon"><b>GOT ON:</b> ${on.join(', ')}</div><div class="ocld"><b>LOADED:</b> ${(ex.loaded&&ex.loaded.length)?ex.loaded.join(', '):'nobody'}</div>`+
       ((ex.left&&ex.left.length)?`<div class="oclf"><b>LEFT BEHIND:</b> ${ex.left.join(', ')}</div>`:'')+
-      (opened?'<div class="ocop">The other service records are open.</div>':'')+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`)+serviceCard(aw) }
+      `<div class="ocopt"><b>OPTIONAL CALL:</b> ${ex.optCall?ex.optCall:'none'}</div>`+
+      (opened?'<div class="ocop">The other service records are open.</div>':'')+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')); $('overSvc').innerHTML=serviceCard(aw) }
   else { $('overTitle').textContent=why==='left'?'LEFT ON THE LZ — THE BIRD IS GONE':'DOC IS DOWN'; $('rank').textContent='';
-    $('stats').innerHTML=`<div class="ocfact">${deathFact(g)}</div>`+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`)+serviceCard(aw) }
+    $('stats').innerHTML=`<div class="ocfact">${deathFact(g)}</div>`+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')); $('overSvc').innerHTML=serviceCard(aw) }
   if(aw&&aw.rib&&aw.rib.length)ribFanfare(aw.rib);
   setTimeout(()=>{ if(state==='over')$('over').classList.add('show') },700); }
 /* End-of-run service-record card: XP bar (animated), tier gain, earned ribbon strip (new ones called out), dedication */
@@ -4801,12 +4850,12 @@ function bestWeapon(g){ let bk=null,bd=0,tot=0; const wd=(g&&g.wd)||{}; for(cons
   const it=ITEMS[bk], lv=(g.w[bk]&&g.w[bk].lvl)||1; return {id:bk,nm:(typeof it.nm==='function'?it.nm(lv):it.name)||bk,lvl:lv,dmg:Math.round(bd),pct:tot>0?Math.round(bd/tot*100):100} }
 function serviceCard(aw){ if(!aw)return ''; const D=CHD[aw.id], c=CHS[aw.id]||{}, xp=chXp(aw.id), x0=xp-aw.gain, t=aw.t1, nx=t>=5?null:TIER_XP[t];
   const earned=RIBBON_RACK_ORDER.filter(k=>c.rib&&c.rib[k]), fresh=(aw.rib||[]);
-  setTimeout(()=>{ const b=document.querySelector('#stats .srbar i'); if(b)b.style.width=tierPct(xp)+'%' },80);
+  setTimeout(()=>{ const b=document.querySelector('#overSvc .srbar i'); if(b)b.style.width=tierPct(xp)+'%' },80);
   return `<div class="srcard"><div class="srh">LAST BIRD OUT · SERVICE RECORD</div><div class="srn">${D.label||D.rank+' '+D.nick}</div>${svcPhoto(aw.id)}<div class="srbar"><i style="width:${aw.t1>aw.t0?0:tierPct(x0)}%"></i></div>`+
    (()=>{ const bw=bestWeapon(G); return bw?`<div class="srx srbw">BEST WEAPON: <b>${bw.nm}</b><br>${fmt0(bw.dmg)} damage dealt · ${bw.pct}% of your weapon damage</div>`:'' })()+`<div class="srx">+${aw.gain} service XP · ${t>=5?'MAX TIER (5)':xp+' / '+nx+' to Tier '+(t+1)}${aw.t1>aw.t0?'<br><b style="color:#9be37a">TIER '+aw.t1+' UNLOCKED: '+D.perks[aw.t1-1].t+'</b>':''}</div>`+
    (earned.length?`<div class="srstrip">${earned.map(k=>`<img src="${ribURL(k,k==='moh',2)}" title="${RIB[k].nm}${fresh.indexOf(k)>=0?' (NEW)':''}" alt="${RIB[k].nm}" style="${fresh.indexOf(k)>=0?'outline:2px solid #ffd54a':''}">`).join('')}</div>`:'')+
    (fresh.length?'<div class="newrib">'+fresh.slice().sort((a,b)=>RIBBON_RACK_ORDER.indexOf(a)-RIBBON_RACK_ORDER.indexOf(b)).map(k=>`<div class="nr"><img src="${ribURL(k,true,3)}" alt=""><span><b>NEW: ${RIB[k].nm}</b><br>${RIB[k].how}</span></div>`).join('')+'</div>':'')+
-   `<div class="srd">Dedicated to the Vietnam veterans, and to MSgt Hogston, USAF.</div></div>` }
+   `</div>` }
 function showBest(){ let b=0; try{b=+localStorage.getItem('lbo2_best')||0}catch(e){} let ev=0; try{ev=+localStorage.getItem('lbo2_evacs')||0}catch(e){} $('best').textContent=(b?('Best survival: '+fmt(b)):'')+(ev?(b?' · ':'')+'Evacuations: '+ev:''); }
 $('btnStart').onclick=openCharSel; $('btnRestart').onclick=startGame; $('btnMenu').onclick=toMenu; $('btnResume').onclick=resumeGame; $('btnQuit').onclick=toMenu; $('btnPause').onclick=()=>{state==='play'?pauseGame():resumeGame()};
 document.querySelectorAll('.volM,.volS').forEach(el=>{ const k=el.classList.contains('volM')?'mus':'sfx'; el.value=Math.round(Snd.vol[k]*100); el.addEventListener('input',e=>{ Snd.setVol(k,e.target.value/100) }); el.addEventListener('keydown',e=>e.stopPropagation()); el.addEventListener('pointerdown',e=>e.stopPropagation()) });
@@ -4922,7 +4971,7 @@ DBG.pad={ info(){ return {on:PAD.on,id:PAD.id,ps:PAD.ps,mx:+PAD.mx.toFixed(2),my
   axes(x,y){ this.connect(); PAD.virt.pad.axes[0]=x; PAD.virt.pad.axes[1]=y } };
 requestAnimationFrame(()=>PAD.frame());
 /* build stamp text on main menu + pause screen, and a stale-page check: GitHub Pages caches the page ~10 min, so on load we ask the server (HEAD, no-store) whether index.html is newer than the copy we are running */
-document.querySelectorAll('.bstamp').forEach(e=>{ e.textContent='BUILD '+BUILD.id+' · '+BUILD.date }); try{ console.info('Last Bird Out build',BUILD.id,BUILD.date) }catch(e){}
+document.querySelectorAll('.bstamp').forEach(e=>{ e.textContent='BUILD '+BUILD.id+' · '+BUILD.date }); if(ALLU)document.querySelectorAll('.bstamp').forEach(e=>{ const t=document.createElement('span'); t.className='alltag'; t.textContent=' · ALL UNLOCKED (test)'; t.style.color='#e8b04a'; e.appendChild(t) }); try{ console.info('Last Bird Out build',BUILD.id,BUILD.date) }catch(e){}
 function checkNewBuild(){ if(location.protocol==='file:'||!window.fetch)return Promise.resolve(false);
   return fetch(location.pathname,{method:'HEAD',cache:'no-store'}).then(r=>{ const lm=Date.parse(r.headers.get('last-modified')||''), mine=Date.parse(document.lastModified); const stale=!!(lm&&mine&&lm>mine+2000); if(stale)$('newBuild').classList.add('show'); return stale }).catch(()=>false) }
 $('newBuild').onclick=()=>{ location.href=location.pathname+'?v='+Date.now() };
@@ -4949,12 +4998,13 @@ function jetShape(sc,col){ ctx.scale(sc,sc);
   ctx.fillStyle=col?'#7a8592':'#000'; ctx.beginPath(); ctx.moveTo(6,-3); ctx.lineTo(-10,-28); ctx.lineTo(-17,-28); ctx.lineTo(-8,-3); ctx.closePath(); ctx.fill();
   ctx.beginPath(); ctx.moveTo(6,3); ctx.lineTo(-10,28); ctx.lineTo(-17,28); ctx.lineTo(-8,3); ctx.closePath(); ctx.fill();
   f(-26,-9,6,18,col?'#6a7480':'#000'); if(col){ f(8,-2,8,3,'#2c3640'); f(-30,-2,6,4,'#ff8a1f'); f(-34,-1,5,2,'#ffe08a'); f(-8,-11,3,5,'#ff8a1f'); f(-8,6,3,5,'#ff8a1f') } }
+const RCAM={x:0,y:0};   /* camera of the last rendered frame (the HUD-arrow test reads it) */
 function render(){
   ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false; ctx.fillStyle='#2c5226'; ctx.fillRect(0,0,W,H);
   const g=G; if(!g)return; const p=g.p;
   const shx=g.shake>.3?(rnd()-.5)*g.shake:0, shy=g.shake>.3?(rnd()-.5)*g.shake:0;
   const camX=Math.round((p.x+shx)*zoom)/zoom-VW/2, camY=Math.round((p.y+shy)*zoom)/zoom-VH/2;
-  ctx.setTransform(zoom,0,0,zoom,-camX*zoom,-camY*zoom);
+  ctx.setTransform(zoom,0,0,zoom,-camX*zoom,-camY*zoom); RCAM.x=camX; RCAM.y=camY;
   // background
   const T=256; for(let x=Math.floor(camX/T)*T;x<camX+VW;x+=T)for(let y=Math.floor(camY/T)*T;y<camY+VH;y+=T){
     const tcx=Math.floor(x/T),tcy=Math.floor(y/T);
@@ -5140,11 +5190,51 @@ if(DBG.nodemo){ G=null; newGame(false); } else newGame(true);
 showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 { let bd=false; try{bd=sessionStorage.getItem('lbo2_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
-window.__ms={enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,RIBBON_RACK_ORDER,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={get SAMP(){return SAMP},get RMUS(){return RMUS},get RotorS(){return RotorS},get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,RIBBON_RACK_ORDER,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
 
 /* ====================== ambient helicopter (distant UH-1 "Huey" rotor chop) ====================== */
+/* ===== real-sample layer (Sound Helper's SamplePlayer): everything goes through cbus (compressor) -> master -> out -> final limiter ===== */
+const EXW={B40:1.0,CHARGE:2.0};   /* manifest lead times (s); read from SAMPLE_MANIFEST.cues at init */
+const SAMP={on:false,real:{},st:{b40:0,b40Late:0,b40Silent:0,charge:0,chargeLate:0,chargeSilent:0},
+  MAP:{m16:'m16_single',m60:'m60_burst',vcshot:'ak47',mortar:'mortar_launch',shellwhistle:'mortar_incoming',flame:'flamethrower_burst',radio:'radio_squelch',airarc:'bomb_distant',m79:'m79_launch'},
+  init(){ if(this.on||!Snd.ctx||!window.SamplePlayer||!window.SAMPLE_MANIFEST||!Snd.cbus)return; const c=Snd.ctx, M=SAMPLE_MANIFEST;
+    this.sfxDuck=c.createGain(); this.sfxDuck.connect(Snd.cbus);
+    this.mDuck=c.createGain(); try{ Snd.mbus.disconnect() }catch(e){} Snd.mbus.connect(this.mDuck); this.mDuck.connect(Snd.out);
+    this.rotEnv=c.createGain(); this.rotEnv.gain.value=0; this.rotPan=c.createStereoPanner?c.createStereoPanner():null; if(this.rotPan){ this.rotEnv.connect(this.rotPan); this.rotPan.connect(Snd.master) } else this.rotEnv.connect(Snd.master);
+    SamplePlayer.init(c,{sfxBus:this.sfxDuck,musicBus:Snd.mbus,rotorBus:this.rotEnv,musicDuck:this.mDuck,sfxDuck:this.sfxDuck,cues:window.Cues});
+    for(const k in M.slots){ const sl=M.slots[k], has=(sl.files&&sl.files.length)||(sl.alt&&sl.alt.length); this.real[k]=has?'sample':'silent' }   /* a mapped slot with no shipped file plays nothing (weapons are never synthesized; licence-FAIL slots ship empty) */
+    if(M.cues){ if(M.cues.b40&&M.cues.b40.leadMs)EXW.B40=M.cues.b40.leadMs/1000; if(M.cues.chargeWarning&&M.cues.chargeWarning.leadMs)EXW.CHARGE=M.cues.chargeWarning.leadMs/1000 }
+    this.on=true; SamplePlayer.load(M,{batch:1}).then(r=>{ this.r1=r; return SamplePlayer.load(M,{batch:2}) }).then(r=>{ this.r2=r }).catch(()=>{}) },
+  take(n){ if(!this.on)return false; const sl=this.MAP[n]; if(!sl||!this.real[sl])return false; if(this.real[sl]==='sample')SamplePlayer.play(sl); return true },   /* SamplePlayer: weapon not decoded -> silent; radio squelch -> its own synth fallback */
+  b40Ready(){ return this.on&&this.real.b40_launch==='sample'&&SamplePlayer.hasSample('b40_launch') },
+  b40(flight){ if(!this.b40Ready())return false; const c=Snd.ctx; if(Snd.muted||c.state!=='running')return true; const r=SamplePlayer.b40Launch({impactAt:c.currentTime+flight}); this.st.b40++; if(r&&r.late)this.st.b40Late++; if(!r||!r.played)this.st.b40Silent++; return true },
+  charge(){ if(!this.on||this.real.whistle!=='sample'||!SamplePlayer.hasSample('whistle'))return false; const c=Snd.ctx; if(Snd.muted||c.state!=='running')return true; const r=SamplePlayer.chargeWarning({chargeAt:c.currentTime+EXW.CHARGE+.02}); this.st.charge++; if(r&&r.late)this.st.chargeLate++; if(!r||!r.played)this.st.chargeSilent++; return true },
+  smokeDrop(){ if(this.on&&!Snd.muted)try{ SamplePlayer.smokeDropMoment({}) }catch(e){} } };
+window.SAMP=SAMP;
+/* visible Hueys: ONE real rotor loop on its own bus, level/pan from the nearest visible bird (the generated rotor is never layered on it) */
+const RotorS={h:null,
+  ok(){ return !!(SAMP.on&&SAMP.real.huey_rotor_loop==='sample'&&SamplePlayer.hasSample('huey_rotor_loop')&&!Snd.muted) },
+  birds(){ const g=G, out=[]; if(!g||g.demo)return out; const ex=g.ex; if(ex&&ex.huey&&ex.ph>=4&&ex.ph<=7)out.push({x:ex.huey.x,y:ex.huey.y,z:ex.huey.z||0});
+    for(const h of coyH)if(h.t>=0&&h.ph<3)out.push({x:h.x,y:h.y,z:h.z||0}); if(medevac&&medevac.ph!==undefined&&medevac.ph<3)out.push({x:medevac.x,y:medevac.y,z:medevac.z||0}); for(const h of ins)if(!h.ch46)out.push({x:h.x,y:h.y,z:h.z||0}); if(fbH)out.push({x:fbH.x,y:fbH.y,z:fbH.z||0}); return out }   /* intro Huey keeps its own IntroSnd; CH-46 is not a Huey */,
+  tick(playing,now){ if(!this.ok()){ this.stop(); return false } let best=null,bd=1e9; const p=G&&G.p; if(playing&&p)for(const b of this.birds()){ const d=Math.hypot(b.x-p.x,b.y-p.y); if(d<bd){bd=d;best=b} }
+    if(!best||bd>1600){ this.stop(); return true }
+    if(!this.h)this.h=SamplePlayer.play('huey_rotor_loop'); const v=Math.pow(Math.max(0,1-bd/1500),1.5); SAMP.rotEnv.gain.setTargetAtTime(.05+v*1.1,now,.2); if(SAMP.rotPan)SAMP.rotPan.pan.setTargetAtTime(Math.max(-1,Math.min(1,(best.x-p.x)/700)),now,.2); return true },
+  stop(){ if(this.h){ try{ this.h.stop(.6) }catch(e){} this.h=null } } };
+/* combat music: Blake's PSYCH ROCK pick, one file; intense = full mix, calm = live ~700 Hz low-pass at -10 dB; fetched after the menu shows */
+const RMUS={buf:null,ab:null,cur:null,
+  fetch(){ if(this.ab||this.buf||this.busy)return; this.busy=1; let fmt='ogg'; try{ const a=document.createElement('audio'); if(!a.canPlayType('audio/ogg; codecs="vorbis"'))fmt='m4a' }catch(e){}
+    fetch('audio/music/combat_loop.'+fmt+AV).then(r=>r.ok?r.arrayBuffer():null).then(ab=>{ this.ab=ab; this.decode() }).catch(()=>{}) },
+  decode(){ if(this.buf||!this.ab||!Snd.ctx)return; const ab=this.ab; this.ab=null; try{ Snd.ctx.decodeAudioData(ab,b=>{ this.buf=b },()=>{}) }catch(e){} },
+  tick(playing,now,dt){ if(!this.buf||!Snd.ctx)return false; const c=Snd.ctx;
+    if(!this.cur){ const src=c.createBufferSource(); src.buffer=this.buf; src.loop=true; src.loopStart=0; src.loopEnd=Math.min(80.0,this.buf.duration);
+      const out=c.createGain(); out.gain.value=0; out.connect(Snd.mbus); const gI=c.createGain(), gC=c.createGain(), lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=700; lp.Q.value=.7;
+      src.connect(gI); gI.connect(out); src.connect(lp); lp.connect(gC); gC.connect(out); gC.gain.value=0; src.start(now+.05); this.cur={src,out,gI,gC} }
+    const k=this.cur, ca=playing?fbCalm():0, calm=playing?Math.max(ca,Math.min(1,Math.max(0,(.45-Combat.ci)/.3))):0;   /* the existing calm/intense logic: firebase calm or low combat intensity */
+    k.out.gain.setTargetAtTime(playing&&!Snd.muted?.6:0,now,playing?.5:.25); k.gI.gain.setTargetAtTime(1-calm,now,1.2); k.gC.gain.setTargetAtTime(calm*.316,now,1.2); return true } };
+window.addEventListener('load',()=>{ setTimeout(()=>RMUS.fetch(),1500);   /* after the menu is up, never blocking it */
+  setTimeout(()=>{ if(window.SAMPLE_MANIFEST&&SAMPLE_MANIFEST.thirdParty)for(const id of ['crTP','crTP2']){ const e=document.getElementById(id); if(e)e.innerHTML='Full third-party audio notice: <a href="audio/THIRD_PARTY_AUDIO.txt" target="_blank" rel="noopener">THIRD_PARTY_AUDIO.txt</a>' } },0) });   /* tools/build_audio.py sets thirdParty when it copied the file */
 const Rotor={cur:null,
   tick(want,prox,pan,now){ const c=Snd.ctx; if(!c||c.state!=='running')return;
     if(!want||Snd.muted){ if(this.cur)this.kill(now); return }
@@ -5157,7 +5247,7 @@ const Rotor={cur:null,
     src.connect(lp); lp.connect(pre); pre.connect(amp); tg.connect(amp); amp.connect(env); if(pan){env.connect(pan);pan.connect(Snd.master)}else env.connect(Snd.master);
     src.start(now); lfo.start(now); th.start(now); return {env,lp,lfo,pan,nodes:[src,lfo,th]} },
   kill(now){ const k=this.cur; this.cur=null; if(!k)return; try{ k.env.gain.cancelScheduledValues(now); k.env.gain.setTargetAtTime(0,now,.1); k.nodes.forEach(n=>{try{n.stop(now+.6)}catch(e){}}) }catch(e){} } };
-Object.assign(Snd.gap,{refuel:1,stage:.5,creak:.35,sigpop:.3,sigflare:.3,sigmirror:.3,sigstrobe:.3,chime:.5,pulse:.3,evac:1});
+Object.assign(Snd.gap,{shellwhistle:.06,m79:.05,refuel:1,stage:.5,creak:.35,sigpop:.3,sigflare:.3,sigmirror:.3,sigstrobe:.3,chime:.5,pulse:.3,evac:1});
 /* Chinook: deeper, slower tandem-rotor thump (reuses the Huey chopper voice, pitched down) */
 const ChSnd={cur:null,
   tick(want,prox,pan,now){ const c=Snd.ctx; if(!c||c.state!=='running')return;
@@ -5224,12 +5314,13 @@ const Music={timer:null,gain:null,send:null,t:0,step:0,abs:0,bpm:90,on:false,las
     const playing=(state==='play'&&G&&!G.demo&&!Snd.muted), menu=(state==='menu'&&!Snd.muted);
     if(G!==this.lastG){this.lastG=G;this.pe=-9;Amb.reset();Combat.st=0}
     if(menu!==this.on){ this.on=menu; this.gain.gain.cancelScheduledValues(now); this.gain.gain.setTargetAtTime(menu?.75:0,now,menu?.4:.2); if(menu){this.t=now+.05;this.step=0;this.abs=0;this.bpm=90} }
-    if(playing!==this.con){ this.con=playing; if(playing){ Combat.on(now); Combat.cgw=1 } else Combat.off(now) }
+    if(playing!==this.con){ this.con=playing; if(playing){ Combat.on(now); Combat.cgw=1; if(RMUS.buf){ this._rmOff=0 } } else Combat.off(now) }
     if(state!=='intro')Amb.tick(playing,now);
-    { const ca=playing?fbCalm():0, f=playing?fbS:null; Calm.tick(ca,now,dt); if(playing&&Combat.cg){ const w=1-.7*ca; if(Math.abs(w-(Combat.cgw===undefined?1:Combat.cgw))>.02){ Combat.cgw=w; Combat.cg.gain.setTargetAtTime(w,now,.6) } }
+    { const ca=playing?fbCalm():0, f=playing?fbS:null; Calm.tick(ca,now,dt); if(playing&&Combat.cg&&!RMUS.buf){ const w=1-.7*ca; if(Math.abs(w-(Combat.cgw===undefined?1:Combat.cgw))>.02){ Combat.cgw=w; Combat.cg.gain.setTargetAtTime(w,now,.6) } }
       const ch=playing?fbC:null, pr=ch?Math.max(0,1-Math.hypot(ch.x-G.p.x,ch.y-G.p.y)/800):0; ChSnd.tick(!!ch,pr,ch?Math.max(-1,Math.min(1,(ch.x-G.p.x)/500)):0,now) }
-    { const ex=G&&G.ex; Rotor.tick(!!(playing&&ex&&ex.ph>=4&&ex.ph<=7),ex?ex.prox:0,ex?ex.pan:0,now) }
-    if(playing)Combat.run(now,dt);
+    { const ex=G&&G.ex; if(!RotorS.tick(playing,now))Rotor.tick(!!(playing&&ex&&ex.ph>=4&&ex.ph<=7),ex?ex.prox:0,ex?ex.pan:0,now); else if(Rotor.cur)Rotor.kill(now) }   /* never both on one bird */
+    if(RMUS.tick(playing,now,dt)){ if(Combat.cg&&!this._rmOff){ this._rmOff=1; Combat.cg.gain.cancelScheduledValues(now); Combat.cg.gain.setTargetAtTime(0,now,.3) } if(playing){ const tgt=Combat.intensity(); Combat.ci+=(tgt-Combat.ci)*Math.min(1,dt*.6); Bf.tick(now,dt,Combat.ci) } }
+    else if(playing)Combat.run(now,dt);
     if(menu){ if(this.t<now-.15)this.t=now+.05; while(this.t<now+.1){ const sd=60/90/4; this.playStep(this.step,this.t,sd,5); this.t+=sd; this.step=(this.step+1)%128; this.abs++ } }
   }catch(e){ if(!this.err){this.err=1;console.warn('music',e&&e.stack)} } },
   wire(n,wet){ n.connect(this.gain); if(wet&&this.send)n.connect(this.send) },
