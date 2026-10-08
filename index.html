@@ -1037,7 +1037,8 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 })(typeof self !== 'undefined' ? self : this);
 </script>
 <script src="assets/art/sheet1.js?v=8f43de7"></script>
-<script src="assets/art/huey.js?v=8f43de7"></script>
+<script src="assets/art/huey_hivis.js?v=0000000"></script>
+<script src="assets/art/doc_hivis.js?v=0000000"></script>
 <script>
 /* BUILD STAMP: set by tools/stamp.js (run after every code commit; it records that commit's short hash + date). Also the ?v= cache-buster for audio / images / icons. */
 const BUILD={id:'8f43de7',date:'2026-10-07 21:08 ET'}, AV='?v='+BUILD.id;
@@ -1069,6 +1070,7 @@ if(window.visualViewport)visualViewport.addEventListener('resize',resize);
 document.addEventListener('touchmove',e=>{ if(!e.target.closest||!e.target.closest('.overlay'))e.preventDefault() },{passive:false});
 resize();
 const TAU=Math.PI*2;
+const intNums=v=>String(v).replace(/\d+\.\d+/g,m=>String(Math.round(+m)));   /* popups never show decimals */
 const TR_US='#ff3b2a', TR_EN='#48f048';   /* tracer convention (Artist Helper / historian): US red, NVA/VC green */
 /* Seeded RNG (Stage 1): one mulberry32 stream per run. Seed shown on the end card; replay with ?seed=N. A fresh launch never repeats the last seed (lbo2_lastseed). Seed-driven content comes later. */
 let RSEED=0, _rs=1;
@@ -1244,7 +1246,7 @@ const TOP_RPG=["..............OO",".....CCCC...TTO.","....CCRCCC.TT...","...cccc
 const ART={portraits:{},wallTiles:null,decals:null,cdRing:null};
 /* --- Artist Helper batch 1: sprite grids --- */
 
-/* (a) MSgt. Hogston, USAF tanker maintenance. Patrol cap w/ OMS patch (Q/K pixels), round face, open collar over white
+/* (a) MSgt Hogston, USAF tanker maintenance. Patrol cap w/ OMS patch (Q/K pixels), round face, open collar over white
  *     undershirt (W), E-7 chevrons on both sleeves (V), pens in left pocket (L), headset round the neck (G), holstered sidearm (K grip/O holster). */
 const TOP_HOGSTON = [
   "................",
@@ -1364,7 +1366,7 @@ const PAL_B40 = {C:'#6f7a3e',c:'#4d5629',Y:'#ffe14a',A:'#ff7a00',R:'#e0261b',S:'
   O:'#9aa09a',B:'#7a6a3a',P:'#2e2e33'};
 
 const B1 = {
-  hogston:  {top:TOP_HOGSTON,  pal:PAL_HOGSTON,  legs:'LEGS0', label:'MSgt. Hogston, USAF'},
+  hogston:  {top:TOP_HOGSTON,  pal:PAL_HOGSTON,  legs:'LEGS0', label:'MSgt Hogston, USAF'},
   corpsman: {top:TOP_CORPSMAN, pal:PAL_CORPSMAN, legs:'LEGS0', label:'Navy corpsman'},
   marineWashington: {top:TOP_MARINE_WASHINGTON, pal:PAL_MARINE_WASHINGTON, legs:'LEGS0', label:'Marine (Washington)'},
   marineMedium:     {top:TOP_MARINE_MEDIUM,     pal:PAL_MARINE_MEDIUM,     legs:'LEGS0', label:'Marine (medium skin tone)'},
@@ -1667,7 +1669,7 @@ function buildCharSprites(){
   const SK={dark:{S:'#7a4b2d',H:'#1b130e',E:'#120c08'},med:{S:'#b4774a',H:'#14100c',E:'#150e08'},tan:{S:'#c99066',H:'#2a1c10'},fair:{S:'#f2d2b0',H:'#b5481f',F:'#cf8f6a'},fairB:{S:'#f2d2b0',H:'#c9a44a'},sandy:{S:'#ecc9a2',H:'#8a6a3a',F:'#cf8f6a'},base:{H:'#5a3c20'}};
   const WHO={doc:'med',hammer:'fairB',boone:'sandy',skipper:'fair',zippo:'dark',rat:'med',preacher:'tan',chef:'base'};
   for(const k in V){ const sk=WHO[k]; if(!sk)continue; const t=V[k][0].slice(); if(t[4]==="....SSSSSSSS....")t[4]="....HSSSSSSH...."; if((sk==='fair'||sk==='sandy')&&t[5]==="....SESSSSES....")t[5]="....FESSSSEF...."; V[k][0]=t; V[k][1]=Object.assign({},V[k][1],SK[sk]) }
-  V.radio=[B1.hogston.top,B1.hogston.pal];   // MSgt. Hogston, USAF (Artist Helper batch 1; stylised, not a likeness)
+  V.radio=[B1.hogston.top,B1.hogston.pal];   // MSgt Hogston, USAF (Artist Helper batch 1; stylised, not a likeness)
   for(const k in V)CHSPR[k]=makeSprites(V[k][0],LEGS0,V[k][1],2);
 }
 
@@ -1726,19 +1728,31 @@ const SHEET_SMOKE={red:'smokeRed',yellow:'smokeYellow',green:'smokeGreen',violet
 const SHEET_SCALE_MEN=1, SHEET_SCALE_SMOKE=2;   /* men: 32 world px tall (same as the old 16-row x2 sprites); smoke always 2x so the four shapes read */
 const hasSheet=n=>!!(window.SHEET1&&SHEET1.sprites&&SHEET1.sprites[n]);
 function sheetSprites(name){ const S=SHEET1.sprites[name], B=SHEET1.bake(SHEET_SCALE_MEN)[name], ix=k=>{ const i=S.names?S.names.indexOf(k):-1; return i>=0?i:0 };
-  const wrap=src=>{ const c=mk(src.width,src.height+3), x=c.getContext('2d'); x.fillStyle='rgba(0,0,0,.28)'; x.beginPath(); x.ellipse(c.width/2,src.height-1,10,3,0,0,TAU); x.fill(); x.drawImage(src,0,0); return c };
+  const wrap=src=>{ const c=mk(src.width,src.height+3), x=c.getContext('2d'); x.fillStyle='rgba(0,0,0,.28)'; x.beginPath(); x.ellipse(c.width/2,src.height-1,10,3,0,0,TAU); x.fill(); x.drawImage(src,0,0); c.feet=src.height; return c };   /* feet row = sprite height (shadow padding below) */
   const fr=i=>{ const b=B[i]; return [[wrap(b.n),wrap(b.white)],[wrap(b.f),wrap(b.fw)]] };
   const w1=S.names&&S.names.indexOf('walk1')>=0?ix('walk1'):0, w2=S.names&&S.names.indexOf('walk2')>=0?ix('walk2'):Math.min(1,B.length-1);
   const out=[fr(w1),fr(w2)]; out.idle=fr(ix('idle')); out.ph=(S.h+3)*SHEET_SCALE_MEN; out.sheet=name; return out }
 function applySheet(){ if(!window.SHEET1||!SHEET1.sprites)return; try{
   for(const k in SHEET_ENEMY)if(hasSheet(SHEET_ENEMY[k])){ SPR[k]=sheetSprites(SHEET_ENEMY[k]); for(const t in ET)if(ET[t].spr===k&&!ET[t].boss)ET[t].ds=1 }
+  bossScale();
   for(const k in SHEET_CHAR)if(hasSheet(SHEET_CHAR[k]))CHSPR[k]=sheetSprites(SHEET_CHAR[k]);
   if(hasSheet('paddy')){ const P=SHEET1.sprites.paddy, B=SHEET1.bake(2).paddy, fl=B[Math.max(0,P.names.indexOf('flooded'))].n, dk=B[Math.max(0,P.names.indexOf('dike'))].n, T=256, c=TILE_P.getContext('2d'), tw=fl.width;
     c.imageSmoothingEnabled=false; for(let y=0;y<T;y+=tw)for(let x=0;x<T;x+=tw)c.drawImage((y%128===0)?dk:fl,x,y) }
   SHEET1.bake(SHEET_SCALE_SMOKE); SHEET1.bake(1);
   }catch(e){ try{console.warn('sheet1 art not applied',e)}catch(_){} } }
 function drawSheetSmoke(col,x,y,tt,fade){ const n=SHEET_SMOKE[col]; if(!n||!hasSheet(n))return false; const a=ctx.globalAlpha; ctx.globalAlpha=a*fade; SHEET1.draw(ctx,n,SHEET1.frameIndex(n,tt),x,y,SHEET_SCALE_SMOKE); ctx.globalAlpha=a; return true }
-function drawDocRing(x,y){ if(hasSheet('docRing')){ SHEET1.draw(ctx,'docRing',0,x,y,1); return } ctx.fillStyle='rgba(255,240,170,.2)'; ctx.beginPath(); ctx.ellipse(x,y,19,7,0,0,TAU); ctx.fill() }
+/* crowd marker over Doc only (doc_hivis.js): fades in when 8+ enemies are within ~120 px, fades out when the crowd thins */
+function docMkTick(dt){ const g=G,p=g.p; if(!g||g.demo)return; g.mkT=(g.mkT||0)-dt; if(g.mkT<=0){ g.mkT=.1; let n=0; for(const e of enemies){ const dx=e.x-p.x,dy=e.y-p.y; if(dx*dx+dy*dy<120*120&&++n>=8)break } g.mkOn=n>=8?1.2:Math.max(0,(g.mkOn||0)-.1) }   /* stays on ~1 s after the crowd thins */
+  g.mkA=Math.max(0,Math.min(1,(g.mkA||0)+(g.mkOn>0?4:-3)*dt)) }
+function drawDocMk(tt){ const g=G; if(!g||g.demo||g.hide||!(g.mkA>0)||!(window.SHEET1&&SHEET1.drawDocMarker)||g.p.hp<=0)return; ctx.save(); ctx.globalAlpha=g.mkA; SHEET1.drawDocMarker(ctx,Math.round(g.p.x),Math.round(g.p.y+13),1,tt); ctx.restore() }
+/* bosses drawn ~1.2x a regular NVA man (was ~1.9x): height of the boss sprite matched to 1.2 x the NVA sprite at its draw scale */
+function bossScale(){ const man=SPR.nva&&SPR.nva[0][0][0], mh=man?man.height*(ET.nva.ds||1):34; for(const t in ET)if(ET[t].boss&&SPR[ET[t].spr]){ const bh=SPR[ET[t].spr][0][0][0].height; ET[t].ds=+(1.2*mh/bh).toFixed(3) } }
+const BOSS_OUT='rgba(255,70,40,.95)';
+function bossOutline(c){ if(c._bo)return c._bo; const t=mk(c.width,c.height), x=t.getContext('2d'); x.imageSmoothingEnabled=false; x.drawImage(c,0,0); x.globalCompositeOperation='source-in'; x.fillStyle=BOSS_OUT; x.fillRect(0,0,t.width,t.height); return c._bo=t }
+function drawBossMark(e,w,h,tt){ const top=Math.round(e.y-h*.58)-4, bw=34, r=Math.max(0,e.hp/e.mhp), bx=Math.round(e.x-bw/2);
+  ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(bx-1,top-7,bw+2,5); ctx.fillStyle='#d83a2a'; ctx.fillRect(bx,top-6,Math.round(bw*r),3);
+  ctx.font='bold 9px monospace'; ctx.textAlign='center'; ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.85)'; const nm=(e.name||'').toUpperCase(); ctx.strokeText(nm,Math.round(e.x),top-10); ctx.fillStyle='#ffcf6a'; ctx.fillText(nm,Math.round(e.x),top-10) }
+function drawDocRing(x,y){ if(hasSheet('docRing')){ SHEET1.draw(ctx,'docRing',SHEET1.frameIndex?SHEET1.frameIndex('docRing',performance.now()/1000):0,x,y,1); return } ctx.fillStyle='rgba(255,240,170,.2)'; ctx.beginPath(); ctx.ellipse(x,y,19,7,0,0,TAU); ctx.fill() }
 
 /* ====================== gore (stylized pixel) ====================== */
 const SPLAT=[], GIBSPR=[], CORPSE={};
@@ -2108,16 +2122,17 @@ function callSquad(s,l){
   const p=G.p, a=rnd()*TAU, R=Math.hypot(VW,VH)/2+130;
   ins.push({ch46:!!s.ch,hp:s.hhp,mhp:s.hhp,hf:0,x:p.x+Math.cos(a)*R,y:p.y+Math.sin(a)*R,a,t:0,ph:0,need,di:0,dT:0,endT:0,vs:60,s,off:84,rot:0,hd:a+Math.PI,mf:[0,0]});
   G.banner={text:need.length>=sz?(sz<=4?'MARINE FIRE TEAM INBOUND (UH-1E)':sz<8?'MARINE SQUAD INBOUND (UH-1E)':'MARINE SQUAD INBOUND (CH-46)'):'MARINE REPLACEMENTS INBOUND',t:2.2,col:'#9be37a'}; Snd.play('radio'); Amb.support(11); return true }
-function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok')return; m.hp-=dmg; m.hf=.12; m.inv=.5;
+function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return;   /* boarded Marines (hid at lift) can't be hit */ m.hp-=dmg; m.hf=.12; m.inv=.5;
   if(G.sqS&&(m.hp>0)){ if(drops.length<(LOWFX?110:300))spawnDrops(m.x,m.y-6,0,0,4,90) }
   if(m.hp<=0)killMember(m) }
+function q15Dead(m){ if(m.bodied||!m.coy||!m.nm||!G.q15)return; m.bodied=1; bodies.push({x:m.x,y:m.y,nm:m.nm,cv:m.cv|0,t:G.t,r:rnd()<.5?1:-1}); if(G.rl&&G.rl.firstDeath===null)G.rl.firstDeath=G.t }   /* bodies stay where they fell; runLog first death */
 function killMember(m){ m.hp=0; const x=m.x,y=m.y;
   spawnDrops(x,y-6,0,0,20,170); addDecal(x,y+5,SPLAT[(rnd()*6)|0],45,1);
   if(CORPSE.marine)addDecal(x,y+6,CORPSE.marine[(rnd()*2)|0],38,1);
   const ks=[11,3,4,(rnd()*3)|0,5]; for(let i=0;i<ks.length;i++){ const a=rnd()*TAU,v=60+rnd()*120; spawnGib(x,y,Math.cos(a)*v,Math.sin(a)*v,ks[i],1) }
   if(!GORE)burst(x,y,7,80,.45,3,['#d8d0b0','#9a9a8a'],false);
   Snd.play('thud'); burst(x,y,6,70,.35,3,['#8a8574','#6d675a'],false);
-  if(m.coy&&m.nm&&G.q15){ bodies.push({x,y,nm:m.nm,cv:m.cv|0,t:G.t,r:rnd()<.5?1:-1}); if(G.rl&&G.rl.firstDeath===null)G.rl.firstDeath=G.t }   /* bodies stay where they fell */
+  q15Dead(m)   /* bodies stay where they fell */
   if(m.pat)return;
   let left=0; for(const q of squad)if(q.hp>0)left++;
   if(left===0){ G.banner={text:'SQUAD DOWN! REQUESTING EXTRACT & RE-INSERT',t:2.4,col:'#ff8a6a'}; if(G.sqS)G.sqT=Math.min(G.sqT,G.sqS.cd*.4) } }
@@ -2517,8 +2532,8 @@ const ET={
   vc:{hp:9,spd:86,dmg:5,r:8,v:1,spr:'vc',ds:.9,name:'Viet Cong'},
   nva:{hp:26,spd:62,dmg:9,r:10,v:2,spr:'nva',ds:1,name:'NVA Regular'},
   officer:{hp:120,spd:54,dmg:14,r:14,v:6,spr:'officer',ds:.95,name:'NVA Officer'},
-  boss:{hp:1500,spd:52,dmg:26,r:28,v:10,spr:'boss',ds:1.9,name:'NVA Commander',boss:true},
-  rpg:{hp:1150,spd:46,dmg:20,r:26,v:10,spr:'rpg',ds:1.8,name:'RPG Heavy',boss:true},
+  boss:{hp:1275,spd:52,dmg:26,r:12,v:10,spr:'boss',ds:1.9,name:'NVA Commander',boss:true},   /* Stage 1: ~1.2x a regular man (ds set in bossScale), hitbox 12 (was 28), HP -15% (was 1500) */
+  rpg:{hp:978,spd:46,dmg:20,r:12,v:10,spr:'rpg',ds:1.8,name:'RPG Heavy',boss:true},   /* was r 26, hp 1150 */
   sapper:{hp:16,spd:112,dmg:6,r:8,v:3,spr:'sapper',ds:.95,name:'VC Sapper'},
   pt76:{hp:900,spd:44,dmg:30,r:26,v:12,spr:'pt76',ds:1,name:'NVA PT-76 Light Tank',tank:true,armor:.1},
   t54:{hp:1700,spd:36,dmg:40,r:30,spr:'t54',ds:1,name:'NVA T-54 (artistic license)',tank:true,armor:.08},
@@ -2645,7 +2660,8 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){const dx=p.
   G.botTimer+=.016; x+=Math.cos(G.botTimer*.3)*.25; y+=Math.sin(G.botTimer*.27)*.25; const l=Math.hypot(x,y); if(l>1){x/=l;y/=l} return [x,y]; }
 
 function update(dt){
-  if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }   /* one quiet second on the smoke drop: everything holds, the canister falls */
+  if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
+  docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
   const g=G,p=g.p; g.t+=dt; g.dthF=0;
   // player
   let [ix,iy]=g.demo?[Math.cos(g.t*.45),Math.sin(g.t*.45)]:(DBG.bot?(BOTF.move?BOTF.move():botVec()):inputVec());
@@ -2739,7 +2755,7 @@ function update(dt){
     const dx=p.x-q.x,dy=p.y-q.y,d2=dx*dx+dy*dy; if(!q.pull&&d2<mr2)q.pull=true; if(q.pull){ q.sp=Math.min(700,q.sp+1500*dt); const d=Math.sqrt(d2)||1; q.x+=dx/d*(260+q.sp)*dt; q.y+=dy/d*(260+q.sp)*dt }
     if(d2<16*16){ const m=G.med, full=p.hp>=p.maxHp; if(full&&q.life>2){ q.pull=false; continue }   // don't waste a pack at full health: it stays until it expires
       const amt=Math.round(p.maxHp*MED.heal*(G.t-m.lastPick<10?.5:1)), got=Math.max(0,Math.min(amt,p.maxHp-p.hp)); p.hp=Math.min(p.maxHp,p.hp+amt); m.lastPick=G.t; m.picked++; m.healed+=got;
-      ftexts.push({x:p.x,y:p.y-18,t:0,s:'+'+got+' HP',c:'#8cf08c'}); burst(p.x,p.y,8,60,.5,2.5,['#7fe07f','#fff'],true); Snd.play('medpack'); medpacks.splice(i,1) } }
+      ftexts.push({x:p.x,y:p.y-18,t:0,s:'+'+Math.round(got)+' HP',c:'#8cf08c'}); burst(p.x,p.y,8,60,.5,2.5,['#7fe07f','#fff'],true); Snd.play('medpack'); medpacks.splice(i,1) } }
   for(let i=ftexts.length-1;i>=0;i--){ const q=ftexts[i]; q.t+=dt; q.y-=26*dt; if(q.t>1.4)ftexts.splice(i,1) }
   // particles
   for(let i=parts.length-1;i>=0;i--){const q=parts[i]; q.l-=dt; if(q.l<=0){parts[i]=parts[parts.length-1];parts.pop();continue} const dr=Math.max(0,1-q.d*dt); q.vx*=dr;q.vy*=dr;q.x+=q.vx*dt;q.y+=q.vy*dt}
@@ -2751,7 +2767,7 @@ function update(dt){
   else if(g.pending>0&&g.demo){g.pending=0}
 }
 const KCIDS={arclight:1,boxmission:1,strafe:1,ranch:1,napalm:1};
-function airCap(){ return G&&G.char==='radio'?AIR_CDR_CAP_HOGSTON:AIR_CDR_CAP }   // -45% for everyone, -60% for MSgt. Hogston
+function airCap(){ return G&&G.char==='radio'?AIR_CDR_CAP_HOGSTON:AIR_CDR_CAP }   // -45% for everyone, -60% for MSgt Hogston
 function kcFac(id){ const kc=G.ps.kc135|0; return kc&&KCIDS[id]?1-.07*kc:1 }
 /* how fast a weapon's cooldown runs: radio discipline, character air bonus, firebase, refuel run; air support is capped so total reduction never exceeds AIR_CDR_CAP */
 function airBase(id,w){ const s0=ITEMS[id].stats(w.lvl); return s0.cd+(id==='spooky'?s0.hold:0) }
@@ -2996,6 +3012,7 @@ function doReroll(){ if(state!=='levelup'||G.rerolls<=0||luForced)return; G.rero
 function toggleBan(){ if(state!=='levelup'||luForced)return; if(!banMode&&G.banishes<=0)return; banMode=!banMode; luTools() }
 $('btnReroll').addEventListener('click',doReroll); $('btnBanish').addEventListener('click',toggleBan);
 function pickChoice(i){
+  if(state!=='levelup'&&!DBG.bot)return;   /* never double-pick (key + click, or a late click) */
   const id=choices[i]; if(!id)return; const it=ITEMS[id];
   if(banMode&&state==='levelup'){ if(G.banishes<=0){ banMode=false; luTools(); return } G.banned[id]=1; G.banishes--; banMode=false; Snd.play('hit'); choices[i]=genChoices(choices,1)[0]; renderCards(); return }
   if(it.evo){ const e=EVOS[id]; delete G.w[e.base]; G.w[id]={lvl:1,cd:.2,tick:0}; G.banner={text:'EVOLUTION: '+e.nm.toUpperCase()+'!',t:3,col:'#ffd54a'}; G.shake=Math.max(G.shake,8) }
@@ -3369,7 +3386,7 @@ const COY={cap:30,per:5,hueys:4,recall:5,roles:['rifle','rifle','m14','m60','m79
 const MEDEVAC={R:620,hold:3.5,ticks:7};
 let coy=[],coyH=[],medevac=null,COYSPR=[],coyF=0;
 const coyAlive=()=>{ let n=0; for(const m of coy)if(m.hp>0)n++; return n };
-const coyIncoming=()=>{ let n=0; for(const h of coyH)n+=h.left; return n };
+const coyIncoming=()=>{ let n=0; for(const h of coyH)if(h.ph<2)n+=Math.max(0,h.left-h.di); return n };   /* only Marines still aboard - not the ones already roped down */
 function buildCoySprites(){ const mk=(t,pal)=>makeSprites(armband(t),LEGS0,Object.assign({},pal,{A:'#f0d23a'}),2);
   COYSPR=[mk(ALLIED_BASE.top,ALLIED_BASE.pal),mk(B1.marineWashington.top,B1.marineWashington.pal),mk(B1.marineMedium.top,B1.marineMedium.pal),mk(B1.marineFair.top,B1.marineFair.pal)] }
 function callCompany(s){ const g=G,p=g.p, room=COY.cap-coyAlive()-coyIncoming(); if(room<=0)return false;
@@ -3380,7 +3397,7 @@ function callCompany(s){ const g=G,p=g.p, room=COY.cap-coyAlive()-coyIncoming();
   comp.hueyAt=g.t+1; comp.dropAt=g.t+4; g.cs.calls++; g.banner={text:'COMPANY REINFORCEMENT INBOUND (4x UH-1)',t:2.4,col:'#9be37a'}; Snd.cue('reinforcementCall'); Amb.support(10); return true }
 /* ---- THE FIFTEEN (Stage 1): Doc + 14 Marines. Three Hueys insert them at the start (4 + 5 + 5), then leave. Dead stay dead, bodies stay where they fell,
    no replacement call of any kind (Company Reinforcement, squad/patrol refills and the Medevac perk are out of the pool). The count only goes down. ---- */
-const Q15={HPM:2.2,names:['Sgt. Kowalski','Cpl. Washington','LCpl. Ortiz','LCpl. Brennan','PFC Jackson','PFC Delgado','PFC Murphy','PFC Haskins','LCpl. Turner','PFC Romero','Pvt. Lindqvist','PFC Banks','Cpl. Yazzie','LCpl. Fontaine'],
+const Q15={HPM:2.2,names:['Sgt Kowalski','Cpl Washington','LCpl Ortiz','LCpl Brennan','PFC Jackson','PFC Delgado','PFC Murphy','PFC Haskins','LCpl Turner','PFC Romero','Pvt Lindqvist','PFC Banks','Cpl Yazzie','LCpl Fontaine'],
   roles:['rifle','m60','rifle','m79','m14','rifle','rifle','m60','rifle','m14','rifle','m79','rifle','rifle'],sizes:[4,5,5],hp:80};
 const Q15_BAN={squad:1,company:1,medevac:1};
 function insertFifteen(){ const g=G,p=g.p, a0=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+170, S={hp:Q15.hp,dm:1};
@@ -3408,7 +3425,8 @@ function updateCompany(dt){ const g=G,p=g.p; if(g.demo||!g.char||!g.cs)return; c
   // Marines
   const dm0=(g.rally>0?1.5:1);
   for(let i=coy.length-1;i>=0;i--){ const m=coy[i];
-    if(m.hp<=0){ const c=m.comp; c.alive--; g.cs.dead++; g.cs.lifeSum+=g.t-m.born; if(c.few===null&&c.dr>=c.n&&c.alive<=COY.recall)c.few=g.t-c.t0; if(c.alive<=0&&c.end===null&&c.n>0&&!coyH.some(h=>h.comp===c))c.end=g.t-c.t0; coy.splice(i,1); continue }
+    if(m.hp<=0){ q15Dead(m); const c=m.comp; c.alive--; g.cs.dead++; g.cs.lifeSum+=g.t-m.born; if(c.few===null&&c.dr>=c.n&&c.alive<=COY.recall)c.few=g.t-c.t0; if(c.alive<=0&&c.end===null&&c.n>0&&!coyH.some(h=>h.comp===c))c.end=g.t-c.t0; coy.splice(i,1); continue }
+    if(m.hid)continue;   /* aboard the bird */
     if(m.state==='rope'){ m.rt+=dt; const k=Math.min(1,m.rt/.8); m.x=m.hx+(m.lx-m.hx)*k; m.y=m.hy+(m.ly-m.hy)*k; m.rz=34*(1-k); if(k>=1){ m.state='ok'; m.rz=0; burst(m.x,m.y+8,4,50,.4,3,['#a8946a','#8a7a52'],false) } continue }
     const c=m.comp; if(c.half===null&&c.dr>=c.n&&c.alive<=c.n/2)c.half=g.t-c.t0;
     // leash ring around the player (golden-angle slots, fanned wider as the company grows)
@@ -3481,7 +3499,7 @@ const CHD={
   base:{crit:.15},start:{w:['m1903'],drop:['m16']},
   perks:[{t:'Crit chance +5%',m:{crit:.05}},{t:'Dead-Eye cooldown -15%',m:{ab:.15}},{t:'Move speed +6%',m:{spd:.06}},{t:'Crit chance +6%',m:{crit:.06}},{t:'Damage +10%, Dead-Eye -15%',m:{dmg:.1,ab:.15}}]},
  skipper:{rank:'2ndLt',nm:'Patrick O\'Malley',nick:'Skipper',home:'Quincy, MA',mos:'Platoon Commander',age:23,sn:'O-0985521',
-  bio:["Fresh out of Quantico with a spotless uniform and a map he trusts completely. The squad's real navigation is done by Sgt. Kowalski's gut.","Beloved by his men for one reason: he listens to the radioman."],
+  bio:["Fresh out of Quantico with a spotless uniform and a map he trusts completely. The squad's real navigation is done by Sgt Kowalski's gut.","Beloved by his men for one reason: he listens to the radioman."],
   known:"Reading the map upside down with total confidence.",quote:"I have a plan. It involves all of you, and also me not being in front.",
   loadout:'M16A1 · Marine Fire Team (grows to a squad)',passive:'Squad: +25% HP, +15% damage, faster re-insertion.',ab:{nm:'Rally',cd:36,desc:'Heal squad & tank 50%, squad damage x1.5 for 8s, call re-insertion now.'},
   base:{sqHp:.25,sqDm:.15,sqFast:.35},start:{w:['m16','squad']},
@@ -3498,9 +3516,9 @@ const CHD={
   loadout:'Ithaca 37 shotgun',passive:'Spots punji pits from far away. +12% speed.',ab:{nm:'Rat Run',cd:22,desc:'3s sprint: invulnerable, speed x1.8.'},
   base:{spd:.12,detect:true},start:{w:['shotgun'],drop:['m16']},
   perks:[{t:'Move speed +5%',m:{spd:.05}},{t:'Rat Run cooldown -15%',m:{ab:.15}},{t:'XP gain +8%',m:{xp:.08}},{t:'Pickup radius +30',m:{mag:30}},{t:'Damage taken -8%, Rat Run -15%',m:{arm:.08,ab:.15}}]},
- /* MSgt. Hogston, USAF (Tanker Maintenance), Saltville, Virginia. Only these facts are used.
+ /* MSgt Hogston, USAF (Tanker Maintenance), Saltville, Virginia. Only these facts are used.
     TODO(Blake): the bio below is the approved placeholder text; edit freely, nothing else in the game depends on its wording. */
- radio:{rank:'MSgt',nm:'MSgt. Hogston, USAF',nick:'Hogston',label:'MSgt. Hogston, USAF',card:['MSgt. Hogston','USAF · Tanker Maint.'],svc:'U.S. AIR FORCE · ATTACHED TO USMC',home:'Saltville, Virginia',mos:'Tanker Maintenance (USAF)',age:'',sn:'',
+ radio:{rank:'MSgt',nm:'MSgt Hogston, USAF',nick:'Hogston',label:'MSgt Hogston, USAF',card:['MSgt Hogston','USAF · Tanker Maint.'],svc:'U.S. AIR FORCE · ATTACHED TO USMC',home:'Saltville, Virginia',mos:'Tanker Maintenance (USAF)',age:'',sn:'',
   bio:["Master Sergeant, USAF, Tanker Maintenance, out of Saltville, Virginia. The only airman in the squad, and nobody can quite explain how he ended up with the Marines. He doesn't carry the biggest gun, but he knows a KC-135 better than the pilots who fly one."],
   known:"Knowing a KC-135 better than the pilots who fly one.",quote:"",
   loadout:'M1911A1 sidearm · 105mm Howitzer (radio fire) · KC-135 Aerial Refueling Lv1',passive:'Ready the Tankers: "Tankers fueled, tankers ready." Starts with KC-135 Aerial Refueling at level 1. Calling in an air strike (Arc Light, strafing, Ranch Hand, Spooky) sends a refuel run: a KC-135 flies over and that weapon\'s next cooldown is 15% shorter (20 s between runs). Air & artillery cooldowns -20%; his air-support cooldown reduction is capped at -55% (everyone else -45%); 5s floor between uses. Trade-off: -30 max HP, slower, sidearm-only firepower.',ab:{nm:'Danger Close',cd:40,desc:'Four 105mm shells on the thickest enemy clump.'},
@@ -3632,9 +3650,9 @@ function drawPortrait(cv2,id){ const c=cv2.getContext('2d'); c.imageSmoothingEna
   // peace-sign graffiti on the helmet side + "BORN TO..." doodle
   const af=CHD[id]&&CHD[id].label; if(!af){ c.strokeStyle='rgba(255,255,255,.75)'; c.lineWidth=2; const cx=cv2.width-24,cy=22; c.beginPath(); c.arc(cx,cy,10,0,TAU); c.moveTo(cx,cy-10); c.lineTo(cx,cy+10); c.moveTo(cx,cy); c.lineTo(cx-7,cy+7); c.moveTo(cx,cy); c.lineTo(cx+7,cy+7); c.stroke() }
   c.fillStyle='rgba(255,255,255,.55)'; c.font='bold 9px "Courier New"'; c.fillText(af?'USAF':'USMC',6,cv2.height-6) }
-/* real service photo of MSgt. Hogston (family photo, used with the owner's permission). Preloaded; if it fails to load the pixel portrait simply stands alone. */
+/* real service photo of MSgt Hogston (family photo, used with the owner's permission). Preloaded; if it fails to load the pixel portrait simply stands alone. */
 const HOGPH={url:'assets/hogston_profile.jpg'+AV,ok:false,bad:false,img:new Image()}; HOGPH.img.onload=()=>{HOGPH.ok=true}; HOGPH.img.onerror=()=>{HOGPH.bad=true}; try{ HOGPH.img.src=HOGPH.url }catch(e){ HOGPH.bad=true }
-const SVCPHOTO={radio:'MSgt. Hogston, USAF - Tanker Maintenance - Saltville, VA'};
+const SVCPHOTO={radio:'MSgt Hogston, USAF - Tanker Maintenance - Saltville, VA'};
 function svcPhoto(id){ const cap=SVCPHOTO[id]; if(!cap||HOGPH.bad)return ''; return `<figure class="svcph"><div class="im"><img src="${HOGPH.url}" alt="${cap}" onerror="HOGPH.bad=true;this.closest('figure').remove()"></div><figcaption>${cap}</figcaption></figure>` }
 function buildCharList(){ const el=$('csList'); el.innerHTML='';
   for(const id of CHORDER){ const D=CHD[id], t=chTier(id), b=document.createElement('button'), op=chOpen(id); b.className='tag'+(id===SEL?' sel':'')+(op?'':' lk'); b.dataset.id=id;
@@ -3659,7 +3677,11 @@ $('charsel').addEventListener('keydown',e=>{ if(e.code==='Enter'||e.code==='Spac
   if(e.code==='ArrowRight'||e.code==='ArrowLeft'||e.code==='ArrowDown'||e.code==='ArrowUp'){ const i=CHORDER.indexOf(SEL), d=(e.code==='ArrowRight'||e.code==='ArrowDown')?1:-1; selectChar(CHORDER[(i+d+CHORDER.length)%CHORDER.length]); e.preventDefault() }
   if(e.code==='Escape')closeCharSel() });
 { const sb=$('sigBtn'); sb.addEventListener('pointerdown',e=>{ e.stopPropagation(); e.preventDefault(); popSignal() }); sb.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true}); sb.addEventListener('click',e=>e.preventDefault());
-  $('btnSigOk').addEventListener('click',e=>{ e.preventDefault(); answerSignal(true) }); $('btnSigNo').addEventListener('click',e=>{ e.preventDefault(); answerSignal(false) }); $('btnSigOk').addEventListener('keydown',e=>e.stopPropagation()); $('btnSigNo').addEventListener('keydown',e=>e.stopPropagation()) }
+  /* smoke confirm: ONLY Enter / Esc, pad A / B, or a real click / tap on ROGER / NEGATIVE. A keyboard-activated button click (Space on a focused button) has detail 0 and is ignored. */
+  for(const [id,yes] of [['btnSigOk',true],['btnSigNo',false]]){ const b=$(id);
+    b.addEventListener('click',e=>{ e.preventDefault(); if(e.detail===0&&!(e.pointerType)&&!b._ptr)return; if(!sigAskReady())return; answerSignal(yes) });
+    b.addEventListener('keydown',e=>{ if(e.code!=='Enter'&&e.code!=='NumpadEnter'&&e.code!=='Escape')e.preventDefault() });
+    b.addEventListener('keyup',e=>e.preventDefault()) } }
 { const ab=$('abil'); ab.addEventListener('pointerdown',e=>{ e.stopPropagation(); e.preventDefault(); useAbility() }); ab.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true}); ab.addEventListener('click',e=>e.preventDefault()) }
 document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&(e.code==='Space'||e.code==='KeyE'))useAbility() });
 
@@ -3847,7 +3869,7 @@ function drawIntroOverlay(){ const I=INTRO, t=I.t; ctx.setTransform(1,0,0,1,0,0)
   if(Math.floor(performance.now()/500)%2===0||I.t<1){ ctx.font=`bold ${Math.max(11,H/40)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.85)'; ctx.strokeStyle='#000'; ctx.lineWidth=3; const m='PRESS ANY KEY / TAP TO SKIP ▶'; ctx.strokeText(m,W-14,H-14); ctx.fillText(m,W-14,H-14) } }
 ['keydown','pointerdown','touchstart'].forEach(ev=>window.addEventListener(ev,e=>{ if(state==='intro'&&INTRO&&INTRO.t>.35&&!(ev==='keydown'&&e.repeat)){ if(ev==='keydown'&&(e.code==='KeyM'||e.metaKey))return; skipIntro() } },{passive:true}));
 
-/* ====================== LAUNCH BRIEFING: Col. Harold "Hal" Mercer (fictional), early-90s chunky low-res cutscene ====================== */
+/* ====================== LAUNCH BRIEFING: Col Harold "Hal" Mercer (fictional), early-90s chunky low-res cutscene ====================== */
 const BPAL={wall:'#6b5236',wall2:'#5a432b',floor:'#3a2a18',frame:'#4a2c12',paper:'#d8c890',sea:'#3f6fa8',land:'#7da048',line:'#2c4a22',skin:'#e0a878',skin2:'#c08858',hair:'#9a9a9a',od:'#4a6b2f',od2:'#385222',silver:'#d8d8d8',blk:'#101010',red:'#c82020',gold:'#e8c030',ptr:'#c8a050',lamp:'#f6e8a0'};
 const VNP=[[62,6],[60,14],[54,20],[55,27],[58,34],[60,42],[58,50],[62,58],[64,66],[62,76],[58,84],[52,92],[44,96],[40,90],[46,80],[46,70],[42,60],[38,52],[36,44],[33,36],[30,26],[30,14],[34,6]];
 const BPINS=[{nm:'HANOI',x:42,y:9},{nm:'KHE SANH',x:44,y:30},{nm:'QUANG TRI',x:54,y:30},{nm:'HUE',x:56,y:35},{nm:'DA NANG',x:58,y:41},{nm:'IA DRANG',x:46,y:64},{nm:'SAIGON',x:50,y:90}];
@@ -4396,7 +4418,7 @@ const EXQ=new URLSearchParams(location.search).get('diff');
    No signal by 9:00 -> a signal mirror is dropped by air next to Doc.
    Phases: 0 no signal · 1 signal on the ground · 2 confirm dialog · 3 confirmed, hold for LZ · 4 bird inbound · 5 bird on the pad · 6 evac lift · 7 left without you */
 const EX={DROP_T:180,PAD_T:480,FALL_T:540,LZ_T:600,INBOUND:30,GROUND:EXQ==='easy'?30:EXQ==='hard'?60:45,PAD_R:78,BOARD_T:2,BOARD_DECAY:1.5,SPAWN_MUL:.8,REACH_R:30,QUIET:1.0,
-  HOT_AT:8,HOT_LEN:3.6,LIFT:2.2,WAVE3:6,WAVE4:4,N3:8,N4:14,TOUCH_N:24,COY_PER:.01,COY_MAX:.15,GUN_AT:8,GUN_R:300,GUN_DMG:70,GUN_CD:.09,WRONG_MIN:520,WRONG_MAX:720,CHARLIE_P:.5};
+  HOT_AT:8,HOT_LEN:3.6,LIFT:2.2,WAVE3:6,WAVE4:4,N3:8,N4:14,TOUCH_N:24,COY_PER:.01,COY_MAX:.15,OFF_GRACE:2,SEE_T:1.5,ASK_GRACE:.4,GUN_AT:8,GUN_R:300,GUN_DMG:70,GUN_CD:.09,WRONG_MIN:520,WRONG_MAX:720,CHARLIE_P:.5};
 const SIGC={red:'#e8322a',yellow:'#f5d62a',green:'#36c44a',violet:'#a455e0',white:'#e8f4ff'};
 const SIGN=['red','yellow','green','violet'];
 const sigName=(kind,col)=>kind==='mirror'?'SIGNAL MIRROR':col.toUpperCase()+' SMOKE';
@@ -4444,7 +4466,10 @@ function showSigAsk(){ const ex=G.ex, col=ex.idCol, c=SIGC[col], mir=col==='whit
   $('btnSigOk').textContent=(mir?'ROGER MIRROR':'ROGER '+col.toUpperCase())+(PAD.on?'  ['+PAD.pn('A').split(' ')[0]+']':'  [ENTER]');
   $('btnSigNo').textContent='NEGATIVE · SAY AGAIN'+(PAD.on?'  ['+PAD.pn('B').split(' ')[0]+']':'  [ESC]');
   { const pc=$('sigPort'); if(pc&&GUNNY){ const c2=pc.getContext('2d'); c2.imageSmoothingEnabled=false; c2.clearRect(0,0,pc.width,pc.height); c2.drawImage(GUNNY[3]||GUNNY[1],0,0,pc.width,pc.height) } }
-  $('sigask').classList.add('show'); try{ $('btnSigOk').focus({preventScroll:true}) }catch(e){} }
+  $('sigask').classList.add('show'); SIGASK.at=performance.now(); SIGASK.held=new Set(Object.keys(keys).filter(k=>keys[k]));
+  try{ const a=document.activeElement; if(a&&a.blur)a.blur() }catch(e){} }   /* nothing focused: no button can be fired by Space */
+const SIGASK={at:0,held:new Set()};
+const sigAskReady=()=>state==='sig'&&performance.now()-SIGASK.at>=EX.ASK_GRACE*1000;   /* ~400 ms grace after the dialog opens */
 function closeSigAsk(){ $('sigask').classList.remove('show'); if(state==='sig'){ state='play'; last=performance.now() } }
 function confirmSignal(){ answerSignal(true) }
 function answerSignal(yes){ const g=G,ex=g&&g.ex; if(!ex||ex.ph!==2)return; closeSigAsk();
@@ -4462,10 +4487,10 @@ function updateExtraction(dt){ const g=G,p=g.p,ex=g.ex; if(g.demo||!ex||state===
   if(!ex.intro&&g.t>=(DBG.t|0)+6){ ex.intro=true; if(!DBG.t)gunny("Gunny here. Fifteen of you on the ground. Their commander carries the smoke - drop him, find it, and get your Marines to the pad. Bird sets down at ten mikes.",6.4) }
   if(!ex.five&&g.t>=300&&ex.ph<=1){ ex.five=true; gunny(ex.ph===1?"Five mikes. Your smoke is still burning out there - follow the arrow.":"Five mikes. No signal yet. Find that commander.",4) }
   if(!ex.fb&&g.t>=EX.FALL_T){ ex.fb=true; if(ex.ph===0)dropSig(0,0,'mirror') }
-  if(ex.sig&&!ex.sig.land){ ex.sig.z=Math.max(0,ex.sig.z-dt*160); if(ex.sig.z<=0){ ex.sig.land=true; Snd.play('thud'); g.shake=Math.max(g.shake,3); burst(ex.sig.x,ex.sig.y,10,60,.5,3,['#8a7a52','#6d675a'],false) } }
+  if(ex.sig&&!ex.sig.land){ ex.sig.z=Math.max(0,ex.sig.z-dt*160); if(ex.sig.z<=0){ ex.sig.land=true; ex.sig.landAt=g.t; Snd.play('thud'); g.shake=Math.max(g.shake,3); burst(ex.sig.x,ex.sig.y,10,60,.5,3,['#8a7a52','#6d675a'],false) } }
   if(ex.charlieAt!==null&&g.t>=ex.charlieAt&&!ex.charlie&&ex.ph<=2&&ex.sig&&ex.sig.kind==='smoke'){ const others=SIGN.filter(c=>c!==ex.sig.col), a=rnd()*TAU, d=260+rnd()*200;
     ex.charlie={x:ex.sig.x+Math.cos(a)*d,y:ex.sig.y+Math.sin(a)*d,col:others[(rnd()*others.length)|0]} }
-  if(ex.ph===1){ const s=ex.sig; if(s&&s.land){ const ds=Math.hypot(p.x-s.x,p.y-s.y); if(ds<EX.REACH_R&&p.hp>0){ if(ex.reachAt===null)ex.reachAt=g.t; if(!ex.inS){ openConfirm('real'); return } } else if(ds>EX.REACH_R+24)ex.inS=false }
+  if(ex.ph===1){ const s=ex.sig; if(s&&s.land){ const ds=Math.hypot(p.x-s.x,p.y-s.y); if(ds<EX.REACH_R&&p.hp>0){ if(ex.reachAt===null)ex.reachAt=Math.max(g.t,s.landAt||g.t); if(!ex.inS&&g.t-(s.landAt||0)>=EX.SEE_T){ openConfirm('real'); return } } else if(ds>EX.REACH_R+24)ex.inS=false }
     const c=ex.charlie; if(c&&ex.ph===1){ const dc=Math.hypot(p.x-c.x,p.y-c.y); if(dc<EX.REACH_R&&p.hp>0){ if(!ex.inC){ openConfirm('charlie'); return } } else if(dc>EX.REACH_R+24)ex.inC=false } }
   if(ex.ph===3){ if(!ex.padShown&&g.t>=EX.PAD_T){ ex.padShown=true; g.banner={text:'PAD MARKED · BIRD AT '+fmt(ex.landT),t:3,col:'#9be37a'}; Snd.play('level'); gunny("Pad is marked. Bird sets down at "+fmt(ex.landT)+". Get your Marines on that circle.",4.2,1) }
     if(g.t>=ex.landT-EX.INBOUND)startInbound() }
@@ -4489,8 +4514,10 @@ function updateExtraction(dt){ const g=G,p=g.p,ex=g.ex; if(g.demo||!ex||state===
     if(rnd()<dt*40)addPart(hu.x+(rnd()-.5)*90,hu.y+(rnd()-.5)*50,(rnd()-.5)*140,(rnd()-.5)*90,.45,3,'#b8a678',false,2);
     let ramp=0; for(const m of coy)if(m.hp>0&&m.state==='ok'&&onPad(m.x,m.y))ramp++; ex.ramp=ramp;
     const inR=onPad(p.x,p.y)&&p.hp>0; if(inR&&!ex.inRange)Snd.play('chime'); ex.inRange=inR;
-    if(inR&&ramp>0)ex.board+=dt; else ex.board=Math.max(0,ex.board-dt*EX.BOARD_DECAY);
-    ex.nagB+=dt; if(ex.nagB>=12){ ex.nagB=0; gunny(!inR?'Get on the pad, Doc! Move it!':ramp?'Hold on the ramp!':'You need a Marine with you on that ramp!',2.8) }
+    ex.offT=inR?0:(ex.offT||0)+dt; ex.offWarn=ex.offT>EX.OFF_GRACE;
+    if(inR&&ramp>0)ex.board+=dt;   /* off the pad (or no Marine on the ramp) the boarding count pauses; the bird's ground clock keeps running */
+    if(ex.offWarn&&!ex.offNag){ ex.offNag=1; ex.nagB=0; gunny('Get on the pad, Doc! Move it!',2.8) } if(inR)ex.offNag=0;
+    ex.nagB+=dt; if(ex.nagB>=12&&(inR||ex.offWarn)){ ex.nagB=0; gunny(!inR?'Get on the pad, Doc! Move it!':ramp?'Hold on the ramp!':'You need a Marine with you on that ramp!',2.8) }
     if(!ex.warn&&ex.t>=EX.GROUND-10){ ex.warn=true; gunny("Ten seconds! Bird's lifting!",3.4,1) }
     if(ex.board>=EX.BOARD_T&&p.hp>0&&state==='play')evacuate();
     else if(ex.t>=EX.GROUND)leaveEmpty() }
@@ -4503,7 +4530,7 @@ function exDoorGuns(h,lz,dt){ for(let gi=0;gi<2;gi++){ if(h.mf[gi]>0)h.mf[gi]-=d
     const mz=h.muz&&h.muz[gi], side=gi?1:-1, ax=mz?mz[0]:h.x+Math.cos(h.hd+side*Math.PI/2)*12, ay=mz?mz[1]:h.y-h.z+Math.sin(h.hd+side*Math.PI/2)*12;
     const ts=nearestK(lz.x,lz.y,2,EX.GUN_R), t=ts[gi]||ts[0];
     if(t&&bullets.length<560){ const a=Math.atan2(t.y-ay,t.x-ax)+(rnd()-.5)*.08; CURW='exgun'; addBullet(ax,ay,a,700,EX.GUN_DMG,2,.8,3.2,'#ffd46a'); CURW=''; h.mf[gi]=.05; if(gi===0)Snd.play('m60'); h.gcd[gi]=EX.GUN_CD*(.85+rnd()*.3) } else h.gcd[gi]=.15 } }
-function quietTick(dt){ const ex=G.ex, s=ex&&ex.sig; if(s&&!s.land){ s.z=Math.max(0,s.z-dt*110); if(s.z<=0){ s.land=true; Snd.play('thud'); G.shake=Math.max(G.shake,4); burst(s.x,s.y,10,60,.5,3,['#8a7a52','#6d675a'],false) } } updateGunny(dt) }
+function quietTick(dt){ const ex=G.ex, s=ex&&ex.sig; if(s&&!s.land){ s.z=Math.max(0,s.z-dt*110); if(s.z<=0){ s.land=true; s.landAt=G.t; Snd.play('thud'); G.shake=Math.max(G.shake,4); burst(s.x,s.y,10,60,.5,3,['#8a7a52','#6d675a'],false) } } updateGunny(dt) }
 function startInbound(){ const g=G,ex=g.ex,lz=ex.pad; ex.ph=4; ex.t=0; ex.padShown=true; ex.k0=g.kills; ex.hot=ex.broken=ex.jet=ex.warn=false; ex.pulseT=0; ex.board=0;
   const a=rnd()*TAU, R=Math.max(VW,VH)*.5+1100; ex.huey={x:lz.x+Math.cos(a)*R,y:lz.y+Math.sin(a)*R,ox:Math.cos(a),oy:Math.sin(a),R,z:90,hd:a+Math.PI,rot:0,mf:[0,0],gcd:[.2,.35],gunner:true,hf:0,hp:1,mhp:0,lift:0,landed:false};
   gunny("Bird's thirty seconds out. Everybody on the pad and hold!",4.4,1); Snd.play('radio'); Amb.support(12) }
@@ -4592,7 +4619,7 @@ function sigLine(){ const g=G,ex=g.ex,p=g.p; if(!ex)return {t:'',c:'#fff'};
   if(ex.ph===1||ex.ph===2)return {t:sigName(ex.sig.kind,ex.sig.col)+' — '+dm+'m',c:SIGC[ex.sig.col==='white'?'yellow':ex.sig.col],T};
   if(ex.ph===3)return {t:'HOLD FOR LZ — '+fmt(ex.landT)+(ex.padShown?'  ·  PAD '+dm+'m':''),c:'#9be37a',T:ex.padShown?T:null};
   if(ex.ph===4)return {t:'BIRD INBOUND — '+fmt(Math.ceil(EX.INBOUND-ex.t))+(onPad(p.x,p.y)?'  ·  ON THE PAD':'  ·  PAD '+dm+'m'),c:onPad(p.x,p.y)?'#9be37a':'#ffcf5a',T:onPad(p.x,p.y)?null:T};
-  if(ex.ph===5){ const left=Math.max(0,EX.GROUND-ex.t), inR=onPad(p.x,p.y); return {t:'BIRD LIFTS — '+fmt(Math.ceil(left))+'  ·  '+(!inR?'GET ON THE PAD '+dm+'m':ex.ramp?'BOARDING':'NEED ONE MORE MARINE ON THE RAMP'),c:left<10?'#ff6a4a':'#9be37a',T:inR?null:T} }
+  if(ex.ph===5){ const left=Math.max(0,EX.GROUND-ex.t), inR=onPad(p.x,p.y); const ow=!inR&&ex.offWarn; return {t:'BIRD LIFTS — '+fmt(Math.ceil(left))+'  ·  '+(ow?'GET ON THE PAD '+dm+'m':!inR?'PAD '+dm+'m':ex.ramp?'BOARDING':'NEED ONE MORE MARINE ON THE RAMP'),c:(left<10||ow)?'#ff6a4a':'#9be37a',T:inR?null:T} }
   if(ex.ph===6)return {t:'EXTRACTED',c:'#9be37a'}; return {t:'THE BIRD IS GONE',c:'#ff6a4a'} }
 const q15Alive=()=>{ const g=G; return (g.p.hp>0?1:0)+coyAlive()+coyIncoming() };
 function drawSigLine(U,oy){ const g=G,p=g.p,ex=g.ex; if(!ex||g.demo)return; const L=sigLine(), y=oy+80*U, fs=15*U;
@@ -4614,7 +4641,7 @@ function drawExHud(U,camX,camY,tt){ const g=G,p=g.p,ex=g.ex; exStack=0; if(!ex||
     const talking=m.t<m.text.length/40+.2, fr=talking?(1+Math.floor(tt*9)%2):0; if(GUNNY){ ctx.imageSmoothingEnabled=false; ctx.drawImage(GUNNY[m.who==='GUNNY'?fr:3],bx+8*U,y+7*U,pw,ph) }
     ctx.strokeStyle='#c8c8c8'; ctx.lineWidth=1.5*U; ctx.strokeRect(bx+8*U,y+7*U,pw,ph);
     if(m.t<.5||Math.random()<.03){ ctx.fillStyle='rgba(255,255,255,.16)'; for(let i=0;i<20;i++)ctx.fillRect(bx+4+Math.random()*(bw-8),y+4+Math.random()*(bh-8),3*U,Math.random()*2*U+1) }
-    ctx.textAlign='left'; ctx.fillStyle='#e8c030'; ctx.fillText(m.who==='GUNNY'?'GySgt. "GUNNY" HOLLIS, USMC':m.who,bx+pw+16*U,y+16*U);
+    ctx.textAlign='left'; ctx.fillStyle='#e8c030'; ctx.fillText(m.who==='GUNNY'?'GySgt "GUNNY" HOLLIS, USMC':m.who,bx+pw+16*U,y+16*U);
     ctx.fillStyle='#f6f6e6'; const shown=Math.floor(m.t*40); let idx=0; const full=m.text; lines.forEach((L,i)=>{ const part=full.slice(idx,idx+L.length).slice(0,Math.max(0,shown-idx)); ctx.fillText(part,bx+pw+16*U,y+(32+i*15)*U); idx+=L.length+1 });
     ctx.globalAlpha=1; y+=bh+4*U }
   exStack=y-exTop(U) }
@@ -4735,7 +4762,7 @@ function exScore(g){ const ex=g.ex; return Math.floor(g.kills*10+(ex?ex.holdKill
 /* ---- end cards (Stage 1). Never any debug text. Death card: one plain fact. Win card: who got on (by name), who was loaded, who was left; kills small; seed. ---- */
 const RUNLOGS=[];
 function runLogOf(g){ const ex=g.ex||{}; return {seed:g.seed,result:ex.result||'',t:Math.round(g.t),firstMarineDeath:g.rl&&g.rl.firstDeath!==null?+g.rl.firstDeath.toFixed(1):null,
-  smokeToDoc:(ex.dropAt!=null&&ex.reachAt!=null)?+(ex.reachAt-ex.dropAt).toFixed(1):null,offPadHold:+(ex.offPad||0).toFixed(1),marinesLeft:coyAlive(),gotOn:(ex.gotOn||[]).length,wrong:!!ex.wrong} }
+  smokeToDoc:(ex.dropAt!=null&&ex.reachAt!=null)?+(ex.reachAt-ex.dropAt).toFixed(1):null,offPadHold:+(ex.offPad||0).toFixed(1),marinesLeft:q15Alive(),gotOn:ex.evac?(ex.gotOn||[]).length+1:0,   /* Doc + the Marines who got on, same as the HUD count at lift */wrong:!!ex.wrong} }
 DBG.runLog=()=>{ const out=RUNLOGS.slice(); if(G&&!G.demo&&state!=='over')out.push(Object.assign({live:true},runLogOf(G))); return out };   /* QA/Gamer: hidden, never shown on cards */
 const HIT_FACT={'punji pit':'a punji pit he walked over','satchel charge':'a satchel charge','RPG/B-40 rocket':'a B-40 rocket','enemy shell/blast':'an enemy mortar round',
   'VC melee':'a VC at close range','NVA melee':'NVA regulars at close range','NVA officer melee':'an NVA officer at close range','sapper blast':"a sapper's charge",
@@ -4750,7 +4777,7 @@ function deathFact(g){ const ex=g.ex||{}, p=g.p, lh=g.lastHit;   /* one plain fa
   return 'Doc went down at '+fmt(g.t)+'.' }
 const recOpen=()=>{ try{ return localStorage.getItem('lbo2_open')==='1' }catch(e){ return false } };
 function gameOver(win,why){ state='over'; overAt=performance.now(); const g=G, ex=g.ex; $('sigask').classList.remove('show');
-  if(ex&&!ex.result)ex.result=ex.ph>=4?'died-hold':ex.ph>=1?'died-lz':'died';
+  if(ex&&!ex.result)ex.result=['died-no-signal','died-smoke-out','died-smoke-out','died-waiting-for-bird','died-bird-inbound','died-bird-down','died-bird-down','died-bird-down'][ex.ph|0]||'died';
   if(win)g.lastHit=null;   /* a win card never carries an old death */
   if(!win)Snd.play('over');
   if(!why){ spawnDrops(g.p.x,g.p.y-6,0,0,40,200); addDecal(g.p.x,g.p.y+6,SPLAT[6],90,1.8); addDecal(g.p.x,g.p.y+8,CORPSE.marine[0],90,1) }
@@ -4779,7 +4806,7 @@ function serviceCard(aw){ if(!aw)return ''; const D=CHD[aw.id], c=CHS[aw.id]||{}
    (()=>{ const bw=bestWeapon(G); return bw?`<div class="srx srbw">BEST WEAPON: <b>${bw.nm}</b><br>${fmt0(bw.dmg)} damage dealt · ${bw.pct}% of your weapon damage</div>`:'' })()+`<div class="srx">+${aw.gain} service XP · ${t>=5?'MAX TIER (5)':xp+' / '+nx+' to Tier '+(t+1)}${aw.t1>aw.t0?'<br><b style="color:#9be37a">TIER '+aw.t1+' UNLOCKED: '+D.perks[aw.t1-1].t+'</b>':''}</div>`+
    (earned.length?`<div class="srstrip">${earned.map(k=>`<img src="${ribURL(k,k==='moh',2)}" title="${RIB[k].nm}${fresh.indexOf(k)>=0?' (NEW)':''}" alt="${RIB[k].nm}" style="${fresh.indexOf(k)>=0?'outline:2px solid #ffd54a':''}">`).join('')}</div>`:'')+
    (fresh.length?'<div class="newrib">'+fresh.slice().sort((a,b)=>RIBBON_RACK_ORDER.indexOf(a)-RIBBON_RACK_ORDER.indexOf(b)).map(k=>`<div class="nr"><img src="${ribURL(k,true,3)}" alt=""><span><b>NEW: ${RIB[k].nm}</b><br>${RIB[k].how}</span></div>`).join('')+'</div>':'')+
-   `<div class="srd">Dedicated to the Vietnam veterans, and to MSgt. Hogston, USAF.</div></div>` }
+   `<div class="srd">Dedicated to the Vietnam veterans, and to MSgt Hogston, USAF.</div></div>` }
 function showBest(){ let b=0; try{b=+localStorage.getItem('lbo2_best')||0}catch(e){} let ev=0; try{ev=+localStorage.getItem('lbo2_evacs')||0}catch(e){} $('best').textContent=(b?('Best survival: '+fmt(b)):'')+(ev?(b?' · ':'')+'Evacuations: '+ev:''); }
 $('btnStart').onclick=openCharSel; $('btnRestart').onclick=startGame; $('btnMenu').onclick=toMenu; $('btnResume').onclick=resumeGame; $('btnQuit').onclick=toMenu; $('btnPause').onclick=()=>{state==='play'?pauseGame():resumeGame()};
 document.querySelectorAll('.volM,.volS').forEach(el=>{ const k=el.classList.contains('volM')?'mus':'sfx'; el.value=Math.round(Snd.vol[k]*100); el.addEventListener('input',e=>{ Snd.setVol(k,e.target.value/100) }); el.addEventListener('keydown',e=>e.stopPropagation()); el.addEventListener('pointerdown',e=>e.stopPropagation()) });
@@ -4810,13 +4837,12 @@ document.addEventListener('keydown',e=>{
   if(e.code==='KeyM'){Snd.setMuted(!Snd.muted)}
   if(state==='play'&&(e.code==='KeyP'||e.code==='Escape'))pauseGame(); else if(state==='paused'&&(e.code==='KeyP'||e.code==='Escape'))resumeGame();
   if(state==='play'&&e.code==='KeyG'&&!e.repeat)popSignal();
-  if(state==='sig'&&!e.repeat&&(e.code==='Enter'||e.code==='Space'||e.code==='KeyG'||e.code==='NumpadEnter')){ e.preventDefault(); answerSignal(true) }
-  else if(state==='sig'&&!e.repeat&&(e.code==='Escape'||e.code==='Backspace'||e.code==='KeyN')){ e.preventDefault(); answerSignal(false) }
+  if(state==='sig'){ const k=e.code, held=SIGASK.held.has(k); if(k==='Enter'||k==='NumpadEnter'||k==='Escape'){ e.preventDefault(); if(!e.repeat&&!held&&sigAskReady())answerSignal(k!=='Escape') } }
   if(state==='levelup'){ const i={Digit1:0,Digit2:1,Digit3:2,Numpad1:0,Numpad2:1,Numpad3:2}[e.code]; if(i!==undefined&&i<choices.length)pickChoice(i); if(e.code==='KeyR')doReroll(); if(e.code==='KeyB')toggleBan() }
   if(state==='menu'&&(e.code==='Enter'||e.code==='Space')){ if($('charsel').classList.contains('show'))startGame(); else openCharSel() }
   if(state==='over'&&performance.now()-overAt>900&&(e.code==='Enter'||e.code==='KeyR'))startGame();
 });
-document.addEventListener('keyup',e=>{keys[e.code]=false});
+document.addEventListener('keyup',e=>{keys[e.code]=false; SIGASK.held.delete(e.code)});
 window.addEventListener('blur',()=>{for(const k in keys)keys[k]=false; pauseGame()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseGame()});
 /* ====================== CONTROLLER SUPPORT (browser Gamepad API, "standard" mapping: Xbox / PlayStation / Steam Deck) ======================
@@ -4853,7 +4879,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
     if(st==='intro'){ if(k)skipIntro(); return }
     if(st==='brief'){ if(k==='A')briefNext(); else if(k==='ST'||k==='B')endBrief(); return }
     if(st==='play'){ if(k==='A'||k==='LT'||k==='RT')useAbility(); else if(k==='X')popSignal(); else if(k==='LB'||k==='R3'){ Snd.init(); Snd.resume(); Snd.setMuted(!Snd.muted) } else if(k==='ST')pauseGame(); return }
-    if(st==='sig'){ if(k==='A'||k==='ST')answerSignal(true); else if(k==='B')answerSignal(false); return }
+    if(st==='sig'){ if(!sigAskReady())return;   /* a pad press edge after the dialog opened is always a fresh press */ if(k==='A')answerSignal(true); else if(k==='B')answerSignal(false); return }
     if(st==='levelup'){ const n=choices.length; if(!k){ if(dx||dy)this.luI=Math.max(0,Math.min(n-1,this.luI+(dx||dy))) } else if(k==='LB')this.luI=Math.max(0,this.luI-1); else if(k==='RB')this.luI=Math.min(n-1,this.luI+1);
       else if(k==='A')pickChoice(Math.min(this.luI,n-1)); else if(k==='X')doReroll(); else if(k==='Y')toggleBan(); else if(k==='B'&&banMode)toggleBan(); return }
     if(st==='paused'){ if(k==='ST'||k==='B'){ resumeGame(); return } }
@@ -4900,6 +4926,12 @@ document.querySelectorAll('.bstamp').forEach(e=>{ e.textContent='BUILD '+BUILD.i
 function checkNewBuild(){ if(location.protocol==='file:'||!window.fetch)return Promise.resolve(false);
   return fetch(location.pathname,{method:'HEAD',cache:'no-store'}).then(r=>{ const lm=Date.parse(r.headers.get('last-modified')||''), mine=Date.parse(document.lastModified); const stale=!!(lm&&mine&&lm>mine+2000); if(stale)$('newBuild').classList.add('show'); return stale }).catch(()=>false) }
 $('newBuild').onclick=()=>{ location.href=location.pathname+'?v='+Date.now() };
+/* pointer safety net: a real press + release on the same button / card always activates it, even if the browser drops the click
+   (e.g. a slow frame or a re-render between down and up). A real click that follows the fallback is swallowed, so nothing fires twice. */
+{ let P={el:null,t:0,clicked:false}; const btnOf=t=>t&&t.closest?t.closest('button,[role=button]'):null;
+  document.addEventListener('pointerdown',e=>{ P={el:btnOf(e.target),t:performance.now(),clicked:false} },true);
+  document.addEventListener('click',e=>{ const b=btnOf(e.target); if(b&&b._fbT&&e.isTrusted&&performance.now()-b._fbT<600){ e.stopImmediatePropagation(); e.preventDefault(); b._fbT=0; return } if(P.el&&b===P.el)P.clicked=true },true);
+  document.addEventListener('pointerup',e=>{ const el=P.el; if(!el||btnOf(e.target)!==el||performance.now()-P.t>1500)return; setTimeout(()=>{ if(P.clicked||P.el!==el||!document.contains(el)||el.disabled)return; P.clicked=true; el._ptr=true; try{ el.click() }finally{ el._ptr=false } el._fbT=performance.now() },80) },true); }
 window.checkNewBuild=checkNewBuild; if(!DBG.bot&&!DBG.nodemo)setTimeout(checkNewBuild,2500);
 /* touch / pointer joystick */
 cv.addEventListener('pointerdown',e=>{ if(state!=='play'||joy.on)return; joy.on=true;joy.id=e.pointerId;joy.ox=e.clientX;joy.oy=e.clientY;joy.x=0;joy.y=0; try{cv.setPointerCapture(e.pointerId)}catch(_){} });
@@ -4974,7 +5006,7 @@ function render(){
   for(let ty=0;ty<3;ty++){ ctx.fillStyle=GEMC[ty]; ctx.beginPath(); const s=3.5+ty*2;
     for(const q of gems){ if(q.t!==ty)continue; if(q.x<camX-20||q.x>camX+VW+20||q.y<camY-20||q.y>camY+VH+20)continue; const y=q.y+Math.sin(tt*4+q.x)*1.2; ctx.moveTo(q.x,y-s-1);ctx.lineTo(q.x+s,y);ctx.lineTo(q.x,y+s+1);ctx.lineTo(q.x-s,y); ctx.closePath(); } ctx.fill(); }
   for(const q of medpacks){ if(q.x<camX-20||q.x>camX+VW+20||q.y<camY-20||q.y>camY+VH+20)continue; if(q.life<MED.blink&&Math.floor(q.life*6)%2===0)continue; const sp=MEDSPR, ph=tt*4+q.x, bob=Math.sin(ph)*1.5, pu=1+Math.sin(ph*.8)*.06, w=Math.round(sp.width*pu), h=Math.round(sp.height*pu); ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(q.x-8,q.y+7,16,3); ctx.drawImage(sp,Math.round(q.x-w/2),Math.round(q.y-h/2+bob),w,h) }
-  for(const q of ftexts){ if(q.x<camX-60||q.x>camX+VW+60||q.y<camY-40||q.y>camY+VH+40)continue; ctx.globalAlpha=Math.min(1,(1.4-q.t)*2); txt(q.s,Math.round(q.x),Math.round(q.y),13,q.c,'center'); ctx.globalAlpha=1 }
+  for(const q of ftexts){ if(q.x<camX-60||q.x>camX+VW+60||q.y<camY-40||q.y>camY+VH+40)continue; ctx.globalAlpha=Math.min(1,(1.4-q.t)*2); txt(intNums(q.s),Math.round(q.x),Math.round(q.y),13,q.c,'center'); ctx.globalAlpha=1 }
   for(const q of gems){ if(q.t!==3)continue; ctx.fillStyle='#f4f4ea'; ctx.fillRect(q.x-7,q.y-6,14,12); ctx.fillStyle='#d03a2e'; ctx.fillRect(q.x-1.5,q.y-5,3,10); ctx.fillRect(q.x-5,q.y-1.5,10,3); ctx.strokeStyle='#17110a';ctx.lineWidth=1;ctx.strokeRect(q.x-7,q.y-6,14,12) }
   // grenades shadow/body
   for(const q of grenades){ if(q.t<0)continue; const k=Math.min(1,q.t/q.d), z=Math.sin(Math.PI*k)*46; ctx.fillStyle='rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(q.x,q.y,5,2.5,0,0,TAU); ctx.fill(); ctx.fillStyle='#4f6b2a'; ctx.fillRect(q.x-3,q.y-z-5,6,7); ctx.fillStyle='#17110a'; ctx.fillRect(q.x-1,q.y-z-7,3,2);
@@ -4990,8 +5022,10 @@ function render(){
   const x0=camX-60,x1=camX+VW+60,y0=camY-60,y1=camY+VH+60;
   for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue;
     let spr=e.spr[Math.floor(e.anim)&1][e.dir][e.flash>0?1:0]; if(e.aoT>0)spr=tintOf(spr,'ao'); const w=spr.width*e.ds, h=spr.height*e.ds, bob=(Math.floor(e.anim)&1)?-1:0;
-    if(e.boss){ ctx.fillStyle='rgba(200,40,30,'+(.18+.08*Math.sin(tt*6))+')'; ctx.beginPath(); ctx.ellipse(e.x,e.y+22,46,14,0,0,TAU); ctx.fill(); if(e.wind>0&&e.type==='boss'){ctx.fillStyle='#ff4a3a';ctx.font='bold 34px monospace';ctx.textAlign='center';ctx.fillText('!',e.x,e.y-62)} }
+    if(e.boss){ ctx.fillStyle='rgba(200,40,30,'+(.22+.1*Math.sin(tt*6))+')'; ctx.beginPath(); ctx.ellipse(e.x,e.y+h*.4,w*.62,h*.16,0,0,TAU); ctx.fill(); if(e.wind>0&&e.type==='boss'){ctx.fillStyle='#ff4a3a';ctx.font='bold 22px monospace';ctx.textAlign='center';ctx.fillText('!',e.x,e.y-h*.58-16)}
+      if(!(e.em>0)){ const o=bossOutline(spr), ox=Math.round(e.x-w/2), oy=Math.round(e.y-h*.58+bob); for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]])ctx.drawImage(o,ox+dx,oy+dy,w,h) } }
     if(e.em>0){ const kk=Math.max(.05,1-e.em/.5); ctx.drawImage(spr,0,0,spr.width,Math.max(1,spr.height*kk),Math.round(e.x-w/2),Math.round(e.y-h*.58+h*(1-kk)),w,h*kk) } else ctx.drawImage(spr,Math.round(e.x-w/2),Math.round(e.y-h*.58+bob),w,h);
+    if(e.boss)drawBossMark(e,w,h,tt);
     if(e.mf>0){ const fx=e.x+(e.dir?-1:1)*9, fy=e.y-3; ctx.fillStyle='#fff3a0'; ctx.fillRect(Math.round(fx-2),Math.round(fy-2),4,4); ctx.fillStyle='#ff9b21'; ctx.fillRect(Math.round(fx+(e.dir?-5:2)),Math.round(fy-1),3,2) } }
   // flying gibs + blood spray
   for(let i=0;i<gibs.length;i++){const g=gibs[i]; if(g.x<x0||g.x>x1||g.y<y0||g.y>y1)continue; const c=GIBSPR[g.k], w=c.width*g.sc,h=c.height*g.sc;
@@ -5023,7 +5057,7 @@ function render(){
       const drawGun=bolt?()=>{ const L=30-back; ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=4.6; ctx.beginPath(); ctx.moveTo(p.x+gx*0,p.y+2+gy*0); ctx.lineTo(p.x+gx*L,p.y+2+gy*L); ctx.stroke(); ctx.strokeStyle='#6b4426'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(p.x+gx*1,p.y+2+gy*1); ctx.lineTo(p.x+gx*(L*.55),p.y+2+gy*(L*.55)); ctx.stroke(); ctx.strokeStyle='#4a4b52'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p.x+gx*(L*.5),p.y+2+gy*(L*.5)); ctx.lineTo(p.x+gx*L,p.y+2+gy*L); ctx.stroke();
           if(bu>.12&&bu<.7){ const bx=p.x+gx*13-gy*3*(bu<.4?1:0), by=p.y+2+gy*13+gx*3*(bu<.4?1:0); ctx.fillStyle='#d8dde2'; ctx.fillRect(Math.round(bx)-1.5,Math.round(by)-1.5,3,3) } }:()=>{ ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(p.x+gx*2,p.y+2+gy*2); ctx.lineTo(p.x+gx*19,p.y+2+gy*19); ctx.stroke(); ctx.strokeStyle='#3a3b41'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(p.x+gx*8,p.y+2+gy*8); ctx.lineTo(p.x+gx*19,p.y+2+gy*19); ctx.stroke(); ctx.strokeStyle='#26262a'; ctx.beginPath(); ctx.moveTo(p.x+gx*1,p.y+2+gy*1); ctx.lineTo(p.x+gx*9,p.y+2+gy*9); ctx.stroke(); };
       const behind=gy<-.3; if(behind)drawGun();
-      ctx.drawImage(spr,Math.round(p.x-spr.width/2),Math.round(p.y-spr.height*.56+bob));
+      ctx.drawImage(spr,Math.round(p.x-spr.width/2),Math.round((spr.feet?p.y+13-spr.feet:p.y-spr.height*.56)+bob));   /* sheet sprites: feet on the ring (Doc hi-vis is 30x40, feet unchanged) */
       if(!behind)drawGun();
       if(g.muzzle>0){ const mx=p.x+gx*24,my=p.y+2+gy*24; ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(mx,my,6+rnd()*3,0,TAU); ctx.fill(); ctx.fillStyle='#ff9b21'; ctx.beginPath(); ctx.arc(mx,my,3,0,TAU); ctx.fill() } } }
   // particles
@@ -5041,6 +5075,7 @@ function render(){
   if(introH)drawHuey(introH);
   for(let i=0;i<crashes.length;i++)drawHuey(crashes[i]);
   drawExAir(tt);
+  drawDocMk(tt);   /* above the enemies */
   // VC speech bubbles
   for(let i=0;i<bubbles.length;i++){ const b=bubbles[i], e=b.e, c=BUBSPR[b.pi]; const k=Math.min(1,b.t/.14), fo=Math.min(1,(b.life-b.t)/.3); if(fo<=0)continue; const sc=.78*(.6+.4*k)*(1+.08*Math.sin(Math.min(1,b.t*7)*Math.PI));
     const spr=e.spr[0][0][0], top=e.y-spr.height*e.ds*.58-2-Math.min(6,b.t*10); ctx.globalAlpha=Math.min(1,fo)*Math.min(1,k*1.5); ctx.save(); ctx.translate(Math.round(e.x),Math.round(top)); ctx.scale(sc,sc); ctx.drawImage(c,-Math.round(c.width/2),-c.height); ctx.restore(); ctx.globalAlpha=1 }
@@ -5093,8 +5128,10 @@ function fpsExtra(avg,min){ let t='FPS avg '+avg.toFixed(0)+'  min '+min.toFixed
     if(g.lastHit)t+='\n'+(g.p.hp<=0?'killed by: ':'last hit: ')+g.lastHit.src+' ('+g.lastHit.dmg+')' } return t }
 window.fpsStats=()=>({avg:FPSM.avg,min:FPSM.min});
 function frame(now){
-  let dt=(now-last)/1000; last=now; fpsTick(dt); if(window.__simHold){ requestAnimationFrame(frame); return } if(dt>.05)dt=.05; if(dt<0)dt=0;
-  if(state==='play'||(state==='menu'&&G&&G.demo))update(dt); else if(state==='intro')updateIntro(dt); else if(state==='brief')updateBrief(dt);
+  let dt=(now-last)/1000; last=now; fpsTick(dt); if(window.__simHold){ requestAnimationFrame(frame); return } if(dt<0)dt=0;
+  /* real time: a slow frame runs several <=50 ms steps (up to 0.2 s per frame), so the game clock keeps pace on slow machines instead of running at half speed */
+  if(state==='play'||(state==='menu'&&G&&G.demo)){ let rem=Math.min(dt,.2); while(rem>1e-6){ const st=Math.min(.05,rem); update(st); rem-=st; if(state!=='play'&&!(state==='menu'&&G&&G.demo))break } } else { if(dt>.05)dt=.05; }
+  if(state==='intro')updateIntro(dt); else if(state==='brief')updateBrief(dt);
   hudAbil(); hudSig(); hudTanker(); hudSupport(); Snd.duckTick(); const t0=performance.now(); if(state==='brief'&&BR){ drawBrief() } else if(state==='intro'&&INTRO&&INTRO.ph===1){ drawCargo(INTRO.t); drawIntroOverlay() } else { render(); if(state==='intro'&&INTRO)drawIntroOverlay() } const rt=performance.now()-t0; perf.frames++;perf.acc+=rt;perf.worst=Math.max(perf.worst,rt);
   requestAnimationFrame(frame);
 }
