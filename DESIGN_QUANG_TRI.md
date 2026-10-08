@@ -29,3 +29,18 @@ Conflicts with the current build to resolve: Company Reinforcement perk (adds 20
   - Map build must add read-only DBG.mapCheck(n): for n seeds without playing, report whether the base touches water, the real crossing count, whether smoke, pad and mirror are reachable on foot, walk time Doc to smoke to pad, and hidden crossing distance from pad. QA runs 200 seeds.
   - Gamer: taller Marines keep their current hitboxes; the hidden crossing does not count toward the 2 crossings, is never within a ~15 s walk of the pad, and every seed has a flare that can reveal it.
   - Marines and Doc are 37 px tall (about 17% over the 32 px enemies), per Blake.
+
+## Next build: PAUSED (Oct 8, 12:55 AM ET; WIP commit 557a37b, local only, not pushed, not stamped)
+All six items are coded but **none has been tested yet**. The test script `/workspace/qa1/s1d.js` was written and has never run. The Stop test, the mash test, the screenshots and `node tools/stamp.js` are all still to do.
+1. CH-47 Chinook → CH-46 Sea Knight: **done**. Banner now reads "RADIO: SEA KNIGHT (CH-46) INBOUND WITH HEAVY SUPPLIES"; function names, comments and the sample_player labels were updated; the art is unchanged. The credit files still use the recording's real title, "Chinook rotor slap".
+2. Last Bird Out badge: **coded, untested**.
+   - `moh` is out of RIBBON_RACK_ORDER. The new id `lbo` is listed in RIB_ORDER.
+   - ribCanvas draws the badge (48 px in the rack, popup and strip). The locked label reads "Last Bird Out (locked)".
+   - Saved `rib.moh` migrates to `rib.lbo` when the save is read.
+   - cueRibbon plays ribbonPin, then flyby('huey') about 0.25 s later, with no MoH bugle. The other ribbons keep their bugles.
+   - There are no Ballard or Taylor tribute cards in this build yet, so the MoH art and bugle are kept in the code but never used.
+   - Badge rule: **coded** as extracting with 12 or more aboard (the player plus `ex.gotOn`). Hint text: "Get 12 of the 15 out on the last bird (12 or more aboard at extraction, you included)." Debug and ?all runs never award it, because awardRun skips g.dbg.
+3. Tandem rotor: **coded, untested**. tandem_rotor_flyby is re-enabled by build_audio.py. SeaKnightS plays flyby('tandemRotor') for the supply bird (in, hover, out) and for the CH-46 squad insertion (in, out). The synth ChSnd runs only as a fallback. The surrey_film credit is already in the credits block.
+4. heroes_tall: **coded, untested**. The script tag is added and stamp.js updated. The player is drawn with SHEET1.drawHero from the feet (p.y+13), and the weapon line starts at the hand point. Portraits use the tall art. Hitboxes are untouched.
+5. Death card: **coded, untested**. The title and the "went down" fact use the character's nickname.
+6. Winchester: **coded, untested**. The player has no ammo mechanic, so per the design note ("sky magazine") it fires when the door-gun Huey's time on station runs out. Music ducks -12 dB, and the release is scheduled about 2.4 s later.
