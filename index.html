@@ -4994,6 +4994,7 @@ function ntankSprite(kind){ const w=kind==='t54'?92:84,h=kind==='t54'?56:50; con
         if(white){ x.globalCompositeOperation='source-atop'; x.fillStyle='#fff'; x.fillRect(0,0,w,h) } return c };
       out[f][flip]=[mkc(false),mkc(true)] } } return out }
 function buildNTankSprites(){ SPR.pt76=ntankSprite('pt76'); SPR.t54=SPR.pt76; }   /* 1968: PT-76 only */
+const TITLE_TRACK=/[?&]title=surf/.test(location.search)?'menu':'briefing';   /* ?title=surf: Happy Bee - Surf as before */
 const WRECKS=[]; const COVERP=!/[?&]cover=0/.test(location.search);
 /* firebase.js art (Artist Helper): walls draw unrotated with the V sprites; bunker frame by hp; PSP pad as 2x2 tiles under the 60x56 pad */
 function fbStructArt(s,x,y){ if(!TERR.ready())return false; const fr=TERR.frame, V=Math.abs(Math.sin(s.ang))>.7, hp=s.mhp?s.hp/s.mhp:1;
@@ -6124,10 +6125,10 @@ const HoverS={h:null,g:null,
     if(this.h&&(!w||this.g!==G)){ try{ this.h.stop(.8) }catch(e){} this.h=null; this.g=null }
     if(w&&!this.h){ this.g=G; this.h=SamplePlayer.evacBirdHover({vol:.9,fade:1.2}) } } };
 const MUSX={want:null,h:null,ld:false,ext:false,rep:null,key:null,
-  load(){ if(this.ld||!SAMP.on||!window.SamplePlayer||!SamplePlayer.loadMusic||!window.SAMPLE_MANIFEST)return; this.ld=true; SAMPLE_MANIFEST.music&&(SAMPLE_MANIFEST.music.base='audio/music/'); SamplePlayer.loadMusic(SAMPLE_MANIFEST,{tracks:['menu']}).then(r=>{ this.rep=[r]; return SamplePlayer.loadMusic(SAMPLE_MANIFEST,{tracks:['combat','intro_riff','extraction','briefing','win','loss'],concurrency:1}) }).then(r=>{ this.rep.push(r) }).catch(()=>{}) },   /* QA: the 464 KB menu track first so the menu is never silent; the rest lazily, one at a time (not part of batch 1) */
+  load(){ if(this.ld||!SAMP.on||!window.SamplePlayer||!SamplePlayer.loadMusic||!window.SAMPLE_MANIFEST)return; this.ld=true; SAMPLE_MANIFEST.music&&(SAMPLE_MANIFEST.music.base='audio/music/'); SamplePlayer.loadMusic(SAMPLE_MANIFEST,{tracks:[TITLE_TRACK,'menu']}).then(r=>{ this.rep=[r]; return SamplePlayer.loadMusic(SAMPLE_MANIFEST,{tracks:['combat','intro_riff','extraction','briefing','win','loss'],concurrency:1}) }).then(r=>{ this.rep.push(r) }).catch(()=>{}) },   /* QA: the 464 KB menu track first so the menu is never silent; the rest lazily, one at a time (not part of batch 1) */
   has(n){ try{ return !!(n&&SamplePlayer.hasMusic(n)) }catch(e){ return false } },
   pick(){ if(Snd.muted)return null; const g=G, ex=g&&!g.demo?g.ex:null;
-    if(state==='menu')return 'menu'; if(state==='brief')return 'briefing'; if(state==='intro')return 'intro_riff';
+    if(state==='menu')return this.has(TITLE_TRACK)?TITLE_TRACK:'menu'; if(state==='brief')return 'briefing';   /* Blake Oct 14: the upbeat DD Groove back on the title/load screen (menu -> briefing continues the same track, no restart) */ if(state==='intro')return 'intro_riff';
     if(state==='over')return ex?(ex.result==='evac'?'win':'loss'):null;
     if(g&&!g.demo&&(state==='play'||state==='paused'||state==='sig'||state==='levelup'||state==='pause')){   /* Blake Oct 14: intense music during gameplay, one track at a time */
       if(ex&&ex.ph>=4)return 'extraction';   /* bird inbound / on the ground: Garage Rock loop */
@@ -6229,7 +6230,7 @@ const Music={timer:null,gain:null,send:null,t:0,step:0,abs:0,bpm:90,on:false,las
   tick(){ try{
     const c=Snd.ctx; if(!c||c.state!=='running'||!this.gain)return; const now=c.currentTime, dt=Math.min(.1,Math.max(0,now-(this.ln||now))); this.ln=now;
     try{ MUSX.tick(); RiverS.tick(); HoverS.tick() }catch(e){}
-    const playing=(state==='play'&&G&&!G.demo&&!Snd.muted), menu=(state==='menu'&&!Snd.muted&&!MUSX.has('menu'));   /* synth menu tune only until the real menu track is loaded */
+    const playing=(state==='play'&&G&&!G.demo&&!Snd.muted), menu=(state==='menu'&&!Snd.muted&&!MUSX.has('menu')&&!MUSX.has(TITLE_TRACK));   /* synth menu tune only until the real menu track is loaded */
     if(G!==this.lastG){this.lastG=G;this.pe=-9;Amb.reset();Combat.st=0}
     if(menu!==this.on){ this.on=menu; this.gain.gain.cancelScheduledValues(now); this.gain.gain.setTargetAtTime(menu?.75:0,now,menu?.4:.2); if(menu){this.t=now+.05;this.step=0;this.abs=0;this.bpm=90} }
     if(playing!==this.con){ this.con=playing; if(playing){ Combat.on(now); Combat.cgw=1; if(RMUS.buf){ this._rmOff=0 } } else Combat.off(now) }
