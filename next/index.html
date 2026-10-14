@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACl0lEQVR42tWXsW4TQRCGv9ndi+PYKIpEIkQZCWhQaCnoeIEUvAJCAsEbINHRg0DiJXgCHoCaDgoKKgRClhU7PvvudijOF/vu1skdcRKx0krW3nrmn39m/t2Vuw/2lSschisebtUH1fUSIyLtALjIIsB5YRQ2stQ3A+C9EkWW+w/3iSJ7biZEhCTJ+PzpO0mSYYycDsA6mU+DdWYtALwq1gleBfUrGFDNnd8+2MU6YfDnaK01cOvgOlmqfPvymyxVipJYyYD36y1C684oQtXyPGtU8Rk5fX/Vfo2BIvJmeYWtqLw2TZsBL3zoPAJXzb0YWWlIgMRDN4JXh7C1ka8fz+DlR5gkEJlw66qCscKde7ulWnD13Ff+uMy1QDcStjrQ6+RAThjp5L+TVEsBSCU3VZZrNVB1/uvnEPVK5qG/KXx4tk2/KyBQaIu18PoRjCbKk3dDRrFiTe5878Z2CUTVjzsrZ+p1PsH7XKi8B2MELexqsZ5P9dpYQV3jNjIwmymP3w7pd3Mmeps5gnE8j3yipGkePesGMA+UcawgMIoXuR5PlVGsjGNlw7XTh9YAIgdJojx9Pyx9SxIlcu0PL9dEywnIw/Fs4UwAI1LbtuoIDgIQWajTIvHC3s3tlWJU7fPgPlMGVvVzAiDL8tw2Pfwa78u0BjxbWnMieQv9+DoIUn0hY962IgEGLgtAsAYo5iU5r3eBVrT/Aka1M1zhOJ6kKMp4MA1ew9riCt0PRITeToflvggyEALQRZqnRyEOtUlxRZaGQiRACvRFeLNzjZ4I2SllooAFxqq8GBwx0vy81//yZbQc0USV54N2t+RYFdvgYePCEis1KMctjxkbsBM6Gly9SrtB3NJSIMJXEqmBaMjAv7wJm9n4C5YJNYm2sM4vAAAAAElFTkSuQmCC">   <!-- data URI: no /favicon.ico request, so nothing to 404 on a Pages project site -->
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1b5b7c2">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=b8644e6">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1106,12 +1106,12 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   else root.Cues = Cues;
 })(typeof self !== 'undefined' ? self : this);
 </script>
-<script src="assets/art/sheet1.js?v=1b5b7c2"></script>
-<script src="assets/art/vehicles.js?v=1b5b7c2"></script>
-<script src="assets/art/doc_hivis.js?v=1b5b7c2"></script><script src="assets/art/marines_tall.js?v=1b5b7c2"></script><script src="assets/art/heroes_tall.js?v=1b5b7c2"></script><script src="assets/art/cover_poses.js?v=1b5b7c2"></script><script src="assets/art/firebase.js?v=1b5b7c2"></script><script src="assets/art/terrain.js?v=1b5b7c2"></script><script defer src="audio/sample_player.js?v=1b5b7c2"></script><script defer src="audio/samples/manifest.js?v=1b5b7c2"></script>
+<script src="assets/art/sheet1.js?v=b8644e6"></script>
+<script src="assets/art/vehicles.js?v=b8644e6"></script>
+<script src="assets/art/doc_hivis.js?v=b8644e6"></script><script src="assets/art/marines_tall.js?v=b8644e6"></script><script src="assets/art/heroes_tall.js?v=b8644e6"></script><script src="assets/art/cover_poses.js?v=b8644e6"></script><script src="assets/art/firebase.js?v=b8644e6"></script><script src="assets/art/terrain.js?v=b8644e6"></script><script defer src="audio/sample_player.js?v=b8644e6"></script><script defer src="audio/samples/manifest.js?v=b8644e6"></script>
 <script>
 /* BUILD STAMP: set by tools/stamp.js (run after every code commit; it records that commit's short hash + date). Also the ?v= cache-buster for audio / images / icons. */
-const BUILD={id:'1b5b7c2',date:'2026-10-14 18:17 ET'}, AV='?v='+BUILD.id;
+const BUILD={id:'b8644e6',date:'2026-10-14 18:31 ET'}, AV='?v='+BUILD.id;
 /* Quang Tri preview (Stage 1): saves use the lbo2_ prefix; old vs_/lbo_ saves are never read or touched. */
 (()=>{
 'use strict';
@@ -2515,12 +2515,16 @@ function drawSquad(camX,camY){
     const R=SQR[m.role], ps=m.coy?COYSPR[m.cv]:SQSPR[m.role], fr=m.mv?(Math.floor(m.anim)&1):0, flip=m.face>0?0:1, spr=ps[fr][flip][m.hf>0?1:0], z=m.rz||0;
     if(z>0){ ctx.fillStyle='rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(m.x,m.y+13,9,3.5,0,0,TAU); ctx.fill() }
     /* tall Marines (marines_tall.js, 26x37, feet-anchored): feet where the old 38 px sprite's feet were (m.y+13); weapon line from the hand point; hitbox unchanged */
-    const TM=TALLM(m), bob=m.mv&&fr?-1:0, gx=Math.cos(m.aim), gy=Math.sin(m.aim), fy=Math.round(m.y+13+bob-z), topY=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56+bob-z), sy=topY, gy0=TM?fy-TM.grip*SHEET_SCALE_MEN:m.y+2-z;
-    const gun=()=>{ ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=4.2; ctx.beginPath(); ctx.moveTo(m.x+gx*2,gy0+gy*2); ctx.lineTo(m.x+gx*R.len,gy0+gy*R.len); ctx.stroke(); ctx.strokeStyle=R.gc; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(m.x+gx*3,gy0+gy*3); ctx.lineTo(m.x+gx*R.len,gy0+gy*R.len); ctx.stroke() };
-    const behind=gy<-.3&&!z; if(behind)gun();
-    if(TM)SHEET1.drawMarine(ctx,m.role,m.mv?1+fr:0,Math.round(m.x),fy,SHEET_SCALE_MEN,!!flip,m.hf>0,m.coy?(m.cv|0):undefined); else ctx.drawImage(spr,Math.round(m.x-spr.width/2),sy);
+    const TM=TALLM(m), bob=m.mv&&fr?-1:0, gx=Math.cos(m.aim), gy=Math.sin(m.aim), fy=Math.round(m.y+13+bob-z), topY=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56+bob-z), sy=topY; let gy0=TM?fy-TM.grip*SHEET_SCALE_MEN:m.y+2-z, gx0=m.x;
+    const gun=()=>{ ctx.lineCap='butt'; ctx.strokeStyle='#17110a'; ctx.lineWidth=4.2; ctx.beginPath(); ctx.moveTo(gx0+gx*2,gy0+gy*2); ctx.lineTo(gx0+gx*R.len,gy0+gy*R.len); ctx.stroke(); ctx.strokeStyle=R.gc; ctx.lineWidth=2.4; ctx.beginPath(); ctx.moveTo(gx0+gx*3,gy0+gy*3); ctx.lineTo(gx0+gx*R.len,gy0+gy*R.len); ctx.stroke() };
+    /* cover poses (cover_poses.js): crouch when holding a bunker post or stopped in contact; fire pose when shooting; a hit shows the standing hit frame. Off with ?cover=0 */
+    if(TM&&COVERP&&!z&&!m.mv&&m.hf<=0&&(m.bk||(G.plf&&G.plf.c>0))){ const nm=m.coy?(SHEET1.MARINE_COY&&SHEET1.MARINE_COY[m.cv|0]):(SHEET1.MARINE_ROLE&&SHEET1.MARINE_ROLE[m.role]); let r=null;
+      if(nm&&SHEET1.sprites[nm]){ try{ r=SHEET1.drawCover(ctx,nm,m.tg?'coverFire':'cover',Math.round(m.x),fy,SHEET_SCALE_MEN,!!flip,false) }catch(e){ r=null } }
+      m._cv=!!r; if(r){ gx0=r.x; gy0=r.y } } else m._cv=false;
+    const behind=!m._cv&&gy<-.3&&!z; if(behind)gun();
+    if(m._cv){} else if(TM)SHEET1.drawMarine(ctx,m.role,m.mv?1+fr:0,Math.round(m.x),fy,SHEET_SCALE_MEN,!!flip,m.hf>0,m.coy?(m.cv|0):undefined); else ctx.drawImage(spr,Math.round(m.x-spr.width/2),sy);
     if(!behind)gun();
-    if(m.mf>0){ const mx=m.x+gx*(R.len+4), my=gy0+gy*(R.len+4); ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(mx,my,3.6+rnd()*1.5,0,TAU); ctx.fill(); ctx.fillStyle='#ff9b21'; ctx.beginPath(); ctx.arc(mx,my,1.8,0,TAU); ctx.fill() }
+    if(m.mf>0){ const mx=gx0+gx*(R.len+4), my=gy0+gy*(R.len+4); ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(mx,my,3.6+rnd()*1.5,0,TAU); ctx.fill(); ctx.fillStyle='#ff9b21'; ctx.beginPath(); ctx.arc(mx,my,1.8,0,TAU); ctx.fill() }
     // HP bar
     if(!z&&!(m.coy&&m.hp>=m.mhp)){ const r=Math.max(0,m.hp/m.mhp), w=22, bx=Math.round(m.x-w/2), by=Math.round((TM?fy-bob-TM.h*SHEET_SCALE_MEN:m.y-spr.height*.56)-8); ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,5); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,3);
       ctx.fillStyle=r>.55?'#6fd04a':r>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,Math.round(w*r),3) }
@@ -2958,7 +2962,7 @@ const keys={}; const joy={on:false,id:-1,ox:0,oy:0,x:0,y:0};
 
 function newGame(demo){
   let seed=0; if(!demo){ seed=newSeed(); seedRun(seed); try{ localStorage.setItem('lbo2_lastseed',String(seed)) }catch(e){} }
-  medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
+  medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
   G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
@@ -3042,7 +3046,7 @@ function pickType(){ const t=G.t*EX_RAMP, r=rnd(); if(fbGrace())return 'vc';
   if(r<off)return 'officer'; if(r<off+nva)return 'nva'; return 'vc'; }
 /* ===== PACE (Blake Oct 14: "most levels in the beginning are more firefights"): early levels are contacts with small NVA/VC fire teams and lulls between them;
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
-const PACE={MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.12,M_TGT:.6,M_HIT:.4,M_DMG:52,SHOT_DMG:3,COVER_DR:.4,RET_AT:.25,
+const PACE={MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.12,M_TGT:.6,M_HIT:.4,M_DMG:55,SHOT_DMG:3,COVER_DR:.4,RET_AT:.25,
   mass(g){ return (g.p.lvl|0)>=this.MASS_LV||(g.massT>0) },
   hold(g){ const ex=g.ex; return !!(ex&&ex.ph>=4&&ex.ph<=5) },
   tick(g,dt){ const P=g.pc||(g.pc={st:'lull',t:16,teams:[],n:0,log:[]}); P.teams=P.teams.filter(T=>FT.alive(T)>0&&!T.gone);
@@ -3129,10 +3133,12 @@ DBG.skipBuild=function(){ if(!fbS&&!DBG.fbBuild())return 'no LZ for a firebase';
 const PLT={on:!/[?&]plt=0/.test(location.search),
   ROLES:['point','gun','rto','rifle','rifle','m79','m79','sniper','rear'],
   OFF:{point:[95,0],gun:[25,70],rto:[-22,-20],rifle:[45,-85],m79:[-15,100],sniper:[-95,40],rear:[-120,0]},
-  role(m){ return m.role0||(m.role0=m.role||this.ROLES[m.slot%this.ROLES.length]) },
+  RMAP:{point:'point',m60:'gun',radio:'rto',leader:'rto',m79:'m79',m14:'sniper',rifle:'rifle',corps:'rto'},   /* named company kit -> platoon role (?roles=0: by slot) */
+  role(m){ if(m.role0)return m.role0; let r=null; if(!/[?&]roles=0/.test(location.search)&&m.role)r=this.RMAP[m.role]||null;
+    if(r==='rifle'&&!coy.some(q=>q!==m&&q.role0==='point'))r='point'; else if(r==='rifle'&&!coy.some(q=>q!==m&&q.role0==='rear'))r='rear'; else if(r==='sniper'&&coy.some(q=>q!==m&&q.role0==='sniper'))r='rifle'; return (m.role0=r||this.ROLES[m.slot%this.ROLES.length]) },
   frame(g,p){ const F=g.plf||(g.plf={a:0,c:0,ca:0,t:-1}); if(F.t===g.t)return F; F.t=g.t;
     if(p.mv){ const a=Math.atan2(p.fy||0,p.fx||1); let da=a-F.a; da=Math.atan2(Math.sin(da),Math.cos(da)); F.a+=da*Math.min(1,2.5/60) }
-    if(((g.plN=(g.plN|0)+1)%10)===0){ let bd=380*380,be=null; for(const e of enemies){ if(e.dead)continue; const dx=e.x-p.x,dy=e.y-p.y,d2=dx*dx+dy*dy; if(d2<bd){bd=d2;be=e} } F.c=be?1:Math.max(0,F.c-.34); if(be)F.ca=Math.atan2(be.y-p.y,be.x-p.x); if(be&&!F.wasC){ (g.plLog||(g.plLog=[])).length<200&&g.plLog.push({t:+g.t.toFixed(1),ev:'contact'}) } F.wasC=!!be }
+    if(((g.plN=(g.plN|0)+1)%10)===0){ let bd=520*520,be=null; for(const e of enemies){ if(e.dead||e.pulled)continue; const dx=e.x-p.x,dy=e.y-p.y,d2=dx*dx+dy*dy; if(d2<bd){bd=d2;be=e} } F.c=be?1:Math.max(0,F.c-.34); if(be)F.ca=Math.atan2(be.y-p.y,be.x-p.x); if(be&&!F.wasC){ (g.plLog||(g.plLog=[])).length<200&&g.plLog.push({t:+g.t.toFixed(1),ev:'contact'}) } F.wasC=!!be }
     return F },
   slot(m,p){ const bq=BNK.post(m,p); if(bq)return bq; const g=G, F=this.frame(g,p), r=this.role(m), o=this.OFF[r]||this.OFF.rifle, k=(m.slot/this.ROLES.length)|0, side=(m.slot&1)?1:-1;
     const a=F.c>0?F.ca:F.a, cs=Math.cos(a), sn=Math.sin(a); let fx=o[0]*(F.c>0?.8:1)-k*28, sy=o[1]*(r==='point'||r==='rear'||r==='rto'?1:side)*(1+k*.3);
@@ -3166,6 +3172,7 @@ const BNK={WARN:2,IN:30,DMG:.5,LIFE:75,PER:2,raw:0,
     if(!m.bk&&((g.bnkA=(g.bnkA|0)+1)&15)===0){ for(const s of strs){ if(s.type!=='bunker'||s.dead||(s.warnT>0))continue; let n=0; for(const q of coy)if(q.bk===s)n++; if(n<this.PER){ m.bk=s; break } } }
     const s=m.bk; if(!s)return null; if(s.warnT>0){ const a=Math.atan2(m.y-s.y,m.x-s.x)||((m.slot&1)?1:-1); return [s.x+Math.cos(a)*90,s.y+Math.sin(a)*90] }   /* bail */
     return [s.x+((m.slot&1)?-9:9),s.y+6] },
+  lockable(e){ if(rnd()>.35)return null; for(const s of strs){ if(s.type!=='bunker'||s.dead||s.warnT>0)continue; if(Math.hypot(s.x-e.x,s.y-e.y)>300)continue; for(const q of coy)if(q.bk===s&&q.hp>0)return s } return null },
   tick(dt){ for(const s of strs){ if(s.warnT>0){ s.warnT-=dt; if(s.warnT<=0){ for(const q of coy)if(q.bk===s)q.bk=null } } } } };
 function surge(){
   const t=G.t,p=G.p; const ambush=(G.surgeN++%2)===0;
@@ -3234,7 +3241,9 @@ function update(dt){
     let ftT=null; if(fbS){ const o=fbEnemy(e,dt,d); if(o){ dx=o[0]; dy=o[1]; d=o[2]; ftT=o[3] } }
     if(e.type==='rpgt'){ e.cdash-=dt;
       if(d>330)spd*=1; else if(d>250)spd=0; else spd=-spd*.8;
-      if(e.cdash<=0){ if(!onScreen(e,30)||e.em>0){ e.cdash=.5 } else { e.cdash=5+rnd()*2.5; const tg=trooperTarget(e);
+      if(e.lockT>0){ spd=0; e.lockT-=dt; if(e.lockT<=0){ const s=e.lockB; e.lockB=null; e.cdash=0; e.lockFire=s&&!s.dead?s:null } else e.cdash=Math.max(e.cdash,.1) }
+      else if(e.cdash<=0&&!e.lockFire&&onScreen(e,30)&&!e.em){ const s=BNK.lockable(e); if(s){ e.lockB=s; e.lockT=BNK.WARN; BNK.warn(s,'b40'); spd=0; e.cdash=.1 } }   /* B-40 lock-on: 2 s warning, then the rocket */
+      if(e.cdash<=0){ if(!onScreen(e,30)||e.em>0){ e.cdash=.5 } else { e.cdash=5+rnd()*2.5; let tg=trooperTarget(e); if(e.lockFire){ const s=e.lockFire; e.lockFire=null; tg={tx:s.x,ty:s.y,trk:null,off:0} }
           { const fl=e.rpg7?.85:1.15, w0=SAMP.b40Ready()?Math.max(0,EXW.B40-fl+.02):0;   /* with the real B-40 cue, a short rocket waits so its bang can lead the impact by >= 1 s */
           eprojs.push({sx:e.x,sy:e.y-14,x:e.x,y:e.y-14,tx:tg.tx,ty:tg.ty,t:-w0,d:fl,rad:e.rpg7?56:50,dmg:e.rpg7?20:16,sdm:e.rpg7?60:45,tr:1,trk:tg.trk,toff:tg.off,tdm:e.rpg7?78:62}); if(!SAMP.b40(w0+fl))Snd.play('rpg') }
           addPart(e.x,e.y-12,0,0,.5,7,'#cfcab8',false,2) } } }
@@ -4980,7 +4989,8 @@ function ntankSprite(kind){ const w=kind==='t54'?92:84,h=kind==='t54'?56:50; con
         x.fillStyle='#e8d040'; x.fillRect(w*.45-2,h-46,4,4); x.fillStyle='#c82020'; x.fillRect(w*.45-1,h-45,2,2);
         if(white){ x.globalCompositeOperation='source-atop'; x.fillStyle='#fff'; x.fillRect(0,0,w,h) } return c };
       out[f][flip]=[mkc(false),mkc(true)] } } return out }
-function buildNTankSprites(){ SPR.pt76=ntankSprite('pt76'); SPR.t54=ntankSprite('t54'); }
+function buildNTankSprites(){ SPR.pt76=ntankSprite('pt76'); SPR.t54=SPR.pt76; }   /* 1968: PT-76 only */
+const WRECKS=[]; const COVERP=!/[?&]cover=0/.test(location.search);
 /* firebase.js art (Artist Helper): walls draw unrotated with the V sprites; bunker frame by hp; PSP pad as 2x2 tiles under the 60x56 pad */
 function fbStructArt(s,x,y){ if(!TERR.ready())return false; const fr=TERR.frame, V=Math.abs(Math.sin(s.ang))>.7, hp=s.mhp?s.hp/s.mhp:1;
   if(s.type==='sandbag'){ const im=fr('fbSandbag',V?'straightV':(hp<.5?'damagedH':'straightH')); if(!im)return false; ctx.drawImage(im,x-16,y-16); return true }
@@ -5055,7 +5065,7 @@ function drawFbHud(U){ const g=G,p=g.p; ctx.setTransform(1,0,0,1,0,0);
     else if(lzS&&lzS.hold>0){ bar('CALLING SUPPORT '+Math.round(lzS.hold*100)+'%',lzS.hold,'#4fb34a',H*.62) } }
   if(fbS&&fbS.state==='stalled'&&fbS.hold>0)bar('CALLING ENGINEERS '+Math.round(fbS.hold*100)+'%',fbS.hold,'#4fb34a',H*.62) }
 
-function tankWreck(e){ const x=e.x,y=e.y; burst(x,y-6,40,220,.9,6,['#ffd54a','#ff9b21','#ff5a1a','#333'],true); burst(x,y,14,120,1.2,7,['#3a3733','#6d675a'],false); explode(x,y,70,35,200); G.shake=Math.max(G.shake,14); (SAMP.boom('tank_kill')||Snd.play('boom'));
+function tankWreck(e){ const x=e.x,y=e.y; if(WRECKS.length<6)WRECKS.push({x,y,hd:e.vhd===undefined?0:e.vhd,tg:Math.atan2(G.p.y-y,G.p.x-x),t:G.t});   /* knocked-out PT-76 stays on the field */ burst(x,y-6,40,220,.9,6,['#ffd54a','#ff9b21','#ff5a1a','#333'],true); burst(x,y,14,120,1.2,7,['#3a3733','#6d675a'],false); explode(x,y,70,35,200); G.shake=Math.max(G.shake,14); (SAMP.boom('tank_kill')||Snd.play('boom'));
   if(fires.length<84){ fires.push({wid:CURW,x:x-14,y:y,r:30,life:7,ml:7,tick:0,dmg:3}); fires.push({wid:CURW,x:x+14,y:y+6,r:26,life:6,ml:6,tick:0,dmg:3}) }
   if(decals.length<DECAL_CAP)decals.push({x,y:y+4,c:SPLAT[8],l:80,sc:2.2});
   for(let i=0;i<8;i++)dropGem(x,y,e.v,2); dropGem(x,y,0,3); dropGem(x,y,0,3); G.banner={text:(e.type==='t54'?'T-54':'PT-76')+' DESTROYED!',t:2.4,col:'#9be37a'} }
@@ -5842,9 +5852,10 @@ function render(){ TERR.budget(TERR.stats().cells<6?24:4);
   drawDying(camX,camY,tt);
   // enemies
   const x0=camX-60,x1=camX+VW+60,y0=camY-60,y1=camY+VH+60;
+  if(VEH()&&SHEET1.drawVehicle)for(let i=WRECKS.length-1;i>=0;i--){ const w=WRECKS[i], age=G.t-w.t; if(age>60||age<0){ WRECKS.splice(i,1); continue } if(w.x<x0||w.x>x1||w.y<y0||w.y>y1)continue; ctx.globalAlpha=Math.min(1,(60-age)/6); SHEET1.drawVehicle(ctx,'pt76',{x:Math.round(w.x),y:Math.round(w.y),heading:w.hd,turret:w.tg,scale:1,dead:true,t:tt}); ctx.globalAlpha=1 }
   for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue; ctx.globalAlpha=(!G.demo&&riverAt(e.x,e.y))?.32:1;   /* NVA under water at the hidden crossing: faint */
     if(e.tank&&VEH()&&SHEET1.drawVehicle){ if(e.lx!==undefined&&(Math.abs(e.x-e.lx)+Math.abs(e.y-e.ly))>.05)e.vhd=Math.atan2(e.y-e.ly,e.x-e.lx); e.lx=e.x; e.ly=e.y; const tg=Math.atan2(G.p.y-e.y,G.p.x-e.x);
-      const r=SHEET1.drawVehicle(ctx,e.type==='t54'?'t54':'pt76',{x:Math.round(e.x),y:Math.round(e.y),heading:e.vhd===undefined?tg:e.vhd,turret:tg,scale:1,hit:e.flash>0,t:tt});
+      const r=SHEET1.drawVehicle(ctx,'pt76',{x:Math.round(e.x),y:Math.round(e.y),heading:e.vhd===undefined?tg:e.vhd,turret:tg,scale:1,hit:e.flash>0,t:tt});
       if(e.mf>0&&r&&r.muzzle)for(const m of r.muzzle){ ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(m[0],m[1],6,0,TAU); ctx.fill() } if(e.boss)drawBossMark(e,90,70,tt); continue }
     let spr=e.spr[Math.floor(e.anim)&1][e.dir][e.flash>0?1:0]; if(e.aoT>0)spr=tintOf(spr,'ao'); const w=spr.width*e.ds, h=spr.height*e.ds, bob=(Math.floor(e.anim)&1)?-1:0;
     if(e.boss){ ctx.fillStyle='rgba(200,40,30,'+(.22+.1*Math.sin(tt*6))+')'; ctx.beginPath(); ctx.ellipse(e.x,e.y+h*.4,w*.62,h*.16,0,0,TAU); ctx.fill(); if(e.wind>0&&e.type==='boss'){ctx.fillStyle='#ff4a3a';ctx.font='bold 22px monospace';ctx.textAlign='center';ctx.fillText('!',e.x,e.y-h*.58-16)}
