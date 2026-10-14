@@ -1,6 +1,6 @@
-THIRD-PARTY AUDIO (this build: 117 files; held back until the map build: cannon_76mm_1, cannon_76mm_2, cannon_76mm_3) - Last Bird Out: Quang Tri, 1968
+THIRD-PARTY AUDIO (this build: 124 files; held back until the map build: none) - Last Bird Out: Quang Tri, 1968
 ==================================================
-Updated 2026-10-14 (ET) from samples/ogg/ (120 files; each also ships as .m4a). Full source rows,
+Updated 2026-10-14 (ET) from samples/ogg/ (124 files; each also ships as .m4a). Full source rows,
 page quotes and processing notes: samples/LICENSES.md. Licence audit: LICENSE_AUDIT.md.
 
 All files below are edited excerpts (trimmed, mono, level-adjusted, some filtered / looped / layered)
@@ -15,8 +15,8 @@ the tails), the Fight2FlyPhoto Skyraider 6.0-10.5 s cut (airshow crowd / announc
 they are in samples/ogg/; strip them from a package or keep crediting them.
 Oct 14 audit (Copyright and IP Auditor, 2026-10-14, LICENSE_AUDIT.md "Oct 14 audit") DONE for the 2026-10-14 weapon /
 explosion files. craigsmith #486030 / #674888 FAILED and were removed (no file built from them).
-Cannon sources daveincamas #43783, t-man95 #553240 PASSED WITH CONDITIONS (ear check;
-t-man95 cuts end by 0.38 s, before the crowd voices); cannon_76mm (held, not in this build) awaits Blake's call on the optics;
+Cannon sources daveincamas #43783, Walking.With.Microphones #556134 and t-man95 #553240 PASSED WITH CONDITIONS (ear check;
+t-man95 cuts end by 0.38 s, before the crowd voices); cannon_76mm (Walking.With.Microphones) approved by Blake Oct 14;
 rob762x51 #85246 / #165042 CONDITIONAL, pending Blake's decision; qubodup #840508 pending a listen for voices.
 
 ------------------------------------------------------------------
@@ -35,7 +35,9 @@ SOUND EFFECTS (Creative Commons Attribution)
 - "Metal being dropped on concrete surface" by FartBiscuit1700, https://freesound.org/people/FartBiscuit1700/sounds/322477/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, filtered, layered with other sounds, level.
 - "308_rifle_02.wav" by gezortenplotz, https://freesound.org/people/gezortenplotz/sounds/43756/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, mono, filtered, level.
 - "Quarry blasting.wav" by juskiddink, https://freesound.org/people/juskiddink/sounds/82682/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, mono, low-pass filtered, layered with other sounds, level.
+- "Longsword Swing 1 {Good edge alignment}" by Sophia O. Caldwell, https://freesound.org/people/Sophia_C/sounds/525166/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, pitched up, filtered, layered with other sounds, level.
 - "21GunSalute.wav" by daveincamas, https://freesound.org/people/daveincamas/sounds/43783/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, mono, filtered, level.
+- "ZiS-3 (Зис 3) guns and firework in honor of day of the 75th anniversary of Sevastopol Liberation." by Walking.With.Microphones, https://freesound.org/people/Walking.With.Microphones/sounds/556134/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, mono, filtered, level.
 - (river map, ON in the 2026-10-14 map build) "Diesel boat engine" by byjoshberry, https://freesound.org/people/byjoshberry/sounds/435669/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: looped, filtered, level.
 - (river map, ON in the 2026-10-14 map build) "Small Whirlpool Current by Flooding Creek Bridge (loop)" created by NickTayloe on Freesound.org, https://freesound.org/people/NickTayloe/sounds/851608/, under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: shortened loop, mono, filtered, level.
 - (only if used; not in the build) "Military exercise.wav" by juskiddink, https://freesound.org/people/juskiddink/sounds/64647/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
@@ -49,7 +51,7 @@ MUSIC
 - (if used) "Komodo Dragon (Instrumental)" by Lemon Knife, https://freemusicarchive.org/music/lemon-knife/reptile-wisdom-instrumentals/komodo-dragon-instrumental/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
 COURTESY CREDITS (CC0 / public domain / Pixabay; not required)
-Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney); Rmutt; FranklinRook1984; Zagge28; Kostrava; AslakHostaker; JovianSounds; Nox_Sound; j1987; conleec; klangfabrik; felix.blume; Auxide_Audio; LeMudCrab; vabadus; barryshamir; greenbastardd; surrey_film; hotdogtornados; AnthonyChan0; AugustSandberg; rob762x51; modusmogulus; qubodup; samararaine; SGAK; vckhaze; t-man95; pdsounds.org (Marcus Kuerten, Stephan Möbius); "PSYCH ROCK" by fredsylvestre66 via Pixabay; U.S. Marine Band.
+Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney); Rmutt; FranklinRook1984; Zagge28; Kostrava; AslakHostaker; JovianSounds; Nox_Sound; j1987; conleec; klangfabrik; felix.blume; Auxide_Audio; LeMudCrab; vabadus; barryshamir; greenbastardd; surrey_film; hotdogtornados; AnthonyChan0; AugustSandberg; rob762x51; modusmogulus; qubodup; samararaine; SGAK; vckhaze; t-man95; kylepyke; Gingie; pdsounds.org (Marcus Kuerten, Stephan Möbius); "PSYCH ROCK" by fredsylvestre66 via Pixabay; U.S. Marine Band.
 
 ------------------------------------------------------------------
 SOUND EFFECT FILES (samples/)
@@ -551,6 +553,21 @@ samples/ogg/cannon_4.ogg + samples/m4a/cannon_4.m4a
     Link:   https://freesound.org/people/daveincamas/sounds/43783/
     Licence: daveincamas: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED - passed with conditions (ear check)
 
+samples/ogg/cannon_76mm_1.ogg + samples/m4a/cannon_76mm_1.m4a
+    Source: Walking.With.Microphones, "ZiS-3 (Зис 3) guns and firework in honor of day of the 75th anniversary of Sevastopol Liberation." (76 mm salute)
+    Link:   https://freesound.org/people/Walking.With.Microphones/sounds/556134/
+    Licence: Walking.With.Microphones: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED - passed with conditions (ear check); Blake approved Oct 14
+
+samples/ogg/cannon_76mm_2.ogg + samples/m4a/cannon_76mm_2.m4a
+    Source: Walking.With.Microphones, "ZiS-3 (Зис 3) guns and firework in honor of day of the 75th anniversary of Sevastopol Liberation." (76 mm salute)
+    Link:   https://freesound.org/people/Walking.With.Microphones/sounds/556134/
+    Licence: Walking.With.Microphones: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED - passed with conditions (ear check); Blake approved Oct 14
+
+samples/ogg/cannon_76mm_3.ogg + samples/m4a/cannon_76mm_3.m4a
+    Source: Walking.With.Microphones, "ZiS-3 (Зис 3) guns and firework in honor of day of the 75th anniversary of Sevastopol Liberation." (76 mm salute)
+    Link:   https://freesound.org/people/Walking.With.Microphones/sounds/556134/
+    Licence: Walking.With.Microphones: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED - passed with conditions (ear check); Blake approved Oct 14
+
 samples/ogg/cannon_alt_blackpowder_1.ogg + samples/m4a/cannon_alt_blackpowder_1.m4a
     Source: t-man95, "Cannon fire" (black-powder cannon)
     Link:   https://freesound.org/people/t-man95/sounds/553240/
@@ -640,6 +657,28 @@ samples/ogg/tandem_rotor_loop_1.ogg + samples/m4a/tandem_rotor_loop_1.m4a
     Source: surrey_film, "Chinook rotor slap in high wind"
     Link:   https://freesound.org/people/surrey_film/sounds/84472/
     Licence: surrey_film: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+--- knife_throw (2026-10-14, Legal PASS; Sophia O. Caldwell credit required for knife_throw_2/3) ---
+
+samples/ogg/knife_throw_1.ogg + samples/m4a/knife_throw_1.m4a
+    Source: kylepyke, "knife-throw-1.aiff"
+    Link:   https://freesound.org/people/kylepyke/sounds/196562/
+    Licence: kylepyke: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - Legal PASS
+
+samples/ogg/knife_throw_2.ogg + samples/m4a/knife_throw_2.m4a
+    Source: kylepyke, "knife-throw-1.aiff"; Sophia O. Caldwell, "Longsword Swing 1 {Good edge alignment}"
+    Link:   https://freesound.org/people/kylepyke/sounds/196562/  https://freesound.org/people/Sophia_C/sounds/525166/
+    Licence: kylepyke: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - Legal PASS; Sophia_C: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED - Legal PASS
+
+samples/ogg/knife_throw_3.ogg + samples/m4a/knife_throw_3.m4a
+    Source: kylepyke, "knife-throw-1.aiff"; Sophia O. Caldwell, "Longsword Swing 1 {Good edge alignment}"
+    Link:   https://freesound.org/people/kylepyke/sounds/196562/  https://freesound.org/people/Sophia_C/sounds/525166/
+    Licence: kylepyke: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - Legal PASS; Sophia_C: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED - Legal PASS
+
+samples/ogg/knife_throw_alt_gingie.ogg + samples/m4a/knife_throw_alt_gingie.m4a
+    Source: Gingie, "Knife Throw" (MP3)
+    Link:   https://freesound.org/people/Gingie/sounds/181679/
+    Licence: Gingie: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - Legal PASS (fallback only)
 
 ------------------------------------------------------------------
 MUSIC FILES (music/)

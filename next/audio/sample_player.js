@@ -1,4 +1,4 @@
-/* copied from Sound Helper by tools/build_audio.py; one game-side patch marked "game patch" (warning voices outside the caps) */
+/* copied from Sound Helper by tools/build_audio.py; game patches: mix-bus routing (P.route); and one game-side patch marked "game patch" (warning voices outside the caps) */
 /*
  * sample_player.js - real recorded samples for "Last Bird Out - Quang Tri, 1968".
  * Plain browser JS, no dependencies. Works next to sound_cues.js (the synthesized cues).
@@ -31,65 +31,66 @@
     bomb_distant: 1, flamethrower_loop: 1, flamethrower_burst: 1,
     // week of 2026-10-14: weapons + explosions (no synth fallback)
     bolt_rifle_shot: 1, bolt_rifle_bolt: 1, shotgun_shot: 1, shotgun_rack: 1, cannon: 1, cannon_76mm: 1, backblast: 1, minigun_burst: 1, strafe_20mm: 1,
-    explosion_close: 1, explosion_claymore: 1, napalm_ignite: 1, fire_loop: 1, smoke_pop: 1 };
+    explosion_close: 1, explosion_claymore: 1, napalm_ignite: 1, fire_loop: 1, smoke_pop: 1, knife_throw: 1 };
 
   // cat: voice-limit category. prio: higher survives voice stealing. gain: linear trim before variation.
   // out: which internal output the slot uses ('sfx' -> sfxBus, 'rotor' -> rotorBus or sfxBus).
   var SLOTS = {
     huey_rotor_loop:    { cat: 'rotor',     prio: 5, gain: 0.787, out: 'rotor', loop: true },
-    huey_flyby:         { cat: 'rotor',     prio: 5, gain: 0.813, out: 'rotor', fallback: 'medevacHuey' },
+    huey_flyby:         { cat: 'rotor',     prio: 5, gain: 0.825, out: 'rotor', fallback: 'medevacHuey' },
     // aircraft (Blake approved 2026-10-07, batch 2): not guns, never in the gunshot cap. flyby(type) plays them.
-    jet_flyby:          { cat: 'air',       prio: 4, gain: 0.958 },                                  // STAND-IN F-4/F-5 low pass; before the bomb
-    skyraider_flyby:    { cat: 'air',       prio: 4, gain: 0.834 },                                  // A-1H (P-47D mixed in)
-    ranch_hand_flyover: { cat: 'air',       prio: 4, gain: 0.820 },                                  // STAND-IN C-130 for the C-123
-    tandem_rotor_flyby: { cat: 'rotor',     prio: 5, gain: 1.000, out: 'rotor' },                    // STAND-IN Chinook for a CH-46 (on for the map build)
+    jet_flyby:          { cat: 'air',       prio: 4, gain: 0.941 },                                  // STAND-IN F-4/F-5 low pass; before the bomb
+    skyraider_flyby:    { cat: 'air',       prio: 4, gain: 0.837 },                                  // A-1H (P-47D mixed in)
+    ranch_hand_flyover: { cat: 'air',       prio: 4, gain: 0.924 },                                  // STAND-IN C-130 for the C-123
+    tandem_rotor_flyby: { cat: 'rotor',     prio: 5, gain: 1.06, out: 'rotor' },                    // STAND-IN Chinook for a CH-46 (on for the map build)
     // turret build clunks (sample-only Cues.turretCorner / turretMid, tier-2 trim 0.7 applied by the Cues wrapper)
     turret_corner_build: { cat: 'build',    prio: 2, gain: 0.208 },                                  // sandbag thud + deep ammo-box clunk
     turret_mid_build:   { cat: 'build',     prio: 2, gain: 0.163 },                                  // sandbag thud + light metal clink
-    m16_single:         { cat: 'gun',       prio: 1, gain: 0.351, vary: true, maxDur: 0.6 },
-    m16_burst:          { cat: 'gun',       prio: 1, gain: 0.336, vary: true, maxDur: 1.0, burstOf: 'm16_single', rate: 12.5, rounds: [3, 5], maxRounds: 5 },  // 20-rd mags, 3-5 rd bursts (FFSL AR-15 rounds)
-    m60_burst:          { cat: 'gun',       prio: 2, gain: 0.176, vary: true },
+    m16_single:         { cat: 'gun',       prio: 1, gain: 0.378, vary: true, maxDur: 0.6 },
+    m16_burst:          { cat: 'gun',       prio: 1, gain: 0.298, vary: true, maxDur: 1.0, burstOf: 'm16_single', rate: 12.5, rounds: [3, 5], maxRounds: 5 },  // 20-rd mags, 3-5 rd bursts (FFSL AR-15 rounds)
+    m60_burst:          { cat: 'gun',       prio: 2, gain: 0.196, vary: true },
     // enemy rifles (Blake approved 2026-10-07): ~2.5 dB under Doc's M16, share the 6-gunshot cap, no synth fallback
-    ak47:               { cat: 'gun',       prio: 1, gain: 0.289, vary: true, maxDur: 0.7 },
-    ak47_burst:         { cat: 'gun',       prio: 1, gain: 0.322, vary: true, maxDur: 1.2, burstOf: 'ak47', rate: 11, rounds: [3, 5], maxRounds: 30 },  // 30-rd mag
-    sks:                { cat: 'gun',       prio: 1, gain: 0.262, vary: true, maxDur: 0.7 },   // semi-auto, 10-rd
-    rpd_burst:          { cat: 'gun',       prio: 1, gain: 0.243, vary: true, maxDur: 1.8 },   // enemy LMG STAND-IN: FFSL AK-47 edited, 6/8-rd belt bursts, ~730 rpm, lower, farther
+    ak47:               { cat: 'gun',       prio: 1, gain: 0.316, vary: true, maxDur: 0.7 },
+    ak47_burst:         { cat: 'gun',       prio: 1, gain: 0.286, vary: true, maxDur: 1.2, burstOf: 'ak47', rate: 11, rounds: [3, 5], maxRounds: 30 },  // 30-rd mag
+    sks:                { cat: 'gun',       prio: 1, gain: 0.286, vary: true, maxDur: 0.7 },   // semi-auto, 10-rd
+    rpd_burst:          { cat: 'gun',       prio: 1, gain: 0.215, vary: true, maxDur: 1.8 },   // enemy LMG STAND-IN: FFSL AK-47 edited, 6/8-rd belt bursts, ~730 rpm, lower, farther
     // M79 (Blake's pick 2026-10-07): launch = LeMudCrab M203/M320 STAND-IN, counts toward the 6-gunshot cap, between the
     // M60 and the mortar launch; impact = Kostrava blast, ~5 dB under the mortar impact. No synth fallback (weapon).
-    m79_launch:         { cat: 'gun',       prio: 2, gain: 0.771, vary: true, maxDur: 0.6 },
-    m79_impact:         { cat: 'explosive', prio: 3, gain: 0.354, vary: true },
-    b40_launch:         { cat: 'explosive', prio: 3, gain: 0.686, vary: true },                // STAND-IN; short bang (b40Launch(), lead 1 s)
+    m79_launch:         { cat: 'gun',       prio: 2, gain: 0.323, vary: true, maxDur: 0.6 },
+    m79_impact:         { cat: 'explosive', prio: 3, gain: 0.566, vary: true },
+    b40_launch:         { cat: 'explosive', prio: 3, gain: 0.114, vary: true },                // STAND-IN; short bang (b40Launch(), lead 1 s)
     whistle:            { cat: 'signal',    prio: 3, gain: 0.333, vary: true },                // standard charge warning (chargeWarning(), lead 2 s)
     bugle:              { cat: 'signal',    prio: 3, gain: 0.273 },                            // big night assault only; on via manifest cues.bigNightAssault.enabled
     // river map (batch 3, on for the map build). The .50 shares the 6-gunshot cap; the loops use prio 5 so gunfire
     // never steals the engine or the river bed (a stolen loop would not come back).
-    pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.304, vary: true },                 // STAND-IN .50 cal (M2 not confirmed)
+    pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.284, vary: true },                 // STAND-IN .50 cal (M2 not confirmed)
     pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.292, loop: true },                 // under the Huey loop
     river_ambience_loop: { cat: 'ambience', prio: 5, gain: 0.062, loop: true },                 // under the footsteps
-    mortar_launch:      { cat: 'explosive', prio: 3, gain: 1.098, vary: true },
-    mortar_impact:      { cat: 'explosive', prio: 3, gain: 0.632, vary: true },
-    mortar_incoming:    { cat: 'explosive', prio: 3, gain: 0.357, vary: true },
-    bomb_distant:       { cat: 'explosive', prio: 4, gain: 0.932, vary: true },
-    flamethrower_loop:  { cat: 'fire',      prio: 3, gain: 0.619, loop: true },
-    flamethrower_burst: { cat: 'fire',      prio: 3, gain: 0.680, vary: true },
+    mortar_launch:      { cat: 'explosive', prio: 3, gain: 1.04, vary: true },
+    mortar_impact:      { cat: 'explosive', prio: 3, gain: 0.61, vary: true },
+    mortar_incoming:    { cat: 'explosive', prio: 3, gain: 0.568, vary: true },
+    bomb_distant:       { cat: 'explosive', prio: 4, gain: 0.802, vary: true },
+    flamethrower_loop:  { cat: 'fire',      prio: 3, gain: 0.64, loop: true },
+    flamethrower_burst: { cat: 'fire',      prio: 3, gain: 0.68, vary: true },
     radio_squelch:      { cat: 'radio',     prio: 3, gain: 0.370, vary: true, fallback: 'radioSquelch' },
     // ---- week of 2026-10-14 (build_weapons_oct14.py). Every shot slot is cat 'gun' (6-gunshot cap). Gains calibrated
     // to TARGET_POST in samples/measure_levels.py: rifles under the Huey, bomb and Gunny; bomb_distant stays loudest.
     bolt_rifle_shot:    { cat: 'gun',       prio: 2, gain: 0.077, vary: true },                // M40 / Springfield (.308 Remington 700)
-    bolt_rifle_bolt:    { cat: 'mech',      prio: 1, gain: 0.325, vary: true },                // bolt cycle after the shot
-    shotgun_shot:       { cat: 'gun',       prio: 2, gain: 0.317, vary: true },                // Ithaca 37 STAND-IN (Mossberg 500)
-    shotgun_rack:       { cat: 'mech',      prio: 1, gain: 0.190, vary: true },
-    cannon:             { cat: 'gun',       prio: 3, gain: 1.002, vary: true },                // field guns (21-gun salute); tank90 / t54 / howitzer
-    cannon_76mm:        { cat: 'gun',       prio: 3, gain: 0.740, vary: true },                // ZiS-3 76 mm; pt76
+    bolt_rifle_bolt:    { cat: 'mech',      prio: 1, gain: 0.662, vary: true },                // bolt cycle after the shot
+    shotgun_shot:       { cat: 'gun',       prio: 2, gain: 0.298, vary: true },                // Ithaca 37 STAND-IN (Mossberg 500)
+    shotgun_rack:       { cat: 'mech',      prio: 1, gain: 0.386, vary: true },
+    cannon:             { cat: 'gun',       prio: 3, gain: 0.397, vary: true },                // field guns (21-gun salute); tank90 / t54 / howitzer
+    cannon_76mm:        { cat: 'gun',       prio: 3, gain: 0.11, vary: true },                // ZiS-3 76 mm; pt76
     tandem_rotor_loop:  { cat: 'rotor',     prio: 5, gain: 0.795, out: 'rotor', loop: true },  // CH-46 evac bird hover (STAND-IN Chinook)
-    backblast:          { cat: 'gun',       prio: 3, gain: 0.822, vary: true },                // 106 mm RR / Ontos back-blast, Zuni launch
-    minigun_burst:      { cat: 'gun',       prio: 2, gain: 0.207, vary: true },                // Spooky, distant / airborne
-    strafe_20mm:        { cat: 'gun',       prio: 2, gain: 0.210, vary: true },                // STAND-IN: minigun -3 st (ear check)
-    explosion_close:    { cat: 'explosive', prio: 4, gain: 1.060, vary: true },                // close HE, layered real recordings
-    explosion_claymore: { cat: 'explosive', prio: 4, gain: 0.968, vary: true },                // sharp crack
-    napalm_ignite:      { cat: 'fire',      prio: 3, gain: 1.065, vary: true },
-    fire_loop:          { cat: 'fire',      prio: 5, gain: 0.438, loop: true },                // quiet burning loop
-    smoke_pop:          { cat: 'canister',  prio: 6, gain: 0.471 },                            // Doc's canister: pop + hiss
+    backblast:          { cat: 'gun',       prio: 3, gain: 0.309, vary: true },                // 106 mm RR / Ontos back-blast, Zuni launch
+    minigun_burst:      { cat: 'gun',       prio: 2, gain: 0.551, vary: true },                // Spooky, distant / airborne
+    strafe_20mm:        { cat: 'gun',       prio: 2, gain: 0.528, vary: true },                // STAND-IN: minigun -3 st (ear check)
+    explosion_close:    { cat: 'explosive', prio: 4, gain: 1.054, vary: true },                // close HE, layered real recordings
+    explosion_claymore: { cat: 'explosive', prio: 4, gain: 0.951, vary: true },                // sharp crack
+    napalm_ignite:      { cat: 'fire',      prio: 3, gain: 1.078, vary: true },
+    fire_loop:          { cat: 'fire',      prio: 5, gain: 0.935, loop: true },                // quiet burning loop
+    knife_throw:        { cat: 'blade',     prio: 1, gain: 0.353, vary: true, maxDur: 1.0 },   // thrown knife into wood (not a gun) - merged from Sound Helper 2026-10-14
+    smoke_pop:          { cat: 'canister',  prio: 6, gain: 0.993 },                            // Doc's canister: pop + hiss
     // Footsteps: all 12 clips are loudness-matched in build_samples.py; these per-surface trims put every surface ~6 dB
     // under the M16 single-shot average (whole-clip RMS, measured by samples/measure_levels.py).
     step_mud:           { cat: 'step',      prio: 0, gain: 0.233, vary: true },
@@ -286,7 +287,7 @@
       }
       if (loop) src.loop = true;
       src.start(t); if (!loop) src.stop(t + dur + 0.01);
-      var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g };
+      var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g, bus: o.busName || '' };
       src.onended = function () { v.dead = true; };
       voices.push(v); stats.played++;
       return v;
@@ -314,6 +315,11 @@
       var s = SLOTS[slot]; if (!s) { info('unknown slot "' + slot + '"'); return null; }
       var t = o.when != null ? Math.max(o.when, now()) : now();
       prune(Math.min(t, now()));
+      /* game patch (mix buses): P.route(slot, s, o) -> { dest, vol, prio, cat, bus, cap } or { drop: true }; per-bus per-slot voice caps */
+      if (P.route && !o.routed) { var rt = P.route(slot, s, o); if (rt) { if (rt.drop) { stats.dropped++; return null; }
+          if (rt.cap) { var same = overlapping(t, t + 0.05, function (v) { return v.slot === slot && v.bus === rt.bus; }); if (same.length >= rt.cap) { stats.capped = (stats.capped || 0) + 1; return null; } }
+          o = Object.assign({}, o, { dest: rt.dest || o.dest, vol: (o.vol == null ? 1 : o.vol) * (rt.vol == null ? 1 : rt.vol), routed: true, busName: rt.bus });
+          if (rt.prio != null || rt.cat) s = Object.assign({}, s, { prio: rt.prio != null ? rt.prio : s.prio, cat: rt.cat || s.cat }); } }
       // recorded bursts are used when loaded; play(..., { rounds: n }) or no burst files -> re-trigger the single shot
       if (s.burstOf && (o.rounds || !(buffers[slot] && buffers[slot].length))) return playBurst(slot, s, t, o);
       // o.variant: preferred file index (explosion(kind)); falls back to a random variant if that file is not loaded
@@ -492,12 +498,13 @@
     P.shotgunRack = function (o) { return P.play('shotgun_rack', o || {}); };
     // cannon(kind, o): kind = 'tank90' (M48) | 't54' | 'pt76' | 'howitzer' (105 mm) -> cannon slot, small pitch per calibre;
     // 'recoilless' (106 mm) | 'ontos' | 'zuni' -> back-blast slot (heavier, longer than the B-40).
-    var CANNON = { /* game patch: pt76 uses the main cannon clips while cannon_76mm is held */ tank90: { slot: 'cannon', rate: 1.04 }, t54: { slot: 'cannon', rate: 1.0 }, pt76: { slot: 'cannon', rate: 1.12 },
+    var CANNON = { /* game patch: Blake approved the ZiS-3 Oct 14 - pt76 uses cannon_76mm (falls back to the main cannon clips if it is not loaded) */ tank90: { slot: 'cannon', rate: 1.04 }, t54: { slot: 'cannon', rate: 1.0 }, pt76: { slot: 'cannon_76mm', rate: 1.0, fb: { slot: 'cannon', rate: 1.12 } },
       howitzer: { slot: 'cannon', rate: 0.96 }, recoilless: { slot: 'backblast', rate: 1.0 }, ontos: { slot: 'backblast', rate: 0.98 },
       zuni: { slot: 'backblast', rate: 1.04 } };
     P.cannon = function (kind, o) {
       o = o || {}; var k = CANNON[kind || 'tank90'];
       if (!k) { info('unknown cannon "' + kind + '" (use ' + Object.keys(CANNON).join('|') + ')'); return null; }
+      if (k.fb && !P.hasSample(k.slot)) k = k.fb;
       return P.play(k.slot, Object.assign({}, o, { rate: (o.rate || 1) * k.rate }));
     };
     P.zuni = function (o) { return P.cannon('zuni', o); };
@@ -530,6 +537,7 @@
         if (g) { var t = h.start, v0 = g.gain.value; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v0, t + o.fade); } }
       return h;
     };
+    P.knifeThrow = function (o) { return P.play('knife_throw', o || {}); };       // merged from Sound Helper: whoosh + thunk into wood; silent if not loaded
     P.smokePop = function (o) { return P.play('smoke_pop', o || {}); };            // Doc pops the canister on the circle
     P.CANNON_KINDS = Object.keys(CANNON); P.EXPLOSION_KINDS = Object.keys(EXPLOSION);
 
