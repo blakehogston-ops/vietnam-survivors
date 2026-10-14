@@ -7,6 +7,7 @@
  ],
  "slots": {
   "knife_throw": {
+   "group": "player",
    "batch": 1,
    "files": [
     "knife_throw_1",
@@ -18,6 +19,7 @@
    ]
   },
   "m16_single": {
+   "group": "player",
    "batch": 1,
    "files": [
     "m16_ar15_near_1",
@@ -29,6 +31,7 @@
    ]
   },
   "m16_burst": {
+   "group": "player",
    "batch": 1,
    "files": [
     "m16_burst_1",
@@ -36,6 +39,7 @@
    ]
   },
   "m60_burst": {
+   "group": "squad",
    "batch": 1,
    "files": [
     "m60_burst_1",
@@ -43,6 +47,7 @@
    ]
   },
   "ak47": {
+   "group": "enemy",
    "batch": 1,
    "files": [
     "ak47_single_1",
@@ -51,6 +56,7 @@
    ]
   },
   "ak47_burst": {
+   "group": "enemy",
    "batch": 1,
    "files": [
     "ak47_burst_1",
@@ -60,6 +66,7 @@
    ]
   },
   "sks": {
+   "group": "enemy",
    "batch": 1,
    "files": [
     "sks_single_1",
@@ -69,6 +76,7 @@
    ]
   },
   "rpd_burst": {
+   "group": "enemy",
    "batch": 1,
    "files": [
     "rpd_burst_1",
@@ -76,6 +84,7 @@
    ]
   },
   "m79_launch": {
+   "group": "player",
    "batch": 1,
    "files": [
     "m79_launch_1"
@@ -86,12 +95,14 @@
    ]
   },
   "m79_impact": {
+   "group": "specials",
    "batch": 1,
    "files": [
     "m79_impact_1"
    ]
   },
   "b40_launch": {
+   "group": "enemy",
    "batch": 1,
    "files": [
     "b40_launch_1",
@@ -119,6 +130,7 @@
    ]
   },
   "mortar_launch": {
+   "group": "specials",
    "batch": 1,
    "files": [
     "mortar_launch_1",
@@ -127,6 +139,7 @@
    ]
   },
   "mortar_impact": {
+   "group": "specials",
    "batch": 1,
    "files": [
     "mortar_impact_1",
@@ -134,12 +147,14 @@
    ]
   },
   "mortar_incoming": {
+   "group": "specials",
    "batch": 1,
    "files": [
     "mortar_incoming_1"
    ]
   },
   "bomb_distant": {
+   "group": "specials",
    "batch": 1,
    "files": [
     "bomb_distant_2",
@@ -178,6 +193,7 @@
    ]
   },
   "huey_flyby": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "huey_flyby_1",
@@ -185,6 +201,7 @@
    ]
   },
   "pbr_50cal_burst": {
+   "group": "squad",
    "batch": 2,
    "files": [
     "pbr_50cal_burst_1",
@@ -192,30 +209,35 @@
    ]
   },
   "jet_flyby": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "jet_flyby_1"
    ]
   },
   "skyraider_flyby": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "skyraider_flyby_1"
    ]
   },
   "ranch_hand_flyover": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "ranch_hand_flyover_1"
    ]
   },
   "tandem_rotor_flyby": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "tandem_rotor_flyby_1"
    ]
   },
   "flamethrower_loop": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "flamethrower_loop_1"
@@ -225,6 +247,7 @@
    ]
   },
   "flamethrower_burst": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "flamethrower_burst_1",
@@ -284,6 +307,7 @@
    ]
   },
   "bolt_rifle_shot": {
+   "group": "player",
    "batch": 1,
    "files": [
     "bolt_rifle_shot_1",
@@ -291,6 +315,7 @@
    ]
   },
   "bolt_rifle_bolt": {
+   "group": "player",
    "batch": 1,
    "files": [
     "bolt_rifle_bolt_1"
@@ -300,6 +325,7 @@
    ]
   },
   "shotgun_shot": {
+   "group": "player",
    "batch": 1,
    "files": [
     "shotgun_shot_1",
@@ -307,24 +333,28 @@
    ]
   },
   "shotgun_rack": {
+   "group": "player",
    "batch": 1,
    "files": [
     "shotgun_rack_1"
    ]
   },
   "smoke_pop": {
+   "group": "specials",
    "batch": 1,
    "files": [
     "smoke_pop_1"
    ]
   },
   "explosion_claymore": {
+   "group": "specials",
    "batch": 1,
    "files": [
     "explosion_claymore_1"
    ]
   },
   "cannon_76mm": {
+   "group": "enemy",
    "batch": 2,
    "files": [
     "cannon_76mm_1",
@@ -333,6 +363,7 @@
    ]
   },
   "cannon": {
+   "group": "squad",
    "batch": 2,
    "files": [
     "cannon_1",
@@ -353,6 +384,7 @@
    ]
   },
   "backblast": {
+   "group": "squad",
    "batch": 2,
    "files": [
     "backblast_1",
@@ -360,6 +392,7 @@
    ]
   },
   "minigun_burst": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "minigun_burst_1",
@@ -367,12 +400,14 @@
    ]
   },
   "strafe_20mm": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "strafe_20mm_1"
    ]
   },
   "explosion_close": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "explosion_close_1",
@@ -382,12 +417,14 @@
    ]
   },
   "napalm_ignite": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "napalm_ignite_1"
    ]
   },
   "fire_loop": {
+   "group": "specials",
    "batch": 2,
    "files": [
     "fire_loop_1"

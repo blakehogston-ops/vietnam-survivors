@@ -2393,7 +2393,7 @@ function updateTanks(dt){
     if(tg){ const ang=Math.atan2(tg.y-t.y,tg.x-t.x); t.tur=turnTo(t.tur,ang,2.8*dt); const diff=Math.abs(Math.atan2(Math.sin(ang-t.tur),Math.cos(ang-t.tur)));
       if(!flame){ t.gcd-=dt; if(diff<.2&&t.gcd<=0){ const sh=t.k===2; const mx=t.x+cosd(t.tur)*46, my=t.y+sind(t.tur)*46;
           if(sh){ t.ammo=(t.ammo||6)-1; t.gcd=t.ammo>0?.17:s.gcd*3.4; if(t.ammo<=0)t.ammo=6; addPart(t.x-cosd(t.tur)*14,t.y-sind(t.tur)*14,-cosd(t.tur)*60,-sind(t.tur)*60,.5,6,'#d8d4c4',false,2) } else t.gcd=s.gcd;
-          apHit=true; explode(tg.x+(rnd()-.5)*(sh?44:16),tg.y+(rnd()-.5)*(sh?44:16),s.rad,s.dmg*(sh?.62:1),230); apHit=false; burst(mx,my,8,120,.3,4,['#fff0a0','#ffb040','#c8c8c0'],true); t.mf=.07; g.shake=Math.max(g.shake,Math.max(0,6-Math.hypot(t.x-p.x,t.y-p.y)/80)+2); Snd.play(t.k===2?'ontos':'tank_cannon') } }
+          apHit=true; explode(tg.x+(rnd()-.5)*(sh?44:16),tg.y+(rnd()-.5)*(sh?44:16),s.rad,s.dmg*(sh?.62:1),230); apHit=false; burst(mx,my,8,120,.3,4,['#fff0a0','#ffb040','#c8c8c0'],true); t.mf=.07; g.shake=Math.max(g.shake,Math.max(0,6-Math.hypot(t.x-p.x,t.y-p.y)/80)+2); MIX.as('squad',()=>Snd.play(t.k===2?'ontos':'tank_cannon')) } }
       else if(diff<.4){ const mx=t.x+cosd(t.tur)*40, my=t.y+sind(t.tur)*40;
         for(let k=0;k<3;k++){ const sp=s.frange*(2.6+rnd()*1.2), a2=t.tur+(rnd()-.5)*.6; addPart(mx,my,cosd(a2)*sp,sind(a2)*sp,.22+rnd()*.12,4+rnd()*4,['#fff0a0','#ffd54a','#ff9b21','#ff5a1a'][(rnd()*4)|0],true,3.2) }
         t.fcd-=dt; if(t.fcd<=0){ t.fcd=.1; Snd.play('flame'); dmgSrc=3;
@@ -3122,7 +3122,7 @@ function update(dt){
       dx=T.x-e.x; dy=T.y-e.y; d=Math.hypot(dx,dy)||1; if(d<=(e.type==='t54'?330:290))spd=0;
       if(e.cdash<=0){ if(d>440||(!onScreen(e,10)&&d>380)){ e.cdash=.5 } else { e.cdash=e.type==='t54'?3.4:4.0; e.mf=.12;
           eprojs.push({sx:e.x+(dx<0?-1:1)*30,sy:e.y-12,x:e.x,y:e.y-12,tx:T.x,ty:T.y,t:0,d:.85,rad:56,dmg:16,tr:1,trk:T.player?null:T,toff:0,tdm:e.type==='t54'?110:80,sdm:e.type==='t54'?95:70});
-          burst(e.x+(dx<0?-1:1)*34,e.y-12,8,110,.3,4,['#fff0a0','#ffb040','#c8c8c0'],true); MIX.as('enemy',()=>Snd.play('enemy_cannon'),d) } } }
+          burst(e.x+(dx<0?-1:1)*34,e.y-12,8,110,.3,4,['#fff0a0','#ffb040','#c8c8c0'],true); MIX.as('special',()=>Snd.play('enemy_cannon'),d) } } }
     else if(e.boss){ e.cdash-=dt;
       if(e.wind>0){e.wind-=dt;spd=0;if(e.wind<=0){e.dash=.9}}
       else if(e.dash>0){e.dash-=dt;spd*=3.3}
@@ -5850,11 +5850,17 @@ const MIX={DB:{player:0,special:-1,squad:-7,enemy:-11,amb:-14,rot:-8,mus:-9},DUC
   build(c,out){ for(const k of ['player','special','squad','enemy','amb']){ const n=c.createGain(); n.gain.value=this.g(this.DB[k]); n.connect(out); this.bus[k]=n }
     for(const k of ['rot','mus']){ const n=c.createGain(); n.gain.value=this.g(this.DB[k]); this.bus[k]=n } this.c=c },
   as(src,fn,dist){ const a=this.src,b=this.dist; this.src=src; this.dist=dist||0; try{ return fn() }finally{ this.src=a; this.dist=b } },
-  busOf(sl){ if(this.SPECIAL.has(sl)||/^explosion_far|^bomb|^radio|flyby/.test(sl))return 'special'; if(this.AMB.has(sl))return 'amb'; if(this.src)return this.src; if(this.ENEMYSL.has(sl))return 'enemy'; return 'player' },
+  /* Sound Helper's per-slot "group" (manifest) decides the bus; lead's call: B-40 launch, the charge / satchel warning and the PT-76 cannon are threat cues -> specials.
+     MIX.as('squad'|'enemy') tags the shooter for shared clips (an M16 fired by a Marine is squad, not player). */
+  FORCE_SPECIAL:new Set(['b40_launch','whistle','cannon_76mm']),
+  DUCKERS:new Set(['bomb_distant','napalm_ignite','minigun_burst','strafe_20mm','huey_flyby','jet_flyby','skyraider_flyby','ranch_hand_flyover','tandem_rotor_flyby','radio_squelch','mortar_incoming','whistle','b40_launch']),
+  busOf(sl){ if(this.FORCE_SPECIAL.has(sl))return 'special'; if(this.AMB.has(sl))return 'amb'; const M=window.SAMPLE_MANIFEST&&SAMPLE_MANIFEST.slots[sl], gr=M&&M.group;
+    if(gr==='specials')return 'special'; if(this.src)return this.src; if(gr==='enemy')return 'enemy'; if(gr)return 'player';   /* untagged squad-group clips are the player's own (M60, cannon...) - Marines, PBR and the friendly tank are tagged squad */
+    if(this.SPECIAL.has(sl)||/^bomb|^radio|flyby/.test(sl))return 'special'; if(this.ENEMYSL.has(sl))return 'enemy'; return 'player' },
   route(sl,s,o){ if(!this.c)return null; if(s.out==='rotor')return null; const b=o.bus||this.busOf(sl); const r={bus:b,dest:this.bus[b]};
     if(b==='player'){ r.prio=9; r.cat=s.cat==='gun'?'pgun':s.cat }   /* the player's own sounds are never culled */
     else if(b==='enemy'||b==='squad'){ r.cap=(this.CAP[b]&&this.CAP[b][sl])||this.CAP._; const d=this.dist||0; r.vol=b==='enemy'?Math.max(.25,1-d/900):Math.max(.4,1-d/1100); if(b==='enemy')r.prio=Math.min(s.prio||2,2) }
-    else if(b==='special'){ r.prio=8; this.duck() }
+    else if(b==='special'){ r.prio=8; if(this.DUCKERS.has(sl))this.duck() }
     if(this.st){ this.st[b]=(this.st[b]||0)+1 } return r },
   duck(){ const c=this.c; if(!c)return; const t=c.currentTime; this.duckUntil=t+this.DUCK_T; this.ducks=(this.ducks|0)+1;
     for(const k in this.DUCK){ const n=this.bus[k]; if(!n)continue; const base=this.g(this.DB[k]); try{ n.gain.cancelScheduledValues(t); n.gain.setTargetAtTime(base*this.g(this.DUCK[k]),t,.03); n.gain.setTargetAtTime(base,t+this.DUCK_T,.35) }catch(e){} } },
