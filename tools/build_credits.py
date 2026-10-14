@@ -15,8 +15,8 @@ src = {n: b for n, b in ent}
 held = [n for n in src if n not in shipped]
 # names credited only by held files -> drop from the credits
 HELD_NAMES = set()
-for nm in ('byjoshberry', 'NickTayloe', 'felix.blume', 'Auxide_Audio'):   # credit names of the map-build files
-    in_held = any(nm in src[k] for k in held); in_ship = any(nm in src[k] for k in shipped)
+for nm in ('byjoshberry', 'NickTayloe', 'felix.blume', 'Auxide_Audio', 'craigsmith', 'juskiddink', 'Walking.With.Microphones', 'areniporgen'):   # credit names of the map-build files
+    in_held = any(nm in src[k] for k in held); in_ship = any(nm in src.get(k, '') for k in shipped)
     if in_held and not in_ship: HELD_NAMES.add(nm)
 # ---- credits block ----
 B = open(os.path.join(SP, 'INGAME_CREDITS_BLOCK.txt')).read().split('\n')
@@ -36,7 +36,7 @@ for l in lines:
     if 'http' not in l and not l.startswith('- '): out.append('<p class="crh"><b>%s</b></p>' % t); continue
     out.append('<p>%s</p>' % link(t))
 body = '\n'.join(out)
-assert not re.search('qubodup|areniporgen|multimax|mozfoo', body, re.I)
+assert not re.search('areniporgen|184382|693546|693421|156897|529239|multimax|mozfoo', body, re.I)   # Oct 14: qubodup's mortar (#184382) stays banned; his CC0 'Illegal Explosion' (#840508, explosion_close_2) is credited
 s = open(F).read()
 pat = re.compile(r'(<details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">\n).*?(\n</div></details>)', re.S)
 s, n = pat.subn(lambda m: m.group(1) + body + m.group(2), s); assert n == 2, n
@@ -47,6 +47,10 @@ for n in held: T2 = re.sub(r'^samples/ogg/%s\.ogg[^\n]*\n(?:    [^\n]*\n)+\n?' %
 T2 = '\n'.join(l for l in T2.split('\n') if not (l.startswith('- ') and any(h in l for h in HELD_NAMES)))
 for h in HELD_NAMES: T2 = re.sub(r'\b%s; ' % re.escape(h), '', T2)
 T2 = T2.replace('THIRD-PARTY AUDIO', 'THIRD-PARTY AUDIO (this build: %d files; held back until the map build: %s)' % (len(shipped), ', '.join(held) or 'none'), 1)
+# Legal (Oct 14): no areniporgen anywhere in the shipped text; the held cannon_76mm source is not named until Blake decides
+T2 = re.sub(r' and areniporgen #693421', '', T2); T2 = T2.replace(' + areniporgen #693421', '')
+T2 = T2.replace('Walking.With.Microphones #556134 and ', '').replace("cannon_76mm (Walking.With.Microphones) awaits", "cannon_76mm (held, not in this build) awaits")
+assert not re.search('areniporgen|Walking.With', T2), 'held/failed source still named in THIRD_PARTY_AUDIO.txt'
 open(os.path.join(OUT, 'THIRD_PARTY_AUDIO.txt'), 'w').write(T2)
 # ---- check: every shipped file -> credited source; every credited name -> a shipped file ----
 plain = re.sub('<[^>]+>', '', body)

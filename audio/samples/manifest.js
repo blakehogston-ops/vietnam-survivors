@@ -101,6 +101,12 @@
     "whistle_alt_pea_distant"
    ]
   },
+  "bugle": {
+   "batch": 1,
+   "files": [
+    "bugle_felixblume_1"
+   ]
+  },
   "mortar_launch": {
    "batch": 1,
    "files": [
@@ -159,10 +165,6 @@
    "files": [
     "turret_mid_build_1"
    ]
-  },
-  "smoke_canister": {
-   "batch": 1,
-   "files": []
   },
   "huey_flyby": {
    "batch": 2,
@@ -269,6 +271,192 @@
     "step_deck_conleec_2",
     "step_deck_conleec_3"
    ]
+  },
+  "bolt_rifle_shot": {
+   "batch": 1,
+   "files": [
+    "bolt_rifle_shot_1",
+    "bolt_rifle_shot_2"
+   ]
+  },
+  "bolt_rifle_bolt": {
+   "batch": 1,
+   "files": [
+    "bolt_rifle_bolt_1"
+   ],
+   "alt": [
+    "bolt_rifle_bolt_alt_mauser"
+   ]
+  },
+  "shotgun_shot": {
+   "batch": 1,
+   "files": [
+    "shotgun_shot_1",
+    "shotgun_shot_2"
+   ]
+  },
+  "shotgun_rack": {
+   "batch": 1,
+   "files": [
+    "shotgun_rack_1"
+   ]
+  },
+  "smoke_pop": {
+   "batch": 1,
+   "files": [
+    "smoke_pop_1"
+   ]
+  },
+  "explosion_claymore": {
+   "batch": 1,
+   "files": [
+    "explosion_claymore_1"
+   ]
+  },
+  "cannon": {
+   "batch": 2,
+   "files": [
+    "cannon_1",
+    "cannon_2",
+    "cannon_3",
+    "cannon_4"
+   ],
+   "alt": [
+    "cannon_alt_blackpowder_1",
+    "cannon_alt_blackpowder_2",
+    "cannon_alt_blackpowder_3"
+   ]
+  },
+  "tandem_rotor_loop": {
+   "batch": 2,
+   "files": [
+    "tandem_rotor_loop_1"
+   ]
+  },
+  "backblast": {
+   "batch": 2,
+   "files": [
+    "backblast_1",
+    "backblast_2"
+   ]
+  },
+  "minigun_burst": {
+   "batch": 2,
+   "files": [
+    "minigun_burst_1",
+    "minigun_burst_2"
+   ]
+  },
+  "strafe_20mm": {
+   "batch": 2,
+   "files": [
+    "strafe_20mm_1"
+   ]
+  },
+  "explosion_close": {
+   "batch": 2,
+   "files": [
+    "explosion_close_1",
+    "explosion_close_2",
+    "explosion_close_3",
+    "explosion_close_4"
+   ]
+  },
+  "napalm_ignite": {
+   "batch": 2,
+   "files": [
+    "napalm_ignite_1"
+   ]
+  },
+  "fire_loop": {
+   "batch": 2,
+   "files": [
+    "fire_loop_1"
+   ]
+  },
+  "pbr_engine_loop": {
+   "batch": 3,
+   "map": "river map",
+   "files": [
+    "pbr_engine_loop_1"
+   ]
+  },
+  "river_ambience_loop": {
+   "batch": 3,
+   "map": "river map",
+   "files": [
+    "river_ambience_loop_1"
+   ],
+   "alt": [
+    "river_ambience_loop_auxide"
+   ]
+  }
+ },
+ "music": {
+  "base": "audio/music/",
+  "formats": [
+   "ogg",
+   "m4a"
+  ],
+  "tracks": {
+   "menu": {
+    "file": "music_menu",
+    "loop": true,
+    "loopStart": 0,
+    "loopEnd": 31.475,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1
+   },
+   "intro_riff": {
+    "file": "music_intro_riff",
+    "loop": false,
+    "dur": 16.384,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1
+   },
+   "briefing": {
+    "file": "music_briefing",
+    "loop": true,
+    "loopStart": 0,
+    "loopEnd": 40,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1
+   },
+   "combat": {
+    "file": "combat_loop",
+    "loop": true,
+    "loopStart": 0,
+    "loopEnd": 80,
+    "m4aOffsetSec": 0,
+    "gain": 1,
+    "intensity": true
+   },
+   "extraction": {
+    "file": "music_extraction",
+    "loop": true,
+    "loopStart": 0,
+    "loopEnd": 59.087,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1
+   },
+   "win": {
+    "file": "music_win",
+    "loop": false,
+    "dur": 29.366,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1,
+    "hymn": true
+   },
+   "loss": {
+    "file": "music_loss",
+    "loop": false,
+    "dur": 36,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1
+   }
+  },
+  "aliases": {
+   "dedication": "win"
   }
  },
  "cues": {
@@ -331,7 +519,7 @@
   "bigNightAssault": {
    "slot": "bugle",
    "helper": "bigNightAssault",
-   "enabled": false,
+   "enabled": true,
    "leadMs": null,
    "commitOnly": true,
    "attack": "big night assault (rare)",

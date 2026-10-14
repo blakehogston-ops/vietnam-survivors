@@ -11,6 +11,9 @@
  *   SamplePlayer.m79({ impactAt });              // M79: launch now, 40 mm impact at impactAt (AudioContext time)
  *   SamplePlayer.flyby('jet', { bombAt });        // aircraft: jet | skyraider | ranchHand | tandemRotor | huey
  *   SamplePlayer.turretFire('corner' | 'mid');    // .50 cal / M60 bursts, 2 dB quieter (at the base)
+ *   SamplePlayer.loadMusic(SAMPLE_MANIFEST);     // music slots, after the sample batches (not in the 1.5 MB first batch)
+ *   SamplePlayer.playMusic('menu' | 'intro_riff' | 'briefing' | 'combat' | 'extraction' | 'win' | 'dedication' | 'loss');
+ *   SamplePlayer.combatIntensity('calm' | 'intense'); SamplePlayer.stopMusic(fade);
  *
  * Rules built in (Blake's spec):
  *  - Weapons (m16, m60, m79, enemy guns, B-40, mortar, bomb, flamethrower) are never synthesized. If a weapon file is missing or failed,
@@ -25,7 +28,10 @@
   'use strict';
 
   var WEAPONS = { m16_single: 1, m16_burst: 1, m60_burst: 1, pbr_50cal_burst: 1, ak47: 1, ak47_burst: 1, sks: 1, rpd_burst: 1, m79_launch: 1, m79_impact: 1, b40_launch: 1, mortar_launch: 1, mortar_impact: 1, mortar_incoming: 1,
-    bomb_distant: 1, flamethrower_loop: 1, flamethrower_burst: 1 };
+    bomb_distant: 1, flamethrower_loop: 1, flamethrower_burst: 1,
+    // week of 2026-10-14: weapons + explosions (no synth fallback)
+    bolt_rifle_shot: 1, bolt_rifle_bolt: 1, shotgun_shot: 1, shotgun_rack: 1, cannon: 1, cannon_76mm: 1, backblast: 1, minigun_burst: 1, strafe_20mm: 1,
+    explosion_close: 1, explosion_claymore: 1, napalm_ignite: 1, fire_loop: 1, smoke_pop: 1 };
 
   // cat: voice-limit category. prio: higher survives voice stealing. gain: linear trim before variation.
   // out: which internal output the slot uses ('sfx' -> sfxBus, 'rotor' -> rotorBus or sfxBus).
@@ -36,7 +42,7 @@
     jet_flyby:          { cat: 'air',       prio: 4, gain: 0.958 },                                  // STAND-IN F-4/F-5 low pass; before the bomb
     skyraider_flyby:    { cat: 'air',       prio: 4, gain: 0.834 },                                  // A-1H (P-47D mixed in)
     ranch_hand_flyover: { cat: 'air',       prio: 4, gain: 0.820 },                                  // STAND-IN C-130 for the C-123
-    tandem_rotor_flyby: { cat: 'rotor',     prio: 5, gain: 1.000, out: 'rotor' },                    // STAND-IN for the CH-46 Sea Knight (tandem-rotor recording; enabled by the game build)
+    tandem_rotor_flyby: { cat: 'rotor',     prio: 5, gain: 1.000, out: 'rotor' },                    // STAND-IN Chinook for a CH-46 (on for the map build)
     // turret build clunks (sample-only Cues.turretCorner / turretMid, tier-2 trim 0.7 applied by the Cues wrapper)
     turret_corner_build: { cat: 'build',    prio: 2, gain: 0.208 },                                  // sandbag thud + deep ammo-box clunk
     turret_mid_build:   { cat: 'build',     prio: 2, gain: 0.163 },                                  // sandbag thud + light metal clink
@@ -54,8 +60,8 @@
     m79_impact:         { cat: 'explosive', prio: 3, gain: 0.354, vary: true },
     b40_launch:         { cat: 'explosive', prio: 3, gain: 0.686, vary: true },                // STAND-IN; short bang (b40Launch(), lead 1 s)
     whistle:            { cat: 'signal',    prio: 3, gain: 0.333, vary: true },                // standard charge warning (chargeWarning(), lead 2 s)
-    bugle:              { cat: 'signal',    prio: 3, gain: 0.273 },                            // big night assault only, off by default (ear check)
-    // river map (PENDING, disabled in the manifest). The .50 shares the 6-gunshot cap; the loops use prio 5 so gunfire
+    bugle:              { cat: 'signal',    prio: 3, gain: 0.273 },                            // big night assault only; on via manifest cues.bigNightAssault.enabled
+    // river map (batch 3, on for the map build). The .50 shares the 6-gunshot cap; the loops use prio 5 so gunfire
     // never steals the engine or the river bed (a stolen loop would not come back).
     pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.304, vary: true },                 // STAND-IN .50 cal (M2 not confirmed)
     pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.292, loop: true },                 // under the Huey loop
@@ -67,7 +73,23 @@
     flamethrower_loop:  { cat: 'fire',      prio: 3, gain: 0.619, loop: true },
     flamethrower_burst: { cat: 'fire',      prio: 3, gain: 0.680, vary: true },
     radio_squelch:      { cat: 'radio',     prio: 3, gain: 0.370, vary: true, fallback: 'radioSquelch' },
-    smoke_canister:     { cat: 'canister',  prio: 6, gain: 0.70, fallback: 'signalPop' },
+    // ---- week of 2026-10-14 (build_weapons_oct14.py). Every shot slot is cat 'gun' (6-gunshot cap). Gains calibrated
+    // to TARGET_POST in samples/measure_levels.py: rifles under the Huey, bomb and Gunny; bomb_distant stays loudest.
+    bolt_rifle_shot:    { cat: 'gun',       prio: 2, gain: 0.077, vary: true },                // M40 / Springfield (.308 Remington 700)
+    bolt_rifle_bolt:    { cat: 'mech',      prio: 1, gain: 0.325, vary: true },                // bolt cycle after the shot
+    shotgun_shot:       { cat: 'gun',       prio: 2, gain: 0.317, vary: true },                // Ithaca 37 STAND-IN (Mossberg 500)
+    shotgun_rack:       { cat: 'mech',      prio: 1, gain: 0.190, vary: true },
+    cannon:             { cat: 'gun',       prio: 3, gain: 1.002, vary: true },                // field guns (21-gun salute); tank90 / t54 / howitzer
+    cannon_76mm:        { cat: 'gun',       prio: 3, gain: 0.740, vary: true },                // ZiS-3 76 mm; pt76
+    tandem_rotor_loop:  { cat: 'rotor',     prio: 5, gain: 0.795, out: 'rotor', loop: true },  // CH-46 evac bird hover (STAND-IN Chinook)
+    backblast:          { cat: 'gun',       prio: 3, gain: 0.822, vary: true },                // 106 mm RR / Ontos back-blast, Zuni launch
+    minigun_burst:      { cat: 'gun',       prio: 2, gain: 0.207, vary: true },                // Spooky, distant / airborne
+    strafe_20mm:        { cat: 'gun',       prio: 2, gain: 0.210, vary: true },                // STAND-IN: minigun -3 st (ear check)
+    explosion_close:    { cat: 'explosive', prio: 4, gain: 1.060, vary: true },                // close HE, layered real recordings
+    explosion_claymore: { cat: 'explosive', prio: 4, gain: 0.968, vary: true },                // sharp crack
+    napalm_ignite:      { cat: 'fire',      prio: 3, gain: 1.065, vary: true },
+    fire_loop:          { cat: 'fire',      prio: 5, gain: 0.438, loop: true },                // quiet burning loop
+    smoke_pop:          { cat: 'canister',  prio: 6, gain: 0.471 },                            // Doc's canister: pop + hiss
     // Footsteps: all 12 clips are loudness-matched in build_samples.py; these per-surface trims put every surface ~6 dB
     // under the M16 single-shot average (whole-clip RMS, measured by samples/measure_levels.py).
     step_mud:           { cat: 'step',      prio: 0, gain: 0.233, vary: true },
@@ -97,6 +119,7 @@
       // warning cues (manifest.cues overrides the lead times once load() has seen it)
       b40LeadMs: 1000, chargeLeadMs: 2000, enableBigNightAssault: false, bigNightLeadMs: 0,
       jetLeadMs: 3000,      // flyby('jet', { bombAt }) starts the pass this long before the bomb (manifest cues.jetFlyby overrides)
+      musicCalmHz: 700, musicCalmDb: -10,   // combat calm state (same source, low-pass + quieter)
       turretDb: -2 };       // turrets sit at the base, away from Doc: same gun, 2 dB quieter (no other distance model exists)
     var stats = { played: 0, stolen: 0, dropped: 0, silentWeapon: 0, fallbacks: 0, rateLimited: 0, loaded: 0, failed: 0 };
     var opts0 = {};
@@ -169,6 +192,8 @@
       if (!ctx) return Promise.resolve({ loaded: [], failed: [], missing: [], error: 'init() first' });
       var base = manifest.base || '', formats = pickFormats(manifest), slots = manifest.slots || {};
       if (manifest.cues) cueSpec = manifest.cues;
+      // the manifest can switch the big-night-assault bugle on (map build); init({ enableBigNightAssault: false }) still wins
+      if (cueSpec.bigNightAssault && cueSpec.bigNightAssault.enabled === true && opts0.enableBigNightAssault !== false) cfg.enableBigNightAssault = true;
       // disabled slots (bugle, river-map slots) are skipped unless asked for, or the big-night-assault cue is enabled
       var names = Object.keys(slots).filter(function (s) { return (o.batch == null || (slots[s].batch || 2) === o.batch) &&
         (!slots[s].disabled || o.includeDisabled || (s === 'bugle' && cfg.enableBigNightAssault)); });
@@ -291,7 +316,8 @@
       prune(Math.min(t, now()));
       // recorded bursts are used when loaded; play(..., { rounds: n }) or no burst files -> re-trigger the single shot
       if (s.burstOf && (o.rounds || !(buffers[slot] && buffers[slot].length))) return playBurst(slot, s, t, o);
-      var buf = pickBuffer(slot);
+      // o.variant: preferred file index (explosion(kind)); falls back to a random variant if that file is not loaded
+      var buf = o.variant != null && buffers[slot] && buffers[slot][o.variant] ? buffers[slot][o.variant] : pickBuffer(slot);
       if (!buf) return WEAPONS[slot] ? silentWeapon(slot) : fallback(slot, s, t, o);
       var plan = planVoice(s, buf, o, s.maxDur);
       if (o.warnVoice) { var wv = startVoice(slot, s, buf, t, o, s.maxDur, plan); wv.cat = 'warn'; wv.prio = 99; stats.warnVoices = (stats.warnVoices || 0) + 1; return handle(wv); }   /* game patch: warning voice outside the caps */
@@ -373,7 +399,7 @@
       hold(duckTargets.sfx, 'smoke', cfg.smokeSfxDb, t0, cfg.smokeAttack);
       // our own already-scheduled weapon voices fade with the sfx duck; new ones keep playing ducked
       unhold(duckTargets.sfx, 'smoke', tc - 0.03, 0.03);   // sfx back just before the canister so it is not ducked
-      var can = P.play('smoke_canister', { when: tc });
+      var can = P.play('smoke_pop', { when: tc });   // real canister pop (no synth fallback)
       unhold(duckTargets.music, 'smoke', tr, cfg.smokeResume);
       var sched = { start: t0, canisterAt: tc, resumeAt: tr, end: tr + cfg.smokeResume, canister: can };
       later(t0, o.onHitStop, sched); later(tc, o.onCanister, sched); later(tr, o.onResume, sched);
@@ -402,8 +428,8 @@
     P.b40Launch = function (o) { o = o || {}; return warnCue('b40_launch', leadOf('b40', 'b40LeadMs'), o.impactAt, o); };
     // chargeWarning({ chargeAt }) or chargeWarning({ when }): enemy whistle 2 s (cues.chargeWarning.leadMs) before a charge.
     P.chargeWarning = function (o) { o = o || {}; return warnCue('whistle', leadOf('chargeWarning', 'chargeLeadMs'), o.chargeAt, o); };
-    // bigNightAssault({ assaultAt | when }): rare bugle cue. OFF by default: returns null unless
-    // init(ctx, { enableBigNightAssault: true }) and the bugle was loaded.
+    // bigNightAssault({ assaultAt | when }): rare bugle cue. Plays when the manifest has cues.bigNightAssault.enabled = true
+    // (map build) or init(ctx, { enableBigNightAssault: true }); init(ctx, { enableBigNightAssault: false }) forces it off.
     P.bigNightAssault = function (o) {
       o = o || {}; if (!ctx) return null;
       if (!cfg.enableBigNightAssault) { info('bigNightAssault(): disabled by default; not played'); return null; }
@@ -445,8 +471,147 @@
       var slot = TURRET_BUILD[pos]; if (!slot) { info('unknown turret build "' + pos + '" (use corner|mid)'); return null; }
       return P.play(slot, o || {});
     };
+    // ---------- weapons + explosions (week of 2026-10-14) ----------
+    // All are weapons: a missing/failed file stays silent (one console.info), never a synth. Every shot shares the
+    // 6-gunshot cap. Each returns the play handle (or null), except the two-part helpers which return { shot, bolt }.
+    // boltRifle({ when, vol, bolt: true, boltDelay: 0.55 }): .308 shot, then the bolt cycle (bolt: false = shot only).
+    P.boltRifle = function (o) {
+      o = o || {}; if (!ctx) return null; var t = o.when != null ? Math.max(o.when, now()) : now();
+      var shot = P.play('bolt_rifle_shot', Object.assign({}, o, { when: t }));
+      var bolt = o.bolt === false ? null : P.play('bolt_rifle_bolt', Object.assign({}, o, { when: t + (o.boltDelay != null ? o.boltDelay : 0.55) }));
+      return { shot: shot, bolt: bolt };
+    };
+    P.boltCycle = function (o) { return P.play('bolt_rifle_bolt', o || {}); };
+    // shotgun({ when, vol, rack: true, rackDelay: 0.45 }): Ithaca 37 shot, then the pump rack (rack: false = shot only).
+    P.shotgun = function (o) {
+      o = o || {}; if (!ctx) return null; var t = o.when != null ? Math.max(o.when, now()) : now();
+      var shot = P.play('shotgun_shot', Object.assign({}, o, { when: t }));
+      var rack = o.rack === false ? null : P.play('shotgun_rack', Object.assign({}, o, { when: t + (o.rackDelay != null ? o.rackDelay : 0.45) }));
+      return { shot: shot, rack: rack };
+    };
+    P.shotgunRack = function (o) { return P.play('shotgun_rack', o || {}); };
+    // cannon(kind, o): kind = 'tank90' (M48) | 't54' | 'pt76' | 'howitzer' (105 mm) -> cannon slot, small pitch per calibre;
+    // 'recoilless' (106 mm) | 'ontos' | 'zuni' -> back-blast slot (heavier, longer than the B-40).
+    var CANNON = { /* game patch: pt76 uses the main cannon clips while cannon_76mm is held */ tank90: { slot: 'cannon', rate: 1.04 }, t54: { slot: 'cannon', rate: 1.0 }, pt76: { slot: 'cannon', rate: 1.12 },
+      howitzer: { slot: 'cannon', rate: 0.96 }, recoilless: { slot: 'backblast', rate: 1.0 }, ontos: { slot: 'backblast', rate: 0.98 },
+      zuni: { slot: 'backblast', rate: 1.04 } };
+    P.cannon = function (kind, o) {
+      o = o || {}; var k = CANNON[kind || 'tank90'];
+      if (!k) { info('unknown cannon "' + kind + '" (use ' + Object.keys(CANNON).join('|') + ')'); return null; }
+      return P.play(k.slot, Object.assign({}, o, { rate: (o.rate || 1) * k.rate }));
+    };
+    P.zuni = function (o) { return P.cannon('zuni', o); };
+    P.minigun = function (o) { return P.play('minigun_burst', o || {}); };          // Spooky, distant airborne burst
+    P.strafe20mm = function (o) { return P.play('strafe_20mm', o || {}); };         // STAND-IN (ear check)
+    // explosion(kind, o): 'claymore' -> sharp crack; 'satchel' | 'tank_kill' | 'huey_crash' | 'rpg' | 'boss' -> preferred
+    // close-HE variant (random if omitted or not loaded). 'rpg' plays 2 dB lower (smaller warhead).
+    var EXPLOSION = { claymore: { slot: 'explosion_claymore' }, satchel: { slot: 'explosion_close', variant: 0 },
+      tank_kill: { slot: 'explosion_close', variant: 1 }, huey_crash: { slot: 'explosion_close', variant: 1 },
+      rpg: { slot: 'explosion_close', variant: 2, db: -2 }, boss: { slot: 'explosion_close', variant: 3 }, any: { slot: 'explosion_close' } };
+    P.explosion = function (kind, o) {
+      o = o || {}; var k = EXPLOSION[kind || 'any'];
+      if (!k) { info('unknown explosion "' + kind + '" (use ' + Object.keys(EXPLOSION).join('|') + ')'); return null; }
+      return P.play(k.slot, Object.assign({ variant: k.variant }, o, { vol: (o.vol == null ? 1 : o.vol) * dbToGain(k.db || 0) }));
+    };
+    // napalm({ when, vol, fire: true }): ignition whoosh, then the quiet fire loop from 0.8 s (returns { ignite, fire };
+    // stop the fire with fire.stop(fade)). fireLoop(o) starts only the loop.
+    P.napalm = function (o) {
+      o = o || {}; if (!ctx) return null; var t = o.when != null ? Math.max(o.when, now()) : now();
+      var ig = P.play('napalm_ignite', Object.assign({}, o, { when: t }));
+      var fire = o.fire === false ? null : P.play('fire_loop', Object.assign({}, o, { when: t + 0.8 }));
+      return { ignite: ig, fire: fire };
+    };
+    P.fireLoop = function (o) { return P.play('fire_loop', o || {}); };
+    // evacBirdHover({ when, vol, fade }): CH-46 evac bird (drawEvacBird) hovering through boarding: seamless tandem-rotor
+    // loop on the rotor bus. Returns the handle; call handle.stop(fade) when the bird lifts off. Not a weapon (no cap).
+    P.evacBirdHover = function (o) {
+      o = o || {}; var h = P.play('tandem_rotor_loop', o);
+      if (h && o.fade) { var g = null; voices.forEach(function (v) { if (v.start === h.start && v.slot === 'tandem_rotor_loop') g = v.g; });
+        if (g) { var t = h.start, v0 = g.gain.value; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v0, t + o.fade); } }
+      return h;
+    };
+    P.smokePop = function (o) { return P.play('smoke_pop', o || {}); };            // Doc pops the canister on the circle
+    P.CANNON_KINDS = Object.keys(CANNON); P.EXPLOSION_KINDS = Object.keys(EXPLOSION);
+
     P.cueTiming = function () { return { b40: { leadMs: leadOf('b40', 'b40LeadMs'), slot: 'b40_launch' }, chargeWarning: { leadMs: leadOf('chargeWarning', 'chargeLeadMs'), slot: 'whistle' },
       bigNightAssault: { enabled: !!cfg.enableBigNightAssault, leadMs: leadOf('bigNightAssault', 'bigNightLeadMs'), slot: 'bugle' } }; };
+
+
+    // ---------- music ----------
+    // One music track at a time on the game's musicBus (so winchester() / smokeDropMoment() ducks still apply).
+    // playMusic() crossfades from the current track. Loop tracks loop between loopStart and loopEnd (m4a buffers are
+    // shifted by m4aOffsetSec, the AAC pre-roll). Stings (intro_riff, win, loss) play once and then stop by themselves.
+    var music = { buffers: {}, fmt: {}, spec: null, cur: null, out: null, intensity: 'intense' };
+    function musicOut() {
+      if (!music.out) { music.out = ctx.createGain(); music.out.connect(buses.music || ctx.destination); }
+      return music.out;
+    }
+    function musicName(name) { var sp = music.spec; if (!sp) return name; return (sp.aliases && sp.aliases[name]) || name; }
+    // loadMusic(manifest, { tracks: ['menu', ...], concurrency }) -> { loaded, failed, missing }. Never rejects.
+    P.loadMusic = function (manifest, o) {
+      o = o || {};
+      if (!ctx) return Promise.resolve({ loaded: [], failed: [], missing: [], error: 'init() first' });
+      var sp = manifest && manifest.music; music.spec = sp || null;
+      if (!sp || !sp.tracks) return Promise.resolve({ loaded: [], failed: [], missing: [], error: 'manifest has no music section' });
+      var formats = pickFormats(sp), names = (o.tracks || Object.keys(sp.tracks)).filter(function (n) { return sp.tracks[n]; });
+      var report = { loaded: [], failed: [], missing: [] }, queue = names.slice(), conc = o.concurrency || 2;
+      function one(name) {
+        var tr = sp.tracks[name], i = 0;
+        if (!tr.file) { report.missing.push(name); return Promise.resolve(); }
+        function next() {
+          if (i >= formats.length) return Promise.reject(new Error('no format'));
+          var ext = formats[i++];
+          return fetchBuf(sp.base + tr.file + '.' + ext)   // flat layout: music/<file>.<ext>
+            .then(decode).then(function (b) { return { b: b, ext: ext }; }, function () { return next(); });
+        }
+        return next().then(function (r) { music.buffers[name] = r.b; music.fmt[name] = r.ext; report.loaded.push(name); },
+          function () { report.failed.push(name); info('could not load music "' + name + '" (stays silent; no synth score)'); });
+      }
+      function work() { var n = queue.shift(); return n ? one(n).then(work) : Promise.resolve(); }
+      var ws = []; for (var w = 0; w < conc; w++) ws.push(work());
+      return Promise.all(ws).then(function () { return report; });
+    };
+    P.hasMusic = function (name) { return !!music.buffers[musicName(name)]; };
+    function stopTrack(cur, t, fade) {
+      if (!cur || cur.dead) return; cur.dead = true;
+      try { cur.g.gain.cancelScheduledValues(t); cur.g.gain.setValueAtTime(cur.g.gain.value, t); cur.g.gain.linearRampToValueAtTime(0, t + Math.max(0.005, fade)); cur.src.stop(t + Math.max(0.005, fade) + 0.02); } catch (e) { /* ignore */ }
+    }
+    // playMusic(name, { when, fade = 0.5, vol = 1, offset }) -> { name, start, end, loop, stop(fade) } | null
+    P.playMusic = function (name, o) {
+      o = o || {}; if (!ctx) return null;
+      var key = musicName(name), sp = music.spec, tr = sp && sp.tracks[key], buf = music.buffers[key];
+      if (!tr) { info('unknown music slot "' + name + '"'); return null; }
+      if (!buf) { info('music "' + name + '" not loaded; staying silent'); return null; }
+      var t = o.when != null ? Math.max(o.when, now()) : now(), fade = o.fade != null ? o.fade : 0.5;
+      var off = music.fmt[key] === 'm4a' ? (tr.m4aOffsetSec || 0) : 0;
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var g = ctx.createGain(), f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.Q.value = 0.707;
+      var lvl = (tr.gain == null ? 1 : tr.gain) * (o.vol == null ? 1 : o.vol), calm = tr.intensity && music.intensity === 'calm';
+      f.frequency.value = calm ? cfg.musicCalmHz : 20000;
+      var target = lvl * (calm ? dbToGain(cfg.musicCalmDb) : 1);
+      g.gain.setValueAtTime(fade > 0 ? 0 : target, t); if (fade > 0) g.gain.linearRampToValueAtTime(target, t + fade);
+      src.connect(f); f.connect(g); g.connect(musicOut());
+      var end = Infinity;
+      if (tr.loop) { src.loop = true; src.loopStart = off + (tr.loopStart || 0); src.loopEnd = off + (tr.loopEnd || (buf.duration - off)); src.start(t, off + (o.offset || 0)); }
+      else { var d = tr.dur || (buf.duration - off); src.start(t, off, d); end = t + d; }
+      if (music.cur) stopTrack(music.cur, t, fade);
+      var cur = { name: key, src: src, g: g, f: f, start: t, end: end, loop: !!tr.loop, lvl: lvl, intensity: !!tr.intensity, dead: false };
+      src.onended = function () { cur.dead = true; if (music.cur === cur) music.cur = null; };
+      music.cur = cur;
+      return { name: key, start: t, end: end, loop: cur.loop, stop: function (fd) { stopTrack(cur, now(), fd == null ? 0.5 : fd); if (music.cur === cur) music.cur = null; } };
+    };
+    P.stopMusic = function (fade) { if (music.cur) { stopTrack(music.cur, now(), fade == null ? 0.5 : fade); music.cur = null; } };
+    P.currentMusic = function () { return music.cur && !music.cur.dead ? music.cur.name : null; };
+    // combatIntensity('calm' | 'intense', { ramp = 1.0 }): calm = the SAME combat source through a ~700 Hz low-pass at -10 dB
+    // (stays in sync; no second file). Remembered, so a later playMusic('combat') starts in that state.
+    P.combatIntensity = function (mode, o) {
+      o = o || {}; if (mode !== 'calm' && mode !== 'intense') { info('combatIntensity: use calm|intense'); return null; }
+      music.intensity = mode; var c = music.cur; if (!c || c.dead || !c.intensity || !ctx) return mode;
+      var t = now(), r = o.ramp != null ? o.ramp : 1.0, calm = mode === 'calm';
+      c.f.frequency.cancelScheduledValues(t); c.f.frequency.setValueAtTime(c.f.frequency.value, t); c.f.frequency.exponentialRampToValueAtTime(calm ? cfg.musicCalmHz : 20000, t + r);
+      c.g.gain.cancelScheduledValues(t); c.g.gain.setValueAtTime(c.g.gain.value, t); c.g.gain.linearRampToValueAtTime(c.lvl * (calm ? dbToGain(cfg.musicCalmDb) : 1), t + r);
+      return mode;
+    };
 
     // ---------- misc ----------
     P.stopAll = function (fade) { var t = now(); voices.forEach(function (v) { if (!v.dead) handle(v).stop(fade == null ? 0.05 : fade); }); voices = []; };

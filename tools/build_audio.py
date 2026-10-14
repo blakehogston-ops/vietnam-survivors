@@ -19,7 +19,10 @@ for d in ('ogg', 'm4a'):
     src = os.path.join(SP, 'samples', d)
     if os.path.isdir(src): shutil.copytree(src, os.path.join(OUT, 'samples', d))
 # keep the map-build files OUT (river batch 3: boat engine, river beds; the felix.blume bugle): no file, no manifest slot
-HOLD = ['bugle', 'pbr_engine_loop', 'river_ambience_loop']
+HOLD = []   # Oct 14: river batch 3 + felix.blume bugle ship now (map build)
+# Legal FAILED permanently (Oct 14): Hollywood-sourced cannon (tank90/t54/pt76/howitzer) and explosion_close 1 + 4. Never shipped, never loadable.
+LEGAL_FAIL_SLOTS = ['cannon_76mm']   # Oct 14 4:22 PM: tank90 / t54 / howitzer cannon PASSED Legal; claymore rebuilt clean; cannon_76mm (Walking.With.Microphones) HELD until Blake decides   # Oct 14 4:19 PM: explosion_claymore_1 holds the failed areniporgen #693421 flashbang - removed until Sound Helper's rebuild lands
+LEGAL_FAIL_FILES = sorted({f.rsplit('.', 1)[0] for d in ('ogg', 'm4a') if os.path.isdir(os.path.join(SP, 'samples', d)) for f in os.listdir(os.path.join(SP, 'samples', d)) if f.startswith('cannon_76mm')})
 M0 = json.loads(subprocess.run(['node', '-e', "const m=require(process.argv[1]).SAMPLE_MANIFEST; console.log(JSON.stringify(m))", os.path.join(SP, 'samples', 'manifest.js')], capture_output=True, text=True, check=True).stdout)
 held = []
 for k in HOLD:
@@ -28,11 +31,20 @@ for k in HOLD:
         for d, ext in (('ogg', '.ogg'), ('m4a', '.m4a')):
             q = os.path.join(OUT, 'samples', d, nm + ext)
             if os.path.exists(q): os.remove(q); held.append(nm + ext)
+for k in LEGAL_FAIL_SLOTS: M0['slots'].pop(k, None)
+for k, sl in M0['slots'].items():
+    for fld in ('files', 'alt'):
+        if fld in sl: sl[fld] = [n for n in sl[fld] if n not in LEGAL_FAIL_FILES]
+for nm in LEGAL_FAIL_FILES:
+    for d, ext in (('ogg', '.ogg'), ('m4a', '.m4a')):
+        q = os.path.join(OUT, 'samples', d, nm + ext)
+        if os.path.exists(q): os.remove(q); held.append('LEGAL-FAIL deleted ' + nm + ext)
 # CH-46 Sea Knight: re-enable the tandem-rotor fly-by (Sound Helper ships it disabled; its surrey_film credit is in the in-game block)
 ENABLE = ['tandem_rotor_flyby']
 for k in ENABLE:
-    assert k in M0['slots'], ('slot to enable is missing', k); M0['slots'][k].pop('disabled', None)
+    if k in M0['slots']: M0['slots'][k].pop('disabled', None)
 M0['base'] = 'audio/samples/'
+if 'music' in M0: M0['music']['base'] = 'audio/music/'
 open(os.path.join(OUT, 'samples', 'manifest.js'), 'w').write("/* Sound Helper's samples/manifest.js, copied by tools/build_audio.py: base set to the game's audio/samples/; river-map batch 3 and the bugle are held back until the map build; the tandem rotor (CH-46 Sea Knight) is enabled. */\n(function(root){ var SAMPLE_MANIFEST=" + json.dumps(M0, indent=1) + ";\n if(typeof module!=='undefined'&&module.exports)module.exports={SAMPLE_MANIFEST:SAMPLE_MANIFEST}; else root.SAMPLE_MANIFEST=SAMPLE_MANIFEST; })(typeof window!=='undefined'?window:this);\n")
 shutil.copy2(os.path.join(SP, 'samples', 'LICENSES.md'), os.path.join(OUT, 'samples', 'LICENSES.md'))
 tp = os.path.join(SP, 'THIRD_PARTY_AUDIO.txt')
@@ -49,11 +61,18 @@ PATCH = [
  ("// STAND-IN Chinook for a CH-46 (disabled)", "// STAND-IN for the CH-46 Sea Knight (tandem-rotor recording; enabled by the game build)"),
  ("tandemRotor is disabled in the manifest (null unless loaded).", "tandemRotor = the CH-46 Sea Knight (enabled in the game's manifest)."),
 ]
+# Legal fail (Oct 14): tank/NVA-tank/howitzer cannon kinds removed from the player (tanks stay silent); all explosion variants ship (rebuilt clean)
+P, n1 = re.subn(r"var CANNON = \{.*?\};", "var CANNON = { /* game patch: pt76 uses the main cannon clips while cannon_76mm is held */ tank90: { slot: 'cannon', rate: 1.04 }, t54: { slot: 'cannon', rate: 1.0 }, pt76: { slot: 'cannon', rate: 1.12 },\n      howitzer: { slot: 'cannon', rate: 0.96 }, recoilless: { slot: 'backblast', rate: 1.0 }, ontos: { slot: 'backblast', rate: 0.98 },\n      zuni: { slot: 'backblast', rate: 1.04 } };", P, count=1, flags=re.S)
+n2 = 1   # Oct 14 4:11 PM: close variants 1 + 4 rebuilt from clean sources - all four ship
+assert n1 == 1 and n2 == 1, ('cannon/explosion patch', n1, n2)
 for a, b in PATCH:
+    if 'Chinook' in a or 'tandemRotor is disabled' in a:
+        if P.count(a) != 1: continue   # label-only patches: Sound Helper may already have relabelled
     assert P.count(a) == 1, ('sample_player.js patch anchor not found', a[:60]); P = P.replace(a, b)
 open(os.path.join(OUT, 'sample_player.js'), 'w').write('/* copied from Sound Helper by tools/build_audio.py; one game-side patch marked "game patch" (warning voices outside the caps) */\n' + P)
 os.makedirs(os.path.join(OUT, 'music'), exist_ok=True)
-for f in ('combat_loop.ogg', 'combat_loop.m4a'): shutil.copy2(os.path.join(SP, 'music', f), os.path.join(OUT, 'music', f))
+for f in os.listdir(os.path.join(SP, 'music')):   # Oct 14: every music slot ships (menu, intro riff, briefing, combat, extraction, win, loss); the calm preview never does
+    if re.match(r'^(combat_loop|music_\w+)\.(ogg|m4a)$', f) and 'preview' not in f: shutil.copy2(os.path.join(SP, 'music', f), os.path.join(OUT, 'music', f))
 # banned-source check: file names + manifest + player (the text files may NAME them only as removed)
 bad = [f for d in ('ogg', 'm4a') for f in os.listdir(os.path.join(OUT, 'samples', d)) if BANNED.search(f)]
 js = subprocess.run(['node', '-e', "const m=require(process.argv[1]).SAMPLE_MANIFEST; console.log(JSON.stringify(m))", os.path.join(OUT, 'samples', 'manifest.js')], capture_output=True, text=True, check=True).stdout
@@ -67,4 +86,6 @@ b2 = sum(os.path.getsize(os.path.join(OUT, 'samples', 'ogg', n + '.ogg')) for k,
 print(json.dumps({'held_back': held, 'ogg_files': len(files), 'banned_files': bad, 'missing_for_enabled_slots': missing, 'empty_slots': [k for k, s in M['slots'].items() if not s.get('files') and not s.get('disabled')],
                   'disabled': [k for k, s in M['slots'].items() if s.get('disabled')], 'third_party_txt': os.path.exists(tp),
                   'bytes_ogg': sz(os.path.join(OUT, 'samples', 'ogg')), 'bytes_m4a': sz(os.path.join(OUT, 'samples', 'm4a')), 'bytes_music': sz(os.path.join(OUT, 'music')), 'batch1_ogg': b1, 'batch2_ogg': b2}, indent=1))
+leg = [f for d in ('ogg', 'm4a') for f in os.listdir(os.path.join(OUT, 'samples', d)) if f.rsplit('.',1)[0] in LEGAL_FAIL_FILES] + [k for k in LEGAL_FAIL_SLOTS if k in M['slots']] + [n for s_ in M['slots'].values() for n in s_.get('files', []) + s_.get('alt', []) if n in LEGAL_FAIL_FILES]
+if leg: sys.exit('LEGAL-FAIL FILES STILL SHIPPED: %s' % leg)
 if bad: sys.exit('BANNED SOURCE FILES: %s' % bad)
