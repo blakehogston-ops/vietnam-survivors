@@ -2386,7 +2386,8 @@ function updateTanks(dt){
       continue }
     t.age=(t.age||0)+dt; t.sa+=dt*.14;
     const sx=p.x+cosd(t.sa)*128, sy=p.y+sind(t.sa)*128, dxs=sx-t.x, dys=sy-t.y, ds=Math.hypot(dxs,dys);
-    if(t.ph===0){ t.hd=turnTo(t.hd,Math.atan2(dys,dxs),2*dt); t.x+=cosd(t.hd)*t.spd*1.6*dt; t.y+=sind(t.hd)*t.spd*1.6*dt; if(ds<34)t.ph=1 }
+    if(PLT.on&&!g.demo){ PLT.tank(t,dt) }
+    else if(t.ph===0){ t.hd=turnTo(t.hd,Math.atan2(dys,dxs),2*dt); t.x+=cosd(t.hd)*t.spd*1.6*dt; t.y+=sind(t.hd)*t.spd*1.6*dt; if(ds<34)t.ph=1 }
     else if(ds>24){ const sp=Math.min(ds*4,t.spd*(ds>180?1.9:1)); t.hd=turnTo(t.hd,Math.atan2(dys,dxs),3.5*dt); t.x+=dxs/ds*sp*dt; t.y+=dys/ds*sp*dt }
     if(t.mf>0)t.mf-=dt;
     const hr=t.hp/t.mhp; t.smoke-=dt; if(t.smoke<=0){ t.smoke=hr<.35?.05:hr<.6?.14:.09; addPart(t.x-cosd(t.hd)*26,t.y-sind(t.hd)*26,(rnd()-.5)*20,-14-rnd()*14,.7,4+rnd()*3,hr<.35?'#3d3a37':'#9a9a98',false,1.5); if(hr<.35&&rnd()<.5)addPart(t.x+(rnd()-.5)*20,t.y+(rnd()-.5)*12,(rnd()-.5)*14,-24-rnd()*16,.4,3.5,'#ff9b21',true,2) }
@@ -3041,7 +3042,7 @@ function pickType(){ const t=G.t*EX_RAMP, r=rnd(); if(fbGrace())return 'vc';
   if(r<off)return 'officer'; if(r<off+nva)return 'nva'; return 'vc'; }
 /* ===== PACE (Blake Oct 14: "most levels in the beginning are more firefights"): early levels are contacts with small NVA/VC fire teams and lulls between them;
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
-const PACE={MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.12,M_TGT:.6,M_HIT:.4,M_DMG:46,SHOT_DMG:3,COVER_DR:.4,RET_AT:.25,
+const PACE={MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.12,M_TGT:.6,M_HIT:.4,M_DMG:52,SHOT_DMG:3,COVER_DR:.4,RET_AT:.25,
   mass(g){ return (g.p.lvl|0)>=this.MASS_LV||(g.massT>0) },
   hold(g){ const ex=g.ex; return !!(ex&&ex.ph>=4&&ex.ph<=5) },
   tick(g,dt){ const P=g.pc||(g.pc={st:'lull',t:16,teams:[],n:0,log:[]}); P.teams=P.teams.filter(T=>FT.alive(T)>0&&!T.gone);
@@ -3094,7 +3095,7 @@ const FT={
     if(mt){ g.ftMs=(g.ftMs|0)+1; if(rnd()<PACE.M_HIT*(1-d/700)){ g.ftMh=(g.ftMh|0)+1; hurtMember(mt,PACE.M_DMG*(1+(g.p.lvl|0)*.05)) } return }
     if(rnd()<PACE.SHOT_HIT*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
 /* early levels: the pad hold is a stand-up firefight, not a siege (Blake Oct 14) */
-const HOLD_EARLY={MUL:.75,CAP:30};
+const HOLD_EARLY={MUL:.8,CAP:30};
 function holdMul(g){ return PACE.mass(g)?1:HOLD_EARLY.MUL }
 function holdCap(g){ return PACE.mass(g)?enemyCap(g):Math.min(enemyCap(g),HOLD_EARLY.CAP+(g.p.lvl|0)) }
 /* ===== PULL (Blake Oct 14): firebase built -> every enemy falls back out of view, spawns pause 30 s behind a countdown, then a coordinated assault.
@@ -3120,6 +3121,40 @@ const PULL={T:30,ARROW_AT:5,
       ctx.beginPath(); ctx.moveTo(22*U,0); ctx.lineTo(-10*U,-16*U); ctx.lineTo(-4*U,0); ctx.lineTo(-10*U,16*U); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore() } ctx.globalAlpha=1 },
   qa(g){ if(!g.qaBuild&&g.t>1&&/[?&]build=done/.test(location.search)){ g.qaBuild=1; DBG.skipBuild() } } };
 DBG.skipBuild=function(){ if(!fbS&&!DBG.fbBuild())return 'no LZ for a firebase'; const f=fbS; f.qaDone=1; f.state='building'; f.prog=1; f.crateOk=true; return 'firebase completes next tick' };
+/* ===== PLT (Blake Oct 14): the company moves on its own, as a platoon. Off by ?plt=0 (falls back to the old leash ring).
+   Wedge in the direction of travel: point (Ithaca) leads, M60 on a flank, RTO by Doc, riflemen/M79 on the flanks, sniper hangs back, rear guard behind.
+   Contact (enemy inside 380 px): the frame turns to face the threat, men stop at their spot and shoot (memberCombat), gun on the flank. Regroup when it clears.
+   Everyone paths with the shared flow field (rvSteer) and is blocked by water except at crossings (rvMove) - nobody walks on water. Far / stuck: reroute;
+   only a man > 2 leashes away, off screen and stuck 6 s is recycled to Doc's bank off screen (never across water in view). ===== */
+const PLT={on:!/[?&]plt=0/.test(location.search),
+  ROLES:['point','gun','rto','rifle','rifle','m79','m79','sniper','rear'],
+  OFF:{point:[95,0],gun:[25,70],rto:[-22,-20],rifle:[45,-85],m79:[-15,100],sniper:[-95,40],rear:[-120,0]},
+  role(m){ return m.role0||(m.role0=m.role||this.ROLES[m.slot%this.ROLES.length]) },
+  frame(g,p){ const F=g.plf||(g.plf={a:0,c:0,ca:0,t:-1}); if(F.t===g.t)return F; F.t=g.t;
+    if(p.mv){ const a=Math.atan2(p.fy||0,p.fx||1); let da=a-F.a; da=Math.atan2(Math.sin(da),Math.cos(da)); F.a+=da*Math.min(1,2.5/60) }
+    if(((g.plN=(g.plN|0)+1)%10)===0){ let bd=380*380,be=null; for(const e of enemies){ if(e.dead)continue; const dx=e.x-p.x,dy=e.y-p.y,d2=dx*dx+dy*dy; if(d2<bd){bd=d2;be=e} } F.c=be?1:Math.max(0,F.c-.34); if(be)F.ca=Math.atan2(be.y-p.y,be.x-p.x); if(be&&!F.wasC){ (g.plLog||(g.plLog=[])).length<200&&g.plLog.push({t:+g.t.toFixed(1),ev:'contact'}) } F.wasC=!!be }
+    return F },
+  slot(m,p){ const g=G, F=this.frame(g,p), r=this.role(m), o=this.OFF[r]||this.OFF.rifle, k=(m.slot/this.ROLES.length)|0, side=(m.slot&1)?1:-1;
+    const a=F.c>0?F.ca:F.a, cs=Math.cos(a), sn=Math.sin(a); let fx=o[0]*(F.c>0?.8:1)-k*28, sy=o[1]*(r==='point'||r==='rear'||r==='rto'?1:side)*(1+k*.3);
+    if(r==='rear'&&F.c>0)fx=-80;   /* rear guard keeps watching the back */
+    const j=m.jit||(m.jit=[(rnd()-.5)*18,(rnd()-.5)*18,.88+rnd()*.24]);
+    return [p.x+cs*fx-sn*sy+j[0], p.y+sn*fx+cs*sy+j[1]] },
+  move(m,sx,sy,d,dt,toPad){ const g=G, p=g.p, w=rvSteer(m,sx,sy,'m'); let tx=sx,ty=sy; if(w){ tx=w[0]; ty=w[1] } let dx=tx-m.x, dy=ty-m.y, dd=Math.hypot(dx,dy)||1;
+    const j=m.jit||[0,0,1], F=g.plf||{c:0}; m.pz=(m.pz||0)-dt;
+    if(!toPad&&m.tg&&!w&&d<70&&m.pz<=0&&rnd()<dt*.5)m.pz=.6+rnd()*.6;   /* brief pause to shoot */
+    const stop=(!w&&d<(toPad?3:F.c>0?6:12))||(m.pz>0&&!toPad); m.mv=!stop;
+    if(m.mv){ const base=(d>220?300:d>110?205:176)*j[2]*Math.max(1,speedMul()), sp=w?base:Math.min(d*2.6+20,base); const st=rvMove(m,dx/dd*sp*dt,dy/dd*sp*dt,'m'); m.anim+=dt*9; if(!m.tg)m.face=dx>=0?1:-1;
+      if(riverAt(m.x,m.y)&&!canWade(m.x,m.y,'m'))g.plWet=(g.plWet|0)+1 }
+    // stuck / far: net displacement over 2 s
+    m.skT=(m.skT||0)+dt; if(m.skT>=2){ const mv=Math.hypot(m.x-(m.skX||0),m.y-(m.skY||0)); m.skX=m.x; m.skY=m.y; m.skT=0; m.skN=(mv<20&&d>60)?(m.skN|0)+1:0; if(m.skN>=1){ m.wpAt=undefined; m.wp=null } }
+    if(d>COY.leash*2&&(m.skN|0)>=3&&!onScreen(m,40)){ for(let k=0;k<8;k++){ const a=rnd()*TAU, E=Math.hypot(VW,VH)/2+60, x=p.x+Math.cos(a)*E, y=p.y+Math.sin(a)*E; if(!riverAt(x,y)&&!needCross(p.x,p.y,x,y)){ m.x=x; m.y=y; m.skN=0; g.plRe=(g.plRe|0)+1; break } } } },
+  /* friendly tank: own path to a slot beside Doc (bridges only), turns on its heading, never on water */
+  tank(t,dt){ const g=G, p=g.p, F=this.frame(g,p), a=F.c>0?F.ca:F.a, side=t.side||(t.side=rnd()<.5?1:-1);
+    const sx=p.x+Math.cos(a)*-30-Math.sin(a)*side*120, sy=p.y+Math.sin(a)*-30+Math.cos(a)*side*120;
+    const w=rvSteer(t,sx,sy,'tank'); let tx=sx,ty=sy; if(w){ tx=w[0]; ty=w[1] } const dx=tx-t.x, dy=ty-t.y, d=Math.hypot(dx,dy)||1, ds=Math.hypot(sx-t.x,sy-t.y);
+    if(t.ph===0&&ds<60)t.ph=1;
+    if(ds>28||w){ const want=Math.atan2(dy,dx); t.hd=turnTo(t.hd,want,2.6*dt); const al=Math.max(0,Math.cos(t.hd-want)), sp=Math.min(ds*2.2+10,t.spd*(ds>220?1.8:1))*(.25+.75*al);
+      rvMove(t,Math.cos(t.hd)*sp*dt,Math.sin(t.hd)*sp*dt,'tank'); if(riverAt(t.x,t.y)&&!canWade(t.x,t.y,'tank'))g.plWetT=(g.plWetT|0)+1 } } };
 function surge(){
   const t=G.t,p=G.p; const ambush=(G.surgeN++%2)===0;
   if(ambush){ // VC ambush: guerrillas spring up all around
@@ -3441,7 +3476,7 @@ function crossOpen(h,i,c){ const k=crossKind(h,i,c); if(k&&!crossDryC(h,i,c))ret
 function riverAt(x,y){ const wy=Math.floor(y/RT); if(riverRow(wy)){ const cy=rowCy(wy,x); if(Math.abs(y-cy)<MAPB.HW)return {h:true,i:wy,u:x,v:y-cy} }
   const wx=Math.floor(x/RT); if(riverCol(wx)){ const cx=colCx(wx,y); if(Math.abs(x-cx)<MAPB.HW)return {h:false,i:wx,u:y,v:x-cx} } return null }
 function canWade(x,y,who){ const r=riverAt(x,y); if(!r)return true; const c=Math.floor(r.u/RT), k=crossOpen(r.h,r.i,c); if(!k)return false; const d=Math.abs(r.u-crossU(c));
-  if(k===1)return d<MAPB.BR_HALF; if(k===2)return d<MAPB.FORD_HALF; return who==='nva'&&d<MAPB.FORD_HALF }
+  if(k===1)return d<MAPB.BR_HALF; if(k===2)return who!=='tank'&&d<MAPB.FORD_HALF;   /* the tank uses bridges only */ return who==='nva'&&d<MAPB.FORD_HALF }
 const isNvaFoot=e=>e&&(e.type==='nva'||e.type==='officer'||e.type==='sapper');
 /* move o from (o.x,o.y) by (vx,vy): blocked by water except at crossings; slides along banks; never traps anything already in water */
 function rvMove(o,vx,vy,who){ const nx=o.x+vx, ny=o.y+vy; if(!G||G.demo||o.swim>0||canWade(nx,ny,who)){ o.x=nx; o.y=ny; return 0 }
@@ -4012,11 +4047,11 @@ function updateCompany(dt){ const g=G,p=g.p; if(g.demo||!g.char||!g.cs)return; c
     const c=m.comp; if(c.half===null&&c.dr>=c.n&&c.alive<=c.n/2)c.half=g.t-c.t0;
     // leash ring around the player (golden-angle slots, fanned wider as the company grows)
     const exq=g.ex, toPad=!!(exq&&exq.pad&&(exq.ph===5||(exq.ph===4&&onPad(p.x,p.y))));   /* the bird is down (or Doc holds the pad): everyone onto the circle */
-    const cx0=toPad?exq.pad.x:p.x, cy0=toPad?exq.pad.y:p.y, sa=m.slot*2.39996+g.t*.04, sr=toPad?Math.min(EX.PAD_R-14,10+Math.sqrt(m.slot+1)*14):70+Math.sqrt(m.slot+1)*34, wob=toPad?0:Math.sin(g.t*.8+m.ph)*8;
-    const sx=cx0+Math.cos(sa)*(sr+wob), sy=cy0+Math.sin(sa)*(sr+wob);
+    let sx,sy; if(toPad||!PLT.on){ const cx0=toPad?exq.pad.x:p.x, cy0=toPad?exq.pad.y:p.y, sa=m.slot*2.39996+g.t*.04, sr=toPad?Math.min(EX.PAD_R-14,10+Math.sqrt(m.slot+1)*14):70+Math.sqrt(m.slot+1)*34, wob=toPad?0:Math.sin(g.t*.8+m.ph)*8;
+      sx=cx0+Math.cos(sa)*(sr+wob); sy=cy0+Math.sin(sa)*(sr+wob) } else { const q=PLT.slot(m,p); sx=q[0]; sy=q[1] }
     let dx=sx-m.x, dy=sy-m.y, d=Math.hypot(dx,dy);
-    if(d>COY.leash){ const a=rnd()*TAU, E=Math.hypot(VW,VH)/2+60; m.x=p.x+Math.cos(a)*E; m.y=p.y+Math.sin(a)*E; dx=sx-m.x; dy=sy-m.y; d=Math.hypot(dx,dy) }
-    m.mv=d>10; if(m.mv){ const sp=Math.min(d*3.2,(d>260?310:176)*Math.max(1,speedMul())); m.x+=dx/d*sp*dt; m.y+=dy/d*sp*dt; m.anim+=dt*9; if(!m.tg)m.face=dx>=0?1:-1 }
+    if(!PLT.on&&d>COY.leash){ const a=rnd()*TAU, E=Math.hypot(VW,VH)/2+60; m.x=p.x+Math.cos(a)*E; m.y=p.y+Math.sin(a)*E; dx=sx-m.x; dy=sy-m.y; d=Math.hypot(dx,dy) }
+    if(PLT.on){ PLT.move(m,sx,sy,d,dt,toPad) } else { m.mv=d>10; if(m.mv){ const sp=Math.min(d*3.2,(d>260?310:176)*Math.max(1,speedMul())); m.x+=dx/d*sp*dt; m.y+=dy/d*sp*dt; m.anim+=dt*9; if(!m.tg)m.face=dx>=0?1:-1 } }
     memberCombat(m,dt,m.dm*dm0); if(!m.tg)m.aim=(m.mv?Math.atan2(dy,dx):m.aim);
     if(((coyF+i)&1)===0&&m.inv<=0){ const cx=Math.floor(m.x/CS),cy=Math.floor(m.y/CS); let hit=null;
       out: for(let ox=-1;ox<=1;ox++)for(let oy=-1;oy<=1;oy++){ for(let j=head[(((cx+ox)&63)<<6)|((cy+oy)&63)];j>=0;j=nextI[j]){ const e=enemies[j]; if(!e||e.dead)continue; const ex=e.x-m.x,ey=e.y-m.y,rr=e.r+8; if(ex*ex+ey*ey<rr*rr){ hit=e; break out } } }
