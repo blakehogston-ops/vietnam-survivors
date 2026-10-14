@@ -1670,18 +1670,29 @@
     }
     return c;
   }
+  /* Lazy, bounded bake (OOM fix 2026-10-14): the old bake(scale) baked EVERY sprite x4 variants for each
+     distinct scale (~2,200 frames, ~95 MPx per scale). Now: scale quantised to 1/8, frames baked on first use,
+     at most 8 scale sets kept (LRU). API unchanged: bake(scale)[name][i].n/.f/.white/.fw */
+  var order = [], stats = { frames: 0, px: 0, scales: 0, evict: 0 };
+  function q(scale) { scale = +scale || 1; return Math.max(0.125, Math.round(scale * 8) / 8); }
+  function lazyFrame(s, rows, sc) {
+    var o = {}, mkv = function (k, flip, white) { Object.defineProperty(o, k, { configurable: true, enumerable: true, get: function () {
+      var c = bakeFrame(s, rows, sc, flip, white); stats.frames++; stats.px += c.width * c.height;
+      Object.defineProperty(o, k, { value: c, enumerable: true }); return c; } }); };
+    mkv('n', false, false); mkv('f', true, false); mkv('white', false, true); mkv('fw', true, true); return o;
+  }
   function bake(scale) {
-    scale = scale || 1;
-    if (cache[scale]) return cache[scale];
+    scale = q(scale);
+    if (cache[scale]) { var j = order.indexOf(scale); if (j > 0) { order.splice(j, 1); order.unshift(scale); } return cache[scale]; }
     var out = {};
-    for (var name in SPRITES) {
-      var s = SPRITES[name];
-      out[name] = s.frames.map(function (rows) {
-        return { n: bakeFrame(s, rows, scale, false, false), f: bakeFrame(s, rows, scale, true, false),
-                 white: bakeFrame(s, rows, scale, false, true), fw: bakeFrame(s, rows, scale, true, true) };
-      });
-    }
-    return (cache[scale] = out);
+    Object.keys(SPRITES).forEach(function (name) {
+      Object.defineProperty(out, name, { configurable: true, enumerable: true, get: function () {
+        var s = SPRITES[name], v = s.frames.map(function (rows) { return lazyFrame(s, rows, scale); });
+        Object.defineProperty(out, name, { value: v, enumerable: true }); return v; } });
+    });
+    cache[scale] = out; order.unshift(scale); stats.scales++;
+    while (order.length > 8) { delete cache[order.pop()]; stats.evict++; }
+    return out;
   }
   function frameIdx(s, frame) {
     if (typeof frame === 'string') { var k = s.names.indexOf(frame); return k < 0 ? 0 : k; }
@@ -1692,7 +1703,7 @@
     var s = SPRITES[name]; if (!s) return;
     var b = bake(scale)[name][frameIdx(s, frame)];
     var img = white ? (flip ? b.fw : b.white) : (flip ? b.f : b.n);
-    var w = s.w * scale, h = s.h * scale, dx, dy;
+    scale = q(scale); var w = s.w * scale, h = s.h * scale, dx, dy;
     if (s.anchor === 'tile') { dx = x; dy = y; }
     else if (s.anchor === 'center') { dx = x - w / 2; dy = y - h / 2; }
     else if (s.anchor === 'pivot') { dx = x - s.ax * scale; dy = y - s.ay * scale; }   // Huey: ground point under the mast
@@ -1704,9 +1715,9 @@
   var SHEET1 = {
     outline: '#1a1c12',
     sprites: SPRITES,
-    bake: bake,
+    bake: bake, bakeStats: function () { return { frames: stats.frames, px: stats.px, scales: stats.scales, evict: stats.evict, live: order.slice() }; },
     draw: draw,
-    add: function (more) { for (var k in more) SPRITES[k] = more[k]; for (var c in cache) delete cache[c]; return SHEET1; },
+    add: function (more) { for (var k in more) SPRITES[k] = more[k]; for (var c in cache) delete cache[c]; order.length = 0; return SHEET1; },
     frameCount: function (name) { return SPRITES[name] ? SPRITES[name].frames.length : 0; },
     frameIndex: function (name, t, fps) { var s = SPRITES[name]; return s ? Math.floor(t * (fps || s.fps || 8)) % s.frames.length : 0; }
   };

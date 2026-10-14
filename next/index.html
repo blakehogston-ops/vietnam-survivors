@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACl0lEQVR42tWXsW4TQRCGv9ndi+PYKIpEIkQZCWhQaCnoeIEUvAJCAsEbINHRg0DiJXgCHoCaDgoKKgRClhU7PvvudijOF/vu1skdcRKx0krW3nrmn39m/t2Vuw/2lSschisebtUH1fUSIyLtALjIIsB5YRQ2stQ3A+C9EkWW+w/3iSJ7biZEhCTJ+PzpO0mSYYycDsA6mU+DdWYtALwq1gleBfUrGFDNnd8+2MU6YfDnaK01cOvgOlmqfPvymyxVipJYyYD36y1C684oQtXyPGtU8Rk5fX/Vfo2BIvJmeYWtqLw2TZsBL3zoPAJXzb0YWWlIgMRDN4JXh7C1ka8fz+DlR5gkEJlw66qCscKde7ulWnD13Ff+uMy1QDcStjrQ6+RAThjp5L+TVEsBSCU3VZZrNVB1/uvnEPVK5qG/KXx4tk2/KyBQaIu18PoRjCbKk3dDRrFiTe5878Z2CUTVjzsrZ+p1PsH7XKi8B2MELexqsZ5P9dpYQV3jNjIwmymP3w7pd3Mmeps5gnE8j3yipGkePesGMA+UcawgMIoXuR5PlVGsjGNlw7XTh9YAIgdJojx9Pyx9SxIlcu0PL9dEywnIw/Fs4UwAI1LbtuoIDgIQWajTIvHC3s3tlWJU7fPgPlMGVvVzAiDL8tw2Pfwa78u0BjxbWnMieQv9+DoIUn0hY962IgEGLgtAsAYo5iU5r3eBVrT/Aka1M1zhOJ6kKMp4MA1ew9riCt0PRITeToflvggyEALQRZqnRyEOtUlxRZaGQiRACvRFeLNzjZ4I2SllooAFxqq8GBwx0vy81//yZbQc0USV54N2t+RYFdvgYePCEis1KMctjxkbsBM6Gly9SrtB3NJSIMJXEqmBaMjAv7wJm9n4C5YJNYm2sM4vAAAAAElFTkSuQmCC">   <!-- data URI: no /favicon.ico request, so nothing to 404 on a Pages project site -->
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=4939a72">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1af1cec">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -134,7 +134,8 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 #sigBtn span{font-size:10px;background:#0b140c;border-radius:4px;padding:2px 5px;color:#e8c860}
 #sigBtn.rdy{background:#6b3a2f;border-color:#ffd54a;box-shadow:0 0 14px rgba(255,213,74,.8),0 3px 0 #0b1016;animation:sigp 1s infinite}
 @keyframes sigp{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-#sigask{background:rgba(7,12,18,.55);z-index:7}
+#sigask{background:transparent;z-index:7;justify-content:flex-start!important;align-items:center;padding-top:max(8px,env(safe-area-inset-top))}   /* top-anchored: keep pad + smoke column visible */
+#sigask>:first-child{margin-top:44px!important}#sigask>:last-child{margin-bottom:auto!important}#sigask .note{background:rgba(7,12,18,.7);padding:3px 8px}
 #sigask .rbox{display:flex;gap:12px;align-items:center;max-width:min(520px,94vw);background:#101830;border:3px solid #c8c8c8;outline:3px solid #000;padding:10px 14px;text-align:left}
 #sigask .rbox canvas{width:72px;height:80px;image-rendering:pixelated;border:2px solid #c8c8c8;flex:none;background:#33422c}
 #sigask .who{color:#e8c030;font-weight:bold;font-size:13px;margin-bottom:4px}
@@ -1106,12 +1107,12 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   else root.Cues = Cues;
 })(typeof self !== 'undefined' ? self : this);
 </script>
-<script src="assets/art/sheet1.js?v=4939a72"></script>
-<script src="assets/art/vehicles.js?v=4939a72"></script>
-<script src="assets/art/doc_hivis.js?v=4939a72"></script><script src="assets/art/marines_tall.js?v=4939a72"></script><script src="assets/art/heroes_tall.js?v=4939a72"></script><script src="assets/art/cover_poses.js?v=4939a72"></script><script src="assets/art/firebase.js?v=4939a72"></script><script src="assets/art/terrain.js?v=4939a72"></script><script defer src="audio/sample_player.js?v=4939a72"></script><script defer src="audio/samples/manifest.js?v=4939a72"></script>
+<script src="assets/art/sheet1.js?v=1af1cec"></script>
+<script src="assets/art/vehicles.js?v=1af1cec"></script>
+<script src="assets/art/doc_hivis.js?v=1af1cec"></script><script src="assets/art/marines_tall.js?v=1af1cec"></script><script src="assets/art/heroes_tall.js?v=1af1cec"></script><script src="assets/art/cover_poses.js?v=1af1cec"></script><script src="assets/art/firebase.js?v=1af1cec"></script><script src="assets/art/terrain.js?v=1af1cec"></script><script defer src="audio/sample_player.js?v=1af1cec"></script><script defer src="audio/samples/manifest.js?v=1af1cec"></script>
 <script>
 /* BUILD STAMP: set by tools/stamp.js (run after every code commit; it records that commit's short hash + date). Also the ?v= cache-buster for audio / images / icons. */
-const BUILD={id:'4939a72',date:'2026-10-14 19:01 ET'}, AV='?v='+BUILD.id;
+const BUILD={id:'1af1cec',date:'2026-10-14 19:53 ET'}, AV='?v='+BUILD.id;
 /* Quang Tri preview (Stage 1): saves use the lbo2_ prefix; old vs_/lbo_ saves are never read or touched. */
 (()=>{
 'use strict';
@@ -1151,7 +1152,7 @@ function newSeed(){ const q=params.get('seed'); if(q!==null&&q!==''&&!isNaN(+q))
 seedRun(Math.floor(Math.random()*4294967296));
 const fmt=t=>{t=Math.max(0,Math.floor(t));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
 function hash2(x,y){let h=(Math.imul(x,374761393)+Math.imul(y,668265263))|0;h=Math.imul(h^(h>>>13),1274126177);return ((h^(h>>>16))>>>0)/4294967296}
-const mk=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
+const mk=(w,h)=>{window.__mkN=(window.__mkN||0)+1;const c=document.createElement('canvas');c.width=w;c.height=h;return c};
 
 /* ====================== audio ====================== */
 /* legacy event name -> Sound Helper pack cue [cue, opts]. Everything else keeps the original in-game synth. */
@@ -1977,7 +1978,7 @@ let LOWFX=false; const LOWFX_ON=()=>LOWFX, FXK=()=>LOWFX?.3:1;
 function setLowFx(v,silent){ LOWFX=!!v; if(!silent){ try{localStorage.setItem('lbo2_lowfx',LOWFX?'1':'0')}catch(e){} }
   document.querySelectorAll('.lowChk').forEach(c=>{ c.checked=LOWFX }); document.querySelectorAll('.lowTxt').forEach(t=>{ t.textContent=LOWFX?'ON':'OFF' }); document.querySelectorAll('.lowSw').forEach(w=>w.classList.toggle('off',!LOWFX));
   try{ Cues.setLowEffects(LOWFX) }catch(e){}
-  DECAL_CAP=LOWFX?260:700; if(decals.length>DECAL_CAP){ decals.length=DECAL_CAP } decalI=0; if(LOWFX&&parts.length>210)parts.length=210 }
+  DECAL_CAP=LOWFX?200:380; if(decals.length>DECAL_CAP){ decals.length=DECAL_CAP } decalI=0; if(LOWFX&&parts.length>210)parts.length=210 }
 const enemyCap=g=>Math.min(LOWFX?420:700,90+g.t*EX_RAMP*1.6);
 function buildSquadSprites(){
   const T=TOP_MARINE.slice(), mod=(rows)=>{ const t=T.slice(); for(const k in rows)t[k]=rows[k]; return t };
@@ -2087,7 +2088,7 @@ function buildGore(){
       CORPSE[k].push(c) } }
 }
 const BLOODC=['#d01818','#a00f10','#ff3030','#7a0a0c'];
-let DECAL_CAP=700;
+let DECAL_CAP=380;
 let GORE=true; try{GORE=localStorage.getItem('lbo2_gore')!=='0'}catch(e){}
 function setGore(v,silent){ GORE=!!v; try{localStorage.setItem('lbo2_gore',GORE?'1':'0')}catch(e){}
   const c=document.getElementById('goreChk'),t=document.getElementById('goreTxt'),w=document.getElementById('goreSw'); if(c)c.checked=GORE; if(t)t.textContent=GORE?'ON':'OFF'; if(w)w.classList.toggle('off',!GORE);
@@ -2750,7 +2751,7 @@ function mapTick(dt){ const g=G; if(!g||g.demo)return; g.pkT=(g.pkT||0)-dt; if(g
   /* illumination flare from the base (or over Doc before there is one) about every 50 s: reveals the nearest hidden NVA crossing for 20 s */
   g.flT=(g.flT===undefined?18:g.flT)-dt; if(g.flT<=0){ g.flT=50; const c=fbS||g.p, H=hiddenNear(c.x,c.y,4600); if(H.length){ H.sort((a,b)=>Math.hypot(a.x-c.x,a.y-c.y)-Math.hypot(b.x-c.x,b.y-c.y)); const h=H[0];
       if(!g.hidRev)g.hidRev=new Map(); g.hidRev.set(h.k,g.t+20); g.flareAt={x:h.x,y:h.y-60,t:g.t}; g_banner('ILLUMINATION: NVA CROSSING SPOTTED','#ffe58a'); g.hidRevN=(g.hidRevN|0)+1 } } }
-function addCrater(x,y,rad){ if(!G||G.demo||riverAt(x,y))return; craters.push({x,y,s:rad<60?16:rad<110?24:40,t:G.t}); if(craters.length>70)craters.shift() }
+function addCrater(x,y,rad){ if(!G||G.demo||riverAt(x,y))return; craters.push({x,y,s:rad<60?16:rad<110?24:40,t:G.t}); if(craters.length>50)craters.shift() }
 function drawCraters(){ if(!TERR.ready())return; for(const c of craters){ const a=G.t-c.t; if(c.x<RCAM.x-40||c.x>RCAM.x+VW+40||c.y<RCAM.y-40||c.y>RCAM.y+VH+40)continue; const im=TERR.frame('tCrater'+c.s,a<25?'fresh':a<80?'old':'faded'); if(im)ctx.drawImage(im,Math.round(c.x-c.s/2),Math.round(c.y-c.s*.375)) } }
 function buildWorldArt(){
   const T=256; let s=987654; const r=()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296};
@@ -2921,7 +2922,7 @@ const ITEMS={
   helmet:{kind:'p',name:'M1 Steel Helmet',max:5,blurb:'Armor: take less damage from hits.',desc:l=>`Damage taken -${l*8}%`},
   flak:{kind:'p',name:'Flak Jacket',max:5,blurb:'Extra protection: more max health.',desc:l=>`Max HP ${100+20*l}`},
   boots:{kind:'p',name:'Jungle Boots',max:5,blurb:'Move faster through the bush.',desc:l=>`Move speed +${l*10}%`},
-  magnet:{kind:'p',name:'Ammo Pouch',max:5,blurb:'Wider reach for picking up XP.',desc:l=>`Pickup radius ${50+l*38}`},
+  magnet:{kind:'p',name:'Ammo Pouch',max:5,blurb:'Wider reach for picking up XP.',desc:l=>`Pickup radius ${80+l*38}`},
   regen:{kind:'p',name:'Corpsman Kit',max:5,blurb:'Slowly heal over time.',desc:l=>`Regen ${(l*.6).toFixed(1)} HP/s`},
   radio:{kind:'p',name:'Radio Discipline',max:5,blurb:'Proper call signs and brevity codes: every weapon and air mission is ready sooner.',desc:l=>`All cooldowns -${l*8}%`},
   fm:{kind:'p',name:'Field Manual (FM 21-75)',max:5,blurb:'Study Charlie\'s habits and Army field craft: learn from every fight.',desc:l=>`XP gain +${l*10}%`},
@@ -2982,7 +2983,7 @@ function newGame(demo){
 }
 const xpNeed=l=>Math.floor(4+l*3.2+l*l*.55);
 function applyPassives(){const p=G.p;p.maxHp=100+20*G.ps.flak+(G.hpB||0);}
-const speedMul=()=>Math.max(.4,1+.1*G.ps.boots+(G.spdB||0)+(G.rr>0?.8:0)), armorMul=()=>(1-.08*G.ps.helmet)*(1-(G.armB||0))*(G.full>0?.7:1)*(G.inFb?.8:1), magR=()=>50+38*G.ps.magnet+(G.magB||0), regenR=()=>.6*G.ps.regen+(G.regB||0)+(G.inFb?2:0);
+const speedMul=()=>Math.max(.4,1+.1*G.ps.boots+(G.spdB||0)+(G.rr>0?.8:0)), armorMul=()=>(1-.08*G.ps.helmet)*(1-(G.armB||0))*(G.full>0?.7:1)*(G.inFb?.8:1), magR=()=>80+38*G.ps.magnet+(G.magB||0), regenR=()=>.6*G.ps.regen+(G.regB||0)+(G.inFb?2:0);
 
 /* ====================== helpers ====================== */
 function addPart(x,y,vx,vy,l,s,c,glow,drag){ if(parts.length>(LOWFX?210:520))return; if(LOWFX&&!glow&&((parts.length&1)))return; parts.push({x,y,vx,vy,l,ml:l,s,c,g:glow?1:0,d:drag===undefined?3:drag}); }
@@ -2997,7 +2998,7 @@ function addBullet(x,y,a,spd,dmg,pierce,life,r,col){const o={x,y,vx:Math.cos(a)*
 function hurtEnemy(e,d,kx,ky){ if(e.dead)return; if(e.inCov)d*=PACE.COVER_DR; if(e.armor){ d*=apHit?2.2:(d>=25?.5:.1) } if(G.char){ d*=G.cdm; if(dmgSrc===3)d*=G.flm; const cc=G.crit+(G.dead>0?.6:0); if(cc>0&&rnd()<cc){ d*=2; if(parts.length<(LOWFX?160:400))addPart(e.x,e.y-12,0,-30,.35,3,'#ffe58a',true,2) } } G.dd=(G.dd||0)+Math.min(d,Math.max(0,e.hp)); if(CURW){ const wd=G.wd||(G.wd={}); wd[CURW]=(wd[CURW]||0)+Math.min(d,Math.max(0,e.hp)) } e.hp-=d; e.flash=.09; e.lt=DTAG||(dmgSrc===3?'fire':dmgSrc===2?'expl':'rifle'); e.lx=kx; e.ly=ky;
   if(e.hp>0&&drops.length<(LOWFX?110:300)&&(dmgSrc!==3||rnd()<.25)){ spawnDrops(e.x,e.y-6,kx,ky,e.boss?2:1+((rnd()*2)|0),95); if(rnd()<.05&&decals.length<DECAL_CAP)addDecal(e.x+(rnd()-.5)*10,e.y+6,SPLAT[8+((rnd()*2)|0)],22,.8) } if(!e.boss){e.kx+=kx;e.ky+=ky}else{e.kx+=kx*.1;e.ky+=ky*.1}
   if(e.hp<=0)killEnemy(e); else Snd.play('hit'); }
-function dropGem(x,y,v,type){ if(gems.length>420){addXp(v);return} gems.push({x:x+(rnd()-.5)*10,y:y+(rnd()-.5)*10,v,t:type,pull:false,sp:0}) }
+function dropGem(x,y,v,type){ if(gems.length>220){addXp(v);return} gems.push({x:x+(rnd()-.5)*10,y:y+(rnd()-.5)*10,v,t:type,pull:false,sp:0}) }
 /* NVA medic packs: ~3.5% of NVA Regular kills (pity: guaranteed after 60 NVA kills without one), at least 20 s apart, max 3 on the ground,
    25 s lifetime (blinks in the last 6 s), heals 17% max HP (halved if you picked one up in the last 10 s). VC do not drop them (the NVA rate is plenty). */
 const MED={chance:.035,pity:60,gap:20,cap:3,life:25,blink:6,heal:.17};
@@ -5240,6 +5241,7 @@ const SIGASK={at:0,held:new Set()};
 const sigAskReady=()=>state==='sig'&&performance.now()-SIGASK.at>=EX.ASK_GRACE*1000;   /* ~400 ms grace after the dialog opens */
 function closeSigAsk(){ $('sigask').classList.remove('show'); if(state==='sig'){ state='play'; last=performance.now() } }
 function confirmSignal(){ answerSignal(true) }
+DBG.counts=()=>{ const o={}; for(const n of ["BARE", "BUBSPR", "COYSPR", "CRATER", "DECOR", "DRYC", "FLOW", "GIBSPR", "GUNNY", "HEAVY", "HELD", "PLANEP", "RUNLOGS", "SCORCH", "SPLAT", "WRECKS", "air", "ans", "bad", "blasts", "bnkLog", "boats", "bodies", "brk", "brkT", "bubbles", "bullets", "cache", "called", "chgs", "choices", "clouds", "cones", "coy", "coyH", "crashes", "craterRec", "craters", "crates", "deathSndT", "decals", "drops", "ds", "dying", "e12", "enemies", "engs", "eprojs", "exQ", "fbLog", "fires", "flashes", "ftexts", "gems", "gibs", "got", "grenades", "grid", "hbars", "healFx", "held", "hidRev", "hl", "hshells", "hueys", "icons", "ins", "knives", "later", "ld", "lft", "lines", "live", "lobes", "log", "luLog", "mapX", "marks", "medpacks", "memo", "mines", "missing", "mshells", "nodes", "on", "os", "out", "parts", "pat", "pbrLog", "pits", "plLog", "plWL", "pool", "prev", "pts", "pullHist", "res", "rockets", "rows", "sig", "sigs", "squad", "strikes", "strs", "stuckL", "tanks", "tr", "tunnels", "used", "vtr", "wilt"]){ try{ const v=eval(n); if(v&&typeof v.length==='number')o[n]=v.length; else if(v&&typeof v.size==='number')o[n]=v.size }catch(e){} } return o };   /* QA: entity / cache counts for the memory profile */
 if(DBG.bot||DBG.god){ window.__ans=answerSignal; window.__rl=()=>runLogOf(G); window.__rv={riverAt,canWade,needCross} }   /* QA harness only */   /* bot harness only */
 function answerSignal(yes){ const g=G,ex=g&&g.ex; if(ex&&ex.call&&ex.call.st==='ask'){ answerCall(yes); return } if(!ex||ex.ph!==2)return; closeSigAsk();
   if(yes){ placePad(ex.at==='real'&&ex.idCol===ex.sig.col); return }
@@ -5424,14 +5426,14 @@ const dirWord=(dx,dy)=>DIR8[((Math.round(Math.atan2(dy,dx)/(Math.PI/4))%8)+8)%8]
 function exTarget(){ const g=G,ex=g.ex; if(!ex)return null;
   if(ex.ph===4&&ex.divert&&ex.huey)return ex.huey; if(ex.ph===0&&ex.padPlan&&ex.pad)return ex.pad; if(ex.ph>=3&&ex.ph<=5&&ex.pad&&(ex.padShown||ex.ph>=4))return (ex.ph===5&&ex.huey)?ex.huey:ex.pad; return null }
 function sigLine(){ const g=G,ex=g.ex,p=g.p; if(!ex)return {t:'',c:'#fff'};
-  const T=exTarget(), dm=T?Math.round(Math.hypot(T.x-p.x,T.y-p.y)/10):0;
+  const T=exTarget(), dm=T?Math.max(1,Math.round(Math.max(0,Math.hypot(T.x-p.x,T.y-p.y)-(T===ex.pad?EX.PAD_R:0))/10)):0;   /* distance to pad EDGE */
   const pdm=ex.pad?Math.round(Math.hypot(ex.pad.x-p.x,ex.pad.y-p.y)/10):0;
   if(ex.ph===0)return {t:(ex.smokeCol||'').toUpperCase()+' SMOKE ON DOC\'S BELT  ·  PAD AT '+fmt(EX.PAD_T),c:SIGC[ex.smokeCol]||'#c8c8b0'};
   if(ex.ph===4&&ex.divert)return {t:"BIRD WENT TO CHARLIE'S SMOKE · BACK IN "+Math.max(0,Math.ceil(ex.divert.cost-ex.divert.t))+'s',c:'#ff6a4a',T:null};
   if(ex.ph===4&&ex.call&&ex.call.st==='wait')return {t:onPad(p.x,p.y)?'POPPING SMOKE...':'BIRD WANTS SMOKE · GET ON THE PAD '+dm+'m',c:'#ffcf5a',T:onPad(p.x,p.y)?null:T};
   if(ex.ph===4&&ex.call&&ex.call.st!=='ok')return {t:'SMOKE OUT · THE BIRD IS LOOKING',c:SIGC[ex.col],T:null};
   if(ex.ph===1||ex.ph===2)return {t:sigName(ex.sig.kind,ex.sig.col)+' — '+dm+'m'+(ex.padPlan?'  ·  PAD MARKED':''),c:SIGC[ex.sig.col==='white'?'yellow':ex.sig.col],T};
-  if(ex.ph===3)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+(G.pullEx||0)-G.t)))+(ex.padShown?'  ·  PAD '+dm+'m':''),c:'#9be37a',T:ex.padShown?T:null};
+  if(ex.ph===3)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+(G.pullEx||0)-G.t)))+(ex.padShown?(onPad(p.x,p.y)?'  ·  ON THE PAD':'  ·  PAD '+dm+'m'):''),c:'#9be37a',T:ex.padShown&&!onPad(p.x,p.y)?T:null};
   if(ex.ph===4)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t)))+(onPad(p.x,p.y)?'  ·  ON THE PAD':'  ·  PAD '+dm+'m'),c:onPad(p.x,p.y)?'#9be37a':'#ffcf5a',T:onPad(p.x,p.y)?null:T};
   if(ex.ph===5){ const left=Math.max(0,EX.GROUND-ex.t), inR=onPad(p.x,p.y); const ow=!inR&&ex.offWarn; return {t:'BIRD LIFTS — '+fmt(Math.ceil(left))+'  ·  '+(ow?'GET ON THE PAD '+dm+'m':!inR?'PAD '+dm+'m':ex.ramp?'BOARDING':'NEED ONE MORE MARINE ON THE RAMP'),c:(left<10||ow)?'#ff6a4a':'#9be37a',T:inR?null:T} }
   if(ex.ph===6)return {t:'EXTRACTED',c:'#9be37a'}; return {t:'THE BIRD IS GONE',c:'#ff6a4a'} }
@@ -5487,7 +5489,7 @@ function corpseVar(sk,mode){ const kk=sk+mode; if(CV[kk])return CV[kk]; const bs
   else { x.save(); x.translate(cx,cy); x.rotate(Math.PI/2); if(mode==='flat')x.scale(1.3,.38); x.drawImage(src,-w/2,-h/2); x.restore(); if(mode==='flat'||mode==='') { x.fillStyle='#c01a1a'; for(let i=0;i<5;i++)x.fillRect(Math.round(cx-h/3+Math.random()*h*.6),Math.round(cy-w/4+Math.random()*w*.5),2,2) } }
   return CV[kk]=c }
 function addHeavy(x,y,c,life,sc,nogore){ if(!GORE&&!nogore)return; const d={x,y,c,l:life,sc:sc||1}; if(decals.length<DECAL_CAP)decals.push(d); else { decals[decalI]=d; decalI=(decalI+1)%DECAL_CAP }
-  HEAVY.push(d); if(HEAVY.length>140){ const o=HEAVY.shift(); if(o.l>1.4)o.l=1.4 } }
+  HEAVY.push(d); if(HEAVY.length>(LOWFX?70:110)){ const o=HEAVY.shift(); if(o.l>1.4)o.l=1.4 } }
 function deathSnd(n){ if(G.demo)return; const now=performance.now(); while(deathSndT.length&&now-deathSndT[0]>180)deathSndT.shift(); if(deathSndT.length>=4)return; deathSndT.push(now); Snd.play(n) }
 function mkDying(e,kind,o){ if(dying.length>=60)return null; const f=e.spr[Math.floor(e.anim)&1][e.dir][0]; const d=Object.assign({x:e.x,y:e.y,z:0,vx:0,vy:0,vz:0,vr:0,rot:0,t:0,dur:.4,kind,sk:e.sk,spr:f,ds:e.ds,side:rnd()<.5?-1:1,sy:1,fin:'corpse',mode:'',tint:''},o); dying.push(d); return d }
 function corpseStamp(d){ const mode=d.mode; if(mode==='char'){ addHeavy(d.x,d.y+4,SCORCH[0],40,.55,true); if(GORE)addHeavy(d.x,d.y+6,corpseVar(d.sk,'char'),50,d.ds); return }
@@ -5807,7 +5809,7 @@ function render(){ TERR.budget(TERR.stats().cells<6?24:4);
     const wx=Math.floor(x/T),wy=Math.floor(y/T), lx=x-wx*T, ly=y-wy*T;
     if(riverRow(wy)&&Math.abs(ly-128)<80)continue; if(riverCol(wx)&&Math.abs(lx-128)<80)continue; if(riverAt(x,y)||onRiver(x,y,60))continue; if(fbS&&Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y))<FBW+70)continue;
     if(paddyCell(wx,wy)&&!PADDY_OK[di])continue;
-    let dc=d.c; if(wilt.size&&(di===0||di===1||di===7||di===8)){ const wv=wilt.get(wk(x,y)); if(wv>=.4)dc=d.bc||(d.bc=wiltSpr(d.c)) }
+    let dc=d.c; if(wilt.size&&(di===0||di===1||di===7||di===8)){ const wv=wilt.get(wk(x,y)); if(wv>=.4)dc=d.c._wl||(d.c._wl=wiltSpr(d.c)) }
     ctx.drawImage(dc,Math.round(x-d.ox),Math.round(y-d.oy)); }
   // blood decals + corpses (ground layer)
   for(let i=0;i<decals.length;i++){const d=decals[i]; if(d.l<=0)continue; const w=d.c.width*d.sc,h=d.c.height*d.sc; if(d.x<camX-w||d.x>camX+VW+w||d.y<camY-h||d.y>camY+VH+h)continue;
