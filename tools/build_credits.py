@@ -49,7 +49,7 @@ for h in HELD_NAMES: T2 = re.sub(r'\b%s; ' % re.escape(h), '', T2)
 T2 = T2.replace('THIRD-PARTY AUDIO', 'THIRD-PARTY AUDIO (this build: %d files; held back until the map build: %s)' % (len(shipped), ', '.join(held) or 'none'), 1)
 # Legal (Oct 14): no areniporgen anywhere in the shipped text; the held cannon_76mm source is not named until Blake decides
 T2 = re.sub(r' and areniporgen #693421', '', T2); T2 = T2.replace(' + areniporgen #693421', '')
-T2 = T2.replace('Walking.With.Microphones #556134 and ', '').replace("cannon_76mm (Walking.With.Microphones) awaits", "cannon_76mm (held, not in this build) awaits")
+T2 = T2.replace('Walking.With.Microphones #556134 and ', '').replace("cannon_76mm (Walking.With.Microphones) awaits", "cannon_76mm (held, not in this build) awaits").replace("cannon_76mm (Walking.With.Microphones) approved by Blake Oct 14", "cannon_76mm (held, not in this build)")
 assert not re.search('areniporgen|Walking.With', T2), 'held/failed source still named in THIRD_PARTY_AUDIO.txt'
 open(os.path.join(OUT, 'THIRD_PARTY_AUDIO.txt'), 'w').write(T2)
 # ---- check: every shipped file -> credited source; every credited name -> a shipped file ----

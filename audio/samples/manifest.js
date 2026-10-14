@@ -6,6 +6,17 @@
   "m4a"
  ],
  "slots": {
+  "knife_throw": {
+   "batch": 1,
+   "files": [
+    "knife_throw_1",
+    "knife_throw_2",
+    "knife_throw_3"
+   ],
+   "alt": [
+    "knife_throw_alt_gingie"
+   ]
+  },
   "m16_single": {
    "batch": 1,
    "files": [

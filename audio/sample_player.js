@@ -31,7 +31,7 @@
     bomb_distant: 1, flamethrower_loop: 1, flamethrower_burst: 1,
     // week of 2026-10-14: weapons + explosions (no synth fallback)
     bolt_rifle_shot: 1, bolt_rifle_bolt: 1, shotgun_shot: 1, shotgun_rack: 1, cannon: 1, cannon_76mm: 1, backblast: 1, minigun_burst: 1, strafe_20mm: 1,
-    explosion_close: 1, explosion_claymore: 1, napalm_ignite: 1, fire_loop: 1, smoke_pop: 1 };
+    explosion_close: 1, explosion_claymore: 1, napalm_ignite: 1, fire_loop: 1, smoke_pop: 1, knife_throw: 1 };
 
   // cat: voice-limit category. prio: higher survives voice stealing. gain: linear trim before variation.
   // out: which internal output the slot uses ('sfx' -> sfxBus, 'rotor' -> rotorBus or sfxBus).
@@ -89,6 +89,7 @@
     explosion_claymore: { cat: 'explosive', prio: 4, gain: 0.968, vary: true },                // sharp crack
     napalm_ignite:      { cat: 'fire',      prio: 3, gain: 1.065, vary: true },
     fire_loop:          { cat: 'fire',      prio: 5, gain: 0.438, loop: true },                // quiet burning loop
+    knife_throw:        { cat: 'blade',     prio: 1, gain: 0.291, vary: true, maxDur: 1.0 },   // thrown knife into wood (not a gun) - merged from Sound Helper 2026-10-14
     smoke_pop:          { cat: 'canister',  prio: 6, gain: 0.471 },                            // Doc's canister: pop + hiss
     // Footsteps: all 12 clips are loudness-matched in build_samples.py; these per-surface trims put every surface ~6 dB
     // under the M16 single-shot average (whole-clip RMS, measured by samples/measure_levels.py).
@@ -530,6 +531,7 @@
         if (g) { var t = h.start, v0 = g.gain.value; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v0, t + o.fade); } }
       return h;
     };
+    P.knifeThrow = function (o) { return P.play('knife_throw', o || {}); };       // merged from Sound Helper: whoosh + thunk into wood; silent if not loaded
     P.smokePop = function (o) { return P.play('smoke_pop', o || {}); };            // Doc pops the canister on the circle
     P.CANNON_KINDS = Object.keys(CANNON); P.EXPLOSION_KINDS = Object.keys(EXPLOSION);
 
