@@ -324,6 +324,14 @@
     "explosion_claymore_1"
    ]
   },
+  "cannon_76mm": {
+   "batch": 2,
+   "files": [
+    "cannon_76mm_1",
+    "cannon_76mm_2",
+    "cannon_76mm_3"
+   ]
+  },
   "cannon": {
    "batch": 2,
    "files": [

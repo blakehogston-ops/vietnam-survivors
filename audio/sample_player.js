@@ -1,4 +1,4 @@
-/* copied from Sound Helper by tools/build_audio.py; one game-side patch marked "game patch" (warning voices outside the caps) */
+/* copied from Sound Helper by tools/build_audio.py; game patches: mix-bus routing (P.route); and one game-side patch marked "game patch" (warning voices outside the caps) */
 /*
  * sample_player.js - real recorded samples for "Last Bird Out - Quang Tri, 1968".
  * Plain browser JS, no dependencies. Works next to sound_cues.js (the synthesized cues).
@@ -287,7 +287,7 @@
       }
       if (loop) src.loop = true;
       src.start(t); if (!loop) src.stop(t + dur + 0.01);
-      var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g };
+      var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g, bus: o.busName || '' };
       src.onended = function () { v.dead = true; };
       voices.push(v); stats.played++;
       return v;
@@ -315,6 +315,11 @@
       var s = SLOTS[slot]; if (!s) { info('unknown slot "' + slot + '"'); return null; }
       var t = o.when != null ? Math.max(o.when, now()) : now();
       prune(Math.min(t, now()));
+      /* game patch (mix buses): P.route(slot, s, o) -> { dest, vol, prio, cat, bus, cap } or { drop: true }; per-bus per-slot voice caps */
+      if (P.route && !o.routed) { var rt = P.route(slot, s, o); if (rt) { if (rt.drop) { stats.dropped++; return null; }
+          if (rt.cap) { var same = overlapping(t, t + 0.05, function (v) { return v.slot === slot && v.bus === rt.bus; }); if (same.length >= rt.cap) { stats.capped = (stats.capped || 0) + 1; return null; } }
+          o = Object.assign({}, o, { dest: rt.dest || o.dest, vol: (o.vol == null ? 1 : o.vol) * (rt.vol == null ? 1 : rt.vol), routed: true, busName: rt.bus });
+          if (rt.prio != null || rt.cat) s = Object.assign({}, s, { prio: rt.prio != null ? rt.prio : s.prio, cat: rt.cat || s.cat }); } }
       // recorded bursts are used when loaded; play(..., { rounds: n }) or no burst files -> re-trigger the single shot
       if (s.burstOf && (o.rounds || !(buffers[slot] && buffers[slot].length))) return playBurst(slot, s, t, o);
       // o.variant: preferred file index (explosion(kind)); falls back to a random variant if that file is not loaded
@@ -493,12 +498,13 @@
     P.shotgunRack = function (o) { return P.play('shotgun_rack', o || {}); };
     // cannon(kind, o): kind = 'tank90' (M48) | 't54' | 'pt76' | 'howitzer' (105 mm) -> cannon slot, small pitch per calibre;
     // 'recoilless' (106 mm) | 'ontos' | 'zuni' -> back-blast slot (heavier, longer than the B-40).
-    var CANNON = { /* game patch: pt76 uses the main cannon clips while cannon_76mm is held */ tank90: { slot: 'cannon', rate: 1.04 }, t54: { slot: 'cannon', rate: 1.0 }, pt76: { slot: 'cannon', rate: 1.12 },
+    var CANNON = { /* game patch: Blake approved the ZiS-3 Oct 14 - pt76 uses cannon_76mm (falls back to the main cannon clips if it is not loaded) */ tank90: { slot: 'cannon', rate: 1.04 }, t54: { slot: 'cannon', rate: 1.0 }, pt76: { slot: 'cannon_76mm', rate: 1.0, fb: { slot: 'cannon', rate: 1.12 } },
       howitzer: { slot: 'cannon', rate: 0.96 }, recoilless: { slot: 'backblast', rate: 1.0 }, ontos: { slot: 'backblast', rate: 0.98 },
       zuni: { slot: 'backblast', rate: 1.04 } };
     P.cannon = function (kind, o) {
       o = o || {}; var k = CANNON[kind || 'tank90'];
       if (!k) { info('unknown cannon "' + kind + '" (use ' + Object.keys(CANNON).join('|') + ')'); return null; }
+      if (k.fb && !P.hasSample(k.slot)) k = k.fb;
       return P.play(k.slot, Object.assign({}, o, { rate: (o.rate || 1) * k.rate }));
     };
     P.zuni = function (o) { return P.cannon('zuni', o); };

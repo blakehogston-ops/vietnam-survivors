@@ -21,7 +21,8 @@ for d in ('ogg', 'm4a'):
 # keep the map-build files OUT (river batch 3: boat engine, river beds; the felix.blume bugle): no file, no manifest slot
 HOLD = []   # Oct 14: river batch 3 + felix.blume bugle ship now (map build)
 # Legal FAILED permanently (Oct 14): Hollywood-sourced cannon (tank90/t54/pt76/howitzer) and explosion_close 1 + 4. Never shipped, never loadable.
-LEGAL_FAIL_SLOTS = ['cannon_76mm']   # Oct 14 4:22 PM: tank90 / t54 / howitzer cannon PASSED Legal; claymore rebuilt clean; cannon_76mm (Walking.With.Microphones) HELD until Blake decides   # Oct 14 4:19 PM: explosion_claymore_1 holds the failed areniporgen #693421 flashbang - removed until Sound Helper's rebuild lands
+LEGAL_FAIL_SLOTS = []   # Oct 14 5:44 PM: Blake approved the ZiS-3 (cannon_76mm)
+_OLD_HOLD = ['cannon_76mm']   # Oct 14 4:22 PM: tank90 / t54 / howitzer cannon PASSED Legal; claymore rebuilt clean; cannon_76mm (Walking.With.Microphones) HELD until Blake decides   # Oct 14 4:19 PM: explosion_claymore_1 holds the failed areniporgen #693421 flashbang - removed until Sound Helper's rebuild lands
 LEGAL_FAIL_FILES = sorted({f.rsplit('.', 1)[0] for d in ('ogg', 'm4a') if os.path.isdir(os.path.join(SP, 'samples', d)) for f in os.listdir(os.path.join(SP, 'samples', d)) if f.startswith('cannon_76mm')})
 M0 = json.loads(subprocess.run(['node', '-e', "const m=require(process.argv[1]).SAMPLE_MANIFEST; console.log(JSON.stringify(m))", os.path.join(SP, 'samples', 'manifest.js')], capture_output=True, text=True, check=True).stdout)
 held = []
