@@ -6,7 +6,9 @@ All art is original, drawn as data. Nothing here edits `game/index.html`; Lead D
 | File | What |
 |---|---|
 | `sprites_batch1.js` | 7 sprites as 11-row x 16-col top grids + per-sprite legends (`B1` object, plus `B1_register`) |
-| `ribbons.js` | `RIBBONS` (CAR, PH, BS, SS, NC; full 44x12 + compact 23x6) and `MEDAL_OF_HONOR` (27x48 + locked silhouette) |
+| `ribbons.js` | `RIBBONS` (CAR, PH, BS, SS, NC; full 44x12 + compact 23x6), `RIBBON_RACK_ORDER` (gameplay rack, **no `moh`**) and `MEDAL_OF_HONOR` (27x48 + locked silhouette; **tribute cards only** — Ballard and Taylor) |
+| `last_bird_out_badge.js` | `LAST_BIRD_OUT_BADGE`: the 'Last Bird Out' gameplay unlock (replaces the old gameplay 'Medal of Honor'). Round unit-patch badge, NOT a medal: `size24`, `size48`, `locked24`, `locked48`, each `{grid, legend}` |
+| `gen_last_bird_out_badge.py`, `render_last_bird_out_badge.py`, `validate_badge.js` | Generator, preview renderer (`last_bird_out_badge_preview.png`: 1x/2x/4x next to the MoH, on dark + light, plus grayscale) and validator (`node validate_badge.js` -> OK) |
 | `preview.html` / `preview.png` | Rendered sheet: sprites at 8x and 2x (both leg frames, next to 3 existing sprites for scale), ribbons, rack mock, MoH |
 | `gen_ribbons.py`, `validate.js` | Generator for ribbons.js; validator for sprite grid sizes/legend letters (`node validate.js` -> OK) |
 
@@ -28,7 +30,7 @@ Drop-in: `SPR.hogston = makeSprites(B1.hogston.top, LEGS0, B1.hogston.pal, 2)` o
 Hogston note: the photo shows the real cap, "OMS" patch, open collar, chevrons, pocket pens. Branch/name tapes are too small to render at 16 px, so they are omitted. The photo is **not** copied into any asset. His face/hair here is a generic stylized round face — not a likeness.
 
 ## Ribbons (verified against specs; see Sources)
-Pixel = 1/32" in FULL (44x12 = 1-3/8" x 3/8"). COMPACT is rounded by hand for small UI. Rack order, highest first: MoH (medal, not a bar), Navy Cross, Silver Star, Bronze Star, Purple Heart, Combat Action Ribbon.
+Pixel = 1/32" in FULL (44x12 = 1-3/8" x 3/8"). COMPACT is rounded by hand for small UI. Gameplay rack order, highest first: Navy Cross, Silver Star, Bronze Star, Purple Heart, Combat Action Ribbon. The Medal of Honor is **never** a gameplay/farmable reward (Blake's spec): it is not in `RIBBON_RACK_ORDER`, and `MEDAL_OF_HONOR` (Navy pattern, the correct one for Marines per the historian) is only for the Ballard and Taylor tribute cards. The gameplay unlock is now **Last Bird Out** (`LAST_BIRD_OUT_BADGE`).
 
 - **Combat Action Ribbon** — MIL-DTL-11589/171: red edge (1/32+9/32), golden yellow 5/16, center 1/8" tripartite red/white/blue, yellow 5/16, blue 9/32+1/32 edge. Drawn red on viewer's left, blue on the right (matches militarymedals.com, medals.org.uk). Established 17 Feb 1969, retroactive to 1 Mar 1961, so valid for 1968 characters.
 - **Purple Heart** — 1/8" white, 1-1/8" purple, 1/8" white (TIOH).
@@ -55,3 +57,18 @@ Colors are sRGB approximations of the thread names (Scarlet, Ultramarine Blue, N
 
 ## Not done / next
 Portraits, character-select art, medal-pin icons, corpse/crater decals, and the Vietnamese pixel font are still pending. Roster variants for the remaining characters (doc, hammer, etc.) can reuse these skin-tone/hair deltas.
+
+- `medpack.js`: 12x10 medic pack pickup (olive pouch, white panel, red cross). Added for the NVA medic-pack drop.
+- `allied_armband.js`: armband variants (yellow band on both upper arms) of the squad Marine and the three skin-tone Marines for Company Reinforcement allies.
+
+## Medevac Huey + heal effects (added for the Medevac perk)
+- `medevac_huey.js`: `drawMedevacHuey(ctx,x,y,scale,rotorPhase[,heading])` — procedural, top-down, same shapes/scale as `drawHuey()` in index.html (nose +x, scale 1 = game px, x,y = aircraft centre). `rotorPhase` 0/1 (use `Math.floor(t*N)`), `heading` = `h.hd`. Olive-drab, white square + red cross on roof AND tail boom, open side doors (dark opening + tan litter), rotor blur disc. It draws no shadow/HP bar (keep the game's). Fallback: `MEDEVAC_HUEY.frames[0|1]` (48x48 letter grids + `legend`, 1 grid px = 2 game px) drawn by `drawMedevacHueyGrid(ctx,x,y,scale,phase,heading)`. In the game, `drawMedevac()` can simply call this instead of `drawHuey(h)` + its 10x10 cross.
+- `heal_pulse.js`: `drawHealPulse(ctx,x,y,t[,scale])`, t 0..1 — soft green-white expanding ring, draw under the unit's sprite. Grid version `HEAL_PULSE.frames[0..4]` (25x25, frame = min(4,floor(t*5)), draw at 2x). `HEAL_PLUS.frames[0|1]` 5x5 rising plus particle; `drawHealPlus(ctx,x,y,t[,scale])` rises ~18 px and switches to the dim frame at t>.55 (spawn 2-4 per healed unit with small x jitter).
+- Both export via `module.exports` for node and are shown at the bottom of `preview.html` / `preview.png` (regenerated with headless Chrome).
+
+## Last Bird Out badge (replaces the gameplay 'Medal of Honor' unlock)
+- `LAST_BIRD_OUT_BADGE` in `last_bird_out_badge.js` (plain `const` + `module.exports` guarded like `ribbons.js`, same format). Vietnam Vet approved the motif.
+- Round unit patch: dark night field `N #26344b`, dusk glow `m` over a dark treeline (`g`/`h`), violet smoke column (`U V v`, lit top-left), small olive UH-1 (`l O o`, glass `G`, open door `d`, pale rotor `b`, grey skids `k`) climbing away to the upper right, pale rim `R`/`r`, one `#1a1c12` outline (`K`), 1 px. 48x48 adds a 2 px rim and a stitch ring.
+- `locked24`/`locked48`: same patch greyed out (outline, dim rim, faint Huey + smoke) for the not-yet-earned slot.
+- No colour shared with `MEDAL_OF_HONOR`; no ribbon, no star, no pendant. `validate_badge.js` checks sizes, rows, legend letters, the outline, symmetry, the MoH-colour rule, and that `ribbons.js` keeps MoH out of the rack with the MoH/ribbon data unchanged (md5).
+- Rebuild: `python3 gen_last_bird_out_badge.py && python3 render_last_bird_out_badge.py && node validate_badge.js`.

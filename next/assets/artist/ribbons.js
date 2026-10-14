@@ -1,7 +1,9 @@
 /* ribbons.js — Artist Helper. Navy/Marine ribbon bars + Medal of Honor, letter-grid + legend (letter -> hex), '.' = transparent.
  * FULL  = 44x12 px: 1 px = 1/32" of the real 1-3/8" x 3/8" ribbon, stripe widths taken from MIL-DTL-11589 sheets (see README).
  * COMPACT = 23x6 hand-rounded version for the menu rack / phone.
- * Ribbons are flat rectangles: draw a 1px dark outline in-engine if you want one. Ribbon rack order (highest first): MoH, NC, SS, BS, PH, CAR.
+ * Ribbons are flat rectangles: draw a 1px dark outline in-engine if you want one. Gameplay rack order (highest first): NC, SS, BS, PH, CAR.
+ * The Medal of Honor is NEVER a gameplay / farmable reward (Blake's spec): it is not in RIBBON_RACK_ORDER. The gameplay unlock that used
+ * to be 'Medal of Honor' is now 'Last Bird Out' (unit-patch badge in last_bird_out_badge.js, LAST_BIRD_OUT_BADGE).
  */
 const RIBBONS = {
  "car": {
@@ -156,6 +158,8 @@ const RIBBONS = {
   }
  }
 };
+/* MEDAL_OF_HONOR: ONLY for the Ballard and Taylor tribute cards (real Medal of Honor recipients). Never awarded in gameplay,
+ * never shown in a ribbon rack. Navy pattern (neck ribbon), which is the correct version for Marines per the historian. Unchanged data. */
 const MEDAL_OF_HONOR = {
  "name": "Medal of Honor (Navy, neck ribbon)",
  "grid": [
@@ -273,5 +277,5 @@ const MEDAL_OF_HONOR = {
   "X": "#2b2f36"
  }
 };
-const RIBBON_RACK_ORDER = ['moh','nc','ss','bs','ph','car']; // highest precedence first
+const RIBBON_RACK_ORDER = ['nc','ss','bs','ph','car']; // gameplay rack, highest precedence first. 'moh' removed on purpose: MoH is tribute-card only.
 if(typeof module!=='undefined') module.exports={RIBBONS,MEDAL_OF_HONOR,RIBBON_RACK_ORDER};

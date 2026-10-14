@@ -1,6 +1,6 @@
-THIRD-PARTY AUDIO (this build: 85 files; held back until the map build: bugle_felixblume_1, pbr_engine_loop_1, river_ambience_loop_1, river_ambience_loop_auxide) - Last Bird Out: Quang Tri, 1968
+THIRD-PARTY AUDIO (this build: 117 files; held back until the map build: cannon_76mm_1, cannon_76mm_2, cannon_76mm_3) - Last Bird Out: Quang Tri, 1968
 ==================================================
-Generated 2026-10-07 (ET) from samples/ogg/ (89 files; each also ships as .m4a). Full source rows,
+Updated 2026-10-14 (ET) from samples/ogg/ (120 files; each also ships as .m4a). Full source rows,
 page quotes and processing notes: samples/LICENSES.md. Licence audit: LICENSE_AUDIT.md.
 
 All files below are edited excerpts (trimmed, mono, level-adjusted, some filtered / looped / layered)
@@ -13,13 +13,18 @@ ear checks are still needed on the greenbastardd mortar launch cuts (68.03 / 28.
 the tails), the Fight2FlyPhoto Skyraider 6.0-10.5 s cut (airshow crowd / announcer) and the Kostrava impacts
 (mortar_impact_1/2, m79_impact_1). Disabled / pending files (bugle, tandem rotor, river map) are listed because
 they are in samples/ogg/; strip them from a package or keep crediting them.
+Oct 14 audit (Copyright and IP Auditor, 2026-10-14, LICENSE_AUDIT.md "Oct 14 audit") DONE for the 2026-10-14 weapon /
+explosion files. craigsmith #486030 / #674888 FAILED and were removed (no file built from them).
+Cannon sources daveincamas #43783, t-man95 #553240 PASSED WITH CONDITIONS (ear check;
+t-man95 cuts end by 0.38 s, before the crowd voices); cannon_76mm (held, not in this build) awaits Blake's call on the optics;
+rob762x51 #85246 / #165042 CONDITIONAL, pending Blake's decision; qubodup #840508 pending a listen for voices.
 
 ------------------------------------------------------------------
 CREDITS
 ------------------------------------------------------------------
 SOUND EFFECTS (Creative Commons Attribution)
 - "UH-1 "Huey" Iroquois Helicopter" by OroborosNZ, https://freesound.org/people/OroborosNZ/sounds/157722/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, looped, level-adjusted.
-- "Explosion" from "2 High Quality Explosions", (c) Michel Baradari (apollo-music.de), https://opengameart.org/content/2-high-quality-explosions, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: low-pass filtered, echo added, shortened.
+- "Explosion" from "2 High Quality Explosions", (c) Michel Baradari (apollo-music.de), https://opengameart.org/content/2-high-quality-explosions, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: low-pass filtered, echo added, shortened; also layered unfiltered into close-explosion clips.
 - Footsteps from "Footsteps on different surfaces" by congusbongus, https://opengameart.org/content/footsteps-on-different-surfaces, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). That pack is derived from: "footstep-wood.wav", "footstep-grass.wav" and "footstep-concrete.wav" by swuing (https://freesound.org/people/swuing/sounds/38876/, https://freesound.org/people/swuing/sounds/38874/, https://freesound.org/people/swuing/sounds/38873/); "boots on aluminum ladder 01" by Eelke (https://freesound.org/people/Eelke/sounds/462598/); "Water Footsteps" by EminYILDIRIM (https://freesound.org/people/EminYILDIRIM/sounds/608663/). The original recordings are licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), as shown on their Freesound pages. Further edited for this game: trimmed, level-matched, peak-limited.
 - "referee_whistle_01.wav" by joedeshon, https://freesound.org/people/joedeshon/sounds/78508/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, level.
 - "Old rusty police whistle being blowen.wav" by bigal13, https://freesound.org/people/bigal13/sounds/654496/, and "WHSTMech-Blue Snowball Microphone_Whistle, Pea, Blow, Distant_Nicholas Judy_TDC" by designerschoice (recorded by Nicholas Judy), https://freesound.org/people/designerschoice/sounds/815647/. Both CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, level.
@@ -28,14 +33,23 @@ SOUND EFFECTS (Creative Commons Attribution)
 - "c130_swamp.wav" by gezortenplotz, https://freesound.org/people/gezortenplotz/sounds/151828/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, mono, filtered, faded in and out, level.
 - "sandbag.wav" by FreqMan, https://freesound.org/people/FreqMan/sounds/43607/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, low-pass filtered, layered with other sounds, level.
 - "Metal being dropped on concrete surface" by FartBiscuit1700, https://freesound.org/people/FartBiscuit1700/sounds/322477/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, filtered, layered with other sounds, level.
+- "308_rifle_02.wav" by gezortenplotz, https://freesound.org/people/gezortenplotz/sounds/43756/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, mono, filtered, level.
+- "Quarry blasting.wav" by juskiddink, https://freesound.org/people/juskiddink/sounds/82682/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, mono, low-pass filtered, layered with other sounds, level.
+- "21GunSalute.wav" by daveincamas, https://freesound.org/people/daveincamas/sounds/43783/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, mono, filtered, level.
+- (river map, ON in the 2026-10-14 map build) "Diesel boat engine" by byjoshberry, https://freesound.org/people/byjoshberry/sounds/435669/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: looped, filtered, level.
+- (river map, ON in the 2026-10-14 map build) "Small Whirlpool Current by Flooding Creek Bridge (loop)" created by NickTayloe on Freesound.org, https://freesound.org/people/NickTayloe/sounds/851608/, under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: shortened loop, mono, filtered, level.
 - (only if used; not in the build) "Military exercise.wav" by juskiddink, https://freesound.org/people/juskiddink/sounds/64647/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
 MUSIC
-- (if used) For each Kevin MacLeod track: "Title" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / https://creativecommons.org/licenses/by/4.0/ (AM-radio filter added by [studio]).
+- "Happy Bee - Surf" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / https://creativecommons.org/licenses/by/4.0/ (https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300015). Edited: excerpt (16-bar loop 20.17-51.65 s), level matched. Used as a menu sting only.
+- "DD Groove" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / https://creativecommons.org/licenses/by/4.0/ (https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100492). Edited: excerpt (16-bar loop 22.20-62.20 s), level matched. Used as a briefing sting only.
+- "Last Kiss Goodnight" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / https://creativecommons.org/licenses/by/4.0/ (https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100611). Edited: excerpt (final 36 s, 150.18-186.17 s), level matched. Used as a loss sting only.
+- (courtesy, no credit required) "60s Garage Rock - No voice edit" and "60s Garage Rock - Loop 1" by Abydos_Music via Pixabay (Pixabay Content License): intro riff and extraction cue. "PSYCH ROCK" by fredsylvestre66 via Pixabay: combat.
+- (courtesy) "Marines' Hymn", performed by the United States Marine Band ("The President's Own"), public domain (US federal work): win card and Hogston dedication only.
 - (if used) "Komodo Dragon (Instrumental)" by Lemon Knife, https://freemusicarchive.org/music/lemon-knife/reptile-wisdom-instrumentals/komodo-dragon-instrumental/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
 COURTESY CREDITS (CC0 / public domain / Pixabay; not required)
-Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney); Rmutt; FranklinRook1984; Zagge28; Kostrava; AslakHostaker; JovianSounds; Nox_Sound; j1987; conleec; klangfabrik; LeMudCrab; vabadus; barryshamir; greenbastardd; surrey_film; hotdogtornados; pdsounds.org (Marcus Kuerten, Stephan Möbius); "PSYCH ROCK" by fredsylvestre66 via Pixabay; U.S. Marine Band.
+Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney); Rmutt; FranklinRook1984; Zagge28; Kostrava; AslakHostaker; JovianSounds; Nox_Sound; j1987; conleec; klangfabrik; felix.blume; Auxide_Audio; LeMudCrab; vabadus; barryshamir; greenbastardd; surrey_film; hotdogtornados; AnthonyChan0; AugustSandberg; rob762x51; modusmogulus; qubodup; samararaine; SGAK; vckhaze; t-man95; pdsounds.org (Marcus Kuerten, Stephan Möbius); "PSYCH ROCK" by fredsylvestre66 via Pixabay; U.S. Marine Band.
 
 ------------------------------------------------------------------
 SOUND EFFECT FILES (samples/)
@@ -113,6 +127,11 @@ samples/ogg/bomb_distant_3.ogg + samples/m4a/bomb_distant_3.m4a
 samples/ogg/bomb_distant_4.ogg + samples/m4a/bomb_distant_4.m4a
     Source: Kostrava, "distant explosions"
     Link:   https://freesound.org/people/Kostrava/sounds/320788/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/bugle_felixblume_1.ogg + samples/m4a/bugle_felixblume_1.m4a
+    Source: felix.blume, "Bugle playing, part of a military band in Veracruz"
+    Link:   https://freesound.org/people/felix.blume/sounds/410877/
     Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
 
 samples/ogg/flamethrower_burst_1.ogg + samples/m4a/flamethrower_burst_1.m4a
@@ -265,6 +284,11 @@ samples/ogg/pbr_50cal_burst_2.ogg + samples/m4a/pbr_50cal_burst_2.m4a
     Link:   https://freesound.org/people/klangfabrik/sounds/249146/
     Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
 
+samples/ogg/pbr_engine_loop_1.ogg + samples/m4a/pbr_engine_loop_1.m4a
+    Source: byjoshberry, "Diesel boat engine"
+    Link:   https://freesound.org/people/byjoshberry/sounds/435669/
+    Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
 samples/ogg/radio_squelch_1.ogg + samples/m4a/radio_squelch_1.m4a
     Source: Stephan (pdsounds.org), "STE-011" radio short wave
     Link:   http://pdsounds.tuxfamily.org/
@@ -284,6 +308,16 @@ samples/ogg/ranch_hand_flyover_1.ogg + samples/m4a/ranch_hand_flyover_1.m4a
     Source: gezortenplotz, "c130_swamp.wav" (C-130 stand-in for the C-123)
     Link:   https://freesound.org/people/gezortenplotz/sounds/151828/
     Licence: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/river_ambience_loop_1.ogg + samples/m4a/river_ambience_loop_1.m4a
+    Source: NickTayloe, "Small Whirlpool Current by Flooding Creek Bridge (loop)"
+    Link:   https://freesound.org/people/NickTayloe/sounds/851608/
+    Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/river_ambience_loop_auxide.ogg + samples/m4a/river_ambience_loop_auxide.m4a
+    Source: Auxide_Audio, "Mountain River, Large 001.wav"
+    Link:   https://freesound.org/people/Auxide_Audio/sounds/588180/
+    Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
 
 samples/ogg/rpd_burst_1.ogg + samples/m4a/rpd_burst_1.m4a
     Source: Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney), AK-47 C_27P, edited (RPD stand-in)
@@ -465,6 +499,148 @@ samples/ogg/whistle_alt_police.ogg + samples/m4a/whistle_alt_police.m4a
     Link:   https://freesound.org/people/bigal13/sounds/654496/
     Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
 
+--- weapons + explosions, week of 2026-10-14 (build_weapons_oct14.py; Oct 14 audit done; craigsmith removed after FAIL; cannon sources passed with conditions (ear check)) ---
+
+samples/ogg/backblast_1.ogg + samples/m4a/backblast_1.m4a
+    Source: klangfabrik, "rpg launcher three shots"
+    Link:   https://freesound.org/people/klangfabrik/sounds/249298/
+    Licence: klangfabrik: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/backblast_2.ogg + samples/m4a/backblast_2.m4a
+    Source: klangfabrik, "rpg launcher three shots"
+    Link:   https://freesound.org/people/klangfabrik/sounds/249298/
+    Licence: klangfabrik: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/bolt_rifle_bolt_1.ogg + samples/m4a/bolt_rifle_bolt_1.m4a
+    Source: gezortenplotz, "308_rifle_02.wav" (Remington 700 .308)
+    Link:   https://freesound.org/people/gezortenplotz/sounds/43756/
+    Licence: gezortenplotz: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/bolt_rifle_bolt_alt_mauser.ogg + samples/m4a/bolt_rifle_bolt_alt_mauser.m4a
+    Source: AugustSandberg, "Bolt action rifle reload" (Mauser)
+    Link:   https://freesound.org/people/AugustSandberg/sounds/508747/
+    Licence: AugustSandberg: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/bolt_rifle_shot_1.ogg + samples/m4a/bolt_rifle_shot_1.m4a
+    Source: gezortenplotz, "308_rifle_02.wav" (Remington 700 .308)
+    Link:   https://freesound.org/people/gezortenplotz/sounds/43756/
+    Licence: gezortenplotz: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/bolt_rifle_shot_2.ogg + samples/m4a/bolt_rifle_shot_2.m4a
+    Source: gezortenplotz, "308_rifle_02.wav" (Remington 700 .308)
+    Link:   https://freesound.org/people/gezortenplotz/sounds/43756/
+    Licence: gezortenplotz: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/cannon_1.ogg + samples/m4a/cannon_1.m4a
+    Source: daveincamas, "21GunSalute.wav" (three field artillery guns, blanks)
+    Link:   https://freesound.org/people/daveincamas/sounds/43783/
+    Licence: daveincamas: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED - passed with conditions (ear check)
+
+samples/ogg/cannon_2.ogg + samples/m4a/cannon_2.m4a
+    Source: daveincamas, "21GunSalute.wav" (three field artillery guns, blanks)
+    Link:   https://freesound.org/people/daveincamas/sounds/43783/
+    Licence: daveincamas: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED - passed with conditions (ear check)
+
+samples/ogg/cannon_3.ogg + samples/m4a/cannon_3.m4a
+    Source: daveincamas, "21GunSalute.wav" (three field artillery guns, blanks)
+    Link:   https://freesound.org/people/daveincamas/sounds/43783/
+    Licence: daveincamas: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED - passed with conditions (ear check)
+
+samples/ogg/cannon_4.ogg + samples/m4a/cannon_4.m4a
+    Source: daveincamas, "21GunSalute.wav" (three field artillery guns, blanks)
+    Link:   https://freesound.org/people/daveincamas/sounds/43783/
+    Licence: daveincamas: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED - passed with conditions (ear check)
+
+samples/ogg/cannon_alt_blackpowder_1.ogg + samples/m4a/cannon_alt_blackpowder_1.m4a
+    Source: t-man95, "Cannon fire" (black-powder cannon)
+    Link:   https://freesound.org/people/t-man95/sounds/553240/
+    Licence: t-man95: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - passed with conditions (ear check)
+
+samples/ogg/cannon_alt_blackpowder_2.ogg + samples/m4a/cannon_alt_blackpowder_2.m4a
+    Source: t-man95, "Cannon fire" (black-powder cannon)
+    Link:   https://freesound.org/people/t-man95/sounds/553240/
+    Licence: t-man95: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - passed with conditions (ear check)
+
+samples/ogg/cannon_alt_blackpowder_3.ogg + samples/m4a/cannon_alt_blackpowder_3.m4a
+    Source: t-man95, "Cannon fire" (black-powder cannon)
+    Link:   https://freesound.org/people/t-man95/sounds/553240/
+    Licence: t-man95: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - passed with conditions (ear check)
+
+samples/ogg/explosion_claymore_1.ogg + samples/m4a/explosion_claymore_1.m4a
+    Source: modusmogulus, "Real explosion recording new years eve (no effects)"; qubodup, "Illegal Explosion" (phone recording); Kostrava, "Distant explosions"
+    Link:   https://freesound.org/people/modusmogulus/sounds/784163/  https://freesound.org/people/qubodup/sounds/840508/  https://freesound.org/people/Kostrava/sounds/320788/
+    Licence: modusmogulus: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/); qubodup: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - pending a listen for voices; Kostrava: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/explosion_close_1.ogg + samples/m4a/explosion_close_1.m4a
+    Source: qubodup, "Illegal Explosion" (phone recording); Kostrava, "Distant explosions"; juskiddink, "Quarry blasting.wav" (800 m, distant layer)
+    Link:   https://freesound.org/people/qubodup/sounds/840508/  https://freesound.org/people/Kostrava/sounds/320788/  https://freesound.org/people/juskiddink/sounds/82682/
+    Licence: qubodup: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - pending a listen for voices; Kostrava: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/); juskiddink: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED
+
+samples/ogg/explosion_close_2.ogg + samples/m4a/explosion_close_2.m4a
+    Source: qubodup, "Illegal Explosion" (phone recording); Michel Baradari (apollo-music.de), "Explosion" from "2 High Quality Explosions"; Kostrava, "Distant explosions"
+    Link:   https://freesound.org/people/qubodup/sounds/840508/  https://opengameart.org/content/2-high-quality-explosions  https://freesound.org/people/Kostrava/sounds/320788/
+    Licence: qubodup: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - pending a listen for voices; Baradari: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) - ATTRIBUTION REQUIRED; Kostrava: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/explosion_close_3.ogg + samples/m4a/explosion_close_3.m4a
+    Source: modusmogulus, "Real explosion recording new years eve (no effects)"; Kostrava, "Distant explosions"
+    Link:   https://freesound.org/people/modusmogulus/sounds/784163/  https://freesound.org/people/Kostrava/sounds/320788/
+    Licence: modusmogulus: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/); Kostrava: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/explosion_close_4.ogg + samples/m4a/explosion_close_4.m4a
+    Source: modusmogulus, "Real explosion recording new years eve (no effects)"; Michel Baradari (apollo-music.de), "Explosion" from "2 High Quality Explosions"; juskiddink, "Quarry blasting.wav" (800 m, distant layer); Kostrava, "Distant explosions"
+    Link:   https://freesound.org/people/modusmogulus/sounds/784163/  https://opengameart.org/content/2-high-quality-explosions  https://freesound.org/people/juskiddink/sounds/82682/  https://freesound.org/people/Kostrava/sounds/320788/
+    Licence: modusmogulus: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/); Baradari: CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/) - ATTRIBUTION REQUIRED; juskiddink: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - ATTRIBUTION REQUIRED; Kostrava: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/fire_loop_1.ogg + samples/m4a/fire_loop_1.m4a
+    Source: SGAK, "fire" (gasoline fire)
+    Link:   https://freesound.org/people/SGAK/sounds/87564/
+    Licence: SGAK: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/minigun_burst_1.ogg + samples/m4a/minigun_burst_1.m4a
+    Source: rob762x51, "minigun_ver1.wav" (200 ft)
+    Link:   https://freesound.org/people/rob762x51/sounds/85246/
+    Licence: rob762x51: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - CONDITIONAL, pending Blake's decision
+
+samples/ogg/minigun_burst_2.ogg + samples/m4a/minigun_burst_2.m4a
+    Source: rob762x51, "Minigun burst audio" (4 ft)
+    Link:   https://freesound.org/people/rob762x51/sounds/165042/
+    Licence: rob762x51: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - CONDITIONAL, pending Blake's decision
+
+samples/ogg/napalm_ignite_1.ogg + samples/m4a/napalm_ignite_1.m4a
+    Source: samararaine, "Bonfire being lit"
+    Link:   https://freesound.org/people/samararaine/sounds/186374/
+    Licence: samararaine: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/shotgun_rack_1.ogg + samples/m4a/shotgun_rack_1.m4a
+    Source: AnthonyChan0, "Mossberg 500A 1 shot and pump"
+    Link:   https://freesound.org/people/AnthonyChan0/sounds/159710/
+    Licence: AnthonyChan0: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/shotgun_shot_1.ogg + samples/m4a/shotgun_shot_1.m4a
+    Source: AnthonyChan0, "Mossberg 500A 1 shot and pump"
+    Link:   https://freesound.org/people/AnthonyChan0/sounds/159710/
+    Licence: AnthonyChan0: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/shotgun_shot_2.ogg + samples/m4a/shotgun_shot_2.m4a
+    Source: AnthonyChan0, "Mossberg 500A 1 shot and pump"
+    Link:   https://freesound.org/people/AnthonyChan0/sounds/159710/
+    Licence: AnthonyChan0: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/smoke_pop_1.ogg + samples/m4a/smoke_pop_1.m4a
+    Source: vckhaze, "Smoke Bomb"; SGAK, "fire" (gasoline fire)
+    Link:   https://freesound.org/people/vckhaze/sounds/332602/  https://freesound.org/people/SGAK/sounds/87564/
+    Licence: vckhaze: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/); SGAK: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
+samples/ogg/strafe_20mm_1.ogg + samples/m4a/strafe_20mm_1.m4a
+    Source: rob762x51, "minigun_ver1.wav" (200 ft)
+    Link:   https://freesound.org/people/rob762x51/sounds/85246/
+    Licence: rob762x51: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/) - CONDITIONAL, pending Blake's decision
+
+samples/ogg/tandem_rotor_loop_1.ogg + samples/m4a/tandem_rotor_loop_1.m4a
+    Source: surrey_film, "Chinook rotor slap in high wind"
+    Link:   https://freesound.org/people/surrey_film/sounds/84472/
+    Licence: surrey_film: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)
+
 ------------------------------------------------------------------
 MUSIC FILES (music/)
 ------------------------------------------------------------------
@@ -473,3 +649,39 @@ music/combat_loop.ogg + music/combat_loop.m4a (+ music/combat_loop_calm_preview.
     Link:   https://pixabay.com/music/rock-psych-rock-291828/
     Licence: Pixabay Content License (https://pixabay.com/service/terms/); no attribution required.
              No standalone distribution (no OST / soundtrack DLC), never register in Content ID (LICENSE_AUDIT.md 2.6).
+
+music/music_menu.ogg + music/music_menu.m4a  (slot: menu)
+    Source: "Happy Bee - Surf" Kevin MacLeod (incompetech.com)
+    Link:   https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300015
+    Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - credit required (in INGAME_CREDITS_BLOCK.txt)
+    Edit:   16-bar loop 20.170-51.645 s, 20 ms seam crossfade, level matched to combat_loop. Sting only (Content ID pre-registered).
+
+music/music_intro_riff.ogg + music/music_intro_riff.m4a  (slot: intro_riff)
+    Source: "60s Garage Rock - No voice edit" by Abydos_Music (Pixabay)
+    Link:   https://pixabay.com/music/rock-60s-garage-rock-no-voice-edit-152099/
+    Licence: Pixabay Content License (https://pixabay.com/service/terms/); no attribution required (courtesy credit given). No Content ID badge (evidence/, 2026-10-07).
+    Edit:   opening 8 bars (0.03-16.42 s) with a 1.5 s fade-out, level matched.
+
+music/music_briefing.ogg + music/music_briefing.m4a  (slot: briefing)
+    Source: "DD Groove" Kevin MacLeod (incompetech.com)
+    Link:   https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100492
+    Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - credit required
+    Edit:   16-bar loop 22.200-62.200 s, level matched. Briefing only (Content ID pre-registered).
+
+music/music_extraction.ogg + music/music_extraction.m4a  (slot: extraction)
+    Source: "60s Garage Rock - Loop 1" by Abydos_Music (Pixabay)
+    Link:   https://pixabay.com/music/rock-60s-garage-rock-loop-1-238513/
+    Licence: Pixabay Content License (https://pixabay.com/service/terms/); no attribution required (courtesy credit given). No Content ID badge.
+    Edit:   the official loop edit, whole (MP3 padding trimmed), level matched.
+
+music/music_win.ogg + music/music_win.m4a  (slot: win; alias: dedication)
+    Source: "Marines' Hymn", United States Marine Band (2015)
+    Link:   https://commons.wikimedia.org/wiki/File:Marines%27_Hymn,_USMC_Band.ogg
+    Licence: public domain (composition pre-1931; performance is a US federal work). Courtesy credit given.
+    Edit:   whole 29.4 s, 0.25 s de-click fade, level matched. Win card and Hogston dedication ONLY.
+
+music/music_loss.ogg + music/music_loss.m4a  (slot: loss)
+    Source: "Last Kiss Goodnight" Kevin MacLeod (incompetech.com)
+    Link:   https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100611
+    Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - credit required
+    Edit:   final 36 s (150.18-186.17 s, natural fade), 1 s fade-in, level matched.
