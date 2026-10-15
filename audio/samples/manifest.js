@@ -446,6 +446,120 @@
    "alt": [
     "river_ambience_loop_auxide"
    ]
+  },
+  "car15_single": {
+   "group": "player",
+   "batch": 2,
+   "files": [
+    "car15_single_1",
+    "car15_single_2"
+   ]
+  },
+  "car15_burst": {
+   "group": "player",
+   "batch": 2,
+   "files": [
+    "car15_burst_1",
+    "car15_burst_2"
+   ]
+  },
+  "m79_sawed": {
+   "group": "player",
+   "batch": 2,
+   "files": [
+    "m79_sawed_1"
+   ]
+  },
+  "smg_m45_burst": {
+   "group": "player",
+   "batch": 2,
+   "files": [
+    "smg_m45_burst_1",
+    "smg_m45_burst_2"
+   ],
+   "alt": [
+    "smg_m45_burst_alt_mp5_1",
+    "smg_m45_burst_alt_mp5_2"
+   ]
+  },
+  "pistol22_suppressed": {
+   "group": "player",
+   "batch": 2,
+   "files": [
+    "pistol22_suppressed_1",
+    "pistol22_suppressed_2",
+    "pistol22_suppressed_3"
+   ]
+  },
+  "bunker_enter": {
+   "group": "foley",
+   "batch": 2,
+   "files": [
+    "bunker_enter_1"
+   ]
+  },
+  "bunker_exit": {
+   "group": "foley",
+   "batch": 2,
+   "files": [
+    "bunker_exit_1"
+   ]
+  },
+  "pbr_runup": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "pbr_runup_1"
+   ]
+  },
+  "pbr_beach": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "pbr_beach_1"
+   ]
+  },
+  "pbr_depart": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "pbr_depart_1"
+   ]
+  },
+  "h34_flyby": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "h34_flyby_1"
+   ]
+  },
+  "h34_land": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "h34_land_1"
+   ]
+  },
+  "h34_liftoff": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "h34_liftoff_1"
+   ]
+  },
+  "h34_hover_loop": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "h34_hover_loop_1"
+   ]
+  },
+  "radio_cff": {
+   "group": "radio",
+   "batch": 2,
+   "files": [
+    "radio_cff_1"
+   ]
   }
  },
  "music": {
@@ -509,8 +623,7 @@
     "dur": 36,
     "m4aOffsetSec": 0.04644,
     "gain": 1
-   }
-,
+   },
    "reinforcements": {
     "file": "music_reinforcements",
     "group": "music",
@@ -518,6 +631,15 @@
     "sting": true,
     "dur": 54.93,
     "finalHitSec": 47.23,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1
+   },
+   "menu_asian": {
+    "file": "music_menu_asian",
+    "group": "music",
+    "loop": true,
+    "loopStart": 0,
+    "loopEnd": 33.1,
     "m4aOffsetSec": 0.04644,
     "gain": 1
    }
