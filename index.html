@@ -4980,7 +4980,9 @@ function drawCargo(t){ const c=ictx; c.imageSmoothingEnabled=false; const I=INTR
   if(I.boom>.5){ c.fillStyle=`rgba(255,235,200,${((I.boom-.5)*.7).toFixed(2)})`; c.fillRect(0,0,320,180) }
   const fade=Math.min(1,t/.8); if(fade<1){ c.fillStyle=`rgba(0,0,0,${(1-fade).toFixed(2)})`; c.fillRect(0,0,320,180) } }
 function fl0(I){ return Math.max(I.gf[0],I.gf[1])*8 }
-function drawIntroOverlay(){ const I=INTRO, t=I.t; ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false;
+/* art hook: Artist Helper's INTRO_V2 (ui/colonel_intro_v2.js) replaces ONLY this renderer; INTRO.t, the voice clip and its timing stay in the INTRO logic. */
+function drawIntroOverlay(){ if(window.INTRO_V2&&INTRO_V2.draw){ try{ ctx.setTransform(1,0,0,1,0,0); INTRO_V2.draw(ctx,{t:INTRO.t,W:cv.width,H:cv.height,intro:INTRO}); return }catch(e){} } drawIntroOverlay1() }
+function drawIntroOverlay1(){ const I=INTRO, t=I.t; ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false;
   if(I.ph===1){ ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H); const s=Math.min(W/320,H/180), dw=320*s, dh=180*s, ox=(W-dw)/2, oy=(H-dh)/2; ctx.drawImage(ICV,ox,oy,dw,dh);
     const fs=Math.max(14,dh/13), full='QUANG TRI PROVINCE, 1968', sub='1ST MARINE DIVISION · I CORPS · REPUBLIC OF VIETNAM';
     if(t>.9&&t<6.2){ const a=Math.min(1,(6.2-t)*2), n=Math.min(full.length,Math.floor((t-.9)*16)); ctx.globalAlpha=a; ctx.font=`bold ${fs}px "Courier New",monospace`; ctx.textAlign='left'; ctx.lineWidth=fs/6; ctx.strokeStyle='#000'; ctx.lineJoin='round';
@@ -6386,6 +6388,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   WX.draw(W,H);   /* weather sits under the HUD: never hides prompts, timers or the pad arrow */
   { const low=(!g.demo&&p.hp>0&&p.hp/p.maxHp<.35)?(.13+(g.hbPulse>0?(g.hbPulse/.38)*(g.hbAmp||.3)*.55:0)+(g.hbT===undefined||g.hbT===0?.06*Math.sin(tt*5):0))*(1-p.hp/p.maxHp/.35*.5):0;   /* pulses on each heartbeat cue (dangerTick) */ const a=Math.min(.8,Math.max(g.hurt>0?g.hurt*1.5:0,low))*(GORE?1:.35);
     if(a>.01){ const gr=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.18,W/2,H/2,Math.max(W,H)*.68); gr.addColorStop(0,'rgba(120,0,0,0)'); gr.addColorStop(.6,`rgba(140,6,6,${a*.45})`); gr.addColorStop(1,`rgba(110,0,0,${a})`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H) } }
+  if(state==='menu'&&window.MENU_ART&&MENU_ART.draw){ try{ MENU_ART.draw(ctx,{W,H,t:performance.now()/1000}) }catch(e){} }   /* art hook: Artist Helper's ui/main_menu_art.js draws over the attract demo, under the HTML menu */
   if(state==='menu'||state==='intro'||g.demo)return;
   const U=UI;
   // xp bar
