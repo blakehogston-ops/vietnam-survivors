@@ -4957,7 +4957,9 @@ function chOpenSave(id){ if(id==='doc')return true; try{ return localStorage.get
 const ALLU=params.has('all');
 /* Blake Oct 15: every character unlocked on /next/ (investor build). Unlock code untouched: set UNLOCK_ALL=false (or ?unlockall=0) to re-enable the gates. Not a debug run (no g.dbg). */
 const UNLOCK_ALL=params.get('unlockall')==='0'?false:(/\/next\//.test(location.pathname)||params.get('unlockall')==='1'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname));
-function chOpen(id){ return ALLU||UNLOCK_ALL||chOpenSave(id) }
+/* Blake Oct 15 7:20 PM: Doc only for now (most developed). ?all still opens all for testing. */
+const DOC_ONLY=params.get('doconly')!=='0';
+function chOpen(id){ if(DOC_ONLY&&!ALLU)return id==='doc'; return ALLU||UNLOCK_ALL||chOpenSave(id) }
 const chOpenRaw=id=>chOpenSave(id);
 if(!chOpen(SEL))SEL='doc';
 function saveChars(){ try{localStorage.setItem('lbo2_chars',JSON.stringify(CHS));localStorage.setItem('lbo2_char',SEL)}catch(e){} if(window.onCharsChange)window.onCharsChange() }
