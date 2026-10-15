@@ -6592,7 +6592,7 @@ const Rotor={cur:null,
     src.connect(lp); lp.connect(pre); pre.connect(amp); tg.connect(amp); amp.connect(env); if(pan){env.connect(pan);pan.connect(Snd.master)}else env.connect(Snd.master);
     src.start(now); lfo.start(now); th.start(now); return {env,lp,lfo,pan,nodes:[src,lfo,th]} },
   kill(now){ const k=this.cur; this.cur=null; if(!k)return; try{ k.env.gain.cancelScheduledValues(now); k.env.gain.setTargetAtTime(0,now,.1); k.nodes.forEach(n=>{try{n.stop(now+.6)}catch(e){}}) }catch(e){} } };
-Object.assign(Snd.gap,{shellwhistle:.06,m79:.05,grease:.05,m14:.05,m1911:.05,ithaca:.2,knives:.08,zuni:.1,tank_cannon:.2,ontos:.1,enemy_cannon:.2,rr106:.3,minigun:.1,napalm:1,refuel:1,stage:.5,creak:.35,sigpop:.3,sigflare:.3,sigmirror:.3,sigstrobe:.3,chime:.5,pulse:.3,evac:1});
+Object.assign(Snd.gap,{hurt:.7,shellwhistle:.06,m79:.05,grease:.05,m14:.05,m1911:.05,ithaca:.2,knives:.08,zuni:.1,tank_cannon:.2,ontos:.1,enemy_cannon:.2,rr106:.3,minigun:.1,napalm:1,refuel:1,stage:.5,creak:.35,sigpop:.3,sigflare:.3,sigmirror:.3,sigstrobe:.3,chime:.5,pulse:.3,evac:1});
 /* CH-46 Sea Knight (supply bird): generated deeper, slower tandem-rotor thump (the Huey chopper voice, pitched down). Fallback ONLY:
    when the real tandem_rotor_flyby clip is loaded the Sea Knights use SamplePlayer.flyby('tandemRotor') (SeaKnightS) and this stays off (never both) */
 const ChSnd={cur:null,
