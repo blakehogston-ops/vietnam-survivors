@@ -33,7 +33,7 @@
     bolt_rifle_shot: 1, bolt_rifle_bolt: 1, shotgun_shot: 1, shotgun_rack: 1, cannon: 1, cannon_76mm: 1, backblast: 1, car15_single: 1, car15_burst: 1, m79_sawed: 1, smg_m45_burst: 1, pistol22_suppressed: 1, minigun_burst: 1, strafe_20mm: 1,
     explosion_close: 1, explosion_claymore: 1, napalm_ignite: 1, fire_loop: 1, smoke_pop: 1, knife_throw: 1,
     // 2026-10-14 night: missing / placeholder weapons (no synth fallback)
-    m3a1_burst: 1, m1911_shot: 1, m2_carbine: 1, m2_carbine_burst: 1 };
+    m3a1_burst: 1, m14_shot: 1, m1911_shot: 1, m2_carbine: 1, m2_carbine_burst: 1 };
 
   // cat: voice-limit category. prio: higher survives voice stealing. gain: linear trim before variation.
   // out: which internal output the slot uses ('sfx' -> sfxBus, 'rotor' -> rotorBus or sfxBus).
@@ -76,6 +76,8 @@
     thunder_near:       { cat: 'weather',   prio: 3, gain: 0.206, vary: true },                    // post-gain RMS -40.5, crack peaks ~-15 dBFS
     // 2026-10-14 night: missing / placeholder sounds (samples/build_missing_oct14.py; all new sources PENDING LEGAL)
     m3a1_burst:         { cat: 'gun',       prio: 1, gain: 0.543, vary: true, maxDur: 1.2 },   // CLOSE STAND-IN M3A1 Grease Gun: real Sten rounds pitched -2 st, ~450 rpm
+    m14_shot:           { cat: 'gun',       prio: 1, gain: 0.193, vary: true, maxDur: 0.6 },   // M14 (marksmen): gezortenplotz .308 (7.62x51), 3 varied edits
+    hurt_grunt:         { cat: 'hit',       prio: 4, gain: 0.234, vary: true },   // player hurt: Wigglesworth body hits (no voice; MrFossy grunt on hold)
     m1911_shot:         { cat: 'gun',       prio: 1, gain: 0.499, vary: true, maxDur: 0.5 },   // M1911 .45 (corpsman): C-V + Carmelomike
     m2_carbine:         { cat: 'gun',       prio: 1, gain: 0.335, vary: true, maxDur: 0.5 },   // M2 carbine single (real M1 carbine, cognito perceptu)
     m2_carbine_burst:   { cat: 'gun',       prio: 1, gain: 0.255, vary: true, maxDur: 0.8 },   // M2 carbine auto, real rounds on a 80 ms beat

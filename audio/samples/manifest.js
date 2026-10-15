@@ -567,6 +567,8 @@
   "thunder_distant": {"group": "ambience", "batch": 3, "files": ["thunder_distant_1", "thunder_distant_2", "thunder_distant_3"]},
   "thunder_near": {"group": "ambience", "batch": 3, "files": ["thunder_near_1", "thunder_near_2"]},
   "m3a1_burst": {"group": "player", "batch": 2, "files": ["m3a1_burst_1", "m3a1_burst_2", "m3a1_burst_3"], "alt": ["m3a1_burst_alt_tommy_1", "m3a1_burst_alt_tommy_2"]},
+  "m14_shot": {"group": "squad", "batch": 2, "files": ["m14_shot_1", "m14_shot_2", "m14_shot_3"]},
+  "hurt_grunt": {"group": "foley", "batch": 1, "files": ["hurt_grunt_1", "hurt_grunt_2"]},
   "m1911_shot": {"group": "squad", "batch": 2, "files": ["m1911_shot_1", "m1911_shot_2", "m1911_shot_3"]},
   "m2_carbine": {"group": "squad", "batch": 2, "files": ["m2_carbine_1", "m2_carbine_2", "m2_carbine_3"]},
   "m2_carbine_burst": {"group": "squad", "batch": 2, "files": ["m2_carbine_burst_1", "m2_carbine_burst_2"]},
