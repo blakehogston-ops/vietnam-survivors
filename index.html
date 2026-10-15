@@ -4106,25 +4106,25 @@ const VHX={ON:!/[?&]vhit=0\b/.test(location.search), n:0, A:null,
 const PADRUSH_ON=!/[?&]padrush=0\b/.test(location.search);
 function PADRUSH(dt){ const g=G; if(!PADRUSH_ON||!g||g.demo||state!=='play'||!g.ex||!g.ex.pad||g.ex.ph<3||g.ex.ph>5)return; g.prT=(g.prT==null?10:g.prT)-dt; if(g.prT>0)return; g.prT=22+rnd()*6;
   const P=g.ex.pad, a=rnd()*TAU; let n=0; for(let k=0;k<3;k++){ if(enemies.length>=440)break; const e=spawnEnemy('vc',P.x+Math.cos(a)*340+(rnd()-.5)*50,P.y+Math.sin(a)*340+(rnd()-.5)*50,true); if(e){ e.padRush=1; n++ } } g.prN=(g.prN|0)+n }
-/* MEDV (Blake-approved build): firebase medical vehicles, only once the base is DONE and before the pad is called; no vehicle HP (balance rule).
-   Aid jeep (AID_JEEP m151): a Marine down to <40% within 520 px of the base -> the jeep drives out, loads him (litter), drives back to the aid
+/* MEDV (Blake-approved build): firebase medical vehicles, only once the base is DONE and until the bird is inbound; no vehicle HP (balance rule).
+   Aid jeep (AID_JEEP m151): a Marine under 60% within 520 px of the base -> the jeep drives out, loads him (litter), drives back to the aid
    station (fb2AidStation): patched to 70%. One patient a trip, 35 s cooldown, max 6 a run. Two LVTP-5s inside the wire: troop (parked, ramp up)
-   and medic: a Marine under 50% within 80 px rides the ramp, heals to 80% at 12%/s, ramp drops while healing, 20 s cooldown, max 8. ?medv=0 = off */
+   and medic: a Marine under 65% within 150 px rides the ramp, heals to 80% at 12%/s, ramp drops while healing, 20 s cooldown, max 8. ?medv=0 = off */
 const MEDV={ON:!/[?&]medv=0\b/.test(location.search)&&!!(window.AID_JEEP&&window.SHEET1&&SHEET1.drawLVTP5&&SHEET1.sprites.fb2AidStation), on:0, J:null, A:[], st:null, nJ:0, nA:0,
   reset(){ this.on=0; this.J=null; this.A=[]; this.st=null; this.nJ=0; this.nA=0 },
   hd(dx,dy){ return ((Math.round(Math.atan2(dy,dx)/(Math.PI/4))%8)+8)%8 },
   mk(f){ this.on=1; this.st={x:f.x+100,y:f.y+96}; this.J={x:f.x+100,y:f.y+150,hx:f.x+100,hy:f.y+150,h:0,s:'park',m:null,cd:20,load:0,mv:0};
     this.A=[{v:'troop',x:f.x-205,y:f.y-70,h:2,ramp:0,cd:0},{v:'medic',x:f.x-205,y:f.y+70,h:2,ramp:0,cd:0,m:null}] },
-  tick(dt){ const g=G, f=fbS; if(!this.ON||!g||g.demo||!f||f.state!=='done')return; if(!this.on)this.mk(f); const late=g.ex&&(g.ex.pad||g.ex.ph>=1);
+  tick(dt){ const g=G, f=fbS; if(!this.ON||!g||g.demo||!f||f.state!=='done')return; if(!this.on)this.mk(f); const late=g.ex&&g.ex.ph>=4;   /* runs through the hold; stops once the bird is inbound */
     const J=this.J; J.cd-=dt; const go=(tx,ty,sp)=>{ const dx=tx-J.x,dy=ty-J.y,d=Math.hypot(dx,dy); if(d<4)return true; J.h=this.hd(dx,dy); J.x+=dx/d*Math.min(d,sp*dt); J.y+=dy/d*Math.min(d,sp*dt); J.mv=1; return false };
     J.mv=0;
-    if(J.s==='park'){ if(!late&&J.cd<=0&&this.nJ<6){ let b=null,bd=1e9; for(const m of coy){ if(m.hp<=0||m.on||m.state!=='ok'||m.hp>m.mhp*.4||m.medv)continue; const d=Math.hypot(m.x-f.x,m.y-f.y); if(d<520&&d<bd){bd=d;b=m} } if(b){ b.medv=1; J.m=b; J.s='out' } } }
+    if(J.s==='park'){ if(!late&&J.cd<=0&&this.nJ<6){ let b=null,bd=1e9; for(const m of coy){ if(m.hp<=0||m.on||m.state&&m.state!=='ok'&&m.state!=='fight'||m.hp>m.mhp*.6||m.medv)continue; const d=Math.hypot(m.x-f.x,m.y-f.y); if(d<520&&d<bd){bd=d;b=m} } if(b){ b.medv=1; J.m=b; J.s='out' } } }
     else if(J.s==='out'){ const m=J.m; if(!m||m.hp<=0||!coy.includes(m)){ if(m)m.medv=0; J.m=null; J.s='back' } else if(go(m.x,m.y+16,95)){ J.s='back'; J.load=1; m.hid=1; m.medvT=1 } }
     else if(J.s==='back'){ if(go(J.hx,J.hy,95)){ const m=J.m; if(m&&J.load){ m.hp=Math.max(m.hp,m.mhp*.7); m.hid=0; m.medv=0; m.x=this.st.x-20; m.y=this.st.y+10; this.nJ++; try{ Snd.play('heal') }catch(e){} (g.medvLog||(g.medvLog=[])).push([+g.t.toFixed(1),'jeep']) } J.m=null; J.load=0; J.s='park'; J.cd=35 } }
     if(J.m&&J.load){ J.m.x=J.x; J.m.y=J.y }
     const A=this.A[1]; A.cd-=dt;
     if(A.m){ const m=A.m; if(m.hp<=0||!coy.includes(m)){ A.m=null } else { m.hp=Math.min(m.mhp*.8,m.hp+m.mhp*.12*dt); m.x=A.x; m.y=A.y+18; if(m.hp>=m.mhp*.8-.01){ m.hid=0; m.medv=0; m.y=A.y+40; A.m=null; A.cd=20; this.nA++; (g.medvLog||(g.medvLog=[])).push([+g.t.toFixed(1),'amtrac']) } } }
-    else if(A.cd<=0&&this.nA<8&&!late){ for(const m of coy){ if(m.hp<=0||m.on||m.state!=='ok'||m.hp>m.mhp*.5||m.medv)continue; if(Math.hypot(m.x-A.x,m.y-A.y)<80){ A.m=m; m.medv=1; m.hid=1; break } } }
+    else if(A.cd<=0&&this.nA<8&&!late){ for(const m of coy){ if(m.hp<=0||m.on||m.state&&m.state!=='ok'&&m.state!=='fight'||m.hp>m.mhp*.65||m.medv)continue; if(Math.hypot(m.x-A.x,m.y-A.y)<150){ A.m=m; m.medv=1; m.hid=1; break } } }
     A.ramp=Math.max(0,Math.min(1,A.ramp+(A.m?2:-2)*dt)) },
   draw(){ if(!this.on||!fbS||fbS.state!=='done')return; const S=SHEET1, t=performance.now()/1000;
     S.draw(ctx,'fb2AidStation','v0',this.st.x,this.st.y,1,false);
