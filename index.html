@@ -2232,14 +2232,14 @@ function buildBubbles(){ BUBSPR.length=0; const PX=2; for(const ph of PHRASES){ 
     x.fillStyle='#fff8e0'; x.fillRect(tx-PX,Hb-PX,2*PX,PX*2);
     lines.forEach((T,li)=>{ let cx=3*PX+Math.floor((mc-T.length)*6*PX/2); for(const ch of T){ if(ch!==' ')drawGlyph(x,ch,cx,(2+li*lh+mh)*PX,PX); cx+=6*PX } });
     BUBSPR.push(c) } }
-function assaultCry(big){ if(G.demo)return; setTimeout(()=>{ try{ BARK.ev('heads') }catch(e){} },1200); G.cryQ=4; if(big&&SAMP.ready())try{ SamplePlayer.bigNightAssault() }catch(e){} if(!SAMP.charge())Snd.play('whistle') }   /* Oct 14: no synth bugle; the real bugle (felix.blume, never Taps) on massive assaults only */
+function assaultCry(big){ if(G.demo)return; try{ if(BARK.tg)BARK.endTalk(false); else setTimeout(()=>{ try{ BARK.ev('heads') }catch(e){} },1200) }catch(e){} G.cryQ=4; if(big&&SAMP.ready())try{ SamplePlayer.bigNightAssault() }catch(e){} if(!SAMP.charge())Snd.play('whistle') }   /* Oct 14: no synth bugle; the real bugle (felix.blume, never Taps) on massive assaults only */
 function onScreen(e,m){ const p=G.p; return Math.abs(e.x-p.x)<VW/2-m&&Math.abs(e.y-p.y)<VH/2-m }
 function updateBubbles(dt){
   const g=G; if(g.cryQ>0){ g.cryQ-=dt; if(bubbles.length<3&&enemies.length){ for(let k=0;k<12;k++){ const e=enemies[(rnd()*enemies.length)|0]; if(!e||e.dead||(e.type!=='vc'&&e.type!=='nva')||e.bub||!onScreen(e,30))continue; e.bub=true; bubbles.push({e,pi:XPI,t:0,life:2.6}); g.cryQ=0; break } } } for(let i=bubbles.length-1;i>=0;i--){ const b=bubbles[i]; b.t+=dt; const e=b.e;
     if(b.t>=b.life||e.dead||!onScreen(e,0)){ e.bub=false; bubbles[i]=bubbles[bubbles.length-1]; bubbles.pop() } }
   if(g.t>=g.nextShout){ g.nextShout=g.t+1.4+rnd()*2.8;                                             // rate limit: one new shout every ~1.4-4.2 s, max 3 at once
     if(bubbles.length<3&&enemies.length){ for(let k=0;k<16;k++){ const e=enemies[(rnd()*enemies.length)|0]; if(!e||e.dead||(e.type!=='vc'&&e.type!=='nva')||e.bub||!onScreen(e,34))continue;
-        let pi=(rnd()*XPI)|0; if(pi===g.lastShout)pi=(pi+1)%XPI; g.lastShout=pi; e.bub=true; if(rnd()<.3)setTimeout(()=>{ try{ BARK.ev('taunt',{x:e.x,y:e.y}) }catch(_){} },900); bubbles.push({e,pi,t:0,life:2.1+rnd()*.5});
+        let pi=(rnd()*XPI)|0; if(pi===g.lastShout)pi=(pi+1)%XPI; g.lastShout=pi; e.bub=true; try{ BARK.vcReply(e) }catch(_){} bubbles.push({e,pi,t:0,life:2.1+rnd()*.5});
         if(!g.demo)Snd.blip(430+rnd()*260); break } } } }
 function drawPit(q,tt){ const r=q.r, k=q.rev, x=Math.round(q.x), y=Math.round(q.y);
   ctx.fillStyle='rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x,y+2,r+2,r*.72,0,0,TAU); ctx.fill();
@@ -3844,7 +3844,7 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   /* Blake's design: an optional radio call marks an objective OFF the firebase; the clock keeps running, no extra men. While the player is away the squad
      holds the base under more pressure (structure damage x P), with an alert if it starts to fall. Own timer, return-home arrow; the reward (XP + tribute) is paid
      only on getting back. Never starts once the pad is called / chopper is inbound. Tunables: ?mohd= distance from base, ?moht= go timer, ?mohr= return timer, ?mohp= pressure. */
-  P:(()=>{ const q=new URLSearchParams(location.search), n=(k,d)=>{ const v=parseFloat(q.get(k)); return isFinite(v)?v:d }; return {D:Math.min(900,n('mohd',620)),T:n('moht',11),R:n('mohr',30),P:n('mohp',1.2),E:n('mohe',10),HR:n('mohhr',130)} })(),
+  P:(()=>{ const q=new URLSearchParams(location.search), n=(k,d)=>{ const v=parseFloat(q.get(k)); return isFinite(v)?v:d }; return {D:Math.min(900,n('mohd',620)),T:n('moht',11.5),R:n('mohr',30),P:n('mohp',1.2),E:n('mohe',10),HR:n('mohhr',130)} })(),
   reset(){ this.cur=null; this.q=null; this.fb=null; this.done={}; this.alertT=0 },
   away(){ const c=this.cur; return !!(c&&fbS&&G&&Math.hypot(G.p.x-fbS.x,G.p.y-fbS.y)>260) },
   press(){ return this.away()?this.P.P:1 },
@@ -3999,9 +3999,41 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
     incoming:['Incoming!','RPG!','Get down!','Hit the deck!'],
     wire:['Movement on the wire!','They\'re in the wire!','Sappers in the wire!'],
     heads:['Keep your heads down!','Here they come!','Hold the line!','Pick your targets!','Watch your sector!'],
-    chat:['Charlie in the treeline!','Keep it tight!','Ammo up!','Spread out, one round\'ll get you all!']
+    chat:['Charlie in the treeline!','Keep it tight!','Ammo up!','Spread out, one round\'ll get you all!'],
+    backup:['Tell him, Marine!','Quit jawin\', keep shootin\'!','Eyes front, knock it off!'],
+    docA:['Coming!','Hang on, Marine!','Corpsman comin\' up!','I got him, keep firing!'],
+    ammoA:['Ammo up! Comin\' to you!','Here, catch!','Last bandolier, make it count!'],
+    shift:['Shift left!','Shift right!'], ack:['Moving!','Shiftin\'!','Roger that!','On it!'],
+    breach:['They\'re through the wire!','Breach! Breach!','Wire\'s down, close it up!'],
+    breakoff:['Here they come!','Drop it, here they come!','Stand to! Posts!']
   },
-  reset(){ this.L.length=0; this.T=0; this.used={} },
+  /* downtime banter at the firebase (2-4 line exchanges, text only, pending Vet review) */
+  TALK:[
+    ['How many days you got?','Forty-two and a wake-up.','Short-timer. Don\'t you get yourself killed now.'],
+    ['Mail come in?','Not for you, Hollywood.','Figures. My girl writes once a month.','Least she writes.'],
+    ['What\'s in the C-rats tonight?','Ham and limas.','Aw, man. Trade you for the peaches.','Nobody trades the peaches.'],
+    ['Back home it\'s football season.','You think about home too much.','Ain\'t nothin\' else to think about out here.'],
+    ['When\'s your DEROS?','March. Freedom Bird, here I come.','Get me a cheeseburger when you\'re back in the World.'],
+    ['Got a light?','Here. Keep the matches, I got more.','Thanks. Sure is quiet.','Don\'t say that.'],
+    ['Your deal.','Gin. Pay up, Marine.','I\'ll owe you. Payday.','You said that last payday.'],
+    ['I\'m gonna buy a Mustang when I get home.','With what, your combat pay?','Every dollar of it.'],
+    ['Sarge says chow\'s at eighteen hundred.','Hot chow?','Don\'t get your hopes up.'],
+    ['You hear from your folks?','My mom sent cookies. All crumbs now.','Still cookies. Hand \'em over.']
+  ],
+  Q:[], G:[],
+  reset(){ this.L.length=0; this.T=0; this.used={}; this.Q.length=0; this.endTalk(true); this.talkT=0 },
+  pickLine(cat){ const g=G, arr=this.LINES[cat]; if(!arr)return null; let i=(rnd()*arr.length)|0; for(let n=0;n<arr.length&&g.t-(this.used[cat+i]||-99)<25;n++)i=(i+1)%arr.length; if(g.t-(this.used[cat+i]||-99)<25)return null; this.used[cat+i]=g.t; return arr[i] },
+  vis(o){ const p=G.p; return Math.abs(o.x-p.x)<VW/2-20&&Math.abs(o.y-p.y)<VH/2-30 },
+  show(sp,t,life,vc){ if(this.L.length>=2)return false; sp.bark=1; this.L.push({m:sp,t,a:0,life:life||2.2,vc}); (G.barkLog||(G.barkLog=[])).length<200&&G.barkLog.push([+G.t.toFixed(1),vc?'vc':'usmc',t]); return true },
+  corps(){ if(G.char==='doc')return G.p; return coy.find(m=>m.role==='corps'&&m.hp>0&&!m.wia)||null },
+  near(x,y,ex){ return this.who(x,y,q=>!q.wia&&q!==ex) },
+  /* exchange: queue follow-ups; each item {d delay, cat|line, sp:fn->speaker} */
+  chain(items){ let t=G.t; for(const it of items){ t+=it.d; this.Q.push(Object.assign({},it,{at:t})) } },
+  runQ(){ const g=G; for(let i=0;i<this.Q.length;i++){ const q=this.Q[i]; if(g.t<q.at)continue; this.Q.splice(i--,1); if(g.t-q.at>2)continue; const sp=q.sp(); if(!sp||sp.hp<=0&&sp!==g.p||!this.vis(sp))continue; const t=q.line||this.pickLine(q.cat); if(!t)continue; if(!this.show(sp,t,q.life,q.vc))continue; this.T=Math.max(this.T,g.t+2.5); if(q.then)this.chain(q.then(sp)) } },
+  vcReply(e){ const g=G; if(!this.ON||!g||g.demo||g.t<this.T||this.Q.length)return; if(rnd()>.45)return; const x=e.x,y=e.y; let m1=null;
+    this.chain([{d:.6+rnd()*.9,cat:'taunt',sp:()=>(m1=this.near(x,y)),then:sp=>{ const r=rnd(); if(r<.3)return [{d:.7+rnd()*.6,cat:'backup',sp:()=>this.near(sp.x,sp.y,sp)}];
+      if(r<.5)return [{d:.8+rnd()*.6,vc:1,line:PHRASES[(rnd()*XPI)|0],sp:()=>(!e.dead&&this.vis(e)?e:null)}]; return [] }}]) },
+  sprVC(t){ const k='vc|'+t; let c=this.C[k]; if(c)return c; c=this.spr(t); const d=document.createElement('canvas'); d.width=c.width; d.height=c.height; const x=d.getContext('2d'); x.drawImage(c,0,0); x.globalCompositeOperation='source-atop'; x.fillStyle='rgba(120,30,20,.18)'; x.fillRect(0,0,d.width,d.height); return this.C[k]=d },
   spr(t){ let c=this.C[t]; if(c)return c; const f='bold 9px "Courier New",monospace', m=document.createElement('canvas').getContext('2d'); m.font=f; const w=Math.ceil(m.measureText(t).width)+10, h=15;
     c=document.createElement('canvas'); c.width=w; c.height=h+4; const x=c.getContext('2d'); x.fillStyle='#17110a'; x.fillRect(0,0,w,h); x.fillRect(w/2-3|0,h,6,2); x.fillStyle='#d9d4b8'; x.fillRect(1,1,w-2,h-2); x.fillRect(w/2-2|0,h-1,4,2);
     x.fillStyle='#22301a'; x.font=f; x.textBaseline='middle'; x.textAlign='center'; x.fillText(t,w/2,h/2+.5); return this.C[t]=c },
@@ -4011,17 +4043,37 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
     let i=(rnd()*arr.length)|0; for(let n=0;n<arr.length&&g.t-(this.used[cat+i]||-99)<25;n++)i=(i+1)%arr.length; if(g.t-(this.used[cat+i]||-99)<25)return false;
     let m=o&&o.m; if(!m||m.hp<=0&&k!=='hurt'){ m=this.who(o&&o.x!==undefined?o.x:p.x,o&&o.y!==undefined?o.y:p.y,k==='hurt'?(q=>q.wia):(q=>!q.wia)) } if(!m)return false;
     if(Math.abs(m.x-p.x)>VW/2-20||Math.abs(m.y-p.y)>VH/2-30)return false;
-    let t=arr[i]; if(t.indexOf('{N}')>=0){ const ln=String(o.nm).split(' ').pop(); t=t.replace('{N}',ln) }
+    let t=arr[i]; if(cat==='shift')t=(o&&o.x<p.x)?'Shift left!':'Shift right!'; if(t.indexOf('{N}')>=0){ const ln=String(o.nm).split(' ').pop(); t=t.replace('{N}',ln) }
     this.used[cat+i]=g.t; this.T=g.t+3+rnd()*1.5; m.bark=1; this.L.push({m,t,a:0,life:2.2});
+    if(cat==='down'||cat==='named'){ const c=this.corps(); if(c&&c!==m)this.chain([{d:.7+rnd()*.6,cat:'docA',sp:()=>this.corps()}]) }
+    if(cat==='reload'&&t==='Gimme a mag!'||k==='lowammo')this.chain([{d:.8+rnd()*.5,cat:'ammoA',sp:()=>this.near(m.x,m.y,m)}]);
+    if(cat==='shift')this.chain([{d:.6+rnd()*.5,cat:'ack',sp:()=>this.near(m.x,m.y,m)}]);
     if((k==='hurt')&&Math.hypot(m.x-p.x,m.y-p.y)<320)try{ MIX.as('squad',()=>Snd.play('hurt'),Math.hypot(m.x-p.x,m.y-p.y)) }catch(e){}
     (g.barkLog||(g.barkLog=[])).length<200&&g.barkLog.push([+g.t.toFixed(1),cat,t]); return true },
   tick(dt){ const g=G; if(!this.ON||!g||g.demo)return; for(let i=this.L.length-1;i>=0;i--){ const b=this.L[i]; b.a+=dt; if(b.a>=b.life||b.m.on){ b.m.bark=0; this.L.splice(i,1) } }
+    if(state==='play'){ this.runQ(); this.talkTick(dt) }
     this.st=(this.st||0)-dt; if(this.st>0||state!=='play')return; this.st=1;
     if(rnd()<.18){ const w=coy.find(m=>m.wia&&m.hp>0&&!m.bark); if(w){ this.ev('hurt',{m:w}); return } }
     let n=0; for(const e of enemies){ if(!e.dead&&Math.abs(e.x-g.p.x)<380&&Math.abs(e.y-g.p.y)<300&&++n>=6)break }
-    if(fbS&&rnd()<.25){ const W0=FBW+20; for(const e of enemies){ if(e.dead)continue; const d=Math.max(Math.abs(e.x-fbS.x),Math.abs(e.y-fbS.y)); if(d<W0&&d>FBS){ if(this.ev('wire',{x:e.x,y:e.y}))return; break } } }
+    if(fbS&&rnd()<.25){ const W0=FBW+20; for(const e of enemies){ if(e.dead)continue; const d=Math.max(Math.abs(e.x-fbS.x),Math.abs(e.y-fbS.y)); if(d<FBS+8&&rnd()<.5){ if(this.ev('breach',{x:e.x,y:e.y}))return } if(d<W0&&d>FBS){ if(this.ev('wire',{x:e.x,y:e.y}))return; break } } }
     if(n>=6&&rnd()<.12)this.ev(rnd()<.5?'heads':'chat') },
-  draw(){ for(const b of this.L){ const m=b.m, c=this.spr(b.t), k=Math.min(1,b.a/.14), fo=Math.min(1,(b.life-b.a)/.3); ctx.globalAlpha=Math.max(0,fo)*Math.min(1,k*1.5); ctx.drawImage(c,Math.round(m.x-c.width/2),Math.round(m.y-40-Math.min(5,b.a*10)-c.height)); } ctx.globalAlpha=1 } };
+  /* downtime: firebase built + lull (no assault, <3 enemies within 520 px of the base for 15 s) -> 2-3 idle Marines near each other get props
+     (cigarette ember + wisp, cards on an ammo crate) and trade a 2-4 line exchange. Breaks off instantly when contact returns. No idle sprites exist,
+     so they keep their standing/crouch pose (judgment call; asked Artist Helper via parent). LOD: only on screen, one group at a time. */
+  lull(){ const g=G; if(!fbS||g.ex&&(g.ex.pad||g.ex.ph>=1)||g.cryQ>0)return false; let n=0; for(const e of enemies){ if(!e.dead&&Math.abs(e.x-fbS.x)<520&&Math.abs(e.y-fbS.y)<520&&++n>=3)return false } return true },
+  endTalk(quiet){ const T=this.tg; if(!T)return; for(const m of T.men)m.idle=0; this.tg=null; if(!quiet){ const m=T.men.find(q=>q.hp>0); if(m){ const t=this.pickLine('breakoff')||'Here they come!'; this.L.length=0; this.show(m,t,1.8) } } },
+  talkTick(dt){ const g=G; if(!this.ON)return; const ok=this.lull(); this.lullT=ok?(this.lullT||0)+dt:0;
+    if(this.tg){ if(!ok){ this.endTalk(false); return } const T=this.tg; if(T.men.some(m=>m.hp<=0||m.wia)){ this.endTalk(true); return } if(g.t>=T.next&&this.L.length<2){ if(T.i>=T.lines.length){ if(g.t>T.next+4){ this.endTalk(true); this.talkT=g.t+25+rnd()*20 } return } const sp=T.men[T.i%T.men.length]; if(this.vis(sp)&&this.show(sp,T.lines[T.i],2.6))T.i++; T.next=g.t+2.6+rnd()*1.2 } return }
+    if(!ok||this.lullT<15||g.t<(this.talkT||0)||this.L.length)return; this.talkT=g.t+8;
+    for(const a of coy){ if(a.hp<=0||a.wia||a.mv||!this.vis(a))continue; const men=[a]; for(const b of coy){ if(b!==a&&b.hp>0&&!b.wia&&!b.mv&&Math.hypot(b.x-a.x,b.y-a.y)<60)men.push(b); if(men.length>=3)break } if(men.length<2)continue;
+      let k=(rnd()*this.TALK.length)|0; for(let n=0;n<this.TALK.length&&(this.used['T'+k]&&g.t-this.used['T'+k]<240);n++)k=(k+1)%this.TALK.length; this.used['T'+k]=g.t;
+      const lines=this.TALK[k], cards=lines[0]==='Your deal.'||men.length>=3&&rnd()<.4; men.forEach((m,j)=>{ m.idle=cards?2:(j===0||rnd()<.5)?1:3 });
+      this.tg={men,lines,i:0,next:g.t+.4,cards,cx:men.reduce((s,m)=>s+m.x,0)/men.length,cy:men.reduce((s,m)=>s+m.y,0)/men.length+6}; return } },
+  props(){ const T=this.tg; if(!T)return; const t=performance.now()/1000;
+    if(T.cards){ const x=Math.round(T.cx), y=Math.round(T.cy); ctx.fillStyle='#4a5230'; ctx.fillRect(x-7,y-3,14,7); ctx.fillStyle='#2e3320'; ctx.fillRect(x-7,y+3,14,1); ctx.fillStyle='#e8e4d6'; ctx.fillRect(x-4,y-3,2,3); ctx.fillRect(x+1,y-2,2,3); ctx.fillStyle='#b03028'; ctx.fillRect(x+1,y-2,1,1) }
+    for(const m of T.men){ if(m.idle!==1&&m.idle!==2)continue; const hx=Math.round(m.x+(m.face<0?-4:4)), hy=Math.round(m.y-22); const glow=.6+.4*Math.sin(t*3+m.x); ctx.fillStyle='rgba(255,'+(110+60*glow|0)+',40,1)'; ctx.fillRect(hx,hy,1,1);
+      for(let k=0;k<3;k++){ const a=((t*.5+k/3+m.x*.01)%1); ctx.globalAlpha=.35*(1-a); ctx.fillStyle='#c9c6bc'; ctx.fillRect(Math.round(hx+Math.sin(a*6+k)*2),Math.round(hy-2-a*12),1,2) } ctx.globalAlpha=1 } },
+  draw(){ this.props(); for(const b of this.L){ const m=b.m, c=b.vc?this.sprVC(b.t):this.spr(b.t), k=Math.min(1,b.a/.14), fo=Math.min(1,(b.life-b.a)/.3); ctx.globalAlpha=Math.max(0,fo)*Math.min(1,k*1.5); ctx.drawImage(c,Math.round(m.x-c.width/2),Math.round(m.y-40-Math.min(5,b.a*10)-c.height)); } ctx.globalAlpha=1 } };
 const TANKK=[{nm:'M48A3 Patton',spd:100,rr:26},{nm:'M67A2 "Zippo" Flame Tank',spd:96,rr:26},{nm:'M50A1 Ontos',spd:150,rr:20}];
 function callTank(s,l){ const p=G.p, pool=[0]; if(l>=3)pool.push(1); if(l>=6)pool.push(2); const k=pool[(G.tankRot++)%pool.length];
   const R=Math.hypot(VW,VH)/2+70, a=rnd()*TAU;
@@ -5455,7 +5507,7 @@ function updateFbH(dt){ const h=fbH; if(!h)return; const p=G.p; h.t+=dt; h.rot+=
   else if(h.ph===1){ h.lt+=dt; h.z+=(14-h.z)*Math.min(1,dt*3); if(!h.dropped&&h.lt>1.1){ h.dropped=true; heliDrop(h) } if(h.lt>(h.job==='build'?3.8:2.8)){ h.ph=2; h.ex=h.hd+(rnd()-.5)*1.2 } }
   else { h.out+=dt; h.z+=(55*h.out+10)*dt; h.hd=turnTo(h.hd,h.ex,2*dt); h.x+=Math.cos(h.hd)*(70+230*h.out)*dt; h.y+=Math.sin(h.hd)*(70+230*h.out)*dt; if(h.out>7||Math.hypot(h.x-p.x,h.y-p.y)>1500)fbH=null }
   if(fbH&&h.z<46&&rnd()<dt*70*FXK()){ const a=rnd()*TAU, v=70+rnd()*90; addPart(h.x+Math.cos(a)*12,h.y+8+Math.sin(a)*6,Math.cos(a)*v,Math.sin(a)*v*.7,.7,3+rnd()*3,['#a8946a','#8a7a52','#4f7a3a','#6f9a4a'][(rnd()*4)|0],false,1.6) } }
-function hurtStruct(s,d){ if(s.dead)return; d*=MOH.press(); if(s.type==='bunker'&&!BNK.raw)d=BNK.cap(s,d); s.hp-=d; s.flash=.1; if(parts.length<(LOWFX?160:400))addPart(s.x+(rnd()-.5)*10,s.y-4,(rnd()-.5)*60,-30-rnd()*30,.3,2.5,'#c8b070',false,3); if(s.hp<=0)destroyStruct(s) }
+function hurtStruct(s,d){ if(s.dead)return; if((s.type==='bunker'||s.type==='sandbag')&&rnd()<.04)try{ BARK.ev('shift',{x:s.x,y:s.y}) }catch(e){} d*=MOH.press(); if(s.type==='bunker'&&!BNK.raw)d=BNK.cap(s,d); s.hp-=d; s.flash=.1; if(parts.length<(LOWFX?160:400))addPart(s.x+(rnd()-.5)*10,s.y-4,(rnd()-.5)*60,-30-rnd()*30,.3,2.5,'#c8b070',false,3); if(s.hp<=0)destroyStruct(s) }
 function destroyStruct(s){ s.dead=true; const big=!!FBSOLID[s.type]&&s.type!=='sandbag';
   burst(s.x,s.y-4,big?22:10,big?140:80,.7,big?5:3.5,['#8a7a52','#6d675a','#c8b070','#555'],false); if(big){ burst(s.x,s.y-4,12,110,.5,5,['#ffd54a','#ff9b21','#ff5a1a'],true); (SAMP.boom('satchel')||Snd.play('boom')); G.shake=Math.max(G.shake,5) } else Snd.play('thud');
   if(s.type==='sandbag'||s.type==='wire'){ if(decals.length<DECAL_CAP&&GORE)addDecal(s.x,s.y+4,SPLAT[8+((rnd()*2)|0)],40,.8) }
