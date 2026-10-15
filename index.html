@@ -2480,9 +2480,9 @@ function callSquad(s,l){
   ins.push({ch46:!!s.ch,hp:s.hhp,mhp:s.hhp,hf:0,x:p.x+Math.cos(a)*R,y:p.y+Math.sin(a)*R,a,t:0,ph:0,need,di:0,dT:0,endT:0,vs:60,s,off:84,rot:0,hd:a+Math.PI,mf:[0,0]});
   G.banner={text:need.length>=sz?(sz<=4?'MARINE FIRE TEAM INBOUND (UH-1E)':sz<8?'MARINE SQUAD INBOUND (UH-1E)':'MARINE SQUAD INBOUND (CH-46)'):'MARINE REPLACEMENTS INBOUND',t:2.2,col:'#9be37a'}; Snd.play('radio'); Amb.support(11); return true }
 /* balance band (Blake: 9-12 home, first death >= 2:00): a grace floor (no Marine dies before 2:00; they still get hurt to 1 HP and need the corpsman)
-   and a squad catch-up on incoming damage by how many are still alive (8 or fewer x.6, 9-10 x.8, 13+ x1.2). ?bal=0 turns both off. */
+   and a squad catch-up on incoming damage by how many are still alive (8 or fewer x.45, 9-10 x.75, 12 x1.1, 13+ x1.45). ?bal=0 turns both off. */
 const BAL={ON:!/[?&]bal=0\b/.test(location.search),GRACE:120,
-  k(){ const g=G; if(g._bk!==undefined&&g.t-g._bkT<.5)return g._bk; let n=0; for(const q of coy)if(q.hp>0&&q.state==='ok')n++; g._bkT=g.t; return (g._bk=n<=8?.6:n<=10?.8:n>=13?1.2:1) } };
+  k(){ const g=G; if(g._bk!==undefined&&g.t-g._bkT<.5)return g._bk; let n=0; for(const q of coy)if(q.hp>0&&q.state==='ok')n++; g._bkT=g.t; return (g._bk=n<=8?.45:n<=10?.75:n>=13?1.45:n>=12?1.1:1) } };
 function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER; if(m.coy&&AIS.L.length&&AIS.cover(m))dmg*=.75;   /* in cover */
   if(m.coy&&BAL.ON&&!G.demo){ dmg*=BAL.k(); if(G.t<BAL.GRACE&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) } }
   m.hp-=dmg; m.hf=.12; m.inv=.5;
