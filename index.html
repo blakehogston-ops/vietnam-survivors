@@ -3104,7 +3104,7 @@ function killEnemy(e){ e.dead=true; G.kills++; medDrop(e);
 function addXp(v){ const p=G.p; p.xp+=v*(1+(G.xpB||0)+.1*(G.ps.fm|0)); while(p.xp>=p.need){p.xp-=p.need;p.lvl++;p.need=xpNeed(p.lvl);G.pending++;} }
 /* last damage source (QA/Gamer): hurtPlayer(dmg, src). G.lastHit = most recent hit, G.hs = total damage taken per source */
 const ESRC=e=>e.boss?('boss '+(e.name||'')).trim():e.tank?'NVA tank':({vc:'VC melee',nva:'NVA melee',officer:'NVA officer melee',sapper:'sapper blast',rpgt:'B-40 trooper melee',rpg:'RPG gunner melee'}[e.type]||((e.type||'enemy')+' melee'));
-function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return; if(G.ex&&G.ex.divert)dmg*=.5; if(G.ex&&(G.ex.ph===4||G.ex.ph===5))dmg*=.75;   /* bird inbound/landed: pressure lives in the hold (ph 3); the last 30 s stays tough but survivable */ if(PB.inside())dmg*=PB.DMG; if(src==='RPG/B-40 rocket'&&!PACE.mass(G))dmg*=.5;   /* early levels: B-40 is a threat cue, not a one-shot on Doc */ dmg=Math.max(1,Math.round(dmg*armorMul()*(1+holdT(G)/900))); src=src||'unknown'; PAD.rumble(120,Math.min(1,.25+dmg/40),.3);
+function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return; if(G.ex&&G.ex.divert)dmg*=.5; { const D=CHD[G.char], q=parseFloat(params.get('herodr')); const dr=isFinite(q)&&G.char!=='doc'?q:(D&&D.base&&D.base.dr)||0; if(dr)dmg*=1-dr }   /* per-hero survivability (Blake Oct 15: non-Doc heroes survive about as well as Doc; Doc has dr 0) */ if(G.ex&&(G.ex.ph===4||G.ex.ph===5))dmg*=.75;   /* bird inbound/landed: pressure lives in the hold (ph 3); the last 30 s stays tough but survivable */ if(PB.inside())dmg*=PB.DMG; if(src==='RPG/B-40 rocket'&&!PACE.mass(G))dmg*=.5;   /* early levels: B-40 is a threat cue, not a one-shot on Doc */ dmg=Math.max(1,Math.round(dmg*armorMul()*(1+holdT(G)/900))); src=src||'unknown'; PAD.rumble(120,Math.min(1,.25+dmg/40),.3);
   G.lastHit={src,dmg,t:G.t}; (G.hs||(G.hs={}))[src]=(G.hs[src]||0)+dmg;
   p.hp-=dmg; p.invul=.45; p.hurtT=.18; G.hurt=.5; G.shake=Math.max(G.shake,9); Snd.play('hurt');
   spawnDrops(p.x,p.y-6,0,0,12,130); if(rnd()<.6)addDecal(p.x+(rnd()-.5)*16,p.y+8,SPLAT[(rnd()*5)|0],30,.8);
@@ -5127,6 +5127,8 @@ function charTick(dt){ const g=G; if(!g||g.demo||!g.char)return; const p=g.p;
   if(g.abCd>0)g.abCd-=dt; if(g.rally>0)g.rally-=dt; if(g.dead>0)g.dead-=dt; if(g.rr>0)g.rr-=dt; if(g.full>0)g.full-=dt;
   if(g.chow>0){ g.chow-=dt; p.hp=Math.min(p.maxHp,p.hp+p.maxHp*.4/3*dt) }
   if(g.dead>0){ for(const e of enemies){ if(e.dead||e.boss)continue; const dx=e.x-p.x,dy=e.y-p.y; if(dx*dx+dy*dy<450*450&&!(e.slow>.2))e.slow=.3 } }
+  { const D=CHD[g.char], q=parseFloat(params.get('heromh')); const mh=isFinite(q)&&g.char!=='doc'?q:(D&&D.base&&D.base.mh)||0;   /* per-hero: the patrol's own corpsman works the Marines near a non-Doc hero (Doc does this himself) */
+    if(mh>0&&g.char!=='doc'){ const r2=240*240; for(const arr of [squad,pat,coy])for(const m of arr){ if(m.hp>0&&m.state==='ok'&&m.hp<m.mhp){ const dx=m.x-p.x,dy=m.y-p.y; if(dx*dx+dy*dy<r2)m.hp=Math.min(m.mhp,m.hp+mh*dt*2.2) } } } }
   if(g.char==='doc'||g.aura>0){ const r=(g.char==='doc'?1.3:0)*(1+g.aura)+(g.char==='doc'?0:g.aura*1.3), r2=240*240;
     for(const arr of [squad,pat,coy])for(const m of arr){ if(m.hp>0&&m.state==='ok'&&m.hp<m.mhp){ const dx=m.x-p.x,dy=m.y-p.y; if(dx*dx+dy*dy<r2)m.hp=Math.min(m.mhp,m.hp+r*dt*2.2) } }
     const t=tanks[0]; if(t&&!t.dead&&t.hp<t.mhp&&Math.hypot(t.x-p.x,t.y-p.y)<260)t.hp=Math.min(t.mhp,t.hp+r*dt*3) } }
