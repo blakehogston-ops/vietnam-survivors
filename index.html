@@ -2495,7 +2495,7 @@ function callSquad(s,l){
 const BAL={ON:!/[?&]bal=0\b/.test(location.search),GRACE:120,
   k(){ const g=G; if(g._bk!==undefined&&g.t-g._bkT<.5)return g._bk; let n=0; for(const q of coy)if(q.hp>0&&q.state==='ok')n++; g._bkT=g.t; return (g._bk=n<=8?.3:n<=10?.65:n>=13?1.8:n>=12?1.1:1) } };
 function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER; if(m.coy&&AIS.L.length&&AIS.cover(m))dmg*=.75;   /* in cover */
-  if(m.coy&&BAL.ON&&!G.demo){ dmg*=BAL.k()*(MOH.away()?.65:1); if(G.t<BAL.GRACE&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) } }
+  if(m.coy&&BAL.ON&&!G.demo){ dmg*=BAL.k()*(MOH.away()?.5:1)*(fbS&&G.ex&&G.ex.ph>=4?.6:1); if(G.t<BAL.GRACE&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) } }
   m.hp-=dmg; m.hf=.12; m.inv=.5;
   if(G.sqS&&(m.hp>0)){ if(drops.length<(LOWFX?110:300))spawnDrops(m.x,m.y-6,0,0,4,90) }
   if(m.hp<=0)killMember(m) }
