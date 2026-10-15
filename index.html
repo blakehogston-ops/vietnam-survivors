@@ -1184,7 +1184,7 @@ let W=800,H=600,zoom=1,VW=800,VH=600,UI=1,DPR=1,SA={t:0,r:0,b:0,l:0},PY=70;
 const COARSE=matchMedia('(pointer:coarse)');
 const SAEL=document.createElement('div'); SAEL.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)'; document.documentElement.appendChild(SAEL);
 /* DRES: dynamic resolution on touch devices - a 4 s window under 50 fps in play steps the backing store 1.25 -> 1.0 (fps gate) */
-const DRES=window.DRES={cap:1.25, a:0, n:0, tick(dt){ if(!COARSE.matches||state!=='play'||this.cap<=.8)return; this.a+=dt; this.n++; if(this.a>=4){ const f=this.n/this.a; this.a=0; this.n=0; if(f<50){ this.cap=this.cap>1?1:.8; try{ resize() }catch(e){} } } } };   /* steps 1.25 -> 1.0 -> 0.8 backing store (pixel art stays nearest-neighbour) */
+const DRES=window.DRES={cap:1, a:0, n:0, tick(dt){ if(!COARSE.matches||state!=='play'||this.cap<=.8)return; this.a+=dt; this.n++; if(this.a>=4){ const f=this.n/this.a; this.a=0; this.n=0; if(f<50){ this.cap=this.cap>1?1:.8; try{ resize() }catch(e){} } } } };   /* steps 1.25 -> 1.0 -> 0.8 backing store (pixel art stays nearest-neighbour) */
 function resize(){
   const dpr=Math.min(window.devicePixelRatio||1,COARSE.matches?DRES.cap:1.5);   /* phones: 1.25x backing store, 1.0 if DRES steps down (fps gate) */
   W=cv.width=Math.max(320,Math.floor(innerWidth*dpr)); H=cv.height=Math.max(240,Math.floor(innerHeight*dpr));
