@@ -2500,6 +2500,7 @@ const BAL={ON:!/[?&]bal=0\b/.test(location.search),GRACE:120,
   k(){ const g=G; if(g._bk!==undefined&&g.t-g._bkT<.5)return g._bk; let n=0; for(const q of coy)if(q.hp>0&&q.state==='ok')n++; g._bkT=g.t; return (g._bk=n<=8?.3:n<=10?.65:n>=13?1.8:n>=12?1.1:1) } };
 function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER; if(m.coy&&AIS.L.length&&AIS.cover(m))dmg*=.75;   /* in cover */
   if(m.coy&&BAL.ON&&!G.demo){ dmg*=BAL.k()*(MOH.away()?.5:1)*(fbS&&G.ex&&G.ex.ph>=4?.6:1); if(G.t<BAL.GRACE&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) } }
+  if(!m.coy&&BAL.ON&&!G.demo&&G.char!=='doc'&&G.t<BAL.GRACE&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) }   /* non-Doc heroes bring their own patrol: same 120 s grace as the company */
   m.hp-=dmg; m.hf=.12; m.inv=.5;
   if(G.sqS&&(m.hp>0)){ if(drops.length<(LOWFX?110:300))spawnDrops(m.x,m.y-6,0,0,4,90) }
   if(m.hp<=0)killMember(m) }
@@ -4887,31 +4888,31 @@ const CHD={
   bio:["Third tour, and nobody can explain what he does with all the ammo. Believes every problem is solved by a larger volume of fire, and the Corps has yet to prove him wrong.","Has not been quiet since 1963."],
   known:"Carrying the M60 like a newborn he plans to spoil.",quote:"Ammo's just pocket change. I'm feeling generous.",
   loadout:'M60 · M16A1',passive:'M60 fires 20% faster.',ab:{nm:'Pig Pile',cd:24,desc:'360° ring of M60 fire.'},
-  base:{wr:{m60:.2}},start:{w:['m16','m60']},
+  base:{dr:.5,mh:1.3,wr:{m60:.2}},start:{w:['m16','m60']},
   perks:[{t:'Damage +5%',m:{dmg:.05}},{t:'Pig Pile cooldown -15%',m:{ab:.15}},{t:'+20 max HP',m:{hp:20}},{t:'Damage +8%',m:{dmg:.08}},{t:'Damage taken -10%, Pig Pile -15%',m:{arm:.1,ab:.15}}]},
  boone:{rank:'PFC',nm:'Josh Johnson',nick:'Country',home:'Buffalo Gap, VA',mos:'Rifleman / Marksman',age:19,sn:'C-3319048',
   bio:["Never missed a squirrel in his life, and is ashamed to say how many that was. Shoots like he's got a personal grudge, talks like he's got all day.","Writes his mama weekly that it's \"pretty quiet over here.\""],
   known:"One shot, one \"well, that's that.\"",quote:"Y'all hold still, I'm fixin' to be right about this.",
   loadout:'M40 7.62mm bolt-action sniper rifle',passive:'Every 7.62mm round kills any regular outright and punches through a line of them (slow bolt cycle). 15% chance for double-damage crits.',ab:{nm:'Dead-Eye',cd:30,desc:'6s: enemies slowed, crit chance +45%.'},
-  base:{crit:.15},start:{w:['m1903'],drop:['m16']},
+  base:{dr:.5,mh:1.3,crit:.15},start:{w:['m1903'],drop:['m16']},
   perks:[{t:'Crit chance +5%',m:{crit:.05}},{t:'Dead-Eye cooldown -15%',m:{ab:.15}},{t:'Move speed +6%',m:{spd:.06}},{t:'Crit chance +6%',m:{crit:.06}},{t:'Damage +10%, Dead-Eye -15%',m:{dmg:.1,ab:.15}}]},
  skipper:{rank:'Capt',nm:'Patrick O\'Malley',nick:'Skipper',home:'Quincy, MA',mos:'Company Commander',age:27,sn:'O-0985521',
   bio:["A captain with a spotless map case and a map he trusts completely. The company's real navigation is done by Sgt Savage's gut.","Beloved by his men for one reason: he listens to the radioman."],
   known:"Reading the map upside down with total confidence.",quote:"I have a plan. It involves all of you, and also me not being in front.",
   loadout:'M16A1 · Marine Fire Team (grows to a squad)',passive:'Squad: +25% HP, +15% damage, faster re-insertion.',ab:{nm:'Rally',cd:36,desc:'Heal squad & tank 50%, squad damage x1.5 for 8s, call re-insertion now.'},
-  base:{sqHp:.25,sqDm:.15,sqFast:.35},start:{w:['m16','squad']},
+  base:{dr:.3,mh:1,sqHp:.25,sqDm:.15,sqFast:.35},start:{w:['m16','squad']},
   perks:[{t:'Squad +10% HP & damage',m:{sq:.1}},{t:'Rally cooldown -15%',m:{ab:.15}},{t:'+15 max HP',m:{hp:15}},{t:'Squad +15% more',m:{sq:.15}},{t:'XP gain +10%, Rally -15%',m:{xp:.1,ab:.15}}]},
  zippo:{rank:'LCpl',nm:'Marcus Washington',nick:'Zippo',home:'Gary, IN',mos:'Flamethrower Operator',age:20,sn:'D-4472019',
   bio:["Was told the flamethrower is \"a precision instrument.\" Disagrees, fondly. Owns a lighter collection and a permanent smell of campfire.","The squad stands exactly one step upwind, on principle."],
   known:"Making the jungle somebody else's problem. Warmly.",quote:"You cold? Didn't think so.",
   loadout:'M2 Flamethrower · M16A1',passive:'Flame damage +30%.',ab:{nm:'Wall of Fire',cd:26,desc:'Two rings of napalm fire around you.'},
-  base:{flm:1.3},start:{w:['m16','flame']},
+  base:{dr:.5,mh:1.3,flm:1.3},start:{w:['m16','flame']},
   perks:[{t:'Flame damage +8%',m:{flm:.08}},{t:'Wall of Fire cooldown -15%',m:{ab:.15}},{t:'+15 max HP',m:{hp:15}},{t:'Flame damage +10%',m:{flm:.1}},{t:'Damage taken -8%, Wall of Fire -15%',m:{arm:.08,ab:.15}}]},
  rat:{rank:'Cpl',nm:'Hector Ramirez',nick:'Tunnel Rat',home:'El Paso, TX',mos:'Combat Engineer',age:22,sn:'E-5120763',
   bio:["Small enough to fit in a tunnel, stubborn enough to go back in. Armed with a flashlight, a .45, and zero common sense.","Calls claustrophobia \"a rumor.\" Says \"never again\" after every tunnel. Always goes again."],
   known:"Volunteering. He is the only one who volunteers.",quote:"It's just a hole. Holes are my whole thing.",
   loadout:'Ithaca 37 shotgun',passive:'Spots punji pits from far away. +12% speed.',ab:{nm:'Rat Run',cd:22,desc:'3s sprint: invulnerable, speed x1.8.'},
-  base:{spd:.12,detect:true},start:{w:['shotgun'],drop:['m16']},
+  base:{dr:.55,mh:1.5,spd:.12,detect:true},start:{w:['shotgun'],drop:['m16']},
   perks:[{t:'Move speed +5%',m:{spd:.05}},{t:'Rat Run cooldown -15%',m:{ab:.15}},{t:'XP gain +8%',m:{xp:.08}},{t:'Pickup radius +30',m:{mag:30}},{t:'Damage taken -8%, Rat Run -15%',m:{arm:.08,ab:.15}}]},
  /* MSgt Hogston, USAF (Tanker Maintenance), Saltville, Virginia. Only these facts are used.
     TODO(Blake): the bio below is the approved placeholder text; edit freely, nothing else in the game depends on its wording. */
@@ -4919,19 +4920,19 @@ const CHD={
   bio:["Master Sergeant, USAF, Tanker Maintenance, out of Saltville, Virginia. The only airman in the squad, and nobody can quite explain how he ended up with the Marines. He doesn't carry the biggest gun, but he knows a KC-135 better than the pilots who fly one."],
   known:"Knowing a KC-135 better than the pilots who fly one.",quote:"",
   loadout:'M1911A1 sidearm · 105mm Howitzer (radio fire) · KC-135 Aerial Refueling Lv1',passive:'Ready the Tankers: "Tankers fueled, tankers ready." Starts with KC-135 Aerial Refueling at level 1. Calling in an air strike (Arc Light, strafing, Ranch Hand, Spooky) sends a refuel run: a KC-135 flies over and that weapon\'s next cooldown is 15% shorter (20 s between runs). Air & artillery cooldowns -20%; his air-support cooldown reduction is capped at -55% (everyone else -45%); 5s floor between uses. Trade-off: -30 max HP, slower, sidearm-only firepower.',ab:{nm:'Danger Close',cd:40,desc:'Four 105mm shells on the thickest enemy clump.'},
-  base:{air:.2,hp:-30,spd:-.15,sidearm:true},start:{w:['howitzer'],ps:{kc135:1}},
+  base:{dr:.55,mh:1.5,air:.2,hp:-30,spd:-.15,sidearm:true},start:{w:['howitzer'],ps:{kc135:1}},
   perks:[{t:'Air & arty cooldown -5%',m:{air:.05}},{t:'Danger Close cooldown -15%',m:{ab:.15}},{t:'+15 max HP',m:{hp:15}},{t:'Air & arty cooldown -8%',m:{air:.08}},{t:'XP gain +10%, Danger Close -15%',m:{xp:.1,ab:.15}}]},
  preacher:{rank:'Sgt',nm:'Elijah Miller',nick:'Preacher',home:'Tupelo, MS',mos:'Grenadier',age:25,sn:'G-7241130',
   bio:["Former Sunday school teacher who discovered the M79 \"thumper\" has a lovely arc. Delivers sermons in the foxhole and grenades in the field. Both land where they're aimed.","Prays before every patrol. And after. And during."],
   known:"Lobbing blessings, 40mm at a time.",quote:"The Lord works in mysterious ways. So does the M79.",
   loadout:'M79 Thumper',passive:'Grenade blast radius +20%.',ab:{nm:'Hallelujah',cd:30,desc:'Barrage of 14 grenades around you.'},
-  base:{area:.2},start:{w:['m79']},
+  base:{dr:.45,mh:1.2,area:.2},start:{w:['m79']},
   perks:[{t:'Blast radius +5%',m:{area:.05}},{t:'Hallelujah cooldown -15%',m:{ab:.15}},{t:'+15 max HP',m:{hp:15}},{t:'Blast radius +8%',m:{area:.08}},{t:'Damage +8%, Hallelujah -15%',m:{dmg:.08,ab:.15}}]},
  chef:{rank:'PFC',nm:'Delbert Crumpacker',nick:'Biscuit',home:'Bean Blossom, IN',mos:'Mess Cook (3371)',age:24,sn:'H-8120046',
   bio:["Company cook who got tired of the complaints about the chow and decided to take it up with them personally. Wears an apron into combat, which is a dress code violation and also a threat.","Never seen without a knife, a ladle, or a story about the time he fed a general."],
   known:"Biscuits. And the occasional enemy's worst day.",quote:"Y'all hungry? 'Cause I got seconds.",
   loadout:'M3A1 Grease Gun · Butcher Knives',passive:'Slow, tough (+60 HP). C-rations & XP gems heal extra.',ab:{nm:'Hot Chow',cd:34,desc:'Heal 40% over 3s, damage taken -30% for 8s.'},
-  base:{hp:60,spd:-.35,gemHeal:.25},start:{w:['grease','knives'],drop:['m16']},
+  base:{dr:.45,mh:1.2,hp:60,spd:-.35,gemHeal:.25},start:{w:['grease','knives'],drop:['m16']},
   perks:[{t:'+20 max HP',m:{hp:20}},{t:'Hot Chow cooldown -15%',m:{ab:.15}},{t:'Ration heal +10 HP',m:{gem:.1}},{t:'Damage taken -8%',m:{arm:.08}},{t:'Damage +8%, Hot Chow -15%',m:{dmg:.08,ab:.15}}]}
 };
 const CHORDER=['doc','hammer','boone','skipper','zippo','rat','radio','preacher','chef'];
