@@ -166,6 +166,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 #kb i.go{animation:kbz 16s linear forwards}@keyframes kbz{from{transform:scale(1) translate(0,0)}to{transform:scale(1.12) translate(-2%,-1.5%)}}
 #menu>*:not(#kb){position:relative;z-index:1}
 .ochon{color:#f0d890;font-size:13px;margin:4px 0 8px;letter-spacing:.04em}.hrib{display:inline-block;width:22px;height:7px;vertical-align:middle;background:linear-gradient(90deg,#4f8fc8 0 40%,#fff 40% 46%,#4f8fc8 46% 54%,#fff 54% 60%,#4f8fc8 60%);border:1px solid #1a1c12}
+.nmcred{display:none}body.nm .nmcred{display:block}
 </style>
 </head>
 <body>
@@ -238,6 +239,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <p class="crh"><b>Music (with thanks)</b></p>
 <p>"PSYCH ROCK" by fredsylvestre66, "60s Garage Rock - No voice edit" and "60s Garage Rock - Loop 1" by Abydos_Music, via Pixabay</p>
 <p>"60s Rock" by Abydos_Music, via Pixabay</p>
+<!-- DO NOT SHIP (PENDING Legal): shown only when NEWMUS (/next/ + local) --><p class="nmcred">Music (courtesy): "60s Underground Organ Rock" by JuliusH, "Steampunk Garage" by Pixabay user 4379051, "Garage Rock" by NewEraMusic, "La Menteuse" and "Zapatista" by JoshuaHudesMusic, via Pixabay; "When Johnny Comes Marching Home", U.S. Navy Band Brass Quartet (public domain, U.S. government work)</p>
 <p>"Solemn Asian String Melody Loop (Wind, Water, Wood)" by CVLTIV8R, via Freesound (CC0)</p>
 <p>"Marines' Hymn", performed by the United States Marine Band ("The President's Own")</p>
 <p>Additional sounds (CC0 / public domain / Pixabay; credited with thanks)</p>
@@ -320,6 +322,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <p class="crh"><b>Music (with thanks)</b></p>
 <p>"PSYCH ROCK" by fredsylvestre66, "60s Garage Rock - No voice edit" and "60s Garage Rock - Loop 1" by Abydos_Music, via Pixabay</p>
 <p>"60s Rock" by Abydos_Music, via Pixabay</p>
+<!-- DO NOT SHIP (PENDING Legal): shown only when NEWMUS (/next/ + local) --><p class="nmcred">Music (courtesy): "60s Underground Organ Rock" by JuliusH, "Steampunk Garage" by Pixabay user 4379051, "Garage Rock" by NewEraMusic, "La Menteuse" and "Zapatista" by JoshuaHudesMusic, via Pixabay; "When Johnny Comes Marching Home", U.S. Navy Band Brass Quartet (public domain, U.S. government work)</p>
 <p>"Solemn Asian String Melody Loop (Wind, Water, Wood)" by CVLTIV8R, via Freesound (CC0)</p>
 <p>"Marines' Hymn", performed by the United States Marine Band ("The President's Own")</p>
 <p>Additional sounds (CC0 / public domain / Pixabay; credited with thanks)</p>
@@ -3040,7 +3043,7 @@ function newGame(demo){
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
-  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FBO.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
+  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FBO.reset(); MUSI.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:100,maxHp:100,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
@@ -3182,14 +3185,14 @@ function holdCap(g){ return PACE.mass(g)?enemyCap(g):Math.min(enemyCap(g),HOLD_E
    First wave: 2 sides (HUD arrows from 0:05), ~hold-wave strength (two fire teams); later waves may add a third side. 0:05 -> mortar_incoming / mortar_impact + 'INCOMING!',
    0:00 -> chargeWarning as the wave steps off. No bugle here: that stays on the big night assault. The lull does not count toward the pad hold or the boarding clock. ===== */
 const PULL={T:30,ARROW_AT:5,
-  start(g,f){ g.pullT=this.T; g.pullF=f; g.pullN=(g.pullN|0)+1; g.pullDirs=null; g.pullInc=0; g.pullLog={at:+g.t.toFixed(1),n0:enemies.filter(e=>!e.dead).length,n:g.pullN};
+  start(g,f){ MUSI.set(true); g.pullT=this.T; g.pullF=f; g.pullN=(g.pullN|0)+1; g.pullDirs=null; g.pullInc=0; g.pullLog={at:+g.t.toFixed(1),n0:enemies.filter(e=>!e.dead).length,n:g.pullN};
     gunny('Charlie is pulling back. Thirty seconds, get set!',3,1); if(g.pc)g.pc.teams.length=0 },
   dirs(g){ const nd=g.pullN>1&&rnd()<.6?3:2, a0=rnd()*TAU; return Array.from({length:nd},(_,k)=>a0+k*TAU/nd+(rnd()-.5)*.5) },
   tick(g,dt){ if(!(g.pullT>0))return false; g.pullT-=dt; const s=Math.max(0,Math.ceil(g.pullT));
     if(g.pullT<=this.ARROW_AT&&!g.pullDirs){ g.pullDirs=this.dirs(g); g.pullInc=1; g.banner={text:'INCOMING!',t:1.6,col:'#ff6a4a'};
       try{ if(SAMP.ready()){ MIX.as('special',()=>SamplePlayer.play('mortar_incoming')); setTimeout(()=>{ try{ MIX.as('special',()=>SamplePlayer.play('mortar_impact')) }catch(e){} },1500) } else Snd.play('mortar') }catch(e){} G.shake=Math.max(G.shake,3) }
     g.pullTxt='ENEMY PULLING BACK · 0:'+String(s).padStart(2,'0')+' TO GET READY';   /* own HUD line: other banners never hide the countdown */
-    if(g.pullT<=0){ g.pullT=0; this.assault(g); return false } return true },
+    if(g.pullT<=0){ g.pullT=0; this.assault(g); MUSI.set(); return false } return true },
   assault(g){ const f=g.pullF||fbS, o=f||g.p, D=g.pullDirs||this.dirs(g);
     const P=g.pc||(g.pc={st:'contact',t:0,ct:0,teams:[],n:0,log:[]}); P.st='contact'; P.ct=0; P.lastSp=0;
     for(const a of D){ const T=PACE.spawnTeamAt(g,o.x+Math.cos(a)*620,o.y+Math.sin(a)*620,a) }
@@ -3246,7 +3249,7 @@ const PLT={on:!/[?&]plt=0/.test(location.search),
 const BNK={WARN:2,IN:30,DMG:.5,LIFE:75,PER:2,raw:0,
   cap(s,d){ const t=G.t, mx=s.mhp/this.LIFE; if(s.capT===undefined){ s.capT=t; s.capB=mx*2 } s.capB=Math.min(mx*3,s.capB+(t-s.capT)*mx); s.capT=t; const x=Math.min(d,s.capB); s.capB-=x; return x },
   warn(s,why){ s.warnT=this.WARN; G.banner={text:'SATCHEL!',t:2,col:'#ff6a4a'}; try{ MIX.as('special',()=>{ if(!SAMP.charge())Snd.play('whistle') }) }catch(e){} (G.bnkLog||(G.bnkLog=[])).length<100&&G.bnkLog.push({t:+G.t.toFixed(1),ev:'warn',why}) },
-  post(m,p){ const g=G, f=fbS; if(!f||f.state!=='done'||Math.hypot(p.x-f.x,p.y-f.y)>520)return (m.bk=null);
+  post(m,p){ const g=G, f=fbS; if(!f||f.state!=='done'||Math.hypot(p.x-f.x,p.y-f.y)>520||(BAL.ON&&g.ex&&g.ex.ph>=3))return (m.bk=null);   /* BAL: once the pad is called the squad leaves the bunkers and falls back on the player */
     if(m.bk&&(m.bk.dead||!strs.includes(m.bk)))m.bk=null;
     if(!m.bk&&((g.bnkA=(g.bnkA|0)+1)&15)===0){ for(const s of strs){ if(s.type!=='bunker'||s.dead||(s.warnT>0))continue; let n=0; for(const q of coy)if(q.bk===s)n++; if(n<this.PER){ m.bk=s; break } } }
     const s=m.bk; if(!s)return null; if(s.warnT>0){ const a=Math.atan2(m.y-s.y,m.x-s.x)||((m.slot&1)?1:-1); return [s.x+Math.cos(a)*90,s.y+Math.sin(a)*90] }   /* bail */
@@ -3868,11 +3871,11 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
    hits are applied directly to the chosen target (no free bullets) and a target is skipped if any friendly is within 60 px, so there is no friendly fire.
    Phones / low effects get 1 bird. Leaves once the pad is called. Rotor: the shared distance-attenuated huey loop (RotorS). ?fbo=0 turns it off. */
 const FBO={ON:!/[?&]fbo=0\b/.test(location.search), H:[], reset(){ this.H.length=0 },
-  want(){ return !!(this.ON&&G&&!G.demo&&fbS&&fbS.state!=='inbound'&&!(G.ex&&G.ex.pad)) },
+  want(){ return !!(this.ON&&G&&!G.demo&&fbS&&fbS.state!=='inbound'&&!(G.ex&&G.ex.ph>=5)) },   /* once the pad is called the orbit shifts to cover the pad; clears before the bird lands */
   tick(dt){ if(!this.ON||!G)return; const H=this.H, n=this.want()?((COARSE.matches||LOWFX)?1:2):0;
     while(H.length<n){ const i=H.length; H.push({gunner:true,a:i*Math.PI,x:0,y:0,z:95,hd:0,rot:0,mf:[0,0],cd:3+i*2,bs:0,tg:null,bt:0,rr:230+i*60}) }
     if(n===0&&H.length){ for(const h of H){ h.rr+=dt*260; h.z+=dt*20 } if(H[0].rr>1400)H.length=0 }
-    for(const h of H){ const cx=fbS?fbS.x:h.cx, cy=fbS?fbS.y:h.cy; h.cx=cx; h.cy=cy; h.a+=dt*TAU/48; h.x=cx+Math.cos(h.a)*h.rr; h.y=cy+Math.sin(h.a)*h.rr*.72; h.hd=h.a+Math.PI/2; h.rot+=dt*34;
+    const PD=G.ex&&G.ex.pad; for(const h of H){ const cx=PD?PD.x:fbS?fbS.x:h.cx, cy=PD?PD.y:fbS?fbS.y:h.cy; h.cx=cx; h.cy=cy; h.a+=dt*TAU/48; h.x=cx+Math.cos(h.a)*h.rr; h.y=cy+Math.sin(h.a)*h.rr*.72; h.hd=h.a+Math.PI/2; h.rot+=dt*34;
       h.mf[0]=Math.max(0,h.mf[0]-dt); h.mf[1]=Math.max(0,h.mf[1]-dt); if(n===0)continue; h.cd-=dt;
       if(h.bs>0){ h.bt-=dt; if(h.bt<=0){ h.bt=.11; h.bs--; const e=h.tg; if(e&&!e.dead&&this.clear(e)){ hurtEnemy(e,9); const gi=(h.bs&1); h.mf[gi]=.06; const m=h.muz&&h.muz[gi]; if(parts.length<(LOWFX?160:400))addPart(e.x+(rnd()-.5)*10,e.y+(rnd()-.5)*8,(rnd()-.5)*40,-20,.18,2,'#c8b070',false,2); if(m&&parts.length<(LOWFX?160:400))addPart(m[0],m[1]+h.z,(e.x-m[0])*3,(e.y-m[1]-h.z)*3,.12,2,'#ffc860',true,0) } else h.bs=0 } }
       else if(h.cd<=0){ h.cd=3.5+rnd()*2.5; let best=null,bd=1e9; for(const e of enemies){ if(e.dead)continue; const dw=Math.hypot(e.x-cx,e.y-cy); if(dw>330)continue; const d=Math.hypot(e.x-h.x,e.y-h.y); if(d<bd&&d<420&&this.clear(e)){bd=d;best=e} }
@@ -4091,7 +4094,7 @@ function renderCards(){ const box=$('cards'); box.innerHTML='';
   luTools(); $('luTools').style.display=luForced?'none':''; $('levelup').querySelector('.sub').textContent=luForced?'Your first upgrade':'Choose an upgrade' }
 let luForced=false;
 const LU_GAP=20;
-function openLevelUp(){
+function openLevelUp(){ MUSI.set(false,true);
   Snd.play('lvlRadio'); banMode=false; luForced=!!(G.q15&&!G.luN&&curLvl('magnet')<ITEMS.magnet.max); G.luN=(G.luN||0)+1;   /* Stage 1: the first level-up is forced, one card: Magnet */
   choices=luForced?['magnet']:genChoices(); (G.luLog||(G.luLog=[])).push(choices.slice());
   if(DBG.bot){pickChoice(BOTF.pick?BOTF.pick(choices):((rnd()*choices.length)|0));return}
@@ -5460,12 +5463,12 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
   if(f.state==='done'&&f.rb.length&&engs.length&&!fbH){ f.rbT+=dt*Math.min(3,engs.length); if(f.rbT>=10){ f.rbT=0; const L=f.rb.shift(); const s=mkStr(L[0],L[1],L[2],L[3],0); s.stg=3; strs.push(s) } }
   // waves
   if(!f.sap1&&f.age>=f.sapAt&&f.state!=='inbound'){ f.sap1=true; fbSpawnRing(0,false,1); if(f.state==='building')g.banner={text:'SAPPERS! WATCH THE WIRE!',t:1.8,col:'#ffcf5a'} }
-  if(g.pullT>0){ f.bigT=Math.max(f.bigT,40); f.sapT=Math.max(f.sapT,12) }
+  if(g.pullT>0||(BAL.ON&&g.ex&&g.ex.ph>=3)){ f.bigT=Math.max(f.bigT,40); f.sapT=Math.max(f.sapT,12); f.waveT=Math.max(f.waveT,8) }   /* BAL: once the pad is called the firebase stops stacking its own assaults on top of the extraction waves */
   else if(f.state==='building'){ f.waveT-=dt; if(f.waveT<=0){ f.waveN++; f.waveT=Math.max(8,17-f.prog*8-g.fbN*1.5); const n=5+Math.floor(f.prog*14)+g.fbN*3;
-      fbSpawnRing(n,false,0); g.banner={text:'WAVE '+f.waveN+' INCOMING!',t:1.8,col:'#ff9a5a'}; Snd.play('radio'); assaultCry() }
+      fbSpawnRing(n,false,0); g.banner={text:'WAVE '+f.waveN+' INCOMING!',t:1.8,col:'#ff9a5a'}; MUSI.set(); Snd.play('radio'); assaultCry() }
     if(f.prog>.28){ f.sapT-=dt; if(f.sapT<=0){ f.sapT=Math.max(10,22-f.prog*10); fbSpawnRing(0,false,1+Math.floor(f.prog*2.5)); g.banner={text:'SAPPERS! WATCH THE WIRE!',t:1.8,col:'#ffcf5a'} } } }
   else if(f.state==='done'){ f.holdT+=dt; f.bigT-=dt; f.sapT-=dt;
-    if(f.bigT<=0){ if(!f.log.bigAt)f.log.bigAt=+(g.t-f.t0).toFixed(1); f.bigT=Math.max(32,52-g.fbN*4); const n=26+f.tier*10+Math.min(40,g.t/16); fbSpawnRing(n,true,2+f.tier); g.banner={text:'MASSIVE ASSAULT ON '+f.name+'!',t:2.4,col:'#ff6a4a'}; Snd.play('radio'); assaultCry(true); G.shake=Math.max(G.shake,6) }
+    if(f.bigT<=0){ if(!f.log.bigAt)f.log.bigAt=+(g.t-f.t0).toFixed(1); f.bigT=Math.max(32,52-g.fbN*4); const n=26+f.tier*10+Math.min(40,g.t/16); fbSpawnRing(n,true,2+f.tier); MUSI.set(); g.banner={text:'MASSIVE ASSAULT ON '+f.name+'!',t:2.4,col:'#ff6a4a'}; Snd.play('radio'); assaultCry(true); G.shake=Math.max(G.shake,6) }
     else if(f.sapT<=0){ f.sapT=Math.max(9,20-f.tier*3); fbSpawnRing(0,false,1+f.tier) }
     // upgrades
     if(f.tier===1&&f.holdT>110){ f.tier=2; strs.push(mkStr('quad50',f.x,f.y-52,-Math.PI/2,1)); strs.push(mkStr('m2',f.x+104,f.y+10,0,1)); strs.push(mkStr('m2',f.x-104,f.y+10,Math.PI,1)); g.banner={text:'UPGRADE: QUAD-50 AA MOUNT & EXTRA M2s',t:2.6,col:'#ffe58a'} }
@@ -5515,7 +5518,11 @@ function buildNTankSprites(){ SPR.pt76=ntankSprite('pt76'); SPR.t54=SPR.pt76; } 
 const MENUQ=()=>state==='menu'&&!!G&&!!G.demo;
 /* menu music (Blake Oct 14): a calm Southeast Asian piece (Sound Helper slot 'menu_asian', dan tranh / bells, pentatonic) once it ships; until then the calm,
    already-licensed "Last Kiss Goodnight" (slot 'loss'). ?title=surf / ?title=groove bring back Happy Bee / DD Groove. */
-const MENU_TRACKS=()=>/[?&]title=surf/.test(location.search)?['menu']:/[?&]title=groove/.test(location.search)?['briefing']:((window.SAMPLE_MANIFEST&&SAMPLE_MANIFEST.music&&SAMPLE_MANIFEST.music.tracks&&SAMPLE_MANIFEST.music.tracks.menu_asian)?['menu_asian','loss']:['loss']);
+/* NEWMUS: combat tiers 2-5 + Navy Band menu_intro -> menu_theme (PENDING Legal): /next/ and local only, never root/public. ?newmus=0 off */
+const NEWMUS=!/[?&]newmus=0\b/.test(location.search)&&(/\/next\//.test(location.pathname)||/^(localhost|127\.)/.test(location.hostname)||/[?&]newmus=1\b/.test(location.search));
+try{ if(NEWMUS)document.body.classList.add('nm') }catch(e){}
+const MUSI={w:0, reset(){ this.w=0; try{ NEWMUS&&SamplePlayer.combatMusicTier&&SamplePlayer.combatMusicTier(1,{force:true}) }catch(e){} }, set(wb,keep){ try{ if(!NEWMUS||!G||G.demo||!SamplePlayer.setCombatIntensity)return; if(!wb&&!keep)this.w++; SamplePlayer.setCombatIntensity((G.p&&G.p.lvl)||1,Math.max(1,this.w),{waveBreak:!!wb}) }catch(e){} } };
+const MENU_TRACKS=()=>(NEWMUS&&window.SAMPLE_MANIFEST&&SAMPLE_MANIFEST.music&&SAMPLE_MANIFEST.music.tracks.menu_theme&&!/[?&]title=/.test(location.search))?['menu_theme','menu_asian','loss']:/[?&]title=surf/.test(location.search)?['menu']:/[?&]title=groove/.test(location.search)?['briefing']:((window.SAMPLE_MANIFEST&&SAMPLE_MANIFEST.music&&SAMPLE_MANIFEST.music.tracks&&SAMPLE_MANIFEST.music.tracks.menu_asian)?['menu_asian','loss']:['loss']);
 const TITLE_TRACK=/[?&]title=surf/.test(location.search)?'menu':'briefing';   /* ?title=surf: Happy Bee - Surf as before */
 const WRECKS=[]; const COVERP=!/[?&]cover=0/.test(location.search);
 /* firebase.js art (Artist Helper): walls draw unrotated with the V sprites; bunker frame by hp; PSP pad as 2x2 tiles under the 60x56 pad */
@@ -6676,7 +6683,7 @@ const HoverS={h:null,g:null,
     if(this.h&&(!w||this.g!==G)){ try{ this.h.stop(.8) }catch(e){} this.h=null; this.g=null }
     if(w&&!this.h){ this.g=G; this.h=SamplePlayer.evacBirdHover({vol:.9,fade:1.2}) } } };
 const MUSX={want:null,h:null,ld:false,ext:false,rep:null,key:null,
-  load(){ if(this.ld||!SAMP.on||!window.SamplePlayer||!SamplePlayer.loadMusic||!window.SAMPLE_MANIFEST)return; this.ld=true; SAMPLE_MANIFEST.music&&(SAMPLE_MANIFEST.music.base='audio/music/'); SamplePlayer.loadMusic(SAMPLE_MANIFEST,{tracks:MENU_TRACKS().slice(0,1)})   /* only the menu bed first: the calm stand-in no longer wins the race on a cold load */.then(r=>{ this.rep=[r]; return SamplePlayer.loadMusic(SAMPLE_MANIFEST,{tracks:['combat','intro_riff','extraction','briefing','win','loss'].concat(REIN_OK?['reinforcements']:[]),concurrency:1}) }).then(r=>{ this.rep.push(r) }).catch(()=>{}) },   /* QA: the 464 KB menu track first so the menu is never silent; the rest lazily, one at a time (not part of batch 1) */
+  load(){ if(this.ld||!SAMP.on||!window.SamplePlayer||!SamplePlayer.loadMusic||!window.SAMPLE_MANIFEST)return; this.ld=true; SAMPLE_MANIFEST.music&&(SAMPLE_MANIFEST.music.base='audio/music/'); SamplePlayer.loadMusic(SAMPLE_MANIFEST,{tracks:(NEWMUS&&MENU_TRACKS()[0]==='menu_theme'?['menu_intro']:[]).concat(MENU_TRACKS().slice(0,1))})   /* only the menu bed first: the calm stand-in no longer wins the race on a cold load */.then(r=>{ this.rep=[r]; return SamplePlayer.loadMusic(SAMPLE_MANIFEST,{tracks:['combat','intro_riff','extraction','briefing','win','loss'].concat(REIN_OK?['reinforcements']:[]).concat(NEWMUS?['combat_2','combat_3','combat_4','combat_5']:[]),concurrency:1}) }).then(r=>{ this.rep.push(r) }).catch(()=>{}) },   /* QA: the 464 KB menu track first so the menu is never silent; the rest lazily, one at a time (not part of batch 1) */
   has(n){ try{ return !!(n&&SamplePlayer.hasMusic(n)) }catch(e){ return false } },
   pick(){ if(Snd.muted)return null; const g=G, ex=g&&!g.demo?g.ex:null;
     if(state==='menu'){ for(const k of MENU_TRACKS())if(this.has(k))return k; return null } if(state==='brief'){ for(const k of MENU_TRACKS())if(this.has(k))return k; return this.has('briefing')?'briefing':null }   /* Blake Oct 14 night: the calm menu bed also under the opening briefing (a cold first load opens on it), so DD Groove no longer greets the player */   /* Blake Oct 14: the upbeat DD Groove back on the title/load screen (menu -> briefing continues the same track, no restart) */ if(state==='intro')return 'intro_riff';
@@ -6684,13 +6691,13 @@ const MUSX={want:null,h:null,ld:false,ext:false,rep:null,key:null,
     if(g&&!g.demo&&(state==='play'||state==='paused'||state==='sig'||state==='levelup'||state==='pause')){   /* Blake Oct 14: intense music during gameplay, one track at a time */
       { const S=g.spec; if(S&&REIN_OK&&S.musT0!==undefined&&!(ex&&ex.ph>=5)&&(performance.now()-S.musW0)/1000<54.9&&this.has('reinforcements'))return 'reinforcements' }   /* spec-ops touchdown sting (one track at a time; MUSX crossfades back) */
       if(ex&&ex.ph>=4)return 'extraction';   /* bird inbound / on the ground: Garage Rock loop */
-      const R=['combat','extraction'], lv=(g.p&&g.p.lvl)||1; return R[Math.floor((lv-1)/3)%2] }   /* rotate PSYCH ROCK / Garage Rock every 3 levels */
+      if(NEWMUS)return 'combat';   /* tiers 1-5 chosen by SamplePlayer.setCombatIntensity */ const R=['combat','extraction'], lv=(g.p&&g.p.lvl)||1; return R[Math.floor((lv-1)/3)%2] }   /* rotate PSYCH ROCK / Garage Rock every 3 levels */
     return null },
   tick(){ this.load(); const w=this.pick(), k=w+'|'+(w==='win'||w==='loss'||w==='intro_riff'?(G&&G.seed)+':'+(G&&G.t|0):''); this.ext=w==='extraction'&&this.has(w);
     const key=w==='win'||w==='loss'||w==='intro_riff'?w+'|'+(this.oneShot=this.oneShot&&this.oneShot.g===G&&this.oneShot.w===w?this.oneShot:{g:G,w}).w:w;
     if(key===this.key)return; if(w&&!this.has(w)){ if(this.h){ this.h.stop(.6); this.h=null } this.key=null; return }
     (this.log||(this.log=[])).push({t:+(performance.now()/1000).toFixed(2),state,from:this.key,to:key}); if(this.log.length>200)this.log.shift();
-    this.key=key; if(this.h){ this.h.stop(.8); this.h=null } if(w)this.h=SamplePlayer.playMusic(w,{fade:w==='intro_riff'?0:(w==='win'||w==='loss')?.1:w==='extraction'?1.5:w==='reinforcements'?.6:.8,vol:1}) } };
+    this.key=key; if(this.h){ this.h.stop(.8); this.h=null } if(w==='menu_theme'&&this.has('menu_intro')&&SamplePlayer.playMenu){ const r=SamplePlayer.playMenu({}); this.h=r&&{stop(f){ try{ r.intro&&r.intro.stop(f) }catch(e){} try{ r.loop&&r.loop.stop(f) }catch(e){} }} } else if(w)this.h=SamplePlayer.playMusic(w,{fade:w==='intro_riff'?0:(w==='win'||w==='loss')?.1:w==='extraction'?1.5:w==='reinforcements'?.6:.8,vol:1}) } };
 const RMUS={buf:null,ab:null,cur:null,
   fetch(){ if(this.ab||this.buf||this.busy)return; this.busy=1; let fmt='ogg'; try{ const a=document.createElement('audio'); if(!a.canPlayType('audio/ogg; codecs="vorbis"'))fmt='m4a' }catch(e){}
     fetch('audio/music/combat_loop.'+fmt+AV).then(r=>r.ok?r.arrayBuffer():null).then(ab=>{ this.ab=ab; this.decode() }).catch(()=>{}) },

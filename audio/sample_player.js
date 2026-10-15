@@ -692,6 +692,7 @@
     // playMusic(name, { when, fade = 0.5, vol = 1, offset }) -> { name, start, end, loop, stop(fade) } | null
     P.playMusic = function (name, o) {
       o = o || {}; if (!ctx) return null;
+      if (name === 'combat' && !o.exact) name = tierTrack(music.tier);   // 'combat' = the current combat tier (tier 1 = combat)
       var key = musicName(name), sp = music.spec, tr = sp && sp.tracks[key], buf = music.buffers[key];
       if (!tr) { info('unknown music slot "' + name + '"'); return null; }
       if (!buf) { info('music "' + name + '" not loaded; staying silent'); return null; }
@@ -712,6 +713,51 @@
       src.onended = function () { cur.dead = true; if (music.cur === cur) music.cur = null; };
       music.cur = cur;
       return { name: key, start: t, end: end, loop: cur.loop, stop: function (fd) { stopTrack(cur, now(), fd == null ? 0.5 : fd); if (music.cur === cur) music.cur = null; } };
+    };
+    // ---------- combat tiers (2026-10-14) ----------
+    // manifest.music.combatTiers = ['combat', 'combat_2', ... 'combat_5'] (tier 1..5, rising energy, all -13.6 LUFS).
+    // combatMusicTier(n, { waveBreak, force, fade = 2.5 }) changes track at the next PHRASE boundary (phraseBars bars at the
+    // track's bpm) with an equal crossfade. Mid-fight it only steps UP; stepping down needs waveBreak (or force).
+    // A cooldown (cfg.combatTierCooldownSec, default 25 s) stops it flipping back and forth.
+    // setCombatIntensity(level, wave, { waveBreak }) maps player level + wave number to a tier via cfg.combatTierWaves /
+    // cfg.combatTierLevels (the minimum wave / level for tiers 1..5); tier = the higher of the two.
+    music.tier = 1; music.tierAt = -1e9;
+    function tierList() { var sp = music.spec; return (sp && sp.combatTiers) || ['combat']; }
+    function tierTrack(n) { var l = tierList(); return l[Math.max(0, Math.min(l.length, n || 1) - 1)]; }
+    function thresholdTier(v, th) { var t = 1; for (var i = 0; i < th.length; i++) if (v >= th[i]) t = i + 1; return t; }
+    P.combatTierFor = function (level, wave) {
+      var tw = thresholdTier(wave || 1, cfg.combatTierWaves || [1, 3, 5, 7, 9]), tl = thresholdTier(level || 1, cfg.combatTierLevels || [1, 6, 11, 16, 22]);
+      return Math.min(tierList().length, Math.max(tw, tl));
+    };
+    P.combatMusicTier = function (n, o) {
+      o = o || {}; var max = tierList().length; n = Math.max(1, Math.min(max, Math.round(n || 1)));
+      if (!ctx) { music.tier = n; return n; }
+      var t = now(), cd = cfg.combatTierCooldownSec != null ? cfg.combatTierCooldownSec : 25;
+      if (n === music.tier) return n;
+      if (n < music.tier && !o.waveBreak && !o.force) return music.tier;              // never step down mid-fight
+      if (!o.force && t - music.tierAt < cd) return music.tier;                       // cooldown
+      music.tier = n; music.tierAt = t;
+      var c = music.cur; if (!c || c.dead || !c.intensity) return n;                  // not in combat music: next playMusic('combat') picks it up
+      var name = tierTrack(n), fade = o.fade != null ? o.fade : 2.5, tr = music.spec.tracks[c.name] || {};
+      var phrase = tr.phraseSec || (tr.phraseBars || 4) * 4 * 60 / (tr.bpm || 120), el = t - c.start, when = c.start + Math.ceil(el / phrase) * phrase;
+      if (when - t < 0.25) when += phrase;
+      if (!music.buffers[musicName(name)]) { info('combat tier ' + n + ' ("' + name + '") not loaded; staying on ' + c.name); return n; }
+      P.playMusic(name, { when: when, fade: fade, exact: true }); return n;
+    };
+    P.setCombatIntensity = function (level, wave, o) { return P.combatMusicTier(P.combatTierFor(level, wave), o); };
+    P.currentCombatTier = function () { return music.tier; };
+
+    // playMenu({ intro = 'menu_intro', loop = intro.next || 'menu', mode = 'crossfade' | 'butt', fade = 1.5 }) (2026-10-14):
+    // plays the intro sting, then the menu loop. 'crossfade' starts the loop on the intro's final chord (finalHitSec) with a fade;
+    // 'butt' starts it at the intro's end with no fade. If the intro isn't loaded, the loop starts straight away. Returns { intro, loop }.
+    P.playMenu = function (o) {
+      o = o || {}; if (!ctx) return null;
+      var sp = music.spec, iname = o.intro || 'menu_intro', it = sp && sp.tracks[iname], lname = o.loop || (it && it.next) || 'menu';
+      var t = o.when != null ? Math.max(o.when, now()) : now();
+      var intro = it && music.buffers[iname] ? P.playMusic(iname, { when: t, fade: 0 }) : null;
+      if (!intro) return { intro: null, loop: P.playMusic(lname, { when: t, fade: o.fade != null ? o.fade : 0.5 }) };
+      var butt = o.mode === 'butt', at = butt ? intro.end : t + (it.finalHitSec || (intro.end - t));
+      return { intro: intro, loop: P.playMusic(lname, { when: at, fade: butt ? 0 : (o.fade != null ? o.fade : 1.5) }) };
     };
     P.stopMusic = function (fade) { if (music.cur) { stopTrack(music.cur, now(), fade == null ? 0.5 : fade); music.cur = null; } };
     P.currentMusic = function () { return music.cur && !music.cur.dead ? music.cur.name : null; };

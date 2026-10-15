@@ -979,3 +979,11 @@ sting_over_1
 
 m3a1_burst_1..3  CLOSE STAND-IN from poissonmort #157206 Sten (CC BY 4.0, already credited above), pitched -2 st, ~450 rpm re-splice.
 m14_shot_1..3 from gezortenplotz #43756 (CC BY 3.0, already credited); thud_dirt uses FreqMan #43607 (CC BY 4.0, already credited); radio_pulse_1 uses LukaCafuka #760245 (CC0).
+
+=== DO NOT SHIP (PENDING Legal; /next/ only, never root/public) ===
+    combat_2: "60s Underground Organ Rock" by JuliusH (Pixabay)  https://pixabay.com/music/vintage-60s-underground-organ-rock-4209/
+    combat_3: "Steampunk Garage" by Pixabay user 4379051 (Pixabay)  https://pixabay.com/music/rock-steampunk-garage-142325/
+    combat_4: "Garage Rock" by NewEraMusic (Pixabay)  https://pixabay.com/music/rock-garage-rock-559346/
+    combat_5: "La Menteuse (garage punk instrumental)" by JoshuaHudesMusic (Pixabay)  https://pixabay.com/music/punk-la-menteuse-garage-punk-instrumental-201261/
+    menu_theme: "Zapatista garage punk instrumental" by JoshuaHudesMusic (Pixabay)  https://pixabay.com/music/rock-zapatista-garage-punk-instrumental-instrumental-201262/
+    menu_intro: "When Johnny Comes Marching Home" by U.S. Navy Band Brass Quartet (Wikimedia Commons, U.S. government work, public domain)  https://commons.wikimedia.org/wiki/File:When_Johnny_Comes_Marching_Home_-_Brass_Quartet_-_United_States_Navy_Band.opus
