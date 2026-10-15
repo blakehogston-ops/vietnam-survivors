@@ -5118,7 +5118,7 @@ window.addEventListener('pointerdown',e=>{ if(state!=='brief'||!BR)return; { con
 $('btnBrief').onclick=()=>startBrief();
 /* quick tutorial (Blake Oct 14 night): click-through cards, each one short line + a real screenshot from this build. Next/Back, Esc closes, touch + pad work.
    Offered once on first launch ('Quick tutorial? Yes / Skip'), then always on the menu. */
-const TUT={i:0,on:false,ask:false,C:[
+const TUT={i:0,on:false,ask:false,IMG:{move:1,squad:1,smoke:1,hold:1},C:[
   ['move','Move with WASD, the arrows, a stick, or drag on touch. Your weapons fire on their own.'],
   ['gems','Grab the green gems to level up, then pick one upgrade.'],
   ['squad','Your Marines fight beside you. The corpsman patches up anyone hit; keep them alive.'],
@@ -5134,7 +5134,7 @@ const TUT={i:0,on:false,ask:false,C:[
   r(){ const q=$('tut').querySelector('.tq');
     if(this.ask){ q.innerHTML='<div class="ask">Quick tutorial?</div><div class="tbr"><button class="btn" id="tutY">Yes</button><button class="btn alt" id="tutN">Skip</button></div>'; $('tutY').onclick=()=>this.go(1); $('tutN').onclick=()=>this.close(); return }
     const [k,t]=this.C[this.i], last=this.i===this.C.length-1;
-    q.innerHTML='<img alt="" src="assets/tut/'+k+'.webp" onerror="this.style.visibility=\'hidden\'"><div class="tl"></div><div class="tn">'+(this.i+1)+' / '+this.C.length+'</div><div class="tbr"><button class="btn alt" id="tutB"'+(this.i?'':' disabled')+'>Back</button><button class="btn" id="tutX">'+(last?'Done':'Next')+'</button><button class="btn alt" id="tutS">Skip</button></div>';
+    q.innerHTML=(TUT.IMG[k]?'<img alt="" src="assets/tut/'+k+'.webp">':'')+'<div class="tl"></div><div class="tn">'+(this.i+1)+' / '+this.C.length+'</div><div class="tbr"><button class="btn alt" id="tutB"'+(this.i?'':' disabled')+'>Back</button><button class="btn" id="tutX">'+(last?'Done':'Next')+'</button><button class="btn alt" id="tutS">Skip</button></div>';
     q.querySelector('.tl').textContent=t; $('tutB').onclick=()=>this.go(-1); $('tutX').onclick=()=>this.go(1); $('tutS').onclick=()=>this.close() },
   key(e){ if(!this.on)return false; if(e.code==='Escape'){ this.close() } else if(e.code==='ArrowRight'||e.code==='Enter'||e.code==='Space'||e.code==='KeyD'){ this.go(1) } else if(e.code==='ArrowLeft'||e.code==='KeyA'||e.code==='Backspace'){ this.go(-1) } e.preventDefault(); e.stopPropagation(); return true },
   pad(k,dx){ if(!this.on)return false; if(k==='A')this.go(1); else if(k==='B'||k==='ST')this.close(); else if(!k&&dx)this.go(dx>0?1:-1); return true } };
@@ -6416,7 +6416,7 @@ const EXW={B40:1.0,CHARGE:2.0};   /* manifest lead times (s); read from SAMPLE_M
 /* ===== MIX (Blake Oct 14: "a soup of sounds"): priority buses into the existing limiter.
    player 0 dB (never culled, prio 9) > special -1 dB (briefly ducks the rest) > squad -7 dB > enemy -11 dB (+ distance falloff, per-slot voice caps) > ambience -14 dB; music -9 dB vs player.
    Specials duck squad/enemy/ambience -6 dB, music -4 dB, player -1.5 dB for ~1.4 s. Callers tag squad / enemy sounds with MIX.as('squad'|'enemy', fn, dist). ===== */
-const MIX={DB:{player:0,special:-7,squad:-4,enemy:-1,amb:-10,rot:-8,mus:-14},   /* Sound Helper mix pass, Oct 14 night */
+const MIX={DB:{player:0,special:-7,squad:-4,enemy:3,amb:-10,rot:-8,mus:-14},   /* Sound Helper mix pass, Oct 14 night */
   DUCK:{player:-1.5,squad:-6,enemy:-6,amb:-6,rot:-6,mus:-4},DUCK_T:1.4,
   CAP:{enemy:{ak47:3,ak47_burst:2,sks:2,rpd_burst:2,b40_launch:2,mortar_launch:2,cannon:2},squad:{m16_single:3,m16_burst:2,m60_burst:2,shotgun_shot:1,bolt_rifle_shot:1,m79_launch:2,pbr_50cal_burst:2},_:4},
   SPECIAL:new Set(['bomb_distant','napalm_ignite','mortar_incoming','minigun_burst','strafe_20mm','tandem_rotor_flyby','huey_flyby','jet_flyby','radio_squelch','explosion_far','bugle','hymn']),
