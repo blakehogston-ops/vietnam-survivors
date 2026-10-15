@@ -3182,7 +3182,7 @@ const FT={
   /* trade fire: a man holding cover shoots every 1.3-2.7 s (tracer + a light hit chance on Doc or the nearest Marine) */
   fire(e,g,dt){ const T=e.ft; if(!T||T.st==='adv'||T.st==='ret'||e.dead)return; if(T.st==='bound'&&e.half===T.half&&!e.inCov)return; e.fT-=dt; if(e.fT>0)return; e.fT=1.3+rnd()*1.4;
     let p=g.p, d=Math.hypot(p.x-e.x,p.y-e.y), mt=null;
-    const hold=g.ex&&g.ex.ph>=3&&g.ex.ph<=5; if(hold&&d<520&&d>60&&rnd()<PACE.HOLD_DOC){ g.holdShots=(g.holdShots|0)+1; if(rnd()<PACE.SHOT_HIT*1.3*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,'rifle fire on the pad') }   /* Gamer 134331: extra fire aimed at Doc during the hold (on top of the normal shot, so the Marine curve is unchanged) */
+    const hold=g.ex&&g.ex.ph>=3&&g.ex.ph<=5; if(hold&&d<520&&d>60&&rnd()<PACE.HOLD_DOC*(g.ex.ph===3?1:.5)){ g.holdShots=(g.holdShots|0)+1; if(rnd()<PACE.SHOT_HIT*1.3*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,'rifle fire on the pad') }   /* Gamer 134331: extra fire aimed at Doc during the hold (on top of the normal shot, so the Marine curve is unchanged) */
     if(rnd()<PACE.M_TGT){ let bd=460; for(const L of [squad,coy])for(const m of L){ if(m.hp<=0||m.state!=='ok'||m.hid)continue; const q=Math.hypot(m.x-e.x,m.y-e.y); if(q<bd){bd=q;mt=m} } if(mt){ p=mt; d=bd } }
     if(d>540||d<(mt?20:60))return; e.fire=.25; const a=Math.atan2(p.y-e.y,p.x-e.x)+(rnd()-.5)*.12, sp=430;
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
