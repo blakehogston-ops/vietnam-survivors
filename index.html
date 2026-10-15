@@ -3964,7 +3964,7 @@ const IMP={ON:!/[?&]imp=0\b/.test(location.search), n:0, st:0, ck:0,
     for(const t of strs)if(!t.dead&&Math.abs(t.x-x)<20&&Math.abs(t.y-y)<14){ const y2=t.type; if(y2==='pad')break; return y2==='bunker'||y2==='sandbag'||y2==='tent'?'bag':'metal' }
     const DC=190, cx0=Math.floor(x/DC), cy0=Math.floor(y/DC); for(let cx=cx0-1;cx<=cx0+1;cx++)for(let cy=cy0-1;cy<=cy0+1;cy++){ if(hash2(cx,cy)>.42)continue; const dx=cx*DC+hash2(cx-5,cy+3)*DC-x, dy=cy*DC+hash2(cx+7,cy-9)*DC-y; if(dx*dx+dy*dy>18*18)continue; const di=DECOR_W[Math.floor(hash2(cx+91,cy-17)*DECOR_W.length)]; return di<=9||di===13||di===14?'tree':di===10?'metal':di===12?'bag':'dirt' }
     let m='G'; try{ m=TERR.mat(Math.floor(x/32),Math.floor(y/32)) }catch(e){} return m==='W'?'water':m==='J'?'tree':m==='P'?'mud':'dirt' },
-  hit(x,y,a,hv){ if(!G||G.demo)return; const dx=x-G.p.x, dy=y-G.p.y; if(Math.abs(dx)>620||Math.abs(dy)>420)return; const lo=COARSE.matches||LOWFX; if(lo&&(++this.n&1))return; if(parts.length>(lo?150:380))return;
+  hit(x,y,a,hv){ if(!G||G.demo)return; const dx=x-G.p.x, dy=y-G.p.y; if(Math.abs(dx)>620||Math.abs(dy)>420)return; const lo=COARSE.matches||LOWFX; if(lo&&((++this.n)%3))return; if(parts.length>(lo?120:380))return;
     x+=(rnd()-.5)*10; y+=(rnd()-.5)*8; const k=this.surf(x,y), q=lo?.5:1, P=(n,f)=>{ for(let i=0;i<Math.max(1,Math.round(n*q));i++)f() };
     if(k==='water'){ WFX.hit(x,y,hv?'heavy':'small',a); return }
     if(k==='dirt'||k==='mud')P(hv?5:3,()=>addPart(x,y-1,(rnd()-.5)*40,-20-rnd()*40,.35+rnd()*.2,1.6+rnd(),k==='mud'?'#5a5236':'#8a7650',false,4));
@@ -3984,7 +3984,7 @@ const IMP={ON:!/[?&]imp=0\b/.test(location.search), n:0, st:0, ck:0,
 const MZW={z:1,cx:0,cy:0,ON:!/[?&]mzf=0\b/.test(location.search),n:0};
 function MZ(o,f,id,lx,ly,la){ const v=o[f]; if(!(v>(o['_z'+f]||0))){ o['_z'+f]=v; return MZW.ON&&!!window.VFX_MUZZLE } o['_z'+f]=v; if(!MZW.ON||!window.VFX_MUZZLE)return false;
   try{ const M=ctx.getTransform(), X=M.a*lx+M.c*ly+M.e, Y=M.b*lx+M.d*ly+M.f, wx=X/MZW.z+MZW.cx, wy=Y/MZW.z+MZW.cy; if(G&&(Math.abs(wx-G.p.x)>700||Math.abs(wy-G.p.y)>460))return true;
-    if((COARSE.matches||LOWFX)&&(++MZW.n&1)&&id!=='m48'&&id!=='pt76'&&id!=='howitzer'&&id!=='m40')return true;
+    if((COARSE.matches||LOWFX)&&((++MZW.n)%4)&&id!=='m48'&&id!=='pt76'&&id!=='howitzer'&&id!=='m40')return true;
     VFX_MUZZLE.spawn(VFX_MUZZLE.typeOf(id)?id:'m16',wx,wy,la+Math.atan2(M.b,M.a),{brass:false}) }catch(e){} return true }
 /* BARK (Blake, Oct 15): Marine dialogue barks, same pop-text idea as the VC phrases. TEXT ONLY: the lines are pending Vietnam Vet review and no
    voice clips are licensed; the only audio is the already-cleared hurt_grunt on a wounded Marine's cry (distance-gated). Period 1968 USMC talk,
@@ -4075,7 +4075,7 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
     if(T.cards){ const x=Math.round(T.cx), y=Math.round(T.cy); ctx.fillStyle='#4a5230'; ctx.fillRect(x-7,y-3,14,7); ctx.fillStyle='#2e3320'; ctx.fillRect(x-7,y+3,14,1); ctx.fillStyle='#e8e4d6'; ctx.fillRect(x-4,y-3,2,3); ctx.fillRect(x+1,y-2,2,3); ctx.fillStyle='#b03028'; ctx.fillRect(x+1,y-2,1,1) }
     for(const m of T.men){ if(m.idle!==1&&m.idle!==2)continue; const hx=Math.round(m.x+(m.face<0?-4:4)), hy=Math.round(m.y-22); const glow=.6+.4*Math.sin(t*3+m.x); ctx.fillStyle='rgba(255,'+(110+60*glow|0)+',40,1)'; ctx.fillRect(hx,hy,1,1);
       for(let k=0;k<3;k++){ const a=((t*.5+k/3+m.x*.01)%1); ctx.globalAlpha=.35*(1-a); ctx.fillStyle='#c9c6bc'; ctx.fillRect(Math.round(hx+Math.sin(a*6+k)*2),Math.round(hy-2-a*12),1,2) } ctx.globalAlpha=1 } },
-  draw(){ this.props(); for(const b of this.L){ const m=b.m, c=b.vc?this.sprVC(b.t):this.spr(b.t), k=Math.min(1,b.a/.14), fo=Math.min(1,(b.life-b.a)/.3); ctx.globalAlpha=Math.max(0,fo)*Math.min(1,k*1.5); ctx.drawImage(c,Math.round(m.x-c.width/2),Math.round(m.y-40-Math.min(5,b.a*10)-c.height)); } ctx.globalAlpha=1 } };
+  draw(){ this.props(); const used=[]; for(const b of this.L){ const m=b.m, c=b.vc?this.sprVC(b.t):this.spr(b.t), k=Math.min(1,b.a/.14), fo=Math.min(1,(b.life-b.a)/.3); ctx.globalAlpha=Math.max(0,fo)*Math.min(1,k*1.5); let bx=Math.round(m.x-c.width/2), by=Math.round(m.y-40-Math.min(5,b.a*10)-c.height); for(const u of used){ if(bx<u[0]+u[2]&&bx+c.width>u[0]&&by<u[1]+u[3]&&by+c.height>u[1])by=u[1]-c.height-2 } used.push([bx,by,c.width,c.height]); ctx.drawImage(c,bx,by); } ctx.globalAlpha=1 } };
 /* VFX_VEHICLE_HIT (Artist Helper vehicle_hits.js, Oct 15): visuals only, no HP/damage change. Hits on tanks / PT-76 / Hueys / boats, plus a
    persistent damage-state emitter keyed per vehicle (level from HP: >.66 clear, >.33 smoke, else fire; death cook-off 3 -> burning wreck 4).
    Emitters are detached on reset/wreck expiry. Skipped far off-screen. ?vhit=0 = old particles */
@@ -4085,7 +4085,7 @@ const VHX={ON:!/[?&]vhit=0\b/.test(location.search), n:0, A:null,
   near(x,y){ return Math.abs(x-G.p.x)<VW/2+160&&Math.abs(y-G.p.y)<VH/2+160 },
   ang(o){ const a=this.A; this.A=null; return a!==null&&a!==undefined?a:Math.atan2(o.y-G.p.y,o.x-G.p.x) },
   lvl(o,f){ const k=o.hp/(o.mhp||1); const L=k>.66?0:k>.33?1:2; if(L!==o._vl){ o._vl=L; try{ L?VFX_VEHICLE_HIT.attachToVehicle(this.id(o),L,Object.assign({follow:o},f||{})):VFX_VEHICLE_HIT.detach(this.id(o)) }catch(e){} } },
-  hit(kind,o,x,y,opts){ if(!this.ok()||!this.near(x,y))return false; try{ VFX_VEHICLE_HIT.hit(kind,o,x,y,this.ang(o),opts||{}) }catch(e){} return true },
+  hit(kind,o,x,y,opts){ if(!this.ok()||!this.near(x,y))return false; if((COARSE.matches||LOWFX)&&(kind==='small'||kind==='mg')&&rnd()<.75)return true; try{ VFX_VEHICLE_HIT.hit(kind,o,x,y,this.ang(o),opts||{}) }catch(e){} return true },
   kill(o,f){ if(!this.ok())return false; const id=this.id(o); try{ VFX_VEHICLE_HIT.attachToVehicle(id,3,Object.assign({follow:o,turretPop:rnd()<.35},f||{})); setTimeout(()=>{ try{ VFX_VEHICLE_HIT.attachToVehicle(id,4,Object.assign({follow:o},f||{})) }catch(e){} },1500) }catch(e){} return true },
   reset(){ try{ window.VFX_VEHICLE_HIT&&VFX_VEHICLE_HIT.reset() }catch(e){} } };
 const TANKK=[{nm:'M48A3 Patton',spd:100,rr:26},{nm:'M67A2 "Zippo" Flame Tank',spd:96,rr:26},{nm:'M50A1 Ontos',spd:150,rr:20}];
