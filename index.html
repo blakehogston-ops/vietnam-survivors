@@ -4114,7 +4114,7 @@ function PADRUSH(dt){ const g=G; if(!PADRUSH_ON||!g||g.demo||state!=='play'||!g.
 const MEDV={ON:!/[?&]medv=0\b/.test(location.search)&&!!(window.AID_JEEP&&window.SHEET1&&SHEET1.drawLVTP5&&SHEET1.sprites.fb2AidStation), on:0, J:null, A:[], st:null, nJ:0, nA:0,
   reset(){ this.on=0; this.J=null; this.A=[]; this.st=null; this.nJ=0; this.nA=0 },
   hd(dx,dy){ return ((Math.round(Math.atan2(dy,dx)/(Math.PI/4))%8)+8)%8 },
-  mk(f){ this.on=1; this.st={x:f.x+100,y:f.y+96}; this.J={x:f.x+100,y:f.y+150,hx:f.x+100,hy:f.y+150,h:0,s:'park',m:null,cd:20,load:0,mv:0};
+  mk(f){ this.on=1; this.st={x:f.x-320,y:f.y}; this.J={x:f.x-320,y:f.y+62,hx:f.x-320,hy:f.y+62,h:0,s:'park',m:null,cd:20,load:0,mv:0};
     this.A=[{v:'troop',x:f.x-205,y:f.y-70,h:2,ramp:0,cd:0},{v:'medic',x:f.x-205,y:f.y+70,h:2,ramp:0,cd:0,m:null}] },
   tick(dt){ const g=G, f=fbS; if(!this.ON||!g||g.demo||!f||f.state!=='done')return; if(!this.on)this.mk(f); const late=g.ex&&g.ex.ph>=4;   /* runs through the hold; stops once the bird is inbound */
     const J=this.J; J.cd-=dt; const go=(tx,ty,sp)=>{ const dx=tx-J.x,dy=ty-J.y,d=Math.hypot(dx,dy); if(d<4)return true; J.h=this.hd(dx,dy); J.x+=dx/d*Math.min(d,sp*dt); J.y+=dy/d*Math.min(d,sp*dt); J.mv=1; return false };
@@ -4153,7 +4153,7 @@ const CREWX={ON:!/[?&]crewx=0\b/.test(location.search)&&!!(window.SHEET1&&SHEET1
 const GUNS={ON:!/[?&]guns=0\b/.test(location.search)&&!!(window.SHEET1&&SHEET1.MORTAR_CREW&&SHEET1.sprites.fb2MortarPit), P:[], R:[],
   reset(){ this.P=[]; this.R=[] },
   mk(f){ const HS=['hN','hNE','hE','hSE','hS','hSW','hW','hNW'];
-    this.P=[{k:'m',x:f.x-56,y:f.y+24,ct:2200,t:0,fired:0,pile:0,h:'hN'},{k:'h',x:f.x+44,y:f.y+8,ct:6000,t:1500,fired:0,pile:0,h:'hN',HS}] },
+    this.P=[{k:'m',x:f.x-48,y:f.y+128,ct:2200,t:0,fired:0,pile:0,h:'hN'},{k:'h',x:f.x+92,y:f.y+92,ct:6000,t:1500,fired:0,pile:0,h:'hN',HS}] },
   tgt(f,g){ let b=null,bd=1e9; for(const e of enemies){ if(e.dead)continue; const d=Math.hypot(e.x-f.x,e.y-f.y); if(d<110||d>620)continue; if(d<bd){bd=d;b=e} } return b },
   tick(dt){ const g=G, f=fbS; if(!this.ON||!g||g.demo||!f||f.state!=='done')return; if(!this.P.length)this.mk(f);
     for(const q of this.P){ const e=this.tgt(f,g); if(!e&&q.t<10){ q.t=0; continue }
