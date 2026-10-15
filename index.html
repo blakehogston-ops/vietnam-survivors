@@ -161,6 +161,10 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 #tut .tbr{display:flex;gap:10px;justify-content:center}#tut .btn{margin:0;min-width:96px;touch-action:manipulation}#tut .ask{font-size:18px;margin:6px 0 14px}
 .howto{line-height:1.7}
 @media (max-width:600px){#menu .bstamp{display:none}}
+#kb{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}#kb.on{display:block}
+#kb i{position:absolute;inset:-6%;background:center/cover no-repeat;opacity:0;transition:opacity 2.5s ease;filter:sepia(.25) contrast(1.05)}#kb i.show{opacity:.30}
+#kb i.go{animation:kbz 16s linear forwards}@keyframes kbz{from{transform:scale(1) translate(0,0)}to{transform:scale(1.12) translate(-2%,-1.5%)}}
+#menu>*:not(#kb){position:relative;z-index:1}
 </style>
 </head>
 <body>
@@ -171,6 +175,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 
 <div id="tut"><div class="tb"><div class="tq"></div></div></div>
 <div id="menu" class="overlay show">
+  <div id="kb"><i></i><i></i></div>
   <div class="bstamp"></div>
   <h1>LAST CHOPPER <span>OUT</span></h1>
   <div class="sub">Quang Tri, 1968</div>
@@ -193,6 +198,12 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   <div class="tribute">✦ In memory of the KC-135 crew chiefs: they kept them flying. ✦</div>
   <div class="foot">A stylized arcade tribute to the Marines who served in Vietnam.<br><b style="color:#d65a4a">Mature: stylized violence</b> — cartoon pixel blood &amp; gore.</div>
 <details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">
+<p class="crh"><b>PHOTOGRAPHS (public domain, US government)</b></p>
+<p>Marines offload from a CH-46 during Operation Auburn, January 1968. U.S. Marine Corps photo, National Archives at College Park (via DPLA / Wikimedia Commons). Public domain.</p>
+<p>Marines offload a CH-53 at Khe Sanh, 23 January 1968. U.S. Marine Corps photo, National Archives and Records Administration (via DPLA / Wikimedia Commons). Public domain.</p>
+<p>1st Battalion, 4th Marines build a bunker at Con Thien (C-4), January 1968. Department of Defense (USMC) photo A190197. Public domain.</p>
+<p>Battery W, 1st Battalion, 13th Marines prepare to load a howitzer at Khe Sanh, 1968. Department of Defense (USMC) photo A190292. Public domain.</p>
+<p>PBR crewmen on patrol, January 1968. Naval History and Heritage Command NH 96707, photo by Lt.(jg) T. S. Storck, USNR. Public domain.</p>
 <p class="crh"><b>AUDIO</b></p>
 <p class="crh"><b>Sound effects (Creative Commons Attribution)</b></p>
 <p>"UH-1 "Huey" Iroquois Helicopter" by OroborosNZ, <a href="https://freesound.org/people/OroborosNZ/sounds/157722/" target="_blank" rel="noopener">https://freesound.org/people/OroborosNZ/sounds/157722/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, looped, level-adjusted.</p>
@@ -269,6 +280,12 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label>
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
   <details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">
+<p class="crh"><b>PHOTOGRAPHS (public domain, US government)</b></p>
+<p>Marines offload from a CH-46 during Operation Auburn, January 1968. U.S. Marine Corps photo, National Archives at College Park (via DPLA / Wikimedia Commons). Public domain.</p>
+<p>Marines offload a CH-53 at Khe Sanh, 23 January 1968. U.S. Marine Corps photo, National Archives and Records Administration (via DPLA / Wikimedia Commons). Public domain.</p>
+<p>1st Battalion, 4th Marines build a bunker at Con Thien (C-4), January 1968. Department of Defense (USMC) photo A190197. Public domain.</p>
+<p>Battery W, 1st Battalion, 13th Marines prepare to load a howitzer at Khe Sanh, 1968. Department of Defense (USMC) photo A190292. Public domain.</p>
+<p>PBR crewmen on patrol, January 1968. Naval History and Heritage Command NH 96707, photo by Lt.(jg) T. S. Storck, USNR. Public domain.</p>
 <p class="crh"><b>AUDIO</b></p>
 <p class="crh"><b>Sound effects (Creative Commons Attribution)</b></p>
 <p>"UH-1 "Huey" Iroquois Helicopter" by OroborosNZ, <a href="https://freesound.org/people/OroborosNZ/sounds/157722/" target="_blank" rel="noopener">https://freesound.org/people/OroborosNZ/sounds/157722/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, looped, level-adjusted.</p>
@@ -5175,6 +5192,14 @@ const TUT={i:0,on:false,ask:false,IMG:{move:1,squad:1,smoke:1,hold:1},C:[
   key(e){ if(!this.on)return false; if(e.code==='Escape'){ this.close() } else if(e.code==='ArrowRight'||e.code==='Enter'||e.code==='Space'||e.code==='KeyD'){ this.go(1) } else if(e.code==='ArrowLeft'||e.code==='KeyA'||e.code==='Backspace'){ this.go(-1) } e.preventDefault(); e.stopPropagation(); return true },
   pad(k,dx){ if(!this.on)return false; if(k==='A')this.go(1); else if(k==='B'||k==='ST')this.close(); else if(!k&&dx)this.go(dx>0?1:-1); return true } };
 $('btnTut').onclick=()=>TUT.open(false);
+/* real archive photos (public domain, US government: NARA / USMC History Division / NHHC) as a slow Ken Burns layer behind the menu. Lazy: a photo
+   is fetched only when the menu shows it. OFF until Vietnam Vet verifies captions and dates: ?photos=1. Sources: THIRD_PARTY_ASSETS.txt + credits. */
+const KB={ON:/[?&]photos=1\b/.test(location.search),L:['ch46_auburn','ch53_khesanh','conthien_bunker','pbr_nh96707','khesanh_howitzer'],i:0,f:0,t:null,
+  start(){ if(!this.ON||this.t)return; $('kb').classList.add('on'); this.step(); this.t=setInterval(()=>this.step(),14000) },
+  stop(){ clearInterval(this.t); this.t=null; $('kb').classList.remove('on') },
+  step(){ if(state!=='menu'){ return } const E=$('kb').children, a=E[this.f], b=E[1-this.f], k=this.L[this.i++%this.L.length];
+    a.style.backgroundImage='url(assets/photos/'+k+'.webp)'; a.classList.remove('go'); void a.offsetWidth; a.classList.add('show','go'); b.classList.remove('show'); this.f=1-this.f } };
+setInterval(()=>{ if(state==='menu')KB.start(); else if(KB.t)KB.stop() },1000);
 window.addEventListener('keydown',e=>TUT.key(e),true);
 { const iv=setInterval(()=>{ let a=false; try{a=localStorage.getItem('lbo2_tutAsk')==='1'}catch(e){} if(a||DBG.bot||params.has('autostart')||DBG.t>0||/[?&]notut\b/.test(location.search)){ clearInterval(iv); return }
   if(state==='menu'&&!$('charsel').classList.contains('show')){ clearInterval(iv); TUT.open(true) } },500) }

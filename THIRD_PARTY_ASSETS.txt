@@ -1,0 +1,32 @@
+
+[photos, Oct 14 night] Public-domain US government photographs (menu background, ?photos=1). Captions/dates pending Vietnam Vet verification.
+assets/photos/khesanh_howitzer.webp: Marines load an M118 howitzer, Khe Sanh 1968.jpg
+    Caption (source): Marines of Battery W, 1st Battalion, 13th Marines at Khe Sanh are seen preparing to load a M114A 155mm howitzer.
+    Author: Department of Defense (USMC) photo A190292
+    Source: https://commons.wikimedia.org/wiki/File:Marines_load_an_M118_howitzer,_Khe_Sanh_1968.jpg
+    Credit: http://www.marines.mil U.S. Marines in Vietnam 1968 The Defining Year p538
+    Basis: Public domain (work of a US federal employee/military member in official duties, 17 U.S.C. 105). Edited: greyscale, resized, WebP.
+assets/photos/pbr_nh96707.webp: NH 96707.jpg
+    Caption (source): River patrol boat (PBR) crewmen check a Vietnamese identification card, during a patrol in the Mekong Delta and Rung Sat special zone, January 1968. Men are (l-r): Quartermaster First Class Steward Hickman, EngM3 Ronald Bartelmel, GM3 J. D. Glynn. Note Honeywell Mk18 40mm grenade
+    Author: Naval History and Heritage Command NH 96707 photo by Lieutenant Junior Grade T. S. Storck, USNR
+    Source: https://commons.wikimedia.org/wiki/File:NH_96707.jpg
+    Credit: https://www.history.navy.mil/our-collections/photography/numerical-list-of-images/nhhc-series/nh-series/NH-96000/NH-96707.html
+    Basis: Public domain (work of a US federal employee/military member in official duties, 17 U.S.C. 105). Edited: greyscale, resized, WebP.
+assets/photos/ch46_auburn.webp: 3.5 Marines offload from CH-46 during Operation Auburn.jpg
+    Caption (source): The following information was provided by digitizing partner Fold3: Browse Subject: Helicopters CH-46 Subject Description: Helicopters CH-46 Category: Helicopters Place: Vietnam Date Month: January Date Day: 1 Date Year: 1968
+    Author: Department of Defense. Department of the Navy. U.S. Marine Corps. 9/18/1947
+    Source: https://commons.wikimedia.org/wiki/File:3.5_Marines_offload_from_CH-46_during_Operation_Auburn.jpg
+    Credit: This file was contributed to Wikimedia Commons by National Archives at College Park - Still Pictures as part of a cooperation project. The donation was facilitated by the Digital Public Library of Ame
+    Basis: Public domain (work of a US federal employee/military member in official duties, 17 U.S.C. 105). Edited: greyscale, resized, WebP.
+assets/photos/conthien_bunker.webp: Marines build a fighting bunker, Con Thien, January 1968.jpg
+    Caption (source): A Marine platoon from the 1st Battalion, 4th Marines is seen at work building a bunker emplacement at C-4 Con Thien with sandbags for overhead cover in January
+    Author: Department of Defense (USMC) photo A190197
+    Source: https://commons.wikimedia.org/wiki/File:Marines_build_a_fighting_bunker,_Con_Thien,_January_1968.jpg
+    Credit: http://www.marines.mil U.S. Marines in Vietnam 1968 The Defining Year
+    Basis: Public domain (work of a US federal employee/military member in official duties, 17 U.S.C. 105). Edited: greyscale, resized, WebP.
+assets/photos/ch53_khesanh.webp: Marines offload a CH-53 at Khe Sanh, 23 January 1968.jpg
+    Caption (source): The following information was provided by digitizing partner Fold3: Browse Subject: Supply (loading and unloading of gear) Subject Description: Supply (loading and unloading of gear) Category: Equipment Place: Vietnam Date Month: January Date Day: 23 Date Year: 1968
+    Author: Department of Defense. Department of the Navy. U.S. Marine Corps. 9/18/1947
+    Source: https://commons.wikimedia.org/wiki/File:Marines_offload_a_CH-53_at_Khe_Sanh,_23_January_1968.jpg
+    Credit: This file was contributed to Wikimedia Commons by National Archives and Records Administration as part of a cooperation project. The donation was facilitated by the Digital Public Library of America, 
+    Basis: Public domain (work of a US federal employee/military member in official duties, 17 U.S.C. 105). Edited: greyscale, resized, WebP.
