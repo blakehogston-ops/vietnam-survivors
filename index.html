@@ -3183,7 +3183,7 @@ const FT={
   /* trade fire: a man holding cover shoots every 1.3-2.7 s (tracer + a light hit chance on Doc or the nearest Marine) */
   fire(e,g,dt){ const T=e.ft; if(!T||T.st==='adv'||T.st==='ret'||e.dead)return; if(T.st==='bound'&&e.half===T.half&&!e.inCov)return; e.fT-=dt; if(e.fT>0)return; e.fT=1.3+rnd()*1.4;
     let p=g.p, d=Math.hypot(p.x-e.x,p.y-e.y), mt=null;
-    const hold=g.ex&&g.ex.ph>=3&&g.ex.ph<=5; if(hold&&d<520&&d>60&&rnd()<PACE.HOLD_DOC*(g.ex.ph===3?1:.5)){ g.holdShots=(g.holdShots|0)+1; if(rnd()<PACE.SHOT_HIT*1.3*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,'rifle fire on the pad') }   /* Gamer 134331: extra fire aimed at Doc during the hold (on top of the normal shot, so the Marine curve is unchanged) */
+    const hold=g.ex&&g.ex.ph>=3&&g.ex.ph<=5; if(hold&&d<520&&d>60&&rnd()<PACE.HOLD_DOC*(g.ex.ph===3?1:.2)){ g.holdShots=(g.holdShots|0)+1; if(rnd()<PACE.SHOT_HIT*1.3*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,'rifle fire on the pad') }   /* Gamer 134331: extra fire aimed at Doc during the hold (on top of the normal shot, so the Marine curve is unchanged) */
     if(rnd()<PACE.M_TGT){ let bd=460; for(const L of [squad,coy])for(const m of L){ if(m.hp<=0||m.state!=='ok'||m.hid)continue; const q=Math.hypot(m.x-e.x,m.y-e.y); if(q<bd){bd=q;mt=m} } if(mt){ p=mt; d=bd } }
     if(d>540||d<(mt?20:60))return; e.fire=.25; const a=Math.atan2(p.y-e.y,p.x-e.x)+(rnd()-.5)*.12, sp=430;
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
@@ -4105,7 +4105,7 @@ const VHX={ON:!/[?&]vhit=0\b/.test(location.search), n:0, A:null,
    drill's 'fire' step (flash + sound + round), impact after the flight time. Casing pile grows at the 105, fired tubes/crates pile at the mortar. ?guns=0 = off */
 /* PADRUSH (Gamer 134331): during the hold a small VC rush (3) comes at the pad every ~24 s from off-screen, so Doc can't idle there. ?padrush=0 = off */
 const PADRUSH_ON=!/[?&]padrush=0\b/.test(location.search);
-function PADRUSH(dt){ const g=G; if(!PADRUSH_ON||!g||g.demo||state!=='play'||!g.ex||!g.ex.pad||g.ex.ph<3||g.ex.ph>5)return; g.prT=(g.prT==null?10:g.prT)-dt; if(g.prT>0)return; g.prT=22+rnd()*6;
+function PADRUSH(dt){ const g=G; if(!PADRUSH_ON||!g||g.demo||state!=='play'||!g.ex||!g.ex.pad||g.ex.ph!==3)return; g.prT=(g.prT==null?10:g.prT)-dt; if(g.prT>0)return; g.prT=22+rnd()*6;
   const P=g.ex.pad, a=rnd()*TAU; let n=0; for(let k=0;k<3;k++){ if(enemies.length>=440)break; const e=spawnEnemy('vc',P.x+Math.cos(a)*340+(rnd()-.5)*50,P.y+Math.sin(a)*340+(rnd()-.5)*50,true); if(e){ e.padRush=1; n++ } } g.prN=(g.prN|0)+n }
 /* MEDV (Blake-approved build): firebase medical vehicles, only once the base is DONE and until the bird is inbound; no vehicle HP (balance rule).
    Aid jeep (AID_JEEP m151): a Marine under 60% within 520 px of the base -> the jeep drives out, loads him (litter), drives back to the aid
