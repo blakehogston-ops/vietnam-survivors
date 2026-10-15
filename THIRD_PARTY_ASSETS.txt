@@ -30,3 +30,7 @@ assets/photos/ch53_khesanh.webp: Marines offload a CH-53 at Khe Sanh, 23 January
     Source: https://commons.wikimedia.org/wiki/File:Marines_offload_a_CH-53_at_Khe_Sanh,_23_January_1968.jpg
     Credit: This file was contributed to Wikimedia Commons by National Archives and Records Administration as part of a cooperation project. The donation was facilitated by the Digital Public Library of America, 
     Basis: Public domain (work of a US federal employee/military member in official duties, 17 U.S.C. 105). Edited: greyscale, resized, WebP.
+assets/photos/pbr_perfume.webp (replaces pbr_nh96707, per Vietnam Vet: an I Corps PBR photo): "PBR checks IDs of Vietnamese sampan crew on the Perfume River"
+    Caption (source): PERFUME RIVER, REPUBLIC OF VIETNAM...Vietnamese aboard a junk show their identification papers to the crewmen of a U.S. Navy River Patrol Boat (PBR). 20 August 1968.
+    Author: LT Storck. Source: https://commons.wikimedia.org/wiki/File:PBR_checks_IDs_of_Vietnamese_sampan_crew_on_the_Perfume_River.jpg ; NARA 127-GVC-127-A704280
+    Basis: Public domain (US government work, 17 U.S.C. 105). Edited: greyscale, WebP. (Game caption new: needs a quick Vet re-check.)

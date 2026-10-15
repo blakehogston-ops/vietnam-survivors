@@ -204,7 +204,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <p>Marines offload a CH-53 at Khe Sanh, 23 January 1968. U.S. Marine Corps photo, National Archives and Records Administration (via DPLA / Wikimedia Commons). Public domain.</p>
 <p>1st Battalion, 4th Marines build a bunker at Con Thien (C-4), January 1968. Department of Defense (USMC) photo A190197. Public domain.</p>
 <p>155mm howitzer, Battery W, 1/13 Marines, Khe Sanh, 1968. Department of Defense (USMC) photo A190292. Public domain.</p>
-<p>PBR crewmen on patrol, Mekong Delta / Rung Sat, January 1968. Naval History and Heritage Command NH 96707, photo by Lt.(jg) T. S. Storck, USNR. Public domain.</p>
+<p>PBR crewmen check a junk's papers on the Perfume River, Republic of Vietnam, 20 August 1968. Photo by LT Storck, National Archives 127-GVC-127-A704280 (via Wikimedia Commons). Public domain.</p>
 <p class="crh"><b>AUDIO</b></p>
 <p class="crh"><b>Sound effects (Creative Commons Attribution)</b></p>
 <p>"UH-1 "Huey" Iroquois Helicopter" by OroborosNZ, <a href="https://freesound.org/people/OroborosNZ/sounds/157722/" target="_blank" rel="noopener">https://freesound.org/people/OroborosNZ/sounds/157722/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, looped, level-adjusted.</p>
@@ -286,7 +286,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <p>Marines offload a CH-53 at Khe Sanh, 23 January 1968. U.S. Marine Corps photo, National Archives and Records Administration (via DPLA / Wikimedia Commons). Public domain.</p>
 <p>1st Battalion, 4th Marines build a bunker at Con Thien (C-4), January 1968. Department of Defense (USMC) photo A190197. Public domain.</p>
 <p>155mm howitzer, Battery W, 1/13 Marines, Khe Sanh, 1968. Department of Defense (USMC) photo A190292. Public domain.</p>
-<p>PBR crewmen on patrol, Mekong Delta / Rung Sat, January 1968. Naval History and Heritage Command NH 96707, photo by Lt.(jg) T. S. Storck, USNR. Public domain.</p>
+<p>PBR crewmen check a junk's papers on the Perfume River, Republic of Vietnam, 20 August 1968. Photo by LT Storck, National Archives 127-GVC-127-A704280 (via Wikimedia Commons). Public domain.</p>
 <p class="crh"><b>AUDIO</b></p>
 <p class="crh"><b>Sound effects (Creative Commons Attribution)</b></p>
 <p>"UH-1 "Huey" Iroquois Helicopter" by OroborosNZ, <a href="https://freesound.org/people/OroborosNZ/sounds/157722/" target="_blank" rel="noopener">https://freesound.org/people/OroborosNZ/sounds/157722/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, looped, level-adjusted.</p>
@@ -5203,7 +5203,7 @@ const TUT={i:0,on:false,ask:false,IMG:{move:1,squad:1,smoke:1,hold:1},C:[
 $('btnTut').onclick=()=>TUT.open(false);
 /* real archive photos (public domain, US government: NARA / USMC History Division / NHHC) as a slow Ken Burns layer behind the menu. Lazy: a photo
    is fetched only when the menu shows it. Captions verified by Vietnam Vet (Oct 14 night). ON; ?photos=0 off. Sources: THIRD_PARTY_ASSETS.txt + credits. */
-const KB={ON:!/[?&]photos=0\b/.test(location.search),L:['ch46_auburn','ch53_khesanh','conthien_bunker','pbr_nh96707','khesanh_howitzer'],i:0,f:0,t:null,
+const KB={ON:!/[?&]photos=0\b/.test(location.search),L:['ch46_auburn','ch53_khesanh','conthien_bunker','pbr_perfume','khesanh_howitzer'],i:0,f:0,t:null,
   start(){ if(!this.ON||this.t)return; $('kb').classList.add('on'); this.step(); this.t=setInterval(()=>this.step(),14000) },
   stop(){ clearInterval(this.t); this.t=null; $('kb').classList.remove('on') },
   step(){ if(state!=='menu'){ return } const E=$('kb').children, a=E[this.f], b=E[1-this.f], k=this.L[this.i++%this.L.length];
