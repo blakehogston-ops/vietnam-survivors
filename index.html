@@ -2535,7 +2535,7 @@ function updateSquad(dt){
     if(m.mf>0)m.mf-=dt; if(m.hf>0)m.hf-=dt; if(m.inv>0)m.inv-=dt;
     m.cd-=dt;
     if(m.tg){ const tg=m.tg; m.aim=Math.atan2(tg.y-m.y,tg.x-m.x); m.face=Math.cos(m.aim)>=0?1:-1;
-      if(m.cd<=0&&bullets.length<540){ const dm=s.dm*(g.rally>0?1.5:1), mx=m.x+Math.cos(m.aim)*R.len, my=m.y+2+Math.sin(m.aim)*R.len; m.cd=R.cd*(.9+rnd()*.2); m.mf=.06;
+      if(m.cd<=0&&bullets.length<540){ const dm=s.dm*(g.rally>0?1.5:1), mx=m.x+Math.cos(m.aim)*R.len, my=m.y+2+Math.sin(m.aim)*R.len; m.cd=R.cd*(.9+rnd()*.2); m.mf=.06; MAGS.shot(m,R.snd,m.x,m.y);
         if(R.k===0){ addBullet(mx,my,m.aim+(rnd()-.5)*.08,620,R.dmg*dm,1,.8,3,'#fff3a0') }
         else if(R.k===1){ for(let q=0;q<5;q++)addBullet(mx,my,m.aim+(q-2)*.13+(rnd()-.5)*.06,560,R.dmg*dm,1,.36,3,'#ffd9a0') }
         else if(R.k===2){ addBullet(mx,my,m.aim+(rnd()-.5)*.14,600,R.dmg*dm,1,.8,3,'#ffc860') }
@@ -3045,7 +3045,7 @@ function newGame(demo){
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
-  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
+  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); MAGS.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:100,maxHp:100,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
@@ -3465,7 +3465,7 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){const dx=p.
   G.botTimer+=.016; x+=Math.cos(G.botTimer*.3)*.25; y+=Math.sin(G.botTimer*.27)*.25; const l=Math.hypot(x,y); if(l>1){x/=l;y/=l} return [x,y]; }
 
 function update(dt){
-  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt);
+  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt);
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
   const g=G,p=g.p; g.t+=dt; g.dthF=0;
@@ -3646,7 +3646,7 @@ function updateWeapons(dt){
     if(AIRCALL[id]&&id!=='spooky'&&(air.length+strikes.length)>=AIR_FX_MAX){ w.cd=.5; continue }   // limit overlapping air-call effects
     if(AIRCALL[id]&&g.char==='radio'&&!g.demo)Snd.play('ready');   // soft tick: call is off cooldown
     w.rf=false;
-    if(id==='grease'){ const t=nearestK(p.x,p.y,1,s.range)[0]; if(!t){w.cd=.05;continue} const a=Math.atan2(t.y-p.y,t.x-p.x)+(rnd()-.5)*.05; addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,640,s.dmg,s.pierce,.8,3,'#ffe08a'); Snd.play('grease'); g.muzzle=.05; w.cd+=s.cd; }
+    if(id==='grease'){ const t=nearestK(p.x,p.y,1,s.range)[0]; if(!t){w.cd=.05;continue} const a=Math.atan2(t.y-p.y,t.x-p.x)+(rnd()-.5)*.05; addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,640,s.dmg,s.pierce,.8,3,'#ffe08a'); Snd.play('grease'); MAGS.shot(p,'grease',p.x,p.y); g.muzzle=.05; w.cd+=s.cd; }
     else if(id==='knives'){ const t=nearestK(p.x,p.y,1,s.range+60)[0]; if(!t){w.cd=.1;continue} const base=Math.atan2(t.y-p.y,t.x-p.x);
       for(let i=0;i<s.n&&knives.length<40;i++){ const a=base+(i-(s.n-1)/2)*.22; knives.push({wid:CURW,x:p.x,y:p.y-4,vx:Math.cos(a)*430,vy:Math.sin(a)*430,rot:rnd()*TAU,life:s.range/430,dmg:s.dmg,pierce:s.pierce,hit:[]}) } Snd.play('knives'); w.cd+=s.cd; }
     else if(id==='shotgun'){ const t=nearestK(p.x,p.y,1,300)[0]; if(!t){w.cd=.05;continue} const base=Math.atan2(t.y-p.y,t.x-p.x);
@@ -3656,11 +3656,11 @@ function updateWeapons(dt){
       Snd.play('m1903'); Snd.boltCycleLater(); g.muzzle=.11; g.bolt=.62; g.shake=Math.max(g.shake,2.2); w.cd+=s.cd; }
     else if(id==='m16'){ const ts=nearestK(p.x,p.y,s.shots,540); if(!ts.length){w.cd=.05;continue}
       for(let i=0;i<s.shots;i++){const t=ts[i%ts.length]; const a=Math.atan2(t.y-p.y,t.x-p.x)+(i>=ts.length?(rnd()-.5)*.25:0); addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,700,s.dmg,s.pierce,.85,3.2,'#fff3a0')}
-      Snd.play('m16'); g.muzzle=.07; w.cd+=s.cd; }
+      Snd.play('m16'); MAGS.shot(p,'m16',p.x,p.y); g.muzzle=.07; w.cd+=s.cd; }
     else if(id==='m60'){ const t=nearestK(p.x,p.y,1,480)[0]; if(!t){w.cd=.05;continue}
       const base=Math.atan2(t.y-p.y,t.x-p.x);
       for(let i=0;i<s.pel;i++){const a=base+(rnd()-.5)*.26+(s.pel>1?(i-(s.pel-1)/2)*.11:0); addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,600+rnd()*60,s.dmg,s.pierce,.6,3.2,'#ffc860')}
-      Snd.play('m60'); g.muzzle=.05; w.cd+=s.cd; }
+      Snd.play('m60'); MAGS.shot(p,'m60',p.x,p.y); g.muzzle=.05; w.cd+=s.cd; }
     else if(id==='m79'){
       for(let i=0;i<s.n;i++){ let tx,ty,found=false; for(let k=0;k<10&&enemies.length;k++){const e=enemies[(rnd()*enemies.length)|0]; if(!e.dead&&Math.hypot(e.x-p.x,e.y-p.y)<340){tx=e.x+(rnd()-.5)*30;ty=e.y+(rnd()-.5)*30;found=true;break}}
         if(!found){const a=rnd()*TAU,r=110+rnd()*120;tx=p.x+Math.cos(a)*r;ty=p.y+Math.sin(a)*r}
@@ -3929,6 +3929,20 @@ const KIA={ON:!/[?&]kia=0\b/.test(location.search), q:[], cur:null, t:0,
   tick(dt){ if(this.cur){ this.t-=dt; if(this.t<=0)this.cur=null } if(!this.cur&&this.q.length){ this.cur=this.q.length>2?this.q.splice(0,this.q.length).join(', '):this.q.shift(); this.t=2.8 } },
   hud(U){ if(!this.cur)return; const a=Math.min(1,this.t*2,(2.8-this.t)*4); ctx.save(); ctx.globalAlpha=a*.92; ctx.font=Math.round(12*U)+'px "Courier New",monospace'; const tx='KIA: '+this.cur, w=ctx.measureText(tx).width+16*U, x0=W/2-w/2, y0=H*.235;
     ctx.fillStyle='rgba(12,14,10,.62)'; ctx.fillRect(x0,y0,w,20*U); ctx.fillStyle='#c9c2a6'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(tx,W/2,y0+10*U); ctx.restore() } };
+/* MAGS (Blake): spent magazines / links / brass / stripper clips stay on the ground. The game has no reload state, so each shooter counts
+   shots and drops at the real capacity: M16 20-rd box, M14 20, M3A1 30, M1911 7, M2 carbine 30, M60 belt links + brass, Ithaca hulls, M1903 5-rd
+   stripper clip. Tiny pooled decals (cap 300, oldest fade), short drop-and-bounce, random rotation, drawn under units. ?mags=0 off. */
+const MAGS={ON:!/[?&]mags=0\b/.test(location.search), CAP:300, L:[], i:0,
+  K:{m16:{n:20,c:'#2c2c28',w:3,h:6},m14:{n:20,c:'#33302a',w:3,h:6},grease:{n:30,c:'#2a2a26',w:2,h:8},m1911:{n:7,c:'#3a3a36',w:2,h:4},carbine:{n:30,c:'#2e2e2a',w:2,h:7},
+     m60:{n:6,c:'#b8933e',w:2,h:2,brass:1},ithaca:{n:1,c:'#8a2a20',w:2,h:3},bolt:{n:5,c:'#a08850',w:1,h:4}},
+  reset(){ this.L.length=0; this.i=0 },
+  shot(o,k,x,y){ if(!this.ON||!G||G.demo)return; const K=this.K[k]; if(!K)return; const c=o._mc||(o._mc={}); c[k]=(c[k]|0)+1; if(c[k]<K.n)return; c[k]=0;
+    const d={k,x:x+(rnd()-.5)*6,y:y+(rnd()-.5)*4,z:10,vz:40+rnd()*30,vx:(rnd()-.5)*60,vy:(rnd()-.5)*30,r:rnd()*TAU,vr:(rnd()-.5)*14,b:0,age:0};
+    if(this.L.length<this.CAP)this.L.push(d); else { this.L[this.i]=d; this.i=(this.i+1)%this.CAP } },
+  tick(dt){ for(const d of this.L){ d.age+=dt; if(d.z>0||d.vz>0){ d.vz-=260*dt; d.z+=d.vz*dt; d.x+=d.vx*dt; d.y+=d.vy*dt; d.r+=d.vr*dt; if(d.z<=0){ d.z=0; if(d.b<1&&d.vz<-30){ d.vz=-d.vz*.3; d.vx*=.4; d.vy*=.4; d.vr*=.4; d.b++ } else { d.vz=0; d.vx=d.vy=d.vr=0 } } } } },
+  draw(camX,camY,VW,VH){ const L=this.L, n=L.length; if(!n)return;
+    for(let j=0;j<n;j++){ const d=L[j]; if(d.x<camX-20||d.x>camX+VW+20||d.y<camY-20||d.y>camY+VH+20)continue; const K=this.K[d.k], old=n>=this.CAP?((j-this.i+n)%n)/n:1;   /* the oldest in the ring fade */
+      ctx.save(); ctx.globalAlpha=Math.max(.25,Math.min(1,old*1.6)); ctx.translate(d.x,d.y-d.z); ctx.rotate(d.r); ctx.fillStyle=K.c; ctx.fillRect(-K.w/2,-K.h/2,K.w,K.h); if(K.brass){ ctx.fillStyle='#d8b050'; ctx.fillRect(K.w,-1,1,2) } ctx.restore() } } };
 const TANKK=[{nm:'M48A3 Patton',spd:100,rr:26},{nm:'M67A2 "Zippo" Flame Tank',spd:96,rr:26},{nm:'M50A1 Ontos',spd:150,rr:20}];
 function callTank(s,l){ const p=G.p, pool=[0]; if(l>=3)pool.push(1); if(l>=6)pool.push(2); const k=pool[(G.tankRot++)%pool.length];
   const R=Math.hypot(VW,VH)/2+70, a=rnd()*TAU;
@@ -4159,7 +4173,7 @@ function memberCombat(m,dt,dm){ const R=SQR[m.role];
   if(m.tg&&m.tg.dead)m.tg=null;
   if(m.mf>0)m.mf-=dt; if(m.hf>0)m.hf-=dt; if(m.inv>0)m.inv-=dt; m.cd-=dt;
   if(m.tg){ const tg=m.tg; m.aim=Math.atan2(tg.y-m.y,tg.x-m.x); m.face=Math.cos(m.aim)>=0?1:-1;
-    if(m.cd<=0&&bullets.length<540){ const mx=m.x+Math.cos(m.aim)*R.len, my=m.y+2+Math.sin(m.aim)*R.len; m.cd=R.cd*(.9+rnd()*.2); m.mf=.06;
+    if(m.cd<=0&&bullets.length<540){ const mx=m.x+Math.cos(m.aim)*R.len, my=m.y+2+Math.sin(m.aim)*R.len; m.cd=R.cd*(.9+rnd()*.2); m.mf=.06; MAGS.shot(m,R.snd,m.x,m.y);
       if(R.k===0){ addBullet(mx,my,m.aim+(rnd()-.5)*.08,620,R.dmg*dm,1,.8,3,'#fff3a0') }
       else if(R.k===1){ for(let q=0;q<5;q++)addBullet(mx,my,m.aim+(q-2)*.13+(rnd()-.5)*.06,560,R.dmg*dm,1,.36,3,'#ffd9a0') }
       else if(R.k===2){ addBullet(mx,my,m.aim+(rnd()-.5)*.14,600,R.dmg*dm,1,.8,3,'#ffc860') }
@@ -6403,7 +6417,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   for(const b of blasts){const k=b.t/b.d; ctx.globalAlpha=(1-k)*.55; ctx.fillStyle='#ff8a2a'; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*(.4+.6*Math.sqrt(k)),0,TAU); ctx.fill(); ctx.globalAlpha=(1-k)*.8; ctx.fillStyle='#ffe58a'; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*.5*(1-k*.6),0,TAU); ctx.fill(); ctx.globalAlpha=(1-k); ctx.strokeStyle='#fff3c0'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*(.5+.5*k),0,TAU); ctx.stroke(); ctx.globalAlpha=1}
   const tt=performance.now()/1000;
   // napalm burning ground
-  WRK.draw(true,camX,camY,VW,VH); FLM.ground(); WRK.draw(false,camX,camY,VW,VH);
+  WRK.draw(true,camX,camY,VW,VH); FLM.ground(); WRK.draw(false,camX,camY,VW,VH); MAGS.draw(camX,camY,VW,VH);
   for(const f of fires){ const k=Math.min(1,f.life/f.ml), fl=.8+.2*Math.sin(tt*18+f.x); ctx.globalAlpha=.45*Math.min(1,k*3)*fl; ctx.fillStyle='#ff6a1a'; ctx.beginPath(); ctx.ellipse(f.x,f.y,f.r,f.r*.8,0,0,TAU); ctx.fill(); ctx.globalAlpha=.5*Math.min(1,k*3)*fl; ctx.fillStyle='#ffc23a'; ctx.beginPath(); ctx.ellipse(f.x,f.y,f.r*.55,f.r*.42,0,0,TAU); ctx.fill(); ctx.globalAlpha=1 }
   // chemical clouds (Agent Orange / Ranch Hand)
   for(let i=0;i<clouds.length;i++){ const c=clouds[i]; if(c.x<camX-c.r-30||c.x>camX+VW+c.r+30||c.y<camY-c.r-30||c.y>camY+VH+c.r+30)continue; const k=Math.min(1,c.life/c.ml), fa=Math.min(1,c.life/1.2)*(.5+.5*k), sw=Math.sin(tt*1.5+c.seed);
