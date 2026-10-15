@@ -4090,14 +4090,14 @@ const VHX={ON:!/[?&]vhit=0\b/.test(location.search), n:0, A:null,
   kill(o,f){ if(!this.ok())return false; const id=this.id(o); try{ VFX_VEHICLE_HIT.attachToVehicle(id,3,Object.assign({follow:o,turretPop:rnd()<.35},f||{})); setTimeout(()=>{ try{ VFX_VEHICLE_HIT.attachToVehicle(id,4,Object.assign({follow:o},f||{})) }catch(e){} },1500) }catch(e){} return true },
   reset(){ try{ window.VFX_VEHICLE_HIT&&VFX_VEHICLE_HIT.reset() }catch(e){} } };
 /* FIELD (Gamer Oct 15, Blake approved): Doc's early job. Before the pad call, every ~30-45 s a Marine in the fight is hit and bleeding
-   (HP drains to a 15% floor, so enemies can finish him). Doc reaches him and holds 1.5 s within 30 px: patched to full, small XP, his buddies
+   (HP drains to a 15% floor, so enemies can finish him). Doc reaches him and holds 1.5 s within 30 px: patched to 60%, small XP, his buddies
    steady up (no extra men). One at a time; arrow + marker; never during the pad/extraction. ?field=0 = off */
 const FIELD={ON:!/[?&]field=0\b/.test(location.search), m:null, h:0, nx:0, n:0, ok:0, lost:0,
   botPull(){ const m=this.m; if(!m)return null; const p=G.p, dx=m.x-p.x, dy=m.y-p.y, d=Math.hypot(dx,dy)||1; return d<12?[0,0]:[dx/d,dy/d] },
   reset(){ this.m=null; this.h=0; this.nx=40; this.n=0; this.ok=0; this.lost=0 },
   tick(dt){ const g=G; if(!this.ON||!g||g.demo||state!=='play')return; const p=g.p, ex=g.ex, late=ex&&(ex.pad||ex.ph>=1);
     const m=this.m; if(m){ if(m.hp<=0||!coy.includes(m)){ this.m=null; this.lost++; this.nx=g.t+25; (g.fieldLog||(g.fieldLog=[])).push([+g.t.toFixed(1),'lost']); return }
-      m.hp=Math.max(m.mhp*.15,m.hp-m.mhp*.035*dt); const d=Math.hypot(p.x-m.x,p.y-m.y); if(d<30&&p.hp>0){ this.h+=dt; if(this.h>=1.5){ m.hp=m.mhp; m.fld=0; this.m=null; this.ok++; this.nx=g.t+30+rnd()*15; addXp(3); try{ Snd.play('heal'); ringBurst(m.x,m.y,26,['#7be37a','#fff'],14) }catch(e){} g.banner={text:'PATCHED UP · BACK IN THE FIGHT',t:1.6,col:'#9be37a'}; (g.fieldLog||(g.fieldLog=[])).push([+g.t.toFixed(1),'ok']) } } else this.h=Math.max(0,this.h-dt*.5);
+      m.hp=Math.max(m.mhp*.15,m.hp-m.mhp*.035*dt); const d=Math.hypot(p.x-m.x,p.y-m.y); if(d<30&&p.hp>0){ this.h+=dt; if(this.h>=1.5){ m.hp=Math.max(m.hp,m.mhp*.6); m.fld=0; this.m=null; this.ok++; this.nx=g.t+30+rnd()*15; addXp(3); try{ Snd.play('heal'); ringBurst(m.x,m.y,26,['#7be37a','#fff'],14) }catch(e){} g.banner={text:'PATCHED UP · BACK IN THE FIGHT',t:1.6,col:'#9be37a'}; (g.fieldLog||(g.fieldLog=[])).push([+g.t.toFixed(1),'ok']) } } else this.h=Math.max(0,this.h-dt*.5);
       if(late){ m.fld=0; this.m=null } return }
     if(late||g.t<this.nx)return; let best=null, bs=-1; for(const q of coy){ if(q.hp<=0||q.on||q.state&&q.state!=='ok'&&q.state!=='fight')continue; const d=Math.hypot(q.x-p.x,q.y-p.y); if(d<120||d>420)continue; const s=-Math.abs(d-260); if(!best||s>bs){best=q;bs=s} }
     if(!best){ this.nx=g.t+5; return } best.fld=1; best.hp=Math.min(best.hp,best.mhp*.55); this.m=best; this.h=0; this.n++; g.banner={text:'MARINE HIT · GET TO HIM, DOC',t:2,col:'#ff8a6a'}; try{ BARK.ev('down',{m:best,x:best.x,y:best.y}) }catch(e){} (g.fieldLog||(g.fieldLog=[])).push([+g.t.toFixed(1),'hit']) },
