@@ -188,7 +188,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label>
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
   <div class="help howto">
-    <b>HOW TO PLAY</b><br>
+    <b class="htT">HOW TO PLAY</b><br class="htT">
     <b>Move</b> with WASD / arrows, a stick, or drag on touch. Your weapons fire on their own.<br>
     <b>Grab the green gems</b> to level up, then pick an upgrade (1 / 2 / 3, click or tap).<br>
     <b>Keep your squad alive:</b> the corpsman patches up the wounded; bunkers (E / Y) give cover.<br>
@@ -3840,7 +3840,7 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   /* Blake's design: an optional radio call marks an objective OFF the firebase; the clock keeps running, no extra men. While the player is away the squad
      holds the base under more pressure (structure damage x P), with an alert if it starts to fall. Own timer, return-home arrow; the reward (XP + tribute) is paid
      only on getting back. Never starts once the pad is called / chopper is inbound. Tunables: ?mohd= distance from base, ?moht= go timer, ?mohr= return timer, ?mohp= pressure. */
-  P:(()=>{ const q=new URLSearchParams(location.search), n=(k,d)=>{ const v=parseFloat(q.get(k)); return isFinite(v)?v:d }; return {D:Math.min(900,n('mohd',620)),T:n('moht',30),R:n('mohr',30),P:n('mohp',1.2),E:n('mohe',14)} })(),
+  P:(()=>{ const q=new URLSearchParams(location.search), n=(k,d)=>{ const v=parseFloat(q.get(k)); return isFinite(v)?v:d }; return {D:Math.min(900,n('mohd',620)),T:n('moht',30),R:n('mohr',30),P:n('mohp',1.2),E:n('mohe',10),HR:n('mohhr',90)} })(),
   reset(){ this.cur=null; this.q=null; this.fb=null; this.done={}; this.alertT=0 },
   away(){ const c=this.cur; return !!(c&&fbS&&G&&Math.hypot(G.p.x-fbS.x,G.p.y-fbS.y)>260) },
   press(){ return this.away()?this.P.P:1 },
@@ -3853,12 +3853,12 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
       let okP=false; for(let i=0;i<32&&!okP;i++){ const a=hash2(i+7,(g.t*10)|0)*TAU, D=this.P.D*(1-i*.015); x=fbS.x+Math.cos(a)*D; y=fbS.y+Math.sin(a)*D; okP=true;
         for(let k=1;k<=Math.ceil(D/24)&&okP;k++){ const u=k*24/D, sx=fbS.x+(x-fbS.x)*u, sy=fbS.y+(y-fbS.y)*u; if(riverAt(sx,sy)||!canWade(sx,sy,'p'))okP=false } }   /* objective must be reachable on foot in a straight line from the base */
       if(!okP){ this.next=g.t+20; this.q.unshift(k); return }
-      for(let j=0;j<this.P.E;j++){ const a=rnd()*TAU, r=90+rnd()*80; try{ spawnEnemy(rnd()<.5?'vc':'nva',x+Math.cos(a)*r,y+Math.sin(a)*r) }catch(e){} }   /* the pinned-down men are under fire: a small enemy group at the objective */
+      for(let j=0;j<this.P.E;j++){ const a=rnd()*TAU, r=60+rnd()*90; try{ spawnEnemy(rnd()<.5?'vc':'nva',x+Math.cos(a)*r,y+Math.sin(a)*r) }catch(e){} }   /* the pinned-down men are under fire: a small enemy group at the objective */
       this.cur={k,x,y,t:0,h:0,ph:'go',life:this.P.T,dist:Math.hypot(x-fbS.x,y-fbS.y)}; this.card=6; try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
     const c=this.cur; if(!c)return; this.card=Math.max(0,(this.card||0)-dt); c.t+=dt; this.alertT=Math.max(0,this.alertT-dt);
     if(!fbS){ this.end('baseLost'); return }
     if(this.away()&&this.integ()<.6&&!(this.alertT>0)){ this.alertT=6; g.banner={text:'FIREBASE '+(fbS.name||'')+' IS FALLING · GET BACK',t:2.6,col:'#ff6a4a'}; try{ Snd.play('radio') }catch(e){} }
-    if(c.ph==='go'){ if(Math.hypot(g.p.x-c.x,g.p.y-c.y)<46){ c.h+=dt; if(c.h>=this.C[c.k].hold){ c.ph='ret'; c.t=0; c.life=this.P.R; g.banner={text:'DONE · GET BACK TO THE FIREBASE',t:2.4,col:'#f0d890'}; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'done'}) } } else c.h=Math.max(0,c.h-dt) }
+    if(c.ph==='go'){ c.hot=(c.hotT=(c.hotT||0)-dt)>0?c.hot:(c.hotT=.25,enemies.some(e=>!e.dead&&Math.abs(e.x-c.x)<this.P.HR&&Math.abs(e.y-c.y)<this.P.HR&&Math.hypot(e.x-c.x,e.y-c.y)<this.P.HR)); if(Math.hypot(g.p.x-c.x,g.p.y-c.y)<46&&!c.hot){ c.h+=dt; if(c.h>=this.C[c.k].hold){ c.ph='ret'; c.t=0; c.life=this.P.R; g.banner={text:'DONE · GET BACK TO THE FIREBASE',t:2.4,col:'#f0d890'}; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'done'}) } } else c.h=Math.max(0,c.h-dt) }
     else if(Math.hypot(g.p.x-fbS.x,g.p.y-fbS.y)<200){ this.done[c.k]=1; (g.honor||(g.honor=[])).push(this.C[c.k].lab.toLowerCase().replace(/^./,x=>x.toUpperCase())+' '+this.C[c.k].nm); const p=g.p; p.xp+=p.need*.75; g.banner={text:this.C[c.k].lab+' '+this.C[c.k].nm.toUpperCase(),t:3.2,col:'#f0d890'}; this.end('home'); return }
     if(c.t>c.life)this.end(c.ph==='go'?'expired':'late') },
   drawWorld(){ const c=this.cur; if(!c||c.ph!=='go')return; const t=G.t, r=34+Math.sin(t*4)*4; ctx.save(); ctx.strokeStyle='#f0d890'; ctx.lineWidth=2; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.arc(c.x,c.y,r,0,TAU); ctx.stroke(); ctx.setLineDash([]);
@@ -3866,7 +3866,7 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   img(){ if(this.IM!==undefined)return this.IM; try{ const M=MEDAL_OF_HONOR, gr=M.grid, L=M.legend, c=document.createElement('canvas'); c.width=gr[0].length; c.height=gr.length; const x=c.getContext('2d');
       for(let j=0;j<gr.length;j++)for(let i=0;i<gr[j].length;i++){ const ch=gr[j][i], col=L[ch]; if(!col||ch==='.')continue; x.fillStyle=col; x.fillRect(i,j,1,1) } this.IM=c }catch(e){ this.IM=null } return this.IM },
   hud(U,W,H){ const c=this.cur; if(!c)return; const C=this.C[c.k], g=G, p=g.p;
-    const go=c.ph==='go', ox=go?c.x:(fbS?fbS.x:p.x), oy=go?c.y:(fbS?fbS.y:p.y), dx=ox-p.x, dy=oy-p.y, d=Math.hypot(dx,dy); txt((go?'OPTIONAL · '+C.task:'RETURN TO THE FIREBASE')+'  '+Math.max(0,Math.ceil(c.life-c.t))+'s · '+Math.round(d/8)+'m',W/2,H*.86,13*U,go?'#f0d890':'#ffffff','center');
+    const go=c.ph==='go', ox=go?c.x:(fbS?fbS.x:p.x), oy=go?c.y:(fbS?fbS.y:p.y), dx=ox-p.x, dy=oy-p.y, d=Math.hypot(dx,dy); txt((go?(c.hot?'UNDER FIRE · CLEAR THE AREA TO TREAT HIM':'OPTIONAL · '+C.task):'RETURN TO THE FIREBASE')+'  '+Math.max(0,Math.ceil(c.life-c.t))+'s · '+Math.round(d/8)+'m',W/2,H*.86,13*U,go?'#f0d890':'#ffffff','center');
     if(d>140){ const a=Math.atan2(dy,dx), R=Math.min(W,H)*.36, ax=W/2+Math.cos(a)*R, ay=H/2+Math.sin(a)*R; ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle=go?'#f0d890':'#ffffff'; ctx.globalAlpha=.85+.15*Math.sin(G.t*6); ctx.beginPath(); ctx.moveTo(16*U,0); ctx.lineTo(-8*U,-10*U); ctx.lineTo(-3*U,0); ctx.lineTo(-8*U,10*U); ctx.closePath(); ctx.fill(); ctx.restore() }
     if(!(this.card>0))return; const a=Math.min(1,this.card,  (6-this.card)*3), w=Math.min(560*U,W*.9), h=150*U, x0=W/2-w/2, y0=H*.86-h-26*U; ctx.save(); ctx.globalAlpha=a*.92; ctx.fillStyle='#0d140d'; ctx.fillRect(x0,y0,w,h); ctx.strokeStyle='#8a7a40'; ctx.lineWidth=2; ctx.strokeRect(x0,y0,w,h); ctx.globalAlpha=a;
     const im=this.img(); if(im){ ctx.imageSmoothingEnabled=false; ctx.drawImage(im,x0+12*U,y0+14*U,im.width*2.4*U,im.height*2.4*U) } const tx=x0+(im?im.width*2.4*U+26*U:14*U), tw=x0+w-tx-12*U;
@@ -5303,6 +5303,9 @@ $('btnTut').onclick=()=>TUT.open(false);
 /* real archive photos (public domain, US government: NARA / USMC History Division / NHHC) as a slow Ken Burns layer behind the menu. Lazy: a photo
    is fetched only when the menu shows it. Captions verified by Vietnam Vet (Oct 14 night). ON; ?photos=0 off. Sources: THIRD_PARTY_ASSETS.txt + credits. */
 const MART=()=>!!(window.MENU_ART&&MENU_ART.drawBackground&&!/[?&]menuart=0\b/.test(location.search));   /* Artist Helper main_menu_art.js; ?menuart=0 = old menu */
+function martHow(){ try{ if(!MART()||!MENU_ART.drawHowToPlay)return; for(const el of document.querySelectorAll('.howto')){ el.style.cssText=''; const r=el.getBoundingClientRect(); if(r.width<40)continue; const w=Math.round(r.width), m0=MENU_ART.getHowToPlayTextArea(w,Math.round(r.height)); el.style.boxSizing='border-box'; el.style.fontSize=m0.fontSize+'px'; el.style.lineHeight=m0.lineHeight+'px'; el.style.padding=m0.y+'px '+(w-m0.x-m0.w)+'px 8px '+m0.x+'px'; el.querySelectorAll('.htT').forEach(t=>t.style.display='none');
+  const h=Math.round(el.getBoundingClientRect().height), cv=document.createElement('canvas'); cv.width=w; cv.height=h; const a=MENU_ART.drawHowToPlay(cv.getContext('2d'),0,0,w,h); el.style.padding=a.y+'px '+(w-a.x-a.w)+'px '+(h-a.y-a.h)+'px '+a.x+'px'; el.style.background='url('+cv.toDataURL()+') 0 0/100% 100% no-repeat'; el.style.border='none'; el.style.color='#eee' } }catch(e){} }
+addEventListener('resize',()=>{ clearTimeout(martHow._t); martHow._t=setTimeout(martHow,200) }); setTimeout(martHow,300); window.martHow=martHow;
 const KBCAP={khesanh_howitzer:'155MM HOWITZER, BATTERY W, 1/13 MARINES, KHE SANH, 1968',pbr_perfume:'PBR CREW CHECKS A JUNK, PERFUME RIVER, AUGUST 1968',ch46_auburn:'OPERATION AUBURN, QUANG NAM, C. JANUARY 1968',ch53_khesanh:'MARINES OFFLOAD A CH-53, KHE SANH, 23 JANUARY 1968',conthien_bunker:'1/4 MARINES BUILD A BUNKER, CON THIEN, JANUARY 1968'};
 try{ if(MART()){ MENU_ART.titleText='LAST CHOPPER OUT'; MENU_ART.installCSS({text:'LAST CHOPPER OUT'}); setTimeout(()=>{ try{ INTRO_V2&&INTRO_V2.prewarmAsync&&INTRO_V2.prewarmAsync() }catch(e){} },1500) } }catch(e){}
 const KB={ON:!/[?&]photos=0\b/.test(location.search),L:['ch46_auburn','ch53_khesanh','conthien_bunker','pbr_perfume','khesanh_howitzer'],i:0,f:0,t:null,
@@ -6166,7 +6169,7 @@ function drawBare(camX,camY){ if(!wilt.size)return; const gx0=Math.floor(camX/40
 
 /* ====================== game flow ====================== */
 function startGame(){ if(!chOpen(SEL)){ if($('charsel').classList.contains('show'))return; SEL='doc' } try{document.activeElement&&document.activeElement.blur()}catch(e){} if(!navigator.userActivation||navigator.userActivation.hasBeenActive){Snd.init(); Snd.resume();} newGame(false); state='play'; ['menu','charsel','over','pause','levelup','sigask'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='flex'; if(!(DBG.t>0||DBG.nointro))startIntro(); }
-function toMenu(){ if(G&&!G.demo&&(state==='paused'||state==='over'||state==='play'))awardRun(); state='menu'; ['over','pause','levelup','charsel','sigask'].forEach(i=>$(i).classList.remove('show')); $('menu').classList.add('show'); $('topbtns').style.display='none'; showBest(); if(!DBG.nodemo)newGame(true); }
+function toMenu(){ setTimeout(()=>window.martHow&&martHow(),60); if(G&&!G.demo&&(state==='paused'||state==='over'||state==='play'))awardRun(); state='menu'; ['over','pause','levelup','charsel','sigask'].forEach(i=>$(i).classList.remove('show')); $('menu').classList.add('show'); $('topbtns').style.display='none'; showBest(); if(!DBG.nodemo)newGame(true); }
 function pauseGame(){ if(state==='play'){state='paused';$('pause').classList.add('show')} }
 function resumeGame(){ if(state==='paused'){state='play';$('pause').classList.remove('show');last=performance.now()} }
 function exScore(g){ const ex=g.ex; return Math.floor(g.kills*10+(ex?ex.holdKills*30:0)+(ex&&ex.evac?5000:0)+g.t) }

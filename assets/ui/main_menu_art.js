@@ -1,11 +1,18 @@
-/* game patch: title 'LAST CHOPPER OUT', subtitle 'QUANG TRI, 1968' (Blake). MENU_ART: main-menu art for Last Chopper Out (Quang Tri 1968). Artist Helper, 2026-10-14.
+/* MENU_ART: main-menu art for Last Chopper Out (Quang Tri 1968). Artist Helper, 2026-10-15.
    Plain canvas 2D, no assets, no dependencies. Everything static is baked once into cached canvases;
    per frame it only blits layers and draws a few small animated sprites.
    API (all coords in CSS px of the target ctx; scale with ctx transform if you use DPR):
      MENU_ART.drawBackground(ctx,w,h,t)          dusk firebase / paddies / jungle, animated (t = seconds)
      MENU_ART.drawTitle(ctx,cx,y,width,t,text?)    stencil title + subtitle, centred at cx, top at y
+                                                   titleText='LAST CHOPPER OUT'; subtitleText='QUANG TRI · 3RD MARINE DIVISION · 1968'
+                                                   (subtitle auto-shrinks to fit the title width at every screen size)
      MENU_ART.drawButton(ctx,x,y,w,h,label,state)  ammo-crate button; state 'normal'|'hover'|'pressed'|'disabled'
      MENU_ART.drawPanel(ctx,x,y,w,h,title?)        sub-screen panel (canvas-and-plywood map case)
+     MENU_ART.getHowToPlayTextArea(w,h)            inner text rect for a HOW TO PLAY panel of size w×h:
+                                                   {x,y,w,h, padding, fontSize, lineHeight, lines:5}
+                                                   (coords relative to the panel's top-left; build fills 5 lines)
+     MENU_ART.drawHowToPlay(ctx,x,y,w,h)           draws the HOW TO PLAY panel and returns the same text-area object
+                                                   (absolute canvas coords: rect.x/y already include panel origin)
      MENU_ART.installCSS(opts?)                    one call: skins the DOM menu (#menu button.btn, .help, .credits, h1) with the same art
      MENU_ART.setPhoto(img,caption?)               optional archival photo background (cover-fit, slow drift, sepia grade, vignette, grain, typewriter caption).
                                                    Drawn art is used until img has decoded, and again if you pass null.
@@ -208,8 +215,10 @@ function drawBackground(ctx,w,h,t){ t=t||0; if(PHOTO&&okImg(PHOTO.img)){ drawPho
   ctx.restore() }
 
 /* ---------- title ---------- */
-function bakeTitle(text,W){ var fs=Math.round(W/ (text.length*.52)), Hh=Math.round(fs*1.75);
-  return cached('title'+text+W,W,Hh,function(x,w,h){ x.textAlign='center'; x.textBaseline='alphabetic'; x.font='bold '+fs+'px '+FONT; var tw=x.measureText(text).width; if(tw>w*.94){ fs=Math.floor(fs*w*.94/tw); x.font='bold '+fs+'px '+FONT }
+function bakeTitle(text,W){ /* longer titles (e.g. LAST CHOPPER OUT) need a tighter char factor so they stay centred inside W */
+  var fs=Math.round(W/ Math.max(6, text.length*.55)), Hh=Math.round(fs*1.9);
+  var subKey=(typeof MENU_ART!=='undefined'&&MENU_ART.subtitleText)?MENU_ART.subtitleText:'';
+  return cached('title'+text+W+subKey,W,Hh,function(x,w,h){ x.textAlign='center'; x.textBaseline='alphabetic'; x.font='bold '+fs+'px '+FONT; var tw=x.measureText(text).width; if(tw>w*.94){ fs=Math.floor(fs*w*.94/tw); x.font='bold '+fs+'px '+FONT }
     var by=fs*1.02;
     // letter mask, stencil bridges cut, weathering
     var m=mk(w,h), mx=m.getContext('2d'); mx.textAlign='center'; mx.font=x.font; mx.fillStyle='#fff'; mx.fillText(text,w/2,by);
@@ -227,10 +236,14 @@ function bakeTitle(text,W){ var fs=Math.round(W/ (text.length*.52)), Hh=Math.rou
     px.globalCompositeOperation='destination-in'; px.drawImage(m,0,0); x.drawImage(p,0,0);
     // overspray / soft edge highlight
     x.globalCompositeOperation='lighter'; x.globalAlpha=.08; x.drawImage(m,-1,-1); x.globalCompositeOperation='source-over'; x.globalAlpha=1;
-    // subtitle bar: QUANG TRI · 1968 between rules
-    var sf=Math.max(10,Math.round(fs*.2)), sy=by+fs*.42; x.font='bold '+sf+'px '+MONO; x.fillStyle='#e8c860'; var st='QUANG TRI  \u00b7  3RD MARINE DIVISION  \u00b7  1968', sw=x.measureText(st).width; while(sf>8&&sw+fs*2.2>w){ sf--; x.font='bold '+sf+'px '+MONO; sw=x.measureText(st).width }   /* game patch: fit the longer subtitle on phones */
+    // subtitle bar: QUANG TRI · 3RD MARINE DIVISION · 1968 between rules; shrink until it fits W
+    var st=(typeof MENU_ART!=='undefined'&&MENU_ART.subtitleText)?MENU_ART.subtitleText:'QUANG TRI  \u00b7  3RD MARINE DIVISION  \u00b7  1968';
+    var sf=Math.max(9,Math.round(fs*.2)), sy=by+fs*.42; x.font='bold '+sf+'px '+MONO; var sw=x.measureText(st).width;
+    var maxSub=w*.9-Math.max(24,fs*1.4); // leave room for the side rules
+    while(sw>maxSub && sf>7){ sf--; x.font='bold '+sf+'px '+MONO; sw=x.measureText(st).width }
+    var rule=Math.max(6,Math.min(fs*.7, (w-sw)*.18)); // side rules scale down on narrow widths
     x.fillStyle='rgba(0,0,0,.55)'; x.fillText(st,w/2+1,sy+1); x.fillStyle='#e8c860'; x.fillText(st,w/2,sy);
-    x.fillStyle='rgba(232,200,96,.7)'; x.fillRect(w/2-sw/2-fs*.9,sy-sf*.38,fs*.7,Math.max(1,sf*.12)); x.fillRect(w/2+sw/2+fs*.2,sy-sf*.38,fs*.7,Math.max(1,sf*.12)) }) }
+    x.fillStyle='rgba(232,200,96,.7)'; x.fillRect(w/2-sw/2-rule-fs*.15,sy-sf*.38,rule,Math.max(1,sf*.12)); x.fillRect(w/2+sw/2+fs*.15,sy-sf*.38,rule,Math.max(1,sf*.12)) }) }
 function drawTitle(ctx,cx,y,width,t,text){ text=String(text||MENU_ART.titleText).toUpperCase(); var W=Math.max(200,Math.min(2400,Math.round(width||600))); var b=bakeTitle(text,W);
   var a=1; if(t!=null&&t<1.2)a=clamp(t/1.2,0,1); ctx.save(); ctx.globalAlpha*=a; ctx.drawImage(b,cx-W/2,y); ctx.restore(); return b.height }
 
@@ -282,6 +295,36 @@ function bakePanel(w,h,title){ return cached('pnl'+w+'x'+h+title,w,h,function(x)
     x.fillStyle='#2a2418'; x.textAlign='center'; x.textBaseline='middle'; x.fillText(title.toUpperCase(),w/2-2,fw*.5+th/2+1) } }) }
 function drawPanel(ctx,x,y,w,h,title){ w=Math.round(w); h=Math.round(h); ctx.drawImage(bakePanel(w,h,title?String(title):''),Math.round(x),Math.round(y)) }
 
+/* ---------- HOW TO PLAY: panel + text-area API for 5 lines of build-filled copy ---------- */
+function howToPlayMetrics(w,h){
+  w=Math.max(80,Math.round(w)); h=Math.max(80,Math.round(h));
+  var title='HOW TO PLAY';
+  var fw=Math.max(8,Math.round(Math.min(w,h)*.035));
+  var tfs=Math.max(12,Math.min(28,Math.round(w/(title.length*.9+6))));
+  var th=tfs*1.5;
+  var pad=Math.max(10,Math.round(Math.max(fw*1.25,Math.min(w,h)*.04)));
+  /* canvas field is inside the plywood frame; title plate sits near the top of that field */
+  var left=fw+pad;
+  var top=Math.max(fw+pad, Math.round(fw*.5+th)+Math.round(pad*.85));
+  var right=(w-4)-fw-pad;
+  var bottom=(h-5)-fw-pad;
+  var tw=Math.max(0,right-left), thh=Math.max(0,bottom-top);
+  var lines=5;
+  /* fit 5 lines with comfortable leading; clamp for tiny panels */
+  var fontSize=Math.max(10, Math.min(18, Math.floor(thh/(lines*1.4))));
+  var lineHeight=Math.max(fontSize+2, Math.round(fontSize*1.35));
+  /* if leading overruns the box, shrink until 5 lines fit */
+  while(lines*lineHeight>thh && fontSize>9){ fontSize--; lineHeight=Math.max(fontSize+2, Math.round(fontSize*1.35)) }
+  return {x:left, y:top, w:tw, h:thh, padding:pad, fontSize:fontSize, lineHeight:lineHeight, lines:lines};
+}
+function getHowToPlayTextArea(w,h){ return howToPlayMetrics(w,h) }
+function drawHowToPlay(ctx,x,y,w,h){
+  w=Math.round(w); h=Math.round(h); x=Math.round(x); y=Math.round(y);
+  drawPanel(ctx,x,y,w,h,'HOW TO PLAY');
+  var r=howToPlayMetrics(w,h);
+  return {x:x+r.x, y:y+r.y, w:r.w, h:r.h, padding:r.padding, fontSize:r.fontSize, lineHeight:r.lineHeight, lines:r.lines};
+}
+
 /* ---------- DOM skin: one call styles the HTML menu with the same art (9-slice border-image, no layout change) ---------- */
 function installCSS(opts){ opts=opts||{}; if(typeof document==='undefined')return false;
   var st=document.getElementById('menuArtCSS'); if(st)st.remove();
@@ -296,11 +339,13 @@ function installCSS(opts){ opts=opts||{}; if(typeof document==='undefined')retur
   st=document.createElement('style'); st.id='menuArtCSS'; st.textContent=css; document.head.appendChild(st); return true }
 
 function safe(fn,fb){ return function(){ try{ return fn.apply(null,arguments) }catch(e){ if(!safe.w){ safe.w=1; if(typeof console!=='undefined')console.warn('MENU_ART fallback',e) } try{ return fb&&fb.apply(null,arguments) }catch(e2){} } } }
-var MENU_ART={titleText:'LAST CHOPPER OUT', version:'2026-10-14',
+var MENU_ART={titleText:'LAST CHOPPER OUT', subtitleText:'QUANG TRI  \u00b7  3RD MARINE DIVISION  \u00b7  1968', version:'2026-10-15',
   drawBackground:safe(drawBackground,function(ctx,w,h){ var g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#1b2238'); g.addColorStop(.6,'#c4683c'); g.addColorStop(.61,'#141a14'); g.addColorStop(1,'#0a0c08'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h) }),
   drawTitle:safe(drawTitle,function(ctx,cx,y,w,t,text){ ctx.save(); ctx.font='bold '+Math.round((w||600)/9)+'px '+FONT; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle='#e8dfae'; ctx.fillText(String(text||MENU_ART.titleText).toUpperCase(),cx,y); ctx.restore() }),
   drawButton:safe(drawButton,function(ctx,x,y,w,h,label){ ctx.fillStyle='#4a6b2f'; ctx.fillRect(x,y,w,h); ctx.fillStyle='#f6f0cc'; ctx.font='bold '+Math.round(h*.45)+'px '+FONT; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(label||'').toUpperCase(),x+w/2,y+h/2) }),
   drawPanel:safe(drawPanel,function(ctx,x,y,w,h){ ctx.fillStyle='rgba(20,28,16,.9)'; ctx.fillRect(x,y,w,h); ctx.strokeStyle='#6f8f44'; ctx.strokeRect(x+.5,y+.5,w-1,h-1) }),
+  getHowToPlayTextArea:safe(getHowToPlayTextArea,function(w,h){ w=Math.max(1,w|0); h=Math.max(1,h|0); return {x:12,y:36,w:Math.max(0,w-24),h:Math.max(0,h-48),padding:12,fontSize:12,lineHeight:16,lines:5} }),
+  drawHowToPlay:safe(drawHowToPlay,function(ctx,x,y,w,h){ ctx.fillStyle='rgba(20,28,16,.9)'; ctx.fillRect(x,y,w,h); return {x:x+12,y:y+36,w:Math.max(0,w-24),h:Math.max(0,h-48),padding:12,fontSize:12,lineHeight:16,lines:5} }),
   installCSS:safe(installCSS,function(){ return false }),
   setPhoto:function(img,caption){ PHOTO=img?{img:img,caption:caption||null}:null },
   drawCaption:safe(drawCaption),
