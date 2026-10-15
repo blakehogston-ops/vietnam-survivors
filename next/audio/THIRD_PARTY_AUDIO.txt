@@ -47,6 +47,7 @@ MUSIC
 - "DD Groove" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / https://creativecommons.org/licenses/by/4.0/ (https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100492). Edited: excerpt (16-bar loop 22.20-62.20 s), level matched. Used as a briefing sting only.
 - "Last Kiss Goodnight" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / https://creativecommons.org/licenses/by/4.0/ (https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100611). Edited: excerpt (final 36 s, 150.18-186.17 s), level matched. Used as a loss sting only.
 - (courtesy, no credit required) "60s Garage Rock - No voice edit" and "60s Garage Rock - Loop 1" by Abydos_Music via Pixabay (Pixabay Content License): intro riff and extraction cue. "PSYCH ROCK" by fredsylvestre66 via Pixabay: combat.
+- (courtesy, no credit required; PENDING LEGAL) "60s Rock" by Abydos_Music via Pixabay (Pixabay Content License, https://pixabay.com/music/rock-60s-rock-152100/): reinforcements sting (PBR recon drop + SOG insert). /next/ preview only.
 - (courtesy) "Marines' Hymn", performed by the United States Marine Band ("The President's Own"), public domain (US federal work): win card and Hogston dedication only.
 - (if used) "Komodo Dragon (Instrumental)" by Lemon Knife, https://freemusicarchive.org/music/lemon-knife/reptile-wisdom-instrumentals/komodo-dragon-instrumental/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
@@ -724,3 +725,9 @@ music/music_loss.ogg + music/music_loss.m4a  (slot: loss)
     Link:   https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100611
     Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - credit required
     Edit:   final 36 s (150.18-186.17 s, natural fade), 1 s fade-in, level matched.
+
+music/music_reinforcements.ogg + music/music_reinforcements.m4a  (slot: reinforcements)  ** PENDING Copyright and IP Auditor clearance **
+    Source: "60s Rock" by Abydos_Music (Pixabay)
+    Link:   https://pixabay.com/music/rock-60s-rock-152100/
+    Licence: Pixabay Content License (https://pixabay.com/service/terms/); no attribution required (courtesy credit given). No Content ID badge, no "AI generated" label (page re-checked 2026-10-14).
+    Edit:   last 24 bars (177.07-224.30 s, ~122.4 BPM) ending on the band's final hit, natural ring-out to 232.00 s, 1.5 s de-click fade, level matched. Sting, not a loop.

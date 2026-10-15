@@ -510,6 +510,17 @@
     "m4aOffsetSec": 0.04644,
     "gain": 1
    }
+,
+   "reinforcements": {
+    "file": "music_reinforcements",
+    "group": "music",
+    "loop": false,
+    "sting": true,
+    "dur": 54.93,
+    "finalHitSec": 47.23,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1
+   }
   },
   "aliases": {
    "dedication": "win"
