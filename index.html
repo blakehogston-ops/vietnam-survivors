@@ -1787,7 +1787,7 @@ const MEDAL_OF_HONOR = {
 /* --- Artist Helper: 'Last Bird Out' badge (assets/artist/last_bird_out_badge.js): the gameplay top unlock that replaced the old gameplay MoH.
    Round unit-patch, NOT a medal: size24 / size48 / locked24 / locked48, each {grid, legend}. --- */
 const LAST_BIRD_OUT_BADGE = {
- "name": "Last Bird Out",
+ "name": "Last Chopper Out",
  "kind": "achievement badge (unit-patch style, NOT a medal or ribbon)",
  "size24": {
   "grid": [
@@ -2001,7 +2001,7 @@ const LAST_BIRD_OUT_BADGE = {
  }
 };
 const RIBBON_RACK_ORDER = ['nc','ss','bs','ph','car']; // Artist Helper's gameplay ribbon rack, highest precedence first ('moh' removed: tribute cards only)
-const RIB_ORDER = ['lbo'].concat(RIBBON_RACK_ORDER);   // service-record rack = the Last Bird Out badge, then the ribbons
+const RIB_ORDER = ['lbo'].concat(RIBBON_RACK_ORDER);   // service-record rack = the Last Chopper Out badge, then the ribbons
 /* NVA medic pack pickup sprite (Artist Helper, assets/artist/medpack.js): 12x10 grid + legend, drawn at 2x */
 const MEDPACK={grid:["....OOOO....","...OssssO...","..OOOOOOOO..",".OGGGGGGGGO.",".OGWWWWWWGO.",".OGWWRRWWGO.",".OGWRRRRWGO.",".OGWWRRWWGO.",".OGGGGGGGGO.","..OOOOOOOO.."],legend:{O:'#1c1a12',s:'#8a7a4a',G:'#5b6b36',W:'#f1efe6',R:'#d2261b'}};
 let MEDSPR=null; (function(){ const sc=2, rows=(ART.medpack||MEDPACK).grid, pal=(ART.medpack||MEDPACK).legend, c=document.createElement('canvas'); c.width=rows[0].length*sc; c.height=rows.length*sc; const x=c.getContext('2d'); rows.forEach((r,yy)=>{ for(let xx=0;xx<r.length;xx++){ const col=pal[r[xx]]; if(col){ x.fillStyle=col; x.fillRect(xx*sc,yy*sc,sc,sc) } } }); MEDSPR=c })();
@@ -4973,7 +4973,7 @@ const RIB={
  bs:{nm:'Bronze Star',how:'Defeat 6,000 enemies in one patrol, or 20 bosses over your career with this Marine.'},
  ss:{nm:'Silver Star',how:'Kill 2 bosses in one patrol, each time with 4+ Marines of your squad still standing.'},
  nc:{nm:'Navy Cross',how:'Get extracted after killing 2+ bosses, holding the Hot LZ for 1,500+ kills (or 600+ on ?diff=hard).'},
- lbo:{nm:'Last Bird Out',how:'Get 12 of the 15 out on the last bird (12 or more aboard at extraction, you included).'}
+ lbo:{nm:'Last Chopper Out',how:'Get 12 of the 15 out on the last bird (12 or more aboard at extraction, you included).'}
 };
 const allyCount=()=>{ let n=0; for(const m of squad)if(m.hp>0&&m.state==='ok')n++; for(const m of pat)if(m.hp>0&&m.state==='ok')n++; return n };
 function ribTrack(dt){ const g=G; if(!g||!g.rb||g.demo)return; const p=g.p, f=p.hp/p.maxHp, rb=g.rb; if(f<rb.minF)rb.minF=f; if(f<.25){ rb.dip=true; rb.rec=false } else if(rb.dip&&f>=.6)rb.rec=true;
@@ -4998,7 +4998,7 @@ const RIBURL={};
 function ribURL(id,compact,sc,locked){ const k=id+compact+sc+locked; if(RIBURL[k])return RIBURL[k]; const src=ribCanvas(id,compact,locked), c=mk(src.width*sc,src.height*sc), x=c.getContext('2d'); x.imageSmoothingEnabled=false; x.drawImage(src,0,0,c.width,c.height); return RIBURL[k]=c.toDataURL() }
 function ribRackHTML(id){ const c=CHS[id]||{}, r=c.rib||{}; let n=0; RIB_ORDER.forEach(k=>{ if(r[k])n++ });
   return `<div class="rack"><div class="rkh">RIBBONS &amp; BADGE · ${n}/${RIB_ORDER.length}</div>`+RIB_ORDER.map(k=>{ const got=!!r[k], isB=k==='lbo';   /* the badge is square (48x48 at 1x), the ribbons 44x12 at 2x */
-    return `<div class="rk${got?' on':''}"><span class="rkimg ${isB?'bd':''}"><img src="${isB?ribURL(k,false,1,!got):ribURL(k,false,2)}" alt="" ${got||isB?'':'class="dim"'}></span><span class="rkt"><b>${got||!isB?RIB[k].nm:'Last Bird Out (locked)'}</b>${got?' ✔':''}<br><i>${RIB[k].how}</i></span></div>` }).join('')+'</div>' }
+    return `<div class="rk${got?' on':''}"><span class="rkimg ${isB?'bd':''}"><img src="${isB?ribURL(k,false,1,!got):ribURL(k,false,2)}" alt="" ${got||isB?'':'class="dim"'}></span><span class="rkt"><b>${got||!isB?RIB[k].nm:'Last Chopper Out (locked)'}</b>${got?' ✔':''}<br><i>${RIB[k].how}</i></span></div>` }).join('')+'</div>' }
 function ribFanfare(ids){ try{ if(window.Cues&&Snd.cueRibbon)Snd.cueRibbon(ids) }catch(e){} }
 /* QA: DBG.grantRibbon(charId,'bs'), DBG.resetRibbons(charId|'all'), DBG.listRibbons() */
 /* QA: DBG.decoyCheck(n): over n seeds (seed i = the player's pad call i), the decoy rate, Charlie's distance in pad-circle widths for calls 1-2 vs later,

@@ -1,4 +1,4 @@
-/* sheet1.js — Artist Helper, sheet 1 for "Last Bird Out — Quang Tri, 1968". Original pixel art, no dependencies.
+/* sheet1.js — Artist Helper, sheet 1 for "Last Chopper Out — Quang Tri, 1968". Original pixel art, no dependencies.
  * Spec: men 32 px tall, light from the top-left, ONE outline colour (#1a1c12, letter 'K' in every legend).
  * Format: each sprite = {w, h, anchor, names[], frames[][rows], legend{letter:hex}}; '.' = transparent.
  * API (browser):  SHEET1.bake(scale)  -> {name: [{n: canvas, f: flippedCanvas, white: flashCanvas, fw: flippedFlash}, ...]}
