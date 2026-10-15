@@ -1156,6 +1156,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <script src="assets/art/map_wrecks.js?v=ac1dbb7"></script>
 <script>if(/[?&]terrain=1\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=ac1dbb7"><\/script>')</script>
 <script src="assets/art/vehicles.js?v=ce96432"></script>
+<script src="assets/art/pbr_splash.js?v=ce96432"></script><script src="assets/art/pbr_wake.js?v=ce96432"></script>
 <script src="assets/art/doc_hivis.js?v=ce96432"></script><script src="assets/art/marines_tall.js?v=ce96432"></script><script src="assets/art/heroes_tall.js?v=ce96432"></script><script src="assets/art/cover_poses.js?v=ce96432"></script><script src="assets/art/hit_prone_poses.js?v=ac1dbb7"></script><script src="assets/art/firebase.js?v=ce96432"></script><script src="assets/art/terrain.js?v=ce96432"></script><script src="assets/art/recon_team.js?v=ac1dbb7"></script><script src="assets/art/sog_team.js?v=ac1dbb7"></script><script src="assets/art/bunker_interior.js?v=ac1dbb7"></script><script src="assets/art/ability_icons.js?v=ac1dbb7"></script><script src="assets/art/pbr_splash.js?v=ac1dbb7"></script><script defer src="audio/sample_player.js?v=ce96432"></script><script defer src="audio/samples/manifest.js?v=ce96432"></script>
 <script>
 /* BUILD STAMP: set by tools/stamp.js (run after every code commit; it records that commit's short hash + date). Also the ?v= cache-buster for audio / images / icons. */
@@ -2291,9 +2292,12 @@ function updateSupport(dt){
 }
 /* vehicles.js (Artist Helper, Oct 14): all aircraft / vehicles; the old canvas drawings stay as fallbacks. Hitboxes unchanged (art is ~20% bigger). */
 const VEH=()=>!!(window.SHEET1&&SHEET1.vehiclesBig);
-function drawBoat(b){ if(VEH()&&SHEET1.drawPBR){ const r=SHEET1.drawPBR(ctx,{x:Math.round(b.x),y:Math.round(b.y),heading:b.hd,scale:1,dead:!!b.dead,hit:b.hf>0,t:performance.now()/1000});
+/* PBR v2 (80x68, pivot 40,36): wake first (speed from the hull's own motion, 0..1), then the boat */
+function pbrWake(b,hd){ if(!SHEET1.drawPBRWake||b.dead)return; const px=b._wx===undefined?b.x:b._wx, py=b._wy===undefined?b.y:b._wy; b._wx=b.x; b._wy=b.y; const v=Math.hypot(b.x-px,b.y-py)*60;
+  b._ws=(b._ws||0)*.9+Math.min(1,v/160)*.1; if(b._ws>.05)try{ SHEET1.drawPBRWake(ctx,{x:Math.round(b.x),y:Math.round(b.y),heading:hd,t:performance.now()/1000,scale:1,speed:b._ws}) }catch(e){} }
+function drawBoat(b){ if(VEH()&&SHEET1.drawPBR){ pbrWake(b,b.hd); const r=SHEET1.drawPBR(ctx,{x:Math.round(b.x),y:Math.round(b.y),heading:b.hd,scale:1,dead:!!b.dead,hit:b.hf>0,t:performance.now()/1000});
     if(r){ if(b.f50>0&&r.fwd){ ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(r.fwd[0]+Math.cos(b.ta)*6,r.fwd[1]+Math.sin(b.ta)*6,3.6,0,TAU); ctx.fill() } if(b.f60>0&&r.aft){ ctx.fillStyle='#ffd26a'; ctx.beginPath(); ctx.arc(r.aft[0]+Math.cos(b.tb)*5,r.aft[1]+Math.sin(b.tb)*5,3,0,TAU); ctx.fill() } }
-    if(b.mhp&&!b.dead){ const rr=Math.max(0,b.hp/b.mhp), w=40, bx=Math.round(b.x)-w/2, by=Math.round(b.y)-36; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,5); ctx.fillStyle=rr>.55?'#6fd04a':rr>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,w*rr,5) }
+    if(b.mhp&&!b.dead){ const rr=Math.max(0,b.hp/b.mhp), w=40, bx=Math.round(b.x)-w/2, by=Math.round(b.y)-44; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,5); ctx.fillStyle=rr>.55?'#6fd04a':rr>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,w*rr,5) }
     return }
   ctx.fillStyle='rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(Math.round(b.x)+2,Math.round(b.y)+4,30,10,b.hd,0,TAU); ctx.fill();
   ctx.save(); ctx.translate(Math.round(b.x),Math.round(b.y)); ctx.rotate(b.hd);
