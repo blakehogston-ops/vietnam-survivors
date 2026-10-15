@@ -160,6 +160,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 #tut .tl{font-size:clamp(14px,3.4vw,18px);line-height:1.4;margin:12px 4px 10px;min-height:2.8em}#tut .tn{font-size:12px;color:#9aa884;margin-bottom:8px}
 #tut .tbr{display:flex;gap:10px;justify-content:center}#tut .btn{margin:0;min-width:96px;touch-action:manipulation}#tut .ask{font-size:18px;margin:6px 0 14px}
 .howto{line-height:1.7}
+@media (max-width:600px){#menu .bstamp{display:none}}
 </style>
 </head>
 <body>
@@ -175,10 +176,10 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   <div class="sub">Quang Tri, 1968</div>
   <button class="btn" id="btnStart">Start Patrol</button>
   <button class="btn alt" id="btnBrief">Replay Briefing</button>
+  <button class="btn alt" id="btnTut">Quick Tutorial</button>
   <label class="goresw" id="goreSw" title="Blood, gibs and corpses. OFF = enemies just poof into dust."><span>GORE</span><input type="checkbox" id="goreChk" checked><i></i><b id="goreTxt">ON</b></label>
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label>
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
-  <button class="btn alt" id="btnTut">Quick Tutorial</button>
   <div class="help howto">
     <b>HOW TO PLAY</b><br>
     <b>Move</b> with WASD / arrows, a stick, or drag on touch. Your weapons fire on their own.<br>
@@ -213,6 +214,9 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <p>"22lr Caliber Rifle Shots and Reloading" by Geoff-Bremner-Audio, <a href="https://freesound.org/people/Geoff-Bremner-Audio/sounds/717133/" target="_blank" rel="noopener">https://freesound.org/people/Geoff-Bremner-Audio/sounds/717133/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, mono, low-pass filtered, layered, level.</p>
 <p>"Diesel boat engine" by byjoshberry, <a href="https://freesound.org/people/byjoshberry/sounds/435669/" target="_blank" rel="noopener">https://freesound.org/people/byjoshberry/sounds/435669/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: looped, filtered, level.</p>
 <p>"20180616 - Tropical rain Thailand 02.wav" by LG, <a href="https://freesound.org/people/LG/sounds/462774/" target="_blank" rel="noopener">https://freesound.org/people/LG/sounds/462774/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: excerpt looped with a crossfade, mono, high-pass filtered, level.</p>
+<p>Sound #255216 by Carmelomike, <a href="https://freesound.org/s/255216/" target="_blank" rel="noopener">https://freesound.org/s/255216/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, level.</p>
+<p>Sound #174059 by Pjkasinski3, <a href="https://freesound.org/s/174059/" target="_blank" rel="noopener">https://freesound.org/s/174059/</a>, CC BY 3.0 (<a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/3.0/</a>). Edited: trimmed, level.</p>
+<p>Sound #654282 by Jolindi, <a href="https://freesound.org/s/654282/" target="_blank" rel="noopener">https://freesound.org/s/654282/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, level.</p>
 <p>"Small Whirlpool Current by Flooding Creek Bridge (loop)" created by NickTayloe on Freesound.org, <a href="https://freesound.org/people/NickTayloe/sounds/851608/" target="_blank" rel="noopener">https://freesound.org/people/NickTayloe/sounds/851608/</a>, under CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: shortened loop, mono, filtered, level.</p>
 <p class="crh"><b>Music (Creative Commons Attribution)</b></p>
 <p>"Happy Bee - Surf" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a></p>
@@ -286,6 +290,9 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <p>"22lr Caliber Rifle Shots and Reloading" by Geoff-Bremner-Audio, <a href="https://freesound.org/people/Geoff-Bremner-Audio/sounds/717133/" target="_blank" rel="noopener">https://freesound.org/people/Geoff-Bremner-Audio/sounds/717133/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, mono, low-pass filtered, layered, level.</p>
 <p>"Diesel boat engine" by byjoshberry, <a href="https://freesound.org/people/byjoshberry/sounds/435669/" target="_blank" rel="noopener">https://freesound.org/people/byjoshberry/sounds/435669/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: looped, filtered, level.</p>
 <p>"20180616 - Tropical rain Thailand 02.wav" by LG, <a href="https://freesound.org/people/LG/sounds/462774/" target="_blank" rel="noopener">https://freesound.org/people/LG/sounds/462774/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: excerpt looped with a crossfade, mono, high-pass filtered, level.</p>
+<p>Sound #255216 by Carmelomike, <a href="https://freesound.org/s/255216/" target="_blank" rel="noopener">https://freesound.org/s/255216/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, level.</p>
+<p>Sound #174059 by Pjkasinski3, <a href="https://freesound.org/s/174059/" target="_blank" rel="noopener">https://freesound.org/s/174059/</a>, CC BY 3.0 (<a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/3.0/</a>). Edited: trimmed, level.</p>
+<p>Sound #654282 by Jolindi, <a href="https://freesound.org/s/654282/" target="_blank" rel="noopener">https://freesound.org/s/654282/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, level.</p>
 <p>"Small Whirlpool Current by Flooding Creek Bridge (loop)" created by NickTayloe on Freesound.org, <a href="https://freesound.org/people/NickTayloe/sounds/851608/" target="_blank" rel="noopener">https://freesound.org/people/NickTayloe/sounds/851608/</a>, under CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: shortened loop, mono, filtered, level.</p>
 <p class="crh"><b>Music (Creative Commons Attribution)</b></p>
 <p>"Happy Bee - Surf" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a></p>
@@ -3762,9 +3769,11 @@ const WX={ON:!/[?&]wx=0\b/.test(location.search),k:null,a:0,T:0,dur:0,at:0,R:[],
     if(this.k==='storm'||(this.heavy&&this.k==='rain')){ this.nt-=dt; if(this.nt<=0){ const near=this.k==='storm'&&Math.random()<.45; this.nt=(this.k==='storm'?7:16)+Math.random()*10; if(near)this.fl=.9*this.a;
       try{ SAMP.ready()&&SamplePlayer.thunder&&MIX.as('amb',()=>SamplePlayer.thunder({near,when:Snd.ctx?Snd.ctx.currentTime+(near?.15:1.2+Math.random()*1.5):0})) }catch(e){} } } },
   draw(W,H){ if(!this.ON||!this.k||this.a<=0||!G||G.demo)return; const a=this.a, t=G.t;
-    if(this.k==='fog'){ ctx.save(); for(let i=0;i<5;i++){ const x=W*((i*.27+t*.006*(1+i*.3))%1.3-.15), y=H*(.25+.14*i), r=Math.max(W,H)*.36; const gr=ctx.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,'rgba(210,220,212,'+(.22*a).toFixed(3)+')'); gr.addColorStop(1,'rgba(210,220,212,0)'); ctx.fillStyle=gr; ctx.fillRect(x-r,y-r,r*2,r*2) } ctx.restore(); return }
-    ctx.save(); ctx.fillStyle='rgba(20,30,40,'+((this.heavy?.16:.09)*a).toFixed(3)+')'; ctx.fillRect(0,0,W,H);
-    ctx.strokeStyle='rgba(190,205,220,'+((this.heavy?.42:.3)*a).toFixed(3)+')'; ctx.lineWidth=Math.max(1,W/900); ctx.beginPath(); const n=this.heavy?90:50, L=H*(this.heavy?.05:.035);
+    const lo=COARSE.matches||document.body.classList.contains('low');
+    if(this.k==='fog'){ if(!this.FS){ const c=document.createElement('canvas'); c.width=c.height=64; const x=c.getContext('2d'), gr=x.createRadialGradient(32,32,0,32,32,32); gr.addColorStop(0,'rgba(210,220,212,1)'); gr.addColorStop(1,'rgba(210,220,212,0)'); x.fillStyle=gr; x.fillRect(0,0,64,64); this.FS=c }
+      ctx.save(); ctx.imageSmoothingEnabled=true; const n=lo?3:5; for(let i=0;i<n;i++){ const x=W*((i*.27+t*.006*(1+i*.3))%1.3-.15), y=H*(.25+.7*i/(n-1||1)*.8), r=Math.max(W,H)*(lo?.42:.36); ctx.globalAlpha=.22*a; ctx.drawImage(this.FS,x-r,y-r,r*2,r*2) } ctx.restore(); return }
+    ctx.save(); if(!lo){ ctx.fillStyle='rgba(20,30,40,'+((this.heavy?.16:.09)*a).toFixed(3)+')'; ctx.fillRect(0,0,W,H) }
+    ctx.strokeStyle='rgba(190,205,220,'+((this.heavy?.42:.3)*a).toFixed(3)+')'; ctx.lineWidth=Math.max(1,W/900); ctx.beginPath(); const n=(this.heavy?90:50)>>(lo?1:0), L=H*(this.heavy?.05:.035);
     for(let i=0;i<n;i++){ const q=this.R[i], y=((q.y+t*q.v*1.6)%1)*H*1.1-H*.05, x=((q.x+t*q.v*.25)%1)*W; ctx.moveTo(x,y); ctx.lineTo(x-L*.25,y+L) } ctx.stroke();
     if(this.fl>0){ ctx.fillStyle='rgba(235,240,255,'+(Math.min(.3,this.fl*.33)).toFixed(3)+')'; ctx.fillRect(0,0,W,H) } ctx.restore() } };
 /* AI Marine smoke (Blake, low priority): a Marine throws a WHITE HC screening grenade (never a coloured signal smoke) to screen the corpsman
@@ -6407,7 +6416,7 @@ const EXW={B40:1.0,CHARGE:2.0};   /* manifest lead times (s); read from SAMPLE_M
 /* ===== MIX (Blake Oct 14: "a soup of sounds"): priority buses into the existing limiter.
    player 0 dB (never culled, prio 9) > special -1 dB (briefly ducks the rest) > squad -7 dB > enemy -11 dB (+ distance falloff, per-slot voice caps) > ambience -14 dB; music -9 dB vs player.
    Specials duck squad/enemy/ambience -6 dB, music -4 dB, player -1.5 dB for ~1.4 s. Callers tag squad / enemy sounds with MIX.as('squad'|'enemy', fn, dist). ===== */
-const MIX={DB:{player:0,special:-1,squad:-4,enemy:-5,amb:-10,rot:-8,mus:-14},   /* Sound Helper mix pass, Oct 14 night */
+const MIX={DB:{player:0,special:-7,squad:-4,enemy:-1,amb:-10,rot:-8,mus:-14},   /* Sound Helper mix pass, Oct 14 night */
   DUCK:{player:-1.5,squad:-6,enemy:-6,amb:-6,rot:-6,mus:-4},DUCK_T:1.4,
   CAP:{enemy:{ak47:3,ak47_burst:2,sks:2,rpd_burst:2,b40_launch:2,mortar_launch:2,cannon:2},squad:{m16_single:3,m16_burst:2,m60_burst:2,shotgun_shot:1,bolt_rifle_shot:1,m79_launch:2,pbr_50cal_burst:2},_:4},
   SPECIAL:new Set(['bomb_distant','napalm_ignite','mortar_incoming','minigun_burst','strafe_20mm','tandem_rotor_flyby','huey_flyby','jet_flyby','radio_squelch','explosion_far','bugle','hymn']),
@@ -6423,7 +6432,7 @@ const MIX={DB:{player:0,special:-1,squad:-4,enemy:-5,amb:-10,rot:-8,mus:-14},   
   FORCE_SPECIAL:new Set(['b40_launch','whistle','cannon_76mm']),
   DUCKERS:new Set(['bomb_distant','napalm_ignite','minigun_burst','strafe_20mm','huey_flyby','jet_flyby','skyraider_flyby','ranch_hand_flyover','tandem_rotor_flyby','radio_squelch','mortar_incoming','whistle','b40_launch']),
   busOf(sl){ if(this.FORCE_SPECIAL.has(sl))return 'special'; if(this.AMB.has(sl))return 'amb'; const M=window.SAMPLE_MANIFEST&&SAMPLE_MANIFEST.slots[sl], gr=M&&M.group;
-    if(gr==='specials'||gr==='radio')return 'special'; if(gr==='foley')return 'player'; if(this.src)return this.src; if(gr==='enemy')return 'enemy'; if(gr)return 'player';   /* untagged squad-group clips are the player's own (M60, cannon...) - Marines, PBR and the friendly tank are tagged squad */
+    if(gr==='specials'||gr==='radio'||gr==='sting')return 'special'; if(gr==='ambience')return 'amb'; if(gr==='foley')return 'player'; if(this.src)return this.src; if(gr==='enemy')return 'enemy'; if(gr)return 'player';   /* untagged squad-group clips are the player's own (M60, cannon...) - Marines, PBR and the friendly tank are tagged squad */
     if(this.SPECIAL.has(sl)||/^bomb|^radio|flyby/.test(sl))return 'special'; if(this.ENEMYSL.has(sl))return 'enemy'; return 'player' },
   route(sl,s,o){ if(!this.c)return null; if(MENUQ())return {drop:true}; if(s.out==='rotor')return null; const b=o.bus||this.busOf(sl); const r={bus:b,dest:this.bus[b]};
     if(b==='player'){ r.prio=9; r.cat=s.cat==='gun'?'pgun':s.cat }   /* the player's own sounds are never culled */
@@ -6438,10 +6447,13 @@ const SAMP={on:false,real:{},st:{b40:0,b40Late:0,b40Silent:0,charge:0,chargeLate
   /* game sound name -> SamplePlayer slot. Every WEAPON name is here: it plays its real clip or nothing (never a synth). */
   MAP:{m16:'m16_single',m60:'m60_burst',vcshot:'ak47',mortar:'mortar_launch',shellwhistle:'mortar_incoming',flame:'flamethrower_burst',radio:'radio_squelch',airarc:'bomb_distant',m79:'m79_launch',m2:'pbr_50cal_burst',
     /* placeholders that BORROW a clip (labelled): Grease Gun, M14 and M1911 use the M16 clip */
-    grease:'smg_m45_burst',m14:'m16_single',m1911:'m16_single',   /* STAND-IN: the M3A1 'Grease Gun' (.45) borrows the Sten 9 mm SMG clip until a real M3A1 recording exists */
+    grease:'m3a1_burst',m14:'m16_single',m1911:'m1911_shot',carbine:'m2_carbine',   /* M3A1: Sound Helper's close stand-in (real Sten rounds pitched to ~450 rpm); placeholders PENDING LEGAL, credits held back */
     /* named slots with no clip yet: silent until Sound Helper fills them */
-    m1903:'bolt_rifle_shot',bolt:'bolt_rifle_bolt',ithaca:'shotgun_shot',claymore:'explosion_claymore',knives:'knife_throw',tank_cannon:'cannon',rr106:'backblast',ontos:'backblast',enemy_cannon:'cannon_76mm',brrt:'strafe_20mm',minigun:'minigun_burst',zuni:'backblast',napalm:'napalm_ignite',airstrafe_gun:'strafe_20mm'},   /* stale names pointed at the real slots (mix pass) */
-  NONWEAPON:{radio:1,airarc:1},
+    m1903:'bolt_rifle_shot',bolt:'bolt_rifle_bolt',ithaca:'shotgun_shot',claymore:'explosion_claymore',knives:'knife_throw',tank_cannon:'cannon',rr106:'backblast',ontos:'backblast',enemy_cannon:'cannon_76mm',brrt:'strafe_20mm',minigun:'minigun_burst',zuni:'backblast',napalm:'napalm_ignite',airstrafe_gun:'strafe_20mm',
+    pick:'ui_pickup',gem:'ui_pickup',heal:'ui_heal',medpack:'ui_heal',level:'ui_level',ready:'ui_ready',chime:'ui_chime',pulse:'radio_pulse',
+    hit:'hit_flesh',kill:'kill_hit',thud:'thud_dirt',punji:'punji_trap',creak:'creak_wood',hatch:'hatch_metal',sigpop:'smoke_pop',
+    stage:'stage_hammer',tune:'radio_tune',boss:'sting_boss',evac:'sting_evac',over:'sting_over',whistle:'whistle',boom:'explosion_close'},   /* stale names pointed at the real slots (mix pass) */
+  NONWEAPON:{},
   init(){ if(this.on||!Snd.ctx||!window.SamplePlayer||!window.SAMPLE_MANIFEST||!Snd.cbus)return; const c=Snd.ctx, M=SAMPLE_MANIFEST; M.base='audio/samples/';   /* the manifest is copied verbatim from Sound Helper; the game serves it from audio/ */
     this.sfxDuck=c.createGain(); this.sfxDuck.connect(Snd.cbus);
     this.mDuck=c.createGain(); try{ Snd.mbus.disconnect() }catch(e){} Snd.mbus.connect(this.mDuck); MIX.build(c,this.sfxDuck); this.mDuck.connect(MIX.bus.mus); MIX.bus.mus.connect(Snd.out);

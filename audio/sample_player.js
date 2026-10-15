@@ -31,7 +31,9 @@
     bomb_distant: 1, flamethrower_loop: 1, flamethrower_burst: 1,
     // week of 2026-10-14: weapons + explosions (no synth fallback)
     bolt_rifle_shot: 1, bolt_rifle_bolt: 1, shotgun_shot: 1, shotgun_rack: 1, cannon: 1, cannon_76mm: 1, backblast: 1, car15_single: 1, car15_burst: 1, m79_sawed: 1, smg_m45_burst: 1, pistol22_suppressed: 1, minigun_burst: 1, strafe_20mm: 1,
-    explosion_close: 1, explosion_claymore: 1, napalm_ignite: 1, fire_loop: 1, smoke_pop: 1, knife_throw: 1 };
+    explosion_close: 1, explosion_claymore: 1, napalm_ignite: 1, fire_loop: 1, smoke_pop: 1, knife_throw: 1,
+    // 2026-10-14 night: missing / placeholder weapons (no synth fallback)
+    m3a1_burst: 1, m1911_shot: 1, m2_carbine: 1, m2_carbine_burst: 1 };
 
   // cat: voice-limit category. prio: higher survives voice stealing. gain: linear trim before variation.
   // out: which internal output the slot uses ('sfx' -> sfxBus, 'rotor' -> rotorBus or sfxBus).
@@ -72,6 +74,28 @@
     rain_roof_loop:     { cat: 'ambience',  prio: 5, gain: 0.068, loop: true },                    // post-gain RMS -41 (bunker interiors)
     thunder_distant:    { cat: 'weather',   prio: 3, gain: 0.142, vary: true },                    // post-gain RMS -42
     thunder_near:       { cat: 'weather',   prio: 3, gain: 0.206, vary: true },                    // post-gain RMS -40.5, crack peaks ~-15 dBFS
+    // 2026-10-14 night: missing / placeholder sounds (samples/build_missing_oct14.py; all new sources PENDING LEGAL)
+    m3a1_burst:         { cat: 'gun',       prio: 1, gain: 0.543, vary: true, maxDur: 1.2 },   // CLOSE STAND-IN M3A1 Grease Gun: real Sten rounds pitched -2 st, ~450 rpm
+    m1911_shot:         { cat: 'gun',       prio: 1, gain: 0.499, vary: true, maxDur: 0.5 },   // M1911 .45 (corpsman): C-V + Carmelomike
+    m2_carbine:         { cat: 'gun',       prio: 1, gain: 0.335, vary: true, maxDur: 0.5 },   // M2 carbine single (real M1 carbine, cognito perceptu)
+    m2_carbine_burst:   { cat: 'gun',       prio: 1, gain: 0.255, vary: true, maxDur: 0.8 },   // M2 carbine auto, real rounds on a 80 ms beat
+    ui_pickup:          { cat: 'ui',        prio: 0, gain: 0.354, vary: true },   // gem / pick: dog-tag clinks
+    ui_heal:            { cat: 'ui',        prio: 2, gain: 0.203, vary: true },   // heal / medpack: velcro pouch + bandage rip
+    ui_level:           { cat: 'ui',        prio: 3, gain: 0.183 },   // level up: charging handle + dog tags
+    ui_ready:           { cat: 'ui',        prio: 2, gain: 0.122 },   // ready: charging-handle release
+    ui_chime:           { cat: 'ui',        prio: 3, gain: 0.149 },   // boarding chime: ship bell
+    radio_pulse:        { cat: 'ui',        prio: 2, gain: 0.117 },   // extraction homing pulse: PRC beep (LukaCafuka)
+    hit_flesh:          { cat: 'hit',       prio: 0, gain: 0.169, vary: true },   // enemy hit: body punches
+    kill_hit:           { cat: 'hit',       prio: 1, gain: 0.418, vary: true },   // demo kill: heavier hit
+    thud_dirt:          { cat: 'foley',     prio: 1, gain: 0.341, vary: true },   // generic thud: sandbag + canvas on dirt
+    punji_trap:         { cat: 'foley',     prio: 3, gain: 0.64, vary: true },   // punji: bamboo snap + hit
+    creak_wood:         { cat: 'foley',     prio: 1, gain: 0.161 },   // wood creak
+    hatch_metal:        { cat: 'foley',     prio: 2, gain: 0.262 },   // metal hatch
+    stage_hammer:       { cat: 'foley',     prio: 3, gain: 0.289 },   // build stage complete: three hammer blows
+    radio_tune:         { cat: 'radio',     prio: 3, gain: 0.303 },   // Hanoi Hannah broadcast start: radio tuning static
+    sting_boss:         { cat: 'sting',     prio: 5, gain: 0.89 },   // boss inbound: timpani hit
+    sting_evac:         { cat: 'sting',     prio: 5, gain: 0.309 },   // evac fallback (music missing): acoustic C major
+    sting_over:         { cat: 'sting',     prio: 5, gain: 0.299 },   // game-over fallback (music missing): acoustic chords -2 st
     mortar_launch:      { cat: 'explosive', prio: 3, gain: 0.521, vary: true },
     mortar_impact:      { cat: 'explosive', prio: 3, gain: 0.306, vary: true },
     mortar_incoming:    { cat: 'explosive', prio: 3, gain: 0.285, vary: true },
@@ -574,7 +598,17 @@
     P.pbrManeuver = function (kind, o) { var s = { runup: 'pbr_runup', beach: 'pbr_beach', depart: 'pbr_depart' }[kind]; return s ? P.play(s, o || {}) : null; };
     P.h34 = function (kind, o) { var s = { flyby: 'h34_flyby', land: 'h34_land', liftoff: 'h34_liftoff', hover: 'h34_hover_loop' }[kind]; return s ? P.play(s, o || {}) : null; };
     P.radioCff = function (o) { return P.play('radio_cff', o || {}); };
+    // 2026-10-14 night: missing / placeholder sounds. Guns stay silent until loaded; the rest are plain one-shots.
+    P.m3a1 = function (o) { return P.play('m3a1_burst', o || {}); };
+    P.m14 = function (o) { return P.play('m14_shot', o || {}); };
+    P.m1911 = function (o) { return P.play('m1911_shot', o || {}); };
+    P.m2Carbine = function (o) { o = o || {}; return P.play(o.auto ? 'm2_carbine_burst' : 'm2_carbine', o); };   // {auto} -> burst
+    P.ui = function (kind, o) { var s = { pick: 'ui_pickup', gem: 'ui_pickup', heal: 'ui_heal', medpack: 'ui_heal', level: 'ui_level', ready: 'ui_ready', chime: 'ui_chime', pulse: 'radio_pulse' }[kind]; return s ? P.play(s, o || {}) : null; };
+    P.hit = function (kind, o) { var s = { hit: 'hit_flesh', kill: 'kill_hit', hurt: 'hurt_grunt', thud: 'thud_dirt', punji: 'punji_trap' }[kind || 'hit']; return s ? P.play(s, o || {}) : null; };
+    P.world = function (kind, o) { var s = { creak: 'creak_wood', hatch: 'hatch_metal', stage: 'stage_hammer', tune: 'radio_tune', sigpop: 'smoke_pop' }[kind]; return s ? P.play(s, o || {}) : null; };
     P.smokePop = function (o) { return P.play('smoke_pop', o || {}); };            // Doc pops the canister on the circle
+    P.sting = function (kind, o) { var s = { boss: 'sting_boss', evac: 'sting_evac', over: 'sting_over' }[kind]; return s ? P.play(s, o || {}) : null; };
+
     // ---------- weather (2026-10-14 night) ----------
     // weather('light' | 'heavy' | 'off', { fade, when, vol }) -> handle { mode, slot, voice, stop(fade) }. Crossfades from the
     // current rain bed to the new one over fade s (default 3). Calling it with the current mode is a no-op (returns the same handle).

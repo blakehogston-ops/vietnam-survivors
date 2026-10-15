@@ -832,3 +832,6 @@ music/music_menu_asian.ogg + music/music_menu_asian.m4a  (slot: menu_asian)  ** 
     Link:   https://freesound.org/people/LG/sounds/462774/
     Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: excerpt looped with a crossfade, mono, high-pass filtered, level.
 rain_light_1: nyoz #615747 (CC0). rain_roof_loop_1: Sassaby #771981 (CC0). thunder_distant_1-3: TRP #572443 x2, richwise #361401 (CC0). thunder_near_1-2: TRP #574412, #567945 (CC0).
+
+[missing-sound pass, Oct 14 night] m1911_shot_3 / ui_level_1 / ui_ready_1 (placeholder attribution until Sound Helper's exact lines):
+    Carmelomike (Freesound #255216), CC BY 4.0. Pjkasinski3 (Freesound #174059), CC BY 3.0. Jolindi (Freesound #654282), CC BY 4.0.
