@@ -1,4 +1,4 @@
-THIRD-PARTY AUDIO - Last Bird Out: Quang Tri, 1968
+THIRD-PARTY AUDIO - Last Chopper Out: Quang Tri, 1968
 ==================================================
 Updated 2026-10-14 (ET) from samples/ogg/ (198 files incl. 8 weather Legal PASS + 44 missing-sound files Legal PASS (radio_tune_1 ear check); each also ships as .m4a). Full source rows,
 page quotes and processing notes: samples/LICENSES.md. Licence audit: LICENSE_AUDIT.md.

@@ -1178,8 +1178,10 @@ window.DBG=DBG;   /* QA/debug switches from the console: DBG.bot=true, DBG.god=t
 let W=800,H=600,zoom=1,VW=800,VH=600,UI=1,DPR=1,SA={t:0,r:0,b:0,l:0},PY=70;
 const COARSE=matchMedia('(pointer:coarse)');
 const SAEL=document.createElement('div'); SAEL.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)'; document.documentElement.appendChild(SAEL);
+/* DRES: dynamic resolution on touch devices - a 4 s window under 50 fps in play steps the backing store 1.25 -> 1.0 (fps gate) */
+const DRES=window.DRES={cap:1.25, a:0, n:0, tick(dt){ if(!COARSE.matches||state!=='play'||this.cap<=1)return; this.a+=dt; this.n++; if(this.a>=4){ const f=this.n/this.a; this.a=0; this.n=0; if(f<50){ this.cap=1; try{ resize() }catch(e){} } } } };
 function resize(){
-  const dpr=Math.min(window.devicePixelRatio||1,COARSE.matches?1.25:1.5);   /* phones: 1.25x backing store (fps gate) */
+  const dpr=Math.min(window.devicePixelRatio||1,COARSE.matches?DRES.cap:1.5);   /* phones: 1.25x backing store, 1.0 if DRES steps down (fps gate) */
   W=cv.width=Math.max(320,Math.floor(innerWidth*dpr)); H=cv.height=Math.max(240,Math.floor(innerHeight*dpr));
   zoom=Math.max(.5,Math.min(1.7,Math.min(W,H)/700)); VW=W/zoom; VH=H/zoom;
   UI=Math.max(.8,Math.min(2.2,Math.min(W,H)/620)); DPR=W/innerWidth;
@@ -5226,7 +5228,7 @@ function drawBrief(){ const B=BR; ctx.setTransform(1,0,0,1,0,0); ctx.imageSmooth
   if(B.ph===0){ const fs=Math.max(13,s*5); ctx.font=`bold ${fs}px "Courier New",monospace`; ctx.textAlign='center'; ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(ox+dw*.1,oy+dh*.7,dw*.8,dh*.22); ctx.fillStyle='#f6f0cc';
     ctx.fillText('I CORPS · 1968 · BRIEFING ROOM',W/2,oy+dh*.78); ctx.fillStyle=Math.floor(performance.now()/500)%2?'#e8c860':'#f6f0cc'; ctx.fillText('CLICK / TAP / PRESS ANY KEY TO BEGIN',W/2,oy+dh*.85); ctx.font=`${fs*.75}px "Courier New",monospace`; ctx.fillStyle='#b9c48f'; ctx.fillText('ESC = skip briefing',W/2,oy+dh*.9); return }
   // pin labels near hovered pin
-  const L=BRIEF_LINES[B.page]; if(Array.isArray(L.pin)){ const P=BPINS[L.pin[Math.floor(B.pi)%L.pin.length]]; const fs=Math.max(9,s*3.4); ctx.font=`bold ${fs}px "Courier New",monospace`; ctx.textAlign='left'; const lx=ox+(18+P.x*.9+4)*s, ly=oy+(12+P.y*.88-2)*s; ctx.lineWidth=fs/4; ctx.strokeStyle='#000'; ctx.strokeText(P.nm,lx,ly); ctx.fillStyle='#fff'; ctx.fillText(P.nm,lx,ly) }
+  const L=BRIEF_LINES[B.page]; if(Array.isArray(L.pin)&&!(window.INTRO_V2&&INTRO_V2.drawScene&&!/[?&]intro2=0\b/.test(location.search))){   /* INTRO_V2 draws its own pins + labels */ const P=BPINS[L.pin[Math.floor(B.pi)%L.pin.length]]; const fs=Math.max(9,s*3.4); ctx.font=`bold ${fs}px "Courier New",monospace`; ctx.textAlign='left'; const lx=ox+(18+P.x*.9+4)*s, ly=oy+(12+P.y*.88-2)*s; ctx.lineWidth=fs/4; ctx.strokeStyle='#000'; ctx.strokeText(P.nm,lx,ly); ctx.fillStyle='#fff'; ctx.fillText(P.nm,lx,ly) }
   // dialogue box: grows downward into the letterbox / shrinks its font so the text never overflows; flags are at the top of the scene so they can never touch it
   const bx=ox+dw*.03, by=oy+dh*.7, bw=dw*.94, availH=Math.max(40,H-by-8); let fs=Math.max(12,s*4.6), lines, need;
   for(let k=0;k<12;k++){ ctx.font=`bold ${fs}px "Courier New",monospace`; lines=wrapText(ctx,L.t,bw-s*8-fs); need=fs*2.25+lines.length*fs*1.25+fs*1.1; if(need<=Math.max(dh*.27,availH)||fs<=8.5)break; fs-=1 }
@@ -5271,13 +5273,13 @@ $('btnTut').onclick=()=>TUT.open(false);
    is fetched only when the menu shows it. Captions verified by Vietnam Vet (Oct 14 night). ON; ?photos=0 off. Sources: THIRD_PARTY_ASSETS.txt + credits. */
 const MART=()=>!!(window.MENU_ART&&MENU_ART.drawBackground&&!/[?&]menuart=0\b/.test(location.search));   /* Artist Helper main_menu_art.js; ?menuart=0 = old menu */
 const KBCAP={khesanh_howitzer:'155MM HOWITZER, BATTERY W, 1/13 MARINES, KHE SANH, 1968',pbr_perfume:'PBR CREW CHECKS A JUNK, PERFUME RIVER, AUGUST 1968',ch46_auburn:'OPERATION AUBURN, QUANG NAM, C. JANUARY 1968',ch53_khesanh:'MARINES OFFLOAD A CH-53, KHE SANH, 23 JANUARY 1968',conthien_bunker:'1/4 MARINES BUILD A BUNKER, CON THIEN, JANUARY 1968'};
-try{ if(MART()){ MENU_ART.installCSS(); setTimeout(()=>{ try{ INTRO_V2&&INTRO_V2.prewarmAsync&&INTRO_V2.prewarmAsync() }catch(e){} },1500) } }catch(e){}
+try{ if(MART()){ MENU_ART.titleText='LAST CHOPPER OUT'; MENU_ART.installCSS({text:'LAST CHOPPER OUT'}); setTimeout(()=>{ try{ INTRO_V2&&INTRO_V2.prewarmAsync&&INTRO_V2.prewarmAsync() }catch(e){} },1500) } }catch(e){}
 const KB={ON:!/[?&]photos=0\b/.test(location.search),L:['ch46_auburn','ch53_khesanh','conthien_bunker','pbr_perfume','khesanh_howitzer'],i:0,f:0,t:null,
   start(){ if(!this.ON||this.t)return; if(!MART())$('kb').classList.add('on'); this.step(); this.t=setInterval(()=>this.step(),14000) },
   stop(){ clearInterval(this.t); this.t=null; $('kb').classList.remove('on') },
-  step(){ if(state!=='menu'){ return } if(MART()){ const k=this.L[this.i++%this.L.length], im=new Image(); im.decoding='async'; im.onload=()=>{ try{ MENU_ART.setPhoto(im,KBCAP[k]||'') }catch(e){} }; im.src='assets/photos/'+k+'.webp'; return } const E=$('kb').children, a=E[this.f], b=E[1-this.f], k=this.L[this.i++%this.L.length];
+  step(){ if(state!=='menu'){ return } if(MART()){ const k=this.L[this.i++%this.L.length], im=new Image(); im.decoding='async'; im.onload=()=>{ try{ MENU_ART.setPhoto(im,''); KB.cap=KBCAP[k]||'' }catch(e){} }; im.src='assets/photos/'+k+'.webp'; return } const E=$('kb').children, a=E[this.f], b=E[1-this.f], k=this.L[this.i++%this.L.length];
     a.style.backgroundImage='url(assets/photos/'+k+'.webp)'; a.classList.remove('go'); void a.offsetWidth; a.classList.add('show','go'); b.classList.remove('show'); this.f=1-this.f } };
-setInterval(()=>{ if(state==='menu')KB.start(); else if(KB.t)KB.stop() },1000);
+window.KB=KB; setInterval(()=>{ if(state==='menu')KB.start(); else if(KB.t)KB.stop() },1000);
 window.addEventListener('keydown',e=>TUT.key(e),true);
 { const iv=setInterval(()=>{ let a=false; try{a=localStorage.getItem('lbo2_tutAsk')==='1'}catch(e){} if(a||DBG.bot||params.has('autostart')||DBG.t>0||/[?&]notut\b/.test(location.search)){ clearInterval(iv); return }
   if(state==='menu'&&!$('charsel').classList.contains('show')){ clearInterval(iv); TUT.open(true) } },500) }
@@ -6506,7 +6508,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   WX.draw(W,H);   /* weather sits under the HUD: never hides prompts, timers or the pad arrow */
   { const low=(!g.demo&&p.hp>0&&p.hp/p.maxHp<.35)?(.13+(g.hbPulse>0?(g.hbPulse/.38)*(g.hbAmp||.3)*.55:0)+(g.hbT===undefined||g.hbT===0?.06*Math.sin(tt*5):0))*(1-p.hp/p.maxHp/.35*.5):0;   /* pulses on each heartbeat cue (dangerTick) */ const a=Math.min(.8,Math.max(g.hurt>0?g.hurt*1.5:0,low))*(GORE?1:.35);
     if(a>.01){ const gr=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.18,W/2,H/2,Math.max(W,H)*.68); gr.addColorStop(0,'rgba(120,0,0,0)'); gr.addColorStop(.6,`rgba(140,6,6,${a*.45})`); gr.addColorStop(1,`rgba(110,0,0,${a})`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H) } }
-  if(state==='menu'&&MART()){ try{ ctx.setTransform(1,0,0,1,0,0); MENU_ART.drawBackground(ctx,W,H,performance.now()/1000) }catch(e){} }   /* art hook: Artist Helper's ui/main_menu_art.js draws over the attract demo, under the HTML menu */
+  if(state==='menu'&&MART()){ try{ ctx.setTransform(1,0,0,1,0,0); MENU_ART.drawBackground(ctx,W,H,performance.now()/1000); if(window.KB&&window.KB.cap&&MENU_ART.drawCaption)MENU_ART.drawCaption(ctx,window.KB.cap,Math.round(12*DPR),Math.round(26*DPR),Math.round(10*DPR),'tl') }catch(e){} }   /* caption top-left so it never sits under the How to Play board */   /* art hook: Artist Helper's ui/main_menu_art.js draws over the attract demo, under the HTML menu */
   if(state==='menu'||state==='intro'||g.demo)return;
   const U=UI;
   // xp bar

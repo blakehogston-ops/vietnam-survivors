@@ -1,4 +1,4 @@
-/* MENU_ART: main-menu art for Last Bird Out (Quang Tri 1968). Artist Helper, 2026-10-14.
+/* game patch: title 'LAST CHOPPER OUT', subtitle 'QUANG TRI, 1968' (Blake). MENU_ART: main-menu art for Last Chopper Out (Quang Tri 1968). Artist Helper, 2026-10-14.
    Plain canvas 2D, no assets, no dependencies. Everything static is baked once into cached canvases;
    per frame it only blits layers and draws a few small animated sprites.
    API (all coords in CSS px of the target ctx; scale with ctx transform if you use DPR):
@@ -228,7 +228,7 @@ function bakeTitle(text,W){ var fs=Math.round(W/ (text.length*.52)), Hh=Math.rou
     // overspray / soft edge highlight
     x.globalCompositeOperation='lighter'; x.globalAlpha=.08; x.drawImage(m,-1,-1); x.globalCompositeOperation='source-over'; x.globalAlpha=1;
     // subtitle bar: QUANG TRI · 1968 between rules
-    var sf=Math.max(10,Math.round(fs*.2)), sy=by+fs*.42; x.font='bold '+sf+'px '+MONO; x.fillStyle='#e8c860'; var st='QUANG TRI  \u00b7  I CORPS  \u00b7  1968', sw=x.measureText(st).width;
+    var sf=Math.max(10,Math.round(fs*.2)), sy=by+fs*.42; x.font='bold '+sf+'px '+MONO; x.fillStyle='#e8c860'; var st='QUANG TRI, 1968', sw=x.measureText(st).width;
     x.fillStyle='rgba(0,0,0,.55)'; x.fillText(st,w/2+1,sy+1); x.fillStyle='#e8c860'; x.fillText(st,w/2,sy);
     x.fillStyle='rgba(232,200,96,.7)'; x.fillRect(w/2-sw/2-fs*.9,sy-sf*.38,fs*.7,Math.max(1,sf*.12)); x.fillRect(w/2+sw/2+fs*.2,sy-sf*.38,fs*.7,Math.max(1,sf*.12)) }) }
 function drawTitle(ctx,cx,y,width,t,text){ text=String(text||MENU_ART.titleText).toUpperCase(); var W=Math.max(200,Math.min(2400,Math.round(width||600))); var b=bakeTitle(text,W);
@@ -296,7 +296,7 @@ function installCSS(opts){ opts=opts||{}; if(typeof document==='undefined')retur
   st=document.createElement('style'); st.id='menuArtCSS'; st.textContent=css; document.head.appendChild(st); return true }
 
 function safe(fn,fb){ return function(){ try{ return fn.apply(null,arguments) }catch(e){ if(!safe.w){ safe.w=1; if(typeof console!=='undefined')console.warn('MENU_ART fallback',e) } try{ return fb&&fb.apply(null,arguments) }catch(e2){} } } }
-var MENU_ART={titleText:'LAST BIRD OUT', version:'2026-10-14',
+var MENU_ART={titleText:'LAST CHOPPER OUT', version:'2026-10-14',
   drawBackground:safe(drawBackground,function(ctx,w,h){ var g=ctx.createLinearGradient(0,0,0,h); g.addColorStop(0,'#1b2238'); g.addColorStop(.6,'#c4683c'); g.addColorStop(.61,'#141a14'); g.addColorStop(1,'#0a0c08'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h) }),
   drawTitle:safe(drawTitle,function(ctx,cx,y,w,t,text){ ctx.save(); ctx.font='bold '+Math.round((w||600)/9)+'px '+FONT; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle='#e8dfae'; ctx.fillText(String(text||MENU_ART.titleText).toUpperCase(),cx,y); ctx.restore() }),
   drawButton:safe(drawButton,function(ctx,x,y,w,h,label){ ctx.fillStyle='#4a6b2f'; ctx.fillRect(x,y,w,h); ctx.fillStyle='#f6f0cc'; ctx.font='bold '+Math.round(h*.45)+'px '+FONT; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(label||'').toUpperCase(),x+w/2,y+h/2) }),

@@ -1,6 +1,6 @@
 /* copied from Sound Helper by tools/build_audio.py; game patches: mix-bus routing (P.route); and one game-side patch marked "game patch" (warning voices outside the caps) */
 /*
- * sample_player.js - real recorded samples for "Last Bird Out - Quang Tri, 1968".
+ * sample_player.js - real recorded samples for "Last Chopper Out - Quang Tri, 1968".
  * Plain browser JS, no dependencies. Works next to sound_cues.js (the synthesized cues).
  *
  *   SamplePlayer.init(audioCtx, { sfxBus, musicBus, voiceBus, rotorBus, musicDuck, sfxDuck });
