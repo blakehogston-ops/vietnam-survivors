@@ -165,7 +165,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 #kb i{position:absolute;inset:-6%;background:center/cover no-repeat;opacity:0;transition:opacity 2.5s ease;filter:sepia(.25) contrast(1.05)}#kb i.show{opacity:.30}
 #kb i.go{animation:kbz 16s linear forwards}@keyframes kbz{from{transform:scale(1) translate(0,0)}to{transform:scale(1.12) translate(-2%,-1.5%)}}
 #menu>*:not(#kb){position:relative;z-index:1}
-.ochon{color:#f0d890;font-size:13px;margin:4px 0 8px;letter-spacing:.04em}.hrib{display:inline-block;width:22px;height:7px;vertical-align:middle;background:linear-gradient(90deg,#4f8fc8 0 40%,#fff 40% 46%,#4f8fc8 46% 54%,#fff 54% 60%,#4f8fc8 60%);border:1px solid #1a1c12}
+.ockia{color:#bdb79f;font:12px 'Courier New',monospace;margin:2px 0 6px}.ochon{color:#f0d890;font-size:13px;margin:4px 0 8px;letter-spacing:.04em}.hrib{display:inline-block;width:22px;height:7px;vertical-align:middle;background:linear-gradient(90deg,#4f8fc8 0 40%,#fff 40% 46%,#4f8fc8 46% 54%,#fff 54% 60%,#4f8fc8 60%);border:1px solid #1a1c12}
 .nmcred{display:none}body.nm .nmcred{display:block}
 </style>
 </head>
@@ -2495,7 +2495,7 @@ function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.bk&&!
   if(G.sqS&&(m.hp>0)){ if(drops.length<(LOWFX?110:300))spawnDrops(m.x,m.y-6,0,0,4,90) }
   if(m.hp<=0)killMember(m) }
 function q15Dead(m){ if(m.bodied||!m.coy||!m.nm||!G.q15)return; m.bodied=1; bodies.push({x:m.x,y:m.y,nm:m.nm,cv:m.cv|0,t:G.t,r:rnd()<.5?1:-1}); if(G.rl&&G.rl.firstDeath===null)G.rl.firstDeath=G.t }   /* bodies stay where they fell; runLog first death */
-function killMember(m){ m.hp=0; const x=m.x,y=m.y; if(G.rl&&G.rl.firstDeath===null&&!G.demo)G.rl.firstDeath=G.t;   /* QA bug 2: every Marine death counts, not only named company bodies */
+function killMember(m){ m.hp=0; const x=m.x,y=m.y; if(m.coy)try{ KIA.add(m) }catch(e){} if(G.rl&&G.rl.firstDeath===null&&!G.demo)G.rl.firstDeath=G.t;   /* QA bug 2: every Marine death counts, not only named company bodies */
   spawnDrops(x,y-6,0,0,20,170); addDecal(x,y+5,SPLAT[(rnd()*6)|0],45,1);
   if(CORPSE.marine)addDecal(x,y+6,CORPSE.marine[(rnd()*2)|0],38,1);
   const ks=[11,3,4,(rnd()*3)|0,5]; for(let i=0;i<ks.length;i++){ const a=rnd()*TAU,v=60+rnd()*120; spawnGib(x,y,Math.cos(a)*v,Math.sin(a)*v,ks[i],1) }
@@ -3045,7 +3045,7 @@ function newGame(demo){
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
-  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FBO.reset(); MUSI.reset(); URG.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
+  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:100,maxHp:100,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
@@ -3465,7 +3465,7 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){const dx=p.
   G.botTimer+=.016; x+=Math.cos(G.botTimer*.3)*.25; y+=Math.sin(G.botTimer*.27)*.25; const l=Math.hypot(x,y); if(l>1){x/=l;y/=l} return [x,y]; }
 
 function update(dt){
-  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt);
+  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt);
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
   const g=G,p=g.p; g.t+=dt; g.dthF=0;
@@ -3919,6 +3919,16 @@ const URG={ON:!/[?&]urg=0\b/.test(location.search), P:.3, CD:75, MAX:2, h:null, 
           g.banner={text:'URGENT MEDEVAC: '+(m.nm||'MARINE').toUpperCase()+' IS OUT',t:2.4,col:'#9be37a'}; Snd.play('radio') } h.ph=2; h.ex=h.hd+(rnd()-.5)*.8 } }
     else { try{ SeaKnightS.cue(h,'out') }catch(e){} h.out+=dt; h.z+=(40*h.out+8)*dt; h.hd=turnTo(h.hd,h.ex,1.2*dt); h.x+=Math.cos(h.hd)*(40+200*h.out)*dt; h.y+=Math.sin(h.hd)*(40+200*h.out)*dt; if(h.out>7)this.h=null } },
   draw(){ if(this.h)drawHuey(this.h) } };
+/* KIA (Blake): a short, dignified notice when a Marine falls ("KIA: LCpl Ortiz"), muted typewriter style, queued, soft radio tone.
+   Reinforcements get seeded, period-plausible fictional names (never real people). The end card lists the roll; urgent medevacs show as MEDEVAC. ?kia=0 off. */
+const KIA={ON:!/[?&]kia=0\b/.test(location.search), q:[], cur:null, t:0,
+  RK:['Pvt','PFC','PFC','PFC','LCpl','LCpl','Cpl','Sgt'], SN:['Alvarez','Becker','Carver','Dawson','Ellison','Fischer','Garza','Hollis','Ingram','Jaramillo','Kowalski','Lawson','Mendez','Novak','Oakes','Pruitt','Quinlan','Ramos','Sorensen','Tate','Underwood','Vance','Whitfield','Yates','Zamora','Abbott','Bishop','Coleman','Duarte','Embry'],
+  nameFor(m){ if(m.nm)return m.nm; const g=G, h=hash2((g.seedH|0)+7,(g.kiaN=(g.kiaN|0)+1)*131+(m.slot|0)); m.nm=this.RK[(h*this.RK.length)|0]+' '+this.SN[(hash2(h*1e4|0,3)*this.SN.length)|0]; return m.nm },
+  reset(){ this.q.length=0; this.cur=null; this.t=0 },
+  add(m){ const g=G; if(!this.ON||!g||g.demo)return; const nm=this.nameFor(m); (g.kiaL||(g.kiaL=[])).push(nm); this.q.push(nm); try{ Snd.play('pulse') }catch(e){} },
+  tick(dt){ if(this.cur){ this.t-=dt; if(this.t<=0)this.cur=null } if(!this.cur&&this.q.length){ this.cur=this.q.length>2?this.q.splice(0,this.q.length).join(', '):this.q.shift(); this.t=2.8 } },
+  hud(U){ if(!this.cur)return; const a=Math.min(1,this.t*2,(2.8-this.t)*4); ctx.save(); ctx.globalAlpha=a*.92; ctx.font=Math.round(12*U)+'px "Courier New",monospace'; const tx='KIA: '+this.cur, w=ctx.measureText(tx).width+16*U, x0=W/2-w/2, y0=H*.235;
+    ctx.fillStyle='rgba(12,14,10,.62)'; ctx.fillRect(x0,y0,w,20*U); ctx.fillStyle='#c9c2a6'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(tx,W/2,y0+10*U); ctx.restore() } };
 const TANKK=[{nm:'M48A3 Patton',spd:100,rr:26},{nm:'M67A2 "Zippo" Flame Tank',spd:96,rr:26},{nm:'M50A1 Ontos',spd:150,rr:20}];
 function callTank(s,l){ const p=G.p, pool=[0]; if(l>=3)pool.push(1); if(l>=6)pool.push(2); const k=pool[(G.tankRot++)%pool.length];
   const R=Math.hypot(VW,VH)/2+70, a=rnd()*TAU;
@@ -6166,13 +6176,14 @@ function gameOver(win,why){ state='over'; overAt=performance.now(); const g=G, e
   const aw=awardRun(true), sm=t=>`<div class="ocsm">${t}</div>`, seedTx='Seed '+g.seed, D=CHD[g.char]||CHD.doc;
   if(win){ $('overTitle').textContent='EXTRACTED — THE BIRD IS OUT'; $('rank').textContent='';
     const on=[D.nick+' ('+D.rank+' '+D.nm.split(' ').pop()+')'].concat(ex.gotOn||[]);
+    const ROLL=((g.kiaL&&g.kiaL.length)?`<div class="ockia"><b>KIA:</b> ${g.kiaL.join(', ')}</div>`:'')+((g.urgL&&g.urgL.length)?`<div class="ockia"><b>MEDEVAC:</b> ${g.urgL.join(', ')}</div>`:'');
     const HON=(g.honor&&g.honor.length)?`<div class="ochon">${g.honor.map(h=>'<span class="hrib"></span> '+h).join('<br>')}</div>`:'';
-    $('stats').innerHTML=HON+`<div class="ocon"><b>GOT ON:</b> ${on.join(', ')}</div><div class="ocld"><b>LOADED:</b> ${(ex.loaded&&ex.loaded.length)?ex.loaded.join(', '):'nobody'}</div>`+
+    $('stats').innerHTML=HON+ROLL+`<div class="ocon"><b>GOT ON:</b> ${on.join(', ')}</div><div class="ocld"><b>LOADED:</b> ${(ex.loaded&&ex.loaded.length)?ex.loaded.join(', '):'nobody'}</div>`+
       ((ex.left&&ex.left.length)?`<div class="oclf"><b>LEFT BEHIND:</b> ${ex.left.join(', ')}</div>`:'')+
       `<div class="ocopt"><b>OPTIONAL CALL:</b> ${ex.optCall?ex.optCall:'none'}</div>`+
       (opened?'<div class="ocop">The other service records are open.</div>':'')+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')); $('overSvc').innerHTML=serviceCard(aw) }
   else { $('overTitle').textContent=why==='left'?'LEFT ON THE LZ — THE BIRD IS GONE':charNick(g).toUpperCase()+' IS DOWN'; $('rank').textContent='';
-    $('stats').innerHTML=((g.honor&&g.honor.length)?`<div class="ochon">${g.honor.map(h=>'<span class="hrib"></span> '+h).join('<br>')}</div>`:'')+`<div class="ocfact">${deathFact(g)}</div>`+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')); $('overSvc').innerHTML=serviceCard(aw) }
+    $('stats').innerHTML=((g.honor&&g.honor.length)?`<div class="ochon">${g.honor.map(h=>'<span class="hrib"></span> '+h).join('<br>')}</div>`:'')+((g.kiaL&&g.kiaL.length)?`<div class="ockia"><b>KIA:</b> ${g.kiaL.join(', ')}</div>`:'')+((g.urgL&&g.urgL.length)?`<div class="ockia"><b>MEDEVAC:</b> ${g.urgL.join(', ')}</div>`:'')+`<div class="ocfact">${deathFact(g)}</div>`+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')); $('overSvc').innerHTML=serviceCard(aw) }
   if(aw&&aw.rib&&aw.rib.length)ribFanfare(aw.rib);
   setTimeout(()=>{ if(state==='over')$('over').classList.add('show') },700); }
 /* End-of-run service-record card: XP bar (animated), tier gain, earned ribbon strip (new ones called out), dedication */
@@ -6530,7 +6541,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   for(const id in g.w)row(id,g.w[id].lvl); for(const id in g.ps)if(g.ps[id]>0)row(id,g.ps[id]);
   // banner
   if(g.banner){ const b=g.banner,k=Math.min(1,(3.2-b.t)*5,b.t*2); ctx.globalAlpha=Math.max(0,Math.min(1,k)); txt(b.text,W/2,H*.27,(30+6*(1-Math.min(1,k)))*U,b.col,'center'); ctx.globalAlpha=1 }
-  PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
+  PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); KIA.hud(U); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
   // joystick
   if(joy.on){ ctx.globalAlpha=.45; ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(joy.ox*(W/innerWidth),joy.oy*(H/innerHeight),55*(W/innerWidth),0,TAU); ctx.stroke(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc((joy.ox+joy.x*55)*(W/innerWidth),(joy.oy+joy.y*55)*(H/innerHeight),22*(W/innerWidth),0,TAU); ctx.fill(); ctx.globalAlpha=1 }
 }

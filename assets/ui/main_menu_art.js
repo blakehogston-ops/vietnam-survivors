@@ -228,7 +228,7 @@ function bakeTitle(text,W){ var fs=Math.round(W/ (text.length*.52)), Hh=Math.rou
     // overspray / soft edge highlight
     x.globalCompositeOperation='lighter'; x.globalAlpha=.08; x.drawImage(m,-1,-1); x.globalCompositeOperation='source-over'; x.globalAlpha=1;
     // subtitle bar: QUANG TRI · 1968 between rules
-    var sf=Math.max(10,Math.round(fs*.2)), sy=by+fs*.42; x.font='bold '+sf+'px '+MONO; x.fillStyle='#e8c860'; var st='QUANG TRI, 1968', sw=x.measureText(st).width;
+    var sf=Math.max(10,Math.round(fs*.2)), sy=by+fs*.42; x.font='bold '+sf+'px '+MONO; x.fillStyle='#e8c860'; var st='QUANG TRI  \u00b7  3RD MARINE DIVISION  \u00b7  1968', sw=x.measureText(st).width; while(sf>8&&sw+fs*2.2>w){ sf--; x.font='bold '+sf+'px '+MONO; sw=x.measureText(st).width }   /* game patch: fit the longer subtitle on phones */
     x.fillStyle='rgba(0,0,0,.55)'; x.fillText(st,w/2+1,sy+1); x.fillStyle='#e8c860'; x.fillText(st,w/2,sy);
     x.fillStyle='rgba(232,200,96,.7)'; x.fillRect(w/2-sw/2-fs*.9,sy-sf*.38,fs*.7,Math.max(1,sf*.12)); x.fillRect(w/2+sw/2+fs*.2,sy-sf*.38,fs*.7,Math.max(1,sf*.12)) }) }
 function drawTitle(ctx,cx,y,width,t,text){ text=String(text||MENU_ART.titleText).toUpperCase(); var W=Math.max(200,Math.min(2400,Math.round(width||600))); var b=bakeTitle(text,W);

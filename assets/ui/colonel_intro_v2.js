@@ -1,4 +1,4 @@
-/* INTRO_V2: redrawn Colonel briefing for Last Bird Out. Artist Helper, 2026-10-14.
+/* INTRO_V2: redrawn Colonel briefing for Last Chopper Out. Artist Helper, 2026-10-15.
    Drop-in for the scene art of the existing launch briefing (index.html drawBriefScene). It does NOT touch audio or timing:
    the game keeps BRIEF_LINES, BVOX (audio/brief_01..08.mp3) and its page logic; INTRO_V2 only draws the picture for the current page.
    API:
@@ -152,6 +152,24 @@ function bakeHead(x,mouth,blink){ x.save(); var R=rng(4);
   // squared chin: flat front, mentalis dimple, under-chin shadow
   x.strokeStyle='rgba(60,28,16,.45)'; x.lineWidth=2; x.beginPath(); x.moveTo(186,258); x.quadraticCurveTo(202,262,218,258); x.stroke(); x.beginPath(); x.moveTo(202,252); x.lineTo(202,264); x.stroke();
   headPath(x); x.strokeStyle=OUT; x.lineWidth=3.5; x.stroke();
+  // 8-POINT UTILITY COVER (OG-107 sateen), stiff octagonal crown, short bill, single silver colonel's eagle pinned front centre, no EGA
+  x.save(); x.translate(202,74);
+  function crown(){ x.beginPath(); x.moveTo(-64,12); x.lineTo(-74,-38); x.lineTo(-52,-46); x.lineTo(-18,-44); x.lineTo(0,-48); x.lineTo(18,-44); x.lineTo(52,-46); x.lineTo(74,-38); x.lineTo(64,12); x.closePath() }
+  crown(); x.fillStyle=lin(x,-74,-48,74,12,[[0,'#7e8452'],[.5,'#5e653a'],[1,'#3a4024']]); x.fill();
+  // crown panel seams to the points, top edge highlight, starch break
+  x.strokeStyle='rgba(20,24,10,.55)'; x.lineWidth=1.8; [[-52,-46,-40,10],[-18,-44,-14,10],[18,-44,14,10],[52,-46,40,10]].forEach(function(f){ x.beginPath(); x.moveTo(f[0],f[1]); x.lineTo(f[2],f[3]); x.stroke() });
+  x.strokeStyle='rgba(225,228,180,.35)'; x.lineWidth=1.5; x.beginPath(); x.moveTo(-72,-37); x.lineTo(-52,-44); x.lineTo(-18,-42); x.lineTo(0,-46); x.stroke();
+  // band
+  x.fillStyle='rgba(20,24,10,.35)'; x.fillRect(-64,0,128,12); x.strokeStyle='rgba(20,24,10,.7)'; x.lineWidth=1.5; x.beginPath(); x.moveTo(-65,0); x.lineTo(65,0); x.stroke();
+  crown(); x.strokeStyle=OUT; x.lineWidth=3; x.stroke();
+  // short bill + shadow on brow
+  x.fillStyle='rgba(0,0,0,.3)'; x.beginPath(); x.ellipse(0,26,62,8,0,0,6.283); x.fill();
+  x.beginPath(); x.moveTo(-62,12); x.quadraticCurveTo(0,30,62,12); x.lineTo(56,10); x.quadraticCurveTo(0,20,-56,10); x.closePath(); x.fillStyle='#4a5030'; x.fill(); x.beginPath(); x.moveTo(-64,12); x.quadraticCurveTo(0,32,64,12); x.lineTo(64,12); x.quadraticCurveTo(0,20,-64,12); x.fillStyle='#3c4226'; x.fill(); x.strokeStyle=OUT; x.lineWidth=2.5; x.beginPath(); x.moveTo(-64,12); x.quadraticCurveTo(0,32,64,12); x.stroke();
+  x.strokeStyle='rgba(220,220,170,.18)'; x.setLineDash([3,3]); x.lineWidth=1; x.beginPath(); x.moveTo(-50,15); x.quadraticCurveTo(0,27,50,15); x.stroke(); x.setLineDash([]);
+  // silver eagle, front centre
+  x.translate(0,-20); x.scale(1.15,1.15); x.fillStyle='#e8e8e0'; x.beginPath(); x.moveTo(-13,-2); x.quadraticCurveTo(-7,-11,0,-5); x.quadraticCurveTo(7,-11,13,-2); x.lineTo(8,0); x.lineTo(3,7); x.lineTo(0,4); x.lineTo(-3,7); x.lineTo(-8,0); x.closePath(); x.fill();
+  x.fillStyle='#ffffff'; x.beginPath(); x.arc(-4,-7,2.3,0,6.283); x.fill(); x.fillStyle='#6a6a64'; x.fillRect(-2.5,-3,5,5); x.strokeStyle='#4a4a44'; x.lineWidth=.9; for(var q=-10;q<=10;q+=3){ x.beginPath(); x.moveTo(q,-3+Math.abs(q)*.15); x.lineTo(q*.8,1); x.stroke() }
+  x.restore();
   x.restore() }
 function colonelParts(){ if(C.colOK)return C.col; var p={body:cached('cbody',400,520,bakeBody),heads:[]}; for(var m=0;m<4;m++){ p.heads.push([cached('ch'+m+'0',400,300,function(x){ bakeHead(x,m,false) }),cached('ch'+m+'1',400,300,function(x){ bakeHead(x,m,true) })]) } C.col=p; C.colOK=1; return p }
 function mouthLevel(page,ct){ var e=ENV[page]; if(!e||ct<0)return 0; var f=ct*25, i=Math.floor(f); if(i>=e.length-1)return 0; var a=(e.charCodeAt(i)-48)/9, b=(e.charCodeAt(i+1)-48)/9; return lerp(a,b,f-i) }
