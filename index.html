@@ -1179,7 +1179,7 @@ let W=800,H=600,zoom=1,VW=800,VH=600,UI=1,DPR=1,SA={t:0,r:0,b:0,l:0},PY=70;
 const COARSE=matchMedia('(pointer:coarse)');
 const SAEL=document.createElement('div'); SAEL.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)'; document.documentElement.appendChild(SAEL);
 function resize(){
-  const dpr=Math.min(window.devicePixelRatio||1,1.5);
+  const dpr=Math.min(window.devicePixelRatio||1,COARSE.matches?1.25:1.5);   /* phones: 1.25x backing store (fps gate) */
   W=cv.width=Math.max(320,Math.floor(innerWidth*dpr)); H=cv.height=Math.max(240,Math.floor(innerHeight*dpr));
   zoom=Math.max(.5,Math.min(1.7,Math.min(W,H)/700)); VW=W/zoom; VH=H/zoom;
   UI=Math.max(.8,Math.min(2.2,Math.min(W,H)/620)); DPR=W/innerWidth;
@@ -3838,7 +3838,7 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   /* Blake's design: an optional radio call marks an objective OFF the firebase; the clock keeps running, no extra men. While the player is away the squad
      holds the base under more pressure (structure damage x P), with an alert if it starts to fall. Own timer, return-home arrow; the reward (XP + tribute) is paid
      only on getting back. Never starts once the pad is called / chopper is inbound. Tunables: ?mohd= distance from base, ?moht= go timer, ?mohr= return timer, ?mohp= pressure. */
-  P:(()=>{ const q=new URLSearchParams(location.search), n=(k,d)=>{ const v=parseFloat(q.get(k)); return isFinite(v)?v:d }; return {D:Math.min(900,n('mohd',620)),T:n('moht',40),R:n('mohr',35),P:n('mohp',1.35)} })(),
+  P:(()=>{ const q=new URLSearchParams(location.search), n=(k,d)=>{ const v=parseFloat(q.get(k)); return isFinite(v)?v:d }; return {D:Math.min(900,n('mohd',620)),T:n('moht',40),R:n('mohr',35),P:n('mohp',1.2),E:n('mohe',8)} })(),
   reset(){ this.cur=null; this.q=null; this.fb=null; this.done={}; this.alertT=0 },
   away(){ const c=this.cur; return !!(c&&fbS&&G&&Math.hypot(G.p.x-fbS.x,G.p.y-fbS.y)>260) },
   press(){ return this.away()?this.P.P:1 },
@@ -3848,7 +3848,10 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   tick(dt){ if(!this.ON||!G||G.demo)return; const g=G;
     if(fbS&&this.fb!==fbS){ this.fb=fbS; const o=(hash2(g.seedH|0,fbS.x|0)<.5)?['ballard','taylor']:['taylor','ballard']; this.q=o.filter(k=>!this.done[k]); this.next=g.t+25 }
     if(!this.cur&&this.q&&this.q.length&&fbS&&g.t>=this.next&&!(g.ex&&(g.ex.pad||g.ex.ph>=1))){ const k=this.q.shift(); let x=0,y=0;
-      for(let i=0;i<24;i++){ const a=hash2(i+7,(g.t*10)|0)*TAU, D=this.P.D*(1-i*.02); x=fbS.x+Math.cos(a)*D; y=fbS.y+Math.sin(a)*D; if(!riverAt(x,y)&&canWade(x,y,'p'))break }
+      let okP=false; for(let i=0;i<32&&!okP;i++){ const a=hash2(i+7,(g.t*10)|0)*TAU, D=this.P.D*(1-i*.015); x=fbS.x+Math.cos(a)*D; y=fbS.y+Math.sin(a)*D; okP=true;
+        for(let k=1;k<=Math.ceil(D/24)&&okP;k++){ const u=k*24/D, sx=fbS.x+(x-fbS.x)*u, sy=fbS.y+(y-fbS.y)*u; if(riverAt(sx,sy)||!canWade(sx,sy,'p'))okP=false } }   /* objective must be reachable on foot in a straight line from the base */
+      if(!okP){ this.next=g.t+20; this.q.unshift(k); return }
+      for(let j=0;j<this.P.E;j++){ const a=rnd()*TAU, r=90+rnd()*80; try{ spawnEnemy(rnd()<.5?'vc':'nva',x+Math.cos(a)*r,y+Math.sin(a)*r) }catch(e){} }   /* the pinned-down men are under fire: a small enemy group at the objective */
       this.cur={k,x,y,t:0,h:0,ph:'go',life:this.P.T,dist:Math.hypot(x-fbS.x,y-fbS.y)}; this.card=6; try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
     const c=this.cur; if(!c)return; this.card=Math.max(0,(this.card||0)-dt); c.t+=dt; this.alertT=Math.max(0,this.alertT-dt);
     if(!fbS){ this.end('baseLost'); return }
