@@ -4027,7 +4027,7 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
   reset(){ this.L.length=0; this.T=0; this.used={}; this.Q.length=0; this.endTalk(true); this.talkT=0 },
   pickLine(cat){ const g=G, arr=this.LINES[cat]; if(!arr)return null; let i=(rnd()*arr.length)|0; for(let n=0;n<arr.length&&g.t-(this.used[cat+i]||-99)<25;n++)i=(i+1)%arr.length; if(g.t-(this.used[cat+i]||-99)<25)return null; this.used[cat+i]=g.t; return arr[i] },
   vis(o){ const p=G.p; return Math.abs(o.x-p.x)<VW/2-20&&Math.abs(o.y-p.y)<VH/2-30 },
-  show(sp,t,life,vc){ if(this.L.length>=2)return false; sp.bark=1; this.L.push({m:sp,t,a:0,life:life||2.2,vc}); (G.barkLog||(G.barkLog=[])).length<200&&G.barkLog.push([+G.t.toFixed(1),vc?'vc':'usmc',t]); return true },
+  show(sp,t,life,vc){ if(this.L.length>=2)return false; sp.bark=1; this.L.push({m:sp,t,a:0,life:Math.max(life||0,1.8,.06*t.length),vc}); (G.barkLog||(G.barkLog=[])).length<200&&G.barkLog.push([+G.t.toFixed(1),vc?'vc':'usmc',t]); return true },
   corps(){ if(G.char==='doc')return G.p; return coy.find(m=>m.role==='corps'&&m.hp>0&&!m.wia)||null },
   near(x,y,ex){ return this.who(x,y,q=>!q.wia&&q!==ex) },
   /* exchange: queue follow-ups; each item {d delay, cat|line, sp:fn->speaker} */
@@ -4036,10 +4036,12 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
   vcReply(e){ const g=G; if(!this.ON||!g||g.demo||g.t<this.T||this.Q.length)return; if(rnd()>.45)return; const x=e.x,y=e.y; let m1=null;
     this.chain([{d:.6+rnd()*.9,cat:'taunt',sp:()=>(m1=this.near(x,y)),then:sp=>{ const r=rnd(); if(r<.3)return [{d:.7+rnd()*.6,cat:'backup',sp:()=>this.near(sp.x,sp.y,sp)}];
       if(r<.5)return [{d:.8+rnd()*.6,vc:1,line:PHRASES[(rnd()*XPI)|0],sp:()=>(!e.dead&&this.vis(e)?e:null)}]; return [] }}]) },
-  sprVC(t){ const k='vc|'+t; let c=this.C[k]; if(c)return c; c=this.spr(t); const d=document.createElement('canvas'); d.width=c.width; d.height=c.height; const x=d.getContext('2d'); x.drawImage(c,0,0); x.globalCompositeOperation='source-atop'; x.fillStyle='rgba(120,30,20,.18)'; x.fillRect(0,0,d.width,d.height); return this.C[k]=d },
-  spr(t){ let c=this.C[t]; if(c)return c; const f='bold 9px "Courier New",monospace', m=document.createElement('canvas').getContext('2d'); m.font=f; const w=Math.ceil(m.measureText(t).width)+10, h=15;
-    c=document.createElement('canvas'); c.width=w; c.height=h+4; const x=c.getContext('2d'); x.fillStyle='#17110a'; x.fillRect(0,0,w,h); x.fillRect(w/2-3|0,h,6,2); x.fillStyle='#d9d4b8'; x.fillRect(1,1,w-2,h-2); x.fillRect(w/2-2|0,h-1,4,2);
-    x.fillStyle='#22301a'; x.font=f; x.textBaseline='middle'; x.textAlign='center'; x.fillText(t,w/2,h/2+.5); return this.C[t]=c },
+  sprVC(t){ const k='vc|'+t; let c=this.C[k]; if(c)return c; c=this.spr(t); const d=document.createElement('canvas'); d.width=c.width; d.height=c.height; const x=d.getContext('2d'); x.drawImage(c,0,0); x.strokeStyle='#8a2a1a'; x.lineWidth=2; x.strokeRect(1,1,d.width-2,d.height-Math.round(5*(COARSE.matches?1.35:1))-3); return this.C[k]=d },
+  spr(t){ let c=this.C[t]; if(c)return c; const k=COARSE.matches?1.35:1, fs=Math.round(12*k), f='bold '+fs+'px "Courier New",monospace', m=document.createElement('canvas').getContext('2d'); m.font=f;
+    const tw=Math.ceil(m.measureText(t).width), w=tw+Math.round(12*k), h=Math.round(fs*1.5), th=Math.round(5*k), d=2;   /* off-white bubble, dark text, 2 px dark outline, tail to the speaker (Blake Oct 15: legibility) */
+    c=document.createElement('canvas'); c.width=w+2*d; c.height=h+th+2*d; const x=c.getContext('2d'); x.fillStyle='#17110a'; x.fillRect(0,0,w+2*d,h+2*d); x.beginPath(); x.moveTo(c.width/2-th-2,h+d); x.lineTo(c.width/2,h+th+2*d); x.lineTo(c.width/2+th+2,h+d); x.fill();
+    x.fillStyle='#fff8e0'; x.fillRect(d,d,w,h); x.beginPath(); x.moveTo(c.width/2-th,h+d-1); x.lineTo(c.width/2,h+th+d-1); x.lineTo(c.width/2+th,h+d-1); x.fill();
+    x.fillStyle='#14120c'; x.font=f; x.textBaseline='middle'; x.textAlign='center'; x.fillText(t,c.width/2,d+h/2+1); return this.C[t]=c },
   who(x,y,pick){ let b=null,bd=1e9; for(const m of coy){ if(m.hp<=0||m.on||m.bark)continue; if(pick&&!pick(m))continue; const d=Math.hypot(m.x-x,m.y-y); if(d<bd){bd=d;b=m} } return b },
   ev(k,o){ const g=G; if(!this.ON||!g||g.demo||state!=='play')return false; if(g.t<this.T||this.L.length>=2)return false; const p=g.p;
     let cat=k, arr; if(k==='down'&&o&&o.nm&&rnd()<.5){ cat='named' } if(k==='hurt'&&GORE&&rnd()<.35)cat='hurtG'; arr=this.LINES[cat]; if(!arr)return false;
@@ -4047,7 +4049,7 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
     let m=o&&o.m; if(!m||m.hp<=0&&k!=='hurt'){ m=this.who(o&&o.x!==undefined?o.x:p.x,o&&o.y!==undefined?o.y:p.y,k==='hurt'?(q=>q.wia):(q=>!q.wia)) } if(!m)return false;
     if(Math.abs(m.x-p.x)>VW/2-20||Math.abs(m.y-p.y)>VH/2-30)return false;
     let t=arr[i]; if(cat==='shift')t=(o&&o.x<p.x)?'Shift left!':'Shift right!'; if(t.indexOf('{N}')>=0){ const ln=String(o.nm).split(' ').pop(); t=t.replace('{N}',ln) }
-    this.used[cat+i]=g.t; this.T=g.t+3+rnd()*1.5; m.bark=1; this.L.push({m,t,a:0,life:2.2});
+    this.used[cat+i]=g.t; this.T=g.t+3+rnd()*1.5; m.bark=1; this.L.push({m,t,a:0,life:Math.max(1.8,.06*t.length)});
     if(cat==='down'||cat==='named'){ const c=this.corps(); if(c&&c!==m)this.chain([{d:.7+rnd()*.6,cat:'docA',sp:()=>this.corps()}]) }
     if(cat==='reload'&&t==='Gimme a mag!'||k==='lowammo')this.chain([{d:.8+rnd()*.5,cat:'ammoA',sp:()=>this.near(m.x,m.y,m)}]);
     if(cat==='shift')this.chain([{d:.6+rnd()*.5,cat:'ack',sp:()=>this.near(m.x,m.y,m)}]);
@@ -4076,7 +4078,7 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
     if(T.cards){ const x=Math.round(T.cx), y=Math.round(T.cy); ctx.fillStyle='#4a5230'; ctx.fillRect(x-7,y-3,14,7); ctx.fillStyle='#2e3320'; ctx.fillRect(x-7,y+3,14,1); ctx.fillStyle='#e8e4d6'; ctx.fillRect(x-4,y-3,2,3); ctx.fillRect(x+1,y-2,2,3); ctx.fillStyle='#b03028'; ctx.fillRect(x+1,y-2,1,1) }
     for(const m of T.men){ if(m.idle!==1&&m.idle!==2)continue; const hx=Math.round(m.x+(m.face<0?-4:4)), hy=Math.round(m.y-22); const glow=.6+.4*Math.sin(t*3+m.x); ctx.fillStyle='rgba(255,'+(110+60*glow|0)+',40,1)'; ctx.fillRect(hx,hy,1,1);
       for(let k=0;k<3;k++){ const a=((t*.5+k/3+m.x*.01)%1); ctx.globalAlpha=.35*(1-a); ctx.fillStyle='#c9c6bc'; ctx.fillRect(Math.round(hx+Math.sin(a*6+k)*2),Math.round(hy-2-a*12),1,2) } ctx.globalAlpha=1 } },
-  draw(){ this.props(); const used=[]; for(const b of this.L){ const m=b.m, c=b.vc?this.sprVC(b.t):this.spr(b.t), k=Math.min(1,b.a/.14), fo=Math.min(1,(b.life-b.a)/.3); ctx.globalAlpha=Math.max(0,fo)*Math.min(1,k*1.5); let bx=Math.round(m.x-c.width/2), by=Math.round(m.y-40-Math.min(5,b.a*10)-c.height); for(const u of used){ if(bx<u[0]+u[2]&&bx+c.width>u[0]&&by<u[1]+u[3]&&by+c.height>u[1])by=u[1]-c.height-2 } used.push([bx,by,c.width,c.height]); ctx.drawImage(c,bx,by); } ctx.globalAlpha=1 } };
+  draw(){ this.props(); const used=[]; for(const b of this.L){ const m=b.m, c=b.vc?this.sprVC(b.t):this.spr(b.t), k=Math.min(1,b.a/.14), fo=Math.min(1,(b.life-b.a)/.3); ctx.globalAlpha=Math.max(0,fo)*Math.min(1,k*1.5); let bx=Math.round(m.x-c.width/2), by=Math.round(m.y-40-Math.min(5,b.a*10)-c.height); const vx0=MZW.cx+4, vx1=MZW.cx+W/(MZW.z||1)-4, vy0=MZW.cy+4; bx=Math.max(vx0,Math.min(vx1-c.width,bx)); by=Math.max(vy0,by); for(const u of used){ if(bx<u[0]+u[2]&&bx+c.width>u[0]&&by<u[1]+u[3]&&by+c.height>u[1])by=u[1]-c.height-2 } used.push([bx,by,c.width,c.height]); ctx.drawImage(c,bx,by); } ctx.globalAlpha=1 } };
 /* VFX_VEHICLE_HIT (Artist Helper vehicle_hits.js, Oct 15): visuals only, no HP/damage change. Hits on tanks / PT-76 / Hueys / boats, plus a
    persistent damage-state emitter keyed per vehicle (level from HP: >.66 clear, >.33 smoke, else fire; death cook-off 3 -> burning wreck 4).
    Emitters are detached on reset/wreck expiry. Skipped far off-screen. ?vhit=0 = old particles */
