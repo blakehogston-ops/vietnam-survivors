@@ -2486,7 +2486,7 @@ function callSquad(s,l){
 /* balance band (Blake: 9-12 home, first death >= 2:00): a grace floor (no Marine dies before 2:00; they still get hurt to 1 HP and need the corpsman)
    and a squad catch-up on incoming damage by how many are still alive (8 or fewer x.45, 9-10 x.75, 12 x1.1, 13+ x1.45). ?bal=0 turns both off. */
 const BAL={ON:!/[?&]bal=0\b/.test(location.search),GRACE:120,
-  k(){ const g=G; if(g._bk!==undefined&&g.t-g._bkT<.5)return g._bk; let n=0; for(const q of coy)if(q.hp>0&&q.state==='ok')n++; g._bkT=g.t; return (g._bk=n<=8?.45:n<=10?.75:n>=13?1.45:n>=12?1.1:1) } };
+  k(){ const g=G; if(g._bk!==undefined&&g.t-g._bkT<.5)return g._bk; let n=0; for(const q of coy)if(q.hp>0&&q.state==='ok')n++; g._bkT=g.t; return (g._bk=n<=8?.3:n<=10?.65:n>=13?1.8:n>=12?1.1:1) } };
 function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER; if(m.coy&&AIS.L.length&&AIS.cover(m))dmg*=.75;   /* in cover */
   if(m.coy&&BAL.ON&&!G.demo){ dmg*=BAL.k(); if(G.t<BAL.GRACE&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) } }
   m.hp-=dmg; m.hf=.12; m.inv=.5;
@@ -3043,7 +3043,7 @@ function newGame(demo){
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
-  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FBO.reset(); MUSI.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
+  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FBO.reset(); MUSI.reset(); URG.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:100,maxHp:100,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
@@ -3463,7 +3463,7 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){const dx=p.
   G.botTimer+=.016; x+=Math.cos(G.botTimer*.3)*.25; y+=Math.sin(G.botTimer*.27)*.25; const l=Math.hypot(x,y); if(l>1){x/=l;y/=l} return [x,y]; }
 
 function update(dt){
-  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt);
+  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt);
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
   const g=G,p=g.p; g.t+=dt; g.dthF=0;
@@ -3896,6 +3896,24 @@ const ZMON={LV:6, ON:!/[?&]zmon=0\b/.test(location.search), R:300,
   draw(b){ const tt=performance.now()/1000, r=SHEET1.drawZippoMonitor(ctx,{x:Math.round(b.x),y:Math.round(b.y),heading:b.hd,t:tt,scale:1,damage:b.dead?1:Math.min(.95,1-b.hp/b.mhp),speed:b.dead?0:.6});
     if(r&&b.fl>0&&!b.dead){ const L=this.R*.85; SHEET1.drawZippoFlame(ctx,r,b.x+Math.cos(b.fa)*L,b.y+Math.sin(b.fa)*L,tt,5,1) }
     if(b.mhp&&!b.dead){ const rr=Math.max(0,b.hp/b.mhp), w=40, bx=Math.round(b.x)-w/2, by=Math.round(b.y)-56; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,5); ctx.fillStyle=rr>.55?'#6fd04a':rr>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,w*rr,5) } } };
+/* URG (Blake, Vet verified): at Doc's Triage a random chance flags the worst-wounded Marine URGENT. A CH-46 (no red crosses) flies in, he is
+   lifted out, the radio calls "urgent medevac"; he leaves the field squad and counts as extracted (score + end card). Max 2 a run, 75 s apart,
+   never once the bird is inbound. ?urg=0 off. */
+const URG={ON:!/[?&]urg=0\b/.test(location.search), P:.3, CD:75, MAX:2, h:null, reset(){ this.h=null; this.n=0; this.at=-1e9 },
+  triage(){ const g=G; if(!this.ON||!g||g.demo||this.h||this.n>=this.MAX||g.t-this.at<this.CD||(g.ex&&g.ex.ph>=4)||rnd()>this.P)return;
+    let m=null; for(const q of coy){ if(q.hp>0&&q.state==='ok'&&!q.hid&&q.hp<q.mhp*.6&&(!m||q.hp/q.mhp<m.hp/m.mhp))m=q } if(!m)return;
+    this.n++; this.at=g.t; m.urg=true; const a=rnd()*TAU, R0=Math.hypot(VW,VH)/2+380;
+    this.h={m,x:m.x+Math.cos(a)*R0,y:m.y+Math.sin(a)*R0,z:110,hd:a+Math.PI,rot:0,ch46:true,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,lt:0,out:0};
+    g.banner={text:'RADIO: URGENT MEDEVAC INBOUND FOR '+(m.nm||'A MARINE').toUpperCase(),t:2.8,col:'#9be37a'}; Snd.play('radio');
+    (g.urgLog||(g.urgLog=[])).push({t:+g.t.toFixed(1),ev:'call',nm:m.nm}) },
+  tick(dt){ const h=this.h; if(!h)return; const g=G, m=h.m; h.t+=dt; h.rot+=dt*20;
+    if(h.ph===0){ if(m.hp<=0){ h.ph=2; h.ex=h.hd; return } const dx=m.x-h.x, dy=m.y-4-h.y, d=Math.hypot(dx,dy)||1, sp=Math.min(260,50+d*1.1); try{ if(d<330)SeaKnightS.cue(h,'in') }catch(e){}
+      h.x+=dx/d*sp*dt; h.y+=dy/d*sp*dt; h.hd=turnTo(h.hd,Math.atan2(dy,dx),1.8*dt); if(d<300)h.z+=(30-h.z)*Math.min(1,dt*1.5); if(d<16){ h.ph=1; h.lt=0 } }
+    else if(h.ph===1){ h.lt+=dt; h.z+=(14-h.z)*Math.min(1,dt*3); h.x+=(m.x-h.x)*Math.min(1,dt*3); h.y+=(m.y-4-h.y)*Math.min(1,dt*3); try{ SeaKnightS.cue(h,'hover') }catch(e){}
+      if(h.lt>2.4){ const i=coy.indexOf(m); if(i>=0&&m.hp>0){ coy.splice(i,1); for(const q of coy){ if(q.cov===m)q.cov=null; if(q.htg===m)q.htg=null } (g.urgL||(g.urgL=[])).push(m.nm||'Marine'); g.urgLog.push({t:+g.t.toFixed(1),ev:'out',nm:m.nm});
+          g.banner={text:'URGENT MEDEVAC: '+(m.nm||'MARINE').toUpperCase()+' IS OUT',t:2.4,col:'#9be37a'}; Snd.play('radio') } h.ph=2; h.ex=h.hd+(rnd()-.5)*.8 } }
+    else { try{ SeaKnightS.cue(h,'out') }catch(e){} h.out+=dt; h.z+=(40*h.out+8)*dt; h.hd=turnTo(h.hd,h.ex,1.2*dt); h.x+=Math.cos(h.hd)*(40+200*h.out)*dt; h.y+=Math.sin(h.hd)*(40+200*h.out)*dt; if(h.out>7)this.h=null } },
+  draw(){ if(this.h)drawHuey(this.h) } };
 const TANKK=[{nm:'M48A3 Patton',spd:100,rr:26},{nm:'M67A2 "Zippo" Flame Tank',spd:96,rr:26},{nm:'M50A1 Ontos',spd:150,rr:20}];
 function callTank(s,l){ const p=G.p, pool=[0]; if(l>=3)pool.push(1); if(l>=6)pool.push(2); const k=pool[(G.tankRot++)%pool.length];
   const R=Math.hypot(VW,VH)/2+70, a=rnd()*TAU;
@@ -4816,7 +4834,7 @@ function ringBurst(x,y,r,cols,n){ for(let i=0;i<n;i++){ const a=i/n*TAU; addPart
 function useAbility(){ const g=G; if(!g||g.demo||!g.char||state!=='play'||g.abCd>0)return false; const p=g.p, D=CHD[g.char]; g.abCd=g.abMax; PAD.rumble(220,.7,.5); if(g.char==='doc')g.treatT=.7;
   g.banner={text:D.ab.nm.toUpperCase()+'!',t:1.6,col:'#ffe58a'}; Snd.play('radio');
   switch(g.char){
-   case 'doc': p.hp=Math.min(p.maxHp,p.hp+p.maxHp*.6); healAllies(.5); ringBurst(p.x,p.y,40,['#7be37a','#fff'],24); Snd.play('heal'); break;
+   case 'doc': p.hp=Math.min(p.maxHp,p.hp+p.maxHp*.6); URG.triage(); healAllies(.5); ringBurst(p.x,p.y,40,['#7be37a','#fff'],24); Snd.play('heal'); break;
    case 'hammer': { const s=ITEMS.m60.stats(Math.max(1,(g.w.m60&&g.w.m60.lvl)||1)); for(let i=0;i<40;i++){ const a=i/40*TAU; addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,620,s.dmg*1.2,3,.62,3.4,'#ffc860') } g.muzzle=.2; Snd.play('m60'); g.shake=Math.max(g.shake,6); break }
    case 'boone': g.dead=6; ringBurst(p.x,p.y,50,['#ffe58a','#fff'],20); break;
    case 'skipper': healAllies(.5); g.rally=8; g.sqT=0; ringBurst(p.x,p.y,50,['#9be37a','#e0b43a'],24); break;
@@ -5886,7 +5904,7 @@ function evacuate(){ const g=G,ex=g.ex; g.lastHit=null; ex.ph=6; ex.t=0; ex.evac
   const on=[], lft=[]; for(const m of coy){ if(m.hp>0&&m.state==='ok'&&onPad(m.x,m.y)){ on.push(m.nm); m.hid=true } else if(m.hp>0)lft.push(m.nm) }
   const ld=[]; for(const b of bodies){ if(onPad(b.x,b.y)){ ld.push(b.nm); b.gone=true } else lft.push(b.nm) }
   for(const h of coyH)for(let i=h.di;i<h.left;i++)lft.push('?');
-  ex.gotOn=on; ex.loaded=ld; ex.left=lft.filter(n=>n!=='?');
+  if(G.urgL)on.push(...G.urgL); ex.gotOn=on; ex.loaded=ld; ex.left=lft.filter(n=>n!=='?');
   gunny("That's the one. Good hustle, Doc. Welcome home.",3.4,1); (MUSX.has('win')||Snd.play('evac')); ringBurst(ex.huey.x,ex.huey.y,70,[SIGC[ex.col],'#fff'],30) }
 function leaveEmpty(){ const g=G,ex=g.ex; ex.waited=Math.round(ex.t); ex.ph=7; ex.t=0; ex.result='left'; g.p.invul=99;
   gunny("Bird's wheels-up... without you. Say again? Say again?... Nothing but static.",3.6,1); (MUSX.has('loss')||Snd.play('over')) }
@@ -6116,7 +6134,7 @@ function exScore(g){ const ex=g.ex; return Math.floor(g.kills*10+(ex?ex.holdKill
 /* ---- end cards (Stage 1). Never any debug text. Death card: one plain fact. Win card: who got on (by name), who was loaded, who was left; kills small; seed. ---- */
 const RUNLOGS=[];
 function runLogOf(g){ const ex=g.ex||{}; return {seed:g.seed,result:ex.result||'',t:Math.round(g.t),firstMarineDeath:g.rl&&g.rl.firstDeath!==null?+g.rl.firstDeath.toFixed(1):null,
-  smokeToDoc:(ex.dropAt!=null&&ex.reachAt!=null)?+(ex.reachAt-ex.dropAt).toFixed(1):null,offPadHold:+(ex.offPad||0).toFixed(1),marinesLeft:q15Alive(),gotOn:ex.evac?(ex.gotOn||[]).length+1:0,   /* Doc + the Marines who got on, same as the HUD count at lift */wrong:!!ex.wrong} }
+  smokeToDoc:(ex.dropAt!=null&&ex.reachAt!=null)?+(ex.reachAt-ex.dropAt).toFixed(1):null,offPadHold:+(ex.offPad||0).toFixed(1),marinesLeft:q15Alive()+((G.urgL||[]).length),gotOn:ex.evac?(ex.gotOn||[]).length+1:0,   /* Doc + the Marines who got on, same as the HUD count at lift */wrong:!!ex.wrong} }
 DBG.runLog=()=>{ const out=RUNLOGS.slice(); if(G&&!G.demo&&state!=='over')out.push(Object.assign({live:true},runLogOf(G))); return out };   /* QA/Gamer: hidden, never shown on cards */
 const HIT_FACT={'punji pit':'a punji pit he walked over','satchel charge':'a satchel charge','RPG/B-40 rocket':'a B-40 rocket','enemy shell/blast':'an enemy mortar round',
   'VC melee':'a VC at close range','NVA melee':'NVA regulars at close range','NVA officer melee':'an NVA officer at close range','sapper blast':"a sapper's charge",
@@ -6462,7 +6480,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   // Huey (flies above everything)
   for(let i=0;i<hueys.length;i++)drawHuey(hueys[i]);
   for(let i=0;i<ins.length;i++)drawHuey(ins[i]);
-  SPEC.drawAir(); FBO.draw();
+  SPEC.drawAir(); FBO.draw(); URG.draw();
   for(let i=0;i<coyH.length;i++){ if(coyH[i].t>=0)drawHuey(coyH[i]) }
   drawMedevac();
   if(introH)drawHuey(introH);
@@ -6537,7 +6555,7 @@ if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 { let bd=false; try{bd=sessionStorage.getItem('lbo2_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
 try{ ZMON.warm() }catch(e){}
 DBG.zmon=()=>callBoat(Object.assign({hold:30,range:420,d50:20,d60:12,cd:60},{}),true);
-window.__ms={get SAMP(){return SAMP},get MOH(){return MOH},get FBO(){return FBO},get ZMON(){return ZMON},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={get SAMP(){return SAMP},get MOH(){return MOH},get FBO(){return FBO},get URG(){return URG},get ZMON(){return ZMON},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
 
