@@ -1159,7 +1159,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <script src="assets/art/vfx_flame.js?v=ac1dbb7"></script>
 <script src="assets/art/map_wrecks.js?v=ac1dbb7"></script>
 <script>if(/[?&]terrain=1\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=ac1dbb7"><\/script>')</script>
-<script src="assets/art/vehicles.js?v=7bb5384"></script><script src="assets/art/tanks_v2.js?v=7bb5384"></script>
+<script src="assets/art/vehicles.js?v=7bb5384"></script><script src="assets/art/tanks_v2.js?v=7bb5384"></script><script src="assets/ui/main_menu_art.js?v=7bb5384"></script><script src="assets/ui/colonel_intro_v2.js?v=7bb5384"></script>
 <script src="assets/art/pbr_splash.js?v=ce96432"></script><script src="assets/art/pbr_wake.js?v=ce96432"></script><script src="assets/art/zippo_monitor.js?v=ce96432"></script>
 <script src="assets/art/engineers_v2.js?v=7bb5384"></script><script src="assets/art/doc_hivis.js?v=7bb5384"></script><script src="assets/art/marines_tall.js?v=7bb5384"></script><script src="assets/art/heroes_tall.js?v=7bb5384"></script><script src="assets/art/cover_poses.js?v=7bb5384"></script><script src="assets/art/hit_prone_poses.js?v=ac1dbb7"></script><script src="assets/art/firebase.js?v=7bb5384"></script><script src="assets/art/terrain.js?v=7bb5384"></script><script src="assets/art/recon_team.js?v=ac1dbb7"></script><script src="assets/art/sog_team.js?v=ac1dbb7"></script><script src="assets/art/bunker_interior.js?v=ac1dbb7"></script><script src="assets/art/ability_icons.js?v=ac1dbb7"></script><script src="assets/art/pbr_splash.js?v=ac1dbb7"></script><script defer src="audio/sample_player.js?v=7bb5384"></script><script defer src="audio/samples/manifest.js?v=7bb5384"></script>
 <script>
@@ -2030,7 +2030,7 @@ let LOWFX=false; const LOWFX_ON=()=>LOWFX, FXK=()=>LOWFX?.3:1;
 function setLowFx(v,silent){ LOWFX=!!v; if(!silent){ try{localStorage.setItem('lbo2_lowfx',LOWFX?'1':'0')}catch(e){} }
   document.querySelectorAll('.lowChk').forEach(c=>{ c.checked=LOWFX }); document.querySelectorAll('.lowTxt').forEach(t=>{ t.textContent=LOWFX?'ON':'OFF' }); document.querySelectorAll('.lowSw').forEach(w=>w.classList.toggle('off',!LOWFX));
   try{ Cues.setLowEffects(LOWFX) }catch(e){}
-  DECAL_CAP=LOWFX?200:380; if(decals.length>DECAL_CAP){ decals.length=DECAL_CAP } decalI=0; if(LOWFX&&parts.length>210)parts.length=210 }
+  DECAL_CAP=LOWFX?90:380;   /* phone fps gate: scaled decal blits were the late-game cost */ if(decals.length>DECAL_CAP){ decals.length=DECAL_CAP } decalI=0; if(LOWFX&&parts.length>210)parts.length=210 }
 const enemyCap=g=>Math.min(LOWFX?420:700,90+g.t*EX_RAMP*1.6);
 function buildSquadSprites(){
   const T=TOP_MARINE.slice(), mod=(rows)=>{ const t=T.slice(); for(const k in rows)t[k]=rows[k]; return t };
@@ -5075,7 +5075,7 @@ function drawCargo(t){ const c=ictx; c.imageSmoothingEnabled=false; const I=INTR
   const fade=Math.min(1,t/.8); if(fade<1){ c.fillStyle=`rgba(0,0,0,${(1-fade).toFixed(2)})`; c.fillRect(0,0,320,180) } }
 function fl0(I){ return Math.max(I.gf[0],I.gf[1])*8 }
 /* art hook: Artist Helper's INTRO_V2 (ui/colonel_intro_v2.js) replaces ONLY this renderer; INTRO.t, the voice clip and its timing stay in the INTRO logic. */
-function drawIntroOverlay(){ if(window.INTRO_V2&&INTRO_V2.draw){ try{ ctx.setTransform(1,0,0,1,0,0); INTRO_V2.draw(ctx,{t:INTRO.t,W:cv.width,H:cv.height,intro:INTRO}); return }catch(e){} } drawIntroOverlay1() }
+function drawIntroOverlay(){ if(window.INTRO_V2&&typeof INTRO_V2.draw==='function'){ try{ ctx.setTransform(1,0,0,1,0,0); INTRO_V2.draw(ctx,{t:INTRO.t,W:cv.width,H:cv.height,intro:INTRO}); return }catch(e){} } drawIntroOverlay1() }
 function drawIntroOverlay1(){ const I=INTRO, t=I.t; ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false;
   if(I.ph===1){ ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H); const s=Math.min(W/320,H/180), dw=320*s, dh=180*s, ox=(W-dw)/2, oy=(H-dh)/2; ctx.drawImage(ICV,ox,oy,dw,dh);
     const fs=Math.max(14,dh/13), full='QUANG TRI PROVINCE, 1968', sub='1ST MARINE DIVISION · I CORPS · REPUBLIC OF VIETNAM';
@@ -5169,7 +5169,7 @@ function briefSpeak(i){ if(!BR)return; const text=BRIEF_LINES[i].t; try{BriefSnd
   if(!Snd.ctx){ BVOX.log.push({line:i+1,src:'tts-noctx'}); briefSpeakTTS(text); return }
   const my=BR; BR.voice=true; BR.vox=true;   /* text reveal is paced by the clip; falls back to speech if it can't load */
   BVOX.play(i,()=>{},()=>{ const b=BR; if(b&&b===my&&b.page===i)b.ended=true },()=>{ const b=BR; if(b&&b===my&&b.page===i)briefSpeakTTS(text) }) }
-function startBrief(){ BR={ph:0,page:0,t:0,typed:0,wait:0,ended:true,voice:false,bidx:0,px:0,py:0,pi:0,blip:0};
+function startBrief(){ try{ window.INTRO_V2&&INTRO_V2.reset&&INTRO_V2.reset() }catch(e){} BR={ph:0,page:0,t:0,typed:0,wait:0,ended:true,voice:false,bidx:0,px:0,py:0,pi:0,blip:0};
   state='brief'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{BVOX.prefetch()}catch(e){} }
 function endBrief(){ BVOX.stop(); BriefSnd.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{sessionStorage.setItem('lbo2_briefed','1')}catch(e){} BR=null; state='menu'; $('menu').classList.add('show'); $('topbtns').style.display='none'; last=performance.now() }
 function briefBegin(){ if(!BR)return; BR.ph=1; BR.page=0; BR.t=0; BR.typed=0; BR.wait=0; Snd.init(); Snd.resume(); setTimeout(()=>{ if(BR)BriefSnd.start() },120); briefSpeak(0) }
@@ -5221,7 +5221,7 @@ function drawBriefScene(){ const c=bctx, B=BR, t=B.t; c.imageSmoothingEnabled=fa
   c.fillStyle='rgba(0,0,0,.18)'; for(let y=0;y<135;y+=2)c.fillRect(0,y,240,1) }
 function wrapText(c,text,maxW){ const words=text.split(' '), lines=[]; let cur=''; for(const w of words){ const tt=cur?cur+' '+w:w; if(c.measureText(tt).width>maxW&&cur){ lines.push(cur); cur=w } else cur=tt } if(cur)lines.push(cur); return lines }
 function drawBrief(){ const B=BR; ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false; ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
-  const s=Math.min(W/240,H/135), dw=240*s, dh=135*s, ox=(W-dw)/2, oy=(H-dh)/2; drawBriefScene(); ctx.drawImage(BCV,ox,oy,dw,dh);
+  const s=Math.min(W/240,H/135), dw=240*s, dh=135*s, ox=(W-dw)/2, oy=(H-dh)/2; if(window.INTRO_V2&&INTRO_V2.drawScene&&!/[?&]intro2=0\b/.test(location.search)){ ctx.imageSmoothingEnabled=true; INTRO_V2.drawScene(ctx,ox,oy,dw,dh,{page:B.page|0,t:B.t,clipT:BVOX.src?BVOX.el():B.t,talking:!!(BVOX.src||B.voice)&&!B.ended,ph:B.ph}); ctx.imageSmoothingEnabled=false } else { drawBriefScene(); ctx.drawImage(BCV,ox,oy,dw,dh) }   /* art: Artist Helper INTRO_V2 draws only the picture; BRIEF_LINES, BVOX clips and page timing unchanged */
   ctx.textBaseline='alphabetic';
   if(B.ph===0){ const fs=Math.max(13,s*5); ctx.font=`bold ${fs}px "Courier New",monospace`; ctx.textAlign='center'; ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(ox+dw*.1,oy+dh*.7,dw*.8,dh*.22); ctx.fillStyle='#f6f0cc';
     ctx.fillText('I CORPS · 1968 · BRIEFING ROOM',W/2,oy+dh*.78); ctx.fillStyle=Math.floor(performance.now()/500)%2?'#e8c860':'#f6f0cc'; ctx.fillText('CLICK / TAP / PRESS ANY KEY TO BEGIN',W/2,oy+dh*.85); ctx.font=`${fs*.75}px "Courier New",monospace`; ctx.fillStyle='#b9c48f'; ctx.fillText('ESC = skip briefing',W/2,oy+dh*.9); return }
@@ -5269,10 +5269,13 @@ const TUT={i:0,on:false,ask:false,IMG:{move:1,squad:1,smoke:1,hold:1,gems:1,conf
 $('btnTut').onclick=()=>TUT.open(false);
 /* real archive photos (public domain, US government: NARA / USMC History Division / NHHC) as a slow Ken Burns layer behind the menu. Lazy: a photo
    is fetched only when the menu shows it. Captions verified by Vietnam Vet (Oct 14 night). ON; ?photos=0 off. Sources: THIRD_PARTY_ASSETS.txt + credits. */
+const MART=()=>!!(window.MENU_ART&&MENU_ART.drawBackground&&!/[?&]menuart=0\b/.test(location.search));   /* Artist Helper main_menu_art.js; ?menuart=0 = old menu */
+const KBCAP={khesanh_howitzer:'155MM HOWITZER, BATTERY W, 1/13 MARINES, KHE SANH, 1968',pbr_perfume:'PBR CREW CHECKS A JUNK, PERFUME RIVER, AUGUST 1968',ch46_auburn:'OPERATION AUBURN, QUANG NAM, C. JANUARY 1968',ch53_khesanh:'MARINES OFFLOAD A CH-53, KHE SANH, 23 JANUARY 1968',conthien_bunker:'1/4 MARINES BUILD A BUNKER, CON THIEN, JANUARY 1968'};
+try{ if(MART()){ MENU_ART.installCSS(); setTimeout(()=>{ try{ INTRO_V2&&INTRO_V2.prewarmAsync&&INTRO_V2.prewarmAsync() }catch(e){} },1500) } }catch(e){}
 const KB={ON:!/[?&]photos=0\b/.test(location.search),L:['ch46_auburn','ch53_khesanh','conthien_bunker','pbr_perfume','khesanh_howitzer'],i:0,f:0,t:null,
-  start(){ if(!this.ON||this.t)return; $('kb').classList.add('on'); this.step(); this.t=setInterval(()=>this.step(),14000) },
+  start(){ if(!this.ON||this.t)return; if(!MART())$('kb').classList.add('on'); this.step(); this.t=setInterval(()=>this.step(),14000) },
   stop(){ clearInterval(this.t); this.t=null; $('kb').classList.remove('on') },
-  step(){ if(state!=='menu'){ return } const E=$('kb').children, a=E[this.f], b=E[1-this.f], k=this.L[this.i++%this.L.length];
+  step(){ if(state!=='menu'){ return } if(MART()){ const k=this.L[this.i++%this.L.length], im=new Image(); im.decoding='async'; im.onload=()=>{ try{ MENU_ART.setPhoto(im,KBCAP[k]||'') }catch(e){} }; im.src='assets/photos/'+k+'.webp'; return } const E=$('kb').children, a=E[this.f], b=E[1-this.f], k=this.L[this.i++%this.L.length];
     a.style.backgroundImage='url(assets/photos/'+k+'.webp)'; a.classList.remove('go'); void a.offsetWidth; a.classList.add('show','go'); b.classList.remove('show'); this.f=1-this.f } };
 setInterval(()=>{ if(state==='menu')KB.start(); else if(KB.t)KB.stop() },1000);
 window.addEventListener('keydown',e=>TUT.key(e),true);
@@ -5951,7 +5954,7 @@ function drawExAir(tt){ const g=G,ex=g.ex; if(!ex)return;
   if(ex.charlie)drawSigFx(ex.charlie.x,ex.charlie.y,'smoke',ex.charlie.col,tt+.37,1);
   if(ex.call&&ex.call.st==='ask'&&state==='sig'){ const T=callTarget(); if(T){ const by=T.y-200-Math.abs(Math.sin(tt*5))*8; ctx.save(); ctx.fillStyle='#fff'; ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(T.x,by+26); ctx.lineTo(T.x-14,by); ctx.lineTo(T.x+14,by); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore(); txt('BIRD SEES THIS ONE',T.x,by-8,12,'#fff','center') } }
   if(ex.huey&&ex.ph>=4)drawExHuey(ex.huey,tt) }
-function drawSigFx(x,y,kind,col,tt,fade){ const c=SIGC[col]; ctx.save();
+function drawSigFx(x,y,kind,col,tt,fade){ if(window.DBG_NOSMOKE)return; const c=SIGC[col]; ctx.save();
   if(kind==='smoke'&&drawSheetSmoke(col,x,y,tt,fade)){ }
   else if(kind==='smoke'){ const N=18; for(let i=0;i<N;i++){ const u=(tt*.4+i/N)%1, h=u*170, r=9+u*30, sway=Math.sin(tt*1.1+i*1.9)*u*18+u*u*26; ctx.globalAlpha=Math.min(1,u*9)*(1-u*u)*.82*fade; ctx.fillStyle=c; ctx.beginPath(); ctx.arc(x+sway,y-6-h,r,0,TAU); ctx.fill();
       ctx.globalAlpha*=.35; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x+sway-r*.3,y-6-h-r*.3,r*.55,0,TAU); ctx.fill() }
@@ -6503,7 +6506,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   WX.draw(W,H);   /* weather sits under the HUD: never hides prompts, timers or the pad arrow */
   { const low=(!g.demo&&p.hp>0&&p.hp/p.maxHp<.35)?(.13+(g.hbPulse>0?(g.hbPulse/.38)*(g.hbAmp||.3)*.55:0)+(g.hbT===undefined||g.hbT===0?.06*Math.sin(tt*5):0))*(1-p.hp/p.maxHp/.35*.5):0;   /* pulses on each heartbeat cue (dangerTick) */ const a=Math.min(.8,Math.max(g.hurt>0?g.hurt*1.5:0,low))*(GORE?1:.35);
     if(a>.01){ const gr=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.18,W/2,H/2,Math.max(W,H)*.68); gr.addColorStop(0,'rgba(120,0,0,0)'); gr.addColorStop(.6,`rgba(140,6,6,${a*.45})`); gr.addColorStop(1,`rgba(110,0,0,${a})`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H) } }
-  if(state==='menu'&&window.MENU_ART&&MENU_ART.draw){ try{ MENU_ART.draw(ctx,{W,H,t:performance.now()/1000}) }catch(e){} }   /* art hook: Artist Helper's ui/main_menu_art.js draws over the attract demo, under the HTML menu */
+  if(state==='menu'&&MART()){ try{ ctx.setTransform(1,0,0,1,0,0); MENU_ART.drawBackground(ctx,W,H,performance.now()/1000) }catch(e){} }   /* art hook: Artist Helper's ui/main_menu_art.js draws over the attract demo, under the HTML menu */
   if(state==='menu'||state==='intro'||g.demo)return;
   const U=UI;
   // xp bar
@@ -6544,7 +6547,7 @@ function fpsExtra(avg,min){ let t='FPS avg '+avg.toFixed(0)+'  min '+min.toFixed
     if(g.lastHit)t+='\n'+(g.p.hp<=0?'killed by: ':'last hit: ')+g.lastHit.src+' ('+g.lastHit.dmg+')' } return t }
 window.fpsStats=()=>({avg:FPSM.avg,min:FPSM.min});
 function frame(now){
-  let dt=(now-last)/1000; last=now; fpsTick(dt); try{ inputWatchdog() }catch(e){} if(window.__simHold){ requestAnimationFrame(frame); return } if(dt<0)dt=0;
+  let dt=(now-last)/1000; last=now; fpsTick(dt); window.DRES&&window.DRES.tick(dt); try{ inputWatchdog() }catch(e){} if(window.__simHold){ requestAnimationFrame(frame); return } if(dt<0)dt=0;
   /* real time: a slow frame runs several <=50 ms steps (up to 0.2 s per frame), so the game clock keeps pace on slow machines instead of running at half speed */
   if(state==='play'||(state==='menu'&&G&&G.demo)){ let rem=Math.min(dt,.2); while(rem>1e-6){ const st=Math.min(.05,rem); update(st); rem-=st; if(state!=='play'&&!(state==='menu'&&G&&G.demo))break } } else { if(dt>.05)dt=.05; }
   if(state==='intro')updateIntro(dt); else if(state==='brief')updateBrief(dt);
