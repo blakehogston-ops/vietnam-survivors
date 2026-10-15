@@ -165,6 +165,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 #kb i{position:absolute;inset:-6%;background:center/cover no-repeat;opacity:0;transition:opacity 2.5s ease;filter:sepia(.25) contrast(1.05)}#kb i.show{opacity:.30}
 #kb i.go{animation:kbz 16s linear forwards}@keyframes kbz{from{transform:scale(1) translate(0,0)}to{transform:scale(1.12) translate(-2%,-1.5%)}}
 #menu>*:not(#kb){position:relative;z-index:1}
+.ochon{color:#f0d890;font-size:13px;margin:4px 0 8px;letter-spacing:.04em}.hrib{display:inline-block;width:22px;height:7px;vertical-align:middle;background:linear-gradient(90deg,#4f8fc8 0 40%,#fff 40% 46%,#4f8fc8 46% 54%,#fff 54% 60%,#4f8fc8 60%);border:1px solid #1a1c12}
 </style>
 </head>
 <body>
@@ -199,11 +200,11 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   <div class="foot">A stylized arcade tribute to the Marines who served in Vietnam.<br><b style="color:#d65a4a">Mature: stylized violence</b> — cartoon pixel blood &amp; gore.</div>
 <details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">
 <p class="crh"><b>PHOTOGRAPHS (public domain, US government)</b></p>
-<p>Marines offload from a CH-46 during Operation Auburn, January 1968. U.S. Marine Corps photo, National Archives at College Park (via DPLA / Wikimedia Commons). Public domain.</p>
+<p>Marines offload from a CH-46, Operation Auburn, Quang Nam, c. January 1968. U.S. Marine Corps photo, National Archives at College Park (via DPLA / Wikimedia Commons). Public domain.</p>
 <p>Marines offload a CH-53 at Khe Sanh, 23 January 1968. U.S. Marine Corps photo, National Archives and Records Administration (via DPLA / Wikimedia Commons). Public domain.</p>
 <p>1st Battalion, 4th Marines build a bunker at Con Thien (C-4), January 1968. Department of Defense (USMC) photo A190197. Public domain.</p>
-<p>Battery W, 1st Battalion, 13th Marines prepare to load a howitzer at Khe Sanh, 1968. Department of Defense (USMC) photo A190292. Public domain.</p>
-<p>PBR crewmen on patrol, January 1968. Naval History and Heritage Command NH 96707, photo by Lt.(jg) T. S. Storck, USNR. Public domain.</p>
+<p>155mm howitzer, Battery W, 1/13 Marines, Khe Sanh, 1968. Department of Defense (USMC) photo A190292. Public domain.</p>
+<p>PBR crewmen on patrol, Mekong Delta / Rung Sat, January 1968. Naval History and Heritage Command NH 96707, photo by Lt.(jg) T. S. Storck, USNR. Public domain.</p>
 <p class="crh"><b>AUDIO</b></p>
 <p class="crh"><b>Sound effects (Creative Commons Attribution)</b></p>
 <p>"UH-1 "Huey" Iroquois Helicopter" by OroborosNZ, <a href="https://freesound.org/people/OroborosNZ/sounds/157722/" target="_blank" rel="noopener">https://freesound.org/people/OroborosNZ/sounds/157722/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, looped, level-adjusted.</p>
@@ -281,11 +282,11 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
   <details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">
 <p class="crh"><b>PHOTOGRAPHS (public domain, US government)</b></p>
-<p>Marines offload from a CH-46 during Operation Auburn, January 1968. U.S. Marine Corps photo, National Archives at College Park (via DPLA / Wikimedia Commons). Public domain.</p>
+<p>Marines offload from a CH-46, Operation Auburn, Quang Nam, c. January 1968. U.S. Marine Corps photo, National Archives at College Park (via DPLA / Wikimedia Commons). Public domain.</p>
 <p>Marines offload a CH-53 at Khe Sanh, 23 January 1968. U.S. Marine Corps photo, National Archives and Records Administration (via DPLA / Wikimedia Commons). Public domain.</p>
 <p>1st Battalion, 4th Marines build a bunker at Con Thien (C-4), January 1968. Department of Defense (USMC) photo A190197. Public domain.</p>
-<p>Battery W, 1st Battalion, 13th Marines prepare to load a howitzer at Khe Sanh, 1968. Department of Defense (USMC) photo A190292. Public domain.</p>
-<p>PBR crewmen on patrol, January 1968. Naval History and Heritage Command NH 96707, photo by Lt.(jg) T. S. Storck, USNR. Public domain.</p>
+<p>155mm howitzer, Battery W, 1/13 Marines, Khe Sanh, 1968. Department of Defense (USMC) photo A190292. Public domain.</p>
+<p>PBR crewmen on patrol, Mekong Delta / Rung Sat, January 1968. Naval History and Heritage Command NH 96707, photo by Lt.(jg) T. S. Storck, USNR. Public domain.</p>
 <p class="crh"><b>AUDIO</b></p>
 <p class="crh"><b>Sound effects (Creative Commons Attribution)</b></p>
 <p>"UH-1 "Huey" Iroquois Helicopter" by OroborosNZ, <a href="https://freesound.org/people/OroborosNZ/sounds/157722/" target="_blank" rel="noopener">https://freesound.org/people/OroborosNZ/sounds/157722/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, looped, level-adjusted.</p>
@@ -2478,7 +2479,13 @@ function callSquad(s,l){
   const p=G.p, a=rnd()*TAU, R=Math.hypot(VW,VH)/2+130;
   ins.push({ch46:!!s.ch,hp:s.hhp,mhp:s.hhp,hf:0,x:p.x+Math.cos(a)*R,y:p.y+Math.sin(a)*R,a,t:0,ph:0,need,di:0,dT:0,endT:0,vs:60,s,off:84,rot:0,hd:a+Math.PI,mf:[0,0]});
   G.banner={text:need.length>=sz?(sz<=4?'MARINE FIRE TEAM INBOUND (UH-1E)':sz<8?'MARINE SQUAD INBOUND (UH-1E)':'MARINE SQUAD INBOUND (CH-46)'):'MARINE REPLACEMENTS INBOUND',t:2.2,col:'#9be37a'}; Snd.play('radio'); Amb.support(11); return true }
-function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER; if(m.coy&&AIS.L.length&&AIS.cover(m))dmg*=.75;   /* in cover */ m.hp-=dmg; m.hf=.12; m.inv=.5;
+/* balance band (Blake: 9-12 home, first death >= 2:00): a grace floor (no Marine dies before 2:00; they still get hurt to 1 HP and need the corpsman)
+   and a squad catch-up on incoming damage by how many are still alive (8 or fewer x.6, 9-10 x.8, 13+ x1.2). ?bal=0 turns both off. */
+const BAL={ON:!/[?&]bal=0\b/.test(location.search),GRACE:120,
+  k(){ const g=G; if(g._bk!==undefined&&g.t-g._bkT<.5)return g._bk; let n=0; for(const q of coy)if(q.hp>0&&q.state==='ok')n++; g._bkT=g.t; return (g._bk=n<=8?.6:n<=10?.8:n>=13?1.2:1) } };
+function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER; if(m.coy&&AIS.L.length&&AIS.cover(m))dmg*=.75;   /* in cover */
+  if(m.coy&&BAL.ON&&!G.demo){ dmg*=BAL.k(); if(G.t<BAL.GRACE&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) } }
+  m.hp-=dmg; m.hf=.12; m.inv=.5;
   if(G.sqS&&(m.hp>0)){ if(drops.length<(LOWFX?110:300))spawnDrops(m.x,m.y-6,0,0,4,90) }
   if(m.hp<=0)killMember(m) }
 function q15Dead(m){ if(m.bodied||!m.coy||!m.nm||!G.q15)return; m.bodied=1; bodies.push({x:m.x,y:m.y,nm:m.nm,cv:m.cv|0,t:G.t,r:rnd()<.5?1:-1}); if(G.rl&&G.rl.firstDeath===null)G.rl.firstDeath=G.t }   /* bodies stay where they fell; runLog first death */
@@ -3814,16 +3821,14 @@ const AIS={ON:!/[?&]aismoke=0\b/.test(location.search),L:[],cd:30,
   cover(m){ for(const q of this.L)if(q.t>1&&Math.hypot(m.x-q.x,m.y-q.y)<70)return true; return false },
   draw(){ if(!this.L.length)return; ctx.save(); for(const q of this.L){ const k=Math.min(1,q.t/1.2)*Math.min(1,(q.d-q.t)/4); for(const p of q.P){ const gr=1+Math.min(1,q.t/3)*.8, x=q.x+p.ox*gr+Math.sin(q.t*.4+p.ph)*6, y=q.y+p.oy*gr-q.t*.8;
       ctx.globalAlpha=.32*k; ctx.fillStyle='#e6e8e2'; ctx.beginPath(); ctx.arc(x,y,p.r*gr,0,TAU); ctx.fill() } } ctx.restore() } };
-/* Medal of Honor tribute calls (Blake approved Oct 14; DESIGN_QUANG_TRI.md line 13). OFF until Vietnam Vet verifies names, units, dates and wording:
-   ?moh=1 turns them on. Two optional calls per firebase defense, seeded order, skippable (they simply expire), no added men, the clock never pauses.
+/* Medal of Honor tribute calls (Blake approved Oct 14; DESIGN_QUANG_TRI.md line 13). Vietnam Vet signed off (Oct 14 night); quotes checked word for word against CMOHS. ON; ?moh=0 turns them off. Two optional calls per firebase defense, seeded order, skippable (they simply expire), no added men, the clock never pauses.
    Completing one gives XP and an 'In honor of' line on the end card: the MoH itself is never a reward, never farmable (once each per run, nothing saved).
-   Quotes are verbatim from the official citations (CMOHS / NHHC / USMC History Division). Open items for the Vet: CMOHS lists Ballard as HC2c (HM2)
-   while the NHHC page heads it 'Hospital Corpsman Third Class'; Taylor's action (Operation MEADE RIVER) was not in Quang Tri Province. */
-const MOH={ON:/[?&]moh=1\b/.test(location.search),
-  C:{ballard:{nm:'HM2 Donald E. Ballard',svc:'U.S. Navy',unit:'Company M, 3d Battalion, 4th Marines, 3d Marine Division',date:'16 May 1968, Quang Tri Province',
+   Quotes are verbatim from the official citations (CMOHS / NHHC / USMC History Division). Ballard is a LIVING recipient: 'in honor of' only, no memorial wording. Taylor (posthumous): 'in memory of'. Never imply Taylor was in Quang Tri. */
+const MOH={ON:!/[?&]moh=0\b/.test(location.search),
+  C:{ballard:{lab:'IN HONOR OF',nm:'HM2 Donald E. Ballard',svc:'U.S. Navy',unit:'M Company, 3rd Battalion, 4th Marines',date:'16 May 1968 · Quang Tri Province',
       q:'"Observing a wounded marine, HC2c. Ballard unhesitatingly moved across the fire-swept terrain to the injured man and swiftly rendered medical assistance to his comrade."',
       task:'A Marine is down in the open. Reach him and treat him (hold 4 s).',hold:4,d:260},
-    taylor:{nm:'SSgt Karl G. Taylor Sr.',svc:'U.S. Marine Corps',unit:'Company I, 3d Battalion, 26th Marines, 3d Marine Division',date:'8 December 1968, Operation MEADE RIVER',
+    taylor:{lab:'IN MEMORY OF',nm:'SSgt Karl G. Taylor Sr.',svc:'U.S. Marine Corps',unit:'Company I, 3rd Battalion, 26th Marines',date:'8 December 1968 · Operation Meade River, Quang Nam Province, Republic of Vietnam',
       q:'"...crawled forward to the beleaguered unit through a hail of hostile fire, shouted encouragement and instructions to the men, and deployed them to covered positions."',
       task:'A squad is cut off and pinned down. Get to them and hold (3 s).',hold:3,d:340}},
   reset(){ this.cur=null; this.q=null; this.fb=null; this.done={} },
@@ -3833,7 +3838,7 @@ const MOH={ON:/[?&]moh=1\b/.test(location.search),
       for(let i=0;i<16;i++){ const a=hash2(i+7,(g.t*10)|0)*TAU; x=g.p.x+Math.cos(a)*C.d; y=g.p.y+Math.sin(a)*C.d; if(!riverAt(x,y)&&canWade(x,y,'p'))break }
       this.cur={k,x,y,t:0,h:0,life:45}; this.card=6; try{ Snd.play('bugle') }catch(e){} (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
     const c=this.cur; if(!c)return; this.card=Math.max(0,(this.card||0)-dt); c.t+=dt;
-    if(Math.hypot(g.p.x-c.x,g.p.y-c.y)<46){ c.h+=dt; if(c.h>=this.C[c.k].hold){ this.done[c.k]=1; (g.honor||(g.honor=[])).push(this.C[c.k].nm); const p=g.p; p.xp+=p.need*.75; g.banner={text:'IN HONOR OF '+this.C[c.k].nm.toUpperCase(),t:3.2,col:'#f0d890'}; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'done'}); this.cur=null; this.next=g.t+40 } }
+    if(Math.hypot(g.p.x-c.x,g.p.y-c.y)<46){ c.h+=dt; if(c.h>=this.C[c.k].hold){ this.done[c.k]=1; (g.honor||(g.honor=[])).push(this.C[c.k].lab.toLowerCase().replace(/^./,x=>x.toUpperCase())+' '+this.C[c.k].nm); const p=g.p; p.xp+=p.need*.75; g.banner={text:this.C[c.k].lab+' '+this.C[c.k].nm.toUpperCase(),t:3.2,col:'#f0d890'}; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'done'}); this.cur=null; this.next=g.t+40 } }
     else c.h=Math.max(0,c.h-dt);
     if(this.cur&&c.t>c.life){ g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'expired'}); this.cur=null; this.next=g.t+40 } },
   drawWorld(){ const c=this.cur; if(!c)return; const t=G.t, r=34+Math.sin(t*4)*4; ctx.save(); ctx.strokeStyle='#f0d890'; ctx.lineWidth=2; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.arc(c.x,c.y,r,0,TAU); ctx.stroke(); ctx.setLineDash([]);
@@ -3844,7 +3849,7 @@ const MOH={ON:/[?&]moh=1\b/.test(location.search),
     const dx=c.x-p.x, dy=c.y-p.y, d=Math.hypot(dx,dy); txt('OPTIONAL · '+C.task+'  '+Math.max(0,Math.ceil(c.life-c.t))+'s · '+Math.round(d/8)+'m',W/2,H*.86,13*U,'#f0d890','center');
     if(!(this.card>0))return; const a=Math.min(1,this.card,  (6-this.card)*3), w=Math.min(560*U,W*.9), h=150*U, x0=W/2-w/2, y0=H*.86-h-26*U; ctx.save(); ctx.globalAlpha=a*.92; ctx.fillStyle='#0d140d'; ctx.fillRect(x0,y0,w,h); ctx.strokeStyle='#8a7a40'; ctx.lineWidth=2; ctx.strokeRect(x0,y0,w,h); ctx.globalAlpha=a;
     const im=this.img(); if(im){ ctx.imageSmoothingEnabled=false; ctx.drawImage(im,x0+12*U,y0+14*U,im.width*2.4*U,im.height*2.4*U) } const tx=x0+(im?im.width*2.4*U+26*U:14*U), tw=x0+w-tx-12*U;
-    txt('IN HONOR OF',tx,y0+20*U,11*U,'#b8a868','left'); txt(C.nm,tx,y0+40*U,17*U,'#f6f0cc','left'); txt(C.svc+' · '+C.unit,tx,y0+58*U,10*U,'#c8c8b0','left'); txt(C.date,tx,y0+73*U,10*U,'#c8c8b0','left');
+    txt(C.lab,tx,y0+20*U,11*U,'#b8a868','left'); txt(C.nm,tx,y0+40*U,17*U,'#f6f0cc','left'); txt(C.svc+' · '+C.unit,tx,y0+58*U,10*U,'#c8c8b0','left'); txt(C.date,tx,y0+73*U,10*U,'#c8c8b0','left');
     ctx.font='italic '+Math.round(11*U)+'px monospace'; ctx.textAlign='left'; ctx.fillStyle='#e8e2c0'; const words=C.q.split(' '); let line='', ly=y0+94*U; for(const wd of words){ if(ctx.measureText(line+wd).width>tw){ ctx.fillText(line,tx,ly); line=''; ly+=14*U } line+=wd+' ' } ctx.fillText(line,tx,ly); ctx.restore() } };
 const TANKK=[{nm:'M48A3 Patton',spd:100,rr:26},{nm:'M67A2 "Zippo" Flame Tank',spd:96,rr:26},{nm:'M50A1 Ontos',spd:150,rr:20}];
 function callTank(s,l){ const p=G.p, pool=[0]; if(l>=3)pool.push(1); if(l>=6)pool.push(2); const k=pool[(G.tankRot++)%pool.length];
@@ -5197,8 +5202,8 @@ const TUT={i:0,on:false,ask:false,IMG:{move:1,squad:1,smoke:1,hold:1},C:[
   pad(k,dx){ if(!this.on)return false; if(k==='A')this.go(1); else if(k==='B'||k==='ST')this.close(); else if(!k&&dx)this.go(dx>0?1:-1); return true } };
 $('btnTut').onclick=()=>TUT.open(false);
 /* real archive photos (public domain, US government: NARA / USMC History Division / NHHC) as a slow Ken Burns layer behind the menu. Lazy: a photo
-   is fetched only when the menu shows it. OFF until Vietnam Vet verifies captions and dates: ?photos=1. Sources: THIRD_PARTY_ASSETS.txt + credits. */
-const KB={ON:/[?&]photos=1\b/.test(location.search),L:['ch46_auburn','ch53_khesanh','conthien_bunker','pbr_nh96707','khesanh_howitzer'],i:0,f:0,t:null,
+   is fetched only when the menu shows it. Captions verified by Vietnam Vet (Oct 14 night). ON; ?photos=0 off. Sources: THIRD_PARTY_ASSETS.txt + credits. */
+const KB={ON:!/[?&]photos=0\b/.test(location.search),L:['ch46_auburn','ch53_khesanh','conthien_bunker','pbr_nh96707','khesanh_howitzer'],i:0,f:0,t:null,
   start(){ if(!this.ON||this.t)return; $('kb').classList.add('on'); this.step(); this.t=setInterval(()=>this.step(),14000) },
   stop(){ clearInterval(this.t); this.t=null; $('kb').classList.remove('on') },
   step(){ if(state!=='menu'){ return } const E=$('kb').children, a=E[this.f], b=E[1-this.f], k=this.L[this.i++%this.L.length];
@@ -6078,12 +6083,13 @@ function gameOver(win,why){ state='over'; overAt=performance.now(); const g=G, e
   const aw=awardRun(true), sm=t=>`<div class="ocsm">${t}</div>`, seedTx='Seed '+g.seed, D=CHD[g.char]||CHD.doc;
   if(win){ $('overTitle').textContent='EXTRACTED — THE BIRD IS OUT'; $('rank').textContent='';
     const on=[D.nick+' ('+D.rank+' '+D.nm.split(' ').pop()+')'].concat(ex.gotOn||[]);
-    $('stats').innerHTML=`<div class="ocon"><b>GOT ON:</b> ${on.join(', ')}</div><div class="ocld"><b>LOADED:</b> ${(ex.loaded&&ex.loaded.length)?ex.loaded.join(', '):'nobody'}</div>`+
+    const HON=(g.honor&&g.honor.length)?`<div class="ochon">${g.honor.map(h=>'<span class="hrib"></span> '+h).join('<br>')}</div>`:'';
+    $('stats').innerHTML=HON+`<div class="ocon"><b>GOT ON:</b> ${on.join(', ')}</div><div class="ocld"><b>LOADED:</b> ${(ex.loaded&&ex.loaded.length)?ex.loaded.join(', '):'nobody'}</div>`+
       ((ex.left&&ex.left.length)?`<div class="oclf"><b>LEFT BEHIND:</b> ${ex.left.join(', ')}</div>`:'')+
       `<div class="ocopt"><b>OPTIONAL CALL:</b> ${ex.optCall?ex.optCall:'none'}</div>`+
       (opened?'<div class="ocop">The other service records are open.</div>':'')+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')); $('overSvc').innerHTML=serviceCard(aw) }
   else { $('overTitle').textContent=why==='left'?'LEFT ON THE LZ — THE BIRD IS GONE':charNick(g).toUpperCase()+' IS DOWN'; $('rank').textContent='';
-    $('stats').innerHTML=`<div class="ocfact">${deathFact(g)}</div>`+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')); $('overSvc').innerHTML=serviceCard(aw) }
+    $('stats').innerHTML=((g.honor&&g.honor.length)?`<div class="ochon">${g.honor.map(h=>'<span class="hrib"></span> '+h).join('<br>')}</div>`:'')+`<div class="ocfact">${deathFact(g)}</div>`+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')); $('overSvc').innerHTML=serviceCard(aw) }
   if(aw&&aw.rib&&aw.rib.length)ribFanfare(aw.rib);
   setTimeout(()=>{ if(state==='over')$('over').classList.add('show') },700); }
 /* End-of-run service-record card: XP bar (animated), tier gain, earned ribbon strip (new ones called out), dedication */

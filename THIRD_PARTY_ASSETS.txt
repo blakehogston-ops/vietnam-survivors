@@ -1,5 +1,5 @@
 
-[photos, Oct 14 night] Public-domain US government photographs (menu background, ?photos=1). Captions/dates pending Vietnam Vet verification.
+[photos, Oct 14 night] Public-domain US government photographs (menu background, ON; ?photos=0 off). Captions verified by Vietnam Vet, Oct 14 night (game captions: ch46_auburn 'Operation Auburn, Quang Nam, c. January 1968'; khesanh_howitzer '155mm howitzer, Battery W, 1/13 Marines, Khe Sanh, 1968'; pbr_nh96707 'Mekong Delta / Rung Sat, January 1968').
 assets/photos/khesanh_howitzer.webp: Marines load an M118 howitzer, Khe Sanh 1968.jpg
     Caption (source): Marines of Battery W, 1st Battalion, 13th Marines at Khe Sanh are seen preparing to load a M114A 155mm howitzer.
     Author: Department of Defense (USMC) photo A190292
