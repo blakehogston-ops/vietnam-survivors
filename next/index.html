@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACl0lEQVR42tWXsW4TQRCGv9ndi+PYKIpEIkQZCWhQaCnoeIEUvAJCAsEbINHRg0DiJXgCHoCaDgoKKgRClhU7PvvudijOF/vu1skdcRKx0krW3nrmn39m/t2Vuw/2lSschisebtUH1fUSIyLtALjIIsB5YRQ2stQ3A+C9EkWW+w/3iSJ7biZEhCTJ+PzpO0mSYYycDsA6mU+DdWYtALwq1gleBfUrGFDNnd8+2MU6YfDnaK01cOvgOlmqfPvymyxVipJYyYD36y1C684oQtXyPGtU8Rk5fX/Vfo2BIvJmeYWtqLw2TZsBL3zoPAJXzb0YWWlIgMRDN4JXh7C1ka8fz+DlR5gkEJlw66qCscKde7ulWnD13Ff+uMy1QDcStjrQ6+RAThjp5L+TVEsBSCU3VZZrNVB1/uvnEPVK5qG/KXx4tk2/KyBQaIu18PoRjCbKk3dDRrFiTe5878Z2CUTVjzsrZ+p1PsH7XKi8B2MELexqsZ5P9dpYQV3jNjIwmymP3w7pd3Mmeps5gnE8j3yipGkePesGMA+UcawgMIoXuR5PlVGsjGNlw7XTh9YAIgdJojx9Pyx9SxIlcu0PL9dEywnIw/Fs4UwAI1LbtuoIDgIQWajTIvHC3s3tlWJU7fPgPlMGVvVzAiDL8tw2Pfwa78u0BjxbWnMieQv9+DoIUn0hY962IgEGLgtAsAYo5iU5r3eBVrT/Aka1M1zhOJ6kKMp4MA1ew9riCt0PRITeToflvggyEALQRZqnRyEOtUlxRZaGQiRACvRFeLNzjZ4I2SllooAFxqq8GBwx0vy81//yZbQc0USV54N2t+RYFdvgYePCEis1KMctjxkbsBM6Gly9SrtB3NJSIMJXEqmBaMjAv7wJm9n4C5YJNYm2sM4vAAAAAElFTkSuQmCC">   <!-- data URI: no /favicon.ico request, so nothing to 404 on a Pages project site -->
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=cefae60">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=96f8858">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -136,7 +136,9 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 #sigBtn.rdy{background:#6b3a2f;border-color:#ffd54a;box-shadow:0 0 14px rgba(255,213,74,.8),0 3px 0 #0b1016;animation:sigp 1s infinite}
 @keyframes sigp{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 #sigask{background:transparent;z-index:7;justify-content:flex-start!important;align-items:center;padding-top:max(8px,env(safe-area-inset-top))}   /* top-anchored: keep pad + smoke column visible */
-#sigask>:first-child{margin-top:min(112px,24vh)!important}#sigask>:last-child{margin-bottom:auto!important}#sigask .note{background:rgba(7,12,18,.7);padding:3px 8px}#sigask .sigbtns{position:fixed;left:0;right:0;bottom:calc(max(56px,9vh) + env(safe-area-inset-bottom,0px))}   /* buttons low, dialog high: the pad + smoke column in the middle stay clear */
+#sigask>:first-child{margin-top:min(112px,24vh)!important}#sigask>:last-child{margin-bottom:auto!important}#sigask .note{background:rgba(7,12,18,.7);padding:3px 8px}#sigask{padding-top:max(64px,env(safe-area-inset-top))!important;background:rgba(7,15,9,.9)!important}   /* Gamer: prompt clears the HUD line */
+@media (max-height:480px){#sigask{padding-top:max(40px,env(safe-area-inset-top))!important}#sigask .rbox{padding:6px 10px}#sigask .rbox canvas{width:48px;height:54px}#sigQ{font-size:15px!important}#sigSw{width:52px;height:52px;margin:6px auto 4px;font-size:12px}#sigask .note{font-size:10px;margin-bottom:4px}#sigask{justify-content:flex-start!important}#sigask .sigbtns{position:static!important;margin-top:4px}#sigask .sigbtns .btn{padding:8px 14px;font-size:15px}#sigSw{width:52px!important;height:52px!important;font-size:10px!important;letter-spacing:0!important}}
+#sigask .sigbtns{position:fixed;left:0;right:0;bottom:calc(max(56px,9vh) + env(safe-area-inset-bottom,0px))}   /* buttons low, dialog high: the pad + smoke column in the middle stay clear */
 #sigask .rbox{display:flex;gap:12px;align-items:center;max-width:min(520px,94vw);background:#101830;border:3px solid #c8c8c8;outline:3px solid #000;padding:10px 14px;text-align:left}
 #sigask .rbox canvas{width:72px;height:80px;image-rendering:pixelated;border:2px solid #c8c8c8;flex:none;background:#33422c}
 #sigask .who{color:#e8c030;font-weight:bold;font-size:13px;margin-bottom:4px}
@@ -144,6 +146,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 #sigSw{width:96px;height:96px;border-radius:50%;margin:16px auto 6px;display:flex;align-items:center;justify-content:center;font-family:Impact,sans-serif;letter-spacing:.1em;font-size:18px;border:4px solid #fff;box-shadow:0 0 22px rgba(255,255,255,.35)}
 .ocfact{font-size:clamp(18px,4.2vw,26px);color:#ffe9c8;margin:6px 0 4px;line-height:1.25}.ocsm{font-size:11px;color:#a9b090;margin:2px 0 6px;letter-spacing:.04em}.ocon,.ocld,.oclf{font-size:clamp(13px,2.8vw,16px);line-height:1.4;margin:3px auto;max-width:560px;text-align:left}.ocon b{color:#9be37a}.ocld b{color:#ffe58a}.oclf b{color:#ff9a7a}.ocop{color:#9be37a;font-size:13px;margin:4px 0}.ocopt{font-size:13px;color:#d8cf9e;margin:3px 0}
 #overDed{font-size:12px;margin-top:6px}
+#over{background:rgba(7,15,9,.96);padding-top:max(52px,env(safe-area-inset-top))!important} #overTitle{font-size:clamp(22px,4.4vw,44px);line-height:1.1;margin:0 0 6px}   /* Gamer: end card no longer sits over the HUD */
 @media (min-width:900px){ #over.show{display:grid;grid-template-columns:minmax(0,680px) minmax(0,440px);column-gap:22px;align-content:start;justify-content:center}
   #over>*{grid-column:1} #over>#overSvc{grid-column:2;grid-row:1 / span 8;align-self:start} #over #stats{margin:4px 0 6px} #over .btn{justify-self:center} #over .srcard{margin-top:0} }
 #sigask .sigbtns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}#sigask .note{font-size:12px;color:#9aa5b8;margin-bottom:8px;max-width:420px}
@@ -1154,22 +1157,22 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   else root.Cues = Cues;
 })(typeof self !== 'undefined' ? self : this);
 </script>
-<script src="assets/art/sheet1.js?v=cefae60"></script>
+<script src="assets/art/sheet1.js?v=96f8858"></script>
 <script src="assets/art/vfx_water_impacts.js?v=ac1dbb7"></script>
 <script src="assets/art/vfx_flame.js?v=ac1dbb7"></script>
 <script src="assets/art/map_wrecks.js?v=ac1dbb7"></script>
 <script>if(/[?&]terrain=1\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=ac1dbb7"><\/script>')</script>
-<script src="assets/art/vehicles.js?v=cefae60"></script><script src="assets/art/tanks_v2.js?v=7bb5384"></script><script src="assets/vfx/muzzle_flash.js"></script>
+<script src="assets/art/vehicles.js?v=96f8858"></script><script src="assets/art/tanks_v2.js?v=7bb5384"></script><script src="assets/vfx/muzzle_flash.js"></script>
 <script src="assets/vfx/rockets.js"></script>
 <script src="assets/vfx/vehicle_hits.js"></script>
 <script src="assets/ui/settings_art.js"></script>
 <script src="assets/ui/settings_skin.js"></script>
 <script src="assets/ui/main_menu_art.js?v=7bb5384"></script><script src="assets/ui/colonel_intro_v2.js?v=7bb5384"></script>
 <script src="assets/art/pbr_splash.js?v=ce96432"></script><script src="assets/art/pbr_wake.js?v=ce96432"></script><script src="assets/art/zippo_monitor.js?v=ce96432"></script>
-<script src="assets/art/engineers_v2.js?v=7bb5384"></script><script src="assets/art/doc_hivis.js?v=cefae60"></script><script src="assets/art/marines_tall.js?v=cefae60"></script><script src="assets/art/heroes_tall.js?v=cefae60"></script><script src="assets/art/cover_poses.js?v=cefae60"></script><script src="assets/art/hit_prone_poses.js?v=ac1dbb7"></script><script src="assets/art/firebase.js?v=cefae60"></script><script src="assets/art/terrain.js?v=cefae60"></script><script src="assets/art/recon_team.js?v=ac1dbb7"></script><script src="assets/art/sog_team.js?v=ac1dbb7"></script><script src="assets/art/bunker_interior.js?v=ac1dbb7"></script><script src="assets/art/ability_icons.js?v=ac1dbb7"></script><script src="assets/art/pbr_splash.js?v=ac1dbb7"></script><script defer src="audio/sample_player.js?v=cefae60"></script><script defer src="audio/samples/manifest.js?v=cefae60"></script>
+<script src="assets/art/engineers_v2.js?v=7bb5384"></script><script src="assets/art/doc_hivis.js?v=96f8858"></script><script src="assets/art/marines_tall.js?v=96f8858"></script><script src="assets/art/heroes_tall.js?v=96f8858"></script><script src="assets/art/cover_poses.js?v=96f8858"></script><script src="assets/art/hit_prone_poses.js?v=ac1dbb7"></script><script src="assets/art/firebase.js?v=96f8858"></script><script src="assets/art/terrain.js?v=96f8858"></script><script src="assets/art/recon_team.js?v=ac1dbb7"></script><script src="assets/art/sog_team.js?v=ac1dbb7"></script><script src="assets/art/bunker_interior.js?v=ac1dbb7"></script><script src="assets/art/trench_poses.js"></script><script>if(/[?&]v3=0\b/.test(location.search))SHEET1.useV3=false</script><script src="assets/art/heroes_v3.js"></script><script src="assets/art/marines_v3.js"></script><script src="assets/art/cover_poses_v4.js"></script><script src="assets/art/hit_prone_poses_v4.js"></script><script src="assets/art/trench_poses_v4.js"></script><script src="assets/art/enemies_v3.js"></script><script src="assets/art/engineers_v4.js"></script><script src="assets/art/fb2_guns.js"></script><script src="assets/art/aid_jeep.js"></script><script src="assets/art/fb2_aid_station.js"></script><script src="assets/art/ability_icons.js?v=ac1dbb7"></script><script src="assets/art/pbr_splash.js?v=ac1dbb7"></script><script defer src="audio/sample_player.js?v=96f8858"></script><script defer src="audio/samples/manifest.js?v=96f8858"></script>
 <script>
 /* BUILD STAMP: set by tools/stamp.js (run after every code commit; it records that commit's short hash + date). Also the ?v= cache-buster for audio / images / icons. */
-const BUILD={id:'cefae60',date:'2026-10-15 04:08 ET'}, AV='?v='+BUILD.id;
+const BUILD={id:'96f8858',date:'2026-10-15 10:44 ET'}, AV='?v='+BUILD.id;
 /* Quang Tri preview (Stage 1): saves use the lbo2_ prefix; old vs_/lbo_ saves are never read or touched. */
 (()=>{
 'use strict';
@@ -2079,7 +2082,8 @@ const SHEET_CHAR={doc:'doc'};                                                   
 const SHEET_SMOKE={red:'smokeRed',yellow:'smokeYellow',green:'smokeGreen',violet:'smokeViolet'};
 const SHEET_SCALE_MEN=1, SHEET_SCALE_SMOKE=2;   /* men: 32 world px tall (same as the old 16-row x2 sprites); smoke always 2x so the four shapes read */
 const hasSheet=n=>!!(window.SHEET1&&SHEET1.sprites&&SHEET1.sprites[n]);
-function sheetSprites(name){ const S=SHEET1.sprites[name], B=SHEET1.bake(SHEET_SCALE_MEN)[name], ix=k=>{ const i=S.names?S.names.indexOf(k):-1; return i>=0?i:0 };
+function sheetSprites(name){ if(SHEET1.useV3!==false&&SHEET1.enemySheetName){ const v=SHEET1.enemySheetName(name); if(v&&SHEET1.sprites[v])name=v }   /* enemies_v3 redraw (gated ?v3=0) */
+  const S=SHEET1.sprites[name], B=SHEET1.bake(SHEET_SCALE_MEN)[name], ix=k=>{ const i=S.names?S.names.indexOf(k):-1; return i>=0?i:0 };
   const wrap=src=>{ const c=mk(src.width,src.height+3), x=c.getContext('2d'); x.fillStyle='rgba(0,0,0,.28)'; x.beginPath(); x.ellipse(c.width/2,src.height-1,10,3,0,0,TAU); x.fill(); x.drawImage(src,0,0); c.feet=src.height; return c };   /* feet row = sprite height (shadow padding below) */
   const fr=i=>{ const b=B[i]; return [[wrap(b.n),wrap(b.white)],[wrap(b.f),wrap(b.fw)]] };
   const w1=S.names&&S.names.indexOf('walk1')>=0?ix('walk1'):0, w2=S.names&&S.names.indexOf('walk2')>=0?ix('walk2'):Math.min(1,B.length-1);
@@ -2598,7 +2602,7 @@ function drawSquad(camX,camY){
     // HP bar
     if(!z&&!(m.coy&&m.hp>=m.mhp)){ const r=Math.max(0,m.hp/m.mhp), w=22, bx=Math.round(m.x-w/2), by=Math.round((TM?fy-bob-TM.h*SHEET_SCALE_MEN:m.y-spr.height*.56)-8); ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,5); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,3);
       ctx.fillStyle=r>.55?'#6fd04a':r>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,Math.round(w*r),3) }
-    if(m.role==='corps'&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56); ctx.fillStyle='#d02020'; ctx.fillRect(Math.round(m.x)-1,cy-14,3,1); ctx.fillRect(Math.round(m.x),cy-15,1,3) }
+    if(m.role==='corps'&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56); ctx.fillStyle='#fff'; ctx.fillRect(Math.round(m.x)-3,cy-17,7,7); ctx.fillStyle='#d02020'; ctx.fillRect(Math.round(m.x)-2,cy-14,5,1); ctx.fillRect(Math.round(m.x),cy-16,1,5) }   /* Gamer: squad medic marker readable (was 3 px) */
   }
 }
 
@@ -3050,7 +3054,7 @@ function newGame(demo){
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
-  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); BARK.reset(); VHX.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); MAGS.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
+  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FIELD.reset(); GUNS.reset(); MEDV.reset(); CREWX.reset(); BARK.reset(); VHX.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); MAGS.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:100,maxHp:100,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
@@ -3065,9 +3069,11 @@ function newGame(demo){
   G.seed=seed; G.q15=!demo; G.rl={seed,firstDeath:null}; G.lastHit=null; G.hs={}; G.luN=0; bodies=[];
   applyChar(demo); if(!demo)insertFifteen();
 }
-const xpNeed=l=>Math.floor(4+l*3.2+l*l*.55);
+const XPK=(()=>{ const v=parseFloat(new URLSearchParams(location.search).get('xpk')); return isFinite(v)?v:3.2 })();   /* Gamer Oct 15: ~5 level-ups a run (was 8). ?xpk= tunes */
+const xpNeed=l=>Math.floor((4+l*3.2+l*l*.55)*(l<=1?1:XPK));
 function applyPassives(){const p=G.p;p.maxHp=100+20*G.ps.flak+(G.hpB||0);}
-const speedMul=()=>Math.max(.4,1+.1*G.ps.boots+(G.spdB||0)+(G.rr>0?.8:0)), armorMul=()=>(1-.08*G.ps.helmet)*(1-(G.armB||0))*(G.full>0?.7:1)*(G.inFb?.8:1), magR=()=>80+38*G.ps.magnet+(G.magB||0), regenR=()=>.6*G.ps.regen+(G.regB||0)+(G.inFb?2:0);
+const FBHOLD=()=>!!(G&&G.ex&&G.ex.ph>=3&&G.ex.ph<=5);   /* Gamer 134331: firebase regen 2->0.5 hp/s and no armor bonus while holding for the bird */
+const speedMul=()=>Math.max(.4,1+.1*G.ps.boots+(G.spdB||0)+(G.rr>0?.8:0)), armorMul=()=>(1-.08*G.ps.helmet)*(1-(G.armB||0))*(G.full>0?.7:1)*(G.inFb&&!FBHOLD()?.8:1), magR=()=>80+38*G.ps.magnet+(G.magB||0), regenR=()=>.6*G.ps.regen+(G.regB||0)+(G.inFb?(FBHOLD()?.5:2):0);
 
 /* ====================== helpers ====================== */
 function addPart(x,y,vx,vy,l,s,c,glow,drag){ if(parts.length>(LOWFX?210:520))return; if(LOWFX&&!glow&&((parts.length&1)))return; parts.push({x,y,vx,vy,l,ml:l,s,c,g:glow?1:0,d:drag===undefined?3:drag}); }
@@ -3079,7 +3085,7 @@ function nearestK(x,y,k,maxD){const res=[],ds=[],m2=maxD*maxD; const AR=PB.arc&&
   const B=G&&G.boss; if(B&&!B.dead&&k>=1){ const bx=B.x-x,by=B.y-y; if(bx*bx+by*by<m2){ const bi=res.indexOf(B); if(bi!==0){ if(bi>0)res.splice(bi,1); res.unshift(B); if(res.length>k)res.pop() } } }   // bosses draw everyone's fire
   return res}
 function addBullet(x,y,a,spd,dmg,pierce,life,r,col){const o={x,y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,dmg,pierce,life,r,col,hit:[],a,tg:BTAG[col]||'rifle',wid:CURW}; bullets.push(o); return o}
-function hurtEnemy(e,d,kx,ky){ if(e.dead)return; if(e.tank&&VHX.ON){ VHX.hit(VHX.heat?'heat':apHit?'ap':d>=6?'mg':'small',e,e.x+(rnd()-.5)*18,e.y+(rnd()-.5)*10,{}); VHX.heat=0 } if(e.inCov)d*=PACE.COVER_DR; if(e.armor){ d*=apHit?2.2:(d>=25?.5:.1) } if(G.char){ d*=G.cdm; if(dmgSrc===3)d*=G.flm; const cc=G.crit+(G.dead>0?.6:0); if(cc>0&&rnd()<cc){ d*=2; if(parts.length<(LOWFX?160:400))addPart(e.x,e.y-12,0,-30,.35,3,'#ffe58a',true,2) } } G.dd=(G.dd||0)+Math.min(d,Math.max(0,e.hp)); if(CURW){ const wd=G.wd||(G.wd={}); wd[CURW]=(wd[CURW]||0)+Math.min(d,Math.max(0,e.hp)) } e.hp-=d; e.flash=.09; e.lt=DTAG||(dmgSrc===3?'fire':dmgSrc===2?'expl':'rifle'); e.lx=kx; e.ly=ky;
+function hurtEnemy(e,d,kx,ky){ if(e.dead)return; if(e.tank&&VHX.ON){ VHX.hit(VHX.heat?'heat':apHit?'ap':d>=6?'mg':'small',e,e.x+(rnd()-.5)*18,e.y+(rnd()-.5)*10,{}); VHX.heat=0 } if(e.inCov)d*=PACE.COVER_DR; if(e.armor){ d*=apHit?2.2:(d>=25?.5:.1) } if(G.char){ d*=G.cdm; if(dmgSrc===3)d*=G.flm; const cc=G.crit+(G.dead>0?.45:0); if(cc>0&&rnd()<cc){ d*=2; if(parts.length<(LOWFX?160:400))addPart(e.x,e.y-12,0,-30,.35,3,'#ffe58a',true,2) } } G.dd=(G.dd||0)+Math.min(d,Math.max(0,e.hp)); if(CURW){ const wd=G.wd||(G.wd={}); wd[CURW]=(wd[CURW]||0)+Math.min(d,Math.max(0,e.hp)) } e.hp-=d; e.flash=.09; e.lt=DTAG||(dmgSrc===3?'fire':dmgSrc===2?'expl':'rifle'); e.lx=kx; e.ly=ky;
   if(e.hp>0&&drops.length<(LOWFX?110:300)&&(dmgSrc!==3||rnd()<.25)){ spawnDrops(e.x,e.y-6,kx,ky,e.boss?2:1+((rnd()*2)|0),95); if(rnd()<.05&&decals.length<DECAL_CAP)addDecal(e.x+(rnd()-.5)*10,e.y+6,SPLAT[8+((rnd()*2)|0)],22,.8) } if(!e.boss){e.kx+=kx;e.ky+=ky}else{e.kx+=kx*.1;e.ky+=ky*.1}
   if(e.hp<=0)killEnemy(e); else Snd.play('hit'); }
 function dropGem(x,y,v,type){ if(gems.length>220){addXp(v);return} gems.push({x:x+(rnd()-.5)*10,y:y+(rnd()-.5)*10,v,t:type,pull:false,sp:0}) }
@@ -3098,7 +3104,7 @@ function killEnemy(e){ e.dead=true; G.kills++; medDrop(e);
 function addXp(v){ const p=G.p; p.xp+=v*(1+(G.xpB||0)+.1*(G.ps.fm|0)); while(p.xp>=p.need){p.xp-=p.need;p.lvl++;p.need=xpNeed(p.lvl);G.pending++;} }
 /* last damage source (QA/Gamer): hurtPlayer(dmg, src). G.lastHit = most recent hit, G.hs = total damage taken per source */
 const ESRC=e=>e.boss?('boss '+(e.name||'')).trim():e.tank?'NVA tank':({vc:'VC melee',nva:'NVA melee',officer:'NVA officer melee',sapper:'sapper blast',rpgt:'B-40 trooper melee',rpg:'RPG gunner melee'}[e.type]||((e.type||'enemy')+' melee'));
-function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return; if(G.ex&&G.ex.divert)dmg*=.5; if(PB.inside())dmg*=PB.DMG; if(src==='RPG/B-40 rocket'&&!PACE.mass(G))dmg*=.5;   /* early levels: B-40 is a threat cue, not a one-shot on Doc */ dmg=Math.max(1,Math.round(dmg*armorMul()*(1+holdT(G)/900))); src=src||'unknown'; PAD.rumble(120,Math.min(1,.25+dmg/40),.3);
+function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return; if(G.ex&&G.ex.divert)dmg*=.5; if(G.ex&&(G.ex.ph===4||G.ex.ph===5))dmg*=.75;   /* bird inbound/landed: pressure lives in the hold (ph 3); the last 30 s stays tough but survivable */ if(PB.inside())dmg*=PB.DMG; if(src==='RPG/B-40 rocket'&&!PACE.mass(G))dmg*=.5;   /* early levels: B-40 is a threat cue, not a one-shot on Doc */ dmg=Math.max(1,Math.round(dmg*armorMul()*(1+holdT(G)/900))); src=src||'unknown'; PAD.rumble(120,Math.min(1,.25+dmg/40),.3);
   G.lastHit={src,dmg,t:G.t}; (G.hs||(G.hs={}))[src]=(G.hs[src]||0)+dmg;
   p.hp-=dmg; p.invul=.45; p.hurtT=.18; G.hurt=.5; G.shake=Math.max(G.shake,9); Snd.play('hurt');
   spawnDrops(p.x,p.y-6,0,0,12,130); if(rnd()<.6)addDecal(p.x+(rnd()-.5)*16,p.y+8,SPLAT[(rnd()*5)|0],30,.8);
@@ -3131,7 +3137,7 @@ function pickType(){ const t=G.t*EX_RAMP, r=rnd(); if(fbGrace())return 'vc';
   if(r<off)return 'officer'; if(r<off+nva)return 'nva'; return 'vc'; }
 /* ===== PACE (Blake Oct 14: "most levels in the beginning are more firefights"): early levels are contacts with small NVA/VC fire teams and lulls between them;
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
-const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.07,M_TGT:.6,M_HIT:.4,M_DMG:38,SHOT_DMG:3,COVER_DR:.4,RET_AT:.25,
+const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.1,HOLD_DOC:+(new URLSearchParams(location.search).get('holddoc')||.18),M_TGT:.6,M_HIT:.4,M_DMG:38,SHOT_DMG:4,COVER_DR:.4,RET_AT:.25,
   mass(g){ return (g.p.lvl|0)>=this.MASS_LV||(g.massT>0) },
   hold(g){ const ex=g.ex; return !!(ex&&ex.ph>=4&&ex.ph<=5) },
   tick(g,dt){ const P=g.pc||(g.pc={st:'lull',t:16,teams:[],n:0,log:[]}); P.teams=P.teams.filter(T=>FT.alive(T)>0&&!T.gone);
@@ -3177,6 +3183,7 @@ const FT={
   /* trade fire: a man holding cover shoots every 1.3-2.7 s (tracer + a light hit chance on Doc or the nearest Marine) */
   fire(e,g,dt){ const T=e.ft; if(!T||T.st==='adv'||T.st==='ret'||e.dead)return; if(T.st==='bound'&&e.half===T.half&&!e.inCov)return; e.fT-=dt; if(e.fT>0)return; e.fT=1.3+rnd()*1.4;
     let p=g.p, d=Math.hypot(p.x-e.x,p.y-e.y), mt=null;
+    const hold=g.ex&&g.ex.ph>=3&&g.ex.ph<=5; if(hold&&d<520&&d>60&&rnd()<PACE.HOLD_DOC*(g.ex.ph===3?1:.2)){ g.holdShots=(g.holdShots|0)+1; if(rnd()<PACE.SHOT_HIT*1.3*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,'rifle fire on the pad') }   /* Gamer 134331: extra fire aimed at Doc during the hold (on top of the normal shot, so the Marine curve is unchanged) */
     if(rnd()<PACE.M_TGT){ let bd=460; for(const L of [squad,coy])for(const m of L){ if(m.hp<=0||m.state!=='ok'||m.hid)continue; const q=Math.hypot(m.x-e.x,m.y-e.y); if(q<bd){bd=q;mt=m} } if(mt){ p=mt; d=bd } }
     if(d>540||d<(mt?20:60))return; e.fire=.25; const a=Math.atan2(p.y-e.y,p.x-e.x)+(rnd()-.5)*.12, sp=430;
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
@@ -3206,7 +3213,7 @@ const PULL={T:30,ARROW_AT:5,
     g.banner={text:'HERE THEY COME! '+D.length+' SIDES!',t:2.6,col:'#ff6a4a'}; Snd.play('radio'); G.cryQ=4; if(!SAMP.charge())Snd.play('whistle'); G.shake=Math.max(G.shake,5);
     if(f)f.bigT=Math.max(f.bigT,45); g.pullDirs=null; g.pullLog.assault={t:+g.t.toFixed(1),sides:D.length,men:P.teams.reduce((n,T)=>n+T.n0,0)};
     (g.pullHist||(g.pullHist=[])).push(g.pullLog); if(g.runLog)g.runLog.pull=g.pullHist },
-  hud(U){ const g=G; if(!(g.pullT>0))return; txt(g.pullTxt||'',W/2,H*.17,24*U,g.pullT<=5?'#ff7a5a':'#ffe58a','center'); if(!g.pullDirs)return; const R=Math.min(W,H)*.40, pul=.6+.4*Math.sin(g.t*10);
+  hud(U){ const g=G; if(!(g.pullT>0))return; txt(g.pullTxt||'',W/2,Math.max(H*.25,150*U),24*U,g.pullT<=5?'#ff7a5a':'#ffe58a','center'); if(!g.pullDirs)return; const R=Math.min(W,H)*.40, pul=.6+.4*Math.sin(g.t*10);
     for(const a of g.pullDirs){ const x=W/2+Math.cos(a)*R, y=H/2+Math.sin(a)*R; ctx.save(); ctx.translate(x,y); ctx.rotate(a+Math.PI); ctx.globalAlpha=pul; ctx.fillStyle='#ff5a3a'; ctx.strokeStyle='#200'; ctx.lineWidth=2*U;
       ctx.beginPath(); ctx.moveTo(22*U,0); ctx.lineTo(-10*U,-16*U); ctx.lineTo(-4*U,0); ctx.lineTo(-10*U,16*U); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore() } ctx.globalAlpha=1 },
   qa(g){ if(!g.qaBuild&&g.t>1&&/[?&]build=done/.test(location.search)){ g.qaBuild=1; DBG.skipBuild() } } };
@@ -3470,12 +3477,12 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){const dx=p.
   G.botTimer+=.016; x+=Math.cos(G.botTimer*.3)*.25; y+=Math.sin(G.botTimer*.27)*.25; const l=Math.hypot(x,y); if(l>1){x/=l;y/=l} return [x,y]; }
 
 function update(dt){
-  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt); IMP.tick(dt); BARK.tick(dt); if(window.VFX_MUZZLE)try{ VFX_MUZZLE.update(dt) }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.update(dt) }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.update(dt) }catch(e){}
+  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt); FIELD.tick(dt); GUNS.tick(dt); MEDV.tick(dt); CREWX.tick(dt); PADRUSH(dt); IMP.tick(dt); BARK.tick(dt); if(window.VFX_MUZZLE)try{ VFX_MUZZLE.update(dt) }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.update(dt) }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.update(dt) }catch(e){}
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
   const g=G,p=g.p; g.t+=dt; g.dthF=0;
   // player
-  let [ix,iy]=g.demo?[Math.cos(g.t*.45),Math.sin(g.t*.45)]:(DBG.bot?(BOTF.move?BOTF.move():(MOH.botPull()||botVec())):inputVec()); if(PB.inside()){ ix=0; iy=0 }
+  let [ix,iy]=g.demo?[Math.cos(g.t*.45),Math.sin(g.t*.45)]:(DBG.bot?(BOTF.move?BOTF.move():(MOH.botPull()||FIELD.botPull()||botVec())):inputVec()); if(PB.inside()){ ix=0; iy=0 }
   p.mv=ix!==0||iy!==0; const sp=150*speedMul()*(p.slow>0?.5:1); if(p.slow>0)p.slow-=dt;
   if(p.mv){ rvMove(p,ix*sp*dt,iy*sp*dt,'p'); p.anim+=dt*9;p.fx=ix;p.fy=iy}
   if(p.invul>0)p.invul-=dt; if(p.hurtT>0)p.hurtT-=dt; if(g.treatT>0)g.treatT-=dt; if(g.hurt>0)g.hurt-=dt; if(g.muzzle>0)g.muzzle-=dt; if(g.bolt>0){ const b0=g.bolt; g.bolt-=dt; if(!Snd.cbus){ if(b0>.43&&g.bolt<=.43)Snd.play('boltA'); if(b0>.2&&g.bolt<=.2)Snd.play('boltB') } }
@@ -3585,7 +3592,7 @@ function update(dt){
   // levelups
   /* QA Oct 14: level-up cards kept Doc off the pad. Smoke, confirm, inbound and boarding (ph 1,2,4,5) queue them (shown after lift-off / next level);
      during the pad hold (ph 3) at most one card per LU_GAP s. The boarding clock and pilot prompt never sit under a card. */
-  const exPh=g.ex?g.ex.ph:0, luHold=exPh===1||exPh===2||exPh===4||exPh===5||(exPh===3&&g.t-(g.luAt||-99)<LU_GAP);
+  const exPh=g.ex?g.ex.ph:0, luHold=exPh===1||exPh===2||exPh>=4||(exPh===3&&g.t-(g.luAt||-99)<LU_GAP);
   if(g.pending>0&&state==='play'&&!g.demo&&p.hp>0&&!luHold){ g.luAt=g.t; openLevelUp() }
   else if(g.pending>0&&g.demo){g.pending=0}
 }
@@ -3845,7 +3852,7 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   /* Blake's design: an optional radio call marks an objective OFF the firebase; the clock keeps running, no extra men. While the player is away the squad
      holds the base under more pressure (structure damage x P), with an alert if it starts to fall. Own timer, return-home arrow; the reward (XP + tribute) is paid
      only on getting back. Never starts once the pad is called / chopper is inbound. Tunables: ?mohd= distance from base, ?moht= go timer, ?mohr= return timer, ?mohp= pressure. */
-  P:(()=>{ const q=new URLSearchParams(location.search), n=(k,d)=>{ const v=parseFloat(q.get(k)); return isFinite(v)?v:d }; return {D:Math.min(900,n('mohd',620)),T:n('moht',11),R:n('mohr',30),P:n('mohp',1.2),E:n('mohe',10),HR:n('mohhr',130)} })(),
+  P:(()=>{ const q=new URLSearchParams(location.search), n=(k,d)=>{ const v=parseFloat(q.get(k)); return isFinite(v)?v:d }; return {D:Math.min(900,n('mohd',620)),T:n('moht',11),R:n('mohr',30),P:n('mohp',1.2),E:n('mohe',12),HR:n('mohhr',130)} })(),
   reset(){ this.cur=null; this.q=null; this.fb=null; this.done={}; this.alertT=0 },
   away(){ const c=this.cur; return !!(c&&fbS&&G&&Math.hypot(G.p.x-fbS.x,G.p.y-fbS.y)>260) },
   press(){ return this.away()?this.P.P:1 },
@@ -4026,7 +4033,7 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
   reset(){ this.L.length=0; this.T=0; this.used={}; this.Q.length=0; this.endTalk(true); this.talkT=0 },
   pickLine(cat){ const g=G, arr=this.LINES[cat]; if(!arr)return null; let i=(rnd()*arr.length)|0; for(let n=0;n<arr.length&&g.t-(this.used[cat+i]||-99)<25;n++)i=(i+1)%arr.length; if(g.t-(this.used[cat+i]||-99)<25)return null; this.used[cat+i]=g.t; return arr[i] },
   vis(o){ const p=G.p; return Math.abs(o.x-p.x)<VW/2-20&&Math.abs(o.y-p.y)<VH/2-30 },
-  show(sp,t,life,vc){ if(this.L.length>=2)return false; sp.bark=1; this.L.push({m:sp,t,a:0,life:life||2.2,vc}); (G.barkLog||(G.barkLog=[])).length<200&&G.barkLog.push([+G.t.toFixed(1),vc?'vc':'usmc',t]); return true },
+  show(sp,t,life,vc){ if(this.L.length>=2)return false; sp.bark=1; this.L.push({m:sp,t,a:0,life:Math.max(life||0,1.8,.06*t.length),vc}); (G.barkLog||(G.barkLog=[])).length<200&&G.barkLog.push([+G.t.toFixed(1),vc?'vc':'usmc',t]); return true },
   corps(){ if(G.char==='doc')return G.p; return coy.find(m=>m.role==='corps'&&m.hp>0&&!m.wia)||null },
   near(x,y,ex){ return this.who(x,y,q=>!q.wia&&q!==ex) },
   /* exchange: queue follow-ups; each item {d delay, cat|line, sp:fn->speaker} */
@@ -4035,10 +4042,12 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
   vcReply(e){ const g=G; if(!this.ON||!g||g.demo||g.t<this.T||this.Q.length)return; if(rnd()>.45)return; const x=e.x,y=e.y; let m1=null;
     this.chain([{d:.6+rnd()*.9,cat:'taunt',sp:()=>(m1=this.near(x,y)),then:sp=>{ const r=rnd(); if(r<.3)return [{d:.7+rnd()*.6,cat:'backup',sp:()=>this.near(sp.x,sp.y,sp)}];
       if(r<.5)return [{d:.8+rnd()*.6,vc:1,line:PHRASES[(rnd()*XPI)|0],sp:()=>(!e.dead&&this.vis(e)?e:null)}]; return [] }}]) },
-  sprVC(t){ const k='vc|'+t; let c=this.C[k]; if(c)return c; c=this.spr(t); const d=document.createElement('canvas'); d.width=c.width; d.height=c.height; const x=d.getContext('2d'); x.drawImage(c,0,0); x.globalCompositeOperation='source-atop'; x.fillStyle='rgba(120,30,20,.18)'; x.fillRect(0,0,d.width,d.height); return this.C[k]=d },
-  spr(t){ let c=this.C[t]; if(c)return c; const f='bold 9px "Courier New",monospace', m=document.createElement('canvas').getContext('2d'); m.font=f; const w=Math.ceil(m.measureText(t).width)+10, h=15;
-    c=document.createElement('canvas'); c.width=w; c.height=h+4; const x=c.getContext('2d'); x.fillStyle='#17110a'; x.fillRect(0,0,w,h); x.fillRect(w/2-3|0,h,6,2); x.fillStyle='#d9d4b8'; x.fillRect(1,1,w-2,h-2); x.fillRect(w/2-2|0,h-1,4,2);
-    x.fillStyle='#22301a'; x.font=f; x.textBaseline='middle'; x.textAlign='center'; x.fillText(t,w/2,h/2+.5); return this.C[t]=c },
+  sprVC(t){ const k='vc|'+t; let c=this.C[k]; if(c)return c; c=this.spr(t); const d=document.createElement('canvas'); d.width=c.width; d.height=c.height; const x=d.getContext('2d'); x.drawImage(c,0,0); x.strokeStyle='#8a2a1a'; x.lineWidth=2; x.strokeRect(1,1,d.width-2,d.height-Math.round(5*(COARSE.matches?1.35:1))-3); return this.C[k]=d },
+  spr(t){ let c=this.C[t]; if(c)return c; const k=COARSE.matches?1.35:1, fs=Math.round(12*k), f='bold '+fs+'px "Courier New",monospace', m=document.createElement('canvas').getContext('2d'); m.font=f;
+    const tw=Math.ceil(m.measureText(t).width), w=tw+Math.round(12*k), h=Math.round(fs*1.5), th=Math.round(5*k), d=2;   /* off-white bubble, dark text, 2 px dark outline, tail to the speaker (Blake Oct 15: legibility) */
+    c=document.createElement('canvas'); c.width=w+2*d; c.height=h+th+2*d; const x=c.getContext('2d'); x.fillStyle='#17110a'; x.fillRect(0,0,w+2*d,h+2*d); x.beginPath(); x.moveTo(c.width/2-th-2,h+d); x.lineTo(c.width/2,h+th+2*d); x.lineTo(c.width/2+th+2,h+d); x.fill();
+    x.fillStyle='#fff8e0'; x.fillRect(d,d,w,h); x.beginPath(); x.moveTo(c.width/2-th,h+d-1); x.lineTo(c.width/2,h+th+d-1); x.lineTo(c.width/2+th,h+d-1); x.fill();
+    x.fillStyle='#14120c'; x.font=f; x.textBaseline='middle'; x.textAlign='center'; x.fillText(t,c.width/2,d+h/2+1); return this.C[t]=c },
   who(x,y,pick){ let b=null,bd=1e9; for(const m of coy){ if(m.hp<=0||m.on||m.bark)continue; if(pick&&!pick(m))continue; const d=Math.hypot(m.x-x,m.y-y); if(d<bd){bd=d;b=m} } return b },
   ev(k,o){ const g=G; if(!this.ON||!g||g.demo||state!=='play')return false; if(g.t<this.T||this.L.length>=2)return false; const p=g.p;
     let cat=k, arr; if(k==='down'&&o&&o.nm&&rnd()<.5){ cat='named' } if(k==='hurt'&&GORE&&rnd()<.35)cat='hurtG'; arr=this.LINES[cat]; if(!arr)return false;
@@ -4046,7 +4055,7 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
     let m=o&&o.m; if(!m||m.hp<=0&&k!=='hurt'){ m=this.who(o&&o.x!==undefined?o.x:p.x,o&&o.y!==undefined?o.y:p.y,k==='hurt'?(q=>q.wia):(q=>!q.wia)) } if(!m)return false;
     if(Math.abs(m.x-p.x)>VW/2-20||Math.abs(m.y-p.y)>VH/2-30)return false;
     let t=arr[i]; if(cat==='shift')t=(o&&o.x<p.x)?'Shift left!':'Shift right!'; if(t.indexOf('{N}')>=0){ const ln=String(o.nm).split(' ').pop(); t=t.replace('{N}',ln) }
-    this.used[cat+i]=g.t; this.T=g.t+3+rnd()*1.5; m.bark=1; this.L.push({m,t,a:0,life:2.2});
+    this.used[cat+i]=g.t; this.T=g.t+3+rnd()*1.5; m.bark=1; this.L.push({m,t,a:0,life:Math.max(1.8,.06*t.length)});
     if(cat==='down'||cat==='named'){ const c=this.corps(); if(c&&c!==m)this.chain([{d:.7+rnd()*.6,cat:'docA',sp:()=>this.corps()}]) }
     if(cat==='reload'&&t==='Gimme a mag!'||k==='lowammo')this.chain([{d:.8+rnd()*.5,cat:'ammoA',sp:()=>this.near(m.x,m.y,m)}]);
     if(cat==='shift')this.chain([{d:.6+rnd()*.5,cat:'ack',sp:()=>this.near(m.x,m.y,m)}]);
@@ -4062,7 +4071,7 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
   /* downtime: firebase built + lull (no assault, <3 enemies within 520 px of the base for 15 s) -> 2-3 idle Marines near each other get props
      (cigarette ember + wisp, cards on an ammo crate) and trade a 2-4 line exchange. Breaks off instantly when contact returns. No idle sprites exist,
      so they keep their standing/crouch pose (judgment call; asked Artist Helper via parent). LOD: only on screen, one group at a time. */
-  lull(){ const g=G; if(!fbS||g.ex&&(g.ex.pad||g.ex.ph>=1)||g.cryQ>0)return false; let n=0; for(const e of enemies){ if(!e.dead&&Math.abs(e.x-fbS.x)<520&&Math.abs(e.y-fbS.y)<520&&++n>=3)return false } return true },
+  lull(){ const g=G; if(!fbS||fbS.state!=='done'||g.ex&&g.ex.ph>=4||g.cryQ>0)return false;   /* the base usually finishes after the pad is marked, so banter may run in a quiet hold; never once the bird is inbound */ let n=0; for(const e of enemies){ if(!e.dead&&Math.abs(e.x-fbS.x)<520&&Math.abs(e.y-fbS.y)<520&&++n>=3)return false } return true },
   endTalk(quiet){ const T=this.tg; if(!T)return; for(const m of T.men)m.idle=0; this.tg=null; if(!quiet){ const m=T.men.find(q=>q.hp>0); if(m){ const t=this.pickLine('breakoff')||'Here they come!'; this.L.length=0; this.show(m,t,1.8) } } },
   talkTick(dt){ const g=G; if(!this.ON)return; const ok=this.lull(); this.lullT=ok?(this.lullT||0)+dt:0;
     if(this.tg){ if(!ok){ this.endTalk(false); return } const T=this.tg; if(T.men.some(m=>m.hp<=0||m.wia)){ this.endTalk(true); return } if(g.t>=T.next&&this.L.length<2){ if(T.i>=T.lines.length){ if(g.t>T.next+4){ this.endTalk(true); this.talkT=g.t+25+rnd()*20 } return } const sp=T.men[T.i%T.men.length]; if(this.vis(sp)&&this.show(sp,T.lines[T.i],2.6))T.i++; T.next=g.t+2.6+rnd()*1.2 } return }
@@ -4075,7 +4084,7 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
     if(T.cards){ const x=Math.round(T.cx), y=Math.round(T.cy); ctx.fillStyle='#4a5230'; ctx.fillRect(x-7,y-3,14,7); ctx.fillStyle='#2e3320'; ctx.fillRect(x-7,y+3,14,1); ctx.fillStyle='#e8e4d6'; ctx.fillRect(x-4,y-3,2,3); ctx.fillRect(x+1,y-2,2,3); ctx.fillStyle='#b03028'; ctx.fillRect(x+1,y-2,1,1) }
     for(const m of T.men){ if(m.idle!==1&&m.idle!==2)continue; const hx=Math.round(m.x+(m.face<0?-4:4)), hy=Math.round(m.y-22); const glow=.6+.4*Math.sin(t*3+m.x); ctx.fillStyle='rgba(255,'+(110+60*glow|0)+',40,1)'; ctx.fillRect(hx,hy,1,1);
       for(let k=0;k<3;k++){ const a=((t*.5+k/3+m.x*.01)%1); ctx.globalAlpha=.35*(1-a); ctx.fillStyle='#c9c6bc'; ctx.fillRect(Math.round(hx+Math.sin(a*6+k)*2),Math.round(hy-2-a*12),1,2) } ctx.globalAlpha=1 } },
-  draw(){ this.props(); const used=[]; for(const b of this.L){ const m=b.m, c=b.vc?this.sprVC(b.t):this.spr(b.t), k=Math.min(1,b.a/.14), fo=Math.min(1,(b.life-b.a)/.3); ctx.globalAlpha=Math.max(0,fo)*Math.min(1,k*1.5); let bx=Math.round(m.x-c.width/2), by=Math.round(m.y-40-Math.min(5,b.a*10)-c.height); for(const u of used){ if(bx<u[0]+u[2]&&bx+c.width>u[0]&&by<u[1]+u[3]&&by+c.height>u[1])by=u[1]-c.height-2 } used.push([bx,by,c.width,c.height]); ctx.drawImage(c,bx,by); } ctx.globalAlpha=1 } };
+  draw(){ this.props(); const used=[]; for(const b of this.L){ const m=b.m, c=b.vc?this.sprVC(b.t):this.spr(b.t), k=Math.min(1,b.a/.14), fo=Math.min(1,(b.life-b.a)/.3); ctx.globalAlpha=Math.max(0,fo)*Math.min(1,k*1.5); let bx=Math.round(m.x-c.width/2), by=Math.round(m.y-40-Math.min(5,b.a*10)-c.height); const vx0=MZW.cx+4, vx1=MZW.cx+W/(MZW.z||1)-4, vy0=MZW.cy+4; bx=Math.max(vx0,Math.min(vx1-c.width,bx)); by=Math.max(vy0,by); for(const u of used){ if(bx<u[0]+u[2]&&bx+c.width>u[0]&&by<u[1]+u[3]&&by+c.height>u[1])by=u[1]-c.height-2 } used.push([bx,by,c.width,c.height]); ctx.drawImage(c,bx,by); } ctx.globalAlpha=1 } };
 /* VFX_VEHICLE_HIT (Artist Helper vehicle_hits.js, Oct 15): visuals only, no HP/damage change. Hits on tanks / PT-76 / Hueys / boats, plus a
    persistent damage-state emitter keyed per vehicle (level from HP: >.66 clear, >.33 smoke, else fire; death cook-off 3 -> burning wreck 4).
    Emitters are detached on reset/wreck expiry. Skipped far off-screen. ?vhit=0 = old particles */
@@ -4088,6 +4097,96 @@ const VHX={ON:!/[?&]vhit=0\b/.test(location.search), n:0, A:null,
   hit(kind,o,x,y,opts){ if(!this.ok()||!this.near(x,y))return false; if((COARSE.matches||LOWFX)&&(kind==='small'||kind==='mg')&&rnd()<.75)return true; try{ VFX_VEHICLE_HIT.hit(kind,o,x,y,this.ang(o),opts||{}) }catch(e){} return true },
   kill(o,f){ if(!this.ok())return false; const id=this.id(o); try{ VFX_VEHICLE_HIT.attachToVehicle(id,3,Object.assign({follow:o,turretPop:rnd()<.35},f||{})); setTimeout(()=>{ try{ VFX_VEHICLE_HIT.attachToVehicle(id,4,Object.assign({follow:o},f||{})) }catch(e){} },1500) }catch(e){} return true },
   reset(){ try{ window.VFX_VEHICLE_HIT&&VFX_VEHICLE_HIT.reset() }catch(e){} } };
+/* FIELD (Gamer Oct 15, Blake approved): Doc's early job. Before the pad call, every ~30-45 s a Marine in the fight is hit and bleeding
+   (HP drains to a 15% floor, so enemies can finish him). Doc reaches him and holds 1.5 s within 30 px: patched to 60%, small XP, his buddies
+   steady up (no extra men). One at a time; arrow + marker; never during the pad/extraction. ?field=0 = off */
+/* GUNS (Blake-approved build, Oct 15): base gun crews once the firebase is DONE. One 81 mm mortar pit (SHEET1.MORTAR_CREW, CREW_TIMING drill ~2.2 s/round)
+   and one M101 105 mm pit (HOWITZER_CREW, drill stretched to ~6 s/round per Vet). Fire only at enemies 110-620 px out from the base, fire is synced to the
+   drill's 'fire' step (flash + sound + round), impact after the flight time. Casing pile grows at the 105, fired tubes/crates pile at the mortar. ?guns=0 = off */
+/* PADRUSH (Gamer 134331): during the hold a small VC rush (3) comes at the pad every ~24 s from off-screen, so Doc can't idle there. ?padrush=0 = off */
+const PADRUSH_ON=!/[?&]padrush=0\b/.test(location.search);
+function PADRUSH(dt){ const g=G; if(!PADRUSH_ON||!g||g.demo||state!=='play'||!g.ex||!g.ex.pad||g.ex.ph!==3)return; g.prT=(g.prT==null?10:g.prT)-dt; if(g.prT>0)return; g.prT=22+rnd()*6;
+  const P=g.ex.pad, a=rnd()*TAU; let n=0; for(let k=0;k<3;k++){ if(enemies.length>=440)break; const e=spawnEnemy('vc',P.x+Math.cos(a)*340+(rnd()-.5)*50,P.y+Math.sin(a)*340+(rnd()-.5)*50,true); if(e){ e.padRush=1; n++ } } g.prN=(g.prN|0)+n }
+/* MEDV (Blake-approved build): firebase medical vehicles, only once the base is DONE and until the bird is inbound; no vehicle HP (balance rule).
+   Aid jeep (AID_JEEP m151): a Marine under 60% within 520 px of the base -> the jeep drives out, loads him (litter), drives back to the aid
+   station (fb2AidStation): patched to 70%. One patient a trip, 35 s cooldown, max 6 a run. Two LVTP-5s inside the wire: troop (parked, ramp up)
+   and medic: a Marine under 65% within 150 px rides the ramp, heals to 80% at 12%/s, ramp drops while healing, 20 s cooldown, max 8. ?medv=0 = off */
+const MEDV={ON:!/[?&]medv=0\b/.test(location.search)&&!!(window.AID_JEEP&&window.SHEET1&&SHEET1.drawLVTP5&&SHEET1.sprites.fb2AidStation), on:0, J:null, A:[], st:null, nJ:0, nA:0,
+  reset(){ this.on=0; this.J=null; this.A=[]; this.st=null; this.nJ=0; this.nA=0 },
+  hd(dx,dy){ return ((Math.round(Math.atan2(dy,dx)/(Math.PI/4))%8)+8)%8 },
+  mk(f){ this.on=1; this.st={x:f.x-320,y:f.y}; this.J={x:f.x-320,y:f.y+62,hx:f.x-320,hy:f.y+62,h:0,s:'park',m:null,cd:20,load:0,mv:0};
+    this.A=[{v:'troop',x:f.x-205,y:f.y-70,h:2,ramp:0,cd:0},{v:'medic',x:f.x-205,y:f.y+70,h:2,ramp:0,cd:0,m:null}] },
+  tick(dt){ const g=G, f=fbS; if(!this.ON||!g||g.demo||!f||f.state!=='done')return; if(!this.on)this.mk(f); const late=g.ex&&g.ex.ph>=4;   /* runs through the hold; stops once the bird is inbound */
+    const J=this.J; J.cd-=dt; const go=(tx,ty,sp)=>{ const dx=tx-J.x,dy=ty-J.y,d=Math.hypot(dx,dy); if(d<4)return true; J.h=this.hd(dx,dy); J.x+=dx/d*Math.min(d,sp*dt); J.y+=dy/d*Math.min(d,sp*dt); J.mv=1; return false };
+    J.mv=0;
+    if(J.s==='park'){ if(!late&&J.cd<=0&&this.nJ<6){ let b=null,bd=1e9; for(const m of coy){ if(m.hp<=0||m.on||m.state&&m.state!=='ok'&&m.state!=='fight'||m.hp>m.mhp*.6||m.medv)continue; const d=Math.hypot(m.x-f.x,m.y-f.y); if(d<520&&d<bd){bd=d;b=m} } if(b){ b.medv=1; J.m=b; J.s='out' } } }
+    else if(J.s==='out'){ const m=J.m; if(!m||m.hp<=0||!coy.includes(m)){ if(m)m.medv=0; J.m=null; J.s='back' } else if(go(m.x,m.y+16,95)){ J.s='back'; J.load=1; m.hid=1; m.medvT=1 } }
+    else if(J.s==='back'){ if(go(J.hx,J.hy,95)){ const m=J.m; if(m&&J.load){ m.hp=Math.max(m.hp,m.mhp*.7); m.hid=0; m.medv=0; m.x=this.st.x-20; m.y=this.st.y+10; this.nJ++; try{ Snd.play('heal') }catch(e){} (g.medvLog||(g.medvLog=[])).push([+g.t.toFixed(1),'jeep']) } J.m=null; J.load=0; J.s='park'; J.cd=35 } }
+    if(J.m&&J.load){ J.m.x=J.x; J.m.y=J.y }
+    const A=this.A[1]; A.cd-=dt;
+    if(A.m){ const m=A.m; if(m.hp<=0||!coy.includes(m)){ A.m=null } else { m.hp=Math.min(m.mhp*.8,m.hp+m.mhp*.12*dt); m.x=A.x; m.y=A.y+18; if(m.hp>=m.mhp*.8-.01){ m.hid=0; m.medv=0; m.y=A.y+40; A.m=null; A.cd=20; this.nA++; (g.medvLog||(g.medvLog=[])).push([+g.t.toFixed(1),'amtrac']) } } }
+    else if(A.cd<=0&&this.nA<8&&!late){ for(const m of coy){ if(m.hp<=0||m.on||m.state&&m.state!=='ok'&&m.state!=='fight'||m.hp>m.mhp*.65||m.medv)continue; if(Math.hypot(m.x-A.x,m.y-A.y)<150){ A.m=m; m.medv=1; m.hid=1; break } } }
+    A.ramp=Math.max(0,Math.min(1,A.ramp+(A.m?2:-2)*dt)) },
+  draw(){ if(!this.on||!fbS||fbS.state!=='done')return; const S=SHEET1, t=performance.now()/1000;
+    S.draw(ctx,'fb2AidStation','v0',this.st.x,this.st.y,1,false);
+    for(const a of this.A)S.drawLVTP5(ctx,{x:a.x,y:a.y,heading:a.h,t,variant:a.v,ramp:a.ramp,moving:false,scale:1,healing:a.v==='medic'&&!!a.m,corpsman:a.v==='medic'});
+    const J=this.J; AID_JEEP.drawAidJeep(ctx,{x:Math.round(J.x),y:Math.round(J.y),heading:J.h,t,scale:1,variant:'m151',load:J.load,moving:!!J.mv}) } };
+/* CREWX (Blake-confirmed): base support men once the firebase is DONE. M60 assistant gunner beside every M60 post (agFeed under fire, agSpot
+   otherwise); 2 ammo runners carrying cans bunker -> a random post -> hand-off -> back (visual only); a sharpshooter on the bunker roof
+   (tower poses) with an M40: one aimed round every 2.6 s at the nearest enemy 120-460 px out, 16 dmg. ?crewx=0 = off */
+const CREWX={ON:!/[?&]crewx=0\b/.test(location.search)&&!!(window.SHEET1&&SHEET1.drawTrench&&SHEET1.TRENCH_POSES&&SHEET1.TRENCH_POSES.agFeed), R:[], sn:null,
+  reset(){ this.R=[]; this.sn=null },
+  posts(){ return strs.filter(q=>!q.dead&&(q.type==='m60'||q.type==='m2')) },
+  tick(dt){ const g=G, f=fbS; if(!this.ON||!g||g.demo||!f||f.state!=='done')return;
+    if(!this.sn){ this.sn={x:f.x-72,y:f.y-74,cd:3,fr:0,a:0}; this.R=[0,1].map(i=>({x:f.x-72+i*12,y:f.y-50,s:'go',tg:null,t:i*3,fl:false})) }
+    const S=this.sn; S.cd-=dt; S.fr=Math.max(0,S.fr-dt); if(S.cd<=0){ S.cd=2.6; let b=null,bd=1e9; for(const e of enemies){ if(e.dead)continue; const d=Math.hypot(e.x-S.x,e.y-S.y); if(d>120&&d<460&&d<bd){bd=d;b=e} }
+      if(b){ S.fr=.35; S.fl=b.x<S.x; S.a=Math.atan2(b.y-S.y,b.x-S.x); dmgSrc=0; hurtEnemy(b,16,0,0); if(vtr.length<60)vtr.push({x:S.x,y:S.y-20,vx:Math.cos(S.a)*700,vy:Math.sin(S.a)*700,l:bd/700}); try{ if(onScreen(S,8))Snd.play('m1903'); VFX_MUZZLE.spawn('m40',S.x+(S.fl?-10:10),S.y-20,S.a,{}) }catch(e){} g.snK=(g.snK|0)+1 } else S.cd=.8 }
+    const P=this.posts(); for(const r of this.R){ r.t-=dt; if(r.t>0)continue;
+      if(r.s==='go'){ if(!r.tg||r.tg.dead){ r.tg=P.length?P[(rnd()*P.length)|0]:null; if(!r.tg){ r.t=2; continue } } const dx=r.tg.x-r.x, dy=r.tg.y+14-r.y, d=Math.hypot(dx,dy); r.fl=dx<0; if(d<6){ r.s='hand'; r.t=.8 } else { r.x+=dx/d*Math.min(d,70*dt); r.y+=dy/d*Math.min(d,70*dt) } }
+      else if(r.s==='hand'){ r.s='back' }
+      else { const hx=fbS.x-72, hy=fbS.y-50, dx=hx-r.x, dy=hy-r.y, d=Math.hypot(dx,dy); r.fl=dx<0; if(d<6){ r.s='go'; r.tg=null; r.t=1.5+rnd()*2 } else { r.x+=dx/d*Math.min(d,85*dt); r.y+=dy/d*Math.min(d,85*dt) } } } },
+  draw(){ if(!this.ON||!this.sn||!fbS||fbS.state!=='done')return; const T=SHEET1, t=performance.now()/1000, fi=(t*8)|0;
+    const hot=enemies.some(e=>!e.dead&&Math.hypot(e.x-fbS.x,e.y-fbS.y)<420);
+    for(const q of this.posts()){ if(q.type!=='m60')continue; const sx=Math.cos(q.ang+Math.PI/2)*14, sy=Math.sin(q.ang+Math.PI/2)*14; T.drawTrench(ctx,'baseMarine2',hot?'agFeed':'agSpot',fi>>1,Math.round(q.x+sx),Math.round(q.y+sy+8),sx<0,1) }
+    for(const r of this.R)T.drawTrench(ctx,'baseMarine3',r.s==='hand'?'handOff'+(fi&1):r.s==='go'?'carryAmmo'+(fi%6):'run'+(fi%6),fi,Math.round(r.x),Math.round(r.y),r.fl,1);
+    const S=this.sn; T.drawTrench(ctx,'baseMarine',S.fr>0?'towerFire':(S.cd<.8?'towerBolt':'towerAim'),fi>>1,S.x,S.y,!!S.fl,1) } };
+const GUNS={ON:!/[?&]guns=0\b/.test(location.search)&&!!(window.SHEET1&&SHEET1.MORTAR_CREW&&SHEET1.sprites.fb2MortarPit), P:[], R:[],
+  reset(){ this.P=[]; this.R=[] },
+  mk(f){ const HS=['hN','hNE','hE','hSE','hS','hSW','hW','hNW'];
+    this.P=[{k:'m',x:f.x-48,y:f.y+128,ct:2200,t:0,fired:0,pile:0,h:'hN'},{k:'h',x:f.x+92,y:f.y+92,ct:6000,t:1500,fired:0,pile:0,h:'hN',HS}] },
+  tgt(f,g){ let b=null,bd=1e9; for(const e of enemies){ if(e.dead)continue; const d=Math.hypot(e.x-f.x,e.y-f.y); if(d<110||d>620)continue; if(d<bd){bd=d;b=e} } return b },
+  tick(dt){ const g=G, f=fbS; if(!this.ON||!g||g.demo||!f||f.state!=='done')return; if(!this.P.length)this.mk(f);
+    for(const q of this.P){ const e=this.tgt(f,g); if(!e&&q.t<10){ q.t=0; continue }
+      if(q.k==='h'&&e){ const a=Math.atan2(e.x-q.x,-(e.y-q.y)); q.h=q.HS[((Math.round(a/(Math.PI/4))%8)+8)%8] }
+      const T=q.t; q.t+=dt*1000; const sc=q.k==='h'?1.5:1, fireAt=(q.k==='h'?2900:1500)*sc;
+      if(T<fireAt&&q.t>=fireAt&&e){ q.fired++; const fl=q.k==='h'?.9:1.6, dmg=q.k==='h'?24:9, rad=q.k==='h'?40:30, tx=e.x+(rnd()-.5)*24, ty=e.y+(rnd()-.5)*24;
+        this.R.push({x:tx,y:ty,t:fl,dmg,rad}); try{ Snd.play(q.k==='h'?'cannon':'mortar'); VFX_MUZZLE.spawn('cannon',q.x,q.y-(q.k==='h'?14:8),q.k==='h'?Math.atan2(ty-q.y,tx-q.x):-Math.PI/2,{}) }catch(err){}
+        if(q.k==='h')q.pile=Math.min(14,q.pile+1); else if(q.fired%3===0)q.pile=Math.min(10,q.pile+1) }
+      if(q.t>=q.ct)q.t=0 }
+    for(let i=this.R.length-1;i>=0;i--){ const r=this.R[i]; r.t-=dt; if(r.t<=0){ explode(r.x,r.y,r.rad,r.dmg,40,.5); this.R.splice(i,1) } } },
+  pose(q,slot,def){ const tm=SHEET1.CREW_TIMING[q.k==='h'?'howitzer':'mortar'], sc=q.k==='h'?1.5:1; let ps=def;
+    for(const s of tm){ if(s[1]&&(s[0]===slot||s[0]==='all')&&q.t>=s[2]*sc&&q.t<(s[2]+s[3])*sc)ps=s[1] } return ps },
+  draw(){ if(!this.ON||!this.P.length||!fbS||fbS.state!=='done')return; const S=SHEET1, t=performance.now()/1000, fi=(t*6)|0;
+    for(const q of this.P){ const dmg=0;
+      if(q.k==='m'){ S.draw(ctx,'fb2MortarPit','v0',q.x,q.y,1,false);
+        for(let i=0;i<q.pile;i++){ ctx.fillStyle=i&1?'#4a4c32':'#6a5a34'; ctx.fillRect(Math.round(q.x+26+(i%4)*5),Math.round(q.y-12-(i>>2)*4),5,3) }
+        for(const c of S.MORTAR_CREW)S.drawTrench(ctx,'gunCrew'+(c.slot==='ammo'?'2':''),this.pose(q,c.slot,c.pose),fi,q.x+c.dx,q.y+c.dy,c.flip,1) }
+      else { S.draw(ctx,'fb2GunPit105','v0',q.x,q.y,1,false); S.draw(ctx,'fb2Howitzer',q.h,q.x,q.y,1,false);
+        for(let i=0;i<q.pile;i++){ if(S.sprites.gunCasing)S.draw(ctx,'gunCasing',0,Math.round(q.x-50+(i%5)*6),Math.round(q.y+44-(i/5|0)*3),1,false); else { ctx.fillStyle='#c8a040'; ctx.fillRect(Math.round(q.x-50+(i%5)*6),Math.round(q.y+44-(i/5|0)*3),5,2) } }
+        const C=S.HOWITZER_CREW[q.h]||S.HOWITZER_CREW.hN; C.forEach((c,i)=>S.drawTrench(ctx,'gunCrew'+(['','2','3','','2'][i]),this.pose(q,c.slot,c.pose),fi,q.x+c.dx,q.y+c.dy,c.flip,1)) } } } };
+const FIELD={ON:!/[?&]field=0\b/.test(location.search), m:null, h:0, nx:0, n:0, ok:0, lost:0,
+  botPull(){ const m=this.m; if(!m)return null; const p=G.p, dx=m.x-p.x, dy=m.y-p.y, d=Math.hypot(dx,dy)||1; return d<12?[0,0]:[dx/d,dy/d] },
+  reset(){ this.m=null; this.h=0; this.nx=40; this.n=0; this.ok=0; this.lost=0 },
+  tick(dt){ const g=G; if(!this.ON||!g||g.demo||state!=='play')return; const p=g.p, ex=g.ex, late=ex&&(ex.pad||ex.ph>=1);
+    const m=this.m; if(m){ if(m.hp<=0||!coy.includes(m)){ this.m=null; this.lost++; this.nx=g.t+25; (g.fieldLog||(g.fieldLog=[])).push([+g.t.toFixed(1),'lost']); return }
+      m.hp=Math.max(m.mhp*.15,m.hp-m.mhp*.035*dt); const d=Math.hypot(p.x-m.x,p.y-m.y); if(d<30&&p.hp>0){ this.h+=dt; if(this.h>=1.5){ m.hp=Math.max(m.hp,m.mhp*.6); m.fld=0; this.m=null; this.ok++; this.nx=g.t+30+rnd()*15; addXp(3); try{ Snd.play('heal'); ringBurst(m.x,m.y,26,['#7be37a','#fff'],14) }catch(e){} g.banner={text:'PATCHED UP · BACK IN THE FIGHT',t:1.6,col:'#9be37a'}; (g.fieldLog||(g.fieldLog=[])).push([+g.t.toFixed(1),'ok']) } } else this.h=Math.max(0,this.h-dt*.5);
+      if(late){ m.fld=0; this.m=null } return }
+    if(late||g.t<this.nx)return; let best=null, bs=-1; for(const q of coy){ if(q.hp<=0||q.on||q.state&&q.state!=='ok'&&q.state!=='fight')continue; const d=Math.hypot(q.x-p.x,q.y-p.y); if(d<120||d>420)continue; const s=-Math.abs(d-260); if(!best||s>bs){best=q;bs=s} }
+    if(!best){ this.nx=g.t+5; return } best.fld=1; best.hp=Math.min(best.hp,best.mhp*.55); this.m=best; this.h=0; this.n++; g.banner={text:'MARINE HIT · GET TO HIM, DOC',t:2,col:'#ff8a6a'}; try{ BARK.ev('down',{m:best,x:best.x,y:best.y}) }catch(e){} (g.fieldLog||(g.fieldLog=[])).push([+g.t.toFixed(1),'hit']) },
+  draw(){ const m=this.m; if(!m)return; const t=performance.now()/1000, x=Math.round(m.x), y=Math.round(m.y-34-2*Math.sin(t*5)); ctx.fillStyle='#17110a'; ctx.fillRect(x-4,y-4,9,9); ctx.fillStyle=(t*3|0)&1?'#ff5a4a':'#e8e4d6'; ctx.fillRect(x-1,y-3,3,7); ctx.fillRect(x-3,y-1,7,3);
+    if(this.h>0){ ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(x-12,y+8,24,3); ctx.fillStyle='#9be37a'; ctx.fillRect(x-12,y+8,Math.round(24*Math.min(1,this.h/1.5)),3) } },
+  hud(U){ const m=this.m; if(!m)return; const z=MZW.z||1, sx=(m.x-MZW.cx)*z, sy=(m.y-MZW.cy)*z; if(sx>20*U&&sx<W-20*U&&sy>20*U&&sy<H-20*U)return; const a=Math.atan2(sy-H/2,sx-W/2), [ax,ay]=edgeArrow(a,U);
+    ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle='#ff6a4a'; ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(14*U,0); ctx.lineTo(-8*U,-9*U); ctx.lineTo(-8*U,9*U); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore() } };
 const TANKK=[{nm:'M48A3 Patton',spd:100,rr:26},{nm:'M67A2 "Zippo" Flame Tank',spd:96,rr:26},{nm:'M50A1 Ontos',spd:150,rr:20}];
 function callTank(s,l){ const p=G.p, pool=[0]; if(l>=3)pool.push(1); if(l>=6)pool.push(2); const k=pool[(G.tankRot++)%pool.length];
   const R=Math.hypot(VW,VH)/2+70, a=rnd()*TAU;
@@ -4287,7 +4386,8 @@ function renderCards(){ const box=$('cards'); box.innerHTML='';
   luTools(); $('luTools').style.display=luForced?'none':''; $('levelup').querySelector('.sub').textContent=luForced?'Your first upgrade':'Choose an upgrade' }
 let luForced=false;
 const LU_GAP=20;
-function openLevelUp(){ MUSI.set(false,true);
+function openLevelUp(){ if(G&&(G.ex&&G.ex.ph>=4||G.ex&&G.ex.result)||state==='over'||state==='end'){ return }   /* Gamer seed 134331: never after the bird is inbound, lift-off or EXTRACTED (pending XP just stays banked) */
+  MUSI.set(false,true);
   Snd.play('lvlRadio'); banMode=false; luForced=!!(G.q15&&!G.luN&&curLvl('magnet')<ITEMS.magnet.max); G.luN=(G.luN||0)+1;   /* Stage 1: the first level-up is forced, one card: Magnet */
   choices=luForced?['magnet']:genChoices(); (G.luLog||(G.luLog=[])).push(choices.slice());
   if(DBG.bot){pickChoice(BOTF.pick?BOTF.pick(choices):((rnd()*choices.length)|0));return}
@@ -4304,7 +4404,7 @@ function pickChoice(i){
   else if(it.kind==='p'){ G.ps[id]++; if(id==='flak'){applyPassives();G.p.hp=Math.min(G.p.maxHp,G.p.hp+20)} } else { G.p.hp=Math.min(G.p.maxHp,G.p.hp+G.p.maxHp*.5) }
   Snd.play('pick'); if(id==='kc135')G.banner={text:'KC-135A TANKER ON STATION',t:2.2,col:'#cfe3f0'}; if(id==='dustoff')G.banner={text:'DUSTOFF ON CALL',t:2.2,col:'#9be37a'}; G.pending--; $('levelup').classList.remove('show'); state='play';
   /* further pending levels wait for the per-frame gate above (no card chains during extraction) */
-  if(G.pending>0&&!(G.ex&&G.ex.ph>=1&&G.ex.ph<=5)){ if(!DBG.bot)setTimeout(()=>{ if(state==='play')openLevelUp() },150); else openLevelUp() }
+  if(G.pending>0&&!(G.ex&&(G.ex.ph>=1&&G.ex.ph!==3||G.ex.ph>=4))){ if(!DBG.bot)setTimeout(()=>{ if(state==='play')openLevelUp() },150); else openLevelUp() }
 }
 
 /* ====================== PATROL SQUAD: 3-4 Marines that start every run with you ====================== */
@@ -4792,7 +4892,7 @@ const CHD={
  boone:{rank:'PFC',nm:'Josh Johnson',nick:'Country',home:'Buffalo Gap, VA',mos:'Rifleman / Marksman',age:19,sn:'C-3319048',
   bio:["Never missed a squirrel in his life, and is ashamed to say how many that was. Shoots like he's got a personal grudge, talks like he's got all day.","Writes his mama weekly that it's \"pretty quiet over here.\""],
   known:"One shot, one \"well, that's that.\"",quote:"Y'all hold still, I'm fixin' to be right about this.",
-  loadout:'M40 7.62mm bolt-action sniper rifle',passive:'Every 7.62mm round kills any regular outright and punches through a line of them (slow bolt cycle). 15% chance for double-damage crits.',ab:{nm:'Dead-Eye',cd:30,desc:'6s: enemies slowed, crit chance +60%.'},
+  loadout:'M40 7.62mm bolt-action sniper rifle',passive:'Every 7.62mm round kills any regular outright and punches through a line of them (slow bolt cycle). 15% chance for double-damage crits.',ab:{nm:'Dead-Eye',cd:30,desc:'6s: enemies slowed, crit chance +45%.'},
   base:{crit:.15},start:{w:['m1903'],drop:['m16']},
   perks:[{t:'Crit chance +5%',m:{crit:.05}},{t:'Dead-Eye cooldown -15%',m:{ab:.15}},{t:'Move speed +6%',m:{spd:.06}},{t:'Crit chance +6%',m:{crit:.06}},{t:'Damage +10%, Dead-Eye -15%',m:{dmg:.1,ab:.15}}]},
  skipper:{rank:'Capt',nm:'Patrick O\'Malley',nick:'Skipper',home:'Quincy, MA',mos:'Company Commander',age:27,sn:'O-0985521',
@@ -4854,7 +4954,9 @@ if(params.get('char'))SEL=params.get('char'); if(!CHD[SEL])SEL='doc';
 function chOpenSave(id){ if(id==='doc')return true; try{ return localStorage.getItem('lbo2_open')==='1' }catch(e){ return false } }
 /* ?all (tester build): every Marine selectable for this session only; nothing is written to the lbo2_ save and the run is a debug run */
 const ALLU=params.has('all');
-function chOpen(id){ return ALLU||chOpenSave(id) }
+/* Blake Oct 15: every character unlocked on /next/ (investor build). Unlock code untouched: set UNLOCK_ALL=false (or ?unlockall=0) to re-enable the gates. Not a debug run (no g.dbg). */
+const UNLOCK_ALL=params.get('unlockall')==='0'?false:(/\/next\//.test(location.pathname)||params.get('unlockall')==='1'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname));
+function chOpen(id){ return ALLU||UNLOCK_ALL||chOpenSave(id) }
 const chOpenRaw=id=>chOpenSave(id);
 if(!chOpen(SEL))SEL='doc';
 function saveChars(){ try{localStorage.setItem('lbo2_chars',JSON.stringify(CHS));localStorage.setItem('lbo2_char',SEL)}catch(e){} if(window.onCharsChange)window.onCharsChange() }
@@ -5067,7 +5169,7 @@ $('charsel').addEventListener('keydown',e=>{ if(e.code==='Enter'||e.code==='Spac
 { const sb=$('sigBtn'); sb.addEventListener('pointerdown',e=>{ e.stopPropagation(); e.preventDefault(); popSignal() }); sb.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true}); sb.addEventListener('click',e=>e.preventDefault());
   /* smoke confirm: ONLY Enter / Esc, pad A / B, or a real click / tap on ROGER / NEGATIVE. A keyboard-activated button click (Space on a focused button) has detail 0 and is ignored. */
   for(const [id,yes] of [['btnSigOk',true],['btnSigNo',false]]){ const b=$(id);
-    b.addEventListener('click',e=>{ e.preventDefault(); if(e.detail===0&&!(e.pointerType)&&!b._ptr)return; if(state!=='sig')return;
+    b.addEventListener('click',e=>{ e.preventDefault(); if(e.detail===0&&!(e.pointerType)&&!b._ptr&&e.isTrusted)return;   /* synthetic (QA) clicks are allowed */ if(state!=='sig')return;
       if(!sigAskReady()){ const wait=Math.max(0,EX.ASK_GRACE*1000-(performance.now()-SIGASK.at)), at=SIGASK.at; clearTimeout(SIGASK.q); SIGASK.q=setTimeout(()=>{ if(state==='sig'&&SIGASK.at===at)answerSignal(yes) },wait+10); return }   /* Gamer: a click inside the grace used to be dropped (needed two clicks); now it lands at the end of the grace */
       clearTimeout(SIGASK.q); answerSignal(yes) });
     b.addEventListener('pointerdown',e=>{ b._pd=performance.now() }); b.addEventListener('pointerup',e=>{ const ok=b._pd&&performance.now()-b._pd<1500; b._pd=0; if(!ok||state!=='sig')return; if(!sigAskReady()){ const wait=Math.max(0,EX.ASK_GRACE*1000-(performance.now()-SIGASK.at)), at=SIGASK.at; clearTimeout(SIGASK.q); SIGASK.q=setTimeout(()=>{ if(state==='sig'&&SIGASK.at===at)answerSignal(yes) },wait+10); return } clearTimeout(SIGASK.q); answerSignal(yes) });   /* press + release on YES / NO answers directly (clicks were being lost) */
@@ -5418,7 +5520,7 @@ window.addEventListener('pointerdown',e=>{ if(state!=='brief'||!BR)return; { con
 $('btnBrief').onclick=()=>startBrief();
 /* quick tutorial (Blake Oct 14 night): click-through cards, each one short line + a real screenshot from this build. Next/Back, Esc closes, touch + pad work.
    Offered once on first launch ('Quick tutorial? Yes / Skip'), then always on the menu. */
-const TUT={i:0,on:false,ask:false,IMG:{move:1,squad:1,smoke:1,hold:1,gems:1,confirm:1},C:[
+const TUT={i:0,on:false,ask:false,IMG:{move:1,squad:1,smoke:1,hold:1,gems:1,confirm:1,board:1,fb:1,bunker:1},C:[
   ['move','Move with WASD, the arrows, a stick, or drag on touch. Your weapons fire on their own.'],
   ['gems','Grab the green gems to level up, then pick one upgrade.'],
   ['squad','Your Marines fight beside you. The corpsman patches up anyone hit; keep them alive.'],
@@ -6168,6 +6270,7 @@ function sigLine(){ const g=G,ex=g.ex,p=g.p; if(!ex)return {t:'',c:'#fff'};
   if(ex.ph===4&&ex.call&&ex.call.st==='wait')return {t:onPad(p.x,p.y)?'POPPING SMOKE...':'BIRD WANTS SMOKE · GET ON THE PAD '+dm+'m',c:'#ffcf5a',T:onPad(p.x,p.y)?null:T};
   if(ex.ph===4&&ex.call&&ex.call.st!=='ok')return {t:'SMOKE OUT · THE BIRD IS LOOKING',c:SIGC[ex.col],T:null};
   if(ex.ph===1||ex.ph===2)return {t:sigName(ex.sig.kind,ex.sig.col)+' — '+dm+'m'+(ex.padPlan?'  ·  PAD MARKED':''),c:SIGC[ex.sig.col==='white'?'yellow':ex.sig.col],T};
+  if(ex.ph===3&&ex.wrong&&ex.padShown&&!onPad(p.x,p.y))return {t:'WRONG SMOKE · BIRD SETTING DOWN ELSEWHERE · NEW PAD '+dm+'m',c:'#ffcf5a',T};
   if(ex.ph===3)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+(G.pullEx||0)-G.t)))+(ex.padShown?(onPad(p.x,p.y)?'  ·  ON THE PAD':'  ·  PAD '+dm+'m'):''),c:'#9be37a',T:ex.padShown&&!onPad(p.x,p.y)?T:null};
   if(ex.ph===4)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t)))+(onPad(p.x,p.y)?'  ·  ON THE PAD':'  ·  PAD '+dm+'m'),c:onPad(p.x,p.y)?'#9be37a':'#ffcf5a',T:onPad(p.x,p.y)?null:T};
   if(ex.ph===5){ const left=Math.max(0,EX.GROUND-ex.t), inR=onPad(p.x,p.y); const ow=!inR&&ex.offWarn; return {t:'BIRD LIFTS — '+fmt(Math.ceil(left))+'  ·  '+(ow?'GET ON THE PAD '+dm+'m':!inR?'PAD '+dm+'m':ex.ramp?'BOARDING':'NEED ONE MORE MARINE ON THE RAMP'),c:(left<10||ow)?'#ff6a4a':'#9be37a',T:inR?null:T} }
@@ -6540,7 +6643,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
     ctx.drawImage(paddyCell(tcx,tcy)?TILE_P:TILE_J,x,y,T+1,T+1);
     if(riverCol(tcx))ctx.drawImage(TILE_RV,x,y,T+1,T+1);
     if(riverRow(tcy))ctx.drawImage(TILE_RH,x,y,T+1,T+1); }
-  if(TERR.ready()&&!G.demo){ drawRiverLife(camX,camY,camX+VW,camY+VH,g_now()); drawCrossings(camX,camY,camX+VW,camY+VH,g_now()); drawCraters(); drawFbExtras() } else drawBare(camX,camY);
+  if(TERR.ready()&&!G.demo){ drawRiverLife(camX,camY,camX+VW,camY+VH,g_now()); drawCrossings(camX,camY,camX+VW,camY+VH,g_now()); drawCraters(); drawFbExtras(); try{ GUNS.draw(); MEDV.draw(); CREWX.draw() }catch(e){ if(!window.__medvE){ window.__medvE=1; console.warn('gun/medv draw',e) } } } else drawBare(camX,camY);
   // decor
   const DC=190; for(let cx=Math.floor(camX/DC)-1;cx<=Math.floor((camX+VW)/DC)+1;cx++)for(let cy=Math.floor(camY/DC)-1;cy<=Math.floor((camY+VH)/DC)+1;cy++){
     if(hash2(cx,cy)>.42)continue; const di=DECOR_W[Math.floor(hash2(cx+91,cy-17)*DECOR_W.length)]; const d=DECOR[di]; if(Math.abs(cx)<1&&Math.abs(cy)<1&&hash2(cx,cy)<.2)continue;
@@ -6658,7 +6761,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
     ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over' }
   // aircraft (above everything)
   for(let i=0;i<air.length;i++)drawAir(air[i]);
-  FLM.top(); AIS.draw(); MOH.drawWorld(); BARK.draw(); if(window.VFX_MUZZLE&&MZW.ON&&!window.__MZoff)try{ VFX_MUZZLE.drawAll(ctx,0,0,1,'over') }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.drawAll(ctx,0,0,1,'air') }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON&&!window.__VHoff)try{ VFX_VEHICLE_HIT.drawAll(ctx,0,0,1,'fx') }catch(e){} drawFlashes(camX,camY); drawSpooky(tt); drawDust();
+  FLM.top(); AIS.draw(); MOH.drawWorld(); FIELD.draw(); BARK.draw(); if(window.VFX_MUZZLE&&MZW.ON&&!window.__MZoff)try{ VFX_MUZZLE.drawAll(ctx,0,0,1,'over') }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.drawAll(ctx,0,0,1,'air') }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON&&!window.__VHoff)try{ VFX_VEHICLE_HIT.drawAll(ctx,0,0,1,'fx') }catch(e){} drawFlashes(camX,camY); drawSpooky(tt); drawDust();
   // Huey (flies above everything)
   for(let i=0;i<hueys.length;i++)drawHuey(hueys[i]);
   for(let i=0;i<ins.length;i++)drawHuey(ins[i]);
@@ -6704,8 +6807,8 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   const row=(id,l)=>{ ctx.fillStyle='rgba(10,20,12,.7)'; if(ix+sz>ixMax&&ix>12*U+ox+sz){ ix=12*U+ox; iy-=sz+16*U } ctx.fillRect(ix-2,iy-2,sz+4,sz+4+8*U); ctx.save(); ctx.translate(ix,iy); drawIcon(ctx,id,sz); ctx.restore(); txt('L'+l,ix+sz/2,iy+sz+9*U,10*U,'#e8c860','center'); ix+=sz+8*U };
   for(const id in g.w)row(id,g.w[id].lvl); for(const id in g.ps)if(g.ps[id]>0)row(id,g.ps[id]);
   // banner
-  if(g.banner){ const b=g.banner,k=Math.min(1,(3.2-b.t)*5,b.t*2); ctx.globalAlpha=Math.max(0,Math.min(1,k)); txt(b.text,W/2,H*.27,(30+6*(1-Math.min(1,k)))*U,b.col,'center'); ctx.globalAlpha=1 }
-  PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); KIA.hud(U); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
+  if(g.banner){ const b=g.banner,k=Math.min(1,(3.2-b.t)*5,b.t*2); ctx.globalAlpha=Math.max(0,Math.min(1,k)); txt(b.text,W/2,g.pullT>0?Math.max(H*.25,150*U)+34*U:H*.27,(30+6*(1-Math.min(1,k)))*U,b.col,'center'); ctx.globalAlpha=1 }
+  PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); FIELD.hud(U); KIA.hud(U); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
   // joystick
   if(joy.on){ ctx.globalAlpha=.45; ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(joy.ox*(W/innerWidth),joy.oy*(H/innerHeight),55*(W/innerWidth),0,TAU); ctx.stroke(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc((joy.ox+joy.x*55)*(W/innerWidth),(joy.oy+joy.y*55)*(H/innerHeight),22*(W/innerWidth),0,TAU); ctx.fill(); ctx.globalAlpha=1 }
 }
@@ -6738,7 +6841,7 @@ if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 { let bd=false; try{bd=sessionStorage.getItem('lbo2_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
 try{ ZMON.warm() }catch(e){}
 DBG.zmon=()=>callBoat(Object.assign({hold:30,range:420,d50:20,d60:12,cd:60},{}),true);
-window.__ms={get SAMP(){return SAMP},get MOH(){return MOH},get FBO(){return FBO},get URG(){return URG},get MAGS(){return MAGS},get IMP(){return IMP},get BARK(){return BARK},get KIA(){return KIA},get ZMON(){return ZMON},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={get SAMP(){return SAMP},get MOH(){return MOH},get FBO(){return FBO},get URG(){return URG},get MAGS(){return MAGS},get IMP(){return IMP},get FIELD(){return FIELD},get GUNS(){return GUNS},get MEDV(){return MEDV},get CREWX(){return CREWX},useAb(){ return useAbility() },openConfirm(a){ openConfirm(a) },pick(i){ if(state==='levelup')pickChoice(i|0); return state },answer(y){ if(state==='sig'){ clearTimeout(SIGASK.q); answerSignal(!!y) } return state },get BARK(){return BARK},get KIA(){return KIA},get ZMON(){return ZMON},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
 
