@@ -408,7 +408,7 @@
   },
   "explosion_close": {
    "group": "specials",
-   "batch": 2,
+   "batch": 1,
    "files": [
     "explosion_close_1",
     "explosion_close_2",
@@ -445,6 +445,344 @@
    ],
    "alt": [
     "river_ambience_loop_auxide"
+   ]
+  },
+  "car15_single": {
+   "group": "player",
+   "batch": 2,
+   "files": [
+    "car15_single_1",
+    "car15_single_2"
+   ]
+  },
+  "car15_burst": {
+   "group": "player",
+   "batch": 2,
+   "files": [
+    "car15_burst_1",
+    "car15_burst_2"
+   ]
+  },
+  "m79_sawed": {
+   "group": "player",
+   "batch": 2,
+   "files": [
+    "m79_sawed_1"
+   ]
+  },
+  "smg_m45_burst": {
+   "group": "player",
+   "batch": 2,
+   "files": [
+    "smg_m45_burst_1",
+    "smg_m45_burst_2"
+   ],
+   "alt": [
+    "smg_m45_burst_alt_mp5_1",
+    "smg_m45_burst_alt_mp5_2"
+   ]
+  },
+  "pistol22_suppressed": {
+   "group": "player",
+   "batch": 2,
+   "files": [
+    "pistol22_suppressed_1",
+    "pistol22_suppressed_2",
+    "pistol22_suppressed_3"
+   ]
+  },
+  "bunker_enter": {
+   "group": "foley",
+   "batch": 2,
+   "files": [
+    "bunker_enter_1"
+   ]
+  },
+  "bunker_exit": {
+   "group": "foley",
+   "batch": 2,
+   "files": [
+    "bunker_exit_1"
+   ]
+  },
+  "pbr_runup": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "pbr_runup_1"
+   ]
+  },
+  "pbr_beach": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "pbr_beach_1"
+   ]
+  },
+  "pbr_depart": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "pbr_depart_1"
+   ]
+  },
+  "h34_flyby": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "h34_flyby_1"
+   ]
+  },
+  "h34_land": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "h34_land_1"
+   ]
+  },
+  "h34_liftoff": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "h34_liftoff_1"
+   ]
+  },
+  "h34_hover_loop": {
+   "group": "specials",
+   "batch": 2,
+   "files": [
+    "h34_hover_loop_1"
+   ]
+  },
+  "radio_cff": {
+   "group": "radio",
+   "batch": 2,
+   "files": [
+    "radio_cff_1"
+   ]
+  },
+  "rain_light": {
+   "group": "ambience",
+   "batch": 3,
+   "files": [
+    "rain_light_1"
+   ]
+  },
+  "rain_heavy": {
+   "group": "ambience",
+   "batch": 3,
+   "files": [
+    "rain_heavy_1"
+   ]
+  },
+  "rain_roof_loop": {
+   "group": "ambience",
+   "batch": 3,
+   "files": [
+    "rain_roof_loop_1"
+   ]
+  },
+  "thunder_distant": {
+   "group": "ambience",
+   "batch": 3,
+   "files": [
+    "thunder_distant_1",
+    "thunder_distant_2",
+    "thunder_distant_3"
+   ]
+  },
+  "thunder_near": {
+   "group": "ambience",
+   "batch": 3,
+   "files": [
+    "thunder_near_1",
+    "thunder_near_2"
+   ]
+  },
+  "m3a1_burst": {
+   "group": "player",
+   "batch": 2,
+   "files": [
+    "m3a1_burst_1",
+    "m3a1_burst_2",
+    "m3a1_burst_3"
+   ],
+   "alt": [
+    "m3a1_burst_alt_tommy_1",
+    "m3a1_burst_alt_tommy_2"
+   ]
+  },
+  "m14_shot": {
+   "group": "squad",
+   "batch": 2,
+   "files": [
+    "m14_shot_1",
+    "m14_shot_2",
+    "m14_shot_3"
+   ]
+  },
+  "hurt_grunt": {
+   "group": "foley",
+   "batch": 1,
+   "files": [
+    "hurt_grunt_1",
+    "hurt_grunt_2"
+   ]
+  },
+  "m1911_shot": {
+   "group": "squad",
+   "batch": 2,
+   "files": [
+    "m1911_shot_1",
+    "m1911_shot_2",
+    "m1911_shot_3"
+   ]
+  },
+  "m2_carbine": {
+   "group": "squad",
+   "batch": 2,
+   "files": [
+    "m2_carbine_1",
+    "m2_carbine_2",
+    "m2_carbine_3"
+   ]
+  },
+  "m2_carbine_burst": {
+   "group": "squad",
+   "batch": 2,
+   "files": [
+    "m2_carbine_burst_1",
+    "m2_carbine_burst_2"
+   ]
+  },
+  "ui_pickup": {
+   "group": "ui",
+   "batch": 1,
+   "files": [
+    "ui_pickup_1",
+    "ui_pickup_2",
+    "ui_pickup_3",
+    "ui_pickup_4"
+   ]
+  },
+  "ui_heal": {
+   "group": "ui",
+   "batch": 1,
+   "files": [
+    "ui_heal_1",
+    "ui_heal_2"
+   ]
+  },
+  "ui_level": {
+   "group": "ui",
+   "batch": 2,
+   "files": [
+    "ui_level_1"
+   ]
+  },
+  "ui_ready": {
+   "group": "ui",
+   "batch": 2,
+   "files": [
+    "ui_ready_1"
+   ]
+  },
+  "ui_chime": {
+   "group": "ui",
+   "batch": 2,
+   "files": [
+    "ui_chime_1"
+   ]
+  },
+  "radio_pulse": {
+   "group": "ui",
+   "batch": 2,
+   "files": [
+    "radio_pulse_1"
+   ]
+  },
+  "hit_flesh": {
+   "group": "hit",
+   "batch": 1,
+   "files": [
+    "hit_flesh_1",
+    "hit_flesh_2",
+    "hit_flesh_3",
+    "hit_flesh_4"
+   ]
+  },
+  "kill_hit": {
+   "group": "foley",
+   "batch": 2,
+   "files": [
+    "kill_hit_1",
+    "kill_hit_2"
+   ]
+  },
+  "thud_dirt": {
+   "group": "foley",
+   "batch": 1,
+   "files": [
+    "thud_dirt_1",
+    "thud_dirt_2",
+    "thud_dirt_3"
+   ]
+  },
+  "punji_trap": {
+   "group": "foley",
+   "batch": 2,
+   "files": [
+    "punji_trap_1",
+    "punji_trap_2"
+   ]
+  },
+  "creak_wood": {
+   "group": "foley",
+   "batch": 2,
+   "files": [
+    "creak_wood_1"
+   ]
+  },
+  "hatch_metal": {
+   "group": "foley",
+   "batch": 2,
+   "files": [
+    "hatch_metal_1"
+   ]
+  },
+  "stage_hammer": {
+   "group": "foley",
+   "batch": 2,
+   "files": [
+    "stage_hammer_1"
+   ]
+  },
+  "radio_tune": {
+   "group": "radio",
+   "batch": 3,
+   "files": [
+    "radio_tune_1"
+   ]
+  },
+  "sting_boss": {
+   "group": "sting",
+   "batch": 2,
+   "files": [
+    "sting_boss_1"
+   ]
+  },
+  "sting_evac": {
+   "group": "sting",
+   "batch": 3,
+   "files": [
+    "sting_evac_1"
+   ]
+  },
+  "sting_over": {
+   "group": "sting",
+   "batch": 3,
+   "files": [
+    "sting_over_1"
    ]
   }
  },
@@ -485,7 +823,10 @@
     "loopEnd": 80,
     "m4aOffsetSec": 0,
     "gain": 1,
-    "intensity": true
+    "intensity": true,
+    "tier": 1,
+    "bpm": 120,
+    "phraseSec": 8
    },
    "extraction": {
     "file": "music_extraction",
@@ -509,8 +850,7 @@
     "dur": 36,
     "m4aOffsetSec": 0.04644,
     "gain": 1
-   }
-,
+   },
    "reinforcements": {
     "file": "music_reinforcements",
     "group": "music",
@@ -520,11 +860,99 @@
     "finalHitSec": 47.23,
     "m4aOffsetSec": 0.04644,
     "gain": 1
+   },
+   "menu_asian": {
+    "file": "music_menu_asian",
+    "group": "music",
+    "loop": true,
+    "loopStart": 0,
+    "loopEnd": 33.1,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1
+   },
+   "combat_2": {
+    "file": "music_combat_2",
+    "group": "music",
+    "loop": true,
+    "loopStart": 0,
+    "loopEnd": 59.533,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1,
+    "intensity": true,
+    "tier": 2,
+    "bpm": 129,
+    "phraseSec": 7.442
+   },
+   "combat_3": {
+    "file": "music_combat_3",
+    "group": "music",
+    "loop": true,
+    "loopStart": 0,
+    "loopEnd": 59.533,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1,
+    "intensity": true,
+    "tier": 3,
+    "bpm": 129.2,
+    "phraseSec": 7.442
+   },
+   "combat_4": {
+    "file": "music_combat_4",
+    "group": "music",
+    "loop": true,
+    "loopStart": 0,
+    "loopEnd": 47.624,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1,
+    "intensity": true,
+    "tier": 4,
+    "bpm": 161.5,
+    "phraseSec": 5.953
+   },
+   "combat_5": {
+    "file": "music_combat_5",
+    "group": "music",
+    "loop": true,
+    "loopStart": 0,
+    "loopEnd": 30.02,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1,
+    "intensity": true,
+    "tier": 5,
+    "bpm": 186,
+    "phraseSec": 7.505
+   },
+   "menu_theme": {
+    "file": "music_menu_theme",
+    "group": "music",
+    "loop": true,
+    "loopStart": 0,
+    "loopEnd": 42.14,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1
+   },
+   "menu_intro": {
+    "file": "music_menu_intro",
+    "group": "music",
+    "loop": false,
+    "sting": true,
+    "dur": 14.5,
+    "finalHitSec": 12.15,
+    "m4aOffsetSec": 0.04644,
+    "gain": 1,
+    "next": "menu_theme"
    }
   },
   "aliases": {
    "dedication": "win"
-  }
+  },
+  "combatTiers": [
+   "combat",
+   "combat_2",
+   "combat_3",
+   "combat_4",
+   "combat_5"
+  ]
  },
  "cues": {
   "b40": {

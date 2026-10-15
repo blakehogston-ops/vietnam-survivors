@@ -1,6 +1,6 @@
 /* copied from Sound Helper by tools/build_audio.py; game patches: mix-bus routing (P.route); and one game-side patch marked "game patch" (warning voices outside the caps) */
 /*
- * sample_player.js - real recorded samples for "Last Bird Out - Quang Tri, 1968".
+ * sample_player.js - real recorded samples for "Last Chopper Out - Quang Tri, 1968".
  * Plain browser JS, no dependencies. Works next to sound_cues.js (the synthesized cues).
  *
  *   SamplePlayer.init(audioCtx, { sfxBus, musicBus, voiceBus, rotorBus, musicDuck, sfxDuck });
@@ -30,19 +30,21 @@
   var WEAPONS = { m16_single: 1, m16_burst: 1, m60_burst: 1, pbr_50cal_burst: 1, ak47: 1, ak47_burst: 1, sks: 1, rpd_burst: 1, m79_launch: 1, m79_impact: 1, b40_launch: 1, mortar_launch: 1, mortar_impact: 1, mortar_incoming: 1,
     bomb_distant: 1, flamethrower_loop: 1, flamethrower_burst: 1,
     // week of 2026-10-14: weapons + explosions (no synth fallback)
-    bolt_rifle_shot: 1, bolt_rifle_bolt: 1, shotgun_shot: 1, shotgun_rack: 1, cannon: 1, cannon_76mm: 1, backblast: 1, minigun_burst: 1, strafe_20mm: 1,
-    explosion_close: 1, explosion_claymore: 1, napalm_ignite: 1, fire_loop: 1, smoke_pop: 1, knife_throw: 1 };
+    bolt_rifle_shot: 1, bolt_rifle_bolt: 1, shotgun_shot: 1, shotgun_rack: 1, cannon: 1, cannon_76mm: 1, backblast: 1, car15_single: 1, car15_burst: 1, m79_sawed: 1, smg_m45_burst: 1, pistol22_suppressed: 1, minigun_burst: 1, strafe_20mm: 1,
+    explosion_close: 1, explosion_claymore: 1, napalm_ignite: 1, fire_loop: 1, smoke_pop: 1, knife_throw: 1,
+    // 2026-10-14 night: missing / placeholder weapons (no synth fallback)
+    m3a1_burst: 1, m14_shot: 1, m1911_shot: 1, m2_carbine: 1, m2_carbine_burst: 1 };
 
   // cat: voice-limit category. prio: higher survives voice stealing. gain: linear trim before variation.
   // out: which internal output the slot uses ('sfx' -> sfxBus, 'rotor' -> rotorBus or sfxBus).
   var SLOTS = {
-    huey_rotor_loop:    { cat: 'rotor',     prio: 5, gain: 0.787, out: 'rotor', loop: true },
-    huey_flyby:         { cat: 'rotor',     prio: 5, gain: 0.825, out: 'rotor', fallback: 'medevacHuey' },
+    huey_rotor_loop:    { cat: 'rotor',     prio: 5, gain: 0.394, out: 'rotor', loop: true },
+    huey_flyby:         { cat: 'rotor',     prio: 5, gain: 0.413, out: 'rotor', fallback: 'medevacHuey' },
     // aircraft (Blake approved 2026-10-07, batch 2): not guns, never in the gunshot cap. flyby(type) plays them.
-    jet_flyby:          { cat: 'air',       prio: 4, gain: 0.941 },                                  // STAND-IN F-4/F-5 low pass; before the bomb
-    skyraider_flyby:    { cat: 'air',       prio: 4, gain: 0.837 },                                  // A-1H (P-47D mixed in)
-    ranch_hand_flyover: { cat: 'air',       prio: 4, gain: 0.924 },                                  // STAND-IN C-130 for the C-123
-    tandem_rotor_flyby: { cat: 'rotor',     prio: 5, gain: 1.06, out: 'rotor' },                    // STAND-IN Chinook for a CH-46 (on for the map build)
+    jet_flyby:          { cat: 'air',       prio: 4, gain: 0.472 },                                  // STAND-IN F-4/F-5 low pass; before the bomb
+    skyraider_flyby:    { cat: 'air',       prio: 4, gain: 0.419 },                                  // A-1H (P-47D mixed in)
+    ranch_hand_flyover: { cat: 'air',       prio: 4, gain: 0.463 },                                  // STAND-IN C-130 for the C-123
+    tandem_rotor_flyby: { cat: 'rotor',     prio: 5, gain: 0.531, out: 'rotor' },                    // STAND-IN Chinook for a CH-46 (on for the map build)
     // turret build clunks (sample-only Cues.turretCorner / turretMid, tier-2 trim 0.7 applied by the Cues wrapper)
     turret_corner_build: { cat: 'build',    prio: 2, gain: 0.208 },                                  // sandbag thud + deep ammo-box clunk
     turret_mid_build:   { cat: 'build',     prio: 2, gain: 0.163 },                                  // sandbag thud + light metal clink
@@ -57,21 +59,51 @@
     // M79 (Blake's pick 2026-10-07): launch = LeMudCrab M203/M320 STAND-IN, counts toward the 6-gunshot cap, between the
     // M60 and the mortar launch; impact = Kostrava blast, ~5 dB under the mortar impact. No synth fallback (weapon).
     m79_launch:         { cat: 'gun',       prio: 2, gain: 0.323, vary: true, maxDur: 0.6 },
-    m79_impact:         { cat: 'explosive', prio: 3, gain: 0.566, vary: true },
+    m79_impact:         { cat: 'explosive', prio: 3, gain: 0.284, vary: true },
     b40_launch:         { cat: 'explosive', prio: 3, gain: 0.114, vary: true },                // STAND-IN; short bang (b40Launch(), lead 1 s)
     whistle:            { cat: 'signal',    prio: 3, gain: 0.333, vary: true },                // standard charge warning (chargeWarning(), lead 2 s)
     bugle:              { cat: 'signal',    prio: 3, gain: 0.273 },                            // big night assault only; on via manifest cues.bigNightAssault.enabled
     // river map (batch 3, on for the map build). The .50 shares the 6-gunshot cap; the loops use prio 5 so gunfire
     // never steals the engine or the river bed (a stolen loop would not come back).
     pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.284, vary: true },                 // STAND-IN .50 cal (M2 not confirmed)
-    pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.292, loop: true },                 // under the Huey loop
+    pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.146, loop: true },                 // under the Huey loop
     river_ambience_loop: { cat: 'ambience', prio: 5, gain: 0.062, loop: true },                 // under the footsteps
-    mortar_launch:      { cat: 'explosive', prio: 3, gain: 1.04, vary: true },
-    mortar_impact:      { cat: 'explosive', prio: 3, gain: 0.61, vary: true },
-    mortar_incoming:    { cat: 'explosive', prio: 3, gain: 0.568, vary: true },
-    bomb_distant:       { cat: 'explosive', prio: 4, gain: 0.802, vary: true },
-    flamethrower_loop:  { cat: 'fire',      prio: 3, gain: 0.64, loop: true },
-    flamethrower_burst: { cat: 'fire',      prio: 3, gain: 0.68, vary: true },
+    // weather (2026-10-14 night, 'ambience' group)
+    rain_light:         { cat: 'ambience',  prio: 5, gain: 0.082, loop: true },                    // post-gain RMS -42
+    rain_heavy:         { cat: 'ambience',  prio: 5, gain: 0.132, loop: true },                    // post-gain RMS -40
+    rain_roof_loop:     { cat: 'ambience',  prio: 5, gain: 0.068, loop: true },                    // post-gain RMS -41 (bunker interiors)
+    thunder_distant:    { cat: 'weather',   prio: 3, gain: 0.142, vary: true },                    // post-gain RMS -42
+    thunder_near:       { cat: 'weather',   prio: 3, gain: 0.206, vary: true },                    // post-gain RMS -40.5, crack peaks ~-15 dBFS
+    // 2026-10-14 night: missing / placeholder sounds (samples/build_missing_oct14.py; all new sources PENDING LEGAL)
+    m3a1_burst:         { cat: 'gun',       prio: 1, gain: 0.543, vary: true, maxDur: 1.2 },   // CLOSE STAND-IN M3A1 Grease Gun: real Sten rounds pitched -2 st, ~450 rpm
+    m14_shot:           { cat: 'gun',       prio: 1, gain: 0.193, vary: true, maxDur: 0.6 },   // M14 (marksmen): gezortenplotz .308 (7.62x51), 3 varied edits
+    hurt_grunt:         { cat: 'hit',       prio: 4, gain: 0.234, vary: true },   // player hurt: Wigglesworth body hits (no voice; MrFossy grunt on hold)
+    m1911_shot:         { cat: 'gun',       prio: 1, gain: 0.499, vary: true, maxDur: 0.5 },   // M1911 .45 (corpsman): C-V + Carmelomike
+    m2_carbine:         { cat: 'gun',       prio: 1, gain: 0.335, vary: true, maxDur: 0.5 },   // M2 carbine single (real M1 carbine, cognito perceptu)
+    m2_carbine_burst:   { cat: 'gun',       prio: 1, gain: 0.255, vary: true, maxDur: 0.8 },   // M2 carbine auto, real rounds on a 80 ms beat
+    ui_pickup:          { cat: 'ui',        prio: 0, gain: 0.354, vary: true },   // gem / pick: dog-tag clinks
+    ui_heal:            { cat: 'ui',        prio: 2, gain: 0.203, vary: true },   // heal / medpack: velcro pouch + bandage rip
+    ui_level:           { cat: 'ui',        prio: 3, gain: 0.183 },   // level up: charging handle + dog tags
+    ui_ready:           { cat: 'ui',        prio: 2, gain: 0.122 },   // ready: charging-handle release
+    ui_chime:           { cat: 'ui',        prio: 3, gain: 0.149 },   // boarding chime: ship bell
+    radio_pulse:        { cat: 'ui',        prio: 2, gain: 0.117 },   // extraction homing pulse: PRC beep (LukaCafuka)
+    hit_flesh:          { cat: 'hit',       prio: 0, gain: 0.169, vary: true },   // enemy hit: body punches
+    kill_hit:           { cat: 'hit',       prio: 1, gain: 0.418, vary: true },   // demo kill: heavier hit
+    thud_dirt:          { cat: 'foley',     prio: 1, gain: 0.341, vary: true },   // generic thud: sandbag + canvas on dirt
+    punji_trap:         { cat: 'foley',     prio: 3, gain: 0.64, vary: true },   // punji: bamboo snap + hit
+    creak_wood:         { cat: 'foley',     prio: 1, gain: 0.161 },   // wood creak
+    hatch_metal:        { cat: 'foley',     prio: 2, gain: 0.262 },   // metal hatch
+    stage_hammer:       { cat: 'foley',     prio: 3, gain: 0.289 },   // build stage complete: three hammer blows
+    radio_tune:         { cat: 'radio',     prio: 3, gain: 0.303 },   // Hanoi Hannah broadcast start: radio tuning static
+    sting_boss:         { cat: 'sting',     prio: 5, gain: 0.89 },   // boss inbound: timpani hit
+    sting_evac:         { cat: 'sting',     prio: 5, gain: 0.309 },   // evac fallback (music missing): acoustic C major
+    sting_over:         { cat: 'sting',     prio: 5, gain: 0.299 },   // game-over fallback (music missing): acoustic chords -2 st
+    mortar_launch:      { cat: 'explosive', prio: 3, gain: 0.521, vary: true },
+    mortar_impact:      { cat: 'explosive', prio: 3, gain: 0.306, vary: true },
+    mortar_incoming:    { cat: 'explosive', prio: 3, gain: 0.285, vary: true },
+    bomb_distant:       { cat: 'explosive', prio: 4, gain: 0.402, vary: true },
+    flamethrower_loop:  { cat: 'fire',      prio: 3, gain: 0.321, loop: true },
+    flamethrower_burst: { cat: 'fire',      prio: 3, gain: 0.341, vary: true },
     radio_squelch:      { cat: 'radio',     prio: 3, gain: 0.370, vary: true, fallback: 'radioSquelch' },
     // ---- week of 2026-10-14 (build_weapons_oct14.py). Every shot slot is cat 'gun' (6-gunshot cap). Gains calibrated
     // to TARGET_POST in samples/measure_levels.py: rifles under the Huey, bomb and Gunny; bomb_distant stays loudest.
@@ -81,16 +113,32 @@
     shotgun_rack:       { cat: 'mech',      prio: 1, gain: 0.386, vary: true },
     cannon:             { cat: 'gun',       prio: 3, gain: 0.397, vary: true },                // field guns (21-gun salute); tank90 / t54 / howitzer
     cannon_76mm:        { cat: 'gun',       prio: 3, gain: 0.11, vary: true },                // ZiS-3 76 mm; pt76
-    tandem_rotor_loop:  { cat: 'rotor',     prio: 5, gain: 0.795, out: 'rotor', loop: true },  // CH-46 evac bird hover (STAND-IN Chinook)
+    tandem_rotor_loop:  { cat: 'rotor',     prio: 5, gain: 0.398, out: 'rotor', loop: true },  // CH-46 evac bird hover (STAND-IN Chinook)
     backblast:          { cat: 'gun',       prio: 3, gain: 0.309, vary: true },                // 106 mm RR / Ontos back-blast, Zuni launch
-    minigun_burst:      { cat: 'gun',       prio: 2, gain: 0.551, vary: true },                // Spooky, distant / airborne
-    strafe_20mm:        { cat: 'gun',       prio: 2, gain: 0.528, vary: true },                // STAND-IN: minigun -3 st (ear check)
-    explosion_close:    { cat: 'explosive', prio: 4, gain: 1.054, vary: true },                // close HE, layered real recordings
-    explosion_claymore: { cat: 'explosive', prio: 4, gain: 0.951, vary: true },                // sharp crack
-    napalm_ignite:      { cat: 'fire',      prio: 3, gain: 1.078, vary: true },
-    fire_loop:          { cat: 'fire',      prio: 5, gain: 0.935, loop: true },                // quiet burning loop
+    minigun_burst:      { cat: 'gun',       prio: 2, gain: 0.276, vary: true },                // Spooky, distant / airborne
+    strafe_20mm:        { cat: 'gun',       prio: 2, gain: 0.265, vary: true },                // STAND-IN: minigun -3 st (ear check)
+    explosion_close:    { cat: 'explosive', prio: 4, gain: 0.528, vary: true },                // close HE, layered real recordings
+    explosion_claymore: { cat: 'explosive', prio: 4, gain: 0.477, vary: true },                // sharp crack
+    napalm_ignite:      { cat: 'fire',      prio: 3, gain: 0.54, vary: true },
+    fire_loop:          { cat: 'fire',      prio: 5, gain: 0.469, loop: true },                // quiet burning loop
     knife_throw:        { cat: 'blade',     prio: 1, gain: 0.353, vary: true, maxDur: 1.0 },   // thrown knife into wood (not a gun) - merged from Sound Helper 2026-10-14
-    smoke_pop:          { cat: 'canister',  prio: 6, gain: 0.993 },                            // Doc's canister: pop + hiss
+    // ---- Blake's new features, 2026-10-14 evening (samples/build_blake_oct14.py). Guns are cat 'gun' (6-gunshot cap).
+    car15_single:       { cat: 'gun',       prio: 1, gain: 0.336, vary: true, maxDur: 0.6 },       // CAR-15 / XM177 (FFSL AR-15, brighter, shorter tail)
+    car15_burst:        { cat: 'gun',       prio: 1, gain: 0.282, vary: true, maxDur: 1.0, burstOf: 'car15_single', rate: 13.3, rounds: [3, 5], maxRounds: 5 },  // ~800 rpm
+    m79_sawed:          { cat: 'gun',       prio: 2, gain: 0.123, vary: true, maxDur: 0.4 },       // sawed-off M79 launch (hit = m79_impact)
+    smg_m45_burst:      { cat: 'gun',       prio: 1, gain: 0.539, vary: true, maxDur: 1.2 },       // Swedish K stand-in (Sten 9 mm), 600 rpm
+    pistol22_suppressed:{ cat: 'gun',       prio: 1, gain: 0.21, vary: true, maxDur: 0.4 },       // STAND-IN suppressed .22 (muffled .22LR + action)
+    bunker_enter:       { cat: 'foley',     prio: 1, gain: 0.393, vary: true },
+    bunker_exit:        { cat: 'foley',     prio: 1, gain: 0.35, vary: true },
+    pbr_runup:          { cat: 'engine',    prio: 4, gain: 0.377 },                                // STAND-IN for the Jacuzzi water-jet
+    pbr_beach:          { cat: 'engine',    prio: 4, gain: 0.449 },
+    pbr_depart:         { cat: 'engine',    prio: 4, gain: 0.458 },
+    h34_flyby:          { cat: 'air',       prio: 4, gain: 0.384 },                                // STAND-IN H-34 (Skyraider radial + slowed Huey chop)
+    h34_land:           { cat: 'air',       prio: 4, gain: 0.46 },
+    h34_liftoff:        { cat: 'air',       prio: 4, gain: 0.41 },
+    h34_hover_loop:     { cat: 'rotor',     prio: 5, gain: 0.315, out: 'rotor', loop: true },
+    radio_cff:          { cat: 'radio',     prio: 3, gain: 0.64 },                                // call-for-fire key-up / static / release, no voices
+    smoke_pop:          { cat: 'canister',  prio: 6, gain: 0.498 },                            // Doc's canister: pop + hiss
     // Footsteps: all 12 clips are loudness-matched in build_samples.py; these per-surface trims put every surface ~6 dB
     // under the M16 single-shot average (whole-clip RMS, measured by samples/measure_levels.py).
     step_mud:           { cat: 'step',      prio: 0, gain: 0.233, vary: true },
@@ -538,7 +586,64 @@
       return h;
     };
     P.knifeThrow = function (o) { return P.play('knife_throw', o || {}); };       // merged from Sound Helper: whoosh + thunk into wood; silent if not loaded
+    // Blake's new features (2026-10-14 evening). Weapons stay silent if not loaded; the rest are plain one-shots / a loop.
+    P.car15 = function (o) { o = o || {}; return P.play(o.rounds ? 'car15_burst' : 'car15_single', o); };  // {rounds} -> burst
+    P.m79Sawed = function (o) {                                                    // like m79(): launch now, m79_impact at impactAt
+      o = o || {}; if (!ctx) return null; var t = o.when != null ? Math.max(o.when, now()) : now();
+      var launch = P.play('m79_sawed', Object.assign({}, o, { when: t })), ia = null, impact = null;
+      if (o.impactAt != null) { ia = Math.max(o.impactAt, t); impact = P.play('m79_impact', Object.assign({}, o, { when: ia })); }
+      return { launch: launch, impact: impact, launchAt: t, impactAt: ia };
+    };
+    P.smgM45 = function (o) { return P.play('smg_m45_burst', o || {}); };
+    P.pistol22 = function (o) { return P.play('pistol22_suppressed', o || {}); };
+    P.bunker = function (dir, o) { return P.play(dir === 'exit' ? 'bunker_exit' : 'bunker_enter', o || {}); };
+    P.pbrManeuver = function (kind, o) { var s = { runup: 'pbr_runup', beach: 'pbr_beach', depart: 'pbr_depart' }[kind]; return s ? P.play(s, o || {}) : null; };
+    P.h34 = function (kind, o) { var s = { flyby: 'h34_flyby', land: 'h34_land', liftoff: 'h34_liftoff', hover: 'h34_hover_loop' }[kind]; return s ? P.play(s, o || {}) : null; };
+    P.radioCff = function (o) { return P.play('radio_cff', o || {}); };
+    // 2026-10-14 night: missing / placeholder sounds. Guns stay silent until loaded; the rest are plain one-shots.
+    P.m3a1 = function (o) { return P.play('m3a1_burst', o || {}); };
+    P.m14 = function (o) { return P.play('m14_shot', o || {}); };
+    P.m1911 = function (o) { return P.play('m1911_shot', o || {}); };
+    P.m2Carbine = function (o) { o = o || {}; return P.play(o.auto ? 'm2_carbine_burst' : 'm2_carbine', o); };   // {auto} -> burst
+    P.ui = function (kind, o) { var s = { pick: 'ui_pickup', gem: 'ui_pickup', heal: 'ui_heal', medpack: 'ui_heal', level: 'ui_level', ready: 'ui_ready', chime: 'ui_chime', pulse: 'radio_pulse' }[kind]; return s ? P.play(s, o || {}) : null; };
+    P.hit = function (kind, o) { var s = { hit: 'hit_flesh', kill: 'kill_hit', hurt: 'hurt_grunt', thud: 'thud_dirt', punji: 'punji_trap' }[kind || 'hit']; return s ? P.play(s, o || {}) : null; };
+    P.world = function (kind, o) { var s = { creak: 'creak_wood', hatch: 'hatch_metal', stage: 'stage_hammer', tune: 'radio_tune', sigpop: 'smoke_pop' }[kind]; return s ? P.play(s, o || {}) : null; };
     P.smokePop = function (o) { return P.play('smoke_pop', o || {}); };            // Doc pops the canister on the circle
+    P.sting = function (kind, o) { var s = { boss: 'sting_boss', evac: 'sting_evac', over: 'sting_over' }[kind]; return s ? P.play(s, o || {}) : null; };
+
+    // ---------- weather (2026-10-14 night) ----------
+    // weather('light' | 'heavy' | 'off', { fade, when, vol }) -> handle { mode, slot, voice, stop(fade) }. Crossfades from the
+    // current rain bed to the new one over fade s (default 3). Calling it with the current mode is a no-op (returns the same handle).
+    // thunder({ near, when, vol }) -> play handle (thunder_near / thunder_distant); silent if not loaded (no synth fallback).
+    // rainRoof(on, { fade }) -> handle | null: tin-roof rain loop for bunker interiors; while it is on the outdoor rain bed is
+    // pulled down cfg.roofOutsideDb (default -12 dB) so the roof reads as 'inside'. rainRoof(false) restores it.
+    var wx = { mode: 'off', h: null, roof: null, roofOn: false };
+    var RAIN = { light: 'rain_light', heavy: 'rain_heavy' };
+    cfg.weatherFade = 3.0; cfg.roofOutsideDb = -12;
+    function voiceOf(h) { var r = null; if (h) voices.forEach(function (v) { if (!v.dead && v.slot === h.slot && v.start === h.start) r = v; }); return r; }
+    function rampVoice(v, to, t, fade) { try { v.g.gain.cancelScheduledValues(t); v.g.gain.setValueAtTime(v.g.gain.value, t); v.g.gain.linearRampToValueAtTime(to, t + Math.max(0.01, fade)); } catch (e) { /* ignore */ } }
+    function fadeIn(h, fade, scale) { var v = voiceOf(h); if (!v) return; var g0 = v.g.gain.value; v.base = g0; v.g.gain.setValueAtTime(0, h.start); v.g.gain.linearRampToValueAtTime(g0 * (scale == null ? 1 : scale), h.start + Math.max(0.01, fade)); }
+    P.weather = function (mode, o) {
+      o = o || {}; var fade = o.fade == null ? cfg.weatherFade : o.fade; mode = RAIN[mode] ? mode : 'off';
+      if (mode === wx.mode && (mode === 'off' || (wx.h && voiceOf(wx.h.voice)))) return wx.h;
+      if (wx.h && wx.h.voice) wx.h.voice.stop(fade);
+      wx.mode = mode; wx.h = null; if (mode === 'off') return null;
+      var h = P.play(RAIN[mode], { when: o.when, vol: o.vol, loop: true }); if (!h) { wx.mode = 'off'; return null; }
+      fadeIn(h, fade, wx.roofOn ? dbToGain(cfg.roofOutsideDb) : 1);
+      wx.h = { mode: mode, slot: RAIN[mode], voice: h, stop: function (f) { return P.weather('off', { fade: f }); } };
+      return wx.h;
+    };
+    P.weatherMode = function () { return wx.mode; };
+    P.thunder = function (o) { o = o || {}; return P.play(o.near ? 'thunder_near' : 'thunder_distant', o); };
+    P.rainRoof = function (on, o) {
+      o = o || {}; var fade = o.fade == null ? 1.0 : o.fade, t = now(); on = !!on;
+      var bed = wx.h && voiceOf(wx.h.voice);
+      if (bed && on !== wx.roofOn) rampVoice(bed, (bed.base || SLOTS[bed.slot].gain) * (on ? dbToGain(cfg.roofOutsideDb) : 1), t, fade);
+      wx.roofOn = on;
+      if (!on) { if (wx.roof) wx.roof.stop(fade); wx.roof = null; return null; }
+      if (wx.roof && voiceOf(wx.roof)) return wx.roof;
+      wx.roof = P.play('rain_roof_loop', { loop: true, vol: o.vol }); if (wx.roof) fadeIn(wx.roof, fade); return wx.roof;
+    };
     P.CANNON_KINDS = Object.keys(CANNON); P.EXPLOSION_KINDS = Object.keys(EXPLOSION);
 
     P.cueTiming = function () { return { b40: { leadMs: leadOf('b40', 'b40LeadMs'), slot: 'b40_launch' }, chargeWarning: { leadMs: leadOf('chargeWarning', 'chargeLeadMs'), slot: 'whistle' },
@@ -587,6 +692,7 @@
     // playMusic(name, { when, fade = 0.5, vol = 1, offset }) -> { name, start, end, loop, stop(fade) } | null
     P.playMusic = function (name, o) {
       o = o || {}; if (!ctx) return null;
+      if (name === 'combat' && !o.exact) name = tierTrack(music.tier);   // 'combat' = the current combat tier (tier 1 = combat)
       var key = musicName(name), sp = music.spec, tr = sp && sp.tracks[key], buf = music.buffers[key];
       if (!tr) { info('unknown music slot "' + name + '"'); return null; }
       if (!buf) { info('music "' + name + '" not loaded; staying silent'); return null; }
@@ -607,6 +713,51 @@
       src.onended = function () { cur.dead = true; if (music.cur === cur) music.cur = null; };
       music.cur = cur;
       return { name: key, start: t, end: end, loop: cur.loop, stop: function (fd) { stopTrack(cur, now(), fd == null ? 0.5 : fd); if (music.cur === cur) music.cur = null; } };
+    };
+    // ---------- combat tiers (2026-10-14) ----------
+    // manifest.music.combatTiers = ['combat', 'combat_2', ... 'combat_5'] (tier 1..5, rising energy, all -13.6 LUFS).
+    // combatMusicTier(n, { waveBreak, force, fade = 2.5 }) changes track at the next PHRASE boundary (phraseBars bars at the
+    // track's bpm) with an equal crossfade. Mid-fight it only steps UP; stepping down needs waveBreak (or force).
+    // A cooldown (cfg.combatTierCooldownSec, default 25 s) stops it flipping back and forth.
+    // setCombatIntensity(level, wave, { waveBreak }) maps player level + wave number to a tier via cfg.combatTierWaves /
+    // cfg.combatTierLevels (the minimum wave / level for tiers 1..5); tier = the higher of the two.
+    music.tier = 1; music.tierAt = -1e9;
+    function tierList() { var sp = music.spec; return (sp && sp.combatTiers) || ['combat']; }
+    function tierTrack(n) { var l = tierList(); return l[Math.max(0, Math.min(l.length, n || 1) - 1)]; }
+    function thresholdTier(v, th) { var t = 1; for (var i = 0; i < th.length; i++) if (v >= th[i]) t = i + 1; return t; }
+    P.combatTierFor = function (level, wave) {
+      var tw = thresholdTier(wave || 1, cfg.combatTierWaves || [1, 3, 5, 7, 9]), tl = thresholdTier(level || 1, cfg.combatTierLevels || [1, 6, 11, 16, 22]);
+      return Math.min(tierList().length, Math.max(tw, tl));
+    };
+    P.combatMusicTier = function (n, o) {
+      o = o || {}; var max = tierList().length; n = Math.max(1, Math.min(max, Math.round(n || 1)));
+      if (!ctx) { music.tier = n; return n; }
+      var t = now(), cd = cfg.combatTierCooldownSec != null ? cfg.combatTierCooldownSec : 25;
+      if (n === music.tier) return n;
+      if (n < music.tier && !o.waveBreak && !o.force) return music.tier;              // never step down mid-fight
+      if (!o.force && t - music.tierAt < cd) return music.tier;                       // cooldown
+      music.tier = n; music.tierAt = t;
+      var c = music.cur; if (!c || c.dead || !c.intensity) return n;                  // not in combat music: next playMusic('combat') picks it up
+      var name = tierTrack(n), fade = o.fade != null ? o.fade : 2.5, tr = music.spec.tracks[c.name] || {};
+      var phrase = tr.phraseSec || (tr.phraseBars || 4) * 4 * 60 / (tr.bpm || 120), el = t - c.start, when = c.start + Math.ceil(el / phrase) * phrase;
+      if (when - t < 0.25) when += phrase;
+      if (!music.buffers[musicName(name)]) { info('combat tier ' + n + ' ("' + name + '") not loaded; staying on ' + c.name); return n; }
+      P.playMusic(name, { when: when, fade: fade, exact: true }); return n;
+    };
+    P.setCombatIntensity = function (level, wave, o) { return P.combatMusicTier(P.combatTierFor(level, wave), o); };
+    P.currentCombatTier = function () { return music.tier; };
+
+    // playMenu({ intro = 'menu_intro', loop = intro.next || 'menu', mode = 'crossfade' | 'butt', fade = 1.5 }) (2026-10-14):
+    // plays the intro sting, then the menu loop. 'crossfade' starts the loop on the intro's final chord (finalHitSec) with a fade;
+    // 'butt' starts it at the intro's end with no fade. If the intro isn't loaded, the loop starts straight away. Returns { intro, loop }.
+    P.playMenu = function (o) {
+      o = o || {}; if (!ctx) return null;
+      var sp = music.spec, iname = o.intro || 'menu_intro', it = sp && sp.tracks[iname], lname = o.loop || (it && it.next) || 'menu';
+      var t = o.when != null ? Math.max(o.when, now()) : now();
+      var intro = it && music.buffers[iname] ? P.playMusic(iname, { when: t, fade: 0 }) : null;
+      if (!intro) return { intro: null, loop: P.playMusic(lname, { when: t, fade: o.fade != null ? o.fade : 0.5 }) };
+      var butt = o.mode === 'butt', at = butt ? intro.end : t + (it.finalHitSec || (intro.end - t));
+      return { intro: intro, loop: P.playMusic(lname, { when: at, fade: butt ? 0 : (o.fade != null ? o.fade : 1.5) }) };
     };
     P.stopMusic = function (fade) { if (music.cur) { stopTrack(music.cur, now(), fade == null ? 0.5 : fade); music.cur = null; } };
     P.currentMusic = function () { return music.cur && !music.cur.dead ? music.cur.name : null; };
