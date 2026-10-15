@@ -1119,6 +1119,9 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 })(typeof self !== 'undefined' ? self : this);
 </script>
 <script src="assets/art/sheet1.js?v=6394311"></script>
+<script src="assets/art/vfx_water_impacts.js?v=6394311"></script>
+<script src="assets/art/vfx_flame.js?v=6394311"></script>
+<script src="assets/art/map_wrecks.js?v=6394311"></script>
 <script src="assets/art/vehicles.js?v=6394311"></script>
 <script src="assets/art/doc_hivis.js?v=6394311"></script><script src="assets/art/marines_tall.js?v=6394311"></script><script src="assets/art/heroes_tall.js?v=6394311"></script><script src="assets/art/cover_poses.js?v=6394311"></script><script src="assets/art/hit_prone_poses.js?v=6394311"></script><script src="assets/art/firebase.js?v=6394311"></script><script src="assets/art/terrain.js?v=6394311"></script><script src="assets/art/recon_team.js?v=6394311"></script><script src="assets/art/sog_team.js?v=6394311"></script><script src="assets/art/bunker_interior.js?v=6394311"></script><script src="assets/art/ability_icons.js?v=6394311"></script><script src="assets/art/pbr_splash.js?v=6394311"></script><script defer src="audio/sample_player.js?v=6394311"></script><script defer src="audio/samples/manifest.js?v=6394311"></script>
 <script>
@@ -2409,7 +2412,7 @@ function updateTanks(dt){
           if(sh){ t.ammo=(t.ammo||6)-1; t.gcd=t.ammo>0?.17:s.gcd*3.4; if(t.ammo<=0)t.ammo=6; addPart(t.x-cosd(t.tur)*14,t.y-sind(t.tur)*14,-cosd(t.tur)*60,-sind(t.tur)*60,.5,6,'#d8d4c4',false,2) } else t.gcd=s.gcd;
           apHit=true; explode(tg.x+(rnd()-.5)*(sh?44:16),tg.y+(rnd()-.5)*(sh?44:16),s.rad,s.dmg*(sh?.62:1),230); apHit=false; burst(mx,my,8,120,.3,4,['#fff0a0','#ffb040','#c8c8c0'],true); t.mf=.07; g.shake=Math.max(g.shake,Math.max(0,6-Math.hypot(t.x-p.x,t.y-p.y)/80)+2); MIX.as('squad',()=>Snd.play(t.k===2?'ontos':'tank_cannon')) } }
       else if(diff<.4&&!zipBlock(t,s.frange)){ const mx=t.x+cosd(t.tur)*40, my=t.y+sind(t.tur)*40;
-        for(let k=0;k<3;k++){ const sp=s.frange*(2.6+rnd()*1.2), a2=t.tur+(rnd()-.5)*.6; addPart(mx,my,cosd(a2)*sp,sind(a2)*sp,.22+rnd()*.12,4+rnd()*4,['#fff0a0','#ffd54a','#ff9b21','#ff5a1a'][(rnd()*4)|0],true,3.2) }
+        if(FLM.ok())FLM.fire(t,mx,my,Math.atan2(sind(t.tur),cosd(t.tur)),s.frange,Math.max(1,Math.round((s.frange-470)/16)),'zippo'); else for(let k=0;k<3;k++){ const sp=s.frange*(2.6+rnd()*1.2), a2=t.tur+(rnd()-.5)*.6; addPart(mx,my,cosd(a2)*sp,sind(a2)*sp,.22+rnd()*.12,4+rnd()*4,['#fff0a0','#ffd54a','#ff9b21','#ff5a1a'][(rnd()*4)|0],true,3.2) }
         t.fcd-=dt; if(t.fcd<=0){ t.fcd=.1; Snd.play('flame'); dmgSrc=3;
           for(let j=0;j<enemies.length;j++){ const e=enemies[j]; if(e.dead)continue; const ex=e.x-mx,ey=e.y-my,d=Math.hypot(ex,ey); if(d>s.frange+e.r)continue; let ad=Math.atan2(ey,ex)-t.tur; ad=Math.abs(Math.atan2(Math.sin(ad),Math.cos(ad))); if(ad<.42+Math.atan2(e.r,Math.max(d,1)))hurtEnemy(e,s.fdmg,ex/(d||1)*10,ey/(d||1)*10) } dmgSrc=0;
           if(rnd()<.35&&fires.length<90){ const fd=s.frange*(.5+rnd()*.4), fx=mx+cosd(t.tur)*fd, fy=my+sind(t.tur)*fd; if(!zipNear(fx,fy,80))fires.push({wid:CURW,x:fx,y:fy,r:20,life:2.2,ml:2.2,tick:0,dmg:3}) } } }
@@ -2874,7 +2877,7 @@ const ITEMS={
     stats:l=>({dmg:60+20*(l-1),cd:3.4*Math.pow(.93,l-1),n:1+(l>=3)+(l>=6),cap:3+l,range:120+7*l,half:.62+.02*l}),
     desc:s=>`Dmg ${s.dmg} · ${s.n} per drop · range ${s.range}`},
   flame:{kind:'w',name:'M2 Flamethrower',max:8,blurb:'Short-range cone of fire. Clears the brush.',
-    stats:l=>({dmg:4+2.5*(l-1),tick:.12,range:84+9*l,half:.5+.035*l}),
+    stats:l=>({dmg:4+2.5*(l-1),tick:.12,range:200+12*l,half:.5+.035*l}),   /* Blake Oct 14 night: M2 reach ~210-300 px (thickened fuel); the Zippo is ~1.6-2x */
     desc:s=>`${Math.round(s.dmg/s.tick)} dps · range ${Math.round(s.range)}`},
   napalm:{kind:'w',name:'Napalm Air Strike',max:8,blurb:'Pop smoke and call in a jet run. Leaves burning ground.',
     stats:l=>({dmg:40+14*(l-1),cd:10*Math.pow(.92,l-1),n:1+(l>=4)+(l>=7),len:240+20*l,rad:40+3*l,fdmg:3+1.2*l,flife:2.5+.25*l}),
@@ -2922,7 +2925,7 @@ const ITEMS={
     desc:s=>`Buckshot ${s.pel} x ${s.dmg.toFixed(1)} · short range`},
   tank:{kind:'w',name:'Armor Support',nm:l=>l<3?'M48A3 Patton Support':l<6?'Armor: M48A3 Patton / M67A2 Zippo':'Armor: Patton / Zippo / M50A1 Ontos',max:8,
     blurb:'A friendly tank drives in from the edge and stays with you, shelling and machine-gunning the enemy and crushing infantry. Enemies and RPGs can hurt it (HP bar); when it is destroyed a replacement rolls in after a cooldown. Higher levels: more HP, damage, fire rate and faster respawns. Level 3 adds the M67A2 "Zippo" flame tank, level 6 the M50A1 Ontos: fast, fragile and short-ranged, it dumps a salvo of six 106mm recoilless rounds (the Ontos fought at Hue in 1968) then takes a long time to reload.',
-    stats:l=>({dmg:95+14*(l-1),rad:52+2*l,gcd:2*Math.pow(.955,l-1),mg:5+l,mcd:.14*Math.pow(.95,l-1),hp:200+40*(l-1),rcd:30*Math.pow(.93,l-1),fdmg:4+1.2*l,frange:250+8*l,vr:1+(l>=3)+(l>=6)}),
+    stats:l=>({dmg:95+14*(l-1),rad:52+2*l,gcd:2*Math.pow(.955,l-1),mg:5+l,mcd:.14*Math.pow(.95,l-1),hp:200+40*(l-1),rcd:30*Math.pow(.93,l-1),fdmg:4+1.2*l,frange:Math.min(600,470+16*l),vr:1+(l>=3)+(l>=6)}),
     desc:s=>`90mm HE ${s.dmg} · M2 .50 cal ${s.mg}${s.vr>=2?' · Zippo flame '+Math.round(s.fdmg/.1)+' dps':''}${s.vr>=3?' · Ontos 6x106mm '+Math.round(s.dmg*.7):""} · HP ${Math.round(s.hp)} · replacement in ${s.rcd.toFixed(0)}s`},
   arclight:{kind:'w',name:'B-52 Arc Light',nm:l=>l>=5?'B-52D Arc Light + Agent Orange':'B-52D Arc Light',max:8,
     blurb:'Call an Arc Light mission: a B-52D high overhead walks a line of 500 lb bombs across a marked strip, with a KC-135A Stratotanker flying along high above (the B-52s were air-refueled by KC-135s on their long missions from Guam and U-Tapao). From level 5 the bombs also leave lingering orange defoliant clouds that poison and slow enemies (arcade liberty: the real Ranch Hand spray planes were UC-123s).',
@@ -2981,7 +2984,7 @@ function newGame(demo){
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
-  G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
+  WFX.L.length=0; FLM.reset(); WRK.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:100,maxHp:100,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
@@ -3035,7 +3038,7 @@ function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return;
   spawnDrops(p.x,p.y-6,0,0,12,130); if(rnd()<.6)addDecal(p.x+(rnd()-.5)*16,p.y+8,SPLAT[(rnd()*5)|0],30,.8);
   if(p.hp<=0){ if((G.ps.dustoff|0)&&!G.dustUsed)dustoffRevive(); else { p.hp=0; gameOver() } } }
 let EXIMP=0;   /* set while a real impact clip already covers this explosion (M79 / mortar / 105) */
-function explode(x,y,rad,dmg,kb,vol){ rad*=1+.08*(G.ps.demo|0); if(rad>=40)addCrater(x,y,rad);
+function explode(x,y,rad,dmg,kb,vol){ rad*=1+.08*(G.ps.demo|0); WFX.hit(x,y,rad>=40?'big':'heavy'); if(rad>=40)addCrater(x,y,rad);
   dmgSrc=2;
   for(let i=0;i<enemies.length;i++){const e=enemies[i]; if(e.dead)continue; const dx=e.x-x,dy=e.y-y,d=Math.hypot(dx,dy); if(d<rad+e.r){const n=d||1; hurtEnemy(e,dmg,dx/n*kb,dy/n*kb)}}
   dmgSrc=0;
@@ -3401,7 +3404,7 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){const dx=p.
   G.botTimer+=.016; x+=Math.cos(G.botTimer*.3)*.25; y+=Math.sin(G.botTimer*.27)*.25; const l=Math.hypot(x,y); if(l>1){x/=l;y/=l} return [x,y]; }
 
 function update(dt){
-  CRUMB.snap();
+  CRUMB.snap(); FLM.update(dt);
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
   const g=G,p=g.p; g.t+=dt; g.dthF=0;
@@ -3482,7 +3485,7 @@ function update(dt){
           const we=e.boss?0:(o.boss?2:1), wo=o.boss?0:(e.boss?2:1), nx=ddx/dist,ny=ddy/dist; e.x+=nx*push*we;e.y+=ny*push*we;o.x-=nx*push*wo;o.y-=ny*push*wo}}}
   }
   // bullets
-  CURW=''; for(let i=bullets.length-1;i>=0;i--){ const b=bullets[i]; CURW=b.wid||''; b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt; let rm=b.life<=0;
+  CURW=''; for(let i=bullets.length-1;i>=0;i--){ const b=bullets[i]; CURW=b.wid||''; b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt; let rm=b.life<=0; if(rm&&(i&1))WFX.hit(b.x,b.y,b.dmg>=20?'heavy':'small',Math.atan2(b.vy,b.vx));
     if(!rm){ const R=b.r+32,x0=Math.floor((b.x-R)/CS),x1=Math.floor((b.x+R)/CS),y0=Math.floor((b.y-R)/CS),y1=Math.floor((b.y+R)/CS);
       outer: for(let cx=x0;cx<=x1;cx++)for(let cy=y0;cy<=y1;cy++){ for(let j=head[((cx&63)<<6)|(cy&63)];j>=0;j=nextI[j]){ const e=enemies[j]; if(e.dead)continue;
         const dx=e.x-b.x,dy=e.y-b.y,rr=e.r+b.r; if(dx*dx+dy*dy<rr*rr&&b.hit.indexOf(e)<0){ DTAG=b.tg; hurtEnemy(e,(b.ohk&&!e.boss&&!e.tank)?Math.max(b.dmg,e.hp+1):b.dmg,b.vx*.04,b.vy*.04); DTAG=''; b.hit.push(e); addPart(b.x,b.y,(rnd()-.5)*60,(rnd()-.5)*60,.2,2,'#ffe58a',true,5); if(--b.pierce<=0){rm=true;break outer} } } } }
@@ -3571,7 +3574,7 @@ function updateWeapons(dt){
       const tg=nearestK(p.x,p.y,1,s.range*1.5)[0]; let ta=tg?Math.atan2(tg.y-p.y,tg.x-p.x):g.flameAng; let da=ta-g.flameAng; da=Math.atan2(Math.sin(da),Math.cos(da)); g.flameAng+=da*Math.min(1,dt*14);
       if(!tg)continue;
       s=Object.assign({},s,{range:s.range*(1+.08*(g.ps.demo|0))}); const dx=Math.cos(g.flameAng),dy=Math.sin(g.flameAng), cnt=2+Math.floor(w.lvl/3);
-      for(let i=0;i<cnt;i++){const sp=s.range*(2.6+rnd()*1.2),a=g.flameAng+(rnd()-.5)*s.half*1.5; addPart(p.x+dx*10,p.y+dy*10-2,Math.cos(a)*sp,Math.sin(a)*sp,.2+rnd()*.12,4+rnd()*4,['#fff0a0','#ffd54a','#ff9b21','#ff5a1a'][(rnd()*4)|0],true,3.2)}
+      if(FLM.ok())FLM.fire('p',p.x+dx*10,p.y+dy*10-2,g.flameAng,s.range,w.lvl,'m2'); else for(let i=0;i<cnt;i++){const sp=s.range*(2.6+rnd()*1.2),a=g.flameAng+(rnd()-.5)*s.half*1.5; addPart(p.x+dx*10,p.y+dy*10-2,Math.cos(a)*sp,Math.sin(a)*sp,.2+rnd()*.12,4+rnd()*4,['#fff0a0','#ffd54a','#ff9b21','#ff5a1a'][(rnd()*4)|0],true,3.2)}
       w.tick-=dt; if(w.tick<=0){ w.tick+=s.tick; Snd.play('flame'); dmgSrc=3;
         for(let i=0;i<enemies.length;i++){const e=enemies[i]; if(e.dead)continue; const ex=e.x-p.x,ey=e.y-p.y,d=Math.hypot(ex,ey); if(d>s.range+e.r)continue;
           let ad=Math.atan2(ey,ex)-g.flameAng; ad=Math.abs(Math.atan2(Math.sin(ad),Math.cos(ad))); if(ad<s.half+Math.atan2(e.r,Math.max(d,1)))hurtEnemy(e,s.dmg,ex/(d||1)*10,ey/(d||1)*10)} dmgSrc=0; }
@@ -3655,9 +3658,71 @@ function updateWeapons(dt){
    the gun holds while the player, a Marine, a spec-ops man or the pad/smoke sits inside its cone, and no burning ground lands near them. */
 function zipNear(x,y,r){ const g=G; if(Math.hypot(g.p.x-x,g.p.y-y)<r)return true; for(const m of coy)if(m.hp>0&&Math.hypot(m.x-x,m.y-y)<r)return true;
   const S=g.spec; if(S&&S.men)for(const m of S.men)if(m.hp>0&&Math.hypot(m.x-x,m.y-y)<r)return true; const ex=g.ex; if(ex&&ex.pad&&Math.hypot(ex.pad.x-x,ex.pad.y-y)<r+90)return true; return false }
-function zipBlock(t,R){ const g=G, c=cosd(t.tur), sn=sind(t.tur), L=[[g.p.x,g.p.y,0]]; for(const m of coy)if(m.hp>0)L.push([m.x,m.y,0]);
+function zipBlock(t,R){ const g=G, c=Math.cos(t.tur), sn=Math.sin(t.tur), L=[[g.p.x,g.p.y,0]]; for(const m of coy)if(m.hp>0)L.push([m.x,m.y,0]);
   const S=g.spec; if(S&&S.men)for(const m of S.men)if(m.hp>0)L.push([m.x,m.y,0]); if(g.ex&&g.ex.pad)L.push([g.ex.pad.x,g.ex.pad.y,90]);
   for(const [x,y,pad] of L){ const dx=x-t.x, dy=y-t.y, a=dx*c+dy*sn; if(a<0||a>R+60+pad)continue; if(Math.abs(-dx*sn+dy*c)<a*.5+26+pad)return true } return false }
+/* water impacts (Artist Helper VFX_WATER, Oct 14 night): any round or blast landing on river water splashes. Pooled, capped at 36 live,
+   at most 5 new per frame, on screen only. Drawn in two passes: hits behind the PBR (y above the boat), then the boat, then hits in front. */
+const WFX={L:[],CAP:36,n:0,f:-1,ON:!/[?&]wfx=0\b/.test(location.search),
+  hit(x,y,type,hd){ if(!this.ON||!window.VFX_WATER||!G||G.demo)return; if(Math.abs(x-G.p.x)>760||Math.abs(y-G.p.y)>520)return; if(!riverAt(x,y))return;
+    const f=G.t; if(f!==this.f){ this.f=f; this.n=0 } if(++this.n>5)return; let o; if(this.L.length>=this.CAP){ o=this.L.shift() } else o={}; o.x=x; o.y=y; o.ty=type||'small'; o.t0=performance.now()/1000; o.v=(Math.random()*8)|0; o.hd=hd||0; this.L.push(o) },
+  draw(front,by){ if(!this.L.length||!window.VFX_WATER)return; const t=performance.now()/1000, L=this.L;
+    for(let i=L.length-1;i>=0;i--){ const o=L[i]; if(front===0?o.y>=by:front===1?o.y<by:false)continue; if(!VFX_WATER.draw(ctx,o.ty,o.x,o.y,t-o.t0,1.5,o.v,o.hd)){ L[i]=L[L.length-1]; L.pop() } } } };
+/* flame art (Artist Helper VFX_FLAME): stream + pooled burning ground (96 slots inside VFX_FLAME). At most FLM.MAX streams are drawn per
+   frame (phone fps: ~1 ms per stream on a software canvas). Gameplay damage is unchanged; the art replaces the old flame particles. */
+const FLM={MAX:3,S:[],ON:!/[?&]flameart=0\b/.test(location.search),ok(){ return this.ON&&!!window.VFX_FLAME&&!!G&&!G.demo },
+  lv(l){ return Math.max(1,Math.min(5,1+Math.floor((l-1)*4/7))) },
+  fire(key,x0,y0,a,R,lvl,kind){ if(!this.ok())return; let o=this.S.find(q=>q.k===key); if(!o){ if(this.S.length>=this.MAX)return; o={k:key,st:{}}; this.S.push(o) }
+    o.x0=x0; o.y0=y0; o.x1=x0+Math.cos(a)*R; o.y1=y0+Math.sin(a)*R; o.lv=this.lv(lvl); o.kind=kind; o.last=G.t },
+  update(dt){ if(G&&!G.demo){ if(typeof fbS!=='undefined'&&fbS&&WRK.fb!==fbS){ WRK.fb=fbS; WRK.base(fbS,G.p.x,G.p.y) } const pd=G.ex&&G.ex.pad, pk=pd?((pd.x|0)+','+(pd.y|0)):''; if(pd&&WRK.pk!==pk){ WRK.pk=pk; WRK.pad(pd.x,pd.y) } }
+    if(!this.ok())return; try{ VFX_FLAME.updatePatches(dt) }catch(e){} for(let i=this.S.length-1;i>=0;i--)if(G.t-this.S[i].last>.15)this.S.splice(i,1) },
+  ground(){ if(!this.ok())return; try{ VFX_FLAME.drawPatches(ctx,G.t,'ground') }catch(e){} },
+  top(dt){ if(!this.ok())return; try{ for(const o of this.S){ const r=VFX_FLAME.drawFlame(ctx,{x0:o.x0,y0:o.y0,x1:o.x1,y1:o.y1,t:G.t,level:o.lv,scale:1,kind:o.kind}); const ix=r?r.x:o.x1, iy=r?r.y:o.y1;
+      if(state==='play'&&!zipNear(ix,iy,70))VFX_FLAME.emit(o.st,{x:ix,y:iy,x1:ix,y1:iy,level:o.lv,kind:o.kind},1/60) } VFX_FLAME.drawPatches(ctx,G.t,'fire') }catch(e){} },
+  reset(){ this.S.length=0; try{ window.VFX_FLAME&&VFX_FLAME.clearPatches() }catch(e){} } };
+try{ window.VFX_FLAME&&VFX_FLAME.warm&&VFX_FLAME.warm() }catch(e){}
+/* contextual wrecks (Artist Helper MAP_WRECKS, Blake's placement rules). Generated once per firebase and per pad, never per frame; visual only
+   (no collision, so pathfinding is untouched). Every spot is rejected if it is wet, near a bridge deck, on the walk-in route, in a gate, or on the pad.
+   Rules: wire/blown sandbags/rubble on the perimeter facing the main approach; scorch/craters/stumps clustered in the kill zone (thinning out with distance);
+   NVA helmets (v2) + AKs (v1/v2) outside the wire, M1 helmets (v0/v1) + M16s (v0) inside; crates/C-rats/ponchos/drums in clusters inside the wire;
+   casings along the walls; brass105 only by the howitzer pit; M48/M35 beside the base on the supply side; PT-76 on the enemy approach;
+   a Huey/Kingbee wreck at the pad edge with its blades within 2 tiles; spent smoke canisters on and around the pad; UXO beside craters, off paths. ?wrecks=0 opts out. */
+const WRK={L:[],CAP:150,ON:!/[?&]wrecks=0\b/.test(location.search),
+  ok(){ return this.ON&&!!window.MAP_WRECKS&&!!G&&!G.demo },
+  free(x,y,r,o){ if(riverAt(x,y))return false; for(const [dx,dy] of [[r,0],[-r,0],[0,r],[0,-r]])if(riverAt(x+dx,y+dy))return false;
+    for(const [ax,ay,bx,by] of o.paths){ const vx=bx-ax,vy=by-ay,L=vx*vx+vy*vy||1, k=Math.max(0,Math.min(1,((x-ax)*vx+(y-ay)*vy)/L)); if(Math.hypot(ax+vx*k-x,ay+vy*k-y)<r+46)return false }
+    const ex=G.ex; if(ex&&ex.pad&&!o.pad&&Math.hypot(ex.pad.x-x,ex.pad.y-y)<110)return false;
+    for(const q of this.L)if(q.bk&&Math.hypot(q.x-x,q.y-y)<r+q.r)return false; return true },
+  put(id,v,x,y,hd,o,r){ if(this.L.length>=this.CAP)return false; const P=MAP_WRECKS.props[id]; if(!P)return false; r=r||Math.max(8,P.footprint[0]*.35); if(!this.free(x,y,r,o))return false;
+    this.L.push({id,v:v%P.variants,x:Math.round(x),y:Math.round(y),hd:P.headings>1?hd&7:0,dec:P.layer==='decal',bk:!!P.blocks,r}); return true },
+  /* main approach = the dry direction farthest from the river */
+  appr(x,y){ let best=0,bs=-1; for(let i=0;i<16;i++){ const a=i/16*TAU; let s=0; for(const d of [260,420,620])if(!riverAt(x+Math.cos(a)*d,y+Math.sin(a)*d))s++; const r=nearestRiver(x+Math.cos(a)*420,y+Math.sin(a)*420); s+=(r?Math.min(r.d,900):900)/900; if(s>bs){bs=s;best=a} } return best },
+  base(fb,sx,sy){ if(!this.ok())return; try{ const R=(this.rs=(this.rs||0)+1)*7919+((fb.x*13+fb.y*7)|0); let z=R>>>0; const rn=()=>((z=Math.imul(z^z>>>15,2246822519)+1>>>0)/4294967296);
+    const o={paths:[[sx,sy,fb.x,fb.y]]}, A=this.appr(fb.x,fb.y), at=(a,d,j)=>[fb.x+Math.cos(a)*d+(rn()-.5)*j, fb.y+Math.sin(a)*d+(rn()-.5)*j];
+    for(let g=-2;g<=2;g++)o.paths.push([fb.x,fb.y,fb.x+Math.cos(A+g*Math.PI/2)*700,fb.y+Math.sin(A+g*Math.PI/2)*700]);   /* gates + the approach lane stay clear */
+    const H8=a=>((Math.round(a/(TAU/8))%8)+8)%8;
+    /* perimeter facing the approach: snarled wire, blown sandbags, rubble */
+    for(let i=0;i<9;i++){ const a=A+(rn()-.5)*1.5, [x,y]=at(a,237+(rn()-.5)*30,20); this.put(['wire','wire','sandBlown','rubble','sandSpill'][(rn()*5)|0],(rn()*3)|0,x,y,0,o) }
+    /* kill zone clusters, thinning with distance */
+    for(let c=0;c<6;c++){ const a=A+(rn()-.5)*1.3, d=300+c*70+rn()*60, n=Math.max(1,4-((c/2)|0)); for(let i=0;i<n;i++){ const [x,y]=at(a,d,90), id=['scorch','craterRing','stump','scorch','napalm'][(rn()*5)|0];
+      if(this.put(id,(rn()*3)|0,x,y,0,o)&&id==='craterRing'&&rn()<.5)this.put('uxo',(rn()*2)|0,x+30,y+14,0,o,10) }
+      if(rn()<.7){ const [x,y]=at(a,d,120); this.put('helmet',2,x,y,0,o) } if(rn()<.6){ const [x,y]=at(a,d,120); this.put('rifle',1+((rn()*2)|0),x,y,0,o) } }
+    /* inside the wire: supply clusters, M1 helmets / M16s, casings along the walls, brass by the gun pit */
+    for(let c=0;c<3;c++){ const a=A+Math.PI+(rn()-.5)*2.4, [cx,cy]=at(a,110+rn()*40,10); for(let i=0;i<3;i++)this.put(['crate','crations','poncho','drum','drum'][(rn()*5)|0],(rn()*3)|0,cx+(rn()-.5)*40,cy+(rn()-.5)*30,0,o,10) }
+    for(let i=0;i<2;i++){ const [x,y]=at(rn()*TAU,120,40); this.put('helmet',(rn()*2)|0,x,y,0,o); const [x2,y2]=at(rn()*TAU,120,40); this.put('rifle',0,x2,y2,0,o) }
+    for(let i=0;i<6;i++){ const a=A+(rn()-.5)*1.6, [x,y]=at(a,150,16); this.put('casings',(rn()*3)|0,x,y,0,o,6) }
+    if(rn()<.8){ const [x,y]=at(A+Math.PI*.75,60,10); this.put('brass105',(rn()*3)|0,x,y,0,o,8) }
+    /* armour: M48/M35 beside the base on the supply (river) side, PT-76 out on the enemy approach */
+    { const a=A+Math.PI+(rn()-.5)*.8, [x,y]=at(a,300,40); this.put(rn()<.5?'m48':'m35',(rn()*2)|0,x,y,H8(a+Math.PI/2),o) }
+    { const a=A+(rn()-.5)*.7, [x,y]=at(a,560,80); this.put('pt76',(rn()*2)|0,x,y,H8(a+Math.PI),o) }
+  }catch(e){} },
+  pad(px,py){ if(!this.ok())return; try{ let z=((px*31+py*17)|0)>>>0; const rn=()=>((z=Math.imul(z^z>>>15,2246822519)+1>>>0)/4294967296), o={paths:[[G.p.x,G.p.y,px,py]],pad:1};
+    for(let i=0;i<5;i++){ const a=rn()*TAU, d=i<2?20+rn()*20:60+rn()*60; this.put('smokeCan',(rn()*3)|0,px+Math.cos(a)*d,py+Math.sin(a)*d,0,o,4) }
+    if(rn()<.75){ for(let k=0;k<8;k++){ const a=rn()*TAU, d=170+rn()*60, x=px+Math.cos(a)*d, y=py+Math.sin(a)*d; if(fbS&&Math.hypot(fbS.x-x,fbS.y-y)<330)continue;
+      if(this.put(rn()<.6?'huey':'kingbee',(rn()*2)|0,x,y,(rn()*8)|0,o)){ this.put('blades',(rn()*3)|0,x+(rn()<.5?-1:1)*(50+rn()*30),y+(rn()-.5)*50,0,o,8); break } } }
+  }catch(e){} },
+  draw(dec,cx,cy,vw,vh){ if(!this.L.length||!window.MAP_WRECKS)return; const t=G.t; for(const q of this.L){ if(q.dec!==dec)continue; if(q.x<cx-90||q.x>cx+vw+90||q.y<cy-80||q.y>cy+vh+80)continue; try{ MAP_WRECKS.draw(ctx,q.id,q.v,q.x,q.y,1,q.hd,t) }catch(e){} } },
+  reset(){ this.L.length=0; this.fb=null; this.pk='' } };
 const TANKK=[{nm:'M48A3 Patton',spd:100,rr:26},{nm:'M67A2 "Zippo" Flame Tank',spd:96,rr:26},{nm:'M50A1 Ontos',spd:150,rr:20}];
 function callTank(s,l){ const p=G.p, pool=[0]; if(l>=3)pool.push(1); if(l>=6)pool.push(2); const k=pool[(G.tankRot++)%pool.length];
   const R=Math.hypot(VW,VH)/2+70, a=rnd()*TAU;
@@ -3773,7 +3838,7 @@ function mapForBase(bx,by){ const g=G; if(!g.mapX)g.mapX=new Map(); unPocket(bx,
   return {h,i,u,cross:L,hidden:hid} }
 /* PBR: about 3-4 min under B-40 pairs (Gamer); a rocket hit can knock the guns out for a few seconds */
 const PBR={HP:3500,DIS_P:.25,DIS_T:5};
-function hurtBoat(b,dmg){ if(b.dead)return; b.hp-=dmg; b.hf=.15; if(rnd()<PBR.DIS_P)b.dis=PBR.DIS_T; if(!G.pbrLog)G.pbrLog=[]; if(b.hp<=0){ b.dead=true; b.wreck=0; G.pbrLog.push({life:+b.t.toFixed(1),at:+G.t.toFixed(1)});
+function hurtBoat(b,dmg){ if(b.dead)return; if(Math.random()<.5)WFX.hit(b.x+(Math.random()-.5)*70,b.y+(Math.random()-.5)*50,dmg>=15?'heavy':'small'); b.hp-=dmg; b.hf=.15; if(rnd()<PBR.DIS_P)b.dis=PBR.DIS_T; if(!G.pbrLog)G.pbrLog=[]; if(b.hp<=0){ b.dead=true; b.wreck=0; G.pbrLog.push({life:+b.t.toFixed(1),at:+G.t.toFixed(1)});
     explode(b.x,b.y,60,0,0); burst(b.x,b.y,20,140,.8,6,['#ffd54a','#ff7a1a','#555'],true); (SAMP.boom('tank_kill')||Snd.play('boom')); g_banner('PBR DOWN!','#ff6a4a') } }
 function g_banner(t,c){ G.banner={text:t,t:2.2,col:c} }
 /* if Doc is about to plan a pad near the hidden crossing, the NVA use another one: keep it >= MAPB.HIDE_MIN from the pad and the base */
@@ -3799,7 +3864,7 @@ function updateHazards(dt){
   for(let i=eprojs.length-1;i>=0;i--){const q=eprojs[i]; q.t+=dt; const k=Math.min(1,q.t/q.d);
     if(q.trk&&q.t>0&&k<.75){ const T=q.trk; if(T.dead||T.hp<=0||T.crash)q.trk=null; else { q.tx=T.x; q.ty=T.y+(q.toff||0) } } q.x=q.sx+(q.tx-q.sx)*k; q.y=q.sy+(q.ty-q.sy)*k;
     addPart(q.x,q.y,(rnd()-.5)*18,(rnd()-.5)*18,.35,3.5,rnd()<.5?'#cfcab8':'#ff9b21',false,2);
-    if(k>=1){ blasts.push({x:q.tx,y:q.ty,r:q.rad,t:0,d:.4}); burst(q.tx,q.ty,18,q.rad*2,.5,4,['#ffd54a','#ff9b21','#555'],true); (SAMP.boom('satchel')||Snd.play('boom')); G.shake=Math.max(G.shake,6);
+    if(k>=1){ WFX.hit(q.tx,q.ty,'big'); blasts.push({x:q.tx,y:q.ty,r:q.rad,t:0,d:.4}); burst(q.tx,q.ty,18,q.rad*2,.5,4,['#ffd54a','#ff9b21','#555'],true); (SAMP.boom('satchel')||Snd.play('boom')); G.shake=Math.max(G.shake,6);
       if(Math.hypot(p.x-q.tx,p.y-q.ty)<q.rad+10)hurtPlayer(q.dmg,q.src||(q.tdm?'RPG/B-40 rocket':'enemy shell/blast')); const tk=tanks[0]; if(tk&&!tk.dead&&Math.hypot(tk.x-q.tx,tk.y-q.ty)<q.rad+26)hurtTank(tk,q.tdm||q.dmg*1.2); for(const b of boats){ if(!b.dead&&Math.hypot(b.x-q.tx,b.y-q.ty)<q.rad+28)hurtBoat(b,q.tdm||q.dmg) } if(q.tr){ for(const arr of [hueys,ins]){ for(let j=arr.length-1;j>=0;j--){ const h=arr[j]; if(Math.hypot(h.x-q.tx,h.y-34-q.ty)<q.rad+30)hurtHuey(h,q.hdm||(55+G.t/25)) } } } for(let j=0;j<squad.length;j++){ const m=squad[j]; if(Math.hypot(m.x-q.tx,m.y-q.ty)<q.rad+8)hurtMember(m,q.dmg*.9*(1+G.t/900)) } if(fbS||engs.length){ fbBlast(q.tx,q.ty,q.rad,q.sdm||0,q.dmg*3) } eprojs[i]=eprojs[eprojs.length-1]; eprojs.pop() } }
   // claymore mines
   for(let i=mines.length-1;i>=0;i--){const m=mines[i]; CURW=m.wid||''; m.life-=dt; m.arm-=dt; let boom=false;
@@ -6078,6 +6143,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   for(const b of blasts){const k=b.t/b.d; ctx.globalAlpha=(1-k)*.55; ctx.fillStyle='#ff8a2a'; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*(.4+.6*Math.sqrt(k)),0,TAU); ctx.fill(); ctx.globalAlpha=(1-k)*.8; ctx.fillStyle='#ffe58a'; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*.5*(1-k*.6),0,TAU); ctx.fill(); ctx.globalAlpha=(1-k); ctx.strokeStyle='#fff3c0'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*(.5+.5*k),0,TAU); ctx.stroke(); ctx.globalAlpha=1}
   const tt=performance.now()/1000;
   // napalm burning ground
+  WRK.draw(true,camX,camY,VW,VH); FLM.ground(); WRK.draw(false,camX,camY,VW,VH);
   for(const f of fires){ const k=Math.min(1,f.life/f.ml), fl=.8+.2*Math.sin(tt*18+f.x); ctx.globalAlpha=.45*Math.min(1,k*3)*fl; ctx.fillStyle='#ff6a1a'; ctx.beginPath(); ctx.ellipse(f.x,f.y,f.r,f.r*.8,0,0,TAU); ctx.fill(); ctx.globalAlpha=.5*Math.min(1,k*3)*fl; ctx.fillStyle='#ffc23a'; ctx.beginPath(); ctx.ellipse(f.x,f.y,f.r*.55,f.r*.42,0,0,TAU); ctx.fill(); ctx.globalAlpha=1 }
   // chemical clouds (Agent Orange / Ranch Hand)
   for(let i=0;i<clouds.length;i++){ const c=clouds[i]; if(c.x<camX-c.r-30||c.x>camX+VW+c.r+30||c.y<camY-c.r-30||c.y>camY+VH+c.r+30)continue; const k=Math.min(1,c.life/c.ml), fa=Math.min(1,c.life/1.2)*(.5+.5*k), sw=Math.sin(tt*1.5+c.seed);
@@ -6105,7 +6171,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   // friendly armor
   for(let i=0;i<tanks.length;i++){ const t=tanks[i]; if(t.x<camX-70||t.x>camX+VW+70||t.y<camY-70||t.y>camY+VH+70)continue; drawTank(t) }
   // river gunboat
-  for(let i=0;i<boats.length;i++){ const b=boats[i]; if(b.x<camX-70||b.x>camX+VW+70||b.y<camY-70||b.y>camY+VH+70)continue; drawBoat(b) }
+  { const b0=boats.find(b=>!(b.x<camX-70||b.x>camX+VW+70||b.y<camY-70||b.y>camY+VH+70)), by=b0?b0.y:1e9; WFX.draw(0,by); for(let i=0;i<boats.length;i++){ const b=boats[i]; if(b.x<camX-70||b.x>camX+VW+70||b.y<camY-70||b.y>camY+VH+70)continue; drawBoat(b) } WFX.draw(1,by) }
   drawFirebase(camX,camY,tt); drawRefuel();
   drawCrates(tt); drawExGround(tt);
   drawDying(camX,camY,tt);
@@ -6169,7 +6235,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
     ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over' }
   // aircraft (above everything)
   for(let i=0;i<air.length;i++)drawAir(air[i]);
-  drawFlashes(camX,camY); drawSpooky(tt); drawDust();
+  FLM.top(); drawFlashes(camX,camY); drawSpooky(tt); drawDust();
   // Huey (flies above everything)
   for(let i=0;i<hueys.length;i++)drawHuey(hueys[i]);
   for(let i=0;i<ins.length;i++)drawHuey(ins[i]);
@@ -6244,7 +6310,7 @@ if(DBG.nodemo){ G=null; newGame(false); } else newGame(true);
 showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 { let bd=false; try{bd=sessionStorage.getItem('lbo2_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
-window.__ms={get SAMP(){return SAMP},get MIX(){return MIX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={get SAMP(){return SAMP},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
 
