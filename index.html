@@ -2599,7 +2599,7 @@ function drawSquad(camX,camY){
     // HP bar
     if(!z&&!(m.coy&&m.hp>=m.mhp)){ const r=Math.max(0,m.hp/m.mhp), w=22, bx=Math.round(m.x-w/2), by=Math.round((TM?fy-bob-TM.h*SHEET_SCALE_MEN:m.y-spr.height*.56)-8); ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,5); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,3);
       ctx.fillStyle=r>.55?'#6fd04a':r>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,Math.round(w*r),3) }
-    if(m.role==='corps'&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56); ctx.fillStyle='#d02020'; ctx.fillRect(Math.round(m.x)-1,cy-14,3,1); ctx.fillRect(Math.round(m.x),cy-15,1,3) }
+    if(m.role==='corps'&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56); ctx.fillStyle='#fff'; ctx.fillRect(Math.round(m.x)-3,cy-17,7,7); ctx.fillStyle='#d02020'; ctx.fillRect(Math.round(m.x)-2,cy-14,5,1); ctx.fillRect(Math.round(m.x),cy-16,1,5) }   /* Gamer: squad medic marker readable (was 3 px) */
   }
 }
 
