@@ -1184,7 +1184,7 @@ let W=800,H=600,zoom=1,VW=800,VH=600,UI=1,DPR=1,SA={t:0,r:0,b:0,l:0},PY=70;
 const COARSE=matchMedia('(pointer:coarse)');
 const SAEL=document.createElement('div'); SAEL.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)'; document.documentElement.appendChild(SAEL);
 /* DRES: dynamic resolution on touch devices - a 4 s window under 50 fps in play steps the backing store 1.25 -> 1.0 (fps gate) */
-const DRES=window.DRES={cap:1.25, a:0, n:0, tick(dt){ if(!COARSE.matches||state!=='play'||this.cap<=1)return; this.a+=dt; this.n++; if(this.a>=4){ const f=this.n/this.a; this.a=0; this.n=0; if(f<50){ this.cap=1; try{ resize() }catch(e){} } } } };
+const DRES=window.DRES={cap:1.25, a:0, n:0, tick(dt){ if(!COARSE.matches||state!=='play'||this.cap<=.8)return; this.a+=dt; this.n++; if(this.a>=4){ const f=this.n/this.a; this.a=0; this.n=0; if(f<50){ this.cap=this.cap>1?1:.8; try{ resize() }catch(e){} } } } };   /* steps 1.25 -> 1.0 -> 0.8 backing store (pixel art stays nearest-neighbour) */
 function resize(){
   const dpr=Math.min(window.devicePixelRatio||1,COARSE.matches?DRES.cap:1.5);   /* phones: 1.25x backing store, 1.0 if DRES steps down (fps gate) */
   W=cv.width=Math.max(320,Math.floor(innerWidth*dpr)); H=cv.height=Math.max(240,Math.floor(innerHeight*dpr));
@@ -4080,7 +4080,7 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
    persistent damage-state emitter keyed per vehicle (level from HP: >.66 clear, >.33 smoke, else fire; death cook-off 3 -> burning wreck 4).
    Emitters are detached on reset/wreck expiry. Skipped far off-screen. ?vhit=0 = old particles */
 const VHX={ON:!/[?&]vhit=0\b/.test(location.search), n:0, A:null,
-  ok(){ return this.ON&&!!window.VFX_VEHICLE_HIT&&G&&!G.demo },
+  ok(){ return this.ON&&!window.__VHoff&&!!window.VFX_VEHICLE_HIT&&G&&!G.demo },
   id(o){ return o._vh||(o._vh='v'+(++this.n)) },
   near(x,y){ return Math.abs(x-G.p.x)<VW/2+160&&Math.abs(y-G.p.y)<VH/2+160 },
   ang(o){ const a=this.A; this.A=null; return a!==null&&a!==undefined?a:Math.atan2(o.y-G.p.y,o.x-G.p.x) },
@@ -6658,7 +6658,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
     ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over' }
   // aircraft (above everything)
   for(let i=0;i<air.length;i++)drawAir(air[i]);
-  FLM.top(); AIS.draw(); MOH.drawWorld(); BARK.draw(); if(window.VFX_MUZZLE&&MZW.ON)try{ VFX_MUZZLE.drawAll(ctx,0,0,1,'over') }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.drawAll(ctx,0,0,1,'air') }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.drawAll(ctx,0,0,1,'fx') }catch(e){} drawFlashes(camX,camY); drawSpooky(tt); drawDust();
+  FLM.top(); AIS.draw(); MOH.drawWorld(); BARK.draw(); if(window.VFX_MUZZLE&&MZW.ON&&!window.__MZoff)try{ VFX_MUZZLE.drawAll(ctx,0,0,1,'over') }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.drawAll(ctx,0,0,1,'air') }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON&&!window.__VHoff)try{ VFX_VEHICLE_HIT.drawAll(ctx,0,0,1,'fx') }catch(e){} drawFlashes(camX,camY); drawSpooky(tt); drawDust();
   // Huey (flies above everything)
   for(let i=0;i<hueys.length;i++)drawHuey(hueys[i]);
   for(let i=0;i<ins.length;i++)drawHuey(ins[i]);
