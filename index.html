@@ -154,6 +154,12 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 @media (max-width:640px){#csList{grid-template-columns:repeat(3,1fr);width:100%}.tag{font-size:10px;padding-left:14px}#csPort{width:84px;height:96px}}
 .vols{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:12px;font-size:12px;color:#d4d8b5;letter-spacing:.06em}.vols label{display:flex;align-items:center;gap:6px}.vols input{width:110px;accent-color:#c9a13a}
 .credits{max-width:720px;margin:8px auto 0;text-align:left;font-size:11px;color:#bdb39a}.credits summary{cursor:pointer;text-align:center;color:#d8cfa8;font-weight:bold;letter-spacing:.5px}.credits .crbody{max-height:220px;overflow:auto;padding:6px 10px;background:rgba(0,0,0,.35);border:1px solid #4a4636;margin-top:4px}.credits p{margin:4px 0;line-height:1.35}.credits a{color:#9fc3e8;word-break:break-all}.credits .crswap{color:#e8b04a}
+#tut{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(4,8,5,.82)}#tut.show{display:flex}
+#tut .tb{width:min(560px,92vw);background:#101a10;border:1px solid #4a6a34;border-radius:6px;padding:14px 16px 12px;text-align:center;color:#e8ecd0;box-shadow:0 8px 40px #000}
+#tut img{width:100%;aspect-ratio:16/9;object-fit:cover;border:1px solid #2c3d22;border-radius:3px;background:#0a120a;display:block}
+#tut .tl{font-size:clamp(14px,3.4vw,18px);line-height:1.4;margin:12px 4px 10px;min-height:2.8em}#tut .tn{font-size:12px;color:#9aa884;margin-bottom:8px}
+#tut .tbr{display:flex;gap:10px;justify-content:center}#tut .btn{margin:0;min-width:96px;touch-action:manipulation}#tut .ask{font-size:18px;margin:6px 0 14px}
+.howto{line-height:1.7}
 </style>
 </head>
 <body>
@@ -162,24 +168,24 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <div id="topbtns"><button id="btnMute" title="Mute / unmute (M)">🔊</button><button id="btnPause" title="Pause (P / Esc)">❚❚</button><button id="btnFull" title="Fullscreen (F)">⛶</button></div>
 <div id="fsHint">For fullscreen on iPhone: tap <b>Share</b> ▸ <b>Add to Home Screen</b>, then launch from the icon.</div>
 
+<div id="tut"><div class="tb"><div class="tq"></div></div></div>
 <div id="menu" class="overlay show">
   <div class="bstamp"></div>
   <h1>LAST CHOPPER <span>OUT</span></h1>
-  <div class="sub">Quang Tri, 1968 · I Corps · Hold the line against the VC and NVA</div>
+  <div class="sub">Quang Tri, 1968</div>
   <button class="btn" id="btnStart">Start Patrol</button>
   <button class="btn alt" id="btnBrief">Replay Briefing</button>
   <label class="goresw" id="goreSw" title="Blood, gibs and corpses. OFF = enemies just poof into dust."><span>GORE</span><input type="checkbox" id="goreChk" checked><i></i><b id="goreTxt">ON</b></label>
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label>
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
-  <div class="help">
-    <b>Move:</b> WASD / Arrow keys (touch: drag anywhere)<br>
-    <b>Weapons fire automatically.</b> Collect XP gems, level up, pick upgrades.<br>
-    <b>1 / 2 / 3</b> pick an upgrade &nbsp;·&nbsp; <b>P / Esc</b> pause &nbsp;·&nbsp; <b>M</b> mute<br>
-    Support weapons (take the KC-135 Aerial Refueling upgrade for faster air support): 81mm mortar, 105mm howitzer, PBR river gunboat, strafing runs (A-4E Skyhawk, then F-4B Phantom with SUU-16 pod and A-6A Intruder; the old A-1H Skyraider drops in as an alternate), armor support (M48A3 Patton, M67A2 Zippo, M50A1 Ontos), Marine Fire Team insertion (a UH-1E drops 4 Marines, growing to an 8-man squad; a CH-46 Sea Knight flies the big ones), B-52 Arc Light, UC-123 Ranch Hand, and (unlocked later) a UH-1 Huey with door gunners.<br>
-    <b>Characters:</b> pick one of 9 service records (they level up between runs and unlock). <b>Space / ability button</b> fires your special. <b>R</b> reroll and <b>B</b> banish on the level-up screen (2 each per run).<br>
-    <b>Firebase:</b> find the LZ radio, hold for a few seconds and engineers build a base: regen, ammo, armor, turrets. Defend it from waves and sappers. Max-level pairs evolve: M60 + Ammo Pouch = AC-47 Spooky, Arc Light + KC-135 = Box Mission. Bosses drop supply crates.<br>
-    <b>Extraction mission (~6 min):</b> the Gunny talks you through it on the radio, and Doc carries your smoke (its colour is on the status line). The first minutes are firefights with small NVA/VC squads and lulls between them. At about 2:45 the pad is marked: hold on for about 2:45 more until the bird calls for smoke. Stand on the circle to pop smoke; when the pilot asks <i>"Is that smoke ON your pad?"</i> answer YES only if the column is on your circle. Charlie pops the same colour off the pad; a wrong YES costs 15-20 s while the bird goes around (the run carries on). When the bird is down, get on the ramp with your Marines before it lifts. If Doc dies or the bird leaves empty, the mission fails.<br>
-    Survive as long as you can. Watch for ambushes, tunnel hatches, punji pits, B-40 rocket troopers (they hunt your tank and Hueys) and, deep in the run, NVA armor and the NVA commander!
+  <button class="btn alt" id="btnTut">Quick Tutorial</button>
+  <div class="help howto">
+    <b>HOW TO PLAY</b><br>
+    <b>Move</b> with WASD / arrows, a stick, or drag on touch. Your weapons fire on their own.<br>
+    <b>Grab the green gems</b> to level up, then pick an upgrade (1 / 2 / 3, click or tap).<br>
+    <b>Keep your squad alive:</b> the corpsman patches up the wounded; bunkers (E / Y) give cover.<br>
+    <b>At the pad call, throw smoke ON the pad</b>, confirm it, and hold the LZ until the bird lands.<br>
+    <b>Get everyone aboard.</b> Space fires your special · P / Esc pause · M mute.
   </div>
   <div class="help padhelp"><b>Controller</b> (Xbox / PlayStation / Steam Deck, plug in and press any button): <span class="padKeys"></span></div>
   <div class="foot" id="best"></div>
@@ -206,6 +212,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <p>"Stengun near 1" by poissonmort, <a href="https://freesound.org/people/poissonmort/sounds/157206/" target="_blank" rel="noopener">https://freesound.org/people/poissonmort/sounds/157206/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, mono, re-spliced rounds, level.</p>
 <p>"22lr Caliber Rifle Shots and Reloading" by Geoff-Bremner-Audio, <a href="https://freesound.org/people/Geoff-Bremner-Audio/sounds/717133/" target="_blank" rel="noopener">https://freesound.org/people/Geoff-Bremner-Audio/sounds/717133/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, mono, low-pass filtered, layered, level.</p>
 <p>"Diesel boat engine" by byjoshberry, <a href="https://freesound.org/people/byjoshberry/sounds/435669/" target="_blank" rel="noopener">https://freesound.org/people/byjoshberry/sounds/435669/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: looped, filtered, level.</p>
+<p>"20180616 - Tropical rain Thailand 02.wav" by LG, <a href="https://freesound.org/people/LG/sounds/462774/" target="_blank" rel="noopener">https://freesound.org/people/LG/sounds/462774/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: excerpt looped with a crossfade, mono, high-pass filtered, level.</p>
 <p>"Small Whirlpool Current by Flooding Creek Bridge (loop)" created by NickTayloe on Freesound.org, <a href="https://freesound.org/people/NickTayloe/sounds/851608/" target="_blank" rel="noopener">https://freesound.org/people/NickTayloe/sounds/851608/</a>, under CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: shortened loop, mono, filtered, level.</p>
 <p class="crh"><b>Music (Creative Commons Attribution)</b></p>
 <p>"Happy Bee - Surf" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a></p>
@@ -278,6 +285,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <p>"Stengun near 1" by poissonmort, <a href="https://freesound.org/people/poissonmort/sounds/157206/" target="_blank" rel="noopener">https://freesound.org/people/poissonmort/sounds/157206/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, mono, re-spliced rounds, level.</p>
 <p>"22lr Caliber Rifle Shots and Reloading" by Geoff-Bremner-Audio, <a href="https://freesound.org/people/Geoff-Bremner-Audio/sounds/717133/" target="_blank" rel="noopener">https://freesound.org/people/Geoff-Bremner-Audio/sounds/717133/</a>, licensed CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: trimmed, mono, low-pass filtered, layered, level.</p>
 <p>"Diesel boat engine" by byjoshberry, <a href="https://freesound.org/people/byjoshberry/sounds/435669/" target="_blank" rel="noopener">https://freesound.org/people/byjoshberry/sounds/435669/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: looped, filtered, level.</p>
+<p>"20180616 - Tropical rain Thailand 02.wav" by LG, <a href="https://freesound.org/people/LG/sounds/462774/" target="_blank" rel="noopener">https://freesound.org/people/LG/sounds/462774/</a>, CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: excerpt looped with a crossfade, mono, high-pass filtered, level.</p>
 <p>"Small Whirlpool Current by Flooding Creek Bridge (loop)" created by NickTayloe on Freesound.org, <a href="https://freesound.org/people/NickTayloe/sounds/851608/" target="_blank" rel="noopener">https://freesound.org/people/NickTayloe/sounds/851608/</a>, under CC BY 4.0 (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a>). Edited: shortened loop, mono, filtered, level.</p>
 <p class="crh"><b>Music (Creative Commons Attribution)</b></p>
 <p>"Happy Bee - Surf" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">https://creativecommons.org/licenses/by/4.0/</a></p>
@@ -1122,6 +1130,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <script src="assets/art/vfx_water_impacts.js?v=6394311"></script>
 <script src="assets/art/vfx_flame.js?v=6394311"></script>
 <script src="assets/art/map_wrecks.js?v=6394311"></script>
+<script>if(/[?&]terrain=1\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=6394311"><\/script>')</script>
 <script src="assets/art/vehicles.js?v=6394311"></script>
 <script src="assets/art/doc_hivis.js?v=6394311"></script><script src="assets/art/marines_tall.js?v=6394311"></script><script src="assets/art/heroes_tall.js?v=6394311"></script><script src="assets/art/cover_poses.js?v=6394311"></script><script src="assets/art/hit_prone_poses.js?v=6394311"></script><script src="assets/art/firebase.js?v=6394311"></script><script src="assets/art/terrain.js?v=6394311"></script><script src="assets/art/recon_team.js?v=6394311"></script><script src="assets/art/sog_team.js?v=6394311"></script><script src="assets/art/bunker_interior.js?v=6394311"></script><script src="assets/art/ability_icons.js?v=6394311"></script><script src="assets/art/pbr_splash.js?v=6394311"></script><script defer src="audio/sample_player.js?v=6394311"></script><script defer src="audio/samples/manifest.js?v=6394311"></script>
 <script>
@@ -2441,7 +2450,7 @@ function callSquad(s,l){
   const p=G.p, a=rnd()*TAU, R=Math.hypot(VW,VH)/2+130;
   ins.push({ch46:!!s.ch,hp:s.hhp,mhp:s.hhp,hf:0,x:p.x+Math.cos(a)*R,y:p.y+Math.sin(a)*R,a,t:0,ph:0,need,di:0,dT:0,endT:0,vs:60,s,off:84,rot:0,hd:a+Math.PI,mf:[0,0]});
   G.banner={text:need.length>=sz?(sz<=4?'MARINE FIRE TEAM INBOUND (UH-1E)':sz<8?'MARINE SQUAD INBOUND (UH-1E)':'MARINE SQUAD INBOUND (CH-46)'):'MARINE REPLACEMENTS INBOUND',t:2.2,col:'#9be37a'}; Snd.play('radio'); Amb.support(11); return true }
-function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER;   /* in cover */ m.hp-=dmg; m.hf=.12; m.inv=.5;
+function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER; if(m.coy&&AIS.L.length&&AIS.cover(m))dmg*=.75;   /* in cover */ m.hp-=dmg; m.hf=.12; m.inv=.5;
   if(G.sqS&&(m.hp>0)){ if(drops.length<(LOWFX?110:300))spawnDrops(m.x,m.y-6,0,0,4,90) }
   if(m.hp<=0)killMember(m) }
 function q15Dead(m){ if(m.bodied||!m.coy||!m.nm||!G.q15)return; m.bodied=1; bodies.push({x:m.x,y:m.y,nm:m.nm,cv:m.cv|0,t:G.t,r:rnd()<.5?1:-1}); if(G.rl&&G.rl.firstDeath===null)G.rl.firstDeath=G.t }   /* bodies stay where they fell; runLog first death */
@@ -2711,7 +2720,18 @@ const TERR=(()=>{ let B=null, ok=false; const cache=new Map(); let gen=0, bakesL
     for(let i=0;i<=12;i++){ const x=x0+(x1-x0)*i/12, y=y0+(y1-y0)*i/12, tx=Math.floor(x/32), ty=Math.floor(y/32); if(M(tx,ty)!=='W')continue; const k=code((dx,dy)=>M(tx+dx,ty+dy)!=='W'); if(!k||k.length!==1)continue;
       const out=[{x:tx*32,y:ty*32,im:fr('tLanding','landing'+k)}], ax=(k==='N'||k==='S')?1:0, ay=1-ax; for(const sg of [1,-1]){ const ux=tx+ax*sg, uy=ty+ay*sg; if(M(ux,uy)==='W'&&code((dx,dy)=>M(ux+dx,uy+dy)!=='W')===k){ out.push({x:ux*32,y:uy*32,im:fr('tLanding','landing'+k)}); break } }
       return out.filter(q=>q.im) } return [] }
-  function bake(cx,cy){ const hasW=riverRow(cy)||riverCol(cx)||riverRow(cy-1)||riverRow(cy+1)||riverCol(cx-1)||riverCol(cx+1);
+  /* terrain v2 (?terrain=1, OFF by default): Artist Helper's 48 px MAP_TERRAIN2 ground + dual-grid edges, baked into the same 256 px chunk cache.
+     Gameplay (rivers, banks, bridges, pads, collision) stays on the analytic map, so v2 is visual only and the water edge can sit up to 24 px off the
+     real bank; that is why it stays opt-in for this build. */
+  const V2=/[?&]terrain=1\b/.test(location.search);
+  function t2(tx,ty){ const x=tx*48+24, y=ty*48+24, r=riverAt(x,y); if(r)return r.h?'gRiver':'gRiverS';
+    if(fbS){ const m=Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y)); if(m<FBS+28)return 'gDirt'; if(m<FBW+64)return 'gKill' }
+    if(paddyCell(Math.floor(x/RT),Math.floor(y/RT))){ const h=hash2(tx+9,ty-4); return h<.1?'gPaddyDry':h<.5?'gPaddy':'gPaddyMature' }
+    const h=hash2(Math.floor(tx*32/48/3)+311,Math.floor(ty*32/48/3)-77); return h<.30?'gGrassDry':h<.47?'gJungle':'gGrass' }
+  function bake2(cx,cy,nf){ const out=[], x0=cx*RT, y0=cy*RT, tx0=Math.floor(x0/48)-1, ty0=Math.floor(y0/48)-1, tx1=Math.ceil((x0+RT)/48)+1, ty1=Math.ceil((y0+RT)/48)+1;
+    for(let f=0;f<nf;f++){ const cv=mk(RT,RT), c=cv.getContext('2d'); c.imageSmoothingEnabled=false; try{ MAP_TERRAIN2.drawGround(c,t2,tx0,ty0,tx1,ty1,1,f*.25,x0,y0) }catch(e){} out.push(cv) } return out }
+  function bake(cx,cy){ if(V2&&window.MAP_TERRAIN2){ const hw=riverRow(cy)||riverCol(cx)||riverRow(cy-1)||riverRow(cy+1)||riverCol(cx-1)||riverCol(cx+1); return bake2(cx,cy,hw?3:1) }
+    const hasW=riverRow(cy)||riverCol(cx)||riverRow(cy-1)||riverRow(cy+1)||riverCol(cx-1)||riverCol(cx+1);
     const memo=new Map(), M=(tx,ty)=>{ const k=tx*100003+ty; let v=memo.get(k); if(v===undefined){ v=mat(tx,ty); memo.set(k,v) } return v };
     const out=[]; for(let f=0;f<(hasW?3:1);f++){ const cv=mk(RT,RT), c=cv.getContext('2d'); c.imageSmoothingEnabled=false;
       for(let j=0;j<8;j++)for(let i=0;i<8;i++)tile(c,cx*8+i,cy*8+j,i*32,j*32,'water'+f,M); out.push(cv) } return out }
@@ -2984,7 +3004,7 @@ function newGame(demo){
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;wilt.clear();craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];clouds=[];
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
-  WFX.L.length=0; FLM.reset(); WRK.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
+  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:100,maxHp:100,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
@@ -3404,7 +3424,7 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){const dx=p.
   G.botTimer+=.016; x+=Math.cos(G.botTimer*.3)*.25; y+=Math.sin(G.botTimer*.27)*.25; const l=Math.hypot(x,y); if(l>1){x/=l;y/=l} return [x,y]; }
 
 function update(dt){
-  CRUMB.snap(); FLM.update(dt);
+  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt);
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
   const g=G,p=g.p; g.t+=dt; g.dthF=0;
@@ -3723,6 +3743,45 @@ const WRK={L:[],CAP:150,ON:!/[?&]wrecks=0\b/.test(location.search),
   }catch(e){} },
   draw(dec,cx,cy,vw,vh){ if(!this.L.length||!window.MAP_WRECKS)return; const t=G.t; for(const q of this.L){ if(q.dec!==dec)continue; if(q.x<cx-90||q.x>cx+vw+90||q.y<cy-80||q.y>cy+vh+80)continue; try{ MAP_WRECKS.draw(ctx,q.id,q.v,q.x,q.y,1,q.hd,t) }catch(e){} } },
   reset(){ this.L.length=0; this.fb=null; this.pk='' } };
+/* random weather (Blake, low priority): one event per run after 1:30 - monsoon rain (light/heavy), ground fog, or a thunderstorm (heavy rain +
+   lightning + thunder). 4 s fades, screen-space only, drawn UNDER the HUD; rain streaks are a fixed pool of 90, fog is 5 soft blobs (alpha <= .22),
+   so enemies stay readable. Sound: SamplePlayer.weather/thunder/rainRoof (inside a player bunker the outdoor rain ducks 12 dB). ?wx=0 off, ?wx=rain|fog|storm forces one. */
+const WX={ON:!/[?&]wx=0\b/.test(location.search),k:null,a:0,T:0,dur:0,at:0,R:[],fl:0,nt:0,roof:false,snd:null,
+  reset(){ this.k=null; this.a=0; this.fl=0; this.roof=false; try{ if(SAMP.ready()){ SamplePlayer.weather('off',{fade:.5}); SamplePlayer.rainRoof(false,{fade:.3}) } }catch(e){}
+    const f=(location.search.match(/[?&]wx=(rain|fog|storm)\b/)||[])[1]; this.force=f||null; this.at=f?8:90+Math.random()*120; },
+  start(){ const g=G, r=Math.random(), k=this.force||(r<.4?'rain':r<.7?'fog':'storm'); this.k=k; this.T=0; this.dur=this.force?1e9:70+Math.random()*50; this.heavy=k==='storm'||(k==='rain'&&Math.random()<.4);
+    (g.wxLog||(g.wxLog=[])).push({k,t:+g.t.toFixed(1)}); if(!this.R.length)for(let i=0;i<90;i++)this.R.push({x:Math.random(),y:Math.random(),v:.8+Math.random()*.5}); this.nt=6+Math.random()*8 },
+  snd(on){ try{ if(!SAMP.ready()||!SamplePlayer.weather)return; MIX.as('amb',()=>SamplePlayer.weather(on&&this.k!=='fog'?(this.heavy?'heavy':'light'):'off',{fade:4})) }catch(e){} },
+  tick(dt){ if(!this.ON||!G||G.demo)return; const g=G;
+    if(!this.k){ if(g.t>=this.at&&!(g.ex&&g.ex.ph>=5))this.start(); else return }
+    this.T+=dt; const out=this.T>this.dur||(g.ex&&g.ex.ph>=5&&!this.force); this.a=Math.max(0,Math.min(1,out?this.a-dt/4:this.a+dt/4));
+    if(this.a>0&&!this.sOn){ this.sOn=1; this.snd(true) } if(out&&this.sOn&&this.a<.6){ this.sOn=0; this.snd(false) }
+    if(out&&this.a<=0){ this.k=null; this.at=g.t+150+Math.random()*120; return }
+    const inB=!!(g.pbk&&g.pbk.s)&&this.k!=='fog'; if(inB!==this.roof){ this.roof=inB; try{ SAMP.ready()&&SamplePlayer.rainRoof&&MIX.as('amb',()=>SamplePlayer.rainRoof(inB,{fade:.8})) }catch(e){} }
+    this.fl=Math.max(0,this.fl-dt*5);
+    if(this.k==='storm'||(this.heavy&&this.k==='rain')){ this.nt-=dt; if(this.nt<=0){ const near=this.k==='storm'&&Math.random()<.45; this.nt=(this.k==='storm'?7:16)+Math.random()*10; if(near)this.fl=.9*this.a;
+      try{ SAMP.ready()&&SamplePlayer.thunder&&MIX.as('amb',()=>SamplePlayer.thunder({near,when:Snd.ctx?Snd.ctx.currentTime+(near?.15:1.2+Math.random()*1.5):0})) }catch(e){} } } },
+  draw(W,H){ if(!this.ON||!this.k||this.a<=0||!G||G.demo)return; const a=this.a, t=G.t;
+    if(this.k==='fog'){ ctx.save(); for(let i=0;i<5;i++){ const x=W*((i*.27+t*.006*(1+i*.3))%1.3-.15), y=H*(.25+.14*i), r=Math.max(W,H)*.36; const gr=ctx.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,'rgba(210,220,212,'+(.22*a).toFixed(3)+')'); gr.addColorStop(1,'rgba(210,220,212,0)'); ctx.fillStyle=gr; ctx.fillRect(x-r,y-r,r*2,r*2) } ctx.restore(); return }
+    ctx.save(); ctx.fillStyle='rgba(20,30,40,'+((this.heavy?.16:.09)*a).toFixed(3)+')'; ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(190,205,220,'+((this.heavy?.42:.3)*a).toFixed(3)+')'; ctx.lineWidth=Math.max(1,W/900); ctx.beginPath(); const n=this.heavy?90:50, L=H*(this.heavy?.05:.035);
+    for(let i=0;i<n;i++){ const q=this.R[i], y=((q.y+t*q.v*1.6)%1)*H*1.1-H*.05, x=((q.x+t*q.v*.25)%1)*W; ctx.moveTo(x,y); ctx.lineTo(x-L*.25,y+L) } ctx.stroke();
+    if(this.fl>0){ ctx.fillStyle='rgba(235,240,255,'+(Math.min(.3,this.fl*.33)).toFixed(3)+')'; ctx.fillRect(0,0,W,H) } ctx.restore() } };
+/* AI Marine smoke (Blake, low priority): a Marine throws a WHITE HC screening grenade (never a coloured signal smoke) to screen the corpsman
+   working on a patient under fire. Strict LZ rule: never once the pad is called (ex exists), never within 400 px of a pad or the LZ radio, 45 s squad cooldown.
+   The screen cuts enemy damage on Marines inside it by 25%. Pooled (max 2 screens, 10 puffs each). ?aismoke=0 off. */
+const AIS={ON:!/[?&]aismoke=0\b/.test(location.search),L:[],cd:30,
+  reset(){ this.L.length=0; this.cd=30 },
+  tick(dt){ if(!this.ON||!G||G.demo)return; const g=G; for(let i=this.L.length-1;i>=0;i--){ const q=this.L[i]; q.t+=dt; if(q.t>q.d)this.L.splice(i,1) }
+    this.cd-=dt; if(this.cd>0||g.ex||!(g.plf&&g.plf.c>0)||this.L.length>=2)return;
+    const pt=coy.find(m=>m.healBy&&m.hp>0&&m.healBy.htg===m&&m.healBy.ht>0); if(!pt)return; if(lzS&&Math.hypot(lzS.x-pt.x,lzS.y-pt.y)<400)return;
+    const th=coy.find(m=>m!==pt&&m.hp>0&&m.state==='ok'&&m.role!=='corps'&&!m.wia&&Math.hypot(m.x-pt.x,m.y-pt.y)<160); if(!th)return;
+    const e=nearestK(pt.x,pt.y,1,600)[0], a=e?Math.atan2(e.y-pt.y,e.x-pt.x):0, x=pt.x+Math.cos(a)*70, y=pt.y+Math.sin(a)*70; if(riverAt(x,y))return;
+    const P=[]; for(let i=0;i<10;i++)P.push({ox:(Math.random()-.5)*80,oy:(Math.random()-.5)*50,r:18+Math.random()*16,ph:Math.random()*6});
+    this.L.push({x,y,t:0,d:22,P}); this.cd=45; (g.aisLog||(g.aisLog=[])).push(+g.t.toFixed(1)); try{ Snd.play('sigpop') }catch(e){} },
+  cover(m){ for(const q of this.L)if(q.t>1&&Math.hypot(m.x-q.x,m.y-q.y)<70)return true; return false },
+  draw(){ if(!this.L.length)return; ctx.save(); for(const q of this.L){ const k=Math.min(1,q.t/1.2)*Math.min(1,(q.d-q.t)/4); for(const p of q.P){ const gr=1+Math.min(1,q.t/3)*.8, x=q.x+p.ox*gr+Math.sin(q.t*.4+p.ph)*6, y=q.y+p.oy*gr-q.t*.8;
+      ctx.globalAlpha=.32*k; ctx.fillStyle='#e6e8e2'; ctx.beginPath(); ctx.arc(x,y,p.r*gr,0,TAU); ctx.fill() } } ctx.restore() } };
 const TANKK=[{nm:'M48A3 Patton',spd:100,rr:26},{nm:'M67A2 "Zippo" Flame Tank',spd:96,rr:26},{nm:'M50A1 Ontos',spd:150,rr:20}];
 function callTank(s,l){ const p=G.p, pool=[0]; if(l>=3)pool.push(1); if(l>=6)pool.push(2); const k=pool[(G.tankRot++)%pool.length];
   const R=Math.hypot(VW,VH)/2+70, a=rnd()*TAU;
@@ -5048,6 +5107,32 @@ function drawBrief(){ const B=BR; ctx.setTransform(1,0,0,1,0,0); ctx.imageSmooth
 window.addEventListener('keydown',e=>{ if(state!=='brief'||!BR||e.repeat)return; if(e.code==='Escape'||e.code==='Backspace'){ endBrief(); return } if(e.code==='KeyM')return; briefNext() });
 window.addEventListener('pointerdown',e=>{ if(state!=='brief'||!BR)return; { const r=BR.skipR, pad=10; if(BR.ph===1&&r&&e.clientX>=r[0]-pad&&e.clientX<=r[2]+pad&&e.clientY>=r[1]-pad&&e.clientY<=r[3]+pad){ endBrief(); return } } briefNext() });
 $('btnBrief').onclick=()=>startBrief();
+/* quick tutorial (Blake Oct 14 night): click-through cards, each one short line + a real screenshot from this build. Next/Back, Esc closes, touch + pad work.
+   Offered once on first launch ('Quick tutorial? Yes / Skip'), then always on the menu. */
+const TUT={i:0,on:false,ask:false,C:[
+  ['move','Move with WASD, the arrows, a stick, or drag on touch. Your weapons fire on their own.'],
+  ['gems','Grab the green gems to level up, then pick one upgrade.'],
+  ['squad','Your Marines fight beside you. The corpsman patches up anyone hit; keep them alive.'],
+  ['smoke','When the Gunny calls the pad, throw smoke ON the pad marker.'],
+  ['confirm','"Is that smoke ON your pad?" Answer YES only if it is. A wrong call costs you.'],
+  ['hold','Hold the LZ while the countdown runs. Stay close, the bird is inbound.'],
+  ['board','When it lands, get everyone aboard. Nobody gets left behind.'],
+  ['fb','At a firebase, use the pull-back lull to regroup before the next wave steps off.'],
+  ['bunker','Step into a bunker (E / Y / the button) for cover. You can still shoot.']],
+  open(ask){ this.on=true; this.ask=!!ask; this.i=0; $('tut').classList.add('show'); this.r(); try{localStorage.setItem('lbo2_tutAsk','1')}catch(e){} },
+  close(){ this.on=false; $('tut').classList.remove('show') },
+  go(d){ if(this.ask){ if(d>0){ this.ask=false; this.r() } else this.close(); return } const n=this.i+d; if(n<0)return; if(n>=this.C.length){ this.close(); return } this.i=n; this.r() },
+  r(){ const q=$('tut').querySelector('.tq');
+    if(this.ask){ q.innerHTML='<div class="ask">Quick tutorial?</div><div class="tbr"><button class="btn" id="tutY">Yes</button><button class="btn alt" id="tutN">Skip</button></div>'; $('tutY').onclick=()=>this.go(1); $('tutN').onclick=()=>this.close(); return }
+    const [k,t]=this.C[this.i], last=this.i===this.C.length-1;
+    q.innerHTML='<img alt="" src="assets/tut/'+k+'.webp" onerror="this.style.visibility=\'hidden\'"><div class="tl"></div><div class="tn">'+(this.i+1)+' / '+this.C.length+'</div><div class="tbr"><button class="btn alt" id="tutB"'+(this.i?'':' disabled')+'>Back</button><button class="btn" id="tutX">'+(last?'Done':'Next')+'</button><button class="btn alt" id="tutS">Skip</button></div>';
+    q.querySelector('.tl').textContent=t; $('tutB').onclick=()=>this.go(-1); $('tutX').onclick=()=>this.go(1); $('tutS').onclick=()=>this.close() },
+  key(e){ if(!this.on)return false; if(e.code==='Escape'){ this.close() } else if(e.code==='ArrowRight'||e.code==='Enter'||e.code==='Space'||e.code==='KeyD'){ this.go(1) } else if(e.code==='ArrowLeft'||e.code==='KeyA'||e.code==='Backspace'){ this.go(-1) } e.preventDefault(); e.stopPropagation(); return true },
+  pad(k,dx){ if(!this.on)return false; if(k==='A')this.go(1); else if(k==='B'||k==='ST')this.close(); else if(!k&&dx)this.go(dx>0?1:-1); return true } };
+$('btnTut').onclick=()=>TUT.open(false);
+window.addEventListener('keydown',e=>TUT.key(e),true);
+{ const iv=setInterval(()=>{ let a=false; try{a=localStorage.getItem('lbo2_tutAsk')==='1'}catch(e){} if(a||DBG.bot||params.has('autostart')||DBG.t>0||/[?&]notut\b/.test(location.search)){ clearInterval(iv); return }
+  if(state==='menu'&&!$('charsel').classList.contains('show')){ clearInterval(iv); TUT.open(true) } },500) }
 
 /* ====================== FIREBASE: radio LZ -> Huey + engineers -> phased build, turrets, sappers, enemy armor ====================== */
 let lzS=null, fbS=null, engs=[], strs=[], chgs=[], fbH=null, fbC=null;
@@ -6021,6 +6106,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
     if(st==='paused'){ if(k==='ST'||k==='B'){ resumeGame(); return } }
     if(st==='over'&&performance.now()-overAt<900)return;
     if(st==='over'&&k==='B'){ toMenu(); return }
+    if(st==='menu'&&TUT.pad(k,dx||dy))return;
     if(st==='menu'){ const cs=$('charsel').classList.contains('show');
       if(cs){ if(!k){ const i=CHORDER.indexOf(SEL), d=(dx||dy)>0?1:-1; selectChar(CHORDER[(i+d+CHORDER.length)%CHORDER.length]) } else if(k==='LB'||k==='RB'){ const i=CHORDER.indexOf(SEL); selectChar(CHORDER[(i+(k==='RB'?1:-1)+CHORDER.length)%CHORDER.length]) }
         else if(k==='A'||k==='ST')startGame(); else if(k==='B')closeCharSel(); return }
@@ -6235,7 +6321,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
     ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over' }
   // aircraft (above everything)
   for(let i=0;i<air.length;i++)drawAir(air[i]);
-  FLM.top(); drawFlashes(camX,camY); drawSpooky(tt); drawDust();
+  FLM.top(); AIS.draw(); drawFlashes(camX,camY); drawSpooky(tt); drawDust();
   // Huey (flies above everything)
   for(let i=0;i<hueys.length;i++)drawHuey(hueys[i]);
   for(let i=0;i<ins.length;i++)drawHuey(ins[i]);
@@ -6256,6 +6342,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   if(p.hp<p.maxHp){ ctx.fillStyle='#000a'; ctx.fillRect(p.x-16,p.y+20,32,5); ctx.fillStyle=p.hp/p.maxHp>.3?'#5bd05b':'#e64a3a'; ctx.fillRect(p.x-15,p.y+21,30*p.hp/p.maxHp,3) }
   // ---- screen space HUD ----
   ctx.setTransform(1,0,0,1,0,0);
+  WX.draw(W,H);   /* weather sits under the HUD: never hides prompts, timers or the pad arrow */
   { const low=(!g.demo&&p.hp>0&&p.hp/p.maxHp<.35)?(.13+(g.hbPulse>0?(g.hbPulse/.38)*(g.hbAmp||.3)*.55:0)+(g.hbT===undefined||g.hbT===0?.06*Math.sin(tt*5):0))*(1-p.hp/p.maxHp/.35*.5):0;   /* pulses on each heartbeat cue (dangerTick) */ const a=Math.min(.8,Math.max(g.hurt>0?g.hurt*1.5:0,low))*(GORE?1:.35);
     if(a>.01){ const gr=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.18,W/2,H/2,Math.max(W,H)*.68); gr.addColorStop(0,'rgba(120,0,0,0)'); gr.addColorStop(.6,`rgba(140,6,6,${a*.45})`); gr.addColorStop(1,`rgba(110,0,0,${a})`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H) } }
   if(state==='menu'||state==='intro'||g.demo)return;
@@ -6310,7 +6397,7 @@ if(DBG.nodemo){ G=null; newGame(false); } else newGame(true);
 showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 { let bd=false; try{bd=sessionStorage.getItem('lbo2_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
-window.__ms={get SAMP(){return SAMP},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={get SAMP(){return SAMP},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,wilt,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get clouds(){return clouds},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
 

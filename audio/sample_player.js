@@ -66,6 +66,12 @@
     pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.284, vary: true },                 // STAND-IN .50 cal (M2 not confirmed)
     pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.146, loop: true },                 // under the Huey loop
     river_ambience_loop: { cat: 'ambience', prio: 5, gain: 0.062, loop: true },                 // under the footsteps
+    // weather (2026-10-14 night, 'ambience' group)
+    rain_light:         { cat: 'ambience',  prio: 5, gain: 0.082, loop: true },                    // post-gain RMS -42
+    rain_heavy:         { cat: 'ambience',  prio: 5, gain: 0.132, loop: true },                    // post-gain RMS -40
+    rain_roof_loop:     { cat: 'ambience',  prio: 5, gain: 0.068, loop: true },                    // post-gain RMS -41 (bunker interiors)
+    thunder_distant:    { cat: 'weather',   prio: 3, gain: 0.142, vary: true },                    // post-gain RMS -42
+    thunder_near:       { cat: 'weather',   prio: 3, gain: 0.206, vary: true },                    // post-gain RMS -40.5, crack peaks ~-15 dBFS
     mortar_launch:      { cat: 'explosive', prio: 3, gain: 0.521, vary: true },
     mortar_impact:      { cat: 'explosive', prio: 3, gain: 0.306, vary: true },
     mortar_incoming:    { cat: 'explosive', prio: 3, gain: 0.285, vary: true },
@@ -569,6 +575,39 @@
     P.h34 = function (kind, o) { var s = { flyby: 'h34_flyby', land: 'h34_land', liftoff: 'h34_liftoff', hover: 'h34_hover_loop' }[kind]; return s ? P.play(s, o || {}) : null; };
     P.radioCff = function (o) { return P.play('radio_cff', o || {}); };
     P.smokePop = function (o) { return P.play('smoke_pop', o || {}); };            // Doc pops the canister on the circle
+    // ---------- weather (2026-10-14 night) ----------
+    // weather('light' | 'heavy' | 'off', { fade, when, vol }) -> handle { mode, slot, voice, stop(fade) }. Crossfades from the
+    // current rain bed to the new one over fade s (default 3). Calling it with the current mode is a no-op (returns the same handle).
+    // thunder({ near, when, vol }) -> play handle (thunder_near / thunder_distant); silent if not loaded (no synth fallback).
+    // rainRoof(on, { fade }) -> handle | null: tin-roof rain loop for bunker interiors; while it is on the outdoor rain bed is
+    // pulled down cfg.roofOutsideDb (default -12 dB) so the roof reads as 'inside'. rainRoof(false) restores it.
+    var wx = { mode: 'off', h: null, roof: null, roofOn: false };
+    var RAIN = { light: 'rain_light', heavy: 'rain_heavy' };
+    cfg.weatherFade = 3.0; cfg.roofOutsideDb = -12;
+    function voiceOf(h) { var r = null; if (h) voices.forEach(function (v) { if (!v.dead && v.slot === h.slot && v.start === h.start) r = v; }); return r; }
+    function rampVoice(v, to, t, fade) { try { v.g.gain.cancelScheduledValues(t); v.g.gain.setValueAtTime(v.g.gain.value, t); v.g.gain.linearRampToValueAtTime(to, t + Math.max(0.01, fade)); } catch (e) { /* ignore */ } }
+    function fadeIn(h, fade, scale) { var v = voiceOf(h); if (!v) return; var g0 = v.g.gain.value; v.base = g0; v.g.gain.setValueAtTime(0, h.start); v.g.gain.linearRampToValueAtTime(g0 * (scale == null ? 1 : scale), h.start + Math.max(0.01, fade)); }
+    P.weather = function (mode, o) {
+      o = o || {}; var fade = o.fade == null ? cfg.weatherFade : o.fade; mode = RAIN[mode] ? mode : 'off';
+      if (mode === wx.mode && (mode === 'off' || (wx.h && voiceOf(wx.h.voice)))) return wx.h;
+      if (wx.h && wx.h.voice) wx.h.voice.stop(fade);
+      wx.mode = mode; wx.h = null; if (mode === 'off') return null;
+      var h = P.play(RAIN[mode], { when: o.when, vol: o.vol, loop: true }); if (!h) { wx.mode = 'off'; return null; }
+      fadeIn(h, fade, wx.roofOn ? dbToGain(cfg.roofOutsideDb) : 1);
+      wx.h = { mode: mode, slot: RAIN[mode], voice: h, stop: function (f) { return P.weather('off', { fade: f }); } };
+      return wx.h;
+    };
+    P.weatherMode = function () { return wx.mode; };
+    P.thunder = function (o) { o = o || {}; return P.play(o.near ? 'thunder_near' : 'thunder_distant', o); };
+    P.rainRoof = function (on, o) {
+      o = o || {}; var fade = o.fade == null ? 1.0 : o.fade, t = now(); on = !!on;
+      var bed = wx.h && voiceOf(wx.h.voice);
+      if (bed && on !== wx.roofOn) rampVoice(bed, (bed.base || SLOTS[bed.slot].gain) * (on ? dbToGain(cfg.roofOutsideDb) : 1), t, fade);
+      wx.roofOn = on;
+      if (!on) { if (wx.roof) wx.roof.stop(fade); wx.roof = null; return null; }
+      if (wx.roof && voiceOf(wx.roof)) return wx.roof;
+      wx.roof = P.play('rain_roof_loop', { loop: true, vol: o.vol }); if (wx.roof) fadeIn(wx.roof, fade); return wx.roof;
+    };
     P.CANNON_KINDS = Object.keys(CANNON); P.EXPLOSION_KINDS = Object.keys(EXPLOSION);
 
     P.cueTiming = function () { return { b40: { leadMs: leadOf('b40', 'b40LeadMs'), slot: 'b40_launch' }, chargeWarning: { leadMs: leadOf('chargeWarning', 'chargeLeadMs'), slot: 'whistle' },

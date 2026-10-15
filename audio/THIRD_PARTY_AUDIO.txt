@@ -826,3 +826,9 @@ music/music_menu_asian.ogg + music/music_menu_asian.m4a  (slot: menu_asian)  ** 
     Licence: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/); no attribution required (courtesy credit given).
     Note:   author states it was made in FL Studio with Kontakt and the open-source "Rain" and "Wind" VSTs (sampled instruments, not a live session). NI Kontakt terms forbid putting NI sounds in loop libraries; a finished-game menu bed is acceptable. Rebuild from the original Freesound download, not the HQ preview. Runner-up nqhieu2023 Pixabay #433110 REJECTED (unverifiable uploader).
     Edit:   built from the Freesound HQ preview (original needs a signed-in download); one 33.10 s phrase period (10.43-43.53 s), 80 ms equal-power seam, level matched to -14.6 LUFS. Loop.
+
+[weather, Oct 14 night] rain_heavy_1
+    Source: "20180616 - Tropical rain Thailand 02.wav" by LG (Freesound #462774)
+    Link:   https://freesound.org/people/LG/sounds/462774/
+    Licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: excerpt looped with a crossfade, mono, high-pass filtered, level.
+rain_light_1: nyoz #615747 (CC0). rain_roof_loop_1: Sassaby #771981 (CC0). thunder_distant_1-3: TRP #572443 x2, richwise #361401 (CC0). thunder_near_1-2: TRP #574412, #567945 (CC0).

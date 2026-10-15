@@ -560,7 +560,12 @@
    "files": [
     "radio_cff_1"
    ]
-  }
+  },
+  "rain_light": {"group": "ambience", "batch": 3, "files": ["rain_light_1"]},
+  "rain_heavy": {"group": "ambience", "batch": 3, "files": ["rain_heavy_1"]},
+  "rain_roof_loop": {"group": "ambience", "batch": 3, "files": ["rain_roof_loop_1"]},
+  "thunder_distant": {"group": "ambience", "batch": 3, "files": ["thunder_distant_1", "thunder_distant_2", "thunder_distant_3"]},
+  "thunder_near": {"group": "ambience", "batch": 3, "files": ["thunder_near_1", "thunder_near_2"]}
  },
  "music": {
   "base": "audio/music/",
