@@ -3067,7 +3067,7 @@ let bodies=[],knives=[],squad=[],ins=[],crashes=[],pits=[],bubbles=[],mshells=[]
 const CS=48, head=new Int32Array(4096), nextI=new Int32Array(2400);
 const keys={}; const joy={on:false,id:-1,ox:0,oy:0,x:0,y:0};
 
-function newGame(demo){
+function newGame(demo){ N2.reset();
   let seed=0; if(!demo){ seed=newSeed(); seedRun(seed); try{ localStorage.setItem('lbo2_lastseed',String(seed)) }catch(e){} }
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];
   const t0=demo?150:DBG.t;
@@ -3162,21 +3162,85 @@ function fbCalm(){ const f=fbS; if(!f||f.age===undefined||f.age>=90)return 0; re
 function pickType(){ const t=G.t*EX_RAMP, r=rnd(); if(fbGrace())return 'vc';
   const nva=t>15?Math.min(.52,.42+(t-15)/600):.15,   /* Quang Tri: the NVA regular is the main enemy, VC the lighter, less common one */ off=t>90?Math.min(.13,.03+(t-90)/2000):0;   /* officers capped lower than 48fc09a (.16 -> .13) to offset the heavier NVA mix */
   if(r<off)return 'officer'; if(r<off+nva)return 'nva'; return 'vc'; }
+/* ===== N2 (feature/next item 2): surges + lulls that escalate, player-chosen extraction, pre-wave mortar barrage, satchel sappers, hot-LZ wave-off.
+   Flags (all default on): ?surge=0 ?xchoose=0 ?barrage=0 ?sappers=0 ?waveoff=0. Sounds: existing pack only (mortar_incoming / mortar impact / chargeWarning). ===== */
+const N2F=k=>!new RegExp('[?&]'+k+'=0\\b').test(location.search);
+const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappers'),WO:N2F('waveoff'),
+  XMIN:210,XIN:120,XAUTO:900,BR:58,WO_N:5,WO_MAX:2,WO_T:20,shells:[],log:{bar:0,shells:0,sap:0,satch:0,wo:0,call:null},
+  esc(g){ return Math.min(1,Math.max(0,(g.t-60)/540)) },   /* 0 at 1:00 -> 1 at 10:00 */
+  reset(){ this.shells.length=0; this.log={bar:0,shells:0,sap:0,satch:0,wo:0,call:null}; const b=document.getElementById('n2x'); if(b)b.style.display='none' },
+  /* (a) surge tuning read by PACE */
+  maxT(g,base){ return this.SURGE?base+Math.floor(this.esc(g)*3):base },
+  gap(g,hold){ const b=hold?8:16; return this.SURGE?Math.max(hold?6:7,b-9*this.esc(g)):b },
+  lull(g,L){ if(!this.SURGE)return L; const e=this.esc(g); return [Math.max(5,L[0]-3*e),Math.max(8,L[1]-6*e)] },
+  teamN(g){ return this.SURGE?Math.floor(this.esc(g)*3):0 },
+  wave(g){ const e=this.esc(g), p=g.p; if(this.SURGE&&e>.45&&!PACE.hold(g)){ const n=Math.min(Math.max(0,enemyCap(g)-enemies.length),Math.round(4+10*(e-.45)/.55)), a0=rnd()*TAU, R=Math.hypot(VW,VH)/2+90;   /* late surge: a rush on top of the fire teams */
+      for(let i=0;i<n;i++){ const a=a0+(rnd()-.5)*1.6; spawnEnemy(rnd()<.5?'vc':'nva',p.x+Math.cos(a)*(R+rnd()*80),p.y+Math.sin(a)*(R+rnd()*80),true) } }
+    if(this.SAP&&g.t>90)this.sappers(g) },
+  /* (b) barrage: 'INCOMING!' + whistle, red rings on the impact spots ~2 s before each round lands */
+  barrage(g){ if(!this.BAR||g.demo||!g.char)return; const p=g.p, e=this.esc(g), n=3+Math.round(e*5), tgts=[p]; for(const m of coy)if(m.hp>0&&m.state==='ok'&&!m.hid)tgts.push(m);
+    for(let i=0;i<n;i++){ const T=tgts[(rnd()*tgts.length)|0], a=rnd()*TAU, r=(T===p?70:30)+rnd()*170; let x=T.x+Math.cos(a)*r, y=T.y+Math.sin(a)*r; if(riverAt(x,y)){ x=T.x-Math.cos(a)*r; y=T.y-Math.sin(a)*r }
+      this.shells.push({x,y,t:0,d:2.1+i*.38+rnd()*.2}) }
+    this.log.bar++; g.banner={text:'INCOMING!',t:1.8,col:'#ff6a4a'}; g.shake=Math.max(g.shake,2);
+    try{ if(SAMP.ready()&&SamplePlayer.hasSample('mortar_incoming'))MIX.as('special',()=>SamplePlayer.play('mortar_incoming')); else Snd.play('mortar') }catch(er){} },
+  land(q){ const g=G,p=g.p, R=this.BR, e=this.esc(g); this.log.shells++; EXIMP=1; try{ SAMP.impact('mortar') }catch(er){} explode(q.x,q.y,R,40,200); EXIMP=0;
+    if(window.VFX_IMPACT)try{ VFX_IMPACT.impact('mortar',q.x,q.y,{cx:p.x,cy:p.y}) }catch(er){}
+    if(Math.hypot(p.x-q.x,p.y-q.y)<R)hurtPlayer(16+10*e,'mortar round');
+    for(const m of coy)if(m.hp>0&&m.state==='ok'&&Math.hypot(m.x-q.x,m.y-q.y)<R)hurtMember(m,34+16*e) },
+  /* (c) sappers: 2-4 VC sappers run in with satchels; at the wire they plant a charge (defusable), in the open they arm on a Marine (1.6 s 'SATCHEL!') */
+  sappers(g){ const p=g.p, e=this.esc(g), n=Math.min(Math.max(0,enemyCap(g)-enemies.length),2+Math.round(e*2)), o=fbS||p, a0=rnd()*TAU, R=Math.hypot(VW,VH)/2+60;
+    for(let i=0;i<n;i++){ const a=a0+(rnd()-.5)*1.2; const s=spawnEnemy('sapper',o.x+Math.cos(a)*(R+rnd()*60),o.y+Math.sin(a)*(R+rnd()*60),true); if(s){ s.n2s=1; s.brg=null; this.log.sap++ } }
+    if(n)g.banner={text:'SAPPERS IN THE WIRE!',t:2,col:'#ff6a4a'} },
+  wireFor(e){ if(!fbS)return null; let b=null,bd=380*380; for(const s of strs){ if(s.dead||s.type!=='wire'||s.b<1)continue; const dx=s.x-e.x,dy=s.y-e.y,d2=dx*dx+dy*dy; if(d2<bd){bd=d2;b=s} } return b },
+  /* called from the enemy loop for an N2 sapper: returns [dx,dy] steering or null */
+  sapSteer(e,dt){ if(e.arm>0){ e.arm-=dt; if(e.arm<=0)this.satchel(e); return [0,0] }
+    const w=this.wireFor(e); if(w){ const dx=w.x-e.x, dy=w.y-e.y; if(Math.hypot(dx,dy)<24){ if(plantCharge(w)){ this.log.satch++; e.flee=1.4 } return null } return [dx,dy] }
+    const p=G.p; let T=p, bd=Math.hypot(p.x-e.x,p.y-e.y); for(const m of coy){ if(m.hp<=0||m.state!=='ok'||m.hid)continue; const d=Math.hypot(m.x-e.x,m.y-e.y); if(d<bd){bd=d;T=m} }
+    if(bd<34){ e.arm=1.6; G.banner={text:'SATCHEL!',t:1.6,col:'#ff6a4a'}; try{ MIX.as('special',()=>{ if(!SAMP.charge())Snd.play('whistle') }) }catch(er){} return [0,0] } return [T.x-e.x,T.y-e.y] },
+  satchel(e){ const g=G,p=g.p,x=e.x,y=e.y; this.log.satch++; e.dead=true; e.noXp=1; explode(x,y,70,60,260); burst(x,y,20,150,.6,5,['#fff0a0','#ffb040','#ff5a1a','#333'],true); g.shake=Math.max(g.shake,9);
+    if(window.VFX_IMPACT)try{ VFX_IMPACT.impact('grenade',x,y,{cx:p.x,cy:p.y}) }catch(er){}
+    if(Math.hypot(p.x-x,p.y-y)<70)hurtPlayer(22,'satchel charge'); for(const m of coy)if(m.hp>0&&m.state==='ok'&&Math.hypot(m.x-x,m.y-y)<70)hurtMember(m,55) },
+  /* (a) player-chosen extraction: from XMIN Doc decides when to pop smoke and call the bird; it is XIN s out */
+  canCall(g){ const ex=g.ex; return this.XC&&ex&&ex.ph===0&&!ex.padPlan&&g.t>=this.XMIN&&state==='play' },
+  call(auto){ const g=G,ex=g.ex; if(!this.canCall(g))return false; planPad(); ex.landT=g.t+this.XIN-Math.min(15,g.pullEx||0); this.log.call=+g.t.toFixed(1);
+    g.banner={text:'SMOKE OUT · CH-46 INBOUND · '+fmt(this.XIN),t:3.2,col:'#9be37a'};
+    gunny(auto?"Doc, the bird's coming for you now whether you're ready or not. Two mikes. Hold that pad.":"Bird's on the way, two mikes out. Hold that pad, Doc. When he calls for smoke, get on the circle.",4.6,1); return true },
+  /* (d) wave-off: the pad overrun on short final -> the bird breaks off, orbits ~20 s and comes back (max twice, then he lands anyway) */
+  woCheck(ex,dt){ if(!this.WO)return false; const g=G,hu=ex.huey,lz=ex.pad;
+    if(ex.wo){ const w=ex.wo; w.t+=dt; w.a+=dt*.32; const R=520; hu.x+=(lz.x+Math.cos(w.a)*R-hu.x)*Math.min(1,dt*1.5); hu.y+=(lz.y+Math.sin(w.a)*R-hu.y)*Math.min(1,dt*1.5); hu.z+=(90-hu.z)*Math.min(1,dt*1.2); hu.hd=w.a+Math.PI/2; hu.rot+=dt*40;
+      if(!w.say&&w.t>9){ w.say=1; gunny("Doc, Bird. Coming around. Clear that pad for me. Over.",3.6,1,'BIRD') }
+      if(w.t>=this.WO_T){ ex.wo=null; hu.ox=Math.cos(w.a); hu.oy=Math.sin(w.a); hu.R=R/.16; ex.t=EX.INBOUND*.6; gunny("Doc, Bird. On final again. Over.",3,1,'BIRD') } return true }
+    if((ex.woN|0)>=this.WO_MAX||ex.t<EX.INBOUND-4||ex.t>=EX.INBOUND)return false; let n=0; for(const e of enemies)if(!e.dead&&Math.hypot(e.x-lz.x,e.y-lz.y)<EX.PAD_R+30)n++;
+    if(n<this.WO_N)return false; ex.woN=(ex.woN|0)+1; this.log.wo++; ex.wo={t:0,a:Math.atan2(hu.y-lz.y,hu.x-lz.x),n};
+    g.banner={text:'WAVE-OFF! LZ TOO HOT!',t:3,col:'#ff6a4a'}; gunny("Bird: Wave-off, wave-off! Too many of them on the pad! Going around!",4,1,'BIRD'); Snd.play('radio'); return true },
+  tick(dt){ const g=G; if(!g||g.demo||!g.char)return;
+    for(let i=this.shells.length-1;i>=0;i--){ const q=this.shells[i]; q.t+=dt; if(q.t>=q.d){ this.land(q); this.shells.splice(i,1) } }
+    const ex=g.ex; if(this.XC&&ex&&ex.ph===0&&!ex.padPlan){ if(g.t>=this.XMIN&&!ex.xr){ ex.xr=1; g.banner={text:'EXTRACTION AVAILABLE · POP SMOKE WHEN READY',t:3.4,col:'#9be37a'};
+        gunny("Doc, Gunny. The bird can come for us any time now. Pop smoke when you're ready ("+(matchMedia('(pointer:coarse)').matches?'tap CALL BIRD':'press X')+"). He needs two mikes to get here.",5.6,1) }
+      if(ex.xr&&(g.t>=this.XAUTO||(DBG.bot&&g.t>=this.XMIN+15)))this.call(g.t>=this.XAUTO) }
+    const b=this.btn(); if(b){ const on=this.canCall(g)&&ex.xr; if(b._on!==on){ b._on=on; b.style.display=on?'block':'none' } } },
+  btn(){ let b=document.getElementById('n2x'); if(!b&&this.XC&&document.body){ b=document.createElement('button'); b.id='n2x'; b.textContent='POP SMOKE · CALL BIRD (X)';
+      b.style.cssText='position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;display:none;padding:12px 18px;font:bold 15px "Courier New",monospace;color:#10180c;background:#b9e08a;border:3px solid #2c3e1c;border-radius:6px;box-shadow:0 3px 0 #2c3e1c;touch-action:manipulation';
+      b.addEventListener('pointerdown',ev=>{ ev.stopPropagation(); ev.preventDefault(); N2.call(false) }); document.body.appendChild(b) } return b },
+  draw(){ const tt=performance.now()/1000; for(const q of this.shells){ const k=Math.min(1,q.t/q.d); if(k<.15)continue; ctx.globalAlpha=.35+.45*k; ctx.strokeStyle='#ff3a2a'; ctx.lineWidth=2+k*2;
+      ctx.beginPath(); ctx.arc(q.x,q.y,this.BR*(1.25-.25*k),0,TAU); ctx.stroke(); ctx.globalAlpha=.12+.18*k*(.6+.4*Math.sin(tt*16)); ctx.fillStyle='#ff3a2a'; ctx.beginPath(); ctx.arc(q.x,q.y,this.BR*k,0,TAU); ctx.fill();
+      ctx.globalAlpha=.8; ctx.fillRect(q.x-6,q.y-1,12,2); ctx.fillRect(q.x-1,q.y-6,2,12) } ctx.globalAlpha=1 } };
+document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code==='KeyX')N2.call(false) });
 /* ===== PACE (Blake Oct 14: "most levels in the beginning are more firefights"): early levels are contacts with small NVA/VC fire teams and lulls between them;
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
 const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.1,HOLD_DOC:+(new URLSearchParams(location.search).get('holddoc')||.18),M_TGT:.6,M_HIT:.4,M_DMG:38,SHOT_DMG:4,COVER_DR:.4,RET_AT:.25,
   mass(g){ return (g.p.lvl|0)>=this.MASS_LV||(g.massT>0) },
   hold(g){ const ex=g.ex; return !!(ex&&ex.ph>=4&&ex.ph<=5) },
   tick(g,dt){ const P=g.pc||(g.pc={st:'lull',t:16,teams:[],n:0,log:[]}); P.teams=P.teams.filter(T=>FT.alive(T)>0&&!T.gone);
-    const hold=this.hold(g), maxT=hold?this.HOLD_TEAMS:this.MAX_TEAMS+((g.p.lvl|0)>=8?1:0);
-    if(P.st==='lull'){ P.t-=dt; if(P.t<=0){ P.st='contact'; P.ct=0; this.spawnTeam(g,hold) } }
-    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=hold?this.HOLD_LULL:this.LULL; P.t=L[0]+rnd()*(L[1]-L[0]); P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)}) }
-      else if(P.teams.length<maxT&&P.ct>(hold?6:18)&&P.ct-(P.lastSp||0)>(hold?8:16)){ this.spawnTeam(g,hold) } }
+    const hold=this.hold(g), maxT=N2.maxT(g,hold?this.HOLD_TEAMS:this.MAX_TEAMS+((g.p.lvl|0)>=8?1:0));
+    if(P.st==='lull'){ P.t-=dt; if(!P.bq&&P.t<=3.2&&g.t>50&&!hold){ P.bq=1; N2.barrage(g) } if(P.t<=0){ P.st='contact'; P.ct=0; P.bq=0; this.spawnTeam(g,hold); N2.wave(g) } }
+    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=N2.lull(g,hold?this.HOLD_LULL:this.LULL); P.t=L[0]+rnd()*(L[1]-L[0]); P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)}) }
+      else if(P.teams.length<maxT&&P.ct>(hold?6:18)&&P.ct-(P.lastSp||0)>N2.gap(g,hold)){ this.spawnTeam(g,hold) } }
     for(const T of P.teams)FT.tick(T,g,dt) },
   spawnTeamAt(g,x,y,a){ for(let k=0;k<8&&riverAt(x,y);k++){ x+=(rnd()-.5)*160; y+=(rnd()-.5)*160 } return this.spawnTeam(g,this.hold(g),[x,y,a]) },
   spawnTeam(g,hold,at){ const P=g.pc, p=g.p; let a=rnd()*TAU, cx=0, cy=0;
     if(at){ cx=at[0]; cy=at[1]; a=at[2] } else for(let k=0;k<10;k++){ a=rnd()*TAU; cx=p.x+Math.cos(a)*600; cy=p.y+Math.sin(a)*600; if(!riverAt(cx,cy)&&!needCross(p.x,p.y,cx,cy))break }
-    const lv=g.p.lvl|0, n=Math.min(this.TEAM_MAX,this.TEAM_MIN+Math.floor(lv/3)+(hold?2:0));
+    const lv=g.p.lvl|0, n=Math.min(this.TEAM_MAX+N2.teamN(g),this.TEAM_MIN+Math.floor(lv/3)+(hold?2:0)+N2.teamN(g));
     const T={id:++P.n,m:[],st:'adv',t:0,half:0,bt:0,n0:0,a,side:rnd()<.5?-1:1};
     const lead=spawnEnemy(lv>=4||hold?'officer':'nva',cx,cy); if(lead){ lead.ldr=1; T.m.push(lead) }
     for(let i=0;i<n;i++){ const e=spawnEnemy(rnd()<.25?'vc':'nva',cx+(rnd()-.5)*70,cy+(rnd()-.5)*70); if(e)T.m.push(e) }
@@ -3231,7 +3295,7 @@ const PULL={T:30,ARROW_AT:5,
     gunny('Charlie is pulling back. Thirty seconds, get set!',3,1); if(g.pc)g.pc.teams.length=0 },
   dirs(g){ const nd=g.pullN>1&&rnd()<.6?3:2, a0=rnd()*TAU; return Array.from({length:nd},(_,k)=>a0+k*TAU/nd+(rnd()-.5)*.5) },
   tick(g,dt){ if(!(g.pullT>0))return false; g.pullT-=dt; const s=Math.max(0,Math.ceil(g.pullT));
-    if(g.pullT<=this.ARROW_AT&&!g.pullDirs){ g.pullDirs=this.dirs(g); g.pullInc=1; g.banner={text:'INCOMING!',t:1.6,col:'#ff6a4a'};
+    if(g.pullT<=this.ARROW_AT&&!g.pullDirs){ g.pullDirs=this.dirs(g); g.pullInc=1; g.banner={text:'INCOMING!',t:1.6,col:'#ff6a4a'}; if(N2.BAR){ N2.barrage(g) } else
       try{ if(SAMP.ready()){ MIX.as('special',()=>SamplePlayer.play('mortar_incoming')); setTimeout(()=>{ try{ MIX.as('special',()=>SamplePlayer.play('mortar_impact')) }catch(e){} },1500) } else Snd.play('mortar') }catch(e){} G.shake=Math.max(G.shake,3) }
     g.pullTxt='ENEMY PULLING BACK · 0:'+String(s).padStart(2,'0')+' TO GET READY';   /* own HUD line: other banners never hide the countdown */
     if(g.pullT<=0){ g.pullT=0; this.assault(g); MUSI.set(); return false } return true },
@@ -3511,6 +3575,7 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){const dx=p.
 
 function update(dt){
   if(window.VFX_IMPACT)try{ VFX_IMPACT.update(dt) }catch(e){}
+  N2.tick(dt);
   CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt); FIELD.tick(dt); GUNS.tick(dt); MEDV.tick(dt); CREWX.tick(dt); PADRUSH(dt); IMP.tick(dt); BARK.tick(dt); if(window.VFX_MUZZLE)try{ VFX_MUZZLE.update(dt) }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.update(dt) }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.update(dt) }catch(e){}
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
@@ -3566,6 +3631,7 @@ function update(dt){
           if(!k){ const tk=tanks[0]; if(tk&&!tk.dead&&rnd()<.4&&Math.hypot(tk.x-e.x,tk.y-e.y)<520){ tx=tk.x; ty=tk.y } }
           eprojs.push({sx:e.x,sy:e.y-18,x:e.x,y:e.y-18,tx,ty,t:-k*.25,d:1.25,rad:58,dmg:20+G.bossN*3}) }
         if(!SAMP.b40(1.25))Snd.play('rpg'); } }
+    else if(e.type==='sapper'&&e.n2s&&!(e.flee>0)&&(e._n2=N2.sapSteer(e,dt))){ dx=e._n2[0]; dy=e._n2[1]; d=Math.hypot(dx,dy)||1; ftT=null; if(e.arm>0){ spd=0; dx=dy=0 } }
     else if(e.type==='sapper'){ if(e.brg===undefined)e.brg=sapBridge(e); if(e.brg&&!(e.flee>0)){ const B=e.brg; if(G.brk&&G.brk.has(B.k))e.brg=null; else { dx=B.x-e.x; dy=B.y-e.y; d=Math.hypot(dx,dy)||1; ftT=null; if(d<28){ blowBridge(B); e.flee=1.4 } } }
       if(e.flee>0){ e.flee-=dt; const ax=e.x-(fbS?fbS.x:p.x), ay=e.y-(fbS?fbS.y:p.y), al=Math.hypot(ax,ay)||1; dx=ax; dy=ay; d=al; spd*=1.25; if(e.flee<=0){ e.dead=true; burst(e.x,e.y,6,60,.4,3,['#8a8574','#6d675a'],false) } }
       else if(ftT&&ftT.type&&d<(ftT.r||10)+e.r+8){ if(plantCharge(ftT)){ e.flee=1.4 } else spd=0 } }
@@ -6144,7 +6210,7 @@ function placePad(right){ padMedBonus(); const g=G,ex=g.ex,p=g.p; ex.ph=3; ex.co
 /* ---- the per-frame mission driver (own clocks; never depends on player hp or camera) ---- */
 function updateExtraction(dt){ const g=G,p=g.p,ex=g.ex; if(g.demo||!ex||state==='over')return; if(g.pullT>0){ g.pullEx=(g.pullEx||0)+dt; if(ex.ph>=1)return }   /* the 30 s pull-back lull never counts toward the pad hold / boarding clock */ if(ALLU||DBG.god||DBG.t>0||DBG.used)g.dbg=true;
   updateGunny(dt);
-  if(!ex.intro&&g.t>=(DBG.t|0)+6){ ex.intro=true; if(!DBG.t)gunny("Gunny here. Fifteen of you on the ground and Doc has the smoke. Pad gets marked at about "+fmt(EX.PAD_T)+"; the bird sets down "+fmt(EX_HOLD)+" after that.",5.6) }
+  if(!ex.intro&&g.t>=(DBG.t|0)+6){ ex.intro=true; if(!DBG.t)gunny(N2.XC?"Gunny here. Fifteen of you on the ground and Doc has the smoke. From about "+fmt(N2.XMIN)+" you can call the bird; it needs two mikes to get here.":"Gunny here. Fifteen of you on the ground and Doc has the smoke. Pad gets marked at about "+fmt(EX.PAD_T)+"; the bird sets down "+fmt(EX_HOLD)+" after that.",5.6) }
   if(!ex.said&&g.t>=(DBG.t|0)+(DBG.t?1:12)){ const sc=ex.smokeCol||ex.col; if(sc){ ex.said=true; g.banner={text:'GUNNY: "OUR SMOKE IS '+sc.toUpperCase()+'."',t:4,col:SIGC[sc]}; gunny('Our smoke is '+sc.toUpperCase()+'.',3.6,1) } }   /* QA bug 1: ex.col is only set once the smoke is popped - the run colour lives in ex.smokeCol */   /* said ONCE, with the real radio squelch (gunny -> Snd.play('radio') -> radio_squelch) */
   if(!ex.five&&g.t>=300&&ex.ph===0){ ex.five=true; gunny("Five mikes. Keep your smoke on your belt until the bird calls for it.",4) }
   if(ex.sig&&!ex.sig.land){ ex.sig.z=Math.max(0,ex.sig.z-dt*160); if(ex.sig.z<=0){ ex.sig.land=true; ex.sig.landAt=g.t; Snd.play('thud'); g.shake=Math.max(g.shake,3); burst(ex.sig.x,ex.sig.y,10,60,.5,3,['#8a7a52','#6d675a'],false) } }
@@ -6152,7 +6218,7 @@ function updateExtraction(dt){ const g=G,p=g.p,ex=g.ex; if(g.demo||!ex||state===
     ex.charlie={x:ex.sig.x+Math.cos(a)*d,y:ex.sig.y+Math.sin(a)*d,col:others[(rnd()*others.length)|0]} }
   if(ex.ph===1){ const s=ex.sig; if(s&&s.land){ const ds=Math.hypot(p.x-s.x,p.y-s.y); if(ds<EX.REACH_R&&p.hp>0){ if(ex.reachAt===null)ex.reachAt=Math.max(g.t,s.landAt||g.t); if(!ex.inS&&g.t-(s.landAt||0)>=EX.SEE_T){ openConfirm('real'); return } } else if(ds>EX.REACH_R+24)ex.inS=false }
     const c=ex.charlie; if(c&&ex.ph===1){ const dc=Math.hypot(p.x-c.x,p.y-c.y); if(dc<EX.REACH_R&&p.hp>0){ if(!ex.inC){ openConfirm('charlie'); return } } else if(dc>EX.REACH_R+24)ex.inC=false } }
-  if(ex.ph===0&&!ex.padPlan&&g.t>=EX.PAD_T)planPad();   /* 8:00: the pad is marked whether or not the signal is confirmed */
+  if(ex.ph===0&&!ex.padPlan&&g.t>=EX.PAD_T&&!N2.XC)planPad();   /* 8:00: the pad is marked whether or not the signal is confirmed */
   if(ex.ph===3){ if(!ex.padShown&&g.t>=EX.PAD_T+Math.min(15,g.pullEx||0)){ ex.padShown=true; g.banner={text:'PAD MARKED · BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+Math.min(15,G.pullEx||0)-G.t))),t:3,col:'#9be37a'}; Snd.play('level'); gunny("Pad is marked. Bird sets down at "+fmt(ex.landT+Math.min(15,G.pullEx||0))+". Get your Marines on that circle.",4.2,1) }
     if(g.t>=ex.landT+Math.min(15,g.pullEx||0)-EX.INBOUND)startInbound() }
   g.exHold=ex.ph===4||ex.ph===5;
@@ -6164,7 +6230,7 @@ function updateExtraction(dt){ const g=G,p=g.p,ex=g.ex; if(g.demo||!ex||state===
       for(let i=0;i<n;i++){ const a=a0+(rnd()-.5)*(i&1?TAU:2.2), r=rnd(); spawnEnemy(r<.6?'nva':'vc',lz.x+Math.cos(a)*(R+rnd()*80),lz.y+Math.sin(a)*(R+rnd()*80),true) } }
     ex.holdKills=g.kills-ex.k0;
     ex.pulseT-=dt; if(ex.pulseT<=0){ Snd.play('pulse'); ex.pulseT=ex.ph===5?(.55+.6*Math.max(0,1-ex.t/EX.GROUND)):1.1 } }
-  if(ex.ph===4){ smokeCall(dt); const hold=!(ex.call&&ex.call.st==='ok'); if(!(hold&&ex.t>=EX.INBOUND*EX.HOLD_U))ex.t+=dt; if(ex.divert){ divertTick(dt); return } const u=Math.min(1,ex.t/EX.INBOUND), e=1-(1-u)*(1-u), rem=1-e; const lz=ex.pad;
+  if(ex.ph===4){ smokeCall(dt); const hold=!(ex.call&&ex.call.st==='ok'); if(!(hold&&ex.t>=EX.INBOUND*EX.HOLD_U))ex.t+=dt; if(ex.divert){ divertTick(dt); return } if(N2.woCheck(ex,dt))return; const u=Math.min(1,ex.t/EX.INBOUND), e=1-(1-u)*(1-u), rem=1-e; const lz=ex.pad;
     hu.x=lz.x+hu.ox*hu.R*rem; hu.y=lz.y+hu.oy*hu.R*rem; const d=Math.min(1,Math.max(0,(u-.82)/.18)); hu.z=90*(1-d*d*(3-2*d)); hu.rot+=dt*40;
     if(!ex.hot&&ex.t>=EX.INBOUND-EX.HOT_AT){ ex.hot=true; gunny('Hot LZ! Pilot says he is taking fire on final!',EX.HOT_LEN,1); Snd.play('radio'); g.shake=Math.max(g.shake,5);
       const cap=holdCap(g), n=Math.min(Math.round(8*holdMul(g)),Math.max(0,cap-enemies.length)), R=Math.hypot(VW,VH)/2+130, a0=rnd()*TAU;
@@ -6702,6 +6768,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   // spider-hole tunnel entrances
   for(let i=0;i<tunnels.length;i++){ const q=tunnels[i]; if(q.x<camX-30||q.x>camX+VW+30||q.y<camY-30||q.y>camY+VH+30)continue; drawTunnel(q,0) }
   // mortar ring warnings + 105mm markers
+  N2.draw();
   for(let i=0;i<mshells.length;i++){ const q=mshells[i]; if(q.t<0)continue; const k=Math.min(1,q.t/q.d); ctx.globalAlpha=.4+.25*Math.sin(performance.now()/1000*18); ctx.strokeStyle='#ff4a3a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(q.tx,q.ty,q.rad*(1-.25*k),0,TAU); ctx.stroke(); ctx.globalAlpha=.18; ctx.fillStyle='#ff4a3a'; ctx.beginPath(); ctx.arc(q.tx,q.ty,q.rad*k*.9,0,TAU); ctx.fill(); ctx.globalAlpha=1 }
   for(let i=0;i<hbars.length;i++){ const b=hbars[i], k=Math.min(1,b.t/b.delay); ctx.globalAlpha=.3+.2*Math.sin(performance.now()/1000*12); ctx.strokeStyle='#ffe05a'; ctx.lineWidth=2; ctx.setLineDash([7,6]); ctx.beginPath(); ctx.arc(b.cx,b.cy,b.s.spread*(1.0-.1*k),0,TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1 }
   for(let i=0;i<hshells.length;i++){ const q=hshells[i]; if(q.t<-.45)continue; ctx.globalAlpha=.3; ctx.strokeStyle='#ff4a3a'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(q.x,q.y,q.rad*.55,0,TAU); ctx.stroke(); ctx.globalAlpha=1 }
@@ -6880,7 +6947,7 @@ if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 { let bd=false; try{bd=sessionStorage.getItem('lbo2_briefed')==='1'}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
 try{ ZMON.warm() }catch(e){}
 DBG.zmon=()=>callBoat(Object.assign({hold:30,range:420,d50:20,d60:12,cd:60},{}),true);
-window.__ms={get Q46(){ return {startGame,coyH,coy,INTRO,G,state,sel:v=>{SEL=v}} },get SAMP(){return SAMP},get Snd(){return Snd},get MOH(){return MOH},get FBO(){return FBO},get URG(){return URG},get MAGS(){return MAGS},get IMP(){return IMP},get FIELD(){return FIELD},get GUNS(){return GUNS},get MEDV(){return MEDV},get CREWX(){return CREWX},useAb(){ return useAbility() },openConfirm(a){ openConfirm(a) },pick(i){ if(state==='levelup')pickChoice(i|0); return state },answer(y){ if(state==='sig'){ clearTimeout(SIGASK.q); answerSignal(!!y) } return state },get BARK(){return BARK},get KIA(){return KIA},get ZMON(){return ZMON},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={get N2(){return N2},get EXc(){return EX},get Q46(){ return {startGame,coyH,coy,INTRO,G,state,sel:v=>{SEL=v}} },get SAMP(){return SAMP},get Snd(){return Snd},get MOH(){return MOH},get FBO(){return FBO},get URG(){return URG},get MAGS(){return MAGS},get IMP(){return IMP},get FIELD(){return FIELD},get GUNS(){return GUNS},get MEDV(){return MEDV},get CREWX(){return CREWX},useAb(){ return useAbility() },openConfirm(a){ openConfirm(a) },pick(i){ if(state==='levelup')pickChoice(i|0); return state },answer(y){ if(state==='sig'){ clearTimeout(SIGASK.q); answerSignal(!!y) } return state },get BARK(){return BARK},get KIA(){return KIA},get ZMON(){return ZMON},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
 
