@@ -182,6 +182,31 @@ body.hudm #topbtns{top:calc(env(safe-area-inset-top,0px) + 4px);gap:2px;backgrou
 body.hudm #medMate{max-width:calc(100vw - 268px);padding:0 6px}body.hudm #medMate i{font-size:11px}body.hudm #medBtn{padding:0 6px}
 @media (max-width:380px){body.hudm #medHud,body.hudm #abil{bottom:calc(112px + env(safe-area-inset-bottom,0px))}body.hudm #n2x{bottom:calc(170px + env(safe-area-inset-bottom,0px))!important}body.hudm #abil{min-width:0;padding:0 10px;font-size:13px}}   /* rc7.1: at 360 px the weapon + item icon rows wrap to two lines under +3 H */
 body.hudm #rtoHud{max-width:40px;overflow:hidden;white-space:nowrap}body.hudm #rtoHud.tip{max-width:none}
+/* rc8 Steam Deck (deck_fixes_rc8.md): 1) no text under 12 px at >=1000x700 (Deck 1280x800 + desktop); phones (hudmobile) untouched */
+@media (min-width:1000px) and (min-height:700px){
+  .srh,.srd,.foot,.foot b,.card .key,.tag,.tag i,.tag .lkt,.tag .pips,#csRec .rh,#csRec .fld span,#csRec .tr,#csRec .pk,#csRec small,#charsel small,.rkh,#sup,
+  .svcph figcaption,.bstamp,#abil span,#abilKey,#medHud span,#pbBtn span,#sigBtn span,#sigask .note,#sigSw,.ocsm,
+  .card .ds,.help,.credits,.credits summary,.cmfront,.p3t i,.p3lbh,.dmc .dmcr,.p3sc,.p3lb,#p3unl,#p3unl small,#csRec span,#csRec b{font-size:12px!important}
+  #tkrRing::after{font-size:12px!important;line-height:16px}
+}
+/* rc8 Deck 2) menu / charsel / level-up fit 1280x800 with no page scroll (two-column grid; Credits stays a collapsed <details>) */
+@media (min-width:1000px) and (max-height:820px){
+  #menu.show{display:grid!important;grid-template-columns:minmax(360px,560px) minmax(420px,640px);grid-auto-rows:min-content;column-gap:28px;row-gap:0;align-content:center;justify-content:center;overflow:hidden;padding-top:8px;padding-bottom:8px}
+  #menu>*{grid-column:1;margin-top:0!important;margin-bottom:0}
+  #menu .bstamp{grid-column:1/-1;grid-row:1}#menu #demoBadge{grid-column:1/-1;grid-row:1}
+  #menu h1{grid-column:1/-1;grid-row:2;zoom:.62;margin:0 auto!important}
+  #menu .sartP{grid-column:1;grid-row:3;margin:0 0 4px!important}
+  #menu #btnStart{grid-row:4}#menu #btnBrief{grid-row:5}#menu #btnTut{grid-row:6}
+  #menu .btn{margin:3px auto!important}
+  #menu .howto{grid-column:2;grid-row:3/span 2;align-self:start;line-height:1.35;margin:4px 0!important}#menu .padhelp{grid-column:2;grid-row:5/span 2;align-self:start;margin:2px 0!important}#menu #best{grid-column:2;grid-row:7}
+  #menu .tribute,#menu .foot:not(#best){grid-column:1/-1;margin:2px 0 0!important}#menu .tribute{grid-row:8}#menu .foot:not(#best){grid-row:9}
+  #menu details.credits{grid-column:1/-1;grid-row:10;margin-top:2px!important}#menu details.credits[open] .crbody{max-height:120px}
+  #charsel.show{display:grid!important;grid-template-columns:minmax(0,420px) minmax(0,600px);column-gap:14px;align-content:center;justify-content:center;overflow:hidden;padding-top:8px;padding-bottom:8px}
+  #charsel>*{margin:0!important}#charsel .cs-title{grid-column:1/-1;grid-row:1;margin-bottom:6px!important}#charsel .cs-wrap{display:contents}
+  #csList{grid-column:1;grid-row:2;align-self:start}#csRec{grid-column:2;grid-row:2/span 2;max-height:calc(100vh - 175px);overflow-y:auto;box-sizing:border-box;min-width:0}
+  #charsel #p3unl{grid-column:1;grid-row:3;align-self:start;max-width:420px;margin-top:8px!important}#charsel .cs-btns{grid-column:1/-1;grid-row:4;margin-top:6px!important}
+  #levelup.show{overflow:hidden}#levelup .card{min-height:0}
+}
 </style>
 </head>
 <body>
@@ -1222,6 +1247,12 @@ const BUILD={id:'2399611',date:'2026-10-20 08:37 ET',tag:'rc7'}, AV='?v='+BUILD.
 'use strict';
 /* ====================== setup ====================== */
 const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+/* rc8 Steam Deck (deck_fixes_rc8.md 1): canvas text floor. On screens >=1000x700 that are not hudmobile, any main-canvas font that would
+   land at 5..12 CSS px on screen (after zoom/DPR transform) is raised to 12 px. <5 px = painted signage decals, left alone. ?decktext=0 disables. */
+(function(){ if(/[?&]decktext=0\b/.test(location.search))return; const P=Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype,'font'); if(!P||!P.set)return;
+  let on=false; const upd=()=>{ on=innerWidth>=1000&&innerHeight>=700&&!(window.HUDM&&window.HUDM.on) }; addEventListener('resize',()=>setTimeout(upd,0)); setTimeout(upd,0);
+  window.DECKTXT={get on(){return on},upd};
+  Object.defineProperty(ctx,'font',{configurable:true,get(){ return P.get.call(this) },set(v){ if(on){ const m=/(\d+(?:\.\d+)?)px/.exec(v); if(m){ const t=this.getTransform(), k=Math.sqrt(Math.abs(t.a*t.d-t.b*t.c))/(DPR||1), e=(+m[1])*k; if(e>=5&&e<12&&k>0)v=v.replace(m[0],(12/k).toFixed(2)+'px') } } P.set.call(this,v) }}) })();
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
 /* ===== ITEM 5: DEMO mode for the public web build (Steam demo). =====
@@ -1248,7 +1279,7 @@ const DRES=window.DRES={cap:1, a:0, n:0, tick(dt){ if(!COARSE.matches||state!=='
    <=2 floating labels (duplicates merged xN), toasts + Gunny in a compact edge lane, smaller/faster banners, short hint text, RTO tooltip on tap.
    Smoke Y/N, INCOMING and low-HP prompts keep their full size. */
 const HUDM=window.HUDM={P:(location.search.match(/[?&]hudmobile=([01])/)||[])[1], on:false,
-  set(){ this.on=this.P==='1'?true:this.P==='0'?false:(COARSE.matches||innerWidth<900); document.body&&document.body.classList.toggle('hudm',this.on) },
+  set(){ this.on=this.P==='1'?true:this.P==='0'?false:!window.lcoHost&&(COARSE.matches||innerWidth<900);   /* rc8 Deck: never auto-on in the Electron/Steam host (Deck has a touch screen) */ document.body&&document.body.classList.toggle('hudm',this.on); window.DECKTXT&&DECKTXT.upd() },
   SH:[[/SMOKE ON DOC'S BELT/,'SMOKE'],[/GET ON THE PAD (\d+m) TO CALL THE BIRD/,'TO PAD $1'],[/CALL THE BIRD FROM/,'CALL AT'],[/POP SMOKE WHEN READY · BIRD 2:00 OUT/,'POP SMOKE'],[/ON THE PAD · POP SMOKE WHEN READY/,'ON PAD · POP SMOKE'],
     [/HOLD FOR LZ — BIRD IN/,'BIRD'],[/BIRD WANTS SMOKE · GET ON THE PAD/,'SMOKE! PAD'],[/SMOKE OUT · THE BIRD IS LOOKING · BIRD IN/,'BIRD LOOKING ·'],[/NEED ONE MORE MARINE ON THE RAMP/,'+1 ON RAMP'],[/BIRD LIFTS —/,'LIFT'],
     [/WRONG SMOKE · BIRD SETTING DOWN ELSEWHERE · NEW PAD/,'WRONG SMOKE · NEW PAD'],[/BIRD WENT TO CHARLIE'S SMOKE · BACK IN/,"CHARLIE'S SMOKE · BACK"],[/  ·  /g,' · '],[/ON THE PAD/,'ON PAD'],[/STAND STILL TO CALL ENGINEERS/,'STAND STILL: ENGINEERS'],[/FIREBASE: REGEN \+ AMMO \+ ARMOR/,'FIREBASE +HP +AMMO']],
@@ -3723,7 +3754,7 @@ const CRUMB={k:'lco_crumb',last:0,
     try{ const a=JSON.parse(localStorage.getItem(this.k)||'[]'); a.push(c); while(a.length>40)a.shift(); localStorage.setItem(this.k,JSON.stringify(a)); localStorage.setItem('lco_clean','0') }catch(e){} },
   clean(){ try{ localStorage.setItem('lco_clean','1') }catch(e){} },
   check(){ try{ const cl=localStorage.getItem('lco_clean'), a=JSON.parse(localStorage.getItem(this.k)||'[]'); if(cl==='0'&&a.length){ const L=a[a.length-1]; this.prev=a.slice(-15);
-        const el=document.createElement('div'); el.id='crashNote'; el.style.cssText='position:fixed;left:8px;bottom:22px;z-index:40;max-width:min(560px,94vw);font:11px monospace;color:#ffcf9a;background:rgba(20,10,6,.9);border:1px solid #a0603a;padding:6px 8px;cursor:pointer';
+        const el=document.createElement('div'); el.id='crashNote'; el.style.cssText='position:fixed;left:8px;bottom:22px;z-index:40;max-width:min(560px,94vw);font:12px monospace;color:#ffcf9a;background:rgba(20,10,6,.9);border:1px solid #a0603a;padding:6px 8px;cursor:pointer';
         el.textContent='Last run ended unexpectedly at '+fmt(L.t)+' (phase '+L.ph+', '+L.en+' enemies, heap '+L.heap+' MB, build '+L.b+'). Click to copy the report for the dev.';
         el.onclick=()=>{ try{ navigator.clipboard.writeText(JSON.stringify(this.prev)); el.textContent='Copied. Paste it to the dev. (click again to hide)'; el.onclick=()=>el.remove() }catch(e){ console.log(JSON.stringify(this.prev)) } };
         document.body.appendChild(el); console.warn('[LBO] previous session ended unexpectedly; last snapshots:',JSON.stringify(this.prev)) } localStorage.setItem('lco_clean','1') }catch(e){} } };
@@ -5179,6 +5210,12 @@ const UNLOCK_ALL=params.get('unlockall')==='0'?false:(/\/next\//.test(location.p
 /* Blake Oct 15 7:20 PM: Doc only for now (most developed). ?all still opens all for testing. */
 const DOC_ONLY=params.get('doconly')!=='0';
 function chOpen(id){ if(DEMO)return id==='doc'; if(DOC_ONLY&&!ALLU)return id==='doc'; return ALLU||UNLOCK_ALL||chOpenSave(id) }
+/* rc8 Steam (deck_fixes / steam_build_report rc8 TODO): when a squad2 Marine really becomes playable (chOpen true without the ?all / unlockall debug
+   gates), tell the Steam host once: window.steamworks.achievement.activate('squad2_unlock_<marine>'). No-op in a browser. Remembered in lco_sq2. */
+function squad2Check(){ try{ if(DEMO||ALLU||UNLOCK_ALL)return; let seen={}; try{ seen=JSON.parse(localStorage.getItem('lco_sq2')||'{}') }catch(e){}
+  let ch=false; for(const k of CHORDER){ if(k==='doc'||seen[k]||!chOpen(k))continue; seen[k]=Date.now(); ch=true; try{ window.steamworks?.achievement?.activate?.('squad2_unlock_'+k) }catch(e){} }
+  if(ch)localStorage.setItem('lco_sq2',JSON.stringify(seen)) }catch(e){} }
+window.squad2Check=squad2Check; setTimeout(squad2Check,1500);
 const chOpenRaw=id=>chOpenSave(id);
 if(!chOpen(SEL))SEL='doc';
 function saveChars(){ try{localStorage.setItem('lco_chars',JSON.stringify(CHS));localStorage.setItem('lco_char',SEL)}catch(e){} if(window.onCharsChange)window.onCharsChange() }
@@ -5383,7 +5420,7 @@ function selectChar(id){ if(!CHD[id])return; const op=chOpen(id); SEL=id; if(op&
    ${D.perks.map((p,i)=>`<div class="pk${i<t?' on':''}">${i<t?'✔':'🔒'} Tier ${i+1} (${TIER_XP[i]} XP): ${p.t}</div>`).join('')}</div><div class="stamp">${t>=5?'VETERAN':'CONFIDENTIAL'}</div>`;
   if(!op)$('csRec').insertAdjacentHTML('afterbegin','<div class="lkban">🔒 Opens when Doc comes home.</div>'); $('csRec').classList.toggle('locked',!op); const go=$('btnCsGo'); if(go){ go.disabled=!op; go.textContent=op?'Deploy':'Locked' }
   drawPortrait($('csPort'),id) }
-function openCharSel(){ try{ P3.panel() }catch(e){} buildCharList(); selectChar(SEL); $('menu').classList.remove('show'); $('charsel').classList.add('show'); setTimeout(()=>{ try{$('btnCsGo').focus()}catch(e){} },30) }
+function openCharSel(){ squad2Check(); try{ P3.panel() }catch(e){} buildCharList(); selectChar(SEL); $('menu').classList.remove('show'); $('charsel').classList.add('show'); setTimeout(()=>{ try{$('btnCsGo').focus()}catch(e){} },30) }
 function closeCharSel(){ $('charsel').classList.remove('show'); $('menu').classList.add('show') }
 $('btnCsBack').onclick=closeCharSel; $('btnCsGo').onclick=()=>startGame();
 $('charsel').addEventListener('keydown',e=>{ if(e.code==='Enter'||e.code==='Space')e.stopPropagation();
@@ -6803,7 +6840,7 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
     `<div style="text-align:center;margin-top:6px"><button class="btn alt" id="p3lbBtn" style="font-size:12px;padding:4px 10px">Leaderboard</button></div><div id="p3lbBox" style="display:none">${this.boardHtml(rank)}</div></div>` },
   onOver(win,why){ const g=G; if(!g||g.demo)return; const c=this.ctx(g,{win,why}); let html='';
     if(this.SC){ this.css(); const s=this.score(c); c.score=s.tot; const rank=this.post(c,s); const best=this.ls('lco_hiscore',0); if(s.tot>best)this.ss('lco_hiscore',s.tot); html=this.endHtml(c,s,rank) }
-    if(this.ACH)this.check(c);
+    if(this.ACH)this.check(c); squad2Check();
     if(this.ACH&&ENDACH){ this.css(); const ra=this.runAch||[]; html+='<div class="p3sc" id="p3runAch"><div class="row"><b>ACHIEVEMENTS THIS RUN'+(DEMO?' · DEMO':'')+'</b><span>'+ra.length+'</span></div>'+(ra.length?ra.map(a=>'<div class="row"><span>&#9733; '+a.name+'</span><span style="opacity:.7">'+a.desc+'</span></div>').join(''):'<div class="row"><span style="opacity:.7">none this time</span></div>')+'</div>' }   /* rc6 Gamer #9 (?endach=0) */
     if(html){ $('stats').insertAdjacentHTML('beforeend',html); const b=$('p3lbBtn'); if(b)b.onclick=()=>{ const x=$('p3lbBox'); x.style.display=x.style.display==='none'?'block':'none' } } },
   /* ---- (b) achievements ---- */
