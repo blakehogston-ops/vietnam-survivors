@@ -4531,7 +4531,7 @@ const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,spooky:10,arclight:14,boxmission:22},
     if(id==='napalm')o.n=ITEMS.napalm.stats(w.lvl).n+big; if((id==='arclight'||id==='boxmission')&&big)o.n=ITEMS[id].stats(w.lvl).n+4*big;
     for(const k in o)if(o[k]===undefined)delete o[k];
     ftexts.push({x:m.x+(m.x<g.p.x?-34:34),y:m.y-6,t:0,s:'FIRE MISSION · '+t.n,c:'#ffe58a'}); m.callT=1.6;
-    if(AIRIDS[id]&&id!=='howitzer'&&id!=='mortar'&&id!=='gunboat'){ const arc=id==='arclight'||id==='boxmission', cs=id==='spooky'?'Spooky':'Hellborne'; if(arc)radioSeq([[.1,'RTO: "Arc Light inbound, everybody get down!"']]); else radioSeq([[.1,cs+' Two-One: "In hot"'],[1.0,'RTO: "Cleared hot"'],[id==='spooky'?14:7,cs+' Two-One: "Winchester, RTB"']]) }   /* Vet rc7.1: B-52s at altitude do not call in hot/Winchester; Arc Light gets one RTO warning */
+    if(AIRIDS[id]&&id!=='howitzer'&&id!=='mortar'&&id!=='gunboat'){ const arc=id==='arclight'||id==='boxmission', cs=id==='spooky'?'Spooky':'Hellborne'; if(arc){ /* rc7.1 Vet correction: B-52 runs are rumble only, no voice, no caption */ } else radioSeq([[.1,cs+' Two-One: "In hot"'],[1.0,'RTO: "Cleared hot"'],[id==='spooky'?14:7,cs+' Two-One: "Winchester, RTB"']]) }   /* Vet rc7.1: B-52s at altitude do not call in hot/Winchester; Arc Light gets one RTO warning */
     return o },
   move(m,sx,sy,d,dt){ m.mv=d>6; if(!m.mv)return; if(d>320&&!riverAt(sx,sy)){ m.x=sx; m.y=sy; return }   /* fell way behind (river, bunker exit): back at Doc's shoulder */
     const sp=Math.min(d*7,430*Math.max(1,speedMul())), k=sp*dt/d; rvMove(m,(sx-m.x)*k,(sy-m.y)*k,'m'); m.anim+=dt*9; if(!m.tg)m.face=sx>=m.x?1:-1 },
