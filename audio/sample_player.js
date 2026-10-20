@@ -69,7 +69,7 @@
     pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.241, vary: true },                 // STAND-IN .50 cal (M2 not confirmed)
     pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.1159, loop: true },   // rc8a -2 dB (was 0.146)
                     // under the Huey loop
-    river_ambience_loop: { cat: 'ambience', prio: 5, gain: 0.35, loop: true },   // rc8a (AD) ~0.35 (was 0.062)
+    river_ambience_loop: { cat: 'ambience', prio: 5, gain: 0.457, loop: true },   // rc8.1 (AD): -43 net in game (file RMS -24.27, x0.457 -6.8, vol .8 -1.9, amb bus -10); 0.062 would be -60
                     // under the footsteps
     // weather (2026-10-14 night, 'ambience' group): loops prio 5 so gunfire never steals the bed; thunder prio 3, not a gun
     rain_light:         { cat: 'ambience',  prio: 5, gain: 0.2359, loop: true },                    // post-gain RMS -42
@@ -78,9 +78,9 @@
     thunder_distant:    { cat: 'weather',   prio: 3, gain: 0.4016, vary: true },                    // post-gain RMS -42
     thunder_near:       { cat: 'weather',   prio: 3, gain: 0.4879, vary: true },                    // post-gain RMS -40.5, crack peaks ~-15 dBFS
     o1_birddog_flyby:   { cat: 'air',       prio: 4, gain: 0.5 },                                  // STAND-IN light-plane pass (post-gain RMS -24, specials bus -7 -> -31)
-    lvtp5_engine_loop:  { cat: 'engine',    prio: 5, gain: 0.5, loop: true },                      // amtrac engine loop (modern AAV-7 source, not an LVTP-5), 12 s loop (post-gain -30, ambience bus -10 -> -40)
+    lvtp5_engine_loop:  { cat: 'engine',    prio: 5, gain: 0.3575, loop: true }, // rc8.1 mixcheck: -2.9 dB to ambience target                      // amtrac engine loop (modern AAV-7 source, not an LVTP-5), 12 s loop (post-gain -30, ambience bus -10 -> -40)
     firebase_amb_loop:  { cat: 'ambience',  prio: 5, gain: 0.5, loop: true },                      // night insects bed, 40 s loop (post-gain -33, ambience bus -10 -> -43)
-    tokay_gecko:        { cat: 'weather',   prio: 3, gain: 0.5, vary: true },                      // tokay calls, 3 variants (gated post-gain -30, ambience bus -10 -> -40); not a loop
+    tokay_gecko:        { cat: 'weather',   prio: 3, gain: 0.7099, vary: true }, // rc8.1 mixcheck: +3 dB to ambience target                      // tokay calls, 3 variants (gated post-gain -30, ambience bus -10 -> -40); not a loop
     mortar_launch:      { cat: 'explosive', prio: 3, gain: 0.7554, vary: true },
     mortar_impact:      { cat: 'explosive', prio: 3, gain: 0.3547, vary: true },
     mortar_incoming:    { cat: 'explosive', prio: 3, gain: 0.3587, vary: true },

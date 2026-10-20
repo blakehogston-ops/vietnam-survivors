@@ -19,11 +19,12 @@ function meas(f){ const p=path.join(A,'samples/ogg',f+'.ogg'); if(!fs.existsSync
 const avg=x=>x.reduce((a,b)=>a+b,0)/x.length, med=x=>{ const s=[...x].sort((a,b)=>a-b), n=s.length; return n%2?s[n>>1]:(s[n/2-1]+s[n/2])/2 }, f1=v=>v===null||!isFinite(v)?'  -  ':v.toFixed(2).padStart(7);
 const rows={}; for(const [k,v] of Object.entries(M.slots)){ const g=v.group; if(!g||!(v.files||[]).length)continue; const ms=v.files.map(meas).filter(Boolean); if(!ms.length)continue; const gn=20*Math.log10(gainOf(k))+busDb(g);
   (rows[g]||(rows[g]=[])).push({k,gain:gainOf(k),mmax:avg(ms.map(q=>q.mmax))+gn,rms:avg(ms.map(q=>q.rms))+gn,int:ms.every(q=>q.int!==null)?avg(ms.map(q=>q.int))+gn:null,loop:/loop/.test(k)}) }
+const AD_LEVEL=new Set(['sting_boss']);   /* rc8.1: Audio Director's by-ear level (bc0600c, 0.35); reported, not gated */
 let fail=0; const meds={}; const fix=process.argv.includes('--fix');
 for(const g of Object.keys(rows).sort()){ const R=rows[g], mdM=med(R.map(r=>r.mmax)), mdR=med(R.map(r=>r.rms)); meds[g]=mdR; const T=TARGET[g], lo=LO[g]!==undefined?LO[g]:T-1, hi=HI[g]!==undefined?HI[g]:T+1;
   console.log(`\n== ${g}  (n=${R.length}, bus ${BUS[g]||'player'} ${busDb(g)} dB)  median net RMS ${mdR.toFixed(2)} · median net MMAX ${mdM.toFixed(2)} · target ${T===undefined?'-':T+' ['+lo+'..'+hi+']'}`);
   console.log('  slot                      gain     RMS   dTGT     MMAX');
-  for(const r of R.sort((a,b)=>a.rms-b.rms)){ const d=T===undefined?0:r.rms-T, bad=T!==undefined&&(r.rms<lo-.005||r.rms>hi+.005); if(bad)fail++;
+  for(const r of R.sort((a,b)=>a.rms-b.rms)){ const d=T===undefined?0:r.rms-T, bad=T!==undefined&&!AD_LEVEL.has(r.k)&&(r.rms<lo-.005||r.rms>hi+.005); if(bad)fail++;
     console.log(`  ${(bad?'!':' ')+r.k.padEnd(24)} ${r.gain.toFixed(3)} ${f1(r.rms)} ${f1(d)} ${f1(r.mmax)}`);
     if(fix&&T!==undefined&&Math.abs(d)>.25&&(r.rms<lo+.25||r.rms>hi-.25||Math.abs(d)>.9)){ const ng=+(r.gain*Math.pow(10,-d/20)).toFixed(4); sp=sp.replace(new RegExp('(^\\s{4}'+r.k+':\\s*\\{[^}]*?gain:\\s*)[\\d.]+','m'),'$1'+ng) } } }
 const ALLOW=new Set(['pistol22_suppressed']); let warn=0; console.log('\n== momentary-max report (warning only, Sound Helper Oct 20 03:45): clips > 4 dB from their group median MMAX');
