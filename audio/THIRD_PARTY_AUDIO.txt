@@ -1,4 +1,4 @@
-THIRD-PARTY AUDIO - Last Chopper Out: Quang Tri, 1968
+THIRD-PARTY AUDIO - Last Bird Out: Quang Tri, 1968
 ==================================================
 Updated 2026-10-14 (ET) from samples/ogg/ (198 files incl. 8 weather Legal PASS + 44 missing-sound files Legal PASS (radio_tune_1 ear check); each also ships as .m4a). Full source rows,
 page quotes and processing notes: samples/LICENSES.md. Licence audit: LICENSE_AUDIT.md.
@@ -829,9 +829,11 @@ music/music_briefing.ogg + music/music_briefing.m4a  (slot: briefing)
     Edit:   16-bar loop 22.200-62.200 s, level matched. Briefing only (Content ID pre-registered).
 
 music/music_extraction.ogg + music/music_extraction.m4a  (slot: extraction)
-    Source: "60s Garage Rock - Loop 1" by Abydos_Music (Pixabay)
-    Link:   https://pixabay.com/music/rock-60s-garage-rock-loop-1-238513/
-    Licence: Pixabay Content License (https://pixabay.com/service/terms/); no attribution required (courtesy credit given). No Content ID badge.
+    Source (2026-10-20): "The Thunderer" (J. P. Sousa, 1889) performed by the United States Marine Band (2017, cond. Lt Col Jason K. Fettig)
+    Courtesy: "The Thunderer" (John Philip Sousa, 1889), performed by "The President's Own" United States Marine Band (2017). Public domain. Use does not imply endorsement by the U.S. Marine Corps or DoD.
+    Link:   https://commons.wikimedia.org/wiki/File:Sousa%27s_%22The_Thunderer%22_-_United_States_Marine_Band_(2017).ogg
+    Licence: Public domain (U.S. government work). Courtesy credit. Legal PASS with conditions 2026-10-20 (no branding/store copy, no insignia). Edit: one strain 26.50-64.48 s, 37.98 s loop.
+    (Replaced "60s Garage Rock - Loop 1" by Abydos_Music, Content ID medium.)
     Edit:   the official loop edit, whole (MP3 padding trimmed), level matched.
 
 music/music_win.ogg + music/music_win.m4a  (slot: win; alias: dedication)
@@ -980,10 +982,20 @@ sting_over_1
 m3a1_burst_1..3  CLOSE STAND-IN from poissonmort #157206 Sten (CC BY 4.0, already credited above), pitched -2 st, ~450 rpm re-splice.
 m14_shot_1..3 from gezortenplotz #43756 (CC BY 3.0, already credited); thud_dirt uses FreqMan #43607 (CC BY 4.0, already credited); radio_pulse_1 uses LukaCafuka #760245 (CC0).
 
-=== DO NOT SHIP (PENDING Legal; /next/ only, never root/public) ===
+[PENDING Legal, /next/ only] Combat tiers 2-5, menu loop and menu intro (music/), Pixabay Content License (courtesy credit) / U.S. government work:
     combat_2: "60s Underground Organ Rock" by JuliusH (Pixabay)  https://pixabay.com/music/vintage-60s-underground-organ-rock-4209/
     combat_3: "Steampunk Garage" by Pixabay user 4379051 (Pixabay)  https://pixabay.com/music/rock-steampunk-garage-142325/
     combat_4: "Garage Rock" by NewEraMusic (Pixabay)  https://pixabay.com/music/rock-garage-rock-559346/
-    combat_5: "La Menteuse (garage punk instrumental)" by JoshuaHudesMusic (Pixabay)  https://pixabay.com/music/punk-la-menteuse-garage-punk-instrumental-201261/
-    menu_theme: "Zapatista garage punk instrumental" by JoshuaHudesMusic (Pixabay)  https://pixabay.com/music/rock-zapatista-garage-punk-instrumental-instrumental-201262/
+    combat_5: "Heavy Pizza Jam" by Ə (Petites Maisons / Jangwa Nook Records), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) - credit required. Source: https://freemusicarchive.org/music/e/heavy-pizza-jams/heavy-pizza-jam/ - edited (looped/trimmed). Legal PASS with conditions 2026-10-20. (Replaced La Menteuse, FAIL)
+    combat_4_alt (candidate, not shipped unless Blake swaps): "Rock Oco" by Ə (Petites Maisons / Jangwa Nook Records), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: https://freemusicarchive.org/music/e/heavy-pizza-jams/rock-oco/ - edited. Legal PASS with conditions 2026-10-20; credit required if used.
+    menu_theme: "Semper Fidelis" (J. P. Sousa) by the United States Marine Band (2016), public domain (U.S. government work), courtesy credit  https://commons.wikimedia.org/wiki/File:Sousa%27s_%22Semper_Fidelis%22_-_United_States_Marine_Band_(2016).ogg  (PASS; replaced Zapatista, FAIL)
     menu_intro: "When Johnny Comes Marching Home" by U.S. Navy Band Brass Quartet (Wikimedia Commons, U.S. government work, public domain)  https://commons.wikimedia.org/wiki/File:When_Johnny_Comes_Marching_Home_-_Brass_Quartet_-_United_States_Navy_Band.opus
+
+--- 2026-10-20: rto_down_sting, radio_key_in/out, radio_static_bed_loop, bandage_dressing (build_radio_oct20.py)  ** Legal PASS 2026-10-20 (LukaCafuka #760245 CC0 PASS; pdsounds STE-011 ear check still open) ** ---
+    rto_down_sting_1: VS Chamber Orchestra: Community Edition (Versilian Studios; Sam Gossner, Simon Dalzell), CC0 1.0, https://github.com/sgossner/VSCO-2-CE
+                      + LukaCafuka "Walkie-talkie end of transmission" (Freesound #760245, CC0) + pdsounds.org STE-011 (Stephan, public domain)
+    radio_key_in_1 / radio_key_out_1 / radio_static_bed_loop_1: LukaCafuka #760245 (CC0), JovianSounds "Radio sign-off squelch" (Freesound #524205, CC0),
+                      pdsounds.org STE-011 (public domain)
+    bandage_dressing_1-3: Luckius "Various paper sound effects" (OpenGameArt, CC0) https://opengameart.org/content/various-paper-sound-effects
+                      + OwlishMedia "202 More Sound Effects" (OpenGameArt, CC0) https://opengameart.org/content/202-more-sound-effects
+                      + OwlishMedia "Sound Effects Pack" / owlstorm "blanket movement 6" (Freesound #320144, CC0) https://opengameart.org/content/sound-effects-pack
