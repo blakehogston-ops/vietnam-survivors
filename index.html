@@ -3784,7 +3784,7 @@ function update(dt){
   // player
   let [ix,iy]=g.demo?[Math.cos(g.t*.45),Math.sin(g.t*.45)]:(DBG.bot?botMoveSafe():inputVec()); if(PB.inside()){ ix=0; iy=0 }
   p.mv=ix!==0||iy!==0; const sp=150*speedMul()*(p.slow>0?.5:1); if(p.slow>0)p.slow-=dt;
-  if(p.mv){ rvMove(p,ix*sp*dt,iy*sp*dt,'p'); p.anim+=dt*9;p.fx=ix;p.fy=iy}
+  if(p.mv){ const x0=p.x,y0=p.y; rvMove(p,ix*sp*dt,iy*sp*dt,'p'); p.anim+=dt*9;p.fx=ix;p.fy=iy; if(dt>0){ const v=Math.hypot(p.x-x0,p.y-y0)/dt; if(isFinite(v))g.dSpd=g.dSpd?g.dSpd*.95+v*.05:v } }   /* rc8: Doc's measured walk speed (px/s) for MoH timers + ?dbg=speed */
   if(p.invul>0)p.invul-=dt; if(p.hurtT>0)p.hurtT-=dt; if(g.treatT>0)g.treatT-=dt; if(g.hurt>0)g.hurt-=dt; if(g.muzzle>0)g.muzzle-=dt; if(g.bolt>0){ const b0=g.bolt; g.bolt-=dt; if(!Snd.cbus){ if(b0>.43&&g.bolt<=.43)Snd.play('boltA'); if(b0>.2&&g.bolt<=.2)Snd.play('boltB') } }
   if(regenR()>0&&p.hp<p.maxHp){p.hp=Math.min(p.maxHp,p.hp+regenR()*dt)}
   if(g.demo){p.hp=p.maxHp}
@@ -4148,6 +4148,9 @@ const AIS={ON:!/[?&]aismoke=0\b/.test(location.search),L:[],cd:30,
 /* Medal of Honor tribute calls (Blake approved Oct 14; DESIGN_QUANG_TRI.md line 13). Vietnam Vet signed off (Oct 14 night); quotes checked word for word against CMOHS. ON; ?moh=0 turns them off. Two optional calls per firebase defense, seeded order, skippable (they simply expire), no added men, the clock never pauses.
    Completing one gives XP and an 'In honor of' line on the end card: the MoH itself is never a reward, never farmable (once each per run, nothing saved).
    Quotes are verbatim from the official citations (CMOHS / NHHC / USMC History Division). Ballard is a LIVING recipient: 'in honor of' only, no memorial wording. Taylor (posthumous): 'in memory of'. Never imply Taylor was in Quang Tri. */
+/* rc8: character names live here only (swap = one line) */
+const NAMES={gunny:{rank:'GySgt',first:'Raymond',mi:'T.',last:'Mabry',home:'Lubbock, TX'},lt:{rank:'2ndLt',first:'Edward',mi:'J.',last:'Hollis',cs:'Golf Two-Six'},co:{rank:'Capt',first:'Patrick',last:"O'Malley",nick:'Skipper',cs:'Golf Six'}};
+const DBGSPD=/[?&]dbg=speed\b/.test(location.search);
 const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   C:{ballard:{lab:'IN HONOR OF',nm:'HM2 Donald E. Ballard',svc:'U.S. Navy',unit:'M Company, 3rd Battalion, 4th Marines',date:'16 May 1968 · Quang Tri Province',
       q:'"Observing a wounded marine, HC2c. Ballard unhesitatingly moved across the fire-swept terrain to the injured man and swiftly rendered medical assistance to his comrade."',
@@ -4173,7 +4176,7 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
         for(let k=1;k<=Math.ceil(D/24)&&okP;k++){ const u=k*24/D, sx=fbS.x+(x-fbS.x)*u, sy=fbS.y+(y-fbS.y)*u; if(riverAt(sx,sy)||!canWade(sx,sy,'p'))okP=false } }   /* objective must be reachable on foot in a straight line from the base */
       if(!okP){ this.next=g.t+20; this.q.unshift(k); return }
       for(let j=0;j<this.P.E;j++){ const a=rnd()*TAU, r=60+rnd()*90; try{ const n0=enemies.length; spawnEnemy(rnd()<.5?'vc':'nva',x+Math.cos(a)*r,y+Math.sin(a)*r); for(let q=n0;q<enemies.length;q++)enemies[q].mohA=1 }catch(e){} }   /* the pinned-down men are under fire: a small enemy group at the objective */
-      const dist=Math.hypot(x-fbS.x,y-fbS.y); this.cur={k,x,y,t:0,h:0,ph:'go',life:(+params.get('moht'))||Math.max(this.P.T,dist/150+this.C[k].hold+10,k==='taylor'?Math.max(30,dist/8/3.5):0)+4,dist};   /* go timer scales with distance: walk + hold + ~10 s to clear the ambush (fixed 11 s was unwinnable for players) */ this.card=6; try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} this.open(); (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
+      const dist=Math.hypot(x-fbS.x,y-fbS.y); this.cur={k,x,y,t:0,h:0,ph:'go',life:(+params.get('moht'))||Math.max(30,dist/Math.max(40,g.dSpd||150*speedMul()))+4,dist}   /* rc8 JPT/EP: every MoH = max(30 s, distance / Doc's measured walk speed) + 4 s */;   /* go timer scales with distance: walk + hold + ~10 s to clear the ambush (fixed 11 s was unwinnable for players) */ this.card=6; try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} this.open(); (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
     const c=this.cur; if(!c)return; if(!this.cardWait())this.card=Math.max(0,(this.card||0)-dt); if(!(c.ph==='go'&&this.card>0))c.t+=dt; this.alertT=Math.max(0,this.alertT-dt);
     if(!fbS){ this.end('baseLost'); return }
     if(this.away()&&this.integ()<.6&&!(this.alertT>0)){ this.alertT=6; g.banner={text:'FIREBASE '+(fbS.name||'')+' IS FALLING · GET BACK',t:2.6,col:'#ff6a4a'}; try{ Snd.play('radio') }catch(e){} }
@@ -4191,9 +4194,10 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
     this.card=0; state='mohcard'; $('mohCard').classList.add('show'); try{ $('mohGo').focus() }catch(e){} },
   choose(go){ if(state!=='mohcard')return; $('mohCard').classList.remove('show'); state='play'; try{ last=performance.now() }catch(e){} const c=this.cur; if(!c)return; if(go){ c.t=0; (G.mohLog||(G.mohLog=[])).push({k:c.k,t:+G.t.toFixed(1),ev:'go'}) } else this.end('stay') },
   cardWait(){ const b=G&&G.banner; return !!exMsg||mobIncoming()||!!(b&&b.t>0&&/STAGE|PHASE|BUNKER|FIREBASE/.test(b.text)) },   /* + never on the same frame as a stage banner */   /* rc7.1 queue: the MoH card waits for the Gunny card / INCOMING instead of overlapping them */
-  hud(U,W,H){ const c=this.cur; if(!c)return; const C=this.C[c.k], g=G, p=g.p;
+  hud(U,W,H){ const c=this.cur; if(DBGSPD&&G&&G.p){ txt('DOC '+Math.round(G.dSpd||0)+' px/s = '+((G.dSpd||0)/8).toFixed(1)+' m/s (HUD 8 px/m)'+(c?' · MoH '+Math.round(Math.hypot(c.x-G.p.x,c.y-G.p.y)/8)+' m':''),12*U,H-60*U,11*U,'#9be37a','left') } if(!c||state==='mohcard')return; const C=this.C[c.k], g=G, p=g.p;
     const go=c.ph==='go', ox=go?c.x:(fbS?fbS.x:p.x), oy=go?c.y:(fbS?fbS.y:p.y), dx=ox-p.x, dy=oy-p.y, d=Math.hypot(dx,dy); txt((go?(c.hot?'UNDER FIRE · CLEAR THE AREA TO TREAT HIM':'OPTIONAL · '+C.task):'RETURN TO THE FIREBASE')+'  '+Math.max(0,Math.ceil(c.life-c.t))+'s · '+Math.round(d/8)+'m',W/2,H*.86,13*U,go?'#f0d890':'#ffffff','center');
-    if(d>140){ const a=Math.atan2(dy,dx), R=Math.min(W,H)*.36, ax=W/2+Math.cos(a)*R, ay=Math.min(H/2+Math.sin(a)*R,H*.86-30*U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle=go?'#f0d890':'#ffffff'; ctx.globalAlpha=.85+.15*Math.sin(G.t*6); ctx.beginPath(); ctx.moveTo(16*U,0); ctx.lineTo(-8*U,-10*U); ctx.lineTo(-3*U,0); ctx.lineTo(-8*U,10*U); ctx.closePath(); ctx.fill(); ctx.restore() }
+    let padUp=false; try{ const T=exTarget(); padUp=!!T&&(T===G.ex.pad||T===G.ex.pre) }catch(e){}   /* rc8 JPT: one guidance arrow - the PICKUP PAD arrow wins (testers followed the MoH arrow the wrong way) */
+    if(d>140&&!padUp){ const a=Math.atan2(dy,dx), R=Math.min(W,H)*.36, ax=W/2+Math.cos(a)*R, ay=Math.min(H/2+Math.sin(a)*R,H*.86-30*U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle=go?'#f0d890':'#ffffff'; ctx.globalAlpha=.85+.15*Math.sin(G.t*6); ctx.beginPath(); ctx.moveTo(16*U,0); ctx.lineTo(-8*U,-10*U); ctx.lineTo(-3*U,0); ctx.lineTo(-8*U,10*U); ctx.closePath(); ctx.fill(); ctx.restore() }
     if(!(this.card>0)||this.cardWait())return; const a=Math.min(1,this.card,  (6-this.card)*3), w=Math.min(560*U,W*.9), h=150*U, x0=W/2-w/2, y0=H*.86-h-26*U; ctx.save(); ctx.globalAlpha=a*.92; ctx.fillStyle='#0d140d'; ctx.fillRect(x0,y0,w,h); ctx.strokeStyle='#8a7a40'; ctx.lineWidth=2; ctx.strokeRect(x0,y0,w,h); ctx.globalAlpha=a;
     const im=this.img(); if(im){ ctx.imageSmoothingEnabled=false; ctx.drawImage(im,x0+12*U,y0+14*U,im.width*2.4*U,im.height*2.4*U) } const tx=x0+(im?im.width*2.4*U+26*U:14*U), tw=x0+w-tx-12*U;
     txt(C.lab,tx,y0+20*U,11*U,'#b8a868','left'); txt(C.nm,tx,y0+40*U,17*U,'#f6f0cc','left'); txt(C.svc+' · '+C.unit,tx,y0+58*U,10*U,'#c8c8b0','left'); txt(C.date,tx,y0+73*U,10*U,'#c8c8b0','left');
@@ -4248,7 +4252,7 @@ const URG={ON:!/[?&]urg=0\b/.test(location.search), P:.3, CD:75, MAX:2, h:null, 
 /* KIA (Blake): a short, dignified notice when a Marine falls ("KIA: LCpl Ortiz"), muted typewriter style, queued, soft radio tone.
    Reinforcements get seeded, period-plausible fictional names (never real people). The end card lists the roll; urgent medevacs show as MEDEVAC. ?kia=0 off. */
 const KIA={ON:!/[?&]kia=0\b/.test(location.search), q:[], cur:null, t:0,
-  RK:['Pvt','PFC','PFC','PFC','LCpl','LCpl','Cpl','Sgt'], SN:['Alvarez','Becker','Carver','Dawson','Ellison','Fischer','Garza','Hollis','Ingram','Jaramillo','Kowalski','Lawson','Mendez','Novak','Oakes','Pruitt','Quinlan','Ramos','Sorensen','Tate','Underwood','Vance','Whitfield','Yates','Zamora','Abbott','Bishop','Coleman','Duarte','Embry'],
+  RK:['Pvt','PFC','PFC','PFC','LCpl','LCpl','Cpl','Sgt'], SN:['Alvarez','Becker','Carver','Dawson','Ellison','Fischer','Garza','Ingram','Jaramillo','Lawson','Mendez','Novak','Oakes','Quinlan','Ramos','Sorensen','Tate','Underwood','Vance','Whitfield','Yates','Zamora','Abbott','Bishop','Coleman','Duarte','Embry'],
   nameFor(m){ if(m.nm)return m.nm; const g=G, h=hash2((g.seedH|0)+7,(g.kiaN=(g.kiaN|0)+1)*131+(m.slot|0)); m.nm=this.RK[(h*this.RK.length)|0]+' '+this.SN[(hash2(h*1e4|0,3)*this.SN.length)|0]; return m.nm },
   reset(){ this.q.length=0; this.cur=null; this.t=0 },
   add(m){ const g=G; if(!this.ON||!g||g.demo)return; const nm=this.nameFor(m); (g.kiaL||(g.kiaL=[])).push(nm); try{ BARK.ev('down',{nm,x:m.x,y:m.y}) }catch(e){} this.q.push(nm); try{ Snd.play('pulse') }catch(e){} },
@@ -5935,7 +5939,7 @@ function heliDrop(h){ const f=fbS; if(!f)return;
     burst(h.x,h.y+8,14,80,.6,3,['#a8946a','#8a7a52'],false); Snd.play('thud'); if(f.state==='inbound'||f.state==='stalled')f.state='building'; G.banner={text:h.job==='build'?'ENGINEERS ON THE GROUND: BUILD STARTED':'ENGINEER REINFORCEMENTS LANDED',t:2.4,col:'#ffe58a'} }
   else { // helipad resupply
     const p=G.p; p.hp=Math.min(p.maxHp,p.hp+p.maxHp*.6); healAllies(.5); for(const s of strs)if(!s.dead&&s.b>=1)s.hp=Math.min(s.mhp,s.hp+s.mhp*.3); if(engs.length<4)engs.push(mkEng(h.x,h.y+12));
-    G.banner={text:'CH-46 RESUPPLY: AMMO, MEDICAL & ENGINEER',t:2.4,col:'#9be37a'}; ringBurst(h.x,h.y,40,['#7be37a','#fff'],20); Snd.play('heal') } }
+    G.banner={text:'CH-46 RESUPPLY INBOUND',t:2.4,col:'#9be37a'}; ringBurst(h.x,h.y,40,['#7be37a','#fff'],20); Snd.play('heal') } }
 function updateFbH(dt){ const h=fbH; if(!h)return; const p=G.p; h.t+=dt; h.rot+=dt*34;
   if(h.ph===0){ const dx=h.tx-h.x,dy=h.ty-h.y,d=Math.hypot(dx,dy)||1, sp=Math.min(340,50+d*1.15); h.x+=dx/d*sp*dt; h.y+=dy/d*sp*dt; h.hd=turnTo(h.hd,Math.atan2(dy,dx),3.5*dt); if(d<300)h.z+=(16-h.z)*Math.min(1,dt*1.6); if(d<16){ h.ph=1; h.lt=0 } }
   else if(h.ph===1){ h.lt+=dt; h.z+=(14-h.z)*Math.min(1,dt*3); if(!h.dropped&&h.lt>1.1){ h.dropped=true; heliDrop(h) } if(h.lt>(h.job==='build'?3.8:2.8)){ h.ph=2; h.ex=h.hd+(rnd()-.5)*1.2 } }
@@ -6054,7 +6058,7 @@ function drawSeaKnightLoad(c){ if(c.placed||c.ph>=2)return; const zc=Math.max(0,
 function drawCrate(x,y){ ctx.fillStyle='#6a4a26'; ctx.fillRect(x-9,y-10,18,14); ctx.fillStyle='#8a6a3a'; ctx.fillRect(x-9,y-10,18,3); ctx.fillStyle='#4a321a'; ctx.fillRect(x-9,y-3,18,1); ctx.fillRect(x-1,y-10,2,14); ctx.fillStyle='#d8d0a0'; ctx.fillRect(x-6,y-7,5,2); ctx.fillStyle='#c82020'; ctx.fillRect(x+3,y-7,3,3) }
 /* Firebase point: HOLD F (keyboard) / hold X (controller) inside the ground ring to call the engineers; touch: stand still in the ring */
 function fbHoldBusy(){ try{ const s=lzS||fbS; return !!(s&&s.hold>0&&s.hold<1) }catch(e){ return false } }
-addEventListener('keydown',e=>{ if(state!=='mohcard')return; if(e.code==='Enter'||e.code==='NumpadEnter'){ e.preventDefault(); e.stopImmediatePropagation(); MOH.choose(true) } else if(e.code==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); MOH.choose(false) } },true);
+addEventListener('keydown',e=>{ if(state!=='mohcard')return; if(e.code==='KeyX'||e.code==='KeyG'){ MOH.choose(false); return }   /* rc8 JPT: the card never swallows G / X - it closes (STAY) and the key goes through */ if(e.code==='Enter'||e.code==='NumpadEnter'){ e.preventDefault(); e.stopImmediatePropagation(); MOH.choose(true) } else if(e.code==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); MOH.choose(false) } },true);
 setTimeout(()=>{ try{ $('mohGo').onclick=()=>MOH.choose(true); $('mohStay').onclick=()=>MOH.choose(false) }catch(e){} },0);
 function fbHeld(){ const p=G.p; return !!(keys.KeyF||(PAD.on&&PAD.prev[PAD.BTN.X])||((COARSE.matches||DBG.bot)&&!p.mv)) }
 /* rc7 #2: the engineers prompt hides while an extraction pad is active within 260 px (it printed over the pad), ?fbpadhide=0 */
@@ -6112,7 +6116,7 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
     if(f.tier===1&&f.holdT>110){ f.tier=2; strs.push(mkStr('quad50',f.x,f.y-52,-Math.PI/2,1)); strs.push(mkStr('m2',f.x+104,f.y+10,0,1)); strs.push(mkStr('m2',f.x-104,f.y+10,Math.PI,1)); g.banner={text:'UPGRADE: QUAD-50 AA MOUNT & EXTRA M2s',t:2.6,col:'#ffe58a'} }
     else if(f.tier===2&&f.holdT>240){ f.tier=3; strs.push(mkStr('rr106',f.x-50,f.y+84,Math.PI/2,1)); strs.push(mkStr('m60',f.x,f.y-108,-Math.PI/2,1)); strs.push(mkStr('m60',f.x+110,f.y+108,Math.PI/2,1)); g.banner={text:'UPGRADE: SECOND 106mm RECOILLESS & M60 NESTS',t:2.6,col:'#ffe58a'} }
     // helipad resupply
-    if(f.padOk&&!fbH){ f.supT-=dt; if(f.supT<=0){ f.supT=50; const pad=strs.find(s=>s.type==='pad'&&!s.dead&&s.b>=1); if(pad){ callFbHeli('sup',pad.x,pad.y); annc('resup','huey',{text:'HUEY RESUPPLY INBOUND TO THE HELIPAD',t:2,col:'#9be37a'}) } } }
+    if(f.padOk&&!fbH){ f.supT-=dt; if(f.supT<=0){ f.supT=50; const pad=strs.find(s=>s.type==='pad'&&!s.dead&&s.b>=1); if(pad){ callFbHeli('sup',pad.x,pad.y); annc('resup','huey',{text:'CH-46 RESUPPLY INBOUND TO THE HELIPAD',t:2,col:'#9be37a'}) } } }
     // NVA armor
     f.tankT-=dt; if(f.tankT<=0&&f.age>=120&&(g.t>=420||g.p.lvl>=10)){ let nt=0; for(const e of enemies)if(e.tank&&!e.dead)nt++;
       const cap=Math.min(3,1+Math.floor((g.t-420)/300)); f.tankT=75+rnd()*35; if(nt<cap){ const k='pt76';   /* Vet: in 1968 the only enemy tank is the PT-76 - no T-54 */ const e=spawnNTank(k); if(e){ if(!f.log.tankAt)f.log.tankAt=+(f.age).toFixed(1); g.banner={text:k==='t54'?'NVA T-54 (ARTISTIC LICENSE) ADVANCING ON THE FIREBASE!':'NVA PT-76 LIGHT TANK ADVANCING ON THE FIREBASE!',t:3.2,col:'#ff6a4a'}; Snd.play('boss') } } } } }
@@ -6234,7 +6238,7 @@ function sqTrace(x,y,h,fr){ ctx.beginPath(); ctx.moveTo(x,y-h); let rem=Math.max
 function drawFbHud(U){ const g=G,p=g.p; ctx.setTransform(1,0,0,1,0,0);
   const bar=(label,pct,col,y)=>{ const bw=Math.min(380*U,W*.6),bx=W/2-bw/2; ctx.fillStyle='#0b140c'; ctx.fillRect(bx-3,y-3,bw+6,16*U+6); ctx.fillStyle='#26301f'; ctx.fillRect(bx,y,bw,16*U); ctx.fillStyle=col; ctx.fillRect(bx,y,bw*pct,16*U); txt(label,W/2,y+13*U,11*U,'#fff','center') };
   const f=fbS; let y=PY+((g.boss&&!g.boss.dead)?26*U:0);
-  if(f&&(f.state==='building'||f.state==='stalled'||f.state==='inbound')){ bar('FIREBASE '+f.name+' · '+(f.state==='stalled'?'STALLED':f.state==='inbound'?'HUEY INBOUND':'PHASE '+(Math.min(4,f.phase)+1)+'/5 '+FBPH[Math.min(4,Math.max(0,f.phase))])+' · '+Math.round(f.prog*100)+'%'+((f.prog>=.86&&!f.crateOk)?' · AWAITING HEAVY SUPPLIES':''),f.prog,f.state==='stalled'?'#a8442a':'#c9a13a',y); y+=22*U
+  if(f&&(f.state==='building'||f.state==='stalled'||f.state==='inbound')){ bar('FIREBASE '+f.name+' · '+(f.state==='stalled'?'STALLED':f.state==='inbound'?'CH-46 INBOUND':'PHASE '+(Math.min(4,f.phase)+1)+'/5 '+FBPH[Math.min(4,Math.max(0,f.phase))])+' · '+Math.round(f.prog*100)+'%'+((f.prog>=.86&&!f.crateOk)?' · AWAITING HEAVY SUPPLIES':''),f.prog,f.state==='stalled'?'#a8442a':'#c9a13a',y); y+=22*U
     { const bw=Math.min(380*U,W*.6), pw=bw/3, bx0=W/2-bw/2, cur=f.st.findIndex(v=>v==null);
       for(let k=0;k<3;k++){ const dn=f.st[k]!=null, cu=k===cur; ctx.fillStyle=dn?'#2f6a2a':cu?'#6a5a1c':'#242a20'; ctx.fillRect(bx0+k*pw+1,y,pw-2,14*U); ctx.strokeStyle=dn?'#9be37a':cu?'#ffe58a':'#4a5240'; ctx.lineWidth=1; ctx.strokeRect(bx0+k*pw+1,y,pw-2,14*U); txt((dn?'✔ ':cu?'▶ ':'')+(k+1)+' '+FBSTG[k],bx0+k*pw+pw/2,y+11*U,Math.max(8,9.5*U),dn?'#c8ffb4':cu?'#fff0b0':'#8a9080','center') } y+=19*U } }
   else if(f&&f.state==='done'){ txt('FIREBASE '+f.name+' · TIER '+f.tier+(f.padOk?' · HELIPAD':''),W/2,y+12*U,12*U,'#9be37a','center'); y+=18*U }
@@ -6649,7 +6653,7 @@ function drawSigLine(U,oy){ const g=G,p=g.p,ex=g.ex; if(!ex||g.demo)return; cons
 function drawExHud(U,camX,camY,tt){ const g=G,p=g.p,ex=g.ex; exStack=0; if(!ex||g.demo)return; ctx.setTransform(1,0,0,1,0,0);
   const bw=Math.min(W-16*U-(SA.l+SA.r)*DPR,430*U), bx=W/2-bw/2; let y=exTop(U);
   // edge arrow to the smoke / pad / bird when it is off screen
-  const T=exTarget(); if(T){ const sg=ex.ph>=1&&ex.ph<=2&&ex.sig, c=sg?SIGC[ex.sig.col==='white'?'yellow':ex.sig.col]:'#9be37a', dx=T.x-p.x,dy=T.y-p.y,d=Math.hypot(dx,dy), on=Math.abs(dx)<VW/2-40&&Math.abs(dy)<VH/2-40, big=(PADARR&&(T===ex.pad||T===ex.pre))?1.7+.12*Math.sin(performance.now()/160):ex.ph>=4?1.25:1, lab=sg?(ex.sig.kind==='mirror'?'MIRROR':ex.sig.kind==='flare'?'FLARE':'SMOKE'):ex.ph===5?'BIRD':'PAD';
+  const T=exTarget(); if(T){ const sg=ex.ph>=1&&ex.ph<=2&&ex.sig, c=sg?SIGC[ex.sig.col==='white'?'yellow':ex.sig.col]:'#9be37a', dx=T.x-p.x,dy=T.y-p.y,d=Math.hypot(dx,dy), on=Math.abs(dx)<VW/2-40&&Math.abs(dy)<VH/2-40, big=(PADARR&&(T===ex.pad||T===ex.pre))?1.7+.12*Math.sin(performance.now()/160):ex.ph>=4?1.25:1, lab=sg?(ex.sig.kind==='mirror'?'MIRROR':ex.sig.kind==='flare'?'FLARE':'SMOKE'):ex.ph===5?'BIRD':'PICKUP PAD';
     if(!on){ const a=Math.atan2(dy,dx), [ax,ay]=edgeArrow(a,U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); const tp=T===ex.pad||T===ex.pre; if(PADARR&&tp)ctx.translate(-8*U,0); ctx.fillStyle=(PADARR&&tp&&!sg)?'#fff6a0':c; ctx.strokeStyle='#000'; ctx.lineWidth=PADARR&&tp?5:4; ctx.beginPath(); ctx.moveTo(22*U*big,0); ctx.lineTo(-10*U*big,-14*U*big); ctx.lineTo(-10*U*big,14*U*big); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
       txt(lab+' '+Math.round(d/10)+'m',ax,ay+(ay>H/2?-22*U:30*U),13*U,c,'center') } }
   // Gunny radio box (colonel's style: black frame, silver bevel, navy panel, gold name)
@@ -6659,7 +6663,7 @@ function drawExHud(U,camX,camY,tt){ const g=G,p=g.p,ex=g.ex; exStack=0; if(!ex||
     const talking=m.t<m.text.length/40+.2, fr=talking?(1+Math.floor(tt*9)%2):0; if(GUNNY&&m.who!=='DOC'){ ctx.imageSmoothingEnabled=false; ctx.drawImage(GUNNY[m.who==='GUNNY'?fr:3],bx+8*U,y+7*U,pw,ph) } else if(m.who==='DOC'){ ctx.fillStyle='#1c2414'; ctx.fillRect(bx+8*U,y+7*U,pw,ph); ctx.fillStyle='#e8c030'; ctx.font='bold '+Math.round(11*U)+'px monospace'; ctx.textAlign='center'; ctx.fillText('HM3',bx+8*U+pw/2,y+7*U+ph*.6) }   /* Doc's own radio reply: no pilot portrait */
     ctx.strokeStyle='#c8c8c8'; ctx.lineWidth=1.5*U; ctx.strokeRect(bx+8*U,y+7*U,pw,ph);
     if(m.t<.5||Math.random()<.03){ ctx.fillStyle='rgba(255,255,255,.16)'; for(let i=0;i<20;i++)ctx.fillRect(bx+4+Math.random()*(bw-8),y+4+Math.random()*(bh-8),3*U,Math.random()*2*U+1) }
-    ctx.textAlign='left'; ctx.fillStyle='#e8c030'; ctx.fillText(HUDM.on?(m.who==='GUNNY'?'GUNNY':m.who==='DOC'?'DOC':m.who):m.who==='GUNNY'?'GySgt "GUNNY" HOLLIS, USMC':m.who==='DOC'?'DOC (YOU)':m.who,bx+pw+16*U,y+(HUDM.on?13:16)*U);
+    ctx.textAlign='left'; ctx.fillStyle='#e8c030'; ctx.fillText(HUDM.on?(m.who==='GUNNY'?'GUNNY':m.who==='DOC'?'DOC':m.who):m.who==='GUNNY'?(NAMES.gunny.rank+' '+NAMES.gunny.last).toUpperCase()+', USMC':m.who==='DOC'?'DOC (YOU)':m.who,bx+pw+16*U,y+(HUDM.on?13:16)*U);
     ctx.fillStyle='#f6f6e6'; const shown=Math.floor(m.t*40); let idx=0; const full=m.text; lines.forEach((L,i)=>{ const at=Math.max(idx,full.indexOf(L,idx)); const part=L.slice(0,Math.max(0,shown-at)); ctx.fillText(part,bx+pw+16*U,y+(HUDM.on?(26+i*12):(32+i*15))*U); idx=at+L.length });   /* RC5.1: find each wrapped line in the text (double spaces no longer shift the typewriter) */
     ctx.globalAlpha=1; y+=bh+4*U }
   exStack=y-exTop(U) }
