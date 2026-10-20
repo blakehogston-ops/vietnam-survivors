@@ -3127,10 +3127,10 @@ function dropGem(x,y,v,type){ if(gems.length>220){addXp(v);return} gems.push({x:
 const MED={chance:.05,pity:45,gap:16,cap:3,life:40,blink:6,heal:.17,inv:5,self:.35,mate:.6,reach:110};
 /* Blake Oct 20: med packs go in Doc's pouch (max 5). H = use on yourself, Q = patch the most hurt Marine within reach (RTO first) */
 function useMed(mate){ const g=G; if(!g||g.demo||state!=='play'||!(g.medInv>0))return false; const p=g.p; const now=performance.now(); if(now-(g.medLock||0)<400)return false; g.medLock=now;   /* RC2: H+Q together use one dressing, never two */
-  if(!mate){ if(p.maxHp-p.hp<1){ g.medLock=0; ftexts.push({x:p.x,y:p.y-18,t:0,s:'FULL HEALTH',c:'#cfcfb0'}); return false } const amt=Math.round(p.maxHp*MED.self), got=Math.min(amt,p.maxHp-p.hp); p.hp+=got; g.med.healed+=got; g.medInv--;
+  if(!mate){ if(p.maxHp-p.hp<1){ g.medLock=0; medLabel(p,'FULL HEALTH'); return false } const amt=Math.round(p.maxHp*MED.self), got=Math.min(amt,p.maxHp-p.hp); p.hp+=got; g.med.healed+=got; g.medInv--;
     ftexts.push({x:p.x,y:p.y-18,t:0,s:'+'+Math.max(1,Math.round(got))+' HP',c:'#8cf08c'}); burst(p.x,p.y,6,40,.4,2,['#c8c8b8','#8a9a6a'],true); DRESS_SND(); return true }
   const b=medTarget();
-  if(!b){ g.medLock=0; ftexts.push({x:p.x,y:p.y-18,t:0,s:'NO WOUNDED IN REACH',c:'#cfcfb0'}); return false } const amt=Math.round(b.mhp*MED.mate), got=Math.min(amt,b.mhp-b.hp); b.hp+=got; g.medInv--; g.medMates=(g.medMates|0)+1;
+  if(!b){ g.medLock=0; medLabel(p,'NO WOUNDED IN REACH'); return false } const amt=Math.round(b.mhp*MED.mate), got=Math.min(amt,b.mhp-b.hp); b.hp+=got; g.medInv--; g.medMates=(g.medMates|0)+1;
   ftexts.push({x:b.x,y:b.y-22,t:0,s:'+'+Math.round(got)+' '+(b.nm||'MARINE'),c:'#8cf08c'}); burst(b.x,b.y,6,40,.4,2,['#c8c8b8','#8a9a6a'],true); DRESS_SND(); return true }
 function DRESS_SND(){ try{ if(SAMP.ready()&&SamplePlayer.hasSample('bandage_dressing')){ MIX.as('special',()=>SamplePlayer.bandage({vol:.9})); return } }catch(e){} Snd.play('heal') }   /* battle-dressing foley (sound_pack Oct 20, Legal PASS); synth heal as fallback */
 function medDrop(e){ const g=G, m=g.med; if(!m||g.demo||e.type!=='nva')return; m.dry++; if(g.t<m.nextT||medpacks.length>=MED.cap)return;
@@ -3145,7 +3145,11 @@ function killEnemy(e){ e.dead=true; G.kills++; medDrop(e);
 function addXp(v){ const p=G.p; p.xp+=v*(1+(G.xpB||0)+.1*(G.ps.fm|0)); while(p.xp>=p.need){p.xp-=p.need;p.lvl++;p.need=xpNeed(p.lvl);G.pending++;} }
 /* last damage source (QA/Gamer): hurtPlayer(dmg, src). G.lastHit = most recent hit, G.hs = total damage taken per source */
 const ESRC=e=>e.boss?('boss '+(e.name||'')).trim():e.tank?'NVA tank':({vc:'VC melee',nva:'NVA melee',officer:'NVA officer melee',sapper:'sapper blast',rpgt:'B-40 trooper melee',rpg:'RPG gunner melee'}[e.type]||((e.type||'enemy')+' melee'));
-function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return; if(DBG.bot){ const D=G.dmgBy||(G.dmgBy={}), k=String(src||'?').slice(0,24); D[k]=(D[k]||0)+dmg } if(G.ex&&G.ex.ph===4)dmg*=INB_DM; if(G.ex&&G.ex.divert)dmg*=.5; { const D=CHD[G.char], q=parseFloat(params.get('herodr')); const dr=isFinite(q)&&G.char!=='doc'?q:(D&&D.base&&D.base.dr)||0; if(dr)dmg*=1-dr }   /* per-hero survivability (Blake Oct 15: non-Doc heroes survive about as well as Doc; Doc has dr 0) */ if(G.ex&&(G.ex.ph===4||G.ex.ph===5))dmg*=.75;   /* bird inbound/landed: pressure lives in the hold (ph 3); the last 30 s stays tough but survivable */ if(PB.inside())dmg*=PB.DMG; if(src==='RPG/B-40 rocket'&&!PACE.mass(G))dmg*=.5;   /* early levels: B-40 is a threat cue, not a one-shot on Doc */ dmg=Math.max(1,Math.round(dmg*armorMul()*(1+holdT(G)/900))); src=src||'unknown'; PAD.rumble(120,Math.min(1,.25+dmg/40),.3);
+const PADMOR=!/[?&]padmor=0\b/.test(location.search);
+const YHALF=!/[?&]yhalf=0\b/.test(location.search);
+const MEDLBL=!/[?&]medlbl=0\b/.test(location.search);   /* rc6d: one 'FULL HEALTH'/'NO WOUNDED IN REACH' label at a time, 1 s debounce (?medlbl=0 = old stacking) */
+function medLabel(p,s){ if(MEDLBL){ const g=G; if(g.medLblT!=null&&g.t-g.medLblT<1)return; g.medLblT=g.t; for(let i=ftexts.length-1;i>=0;i--)if(ftexts[i].s==='FULL HEALTH'||ftexts[i].s==='NO WOUNDED IN REACH')ftexts.splice(i,1) } ftexts.push({x:p.x,y:p.y-18,t:0,s,c:'#cfcfb0'}) }
+function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return; if(DBG.bot){ const D=G.dmgBy||(G.dmgBy={}), k=String(src||'?').slice(0,24); D[k]=(D[k]||0)+dmg } if(G.ex&&G.ex.ph===4)dmg*=INB_DM; if(YHALF&&G.ex&&G.ex.confAt!=null&&G.ex.ph>=4&&G.ex.ph<=5)dmg*=.5;   /* rc6d: half damage from the smoke confirm (Y) until the lift (?yhalf=0) */ if(G.ex&&G.ex.divert)dmg*=.5; { const D=CHD[G.char], q=parseFloat(params.get('herodr')); const dr=isFinite(q)&&G.char!=='doc'?q:(D&&D.base&&D.base.dr)||0; if(dr)dmg*=1-dr }   /* per-hero survivability (Blake Oct 15: non-Doc heroes survive about as well as Doc; Doc has dr 0) */ if(G.ex&&(G.ex.ph===4||G.ex.ph===5))dmg*=.75;   /* bird inbound/landed: pressure lives in the hold (ph 3); the last 30 s stays tough but survivable */ if(PB.inside())dmg*=PB.DMG; if(src==='RPG/B-40 rocket'&&!PACE.mass(G))dmg*=.5;   /* early levels: B-40 is a threat cue, not a one-shot on Doc */ dmg=Math.max(1,Math.round(dmg*armorMul()*(1+holdT(G)/900))); src=src||'unknown'; PAD.rumble(120,Math.min(1,.25+dmg/40),.3);
   { const W5=G.dw5||(G.dw5=[]); while(W5.length&&G.t-W5[0][0]>5)W5.shift(); let sum=0; for(const q of W5)sum+=q[1]; dmg=Math.min(dmg,Math.max(0,Math.round(p.maxHp*.4-sum))); if(dmg<=0){ p.invul=.2; return } W5.push([G.t,dmg]) }   /* RC2 (Gamer): Doc loses at most 40% max HP in any 5 s window */
   G.lastHit={src,dmg,t:G.t}; (G.hs||(G.hs={}))[src]=(G.hs[src]||0)+dmg;
   p.hp-=dmg; p.invul=.45; p.hurtT=.18; G.hurt=.5; G.shake=Math.max(G.shake,9); Snd.play('hurt');
@@ -3208,7 +3212,8 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
   spareDoc(g){ const p=g.p, ex=g.ex, c=ex&&ex.call; return p.hp<p.maxHp*.25||state!=='play'||!!(c&&(c.st==='wait'||c.st==='ask'||c.st==='popped'))||this.thrown.length>0||enemies.some(e=>e.arm>0&&!e.dead) },
   warn(g){ g.banner={text:'INCOMING! '+(this.CAL?this.cal+'MM':''),t:1.8,col:'#ff6a4a'}; g.shake=Math.max(g.shake,2);
     try{ if(SAMP.ready()&&SamplePlayer.hasSample('mortar_incoming'))MIX.as('special',()=>SamplePlayer.play('mortar_incoming')); else Snd.play('mortar') }catch(er){} },
-  land(q){ const g=G,p=g.p, l60=q.cal===60, R=this.BR*(l60?.8:1), e=this.esc(g)*(l60?.7:1); this.log.shells++; EXIMP=1; try{ SAMP.impact('mortar') }catch(er){} explode(q.x,q.y,R,40,200); EXIMP=0;
+  padSafe(q){ const ex=G.ex; if(!PADMOR||!ex||!ex.pad||!(ex.ph===5||(ex.ph===4&&ex.t>=EX.INBOUND-20)))return; const R=EX.PAD_R+this.BR+8, dx=q.x-ex.pad.x, dy=q.y-ex.pad.y, d=Math.hypot(dx,dy); if(d>=R)return; const a=d>1?Math.atan2(dy,dx):rnd()*TAU; q.x=ex.pad.x+Math.cos(a)*R; q.y=ex.pad.y+Math.sin(a)*R },   /* rc6d: no mortar on/near the pad from 20 s before touchdown to the lift - in-flight + telegraphed rounds walk off (?padmor=0) */
+  land(q){ this.padSafe(q); const g=G,p=g.p, l60=q.cal===60, R=this.BR*(l60?.8:1), e=this.esc(g)*(l60?.7:1); this.log.shells++; EXIMP=1; try{ SAMP.impact('mortar') }catch(er){} explode(q.x,q.y,R,40,200); EXIMP=0;
     if(window.VFX_IMPACT)try{ VFX_IMPACT.impact('mortar',q.x,q.y,{cx:p.x,cy:p.y}) }catch(er){}
     if(Math.hypot(p.x-q.x,p.y-q.y)<R)hurtPlayer((12+8*e)*(l60?.75:1),q.cal?q.cal+'mm mortar round':'mortar round');
     for(const m of coy)if(m.hp>0&&m.state==='ok'&&Math.hypot(m.x-q.x,m.y-q.y)<R)hurtMember(m,(26+14*e)*(l60?.75:1)) },
@@ -3256,7 +3261,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
   tick(dt){ const g=G; if(!g||g.demo||!g.char)return;
     if(this.whT&&g.t>=this.whT){ this.whT=0; this.warn(g) } if(this.sapAt&&g.t>=this.sapAt){ this.sapAt=0; if(state==='play')this.sappers(g) }
     for(let i=this.thrown.length-1;i>=0;i--){ const q=this.thrown[i]; q.t+=dt; if(q.t>=q.d+q.f){ this.blast(q.tx,q.ty); this.thrown.splice(i,1) } } for(const d of this.dead)d.t+=dt;
-    for(let i=this.shells.length-1;i>=0;i--){ const q=this.shells[i]; q.t+=dt; if(q.t>=q.d){ this.land(q); this.shells.splice(i,1) } }
+    for(let i=this.shells.length-1;i>=0;i--){ const q=this.shells[i]; q.t+=dt; this.padSafe(q); if(q.t>=q.d){ this.land(q); this.shells.splice(i,1) } }
     const ex=g.ex; if(this.XC&&ex&&ex.ph===0&&!ex.padPlan){ if(this.SMB&&ex.pre&&!g.demo){ ex.preBad=PADLANE&&!laneOk(g.p.x,g.p.y,ex.pre.x,ex.pre.y)?(ex.preBad||0)+(1/60):0 }   /* no straight lane from Doc for 2 s -> re-mark a reachable pad */
       if(this.SMB&&g.t>=this.XMIN&&!g.demo&&(!ex.pre||ex.preBad>2||Math.hypot(ex.pre.x-g.p.x,ex.pre.y-g.p.y)>900)){ ex.preBad=0; const a=rnd()*TAU; ex.pre=pickLz(g.p.x+Math.cos(a)*200,g.p.y+Math.sin(a)*200) }   /* rc6b blocker 1: the first call pops smoke ON a marked pad, shown from 3:30 */
       if(g.t>=this.XMIN&&!ex.xr){ ex.xr=1; g.banner={text:'EXTRACTION AVAILABLE · POP SMOKE WHEN READY',t:3.4,col:'#9be37a'};
@@ -3287,7 +3292,7 @@ const EARLY=!/[?&]early=0\b/.test(location.search);
 const QAHP=Math.max(0,Math.min(100,+params.get('qahp')||0));
 const FTSTACK=!/[?&]ftstack=0\b/.test(location.search);
 const PADLANE=!/[?&]padlane=0\b/.test(location.search);
-const PADSPREAD=/[?&]padspread=0\b/.test(location.search)?0:(+params.get('padspread')||.75); const PSDOC=+params.get('psdoc')||4;
+const PADSPREAD=/[?&]padspread=0\b/.test(location.search)?0:(+params.get('padspread')||.9); const PSDOC=+params.get('psdoc')||2;   /* rc6d: 10% of Marine-targeted shots go to Doc (was 25%), x2 hit (was x4) / x0.8 after 5:30 (was x1.6) */
 const LATE6=/[?&]late6=0\b/.test(location.search)?0:(+params.get('late6')||.7);   /* rc6: rifle hits on Doc x0.7 after 6:00 while holding for the bird (?late6=0 off, ?late6=X tune) */   /* Gamer rc6 #5: gentler 1:00-4:30 + guaranteed lulls (?early=0 off) */
 const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.1,HOLD_DOC:+(new URLSearchParams(location.search).get('holddoc')||.18),M_TGT:.6,M_HIT:.4,M_DMG:38,SHOT_DMG:4,COVER_DR:.4,RET_AT:.25,
   mass(g){ return (g.p.lvl|0)>=this.MASS_LV||(g.massT>0) },
