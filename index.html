@@ -3336,7 +3336,7 @@ const FT={
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
     if(onScreen(e,8)){ SAMP.shooter=e.type; MIX.as('enemy',()=>Snd.play('vcshot'),d) }
     if(mt){ g.ftMs=(g.ftMs|0)+1; if(rnd()<PACE.M_HIT*(1-d/700)){ g.ftMh=(g.ftMh|0)+1; hurtMember(mt,PACE.M_DMG*(1+(g.p.lvl|0)*.05)) } return }
-    if(rnd()<PACE.SHOT_HIT*(EARLY?(g.t<270?.75:1):(g.t<165?1.15:1))*(1-d/700)*lateFire(g)*(LATE6&&g.t>360?LATE6:1)*(rd&&!mt?PSDOC:1))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
+    if(rnd()<PACE.SHOT_HIT*(EARLY?(g.t<270?.75:1):(g.t<165?1.15:1))*(1-d/700)*lateFire(g)*(LATE6&&g.t>360?LATE6:1)*(rd&&!mt?(g.t<330?PSDOC:PSDOC*.4):1))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
 /* early levels: the pad hold is a stand-up firefight, not a siege (Blake Oct 14) */
 const HOLD_EARLY={MUL:.65,CAP:26};
 function holdT(g){ return Math.max(0,g.t-(EX_CALL-30)) }   /* hold waves keyed to the old 0:30-call timeline, so a later call isn't a bigger siege */
