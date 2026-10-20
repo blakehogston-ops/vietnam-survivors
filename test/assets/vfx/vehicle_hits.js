@@ -12,7 +12,7 @@
  *          'heli_down' helicopter shot down: airburst (VFX_EXPLOSIONS 'vehicle' at altitude), 2-4 rotor blades flying, smoking/burning fall,
  *                  then big wreck explosion + a burning wreck emitter. opts: {z (alt, default 34), vx, vy (drift px/s), follow: obj with x,y,z
  *                  (e.g. the game's crash object) instead of the built-in fall, id (emitter id for the wreck), wreckLife (s, default 30; 0 = forever)}
- *          'boat'  splinters + water splash. opts.hull: 'fiberglass' (PBR, default) | 'wood' (sampan) | 'steel' (Zippo monitor / LCM: sparks)
+ *          'boat'  splinters + water splash. opts.hull: 'fiberglass' (PBR, default) | 'wood' (sampan) | 'steel' (flame monitor / LCM: sparks)
  *          'he'    HE/mortar near-miss on a vehicle: frag spray + dust (no decal)
  *   target: the vehicle object (optional). Hull decals follow target.x/target.y (offset kept from the hit point); null = fixed decal.
  *   angle:  incoming round heading (radians, 0 = +x).   opts.z height of the hit point (default 6 armour, 34 helicopters), opts.big (x1.5).
@@ -123,7 +123,7 @@
   }
   function detach(id) { var e = find(id); if (e) e.on = false; }
   function emitE(e, dt) {
-    var fx = e.fol ? e.fol.x : e.x, fy = e.fol ? e.fol.y : e.y, fz = e.fol && e.fol.z != null ? e.fol.z : (e.heli ? 34 : 0), x = fx + e.ex, y = fy + e.ey + (e.heli ? 0 : 0), z = fz, lv = e.lv;
+    var fx = e.fol ? e.fol.x : e.x, fy = e.fol ? e.fol.y : e.y, fz = e.fol && e.fol.z != null ? e.fol.z : (e.heli ? 34 : 0), x = fx + e.ex, y = fy + e.ey + (e.heli ? 0 : 0), z = fz, lv = e.lv; e.px = x; e.py = y; e.pz = z; e.vx = e.fol && e.fol.vx || 0;
     var rates = e.heli ? [[0.05, 0, 0], [0.025, 0.03, 0], [0.04, 0.06, 0], [0.06, 0.1, 0]][Math.min(3, lv - 1)] : [[0.07, 0, 0], [0.05, 0.05, 0], [0.04, 0.035, 0.2], [0.06, 0.09, 0.4]][lv - 1];
     e.acc[0] += dt; e.acc[1] += dt; e.acc[2] += dt;
     var sh = lv === 1 ? (e.heli ? 1 : 0) : 2;
@@ -167,14 +167,19 @@
       if (q.t < 1.2 && q.v) { ctx.globalAlpha = (1 - q.t / 1.2) * fade; ctx.fillStyle = '#ff8a2a'; ctx.fillRect(SX(q.x) - sc, SY(q.y) - sc, 2 * sc, 2 * sc); } }
     if (L === 'hull') { ctx.globalAlpha = pA; ctx.imageSmoothingEnabled = pS; return; }
     var Ex = EXP(); if (Ex) for (var b = 0; b < BM; b++) { var o = B[b]; if (o.on) { ctx.globalAlpha = pA; Ex.draw(ctx, o.kind, SX(o.x), SY(o.y, o.z), o.t, sc); } }
+    // rc8 flame_shared: one drawFire per burning emitter (level 2 fire, 3 cook-off, 4 burning wreck) replaces the 7x11 pixel FIRE particles
+    var SF = root.VFX_FLAME && root.VFX_FLAME.drawFire ? root.VFX_FLAME : null;
+    if (SF) for (var ei = 0; ei < EM; ei++) { var em = E[ei]; if (!em.on || em.lv < 2 || em.px == null) continue; var fw = (em.lv >= 4 ? 24 : em.lv === 3 ? 20 : 14) * (em.heli ? 0.8 : 1);
+      ctx.globalAlpha = pA; SF.drawFire(ctx, { x: SX(em.px), y: SY(em.py, em.pz) + sc, w: fw * sc, h: fw * (em.lv === 3 ? 1.5 : 1.25) * sc, intensity: em.lv === 2 ? 0.7 : em.lv === 3 ? 1 : 0.85, t: em.t, wind: -(em.vx || 0) * (em.heli ? 1 : 0.3), seed: ei * 131 + 7, smoke: false, embers: em.lv === 3 ? 1 : 0.5 }); }
     // smoke + fire first (behind sparks)
     for (var i = 0; i < PM; i++) { var p = P[i]; if (!p.on) continue; var k = p.t / p.life;
+      if (p.k === SMOKE && SF && p.c === 2) { var ws = 9 * sc * (p.s + (p.s1 - p.s) * Math.sqrt(k)) * 1.9; SF.drawSmoke(ctx, SX(p.x), SY(p.y, p.z), ws, 0.26 * (1 - k * 0.9) * (k < 0.15 ? k / 0.15 : 1), i); continue; }   // fire smoke -> oily black (flame_shared)
       if (p.k === SMOKE) { var pi = puff(sc, p.c); if (!pi) continue; var w2 = Math.max(sc, Math.round(9 * sc * (p.s + (p.s1 - p.s) * Math.sqrt(k))));
         ctx.globalAlpha = (p.c === 2 ? 0.85 : 0.7) * (1 - k * 0.85) * (k < 0.1 ? k / 0.1 : 1); ctx.drawImage(pi, SX(p.x) - (w2 >> 1), SY(p.y, p.z) - (w2 >> 1), w2, w2); }
-      else if (p.k === FIRE) { var fi = flame(sc, (i + ((p.t * 12) | 0)) % 3); if (!fi) continue; var fs = Math.max(0.4, p.s * (1 - k * 0.6)), fw = Math.round(fi.width * fs), fh = Math.round(fi.height * fs);
+      else if (p.k === FIRE) { if (SF) continue; var fi = flame(sc, (i + ((p.t * 12) | 0)) % 3); if (!fi) continue; var fs = Math.max(0.4, p.s * (1 - k * 0.6)), fw = Math.round(fi.width * fs), fh = Math.round(fi.height * fs);
         ctx.globalAlpha = k < 0.7 ? 1 : (1 - k) / 0.3; ctx.drawImage(fi, SX(p.x) - (fw >> 1), SY(p.y, p.z) - fh, fw, fh); } }
     ctx.globalAlpha = pA;
-    for (var j = 0; j < PM; j++) { var r = P[j]; if (!r.on || r.k === SMOKE || r.k === FIRE) continue; var kk = r.t / r.life, x0 = SX(r.x), y0 = SY(r.y, r.z);
+    for (var j = 0; j < PM; j++) { var r = P[j]; if (!r.on || r.k === SMOKE || r.k === FIRE || (SF && r.k === EMBER)) continue; var kk = r.t / r.life, x0 = SX(r.x), y0 = SY(r.y, r.z);
       switch (r.k) {
         case SPARK: case MOLTEN: case EMBER: {
           var hotc = r.k === MOLTEN ? (kk < 0.3 ? '#ffe9a0' : kk < 0.6 ? '#ff9a2a' : '#b8401a') : r.k === EMBER ? (kk < 0.5 ? '#ffb040' : '#c8501c') : (kk < 0.35 ? '#fffbe0' : kk < 0.7 ? '#ffd050' : '#ff8a2a');

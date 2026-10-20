@@ -26,6 +26,20 @@ const PR={on:false,t:0,ctx:null,r:{}}; function PM(n){ if(!PR.on)return; PR.ctx.
 const S={w:0,h:0,low:false,hour:12,rain:0,haze:1,t:0,g:null,gk:'',
   L:[],nL:0, F:[],D:[],R:[],P:[],
   lm:null,lmx:null,ls:2, vig:null,grain:[],gp:[],sheen:null,mist:null,spr:{},flareSpr:null,chute:null,perf:{last:0,avg:0,n:0}};
+/* atmo-1.2 (perf rc8): quality tiers. Q.ls light-map scale, Q.bloom additive light sprites, Q.lights max lights fed to the map, Q.grain film grain, Q.sat saturation/veil pass, Q.dust motes, Q.shadows max flare shadows */
+const QT={high:{poolMax:160,ls:4,bloom:32,lights:160,grain:2,sat:true,dust:70,shadows:240,mistBands:3},med:{poolMax:160,ls:6,bloom:16,lights:80,grain:1,sat:true,dust:40,shadows:90,mistBands:2},low:{ls:6,bloom:10,lights:40,grain:0,sat:true,dust:20,shadows:40,mistBands:1,poolMax:160,blastGlow:true}};
+let Q=QT.high, QN='high';
+/* rc8 perf A (Lead-approved, AD-approved): while a strike is on screen, HIGH eases to the MED light budget. setStrikeMix(f), f 0..1 (game fades it over ~0.5 s).
+   bloom/lights/shadows/dust are lerped (counts ramp, no pop); light-map scale + mist bands swap at f=.5 using a pre-built second light map (no re-init, no allocation per frame). */
+const QH0=Object.assign({},QT.high); let SMIX=0;
+function setStrikeMix(f){ f=f>0?(f<1?f:1):0; if(QN!=='high'){ if(SMIX){ SMIX=0; Object.assign(QT.high,QH0) } return api } if(f===SMIX)return api; SMIX=f;
+  const H=QT.high, M=QT.med; for(const k of ['bloom','lights','shadows','dust'])H[k]=Math.round(QH0[k]+(M[k]-QH0[k])*f); H.mistBands=f>=.5?M.mistBands:QH0.mistBands;
+  if(S.w){ const ls=Math.max(f>=.5?M.ls:QH0.ls,S.low?6:4); if(ls!==S.ls){ const C=S.lmC||(S.lmC={}); C[S.ls]={lm:S.lm,lmx:S.lmx};
+    let e=C[ls]; if(!e||e.lm.width!==Math.ceil(S.w/ls)||e.lm.height!==Math.ceil(S.h/ls)){ const lm=mk(Math.ceil(S.w/ls),Math.ceil(S.h/ls)); e=C[ls]={lm,lmx:lm.getContext('2d')} }
+    S.ls=ls; S.lm=e.lm; S.lmx=e.lmx } }
+  return api }
+const GL=[]; for(let i=0;i<12;i++)GL.push({on:false,x:0,y:0,a:0});   /* LOW blast glows (Art Director): one cached warm sprite per active blast */
+function addBlastGlow(x,y,a){ if(!Q.blastGlow)return; for(const g of GL) if(!g.on){ g.on=true; g.x=x; g.y=y; g.a=a; return } }
 const MAXL=160, MAXF=8, MAXD=70, MAXR=360, MAXP=140, MAXW=64, MAXU=60;
 S.W=[]; S.U=[]; for(let i=0;i<MAXW;i++)S.W.push({on:false,x:0,y:0,r:0}); for(let i=0;i<MAXU;i++)S.U.push({on:false,x:0,y:0,t:0,life:0,s:0,vx:0,vy:0});
 for(let i=0;i<MAXL;i++)S.L.push({x:0,y:0,r:0,c:'#fff',i:0,ttl:0,t0:0,on:false});
@@ -47,13 +61,13 @@ function buildGrade(){ const G=S.cur, m=G.mul, l=(m[0]*.3+m[1]*.59+m[2]*.11), k=
   { const v=S.rain>0?[112,112,104]:[150,136,108]; S.veilCss=`rgba(${v[0]},${v[1]},${v[2]},${(G.sat*.22).toFixed(3)})` }
   const key=(S.rain*10|0)+'|'+S.low; if(key!==S.gk){ S.gk=key; buildScreen() } }
 /* screen composite (cached): vignette + wet sheen (rain) + film grain, 2 grain frames alternated with integer jitter */
-function buildScreen(){ const w=S.w,h=S.h; S.scr=S.scr||[]; const n=S.low?1:2;
+function buildScreen(){ const w=S.w,h=S.h; S.scr=S.scr||[]; const n=Math.max(1,Math.min(S.low?1:2,Q.grain||1));
   for(let k=0;k<n;k++){ const c=S.scr[k]&&S.scr[k].width===w+64?S.scr[k]:(S.scr[k]=mk(w+64,h+64)), x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height);
-    if(!S.low){ x.globalAlpha=.10; for(let yy=0;yy<c.height;yy+=128)for(let xx=0;xx<c.width;xx+=128)x.drawImage(S.grain[(k*2+((xx+yy)>>7))&3],xx,yy); x.globalAlpha=1 }
+    if(!S.low&&Q.grain>0){ x.globalAlpha=.10; for(let yy=0;yy<c.height;yy+=128)for(let xx=0;xx<c.width;xx+=128)x.drawImage(S.grain[(k*2+((xx+yy)>>7))&3],xx,yy); x.globalAlpha=1 }
     if(S.rain>0){ x.fillStyle=`rgba(118,124,124,${(.10*S.rain).toFixed(3)})`; x.fillRect(0,0,c.width,c.height); x.globalAlpha=.7*S.rain; for(let yy=0;yy<c.height;yy+=256)for(let xx=0;xx<c.width;xx+=256)x.drawImage(S.sheen,xx,yy); x.globalAlpha=1 }
     x.drawImage(S.vig,32,32) } S.scr.length=n }
-function init(w,h){ S.w=w|0; S.h=h|0; S.g=true; S.gk=''; S.scr=null;
-  S.ls=S.low?6:4; S.lm=mk(Math.ceil(w/S.ls),Math.ceil(h/S.ls)); S.lmx=S.lm.getContext('2d');
+function init(w,h){ S.w=w|0; S.h=h|0; S.g=true; S.gk=''; S.scr=null; S.lmC=null; if(SMIX){ SMIX=0; Object.assign(QT.high,QH0) }
+  S.ls=Math.max(Q.ls,S.low?6:4); S.lm=mk(Math.ceil(w/S.ls),Math.ceil(h/S.ls)); S.lmx=S.lm.getContext('2d');
   // vignette (cached, full size)
   S.vig=mk(w,h); { const x=S.vig.getContext('2d'), g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*.35,w/2,h/2,Math.hypot(w,h)*.56);
     g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.7,'rgba(8,10,6,.18)'); g.addColorStop(1,'rgba(4,6,3,.55)'); x.fillStyle=g; x.fillRect(0,0,w,h); }
@@ -88,6 +102,8 @@ function setWeather(o){ if(o){ if(o.rain!=null)S.rain=clamp(+o.rain,0,1); if(o.h
 const FLARE_COL='#f8f7ea';   /* harsh magnesium white, faint yellow, never orange */
 const PRESET={muzzle:['#ffd27a',70,1,.06],fire:['#ff8a3a',140,.85,0],explosion:['#ffb35a',260,1,.5],napalm:['#ff7a2a',320,1,0],flare:[FLARE_COL,800,1,0],rpg:['#ffc070',110,1,.12]};
 function addLight(x,y,radius,color,intensity,ttl){ if(typeof radius==='string'){ const p=PRESET[radius]||PRESET.fire; return addLight(x,y,p[1]*(color||1),p[0],p[2],intensity!=null?intensity:p[3]) }
+  if(ttl>0&&color!==FLARE_COL){ for(let i=0;i<MAXL;i++){ const l=S.L[i]; if(l.on&&l.ttl>0&&l.c===(color||'#ffc070')&&Math.abs(l.x-x)<90&&Math.abs(l.y-y)<90){ l.i=Math.min(1.15,Math.max(l.i,intensity==null?1:intensity)+.1); if(ttl>l.ttl){ l.ttl=ttl; l.t0=Math.max(l.t0,ttl) } return l } } }   /* rc8 AD: nearby strike pools merge (no flat orange sheet over the base) */
+  if(S.nOn>=Q.lights&&color!==FLARE_COL)return null; S.nOn=(S.nOn|0)+1;
   let L=null, oldest=null; for(let i=0;i<MAXL;i++){ const l=S.L[i]; if(!l.on){L=l;break} if(!oldest||l.ttl<oldest.ttl)oldest=l } L=L||oldest;
   L.on=true; L.x=x; L.y=y; L.r=radius||80; L.c=color||'#ffc070'; L.i=intensity==null?1:intensity; L.ttl=ttl==null?0:ttl; L.t0=L.ttl; return L; }
 /* flare types: burn time (s), light radius (world px), start altitude (px, for shadow length) */
@@ -128,7 +144,7 @@ function drawWorldOverlay(ctx,camX,camY,zoom){ const t0=performance.now(); zoom=
   // flares register their light every frame (moving light)
   for(const f of S.F) if(f.on&&f.k>0){ const R=f.R*(.8+.2*Math.min(1,f.k*1.3)); addLight(f.x,f.y+f.alt*.15,R,FLARE_COL,f.k,0) }
   // 1) ground haze bands (world-anchored, parallax drift)
-  if(G.haze>.02){ ctx.globalAlpha=clamp(G.haze,0,1); const bands=low?2:3, mw=1024, mh=128;
+  if(G.haze>.02){ ctx.globalAlpha=clamp(G.haze,0,1); const bands=Math.min(low?2:3,Q.mistBands), mw=1024, mh=128;
     for(let b=0;b<bands;b++){ const wy=Math.floor((camY+b*h/zoom/bands)/220)*220+60+b*37, y=sy(wy+Math.sin(S.t*.1+b)*8)|0; if(y<-mh||y>h)continue;
       const off=(((-(camX*zoom)*(.9+b*.05)+S.t*(6+b*3))%mw)+mw)%mw|0; for(let x=off-mw;x<w;x+=mw) ctx.drawImage(S.mist2,x,y) }
     ctx.globalAlpha=1 }
@@ -137,7 +153,7 @@ function drawWorldOverlay(ctx,camX,camY,zoom){ const t0=performance.now(); zoom=
   if(!low&&G.dark<.05&&S.rain<.3&&S.hour>9&&S.hour<16){ ctx.globalCompositeOperation='screen'; ctx.globalAlpha=.8; for(let i=0;i<3;i++){ const y=(h*.5+i*h*.16+Math.sin(S.t*.4+i)*8)|0, off=-((S.t*(9+i*4)+camX*zoom*.2)%512+512)%512|0; for(let x=off;x<w;x+=512) ctx.drawImage(S.shim,x,y) } ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over' }
   PM('shimmer');
   // 3) dust motes (dry weather), drift with slight parallax
-  if(S.rain<.2){ ctx.fillStyle=G.dark>.3?'rgba(200,210,230,.35)':'rgba(240,226,180,.45)'; const n=low?25:MAXD, tw=w+40, th=h+40;
+  if(S.rain<.2){ ctx.fillStyle=G.dark>.3?'rgba(200,210,230,.35)':'rgba(240,226,180,.45)'; const n=Math.min(low?25:MAXD,Q.dust), tw=w+40, th=h+40;
     for(let i=0;i<n;i++){ const d=S.D[i], X=((d.x*tw-camX*zoom*d.z*.3+S.t*8*d.z+Math.sin(S.t*.5+d.ph)*6)%tw+tw)%tw-20, Y=((d.y*th-camY*zoom*d.z*.3+Math.sin(S.t*.37+d.ph)*10)%th+th)%th-20; ctx.fillRect(X|0,Y|0,d.z>.8?2:1,d.z>.8?2:1) } }
   PM('dust');
   // 3b) standing water (craters, paddies, trenches): dark grey-brown pools with a cold sky sheen; ripple when raining
@@ -162,8 +178,8 @@ function drawWorldOverlay(ctx,camX,camY,zoom){ const t0=performance.now(); zoom=
   PM('flares');
   // 6) colour grade: multiply (cached canvas) + overlay tint + slight desaturation
   ctx.globalCompositeOperation='multiply'; ctx.fillStyle=S.mulCss; ctx.fillRect(0,0,w,h);
-  if(S.hq&&!low&&G.sat>.05){ ctx.globalCompositeOperation='saturation'; ctx.globalAlpha=clamp(G.sat,0,1)*.55; ctx.fillStyle='#7f7f7f'; ctx.fillRect(0,0,w,h); ctx.globalAlpha=1 }
-  if(!S.hq&&G.sat>.05){ ctx.globalCompositeOperation='source-over'; ctx.fillStyle=S.veilCss; ctx.fillRect(0,0,w,h) }
+  if(Q.sat&&S.hq&&!low&&G.sat>.05){ ctx.globalCompositeOperation='saturation'; ctx.globalAlpha=clamp(G.sat,0,1)*.55; ctx.fillStyle='#7f7f7f'; ctx.fillRect(0,0,w,h); ctx.globalAlpha=1 }
+  if(Q.sat&&!S.hq&&G.sat>.05){ ctx.globalCompositeOperation='source-over'; ctx.fillStyle=S.veilCss; ctx.fillRect(0,0,w,h) }
   ctx.globalCompositeOperation='overlay'; const o=G.ov; ctx.fillStyle=`rgba(${o[0]|0},${o[1]|0},${o[2]|0},${o[3].toFixed(3)})`; ctx.fillRect(0,0,w,h);
   ctx.globalCompositeOperation='source-over';
   PM('overlay');
@@ -171,16 +187,17 @@ function drawWorldOverlay(ctx,camX,camY,zoom){ const t0=performance.now(); zoom=
   const ls=S.ls, lx=S.lmx, lw=S.lm.width, lh=S.lm.height;
   if(G.dark>.01){ lx.globalCompositeOperation='source-over'; lx.clearRect(0,0,lw,lh); const a=G.amb; lx.fillStyle=`rgba(${a[0]},${a[1]},${a[2]},${G.dark.toFixed(3)})`; lx.fillRect(0,0,lw,lh);
     lx.globalCompositeOperation='destination-out'; const blk=holeSpr();
-    for(const l of S.L) if(l.on){ const k=l.t0>0?l.ttl/l.t0:1, R=l.r*zoom/ls*2; const X=sx(l.x)/ls, Y=sy(l.y)/ls; if(X+R<0||Y+R<0||X-R>lw||Y-R>lh)continue; lx.globalAlpha=clamp(l.i*k,0,1); lx.drawImage(blk,X-R/2,Y-R/2,R,R) }
+    for(const l of S.L) if(l.on){ const k=l.t0>0?l.ttl/l.t0:1; if(l.i*k<.02)continue; const R=Math.min(l.r,l.c===FLARE_COL?1e9:Q.poolMax)*zoom/ls*2; const X=sx(l.x)/ls, Y=sy(l.y)/ls; if(X+R<0||Y+R<0||X-R>lw||Y-R>lh)continue; lx.globalAlpha=clamp(l.i*k,0,1); lx.drawImage(blk,X-R/2,Y-R/2,R,R) }
     lx.globalAlpha=1; lx.globalCompositeOperation='source-over'; ctx.drawImage(S.lm,0,0,w,h) }
   PM('lightmap');
   // additive warm bloom of every light (day: subtle, night: strong)
   ctx.globalCompositeOperation='lighter'; const bk=.18+G.dark*.55;
-  for(const l of S.L) if(l.on){ const k=l.t0>0?l.ttl/l.t0:1, fl=l.c===FLARE_COL, R=(fl?l.r*1.3:Math.min(l.r,240)*.9)*zoom, X=sx(l.x), Y=sy(l.y); if(X+R<0||Y+R<0||X-R>w||Y-R>h)continue; if(++nb>(low?12:32))break; ctx.globalAlpha=clamp(l.i*k*bk*(fl?.55:1),0,1); ctx.drawImage(lightSpr(l.c),X-R/2,Y-R/2,R,R) }
+  for(const l of S.L) if(l.on){ const k=l.t0>0?l.ttl/l.t0:1, fl=l.c===FLARE_COL; if(l.i*k*bk<.01)continue; const R=(fl?l.r*1.3:Math.min(l.r,240,Q.poolMax)*.9)*zoom, X=sx(l.x), Y=sy(l.y); if(X+R<0||Y+R<0||X-R>w||Y-R>h)continue; if(++nb>Math.min(low?12:32,Q.bloom))break; ctx.globalAlpha=clamp(l.i*k*bk*(fl?.55:1),0,1); ctx.drawImage(lightSpr(l.c),X-R/2,Y-R/2,R,R) }
+  if(Q.blastGlow){ const sp=lightSpr(PRESET.explosion[0]), D=320*zoom; for(const g of GL) if(g.on){ g.on=false; const X=sx(g.x),Y=sy(g.y); if(X+D<0||Y+D<0||X-D>w||Y-D>h)continue; ctx.globalAlpha=clamp(g.a,0,1); ctx.drawImage(sp,X-D/2,Y-D/2,D,D) } }   /* 160 px radius, HIGH explosion palette, re-registered per frame */
   ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
   PM('bloom');
   // persistent (ttl 0) lights must be re-registered each frame by the game; clear them now
-  for(const l of S.L) if(l.on&&l.t0===0)l.on=false;
+  let on=0; for(const l of S.L){ if(l.on&&l.t0===0)l.on=false; else if(l.on)on++ } S.nOn=on;
   ctx.restore(); S._w=performance.now()-t0; }
 
 /* Screen pass: rain streaks, wet sheen, vignette, grain. Draw after drawWorldOverlay, before HUD. */
@@ -198,16 +215,24 @@ function drawScreen(ctx){ const t0=performance.now(), w=S.w,h=S.h,low=S.low; ctx
    Draw it right after the world sprites and BEFORE drawWorldOverlay. One fill per flare; elongated ellipses that swing with the pendulum. */
 function flareShadow(x,y){ let best=null,bv=0; for(const f of S.F) if(f.on&&f.k>0){ const gx=f.x, gy=f.y+f.alt*.15, d2=(gx-x)**2+(gy-y)**2; if(d2>f.R*f.R)continue; const v=f.k*(1-Math.sqrt(d2)/f.R); if(v>bv){bv=v;best=f} } if(!best)return null;
   const f=best, gx=f.x, gy=f.y+f.alt*.15, dx=x-gx, dy=y-gy, d=Math.hypot(dx,dy)||1, alt=Math.max(60,f.alt*(1-f.t/f.life*.7));
-  const len=Math.min(9,d/alt*4+.8); return {dx:dx/d, dy:dy/d, len, ang:Math.atan2(dy,dx), a:clamp(.25+bv*.8,0,.65)} }
+  const len=Math.min(2.2,d/alt*1.6+.6); return {dx:dx/d, dy:dy/d, len, ang:Math.atan2(dy,dx), a:clamp(.18+bv*.5,0,.42)} }   /* rc7.1 (Junior Play Tester, 7:55 night): was up to 9x unit height = long dark streaks over units; capped at 2.2x, lighter */
+/* atmo-1.2 STREAK FIX (night 'dark streaks' ~7:55). Root cause: each unit's flare shadow was a hard ellipse only ~2.4 px wide
+   ((u.w||8)*.5*.6) but up to 2.2x unit height long, drawn one fill per unit at alpha up to .42 in near-black. Crowds of 70-240 units under a
+   swinging flare gave dozens of hairline black rays that stacked where units overlap (alpha accumulates per fill) and crawled with the pendulum.
+   Fix (rebased on Art Director-approved rc7.1 cap: length <=2.2x, alpha .18-.42, unchanged): shadow width follows the body (>= 45% of sprite width, min 3 px) and ALL shadows of
+   a frame go into ONE path filled once (overlaps no longer darken), so a crowd reads as one soft pool, never as streaks. Also cheaper: 1 fill/frame. */
 function drawFlareShadows(ctx,camX,camY,zoom,units){ if(!units||!units.length)return; zoom=zoom||1; let any=false; for(const f of S.F) if(f.on&&f.k>0){any=true;break} if(!any)return;
-  ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#05070a'; const max=S.low?60:240, w=S.w,h=S.h;
-  for(let i=0;i<units.length&&i<max;i++){ const u=units[i], X=(u.x-camX)*zoom, Y=(u.y-camY)*zoom; if(X<-200||Y<-200||X>w+200||Y>h+200)continue; const s=flareShadow(u.x,u.y); if(!s)continue;
-    const H=(u.h||16)*zoom, L=H*s.len, W=(u.w||8)*zoom*.5; ctx.globalAlpha=s.a; ctx.beginPath(); ctx.ellipse(X+s.dx*L*.5,Y+s.dy*L*.5*.6,L*.5+W*.4,W*.6,Math.atan2(s.dy*.6,s.dx),0,TAU); ctx.fill() }
+  ctx.save(); ctx.setTransform(1,0,0,1,0,0); const max=Math.min(S.low?60:240,Q.shadows), w=S.w,h=S.h; let a=0,n=0; ctx.beginPath();
+  for(let i=0;i<units.length&&n<max;i++){ const u=units[i], X=(u.x-camX)*zoom, Y=(u.y-camY)*zoom; if(X<-120||Y<-120||X>w+120||Y>h+120)continue; const s=flareShadow(u.x,u.y); if(!s)continue;
+    const len=s.len, H=(u.h||16)*zoom, L=H*len, W=Math.max(3,(u.w||10)*zoom*.45), ang=Math.atan2(s.dy*.6,s.dx), cx=X+s.dx*L*.45, cy=Y+s.dy*L*.45*.6;
+    ctx.moveTo(cx+Math.cos(ang)*(L*.5+W*.3),cy+Math.sin(ang)*(L*.5+W*.3)); ctx.ellipse(cx,cy,L*.5+W*.3,W*.5,ang,0,TAU); a+=s.a; n++ }
+  if(n){ ctx.globalAlpha=clamp(a/n,.18,.42); ctx.fillStyle='#07090c'; ctx.fill() }
   ctx.restore() }
-const api={init,setTime,setWeather,addLight,addFlare,setFlareCadence,addPuddle,clearPuddles,rippleAt,addDust,update,drawWorldOverlay,drawScreen,drawFlareShadows,setLow,hookLowToggle,flareShadow,FLARE,
+function setQuality(t){ t=QT[t]?t:'high'; if(t===QN)return api; QN=t; Q=QT[t]; if(S.w){ const w=S.w,h=S.h; init(w,h) } return api }
+const api={addBlastGlow,setQuality,setStrikeMix,get strikeMix(){return SMIX},get quality(){return QN},QT,init,setTime,setWeather,addLight,addFlare,setFlareCadence,addPuddle,clearPuddles,rippleAt,addDust,update,drawWorldOverlay,drawScreen,drawFlareShadows,setLow,hookLowToggle,flareShadow,FLARE,
   stats:()=>({lights:S.L.filter(l=>l.on).length,flares:S.F.filter(f=>f.on).length,rain:S.rain,low:S.low,hour:S.hour,ms:S.perf.last,avgMs:S.perf.avg}),
   _F:()=>S.F, setHQ:(b)=>{S.hq=!!b; return api},
   profile:(on)=>{PR.on=!!on; const r=PR.r; PR.r={}; return r},
-  get low(){return S.low}, PRESET, version:'atmo-1.1'};
+  get low(){return S.low}, PRESET, version:'atmo-1.2'};
 root.VFX_ATMO=api;
 })(typeof window!=='undefined'?window:globalThis);

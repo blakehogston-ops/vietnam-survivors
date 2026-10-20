@@ -60,6 +60,10 @@
     if (k === TL.length - 1) ctx.globalAlpha = a0 * Math.max(0, 1 - (t - 2.45) / 0.35);   // last ash settles into the smudge
     S.draw(ctx, n, TL[k][1], x, y, sc, !!flip); ctx.globalAlpha = a0;
     var F = root.VFX_FLAME, fire = t < 0.9 ? 1 : t < 1.9 ? 1 - (t - 0.9) : 0;
+    var sm0 = Math.max(0, Math.min(1, (t - 0.6) / 0.6)) * (1 - Math.max(0, (t - 2.3) / 0.5));
+    if (F && F.drawFire) {   // rc8 flame_shared: one call = flames + oily smoke + embers (approved napalm-sheet look)
+      F.drawFire(ctx, { x: x, y: y + sc, w: 16 * sc, h: (k < 3 ? 22 : 11) * sc, intensity: fire > 0 ? Math.max(0.04, fire) : 0.03, t: t, seed: ((x * 7 + y) | 0) & 1023, smoke: Math.max(sm0, fire * 0.5) * 0.7, embers: fire > 0 ? 1 : 0.6 });
+      ctx.globalAlpha = a0; return R; }
     if (fire > 0 && F && F.drawBurnPatch) {
       ctx.globalAlpha = a0 * fire;
       F.drawBurnPatch(ctx, { x: x, y: y - 2 * sc, age: 0.5, life: 3, level: 1, t: t, layer: 'fire', scale: 0.55 * sc, seed: ((x * 7 + y) | 0) & 1023 });
