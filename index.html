@@ -5404,7 +5404,7 @@ const CHD={
   loadout:'M40 7.62mm bolt-action sniper rifle',passive:'Every 7.62mm round kills any regular outright and punches through a line of them (slow bolt cycle). 15% chance for double-damage crits.',ab:{nm:'Dead-Eye',cd:30,desc:'6s: enemies slowed, crit chance +45%.'},
   base:{dr:.5,mh:.8,crit:.15},start:{w:['m1903'],drop:['m16']},
   perks:[{t:'Crit chance +5%',m:{crit:.05}},{t:'Dead-Eye cooldown -15%',m:{ab:.15}},{t:'Move speed +6%',m:{spd:.06}},{t:'Crit chance +6%',m:{crit:.06}},{t:'Damage +10%, Dead-Eye -15%',m:{dmg:.1,ab:.15}}]},
- skipper:{rank:NAMES.lt.rank,nm:NAMES.lt.first+' '+NAMES.lt.mi+' '+NAMES.lt.last,nick:'Two-Six',home:'Quincy, MA',mos:'Platoon Commander',age:23,sn:'O-0985521',   /* canon rc8: game id stays 'skipper' (sprites heroSkipper/heroSkipperV3); Capt O'Malley 'Skipper' (Golf Six) is radio-only, see OFFN */
+ skipper:{rank:NAMES.co.rank,nm:NAMES.co.first+' '+NAMES.co.last,nick:NAMES.co.nick,home:'Quincy, MA',mos:'Company Commander (Golf Six, radio)',age:23,sn:'O-0985521',   /* canon rc8: game id stays 'skipper' (sprites heroSkipper/heroSkipperV3); Capt O'Malley 'Skipper' (Golf Six) is radio-only, see OFFN */
   bio:["A second lieutenant with a spotless map case and a map he trusts completely. The platoon's real navigation is done by his platoon sergeant's gut.","Beloved by his men for one reason: he listens to the radioman."],
   known:"Reading the map upside down with total confidence.",quote:"I have a plan. It involves all of you, and also me not being in front.",
   loadout:'M16A1 · Marine Fire Team (grows to a squad)',passive:'Squad: +25% HP, +15% damage, faster re-insertion.',ab:{nm:'Rally',cd:36,desc:'Heal squad & tank 50%, squad damage x1.5 for 8s, call re-insertion now.'},
@@ -5655,9 +5655,13 @@ function charTick(dt){ const g=G; if(!g||g.demo||!g.char)return; const p=g.p;
 
 /* ---- UI ---- */
 /* rc8: squad2 final portraits (artist-assets/squad2, manifest final-v1) plug into ART.portraits[charId]; Hogston (radio) keeps his own. No squad2 role fits flamer/chef, so they keep the sprite card. */
-const SQ2P={doc:'doc_112x128',hammer:'m60_gunner_portrait_112x128',boone:'scout_sniper_portrait_112x128',skipper:'platoon_lieutenant_portrait_112x128',rat:'combat_engineer_portrait_112x128',preacher:'m79_grenadier_portrait_112x128'};
+const SQ2P={doc:'doc_112x128',hammer:'m60_gunner_portrait_112x128',boone:'scout_sniper_portrait_112x128',rat:'combat_engineer_portrait_112x128',preacher:'m79_grenadier_portrait_112x128'};
 for(const k in SQ2P){ const im=new Image(); im.onload=()=>{ ART.portraits[k]=im; try{ if(window.__csId===k&&$('csPort'))drawPortrait($('csPort'),k) }catch(e){} }; im.src='assets/art/squad2/'+SQ2P[k]+'.png'+AV }
 function drawPortrait(cv2,id){ const c=cv2.getContext('2d'); c.imageSmoothingEnabled=false; c.clearRect(0,0,cv2.width,cv2.height);
+  if(id==='skipper'){ const W2=cv2.width,H2=cv2.height; c.fillStyle='#1c2414'; c.fillRect(0,0,W2,H2); c.strokeStyle='#8a7a40'; c.lineWidth=2; c.strokeRect(3,3,W2-6,H2-6);   /* rc8 EP: Capt O'Malley (Golf Six) is radio-only: PRC-25 radio card, no face */
+    const cx=W2/2, cy=H2*.52, w=W2*.42, h=H2*.38; c.fillStyle='#4e5830'; c.fillRect(cx-w/2,cy-h/2,w,h); c.fillStyle='#2e3420'; c.fillRect(cx-w/2+5,cy-h/2+6,w-10,h*.35); c.fillStyle='#c8c8b0'; for(let i=0;i<3;i++){ c.beginPath(); c.arc(cx-w/4+i*w/4,cy+h/5,4,0,TAU); c.fill() }
+    c.strokeStyle='#1a1c12'; c.lineWidth=2; c.beginPath(); c.moveTo(cx+w/2-8,cy-h/2); c.lineTo(cx+w/2+6,cy-h/2-H2*.3); c.stroke();
+    c.fillStyle='#e8c030'; c.font='bold 12px "Courier New"'; c.textAlign='center'; c.fillText('GOLF SIX',cx,H2-12); c.textAlign='left'; return }
   const PI=ART.portraits[id]; if(PI&&PI.complete&&PI.naturalWidth){ c.imageSmoothingEnabled=true; const k=Math.max(cv2.width/PI.naturalWidth,cv2.height/PI.naturalHeight), w=PI.naturalWidth*k, h=PI.naturalHeight*k; c.drawImage(PI,Math.round((cv2.width-w)/2),Math.round(cv2.height-h),w,h); return }
   const gr=c.createLinearGradient(0,0,0,cv2.height); gr.addColorStop(0,'#7f9560'); gr.addColorStop(1,'#46583a'); c.fillStyle=gr; c.fillRect(0,0,cv2.width,cv2.height);
   c.fillStyle='rgba(20,34,16,.45)'; for(let i=0;i<6;i++){ c.fillRect(i*22-4,0,6,cv2.height) }
