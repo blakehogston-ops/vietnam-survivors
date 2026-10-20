@@ -3655,7 +3655,10 @@ function kcBoost(id,s,kc){ const o=Object.assign({},s); o.cd=s.cd*(1-.07*kc);
   return o }
 const FACEAIM=!/[?&]aim=auto\b/.test(location.search);
 /* returns k pseudo-targets straight down Doc's facing line (so the old `atan2(t-p)` math yields the facing angle); [] when no enemy is in range = weapon holds its round */
-function faceK(p,k,range){ const ts=nearestK(p.x,p.y,k,range); if(!FACEAIM||!ts.length)return ts; const a=G.fa||0, o={x:p.x+Math.cos(a)*range*.6,y:p.y+Math.sin(a)*range*.6}; return ts.map(()=>o) }
+const AIMCONE=10*Math.PI/180;   /* Blake Oct 20: small aim assist, the nearest enemy within ±10° of facing gets the round */
+function faceK(p,k,range){ const ts=nearestK(p.x,p.y,k,range); if(!FACEAIM||!ts.length)return ts; const a=G.fa||0; let best=null,bd=range*range;
+  for(const e of enemies){ if(e.dead)continue; const dx=e.x-p.x,dy=e.y-p.y,d2=dx*dx+dy*dy; if(d2>=bd)continue; let da=Math.atan2(dy,dx)-a; da=Math.abs(Math.atan2(Math.sin(da),Math.cos(da))); if(da<=AIMCONE+Math.atan2(e.r||8,Math.sqrt(d2)||1)){bd=d2;best=e} }
+  const o=best?{x:best.x,y:best.y}:{x:p.x+Math.cos(a)*range*.6,y:p.y+Math.sin(a)*range*.6}; return ts.map(()=>o) }
 function updateWeapons(dt){
   const g=G,p=g.p; if(g.rfCd>0)g.rfCd=Math.max(0,g.rfCd-dt); if(g.rfRun){ g.rfRun.t+=dt; if(g.rfRun.t>=g.rfRun.dur)g.rfRun=null }
   for(const id in g.w){ CURW=id; RTO_T=null; const w=g.w[id]; let s=ITEMS[id].stats(w.lvl); const kc=g.ps.kc135|0; if(kc&&KCIDS[id])s=kcBoost(id,s,kc);
@@ -6794,7 +6797,8 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   // player
   if(!g.hide){ const ps=(g.char&&CHSPR[g.char])||SPR.marine; const fr=p.mv?(Math.floor(p.anim)&1):0, flip=p.face>0?0:1; const hw=(p.hurtT>0&&Math.floor(tt*30)%2)?1:0, spr=((!p.mv&&ps.idle)?ps.idle:ps[fr])[flip][hw];
     const HT=!!(g.char&&window.SHEET1&&SHEET1.drawHero&&SHEET1.HERO_ID&&hasSheet(SHEET1.HERO_ID[g.char]||''));   /* heroes_tall.js: drawn from the feet, weapon line from the hand point (16 px up); hitbox unchanged */
-    drawDocRing(p.x,p.y+13);   /* yellow ring under Doc (the player) only */
+    drawDocRing(p.x,p.y+13);
+    if(FACEAIM&&!G.demo){ const fa=G.fa||0, c=Math.cos(fa), sn=Math.sin(fa), cx=p.x+c*30, cy=p.y+13+sn*12; ctx.save(); ctx.globalAlpha=.55; ctx.fillStyle='rgba(18,16,10,.75)'; ctx.beginPath(); ctx.moveTo(cx+c*7,cy+sn*3); ctx.lineTo(cx-sn*4.5-c*2,cy+c*1.8-sn*1); ctx.lineTo(cx+sn*4.5-c*2,cy-c*1.8-sn*1); ctx.closePath(); ctx.fill(); ctx.strokeStyle='rgba(214,204,170,.55)'; ctx.lineWidth=1; ctx.stroke(); ctx.restore() }   /* facing tick on the ground, flattened to the ring's perspective */   /* yellow ring under Doc (the player) only */
     if(!G.demo&&SHEET1&&SHEET1.drawPlayerMarker&&!/[?&]marker=0/.test(location.search)){ try{ SHEET1.drawPlayerMarker(ctx,Math.round(p.x),Math.round(p.y+13),1,performance.now()/1000,G.char) }catch(e){} }   /* small bobbing marker above his head */
     if(!(p.invul>0&&Math.floor(tt*20)%2===0&&p.hurtT<=0)){
       const bob=p.mv&&fr?-1:0, a=g.aim, gx=Math.cos(a), gy=Math.sin(a), fy=Math.round(p.y+13+bob), hy=HT?fy-16*SHEET_SCALE_MEN:p.y+2;
