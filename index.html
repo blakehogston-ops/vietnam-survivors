@@ -6025,6 +6025,37 @@ function fbCpMan(){ const c=fbStructPos('cp'); if(!c)return null; let b=null,bd=
 function fbCaller(){ const r=fbRto(); if(r)return {m:r,who:'RTO',k:'rto'}; const c=fbCpMan(); return c?{m:c,who:'CP',k:'cp'}:null }   /* EP Oct 20: RTO if alive, else any living Marine at the CP radio; neither = "Nobody on the radio!" */
 function fbCrit(){ const a=fbAidPos(), pd=fbPadPos(), near=(q,P)=>P&&Math.hypot(q.x-P.x,q.y-P.y)<70; return coy.filter(q=>q.hp>0&&q.state==='ok'&&!q.hid&&!q.rto&&q.hp<=q.mhp*.15&&(near(q,a)||near(q,pd))) }
 function fbLine(id,who,dur){ const L=fbBanterSlots[id]; if(!L)return; try{ gunny(L.text,dur||Math.min(3.4,1.6+L.text.length*.035),1,who||'RTO') }catch(e){} const f=fbS; if(f)(f.log.lines||(f.log.lines=[])).push([+G.t.toFixed(1),id]) }
+/* ===== rc8 jr/fb-banter (?fbbanter=1, off by default): downtime chatter at the hootch / inside the wire, lines from fbBanterSlots via fbLine ===== */
+const FBBT={on:/[?&]fbbanter=1\b/.test(location.search),
+  PAIRS:[['DT_MAIL_A','DT_MAIL_B'],['DT_FOOD_A','DT_FOOD_B'],['DT_CARDS_A','DT_CARDS_B']],
+  SOLO:['DT_WEATHER_1','DT_HEAT_1','DT_SLEEP_1','DT_SHORT_1','DT_HOME_1','DT_HOME_2'],
+  GAP0:14, GAP:[28,42], QUIET:12, R:340,
+  reset(){ const g=G; g.fbbt={used:{},quiet:0,next:g.t+this.GAP0,pend:null,alertT:-99,wasQ:false,kia:(g.kiaL||[]).length,kiaT:-1,docN:0} },
+  durOf(id){ const L=fbBanterSlots[id]; return Math.min(3.6,1.6+L.text.length*.035) },
+  men(P,r){ const out=[]; for(const q of coy){ if(q.hp>0&&q.state==='ok'&&!q.hid&&!q.rto&&!q.cr&&Math.hypot(q.x-P.x,q.y-P.y)<r)out.push(q) } return out },
+  nm(q){ return (q&&q.nm?q.nm:'Marine').toUpperCase() },
+  say(id,q){ const B=G.fbbt; B.used[id]=1; fbLine(id,this.nm(q),this.durOf(id)) },
+  pick(arr){ const B=G.fbbt, c=arr.filter(x=>!B.used[x]); return c.length?c[(rnd()*c.length)|0]:null },
+  tick(dt){ if(!this.on)return; const g=G, f=fbS; if(!g||g.demo||state!=='play')return; if(!g.fbbt||g.fbbt.f!==f){ this.reset(); g.fbbt.f=f } const B=g.fbbt;
+    const k=(g.kiaL||[]).length; if(k>B.kia){ B.kia=k; B.kiaT=g.t } for(const q of coy)if(q.hp>0&&q.hp<=q.mhp*.4)q._bbW=1;   /* for DT_DOC_1: he was hit badly and is back up */
+    if(!f||f.state!=='done')return;
+    const hostile=nearCount(f.x,f.y,FBS+this.R)>0, inside=Math.max(Math.abs(g.p.x-f.x),Math.abs(g.p.y-f.y))<FBS+20;
+    if(hostile){ if(B.wasQ&&B.quiet>this.QUIET+8&&g.t-B.alertT>60){ const q=this.men(f,FBS)[0]; if(q){ B.alertT=g.t; B.pend=null; this.say('DT_ALERT_1',q) } } B.quiet=0; B.wasQ=false; B.pend=null; return }   /* contact ends the downtime */
+    B.quiet+=dt; if(B.quiet>this.QUIET)B.wasQ=true;
+    if(B.pend){ if(g.t>=B.pend.at){ const p=B.pend; B.pend=null; if(p.q.hp>0&&!exMsg)this.say(p.id,p.q) } return }
+    if(!inside||B.quiet<this.QUIET||g.t<B.next||exMsg||exQ.length)return;
+    const H=fbHootchPos(), atH=H&&H.built&&Math.hypot(g.p.x-H.x,g.p.y-H.y)<110, hm=H?this.men(H,90):[], all=this.men(f,FBS-10);
+    let done=false;
+    // DT_LOST_1: after a KIA, once the base has been quiet a while (D4 quiet window)
+    if(!done&&B.kiaT>0&&!B.used.DT_LOST_1&&g.t-B.kiaT>20&&B.quiet>25&&all.length){ this.say('DT_LOST_1',all[(rnd()*all.length)|0]); done=true }
+    // DT_DOC_1: a Marine Doc patched up, standing near Doc
+    if(!done&&!B.used.DT_DOC_1){ const q=all.find(q=>q._bbW&&q.hp>q.mhp*.6&&Math.hypot(q.x-g.p.x,q.y-g.p.y)<70); if(q){ this.say('DT_DOC_1',q); done=true } }
+    // DT_MUSIC_1: someone near the RTO
+    if(!done&&!B.used.DT_MUSIC_1){ const r=fbRto(); if(r&&Math.hypot(r.x-f.x,r.y-f.y)<FBS){ const q=this.men(r,90)[0]; if(q&&rnd()<.4){ this.say('DT_MUSIC_1',q); done=true } } }
+    // hootch pairs (two men at the mess), else a solo gripe from whoever's near Doc inside the wire
+    if(!done){ const pool=atH&&hm.length>=2?this.PAIRS.filter(p=>!B.used[p[0]]):[]; if(pool.length){ const pr=pool[(rnd()*pool.length)|0], a=hm[0], b=hm[1]; this.say(pr[0],a); B.used[pr[1]]=1; B.pend={id:pr[1],q:b,at:g.t+this.durOf(pr[0])+.5}; done=true }
+      else { const id=this.pick(this.SOLO); const src=(atH&&hm.length?hm:this.men(g.p,140)); if(id&&src.length){ this.say(id,src[(rnd()*src.length)|0]); done=true } } }
+    B.next=g.t+(done?this.GAP[0]+rnd()*(this.GAP[1]-this.GAP[0]):4) } };
 function fbMedevac(dt){ const g=G, f=fbS; if(!g||g.demo)return;
   if(f.state!=='inbound'){ const W=FBW+120; for(const L of [coy,squad])for(const m of L){ if(!(m.hp>0)||!m.mhp)continue; const r=m.hp/m.mhp; if(m._fbW&&r>.6)m._fbW=0; if(!m._fbW&&r<=.25&&Math.max(Math.abs(m.x-f.x),Math.abs(m.y-f.y))<W){ m._fbW=1; fbOnWounded(m) } } }   /* fbOnWounded: once per wound, re-arms above 60% */
   const mv=f.mv||(f.mv={st:0,t:0}); mv.t+=dt;
@@ -6195,7 +6226,7 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
   if(site){ const d=Math.max(Math.abs(p.x-site.x),Math.abs(p.y-site.y)); if(d<52&&fbHeld()){ site.hold=Math.min(1,(site.hold||0)+dt/4); if(((site.hold*4)|0)!==((site.hold*4-dt)|0))Snd.play('radio') } else site.hold=Math.max(0,(site.hold||0)-dt*(d<52?.4:1.2));
     if(site.hold>=1){ site.hold=0; if(lzS)beginFirebase(); else { callFbHeli('reinf',site.x,site.y); g.banner={text:'RADIO: ENGINEER REINFORCEMENTS INBOUND',t:2.4,col:'#9be37a'}; Snd.play('radio') } } }
   if(FB2&&fbS&&fbS.state==='done'&&!fbS.cl){ fbS.cl=1; try{ TERR.inval(); if(window.JUNGLE3&&JUNGLE3.inval)JUNGLE3.inval() }catch(e){} }   /* rc8 C9: field of fire cleared to square 460 once the base is up */
-  if(FB2&&fbS)fbMedevac(dt);
+  if(FB2&&fbS)fbMedevac(dt); try{ FBBT.tick(dt) }catch(e){ if(!window.__fbbE){ window.__fbbE=1; console.warn('fbbt',e) } }
   const f=fbS; g.inFb=!!(f&&f.state==='done'&&Math.max(Math.abs(p.x-f.x),Math.abs(p.y-f.y))<FBS+20);
   updateFbH(dt);
   if(!f){ engs.length=0; fbC=null; return }
