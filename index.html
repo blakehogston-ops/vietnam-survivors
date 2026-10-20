@@ -2536,7 +2536,7 @@ function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.rto){
   if(G.sqS&&(m.hp>0)){ if(drops.length<(LOWFX?110:300))spawnDrops(m.x,m.y-6,0,0,4,90) }
   if(m.hp<=0)killMember(m) }
 function q15Dead(m){ if(m.bodied||!m.coy||!m.nm||!G.q15)return; m.bodied=1; bodies.push({x:m.x,y:m.y,nm:m.nm,cv:m.cv|0,t:G.t,r:rnd()<.5?1:-1}); if(G.rl&&G.rl.firstDeath===null)G.rl.firstDeath=G.t }   /* bodies stay where they fell; runLog first death */
-function killMember(m){ m.hp=0; if(m.coy&&G.w1End>G.t)G.w1L=(G.w1L|0)+1; const x=m.x,y=m.y; if(m.coy)try{ KIA.add(m) }catch(e){} if(G.rl&&G.rl.firstDeath===null&&!G.demo)G.rl.firstDeath=G.t;   /* QA bug 2: every Marine death counts, not only named company bodies */
+function killMember(m){ m.hp=0; if(m.coy&&!G.demo)(G.mdT||(G.mdT=[])).push(+G.t.toFixed(1)); if(m.coy&&G.w1End>G.t)G.w1L=(G.w1L|0)+1; const x=m.x,y=m.y; if(m.coy)try{ KIA.add(m) }catch(e){} if(G.rl&&G.rl.firstDeath===null&&!G.demo)G.rl.firstDeath=G.t;   /* QA bug 2: every Marine death counts, not only named company bodies */
   spawnDrops(x,y-6,0,0,20,170); addDecal(x,y+5,SPLAT[(rnd()*6)|0],45,1);
   if(CORPSE.marine)addDecal(x,y+6,CORPSE.marine[(rnd()*2)|0],38,1);
   const ks=[11,3,4,(rnd()*3)|0,5]; for(let i=0;i<ks.length;i++){ const a=rnd()*TAU,v=60+rnd()*120; spawnGib(x,y,Math.cos(a)*v,Math.sin(a)*v,ks[i],1) }
@@ -3279,6 +3279,7 @@ document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code===
 /* ===== PACE (Blake Oct 14: "most levels in the beginning are more firefights"): early levels are contacts with small NVA/VC fire teams and lulls between them;
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
 const EARLY=!/[?&]early=0\b/.test(location.search);
+const PADSPREAD=/[?&]padspread=0\b/.test(location.search)?0:(+params.get('padspread')||.75); const PSDOC=+params.get('psdoc')||4;
 const LATE6=/[?&]late6=0\b/.test(location.search)?0:(+params.get('late6')||.7);   /* rc6: rifle hits on Doc x0.7 after 6:00 while holding for the bird (?late6=0 off, ?late6=X tune) */   /* Gamer rc6 #5: gentler 1:00-4:30 + guaranteed lulls (?early=0 off) */
 const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.1,HOLD_DOC:+(new URLSearchParams(location.search).get('holddoc')||.18),M_TGT:.6,M_HIT:.4,M_DMG:38,SHOT_DMG:4,COVER_DR:.4,RET_AT:.25,
   mass(g){ return (g.p.lvl|0)>=this.MASS_LV||(g.massT>0) },
@@ -3327,13 +3328,15 @@ const FT={
   fire(e,g,dt){ const T=e.ft; if(!T||T.st==='adv'||T.st==='ret'||e.dead)return; if(T.st==='bound'&&e.half===T.half&&!e.inCov)return; e.fT-=dt; if(e.fT>0)return; e.fT=1.3+rnd()*1.4;
     let p=g.p, d=Math.hypot(p.x-e.x,p.y-e.y), mt=null;
     const hold=g.ex&&g.ex.ph>=3&&g.ex.ph<=5; if(hold&&d<520&&d>60&&rnd()<PACE.HOLD_DOC*(g.ex.ph===3?1:.2)){ g.holdShots=(g.holdShots|0)+1; if(rnd()<PACE.SHOT_HIT*1.3*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,'rifle fire on the pad') }   /* Gamer 134331: extra fire aimed at Doc during the hold (on top of the normal shot, so the Marine curve is unchanged) */
-    if(rnd()<PACE.M_TGT){ let bd=460; for(const L of [squad,coy])for(const m of L){ if(m.hp<=0||m.state!=='ok'||m.hid)continue; const q=Math.hypot(m.x-e.x,m.y-e.y); if(q<bd){bd=q;mt=m} } if(mt){ p=mt; d=bd } }
+    const pw=PADSPREAD&&hold, mtg=pw?PACE.M_TGT*PADSPREAD:PACE.M_TGT;   /* rc6 ?padspread=0: during the prompt/pad window fewer fire-team shots pick a Marine; the rest stay on Doc */
+    if(rnd()<mtg){ let bd=460; for(const L of [squad,coy])for(const m of L){ if(m.hp<=0||m.state!=='ok'||m.hid)continue; const q=Math.hypot(m.x-e.x,m.y-e.y); if(q<bd){bd=q;mt=m} } if(mt){ p=mt; d=bd } }
+    let rd=false; if(pw&&!mt&&rnd()<(PACE.M_TGT-mtg)/(1-mtg)){ rd=true; g.psD=(g.psD|0)+1 }   /* a shot taken off the Marines: aimed at Doc, xPSDOC hit chance */
     if(rnd()<RTO.AGGRO){ const r=coy.find(q=>q.rto&&q.hp>0&&q.state==='ok'&&!q.hid)||squad.find(q=>q.rto&&q.hp>0&&q.state==='ok'); if(r){ const q=Math.hypot(r.x-e.x,r.y-e.y); if(q<500){ mt=r; p=r; d=q } } }   /* Blake Oct 20: the antenna draws fire */
     if(d>540||d<(mt?20:60))return; e.fire=.25; const a=Math.atan2(p.y-e.y,p.x-e.x)+(rnd()-.5)*.12, sp=430;
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
     if(onScreen(e,8)){ SAMP.shooter=e.type; MIX.as('enemy',()=>Snd.play('vcshot'),d) }
     if(mt){ g.ftMs=(g.ftMs|0)+1; if(rnd()<PACE.M_HIT*(1-d/700)){ g.ftMh=(g.ftMh|0)+1; hurtMember(mt,PACE.M_DMG*(1+(g.p.lvl|0)*.05)) } return }
-    if(rnd()<PACE.SHOT_HIT*(EARLY?(g.t<270?.75:1):(g.t<165?1.15:1))*(1-d/700)*lateFire(g)*(LATE6&&g.t>360?LATE6:1))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
+    if(rnd()<PACE.SHOT_HIT*(EARLY?(g.t<270?.75:1):(g.t<165?1.15:1))*(1-d/700)*lateFire(g)*(LATE6&&g.t>360?LATE6:1)*(rd&&!mt?PSDOC:1))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
 /* early levels: the pad hold is a stand-up firefight, not a siege (Blake Oct 14) */
 const HOLD_EARLY={MUL:.65,CAP:26};
 function holdT(g){ return Math.max(0,g.t-(EX_CALL-30)) }   /* hold waves keyed to the old 0:30-call timeline, so a later call isn't a bigger siege */
@@ -6342,7 +6345,7 @@ function smokeCall(dt){ const g=G,ex=g.ex,p=g.p,c=ex.call; if(!c||c.st==='ok'||e
   if(c.st==='wait'){ if(onPad(p.x,p.y)&&p.hp>0){ c.onT+=dt; if(c.onT>=EX.POP_HOLD)popSmoke() } else c.onT=0;
     c.nag=(c.nag||0)+dt; if(c.nag>=10){ c.nag=0; gunny("Doc, Bird. I need smoke on that pad. Over.",3,0,'BIRD') } return }
   if(c.st==='popped'&&g.t>=c.seeAt&&state==='play'&&!(exMsg&&exMsg.who==='DOC'&&exMsg.t<exMsg.text.length/40+.6)){ c.st='ask'; openCall() }   /* RC5.1: never open the next ask over Doc's half-typed reply */ }
-function openCall(){ const g=G,ex=g.ex,c=ex.call; ex.at=c.look; ex.idCol=ex.col; ex.sayAgain=false; c.askAt=g.t; c.asks=(c.asks||0)+1; Snd.play('radio'); state='sig'; showSigAsk(); if(DBG.bot&&/[?&]botsig\b/.test(location.search))answerCall(c.look==='real') }   /* QA bot only: answers like a careful player */
+function openCall(){ const g=G,ex=g.ex,c=ex.call; ex.at=c.look; ex.idCol=ex.col; ex.sayAgain=false; c.askAt=g.t; if(g.promptAt==null)g.promptAt=+g.t.toFixed(1); c.asks=(c.asks||0)+1; Snd.play('radio'); state='sig'; showSigAsk(); if(DBG.bot&&/[?&]botsig\b/.test(location.search))answerCall(c.look==='real') }   /* QA bot only: answers like a careful player */
 const callTarget=()=>{ const ex=G&&G.ex, c=ex&&ex.call; if(!c)return null; return c.look==='charlie'?ex.charlie:ex.sig };
 function divertTick(dt){ const g=G,ex=g.ex,d=ex.divert,hu=ex.huey; d.t+=dt; const T=d.t<d.cost*.55?d.to:d.back; hu.x+=(T.x-hu.x)*Math.min(1,dt*1.2); hu.y+=(T.y-hu.y)*Math.min(1,dt*1.2); hu.z+=((d.t<d.cost*.55?40:90)-hu.z)*Math.min(1,dt); hu.rot+=dt*40; hu.hd=Math.atan2(T.y-hu.y,T.x-hu.x);
   if(!d.fire&&d.t>4){ d.fire=1; gunny("Bird: Taking fire, taking fire! That's not your smoke! Coming around. Over.",4,1,'BIRD'); Snd.play('vcshot') }
