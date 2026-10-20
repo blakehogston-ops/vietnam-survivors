@@ -5915,6 +5915,9 @@ function drawSeaKnightLoad(c){ if(c.placed||c.ph>=2)return; const zc=Math.max(0,
 function drawCrate(x,y){ ctx.fillStyle='#6a4a26'; ctx.fillRect(x-9,y-10,18,14); ctx.fillStyle='#8a6a3a'; ctx.fillRect(x-9,y-10,18,3); ctx.fillStyle='#4a321a'; ctx.fillRect(x-9,y-3,18,1); ctx.fillRect(x-1,y-10,2,14); ctx.fillStyle='#d8d0a0'; ctx.fillRect(x-6,y-7,5,2); ctx.fillStyle='#c82020'; ctx.fillRect(x+3,y-7,3,3) }
 /* Firebase point: HOLD F (keyboard) / hold X (controller) inside the ground ring to call the engineers; touch: stand still in the ring */
 function fbHeld(){ const p=G.p; return !!(keys.KeyF||(PAD.on&&PAD.prev[PAD.BTN.X])||((COARSE.matches||DBG.bot)&&!p.mv)) }
+/* rc7 #2: the engineers prompt hides while an extraction pad is active within 260 px (it printed over the pad), ?fbpadhide=0 */
+const FBPADHIDE=!/[?&]fbpadhide=0\b/.test(location.search);
+function padActiveNear(x,y){ const ex=G&&G.ex; if(!ex)return false; const P=(ex.pad&&(ex.padShown||ex.ph>=3)&&ex.ph<=7)?ex.pad:(ex.ph===0&&ex.pre&&N2.XC&&G.t>=N2.XMIN?ex.pre:null); return !!P&&Math.hypot(P.x-x,P.y-y)<260 }
 function fbCallText(){ return PAD.on?'HOLD '+PAD.pn('X').split(' ')[0].toUpperCase()+' TO CALL ENGINEERS':COARSE.matches?'STAND STILL TO CALL ENGINEERS':'HOLD F TO CALL ENGINEERS' }
 function fbCallNear(){ if(state!=='play'||!G||G.demo)return false; const site=lzS||(fbS&&fbS.state==='stalled'&&!fbH?fbS:null); return !!(site&&Math.hypot(G.p.x-site.x,G.p.y-site.y)<140) }
 function fbRing(x,y,hold,tt){ ctx.save(); ctx.translate(x,y+4); ctx.scale(1,.62); ctx.lineWidth=5; ctx.strokeStyle='rgba(0,0,0,.45)'; ctx.beginPath(); ctx.arc(0,0,54,0,TAU); ctx.stroke();
@@ -6047,7 +6050,7 @@ function drawFirebase(camX,camY,tt){ const x0=camX-90,x1=camX+VW+90,y0=camY-90,y
   if(lzS){ const l=lzS, x=Math.round(l.x), y=Math.round(l.y); if(x>x0&&x<x1&&y>y0&&y<y1){ ctx.fillStyle='rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x,y+6,34,12,0,0,TAU); ctx.fill(); fbRing(x,y,l.hold,tt);   /* ring on the ground: the call point */
       ctx.fillStyle='#4a4b42'; ctx.fillRect(x-6,y-10,12,14); ctx.fillStyle='#2e2e28'; ctx.fillRect(x-4,y-8,8,3); ctx.fillStyle='#9aa0a6'; ctx.fillRect(x+4,y-40,1,32); ctx.fillStyle=(Math.floor(tt*2)%2)?'#ff4a3a':'#6a1a12'; ctx.fillRect(x+3,y-42,3,3);
       for(let k=0;k<4;k++){ const q=((tt*.8+k*.25)%1); ctx.globalAlpha=(1-q)*.6; ctx.fillStyle=k&1?'#ffe040':'#f2c820'; ctx.fillRect(Math.round(x-14+Math.sin(q*6+k)*6),Math.round(y-12-q*70),6+q*8,6+q*8) } ctx.globalAlpha=1;
-      txt('LZ '+l.name,x,y-84,13,'#ffe58a','center'); if(l.hold>0)txt('CALLING '+Math.round(l.hold*100)+'%',x,y+52,12,'#9be37a','center'); else txt(fbCallText(),x,y+52,12,'#ffe58a','center') } }
+      txt('LZ '+l.name,x,y-84,13,'#ffe58a','center'); if(l.hold>0)txt('CALLING '+Math.round(l.hold*100)+'%',x,y+52,12,'#9be37a','center'); else if(!FBPADHIDE||!padActiveNear(x,y))txt(fbCallText(),x,y+52,12,'#ffe58a','center') } }
   if(f){ if(f.state==='stalled'||f.state==='inbound'){ const x=Math.round(f.x),y=Math.round(f.y); if(f.state==='stalled'){ txt(fbCallText(),x,y-100,12,'#ff8a6a','center'); fbRing(x,y,f.hold,tt) } }
     // build zone outline + ghost footprints of what is still to be built
     if(f.state!=='done'){ const x=Math.round(f.x),y=Math.round(f.y); ctx.save(); ctx.strokeStyle='rgba(255,229,138,.55)'; ctx.lineWidth=2; ctx.setLineDash([9,7]); ctx.lineDashOffset=-tt*8; ctx.beginPath(); ctx.rect(x-FBS-18,y-FBS-18,2*FBS+36,2*FBS+36); ctx.stroke(); ctx.setLineDash([]);
