@@ -6069,7 +6069,7 @@ const FBBT={on:!/[?&]fbbanter=0\b/.test(location.search),
   durOf(id){ const L=fbBanterSlots[id]; return Math.min(3.6,1.6+L.text.length*.035) },
   men(P,r){ const out=[]; for(const q of coy){ if(q.hp>0&&q.state==='ok'&&!q.hid&&!q.rto&&!q.cr&&Math.hypot(q.x-P.x,q.y-P.y)<r)out.push(q) } return out },
   nm(q){ return (q&&q.nm?q.nm:'Marine').toUpperCase() },
-  say(id,q){ const B=G.fbbt; B.used[id]=1; fbLine(id,this.nm(q),this.durOf(id)) },
+  say(id,q){ const B=G.fbbt; B.used[id]=1; window.__fbStats.banter++; fbLine(id,this.nm(q),this.durOf(id)) },
   pick(arr){ const B=G.fbbt, c=arr.filter(x=>!B.used[x]); return c.length?c[(rnd()*c.length)|0]:null },
   tick(dt){ if(!this.on)return; const g=G, f=fbS; if(!g||g.demo||state!=='play')return; if(!g.fbbt||g.fbbt.f!==f){ this.reset(); g.fbbt.f=f } const B=g.fbbt;
     const k=(g.kiaL||[]).length; if(k>B.kia){ B.kia=k; B.kiaT=g.t } for(const q of coy)if(q.hp>0&&q.hp<=q.mhp*.4)q._bbW=1;   /* for DT_DOC_1: he was hit badly and is back up */
