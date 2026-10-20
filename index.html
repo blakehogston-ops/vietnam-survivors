@@ -3278,7 +3278,8 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
 document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code==='KeyX')N2.press() });
 /* ===== PACE (Blake Oct 14: "most levels in the beginning are more firefights"): early levels are contacts with small NVA/VC fire teams and lulls between them;
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
-const EARLY=!/[?&]early=0\b/.test(location.search);   /* Gamer rc6 #5: gentler 1:00-4:30 + guaranteed lulls (?early=0 off) */
+const EARLY=!/[?&]early=0\b/.test(location.search);
+const LATE6=/[?&]late6=0\b/.test(location.search)?0:(+params.get('late6')||.7);   /* rc6: rifle hits on Doc x0.7 after 6:00 while holding for the bird (?late6=0 off, ?late6=X tune) */   /* Gamer rc6 #5: gentler 1:00-4:30 + guaranteed lulls (?early=0 off) */
 const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.1,HOLD_DOC:+(new URLSearchParams(location.search).get('holddoc')||.18),M_TGT:.6,M_HIT:.4,M_DMG:38,SHOT_DMG:4,COVER_DR:.4,RET_AT:.25,
   mass(g){ return (g.p.lvl|0)>=this.MASS_LV||(g.massT>0) },
   hold(g){ const ex=g.ex; return !!(ex&&ex.ph>=4&&ex.ph<=5) },
@@ -3332,7 +3333,7 @@ const FT={
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
     if(onScreen(e,8)){ SAMP.shooter=e.type; MIX.as('enemy',()=>Snd.play('vcshot'),d) }
     if(mt){ g.ftMs=(g.ftMs|0)+1; if(rnd()<PACE.M_HIT*(1-d/700)){ g.ftMh=(g.ftMh|0)+1; hurtMember(mt,PACE.M_DMG*(1+(g.p.lvl|0)*.05)) } return }
-    if(rnd()<PACE.SHOT_HIT*(EARLY?(g.t<270?.75:1):(g.t<165?1.15:1))*(1-d/700)*lateFire(g))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
+    if(rnd()<PACE.SHOT_HIT*(EARLY?(g.t<270?.75:1):(g.t<165?1.15:1))*(1-d/700)*lateFire(g)*(LATE6&&g.t>360?LATE6:1))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
 /* early levels: the pad hold is a stand-up firefight, not a siege (Blake Oct 14) */
 const HOLD_EARLY={MUL:.65,CAP:26};
 function holdT(g){ return Math.max(0,g.t-(EX_CALL-30)) }   /* hold waves keyed to the old 0:30-call timeline, so a later call isn't a bigger siege */
