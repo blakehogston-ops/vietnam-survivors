@@ -7258,8 +7258,9 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
           else if(!ex.popped){ const bx=Math.round(p.x+(flip?-7:7)), by=fy-15; ctx.fillStyle='#1a1c12'; ctx.fillRect(bx-2,by-1,5,8); ctx.fillStyle='#5a6044'; ctx.fillRect(bx-1,by,3,6); ctx.fillStyle=SIGC[ex.col]; ctx.fillRect(bx-1,by,3,2) }   /* fallback if firebase.js is missing */
           else if(ex.call&&ex.call.popT!=null&&g.t-ex.call.popT<.6&&window.MAP_FIREBASE&&MAP_FIREBASE.drawSmoke)MAP_FIREBASE.drawSmoke(ctx,'smokeCanHeld',ex.smokeCol||ex.col||'violet','held',Math.round(p.x+gx*6),Math.round(hy+gy*6),SHEET_SCALE_MEN,false) } }   /* smokeCanHeld at the hand point as he pops it */
       if(g.muzzle>0){ const mx=p.x+gx*24,my=hy+gy*24; if(!MZ(g,'muzzle',g.mzW||'m16',mx,my,Math.atan2(gy,gx))){ ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(mx,my,6+rnd()*3,0,TAU); ctx.fill() } } } }
-  JG.layer('over',{x:camX,y:camY},zoom); if(JG.ok()&&window.VFX_IMPACT)try{ ctx.save(); ctx.scale(.5,.5); VFX_IMPACT.drawAll(ctx,0,0,2,'debris'); ctx.restore() }catch(e){}   /* jr: with jungle on, airborne fire/smoke/debris draws above the front grass blades (was hidden by them) */
+  JG.layer('over',{x:camX,y:camY},zoom);
   JG.layer('canopy',{x:camX,y:camY},zoom);   /* rc7 #4 jungle front blades + canopy (hole at Doc) */
+  if(JG.ok()&&window.VFX_IMPACT)try{ ctx.save(); ctx.scale(.5,.5); VFX_IMPACT.drawAll(ctx,0,0,2,'debris'); ctx.restore() }catch(e){}   /* jr: with jungle on, airborne fire/smoke/debris draws above the front grass/bamboo blades AND the canopy */
   // particles
   for(let pass=0;pass<2;pass++){ if(pass===1)ctx.globalCompositeOperation='lighter';
     for(const q of parts){ if(q.g!==pass)continue; ctx.globalAlpha=Math.max(0,q.l/q.ml); ctx.fillStyle=q.c; const s=q.s*(pass?(.5+.5*q.l/q.ml):1); ctx.fillRect(q.x-s/2,q.y-s/2,s,s) }

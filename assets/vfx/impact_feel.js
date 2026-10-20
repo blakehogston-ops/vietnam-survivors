@@ -381,33 +381,26 @@
     e.on = true; e.a = a; e.sp = sp; e.T = T; e.t = 0; e.tx = x; e.ty = y; e.x = x - Math.cos(a) * sp * T; e.y = y - Math.sin(a) * sp * T; e.z = opts.z || 40; e.o = opts; return e;
   }
   function napalmBurst(x, y, a, o) {
-    var ca = Math.cos(a), sa = Math.sin(a), L = 120, sh = o && o.cx != null ? shake('napalm', { x: x, y: y, cx: o.cx, cy: o.cy }) : shake('napalm', {}); if (sh) hitStop('napalm', {});
-    decal('scorch_teardrop', x + ca * L * 0.42, y + sa * L * 0.42, { angle: a });
-    // jr rev 2 (Art Director notes): no flat sheet sprite. The splash is built from ~95 soft puffs in 3 tone bands that roll forward along the
-    // flight line: a ragged front of tongues, hot yellow-white cores in patches, orange body, red-brown edges, a faint ground glow, and black
-    // oily smoke boiling off the back half from ~0.3 s. Lingering fire patches + the teardrop scorch stay after it burns out.
+    var ca = Math.cos(a), sa = Math.sin(a), L = 240, WS = 1.5, sh = o && o.cx != null ? shake('napalm', { x: x, y: y, cx: o.cx, cy: o.cy }) : shake('napalm', {}); if (sh) hitStop('napalm', {});
+    decal('scorch_teardrop', x + ca * L * 0.3, y + sa * L * 0.3, { angle: a }); decal('scorch_teardrop', x + ca * L * 0.68, y + sa * L * 0.68, { angle: a });
+    // jr rev 3 (Art Director final): sheet 2x longer (240 px) and 1.5x wider along the flight line, hot #ffe9a0 spine, strong #8a2a08 edges,
+    // one brief mild additive ground bloom (~0.1 s), ~120 puffs per canister (pool 260). Drawn above bamboo/canopy by the game (debris layer).
     var P = function (u, l, z, fwd, lat, vz, dl, life, r0, grow, shd, al) { puff(x + ca * u - sa * l, y + sa * u + ca * l, z, ca * fwd - sa * lat, sa * fwd + ca * lat, vz, dl, life, r0, grow, shd, al); };
-    var i, f, u, l, w;
-    // body: orange, wider toward the front (teardrop), front rolls in over ~0.3 s
-    for (i = 0; i < 26; i++) { f = Math.pow(rnd(), 0.8); u = f * L * 0.85; w = 8 + f * 22; l = (rnd() - 0.5) * 2 * w * (0.5 + rnd() * 0.5);
-      P(u, l, 2 + rnd() * 4, 30 + rnd() * 50, (rnd() - 0.5) * 16, 10 + rnd() * 20, f * 0.3, 0.9 + rnd() * 0.7, 6 + rnd() * 5, 6 + rnd() * 5, 11, 0.7 + rnd() * 0.25); }
-    // edges: deep red-brown, on the flanks and the tail
-    for (i = 0; i < 14; i++) { f = rnd(); u = f * L * 0.9; w = 10 + f * 24; l = (rnd() < 0.5 ? -1 : 1) * w * (0.75 + rnd() * 0.35);
-      P(u, l, 1 + rnd() * 3, 20 + rnd() * 30, l * 0.4, 6 + rnd() * 10, f * 0.3 + 0.03, 1.1 + rnd() * 0.9, 5 + rnd() * 4, 5 + rnd() * 4, 12, 0.55 + rnd() * 0.3); }
-    // hot cores: patchy clusters, short-lived
-    for (var cI = 0; cI < 4; cI++) { var cf = 0.15 + rnd() * 0.7, cu = cf * L * 0.85, cl = (rnd() - 0.5) * (10 + cf * 20);
-      for (i = 0; i < 3; i++) P(cu + (rnd() - 0.5) * 12, cl + (rnd() - 0.5) * 8, 4 + rnd() * 3, 40 + rnd() * 40, 0, 15 + rnd() * 15, cf * 0.3 + rnd() * 0.05, 0.35 + rnd() * 0.4, 3 + rnd() * 3, 3, 10, 0.65 + rnd() * 0.35); }
-    // ragged leading front: 5 tongues of different reach licking forward, each rolling (body -> lighter, higher tip)
-    for (var tI = 0; tI < 5; tI++) { var tl = (rnd() - 0.5) * 50, reach = L * (0.95 + rnd() * 0.35), t0 = 0.16 + rnd() * 0.1;
-      for (i = 0; i < 4; i++) { f = i / 3; u = L * 0.75 + (reach - L * 0.75) * f; var tip = i === 3;
+    var i, f, u, l, w, D = 0.36;   // D: time for the front to roll the length of the sheet
+    P(L * 0.35, 0, 0, 0, 0, 0, 0, 0.12, 34, 10, 13, 0.22);   // brief ground bloom, isolated and mild
+    for (i = 0; i < 34; i++) { f = Math.pow(rnd(), 0.85); u = f * L * 0.88; w = (8 + f * 22) * WS; l = (rnd() - 0.5) * 2 * w * (0.45 + rnd() * 0.5);   // orange body
+      P(u, l, 2 + rnd() * 4, 30 + rnd() * 50, (rnd() - 0.5) * 16, 10 + rnd() * 20, f * D, 0.9 + rnd() * 0.7, 9 + rnd() * 6, 7 + rnd() * 6, 11, 0.7 + rnd() * 0.25); }
+    for (i = 0; i < 20; i++) { f = rnd(); u = f * L * 0.92; w = (10 + f * 24) * WS; l = (rnd() < 0.5 ? -1 : 1) * w * (0.8 + rnd() * 0.3);   // strong red-brown edges
+      P(u, l, 1 + rnd() * 3, 20 + rnd() * 30, l * 0.3, 6 + rnd() * 10, f * D + 0.03, 1.2 + rnd() * 0.9, 8 + rnd() * 5, 6 + rnd() * 4, 12, 0.8 + rnd() * 0.18); }
+    for (i = 0; i < 14; i++) { f = (i + rnd()) / 14; u = f * L * 0.85; l = (rnd() - 0.5) * 8;   // hot spine along the flight line
+      P(u, l, 4 + rnd() * 3, 40 + rnd() * 40, 0, 15 + rnd() * 15, f * D + rnd() * 0.04, 0.35 + rnd() * 0.35, 4 + rnd() * 3, 4, 10, 0.7 + rnd() * 0.3); }
+    for (var tI = 0; tI < 6; tI++) { var tl = (rnd() - 0.5) * 70, reach = L * (0.95 + rnd() * 0.22), t0 = D * 0.6 + rnd() * 0.1;   // ragged rolling front
+      for (i = 0; i < 4; i++) { f = i / 3; u = L * 0.8 + (reach - L * 0.8) * f; var tip = i === 3;
         P(u, tl + (rnd() - 0.5) * 6, 3 + f * 6 + (tip ? 4 : 0), 70 + f * 80 + rnd() * 30, (rnd() - 0.5) * 20, 20 + f * 30, t0 + f * 0.18, 0.55 + rnd() * 0.35 - f * 0.1, 7 - f * 3 + rnd() * 2, 5, tip ? 10 : i === 2 ? 9 : 11, 0.8 + rnd() * 0.2); } }
-    // faint ground glow, ~20 px halo under the sheet (additive, low alpha)
-    for (i = 0; i < 5; i++) { f = (i + 0.5) / 5; P(f * L * 0.9, 0, 0, 20, 0, 0, f * 0.25, 1.8 + rnd() * 0.6, 18 + f * 6, 4, 13, 0.16 + rnd() * 0.06); }
-    // black oily smoke from the back half, starting ~0.4 s, rising and lingering unevenly
-    for (i = 0; i < 18; i++) { f = rnd() * 0.55; u = f * L; l = (rnd() - 0.5) * (14 + f * 30);
+    for (i = 0; i < 6; i++) { f = (i + 0.5) / 6; P(f * L * 0.9, 0, 0, 20, 0, 0, f * D * 0.8, 1.8 + rnd() * 0.6, 20 + f * 6, 4, 13, 0.14 + rnd() * 0.05); }   // faint ~20 px glow
+    for (i = 0; i < 22; i++) { f = rnd() * 0.55; u = f * L; l = (rnd() - 0.5) * (14 + f * 30) * WS;   // black oily smoke off the back half from ~0.3 s
       P(u, l, 8 + rnd() * 10, 10 + rnd() * 20, (rnd() - 0.5) * 10, 40 + rnd() * 60, 0.3 + Math.pow(rnd(), 1.5) * 0.9, 2.6 + rnd() * 2.6, 7 + rnd() * 6, 9 + rnd() * 8, 6, 0.7 + rnd() * 0.2); }
-    // fire patches that keep burning after the splash: clustered, uneven sizes, inside the teardrop (scorch decal stays underneath)
-    var np = 12 + ((rnd() * 6) | 0); for (var p2 = 0; p2 < np; p2++) { var fe = slotOf(FI, FM, fRing); fRing = (fRing + 1) % FM; var f3 = Math.sqrt(rnd()), w3 = 6 + f3 * 26, u3 = f3 * L * 0.95, l3 = (rnd() - 0.5) * 2 * w3;
+    var np = 16 + ((rnd() * 6) | 0); for (var p2 = 0; p2 < np; p2++) { var fe = slotOf(FI, FM, fRing); fRing = (fRing + 1) % FM; var f3 = rnd(), w3 = (6 + f3 * 26) * WS, u3 = f3 * L * 0.95, l3 = (rnd() - 0.5) * 2 * w3 * 0.7;
       fe.on = true; fe.x = x + ca * u3 - sa * l3; fe.y = y + sa * u3 + ca * l3; fe.t = -rnd() * 0.6; fe.life = 8 + rnd() * 16; fe.s = rnd() * 0.4; fe.ph = rnd() * 10; fe.sz = rnd() < 0.3 ? 2 : rnd() < 0.6 ? 1.5 : 1; }
     debris('dirt', x, y, 4, 90);
   }
