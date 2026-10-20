@@ -1,11 +1,15 @@
-/* Build stamp + cache-buster. Run AFTER committing code:  node tools/stamp.js && git commit -am "Build stamp" && git push
-   Writes the short hash of HEAD and the date/time (America/New_York) into index.html: BUILD constant (shown bottom-left on the main menu and
-   pause screen) and the ?v= query on favicon links; audio and the service photo use the same value at runtime (AV). */
+/* Build stamp + cache-buster.  Usage:  node tools/stamp.js [--tag lco-rc2] && git commit -am "Build stamp" && git tag lco-rc2
+   A commit cannot contain its own hash, so BUILD.id is the CODE commit (HEAD when this runs) and the tag sits on the stamp commit
+   right after it; the menu shows "BUILD <tag> · <code hash> · <date>", and `git rev-parse <tag>^` == BUILD.id (check with --verify <tag>).
+   RC1 shipped with e80a6a5 = lco-rc1^ for this reason (and the old stamp list missed newer art files, which kept stale ?v= values). */
 const {execSync}=require('child_process'), fs=require('fs'), path=require('path');
-const root=path.join(__dirname,'..'), f=path.join(root,'index.html');
-const id=execSync('git rev-parse --short HEAD',{cwd:root}).toString().trim();
-const d=new Date().toLocaleString('sv-SE',{timeZone:'America/New_York',hour12:false}).slice(0,16);
+const root=path.join(__dirname,'..'), f=path.join(root,'index.html'), A=process.argv, sh=c=>execSync(c,{cwd:root}).toString().trim();
 let s=fs.readFileSync(f,'utf8');
-s=s.replace(/const BUILD=\{id:'[^']*',date:'[^']*'\}/,`const BUILD={id:'${id}',date:'${d} ET'}`);
-s=s.replace(/(apple-touch-icon\.png|sheet1\.js|huey\.js|huey_hivis\.js|doc_hivis\.js|marines_tall\.js|heroes_tall\.js|heroes_v3\.js|firebase\.js|terrain\.js|vehicles\.js|ch46_v2\.js|dressing_pickups\.js|cover_poses\.js|sample_player\.js|manifest\.js)\?v=[A-Za-z0-9]+/g,`$1?v=${id}`);
-fs.writeFileSync(f,s); console.log('stamped',id,d,'ET');
+if(A.includes('--verify')){ const t=A[A.indexOf('--verify')+1], want=sh('git rev-parse --short '+t+'^'), m=s.match(/const BUILD=\{id:'([^']*)'.*?tag:'([^']*)'/);
+  const ok=m&&m[1]===want&&m[2]===t; console.log(ok?'OK':'MISMATCH','tag',t,'stamp',m&&m[1],m&&m[2],'expected',want); process.exit(ok?0:1) }
+if(sh('git status --porcelain --untracked-files=no index.html assets audio'))console.warn('WARNING: uncommitted changes; the stamped hash will not match the shipped code');
+const id=sh('git rev-parse --short HEAD'), tag=A.includes('--tag')?A[A.indexOf('--tag')+1]:'';
+const d=new Date().toLocaleString('sv-SE',{timeZone:'America/New_York',hour12:false}).slice(0,16);
+s=s.replace(/const BUILD=\{id:'[^']*',date:'[^']*'(,tag:'[^']*')?\}/,`const BUILD={id:'${id}',date:'${d} ET',tag:'${tag}'}`);
+s=s.replace(/((?:assets|audio)\/[\w\/.-]+\.(?:js|png|ogg|m4a)|apple-touch-icon\.png)\?v=[A-Za-z0-9]+/g,`$1?v=${id}`);   /* every versioned asset, not a hand list */
+fs.writeFileSync(f,s); console.log('stamped',id,tag,d,'ET');

@@ -268,7 +268,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <div id="padHint" aria-live="polite"></div>
 <div id="newBuild" role="button">A newer version of the game is available · click to reload</div>
 <div id="sup" aria-live="off"></div>
-<div id="medHud"><button id="medBtn" title="Use a battle dressing on yourself (H / pad B)">✚ <b id="medN">0</b><span>H</span></button><button id="medMate" title="Patch the most hurt Marine in reach (Q / pad RB)">✚ MARINE<span>Q</span></button></div>
+<div id="medHud"><button id="medBtn" title="Use a battle dressing on yourself (H / pad B)">✚ <b id="medN">0</b><span>H</span></button><button id="medMate" title="Patch the most hurt Marine in reach (Q / pad RB)">✚ <i id="medMateT">MARINE</i><span>Q</span></button><b id="rtoHud" style="display:none;align-self:center;font:bold 12px monospace;padding:4px 7px;background:rgba(10,12,8,.75);border-radius:4px"></b></div>
 <div id="tkr" aria-live="off"><i id="tkrRing"></i><span id="tkrTx"></span></div>
 <button id="abil" title="Special ability (Space / E)"><i id="abilCd"></i><span id="abilKey">SPACE</span><b id="abilNm"></b></button>
 <div id="levelup" class="overlay">
@@ -1176,7 +1176,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <script>/* Artist Helper explosion VFX (?xfx=0 off) */ if(!/[?&]xfx=0\b/.test(location.search))document.write('<script src="assets/art/explosions.js?v=5d95db8"><\/script>')</script><script src="assets/art/enemies_v3.js"></script><script src="assets/art/engineers_v4.js"></script><script src="assets/art/fb2_guns.js"></script><script src="assets/art/aid_jeep.js"></script><script src="assets/art/fb2_aid_station.js"></script><script src="assets/art/ability_icons.js?v=ac1dbb7"></script><script src="assets/art/pbr_splash.js?v=ac1dbb7"></script><script defer src="audio/sample_player.js?v=e80a6a5"></script><script defer src="audio/samples/manifest.js?v=e80a6a5"></script>
 <script>
 /* BUILD STAMP: set by tools/stamp.js (run after every code commit; it records that commit's short hash + date). Also the ?v= cache-buster for audio / images / icons. */
-const BUILD={id:'e80a6a5',date:'2026-10-20 01:18 ET'}, AV='?v='+BUILD.id;
+const BUILD={id:'e80a6a5',date:'2026-10-20 01:18 ET',tag:''}, AV='?v='+BUILD.id;
 /* Quang Tri preview (Stage 1): saves use the lbo2_ prefix; old vs_/lbo_ saves are never read or touched. */
 (()=>{
 'use strict';
@@ -2599,7 +2599,7 @@ function drawSquad(camX,camY){
     // HP bar
     if(!z&&!(m.coy&&m.hp>=m.mhp)){ const r=Math.max(0,m.hp/m.mhp), w=22, bx=Math.round(m.x-w/2), by=Math.round((TM?fy-bob-TM.h*SHEET_SCALE_MEN:m.y-spr.height*.56)-8); ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,5); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,3);
       ctx.fillStyle=r>.55?'#6fd04a':r>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,Math.round(w*r),3) }
-    if(m.rto&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56), bx=Math.round(m.x)+(m.face>0?-7:3); ctx.fillStyle='#2f3522'; ctx.fillRect(bx,cy+9,5,9); ctx.fillStyle='#454d33'; ctx.fillRect(bx,cy+9,5,2); ctx.strokeStyle='rgba(20,18,12,.85)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(bx+2,cy+9); ctx.quadraticCurveTo(bx+2+(m.face>0?-3:3)+Math.sin(G.t*3)*1.2,cy-4,bx+2+(m.face>0?-5:5),cy-14); ctx.stroke();   /* PRC-25 + flexing whip antenna */
+    if(m.rto&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56), bx=Math.round(m.x)+(m.face>0?-7:3); ctx.fillStyle='#2f3522'; ctx.fillRect(bx,cy+9,5,9); ctx.fillStyle='#454d33'; ctx.fillRect(bx,cy+9,5,2); ctx.strokeStyle='rgba(20,18,12,.85)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(bx+2,cy+9); ctx.quadraticCurveTo(bx+2+(m.face>0?-3:3)+Math.sin(G.t*3)*1.2,cy-4,bx+2+(m.face>0?-5:5),cy-14); ctx.stroke();   /* PRC-25 + flexing whip antenna */ { ctx.font='bold 10px monospace'; ctx.textAlign='center'; const ly=cy-20, lw=ctx.measureText('RTO').width+6; ctx.fillStyle='rgba(10,12,8,.75)'; ctx.fillRect(Math.round(m.x-lw/2),ly-9,Math.round(lw),12); ctx.fillStyle='#e8dca0'; ctx.fillText('RTO',Math.round(m.x),ly) }   /* RC2: always-on RTO tag */
       if(m.callT>0){ m.callT-=1/60; const al=Math.min(1,m.callT*1.5), sd=m.x<G.p.x?-1:1; ctx.font='bold 11px monospace'; const tw=ctx.measureText('ON THE HORN').width, bx0=sd<0?m.x-14-tw-4:m.x+14-4, by0=cy-4;
         ctx.fillStyle='rgba(12,12,8,'+(.72*al)+')'; ctx.fillRect(Math.round(bx0),Math.round(by0),Math.round(tw+8),15); ctx.fillStyle='rgba(120,128,80,'+(.8*al)+')'; ctx.fillRect(Math.round(bx0),Math.round(by0),2,15);
         ctx.fillStyle='rgba(236,228,190,'+al+')'; ctx.textAlign='left'; ctx.fillText('ON THE HORN',Math.round(bx0+5),Math.round(by0+11)) }   /* beside the RTO, on the side away from Doc's marker */
@@ -3090,11 +3090,11 @@ function dropGem(x,y,v,type){ if(gems.length>220){addXp(v);return} gems.push({x:
    25 s lifetime (blinks in the last 6 s), heals 17% max HP (halved if you picked one up in the last 10 s). VC do not drop them (the NVA rate is plenty). */
 const MED={chance:.05,pity:45,gap:16,cap:3,life:40,blink:6,heal:.17,inv:5,self:.35,mate:.6,reach:110};
 /* Blake Oct 20: med packs go in Doc's pouch (max 5). H = use on yourself, Q = patch the most hurt Marine within reach (RTO first) */
-function useMed(mate){ const g=G; if(!g||g.demo||state!=='play'||!(g.medInv>0))return false; const p=g.p;
-  if(!mate){ if(p.hp>=p.maxHp){ ftexts.push({x:p.x,y:p.y-18,t:0,s:'FULL HEALTH',c:'#cfcfb0'}); return false } const amt=Math.round(p.maxHp*MED.self), got=Math.min(amt,p.maxHp-p.hp); p.hp+=got; g.med.healed+=got; g.medInv--;
-    ftexts.push({x:p.x,y:p.y-18,t:0,s:'+'+got+' HP',c:'#8cf08c'}); burst(p.x,p.y,6,40,.4,2,['#c8c8b8','#8a9a6a'],true); Snd.play('heal'); return true }
-  let b=null,bs=-1; for(const m of coy.concat(squad,pat)){ if(!m||m.hp<=0||m.hid||m.hp>=m.mhp||m.state&&m.state!=='ok'&&m.state!=='fight')continue; const d=Math.hypot(m.x-p.x,m.y-p.y); if(d>MED.reach)continue; const sc=(1-m.hp/m.mhp)+(m.rto?1:0); if(sc>bs){bs=sc;b=m} }
-  if(!b){ ftexts.push({x:p.x,y:p.y-18,t:0,s:'NO WOUNDED IN REACH',c:'#cfcfb0'}); return false } const amt=Math.round(b.mhp*MED.mate), got=Math.min(amt,b.mhp-b.hp); b.hp+=got; g.medInv--; g.medMates=(g.medMates|0)+1;
+function useMed(mate){ const g=G; if(!g||g.demo||state!=='play'||!(g.medInv>0))return false; const p=g.p; const now=performance.now(); if(now-(g.medLock||0)<400)return false; g.medLock=now;   /* RC2: H+Q together use one dressing, never two */
+  if(!mate){ if(p.maxHp-p.hp<1){ g.medLock=0; ftexts.push({x:p.x,y:p.y-18,t:0,s:'FULL HEALTH',c:'#cfcfb0'}); return false } const amt=Math.round(p.maxHp*MED.self), got=Math.min(amt,p.maxHp-p.hp); p.hp+=got; g.med.healed+=got; g.medInv--;
+    ftexts.push({x:p.x,y:p.y-18,t:0,s:'+'+Math.max(1,Math.round(got))+' HP',c:'#8cf08c'}); burst(p.x,p.y,6,40,.4,2,['#c8c8b8','#8a9a6a'],true); Snd.play('heal'); return true }
+  const b=medTarget();
+  if(!b){ g.medLock=0; ftexts.push({x:p.x,y:p.y-18,t:0,s:'NO WOUNDED IN REACH',c:'#cfcfb0'}); return false } const amt=Math.round(b.mhp*MED.mate), got=Math.min(amt,b.mhp-b.hp); b.hp+=got; g.medInv--; g.medMates=(g.medMates|0)+1;
   ftexts.push({x:b.x,y:b.y-22,t:0,s:'+'+Math.round(got)+' '+(b.nm||'MARINE'),c:'#8cf08c'}); burst(b.x,b.y,6,40,.4,2,['#c8c8b8','#8a9a6a'],true); Snd.play('heal'); return true }
 function medDrop(e){ const g=G, m=g.med; if(!m||g.demo||e.type!=='nva')return; m.dry++; if(g.t<m.nextT||medpacks.length>=MED.cap)return;
   if(rnd()<MED.chance||m.dry>=MED.pity){ m.dry=0; m.nextT=g.t+MED.gap; m.drops++; medpacks.push({x:e.x,y:e.y,life:MED.life,pull:false,sp:0}); if(Math.hypot(e.x-g.p.x,e.y-g.p.y)<720)Snd.cue('medpackDrop') } }
@@ -3109,6 +3109,7 @@ function addXp(v){ const p=G.p; p.xp+=v*(1+(G.xpB||0)+.1*(G.ps.fm|0)); while(p.x
 /* last damage source (QA/Gamer): hurtPlayer(dmg, src). G.lastHit = most recent hit, G.hs = total damage taken per source */
 const ESRC=e=>e.boss?('boss '+(e.name||'')).trim():e.tank?'NVA tank':({vc:'VC melee',nva:'NVA melee',officer:'NVA officer melee',sapper:'sapper blast',rpgt:'B-40 trooper melee',rpg:'RPG gunner melee'}[e.type]||((e.type||'enemy')+' melee'));
 function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return; if(G.ex&&G.ex.divert)dmg*=.5; { const D=CHD[G.char], q=parseFloat(params.get('herodr')); const dr=isFinite(q)&&G.char!=='doc'?q:(D&&D.base&&D.base.dr)||0; if(dr)dmg*=1-dr }   /* per-hero survivability (Blake Oct 15: non-Doc heroes survive about as well as Doc; Doc has dr 0) */ if(G.ex&&(G.ex.ph===4||G.ex.ph===5))dmg*=.75;   /* bird inbound/landed: pressure lives in the hold (ph 3); the last 30 s stays tough but survivable */ if(PB.inside())dmg*=PB.DMG; if(src==='RPG/B-40 rocket'&&!PACE.mass(G))dmg*=.5;   /* early levels: B-40 is a threat cue, not a one-shot on Doc */ dmg=Math.max(1,Math.round(dmg*armorMul()*(1+holdT(G)/900))); src=src||'unknown'; PAD.rumble(120,Math.min(1,.25+dmg/40),.3);
+  { const W5=G.dw5||(G.dw5=[]); while(W5.length&&G.t-W5[0][0]>5)W5.shift(); let sum=0; for(const q of W5)sum+=q[1]; dmg=Math.min(dmg,Math.max(0,Math.round(p.maxHp*.4-sum))); if(dmg<=0){ p.invul=.2; return } W5.push([G.t,dmg]) }   /* RC2 (Gamer): Doc loses at most 40% max HP in any 5 s window */
   G.lastHit={src,dmg,t:G.t}; (G.hs||(G.hs={}))[src]=(G.hs[src]||0)+dmg;
   p.hp-=dmg; p.invul=.45; p.hurtT=.18; G.hurt=.5; G.shake=Math.max(G.shake,9); Snd.play('hurt');
   spawnDrops(p.x,p.y-6,0,0,12,130); if(rnd()<.6)addDecal(p.x+(rnd()-.5)*16,p.y+8,SPLAT[(rnd()*5)|0],30,.8);
@@ -4239,7 +4240,7 @@ const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,spooky:10,arclight:14,boxmission:22},
   call(g,id,w){ const m=this.get(g); if(!m)return false; if(m.state!=='ok')return false; if((g.rtoGap||0)>g.t)return false;
     let N=0; for(const e of enemies)if(!e.dead)N++; if(!w.held&&!g.demo){ Snd.play('ready'); ftexts.push({x:m.x,y:m.y-6,t:0,s:'STRIKE READY',c:'#d8cf9a'}) } const held=w.held=(w.held||0)+1/60;   /* soft tick: he has a strike in his pocket */ const need=Math.max(3,Math.round((this.MIN[id]||5)*(held>25?.5:1)));   /* waits for a worthy target; after ~25 s held he settles for half */
     if(N<need)return false; const t=this.densest(); if(!t||t.n<Math.min(3,need))return false;
-    RTO_T=[t.x,t.y]; w.held=0; g.rtoGap=g.t+this.GAP; g.rtoCalls=(g.rtoCalls|0)+1;
+    RTO_T=[t.x,t.y]; w.held=0; if(!g.demo)try{ radioKey() }catch(e){} g.rtoGap=g.t+this.GAP; g.rtoCalls=(g.rtoCalls|0)+1;
     const big=N>=60?2:N>=30?1:0, o={};
     if(id==='napalm')o.n=ITEMS.napalm.stats(w.lvl).n+big; if((id==='arclight'||id==='boxmission')&&big)o.n=ITEMS[id].stats(w.lvl).n+4*big;
     for(const k in o)if(o[k]===undefined)delete o[k];
@@ -5054,7 +5055,7 @@ function selectChar(id){ if(!CHD[id])return; const op=chOpen(id); SEL=id; if(op&
   $('csRec').innerHTML=`<div class="rh"><span>${D.svc||'U.S. MARINE CORPS'} · SERVICE RECORD</span><span>${D.sn?'SN '+D.sn:''}</span></div>
    <div class="rb"><div class="pcol"><canvas id="csPort" width="112" height="128"></canvas>${svcPhoto(id)}</div><div class="fld"><span>RANK</span><b>${D.rank}</b><span>NAME</span><b>${D.nm}</b>${D.label?'':`<span>NICKNAME</span><b>"${D.nick}"</b>`}<span>HOMETOWN</span><b>${D.home}</b><span>MOS</span><b>${D.mos}</b>${D.age?`<span>AGE</span><b>${D.age}</b>`:''}<span>LOADOUT</span><b>${D.loadout}</b></div></div>
    <p>${D.bio.join(' ')}</p><div class="kn">KNOWN FOR: ${D.known}</div>${D.quote?`<div class="qt">"${D.quote}" — ${D.nick}</div>`:''}
-   <div class="sp"><div><u>PASSIVE:</u> ${D.passive}</div><div><u>SPECIAL [SPACE / E]:</u> ${D.ab.nm} — ${D.ab.desc} <i>(${D.ab.cd}s)</i></div></div>
+   <div class="sp"><div><u>PASSIVE:</u> ${D.passive}</div>${id==='doc'?'<div><u>BATTLE DRESSINGS:</u> [H] treat yourself · [Q] treat the most wounded Marine in reach (pad B / RB)</div>':`<div><u>SPECIAL [SPACE / E]:</u> ${D.ab.nm} — ${D.ab.desc} <i>(${D.ab.cd}s)</i></div>`}</div>
    ${ribRackHTML(id)}
    <div class="tr"><b>SERVICE TIER ${t}/5</b> · ${x} XP · ${c.runs||0} patrols · best ${fmt(c.best||0)}<div class="bar"><i style="width:${pct}%"></i></div>
    ${D.perks.map((p,i)=>`<div class="pk${i<t?' on':''}">${i<t?'✔':'🔒'} Tier ${i+1} (${TIER_XP[i]} XP): ${p.t}</div>`).join('')}</div><div class="stamp">${t>=5?'VETERAN':'CONFIDENTIAL'}</div>`;
@@ -5810,7 +5811,7 @@ function drawFbHud(U){ const g=G,p=g.p; ctx.setTransform(1,0,0,1,0,0);
   if(g.inFb)txt('FIREBASE: REGEN + AMMO + ARMOR',W/2,y+12*U,12*U,'#ffe58a','center');
   // LZ / base arrow when off-screen
   const T=(G.ex?null:lzS)||(f&&f.state!=='done'?f:null)||null; if(T){   /* extraction: no LZ-radio arrow (it is not the pad; Gamer overshot) - the PAD arrow appears when the pad is marked */ const dx=T.x-p.x,dy=T.y-p.y,d=Math.hypot(dx,dy); const on=Math.abs(dx)<VW/2-30&&Math.abs(dy)<VH/2-30;
-    if(!on){ const a=Math.atan2(dy,dx), ex=W/2+Math.cos(a)*Math.min(W/2-34*U,(H/2-34*U)/Math.abs(Math.sin(a)||1e-3)*Math.abs(Math.cos(a))), ey=H/2+Math.sin(a)*Math.min(H/2-34*U,(W/2-34*U)/Math.abs(Math.cos(a)||1e-3)*Math.abs(Math.sin(a)));
+    if(!on){ const a=Math.atan2(dy,dx), [ex,ey]=edgeArrow(a,U);
       ctx.save(); ctx.translate(ex,ey); ctx.rotate(a); ctx.fillStyle='#ffe58a'; ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(16*U,0); ctx.lineTo(-8*U,-9*U); ctx.lineTo(-8*U,9*U); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore(); txt((lzS?'LZ ':'FB ')+T.name+' '+Math.round(d/10)+'m',ex,ey+(ey>H/2?-16*U:22*U),11*U,'#ffe58a','center') }
     else if(lzS&&lzS.hold>0){ bar('CALLING SUPPORT '+Math.round(lzS.hold*100)+'%',lzS.hold,'#4fb34a',H*.62) } }
   if(fbS&&fbS.state==='stalled'&&fbS.hold>0)bar('CALLING ENGINEERS '+Math.round(fbS.hold*100)+'%',fbS.hold,'#4fb34a',H*.62) }
@@ -6163,7 +6164,7 @@ function drawExHuey(h,tt){ drawHuey(h);
     ctx.strokeStyle='#d9a67a'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx+3,cy-3); ctx.lineTo(cx+7+Math.sin(tt*9)*3,cy-11); ctx.stroke(); ctx.restore() } }
 function exTop(U){ const g=G; return PY+4*U+(((g.boss&&!g.boss.dead)?26:0)+((fbS&&fbS.state!=='done')?43:(fbS?18:0))+(g.inFb?14:0))*U }
 function toScr(x,y,camX,camY){ return [(x-camX)*zoom,(y-camY)*zoom] }
-function edgeArrow(a,U){ const ex=W/2+Math.cos(a)*Math.min(W/2-34*U,(H/2-34*U)/Math.abs(Math.sin(a)||1e-3)*Math.abs(Math.cos(a))), ey=H/2+Math.sin(a)*Math.min(H/2-34*U,(W/2-34*U)/Math.abs(Math.cos(a)||1e-3)*Math.abs(Math.sin(a))); return [ex,ey] }
+function edgeArrow(a,U){ const c=Math.cos(a), s=Math.sin(a), r=Math.min((W/2-34*U)/Math.max(1e-3,Math.abs(c)),(H/2-34*U)/Math.max(1e-3,Math.abs(s))); return [W/2+c*r,H/2+s*r] }   /* RC2: ray to the screen-edge rectangle (old formula left diagonal arrows floating mid-screen) */
 const DIR8=['EAST','SOUTHEAST','SOUTH','SOUTHWEST','WEST','NORTHWEST','NORTH','NORTHEAST'];
 const dirWord=(dx,dy)=>DIR8[((Math.round(Math.atan2(dy,dx)/(Math.PI/4))%8)+8)%8];
 /* the permanent line under the timer: what Doc is doing right now (+ live distance/arrow), and the count of the fifteen */
@@ -6208,7 +6209,10 @@ function drawExHud(U,camX,camY,tt){ const g=G,p=g.p,ex=g.ex; exStack=0; if(!ex||
     ctx.fillStyle='#f6f6e6'; const shown=Math.floor(m.t*40); let idx=0; const full=m.text; lines.forEach((L,i)=>{ const part=full.slice(idx,idx+L.length).slice(0,Math.max(0,shown-idx)); ctx.fillText(part,bx+pw+16*U,y+(32+i*15)*U); idx+=L.length+1 });
     ctx.globalAlpha=1; y+=bh+4*U }
   exStack=y-exTop(U) }
-function hudMed(){ const el=document.getElementById('medHud'), g=G; if(!el)return; const show=!!(g&&g.char&&!g.demo&&state==='play'); el.style.display=show?'flex':'none'; if(!show)return; const n=g.medInv|0, t=document.getElementById('medN'); if(t.textContent!==''+n)t.textContent=n; document.getElementById('medBtn').disabled=!n; document.getElementById('medMate').disabled=!n }
+function hudMed(){ const el=document.getElementById('medHud'), g=G; if(!el)return; const show=!!(g&&g.char&&!g.demo&&state==='play'); el.style.display=show?'flex':'none'; if(!show)return; const n=g.medInv|0, t=document.getElementById('medN'); if(t.textContent!==''+n)t.textContent=n; document.getElementById('medBtn').disabled=!n; document.getElementById('medMate').disabled=!n;
+  { const b=medTarget(), mt=document.getElementById('medMateT'), lab=b?'Q: treat '+(b.nm||'Marine').toUpperCase():'MARINE'; if(mt&&mt.textContent!==lab)mt.textContent=lab; const mm=document.getElementById('medMate'); if(mm)mm.style.outline=b&&n?'2px solid #8cf08c':'' }
+  { const r=document.getElementById('rtoHud'); if(r){ const m=RTO.get(g), had=g.rtoSeen=g.rtoSeen||!!m, t=m?'📻 RTO':had?'RTO KIA':''; r.style.display=t?'':'none'; if(r.textContent!==t){ r.textContent=t; r.style.color=m?'#9be37a':'#e05a4a' } } } }
+function medTarget(){ const g=G, p=g&&g.p; if(!p)return null; let b=null,bs=-1; for(const m of coy.concat(squad,pat)){ if(!m||m.hp<=0||m.hid||m.mhp-m.hp<1||m.state&&m.state!=='ok'&&m.state!=='fight')continue; const d=Math.hypot(m.x-p.x,m.y-p.y); if(d>MED.reach)continue; const sc=(1-m.hp/m.mhp)+(m.rto?1:0); if(sc>bs){bs=sc;b=m} } return b }
 function hudSig(){ hudMed(); const b=$('sigBtn'); if(b&&b.style.display!=='none')b.style.display='none' }
 /* ====================== WEAPON-SPECIFIC DEATHS (last damage source decides the effect) ====================== */
 const BTAG={'#ffe9a0':'m50','#fff0a0':'m50','#ffe58a':'m50','#ffc860':'mg','#ffd46a':'tracer','#ffd9a0':'shot'};
@@ -6481,7 +6485,7 @@ DBG.pad={ info(){ return {on:PAD.on,id:PAD.id,ps:PAD.ps,mx:+PAD.mx.toFixed(2),my
   axes(x,y){ this.connect(); PAD.virt.pad.axes[0]=x; PAD.virt.pad.axes[1]=y } };
 requestAnimationFrame(()=>PAD.frame());
 /* build stamp text on main menu + pause screen, and a stale-page check: GitHub Pages caches the page ~10 min, so on load we ask the server (HEAD, no-store) whether index.html is newer than the copy we are running */
-document.querySelectorAll('.bstamp').forEach(e=>{ e.textContent='BUILD '+BUILD.id+' · '+BUILD.date }); if(ALLU)document.querySelectorAll('.bstamp').forEach(e=>{ const t=document.createElement('span'); t.className='alltag'; t.textContent=' · ALL UNLOCKED (test)'; t.style.color='#e8b04a'; e.appendChild(t) }); try{ console.info('Last Chopper Out build',BUILD.id,BUILD.date) }catch(e){}
+document.querySelectorAll('.bstamp').forEach(e=>{ e.textContent='BUILD '+(BUILD.tag?BUILD.tag+' · ':'')+BUILD.id+' · '+BUILD.date }); if(ALLU)document.querySelectorAll('.bstamp').forEach(e=>{ const t=document.createElement('span'); t.className='alltag'; t.textContent=' · ALL UNLOCKED (test)'; t.style.color='#e8b04a'; e.appendChild(t) }); try{ console.info('Last Chopper Out build',BUILD.id,BUILD.date) }catch(e){}
 function checkNewBuild(){ if(location.protocol==='file:'||!window.fetch)return Promise.resolve(false);
   return fetch(location.pathname,{method:'HEAD',cache:'no-store'}).then(r=>{ const lm=Date.parse(r.headers.get('last-modified')||''), mine=Date.parse(document.lastModified); const stale=!!(lm&&mine&&lm>mine+2000); if(stale)$('newBuild').classList.add('show'); return stale }).catch(()=>false) }
 $('newBuild').onclick=()=>{ location.href=location.pathname+'?v='+Date.now() };
@@ -6678,8 +6682,8 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   // ---- screen space HUD ----
   ctx.setTransform(1,0,0,1,0,0);
   WX.draw(W,H);   /* weather sits under the HUD: never hides prompts, timers or the pad arrow */
-  { const low=(!g.demo&&p.hp>0&&p.hp/p.maxHp<.35)?(.13+(g.hbPulse>0?(g.hbPulse/.38)*(g.hbAmp||.3)*.55:0)+(g.hbT===undefined||g.hbT===0?.06*Math.sin(tt*5):0))*(1-p.hp/p.maxHp/.35*.5):0;   /* pulses on each heartbeat cue (dangerTick) */ const a=Math.min(.8,Math.max(g.hurt>0?g.hurt*1.5:0,low))*(GORE?1:.35);
-    if(a>.01){ const gr=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.18,W/2,H/2,Math.max(W,H)*.68); gr.addColorStop(0,'rgba(120,0,0,0)'); gr.addColorStop(.6,`rgba(140,6,6,${a*.45})`); gr.addColorStop(1,`rgba(110,0,0,${a})`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H) } }
+  { const low=(!g.demo&&p.hp>0&&p.hp/p.maxHp<.3)?(.45+(g.hbPulse>0?(g.hbPulse/.38)*(g.hbAmp||.3)*.55:0)+(g.hbT===undefined||g.hbT===0?.06*Math.sin(tt*5):0))*(1-p.hp/p.maxHp/.3*.5):0;   /* pulses on each heartbeat cue (dangerTick) */ const a=Math.max(Math.min(.8,Math.max(g.hurt>0?g.hurt*1.5:0,low))*(GORE?1:.35),low);
+    if(a>.01){ const gr=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.18,W/2,H/2,Math.max(W,H)*.68); gr.addColorStop(0,'rgba(120,0,0,0)'); gr.addColorStop(.6,`rgba(140,6,6,${a*.45})`); gr.addColorStop(1,`rgba(110,0,0,${a})`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H) } if(low>0){ const pu=.55+.45*(g.hbPulse>0?g.hbPulse/.38:0), lw=Math.max(6,Math.min(W,H)*.018); ctx.strokeStyle=`rgba(200,20,16,${.7*pu})`; ctx.lineWidth=lw; ctx.strokeRect(lw/2,lw/2,W-lw,H-lw) } }   /* RC2: hard red screen edge under 30% HP, pulsing with the heartbeat */
   if(state==='menu'&&MART()){ try{ ctx.setTransform(1,0,0,1,0,0); MENU_ART.drawBackground(ctx,W,H,performance.now()/1000); if(window.KB&&window.KB.cap&&MENU_ART.drawCaption&&innerWidth>=1100&&innerHeight>=600){ const fs=Math.round(10*DPR), cw=window.KB.cap.length*fs*.62+fs*2; MENU_ART.drawCaption(ctx,window.KB.cap,Math.round(W-cw-12*DPR),Math.round(H-12*DPR),fs,'bl') } }catch(e){} }   /* caption bottom-right on wide screens only (never under the title or the How to Play board; the credits carry every caption) */   /* art hook: Artist Helper's ui/main_menu_art.js draws over the attract demo, under the HTML menu */
   if(state==='menu'||state==='intro'||g.demo)return;
   const U=UI;
@@ -7134,7 +7138,7 @@ const IntroSnd={bus:null,gbus:null,rot:null,wind:null,
     if(fast!==false)Amb.kill(now,.1) }
 };
 
-window.__ms.IntroSnd=IntroSnd; window.__ms.startIntro=startIntro;
+window.__ms.IntroSnd=IntroSnd; window.__ms.startIntro=startIntro; window.__ms.hurtPlayer=hurtPlayer; window.__ms.RTO=RTO; window.__ms.edgeArrow=edgeArrow;
 
 /* audio unlock for mobile browsers (iOS needs a gesture + playback audio session) */
 (function(){
