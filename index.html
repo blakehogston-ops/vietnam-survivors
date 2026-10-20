@@ -1402,12 +1402,12 @@ const TOP_HOGSTON = [
 const PAL_HOGSTON = {C:'#74804a',c:'#566133',Q:'#d9d3a8',K:'#1a1a16',S:'#e2b98f',E:'#24180d',U:'#6a7a42',u:'#4f5d2e',
   W:'#f4f2ea',G:'#2c2f33',g:'#555a60',V:'#a9bfdc',L:'#cfd3d8',B:'#3f301c',O:'#4a3320',P:'#66753f'};
 
-/* (b) Navy corpsman ("Doc"): camo helmet with red cross, white-khaki medical bag with red cross on the hip, tan strap. */
+/* (b) Navy corpsman ("Doc"): plain camo helmet cover, OD Unit One bag on the hip, tan strap (vet review Oct 20: no red crosses). */
 const TOP_CORPSMAN = [
   ".....CCCCCC.....",
-  "....CCCRRCCC....",
-  "....CcRRRRcC....",
-  "....cccRRccc....",
+  "....CCCcCCCC....",
+  "....CcCCcCcC....",
+  "....cccCcccc....",
   "....SSSSSSSS....",
   "....SESSSSES....",
   "...UTUUUUUUUU...",
@@ -1416,8 +1416,8 @@ const TOP_CORPSMAN = [
   "..SuUUBTBBMRRRM.",
   "...UUUUUUUMMRMM."
 ];
-const PAL_CORPSMAN = {C:'#6e8b4a',c:'#4a6233',R:'#d62020',S:'#e2b98f',E:'#24180d',U:'#58733a',u:'#3f5528',T:'#b59a62',
-  B:'#4a3a22',M:'#ece6c8',P:'#5f7a3c'};
+const PAL_CORPSMAN = {C:'#6e8b4a',c:'#4a6233',R:'#3f4426',S:'#e2b98f',E:'#24180d',U:'#58733a',u:'#3f5528',T:'#b59a62',
+  B:'#4a3a22',M:'#5e6438',P:'#5f7a3c'};
 
 /* (c) Marine rifleman skin-tone variants — same rig as TOP_MARINE (camo M1 helmet, flak jacket, rifle drawn by the game).
  *     Differences are more than recolors: sideburn/hair pixels (H), helmet-cover markings, and small personal items. */
@@ -2004,7 +2004,7 @@ const LAST_BIRD_OUT_BADGE = {
 const RIBBON_RACK_ORDER = ['nc','ss','bs','ph','car']; // Artist Helper's gameplay ribbon rack, highest precedence first ('moh' removed: tribute cards only)
 const RIB_ORDER = ['lbo'].concat(RIBBON_RACK_ORDER);   // service-record rack = the Last Chopper Out badge, then the ribbons
 /* NVA medic pack pickup sprite (Artist Helper, assets/artist/medpack.js): 12x10 grid + legend, drawn at 2x */
-const MEDPACK={grid:["....OOOO....","...OssssO...","..OOOOOOOO..",".OGGGGGGGGO.",".OGWWWWWWGO.",".OGWWRRWWGO.",".OGWRRRRWGO.",".OGWWRRWWGO.",".OGGGGGGGGO.","..OOOOOOOO.."],legend:{O:'#1c1a12',s:'#8a7a4a',G:'#5b6b36',W:'#f1efe6',R:'#d2261b'}};
+const MEDPACK={grid:["....OOOO....","...OssssO...","..OOOOOOOO..",".OGGGGGGGGO.",".OGWWWWWWGO.",".OGWWRRWWGO.",".OGWRRRRWGO.",".OGWWRRWWGO.",".OGGGGGGGGO.","..OOOOOOOO.."],legend:{O:'#1c1a12',s:'#8a7a4a',G:'#5b6b36',W:'#cfc493',R:'#5a5a34'}};   /* battle dressing: OD pouch, khaki printed label (no red cross) */
 let MEDSPR=null; (function(){ const sc=2, rows=(ART.medpack||MEDPACK).grid, pal=(ART.medpack||MEDPACK).legend, c=document.createElement('canvas'); c.width=rows[0].length*sc; c.height=rows.length*sc; const x=c.getContext('2d'); rows.forEach((r,yy)=>{ for(let xx=0;xx<r.length;xx++){ const col=pal[r[xx]]; if(col){ x.fillStyle=col; x.fillRect(xx*sc,yy*sc,sc,sc) } } }); MEDSPR=c })();
 const SPR={}, SQSPR={};
 const CHSPR={};
