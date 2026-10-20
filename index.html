@@ -2614,10 +2614,26 @@ function updateIns(dt){
   }
 }
 const TALLM=m=>{ const S=window.SHEET1; if(!S||!S.marinesTall||!S.drawMarine)return null; const nm=m.coy?S.MARINE_COY[(m.cv|0)%S.MARINE_COY.length]:(S.MARINE_ROLE[m.role]||'marineRifle'), sp=S.sprites[nm]; return sp?{h:sp.h,grip:sp.gripY||16}:null };   /* labels/HP bars use the sprite's .h */
+/* rc7 #1: unit contrast. A soft 1 px dark outline (cached per sprite frame / per sprite canvas) behind Marines + enemies so they separate from the ground; at night a faint cool rim instead. ?unitrim=0 off, ?rimA=X alpha */
+window.RIMX=null; const RIM={ON:!/[?&]unitrim=0\b/.test(location.search),A:+params.get('rimA')||.9,on:false,M:new Map(),
+  col(){ const n=typeof ATM!=='undefined'&&ATM.ON&&G&&ATM.hourAt(G.t)>=19; return n?'#b9c4b0':'#0b0d08' },
+  dil(src,col){ const w=src.width+4,h=src.height+4,t=mk(w,h),x=t.getContext('2d'); x.imageSmoothingEnabled=false; for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,1],[-1,1],[1,-1]])x.drawImage(src,2+dx,2+dy); x.globalCompositeOperation='source-in'; x.fillStyle=col; x.fillRect(0,0,w,h); return t },
+  can(c){ const k=this.col(); if(!c._rim||c._rimK!==k){ c._rim=this.dil(c,k); c._rimK=k } return c._rim },   /* enemy sprite canvases */
+  draw(c,x,y,w,h){ if(!this.ON)return; const o=this.can(c), sx=w/c.width, sy=h/c.height; ctx.save(); ctx.globalAlpha*=this.alpha(); ctx.drawImage(o,x-2*sx,y-2*sy,o.width*sx,o.height*sy); ctx.restore() },
+  alpha(){ return this.col()==='#0b0d08'?this.A:this.A*.8 },
+  _c:null, ctxRef(x){ if(x===undefined)return this._c; this._c=x },   /* QA (tools/contrast.js): draw target for the rim, defaults to the game canvas */
+  wrap(){ const S=window.SHEET1; if(!this.ON||!S||!S.draw||S._rimW)return; const orig=S.draw, R=this; S._rimW=1;
+    S.draw=function(c,name,frame,x,y,sc,flip,white){ if(R.on&&c===(R._c||ctx)&&!white){ const cx=R._c||ctx; const k=name+'|'+frame+'|'+(sc||1)+'|'+(flip?1:0)+'|'+R.col(); let o=R.M.get(k);
+        if(!o){ const W=160,H=160,t=mk(W,H),tx=t.getContext('2d'); tx.imageSmoothingEnabled=false; try{ orig.call(this,tx,name,frame,W/2,H-24,sc,flip,false) }catch(e){} o=R.dil(t,R.col()); if(R.M.size>1500)R.M.clear(); R.M.set(k,o) }
+        cx.save(); cx.globalAlpha*=R.alpha(); cx.drawImage(o,Math.round(x-80-2),Math.round(y-(160-24)-2)); cx.restore() }
+      return orig.apply(this,arguments) } } };
+window.RIMX=RIM;
 function drawSquad(camX,camY){
   const x0=camX-50,x1=camX+VW+50,y0=camY-50,y1=camY+VH+50;
   for(const h of coyH){ if(h.t>=0&&h.ph===1&&h.di<=h.left){ ctx.strokeStyle='#c8b890'; ctx.lineWidth=1.5; for(const sd of [-9,9]){ ctx.beginPath(); ctx.moveTo(h.x+sd,h.y-34); ctx.lineTo(h.x+sd,h.y+6); ctx.stroke() } } }
   for(const h of ins){ if(h.ph===1&&h.di<=h.need.length){ ctx.strokeStyle='#c8b890'; ctx.lineWidth=1.5; for(const sd of [-9,9]){ ctx.beginPath(); ctx.moveTo(h.x+sd,h.y-34); ctx.lineTo(h.x+sd,h.y+6); ctx.stroke() } } }
+  RIM.wrap(); RIM.on=RIM.ON; try{ drawSquadInner(x0,x1,y0,y1) }finally{ RIM.on=false } }
+function drawSquadInner(x0,x1,y0,y1){
   for(const m of squad.concat(pat,coy)){ if(m.hid||m.x<x0||m.x>x1||m.y<y0||m.y>y1)continue;
     const R=SQR[m.role], ps=m.coy?COYSPR[m.cv]:SQSPR[m.role], fr=m.mv?(Math.floor(m.anim)&1):0, flip=m.face>0?0:1, spr=ps[fr][flip][m.hf>0?1:0], z=m.rz||0;
     if(z>0){ ctx.fillStyle='rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(m.x,m.y+13,9,3.5,0,0,TAU); ctx.fill() }
@@ -2629,7 +2645,7 @@ function drawSquad(camX,camY){
       if(nm&&SHEET1.sprites[nm]){ try{ r=SHEET1.drawCover(ctx,nm,m.tg?'coverFire':'cover',Math.round(m.x),fy,SHEET_SCALE_MEN,!!flip,false) }catch(e){ r=null } }
       m._cv=!!r; if(r){ gx0=r.x; gy0=r.y } } else m._cv=false;
     const behind=!m._cv&&gy<-.3&&!z; if(behind)gun();
-    if(m._cv){} else if(TM)SHEET1.drawMarine(ctx,m.role,m.mv?1+fr:0,Math.round(m.x),fy,SHEET_SCALE_MEN,!!flip,m.hf>0,m.coy?(m.cv|0):undefined); else ctx.drawImage(spr,Math.round(m.x-spr.width/2),sy);
+    if(m._cv){} else if(TM)SHEET1.drawMarine(ctx,m.role,m.mv?1+fr:0,Math.round(m.x),fy,SHEET_SCALE_MEN,!!flip,m.hf>0,m.coy?(m.cv|0):undefined); else { RIM.draw(spr,Math.round(m.x-spr.width/2),sy,spr.width,spr.height); ctx.drawImage(spr,Math.round(m.x-spr.width/2),sy) }
     if(!behind)gun();
     if(m.mf>0){ const mx=gx0+gx*(R.len+4), my=gy0+gy*(R.len+4); if(!MZ(m,'mf',R.snd==='bolt'?'m40':R.snd,mx,my,m.aim)){ ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(mx,my,3.6+rnd()*1.5,0,TAU); ctx.fill() } }
     // HP bar
@@ -7023,7 +7039,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   // enemies
   const x0=camX-60,x1=camX+VW+60,y0=camY-60,y1=camY+VH+60;
   if(VEH()&&SHEET1.drawVehicle)for(let i=WRECKS.length-1;i>=0;i--){ const w=WRECKS[i], age=G.t-w.t; if(age>60||age<0){ try{ w._vh&&window.VFX_VEHICLE_HIT&&VFX_VEHICLE_HIT.detach(w._vh) }catch(e){} WRECKS.splice(i,1); continue } if(w.x<x0||w.x>x1||w.y<y0||w.y>y1)continue; ctx.globalAlpha=Math.min(1,(60-age)/6); SHEET1.drawVehicle(ctx,'pt76',{x:Math.round(w.x),y:Math.round(w.y),heading:w.hd,turret:w.tg,scale:1,dead:true,t:tt}); ctx.globalAlpha=1 }
-  for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue; ctx.globalAlpha=(!G.demo&&riverAt(e.x,e.y))?.32:1;   /* NVA under water at the hidden crossing: faint */
+  RIM.wrap(); RIM.on=RIM.ON; for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue; ctx.globalAlpha=(!G.demo&&riverAt(e.x,e.y))?.32:1;   /* NVA under water at the hidden crossing: faint */
     if(e.tank&&VEH()&&SHEET1.drawVehicle){ if(e.lx!==undefined&&(Math.abs(e.x-e.lx)+Math.abs(e.y-e.ly))>.05)e.vhd=Math.atan2(e.y-e.ly,e.x-e.lx); e.lx=e.x; e.ly=e.y; const tg=Math.atan2(G.p.y-e.y,G.p.x-e.x);
       const r=SHEET1.drawVehicle(ctx,'pt76',{x:Math.round(e.x),y:Math.round(e.y),heading:e.vhd===undefined?tg:e.vhd,turret:tg,scale:1,hit:e.flash>0,t:tt});
       if(e.mf>0&&r&&r.muzzle)for(const m of r.muzzle){ if(MZ(e,'mf','pt76',m[0],m[1],tg))continue; ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(m[0],m[1],6,0,TAU); ctx.fill() } if(e.boss)drawBossMark(e,90,70,tt); continue }
@@ -7031,7 +7047,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
     let spr=e.spr[Math.floor(e.anim)&1][e.dir][e.flash>0?1:0]; const w=spr.width*e.ds, h=spr.height*e.ds, bob=(Math.floor(e.anim)&1)?-1:0;
     if(e.boss){ ctx.fillStyle='rgba(200,40,30,'+(.22+.1*Math.sin(tt*6))+')'; ctx.beginPath(); ctx.ellipse(e.x,e.y+h*.4,w*.62,h*.16,0,0,TAU); ctx.fill(); if(e.wind>0&&e.type==='boss'){ctx.fillStyle='#ff4a3a';ctx.font='bold 22px monospace';ctx.textAlign='center';ctx.fillText('!',e.x,e.y-h*.58-16)}
       if(!(e.em>0)){ const o=bossOutline(spr), ox=Math.round(e.x-w/2), oy=Math.round(e.y-h*.58+bob); for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]])ctx.drawImage(o,ox+dx,oy+dy,w,h) } }
-    if(e.em>0){ const kk=Math.max(.05,1-e.em/.5); ctx.drawImage(spr,0,0,spr.width,Math.max(1,spr.height*kk),Math.round(e.x-w/2),Math.round(e.y-h*.58+h*(1-kk)),w,h*kk) } else ctx.drawImage(spr,Math.round(e.x-w/2),Math.round(e.y-h*.58+bob),w,h);
+    if(e.em>0){ const kk=Math.max(.05,1-e.em/.5); ctx.drawImage(spr,0,0,spr.width,Math.max(1,spr.height*kk),Math.round(e.x-w/2),Math.round(e.y-h*.58+h*(1-kk)),w,h*kk) } else { RIM.draw(spr,Math.round(e.x-w/2),Math.round(e.y-h*.58+bob),w,h); ctx.drawImage(spr,Math.round(e.x-w/2),Math.round(e.y-h*.58+bob),w,h) }
     if(e.boss)drawBossMark(e,w,h,tt);
     if(e.mf>0){ const fx=e.x+(e.dir?-1:1)*9, fy=e.y-3; if(!MZ(e,'mf',e.type==='nva'||e.type==='nvaNet'||e.type==='officer'||e.type==='sapper'?'ak':'vc',fx,fy,e.dir?Math.PI:0)){ ctx.fillStyle='#fff3a0'; ctx.fillRect(Math.round(fx-2),Math.round(fy-2),4,4) } } }
   // flying gibs + blood spray
@@ -7055,7 +7071,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
     if(G.mortarT>.3){ ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(px2-5,py2-13,4,0,TAU); ctx.fill() } }
   drawHealFx(camX,camY);
   SPEC.draw(camX,camY); PB.draw();
-  drawSquad(camX,camY);
+  RIM.on=false; drawSquad(camX,camY);
   // player
   if(!g.hide){ const ps=(g.char&&CHSPR[g.char])||SPR.marine; const fr=p.mv?(Math.floor(p.anim)&1):0, flip=p.face>0?0:1; const hw=(p.hurtT>0&&Math.floor(tt*30)%2)?1:0, spr=((!p.mv&&ps.idle)?ps.idle:ps[fr])[flip][hw];
     const HT=!!(g.char&&window.SHEET1&&SHEET1.drawHero&&SHEET1.HERO_ID&&hasSheet(SHEET1.HERO_ID[g.char]||''));   /* heroes_tall.js: drawn from the feet, weapon line from the hand point (16 px up); hitbox unchanged */
@@ -7515,7 +7531,7 @@ const IntroSnd={bus:null,gbus:null,rot:null,wind:null,
     if(fast!==false)Amb.kill(now,.1) }
 };
 
-Object.defineProperty(window.__ms,'ftexts',{get:()=>ftexts}); window.__ms.IntroSnd=IntroSnd; window.__ms.startIntro=startIntro; window.__ms.hurtPlayer=hurtPlayer; window.__ms.RTO=RTO; window.__ms.edgeArrow=edgeArrow;
+Object.defineProperty(window.__ms,'ftexts',{get:()=>ftexts}); window.__ms.render=()=>render(); window.__ms.units=()=>({e:enemies,m:squad.concat(pat,coy)}); window.__ms.IntroSnd=IntroSnd; window.__ms.startIntro=startIntro; window.__ms.hurtPlayer=hurtPlayer; window.__ms.RTO=RTO; window.__ms.edgeArrow=edgeArrow;
 
 /* audio unlock for mobile browsers (iOS needs a gesture + playback audio session) */
 (function(){
