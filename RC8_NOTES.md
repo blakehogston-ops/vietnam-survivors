@@ -54,3 +54,17 @@ Every line ID that rc8 adds, changes or cuts compared with rc7.1. All of these a
 ## Cut
 - No line IDs were cut. Strings removed: "Dustoff", the old flamer name, Huey medevac references.
 - Not in rc8: the VFX rc8.1 flame patches (vfx/flame_rc81_patches/).
+
+## Audio rc8a (jr/audio-rc8): new sourced clips (all cleared)
+Per Lead (MERGE_NOTE_RC8_SOURCING_OCT20 rev 2). Files were recopied fresh from sound_pack/samples on 2026-10-20. Gating: `AUD_OK` in `index.html` (a per-clip kill switch, all true).
+- **o1_birddog_flyby, lvtp5_engine_loop, firebase_amb_loop:** Legal PASS and Audio Director PASS (2026-10-20). **On by default, no pending flag.** Audio Director's sound_pack note says the checks were done by spectrogram analysis and nobody has listened by ear yet, so give them one listen before the rc8b freeze.
+  - **o1_birddog_flyby** (Bird Dog FAC pass; stand-in, unidentified single-engine piston light plane): specials bus (`MIX.SPECIAL`), **not** in `MIX.DUCKERS`.
+    - Coupling: jr/officer-of (f3fb2df) has no audio hook. `AUDP.birdDog(A)` is the hook the officer code can call about 9 s before the WP marking rocket. Until it does, `AUDP.tick()` polls `OFFI.air` / `OFFI.fac` (`air.T`, `air.mk`, `air.st`) and starts the pass once per strike when impact is ≤ 22.5 s out (the rocket fires at ≤ 13.5 s). If those fields are renamed, update AUDP.
+  - **lvtp5_engine_loop:** an amtrac engine loop, edited from a modern AAV-7 recording. It is **not** an LVTP-5 recording, and nothing (comments, notes, credits, strings) may call it one. One handle plays while any amtrac is alive. Its level falls off with distance to the nearest live vehicle (0 at 1100 px), through its own fader into `MIX.AMB`.
+  - **firebase_amb_loop:** a night rainforest bed (Guatemala; region stand-in), rev 2 cut. It replaces `jungle_loop` in `MIX.AMB`, starts at FIREBASE BUILT (`fbS.state==='done'`), and replaces the synth Calm layer (Calm is gated off under `SAMP.on`).
+- **tokay_gecko_1..3:** Legal cleared it 2026-10-20 and it's **on by default**.
+  - It rides `MIX.AMB` and plays at most one call every 60-120 s (Math.random, never the game RNG).
+  - It plays only at a built firebase, at night (hour ≥ 19) or during calm. It never plays during contact (no enemies within FBS+260 px of the firebase) or extraction (`ex.ph>=4`).
+- **Every rc8 audio clip is now cleared.** Nothing is left pending, so the `AUD_PENDING` flag has been removed. `AUD_OK` stays as a per-clip kill switch, and all its entries are true.
+- **Not copied:** rto_down_sting and radio_static_bed_loop stay disabled because the pdsounds STE-011 broadcast-bleed ear check is still open.
+- Bus offsets are unchanged.

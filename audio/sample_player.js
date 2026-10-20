@@ -19,7 +19,7 @@
  *    the call stays silent and logs ONE console.info per slot. Non-weapons may fall back to a Cues.* cue.
  *  - At most 12 sample voices at once (oldest, lowest-priority voice is stolen), at most 6 gunshots at once.
  *  - Rifles are short and their gain sits below the Huey rotor, the distant bomb and the voice (Gunny) reference.
- *  - winchester(): music ducks ~-12 dB in ~0.3 s, the rotor stays. smokeDropMoment(): one quiet second,
+ *  - winchester(): music ducks ~-10 dB (rc8a clamp) in ~0.3 s, the rotor stays. smokeDropMoment(): one quiet second,
  *    hit-stop callback, canister hit, then the fight returns.
  *  - Everything routes into the game's own buses, so the game's mute / volume / pause keep working.
  */
@@ -38,7 +38,7 @@
   // out: which internal output the slot uses ('sfx' -> sfxBus, 'rotor' -> rotorBus or sfxBus).
   var SLOTS = {
     huey_rotor_loop:    { cat: 'rotor',     prio: 5, gain: 0.394, out: 'rotor', loop: true },
-    huey_flyby:         { cat: 'rotor',     prio: 5, gain: 0.5576, out: 'rotor', fallback: 'medevacHuey' },
+    huey_flyby:         { cat: 'rotor',     prio: 5, gain: 0.5576, out: 'rotor' },
     // aircraft (Blake approved 2026-10-07, batch 2): not guns, never in the gunshot cap. flyby(type) plays them.
     jet_flyby:          { cat: 'air',       prio: 4, gain: 0.5605 },                                  // STAND-IN F-4/F-5 low pass; before the bomb
     skyraider_flyby:    { cat: 'air',       prio: 4, gain: 0.516 },                                  // A-1H (P-47D mixed in)
@@ -60,26 +60,35 @@
     m79_launch:         { cat: 'gun',       prio: 2, gain: 0.404, vary: true, maxDur: 0.6 },
     m79_impact:         { cat: 'explosive', prio: 3, gain: 0.357, vary: true },
     b40_launch:         { cat: 'explosive', prio: 3, gain: 0.0853, vary: true },                // STAND-IN; short bang (b40Launch(), lead 1 s)
-    whistle:            { cat: 'signal',    prio: 3, gain: 0.333, vary: true },                // standard charge warning (chargeWarning(), lead 2 s)
-    bugle:              { cat: 'signal',    prio: 3, gain: 0.273 },                            // big night assault only; on via manifest cues.bigNightAssault.enabled
+    whistle:            { cat: 'signal',    prio: 3, gain: 0.4704, vary: true },   // rc8a +3 dB (was 0.333)
+                   // standard charge warning (chargeWarning(), lead 2 s)
+    bugle:              { cat: 'signal',    prio: 3, gain: 0.3856 },   // rc8a +3 dB (was 0.273)
+                               // big night assault only; on via manifest cues.bigNightAssault.enabled
     // river map (batch 3, on for the map build). The .50 shares the 6-gunshot cap; the loops use prio 5 so gunfire
     // never steals the engine or the river bed (a stolen loop would not come back).
     pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.241, vary: true },                 // STAND-IN .50 cal (M2 not confirmed)
-    pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.146, loop: true },                 // under the Huey loop
-    river_ambience_loop: { cat: 'ambience', prio: 5, gain: 0.062, loop: true },                 // under the footsteps
+    pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.1159, loop: true },   // rc8a -2 dB (was 0.146)
+                    // under the Huey loop
+    river_ambience_loop: { cat: 'ambience', prio: 5, gain: 0.35, loop: true },   // rc8a (AD) ~0.35 (was 0.062)
+                    // under the footsteps
     // weather (2026-10-14 night, 'ambience' group): loops prio 5 so gunfire never steals the bed; thunder prio 3, not a gun
     rain_light:         { cat: 'ambience',  prio: 5, gain: 0.2359, loop: true },                    // post-gain RMS -42
     rain_heavy:         { cat: 'ambience',  prio: 5, gain: 0.3057, loop: true },                    // post-gain RMS -40
     rain_roof_loop:     { cat: 'ambience',  prio: 5, gain: 0.1913, loop: true },                    // post-gain RMS -41 (bunker interiors)
     thunder_distant:    { cat: 'weather',   prio: 3, gain: 0.4016, vary: true },                    // post-gain RMS -42
     thunder_near:       { cat: 'weather',   prio: 3, gain: 0.4879, vary: true },                    // post-gain RMS -40.5, crack peaks ~-15 dBFS
+    o1_birddog_flyby:   { cat: 'air',       prio: 4, gain: 0.5 },                                  // STAND-IN light-plane pass (post-gain RMS -24, specials bus -7 -> -31)
+    lvtp5_engine_loop:  { cat: 'engine',    prio: 5, gain: 0.5, loop: true },                      // amtrac engine loop (modern AAV-7 source, not an LVTP-5), 12 s loop (post-gain -30, ambience bus -10 -> -40)
+    firebase_amb_loop:  { cat: 'ambience',  prio: 5, gain: 0.5, loop: true },                      // night insects bed, 40 s loop (post-gain -33, ambience bus -10 -> -43)
+    tokay_gecko:        { cat: 'weather',   prio: 3, gain: 0.5, vary: true },                      // tokay calls, 3 variants (gated post-gain -30, ambience bus -10 -> -40); not a loop
     mortar_launch:      { cat: 'explosive', prio: 3, gain: 0.7554, vary: true },
     mortar_impact:      { cat: 'explosive', prio: 3, gain: 0.3547, vary: true },
     mortar_incoming:    { cat: 'explosive', prio: 3, gain: 0.3587, vary: true },
     bomb_distant:       { cat: 'explosive', prio: 4, gain: 0.4513, vary: true },
     flamethrower_loop:  { cat: 'fire',      prio: 3, gain: 0.4582, loop: true },
     flamethrower_burst: { cat: 'fire',      prio: 3, gain: 0.4866, vary: true },
-    radio_squelch:      { cat: 'radio',     prio: 3, gain: 0.370, vary: true, fallback: 'radioSquelch' },
+    radio_squelch:      { cat: 'radio',     prio: 3, gain: 0.6504, vary: true },   // rc8a +4.9 dB (was 0.370), group radio
+   
     // ---- week of 2026-10-14 (build_weapons_oct14.py). Every shot slot is cat 'gun' (6-gunshot cap). Gains calibrated
     // to TARGET_POST in samples/measure_levels.py: rifles under the Huey, bomb and Gunny; bomb_distant stays loudest.
     bolt_rifle_shot:    { cat: 'gun',       prio: 2, gain: 0.1023, vary: true },                // M40 / Springfield (.308 Remington 700)
@@ -135,7 +144,8 @@
     hatch_metal:        { cat: 'foley',     prio: 2, gain: 0.2049 },   // metal hatch
     stage_hammer:       { cat: 'foley',     prio: 3, gain: 0.2278 },   // build stage complete: three hammer blows
     radio_tune:         { cat: 'radio',     prio: 3, gain: 0.5409 },   // Hanoi Hannah broadcast start: radio tuning static
-    sting_boss:         { cat: 'sting',     prio: 5, gain: 1.5866 },   // boss inbound: timpani hit
+    sting_boss:         { cat: 'sting',     prio: 5, gain: 0.35 },   // rc8a (AD) 0.35 (was 1.5866)
+      // boss inbound: timpani hit
     sting_evac:         { cat: 'sting',     prio: 5, gain: 0.5481 },   // evac fallback (music missing): acoustic C major
     sting_over:         { cat: 'sting',     prio: 5, gain: 0.53 },   // game-over fallback (music missing): acoustic chords -2 st
     // 2026-10-20 (samples/build_radio_oct20.py; new sources PENDING LEGAL)
@@ -168,8 +178,8 @@
     var loggedSilent = {};     // weapon slot -> true once logged
     var lastStep = -1, lastVariant = {};
     var cfg = { maxVoices: 12, maxGun: 6, maxStep: 2, stepMinGap: 0.1, voiceRefGain: 1.5,
-      winchesterDb: -12, winchesterAttack: 0.3, winchesterRelease: 0.8,
-      smokeQuiet: 1.0, smokeMusicDb: -18, smokeSfxDb: -15, smokeAttack: 0.06, smokeResume: 0.6,
+      winchesterDb: -10, winchesterAttack: 0.3, winchesterRelease: 0.8,
+      smokeQuiet: 1.0, smokeMusicDb: -10, smokeSfxDb: -10, smokeAttack: 0.06, smokeResume: 0.6,
       // warning cues (manifest.cues overrides the lead times once load() has seen it)
       b40LeadMs: 1000, chargeLeadMs: 2000, enableBigNightAssault: false, bigNightLeadMs: 0,
       jetLeadMs: 3000,      // flyby('jet', { bombAt }) starts the pass this long before the bomb (manifest cues.jetFlyby overrides)
@@ -343,11 +353,15 @@
       var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g, bus: o.busName || '' };
       src.onended = function () { v.dead = true; };
       voices.push(v); stats.played++;
+      if (o.duckMusic && duckTargets.music) {   // 2026-10-20: play(slot, { duckMusic: -3 }) ducks the music while this voice sounds
+        v.dk = 'v@' + slot + ':' + t.toFixed(3); hold(duckTargets.music, v.dk, o.duckMusic, t, cfg.voiceDuckAttack, loop ? null : t + dur, cfg.voiceDuckRelease);
+      }
       return v;
     }
     function handle(v) {
       return { slot: v.slot, start: v.start, end: v.end,
         stop: function (fade) { fade = fade == null ? 0.08 : fade; var t = now(); if (v.dead) return; v.dead = true;
+          if (v.dk) unhold(duckTargets.music, v.dk, t, cfg.voiceDuckRelease);
           try { v.g.gain.cancelScheduledValues(t); v.g.gain.setValueAtTime(v.g.gain.value, t); v.g.gain.linearRampToValueAtTime(0, t + fade); v.src.stop(t + fade + 0.01); } catch (e) { /* ignore */ } } };
     }
     function silentWeapon(slot) {
@@ -410,25 +424,60 @@
     // ---------- ducking ----------
     // We track our own ramp so the value at any time is known exactly (no reliance on cancelAndHoldAtTime, which
     // browsers and node implementations handle differently when no event is pending).
+    // 2026-10-20: segment list (so later scheduled steps are known too), timed holders (until[key] = audio time the holder
+    // expires; rel[key] = its release time) and a floor: the music duck never goes below cfg.musicDuckFloorDb (-10 dB)
+    // INCLUDING the game's own MIX special duck reported through externalMusicDuck(db). Holders never add up: the deepest wins.
     function valueAt(d, t) {
-      var r = d.ramp; if (!r) return d.base;
+      var sg = d.segs; if (!sg || !sg.length) return d.ramp ? (t <= d.ramp.t0 ? d.ramp.v0 : t >= d.ramp.t1 ? d.ramp.v1 : d.ramp.v0 + (d.ramp.v1 - d.ramp.v0) * (t - d.ramp.t0) / (d.ramp.t1 - d.ramp.t0)) : d.base;
+      var r = sg[0]; for (var i = 0; i < sg.length; i++) if (sg[i].t0 <= t) r = sg[i];
       if (t <= r.t0) return r.v0; if (t >= r.t1) return r.v1;
       return r.v0 + (r.v1 - r.v0) * (t - r.t0) / (r.t1 - r.t0);
     }
-    function applyDuck(d, t, dur) {
-      var db = 0; for (var k in d.holders) db = Math.min(db, d.holders[k]);
-      var target = d.base * dbToGain(db), p = d.param, v0 = valueAt(d, t), t1 = t + Math.max(0.005, dur);
-      p.cancelScheduledValues(t); p.setValueAtTime(v0, t); p.linearRampToValueAtTime(target, t1);
-      d.ramp = { t0: t, t1: t1, v0: v0, v1: target };
-      if (db === 0) d.releaseAt = t1;
+    function dbAt(d, t) {
+      var db = 0, rt = 0, u = d.until || {};
+      for (var k in d.holders) if (!(u[k] != null && u[k] <= t)) { if (d === duckTargets.music && /^(voice@|v@|ext:|gunship$)/.test(k)) rt = Math.min(rt, d.holders[k]); else db = Math.min(db, d.holders[k]); }
+      // routine ducks (voice / radio / gunship / per-voice / game-requested) never go below the floor together with the game's own
+      // MIX special duck; rc8a: winchester and smoke are clamped to -10 dB as well (below)
+      if (rt < 0) rt = Math.max(rt, Math.min(0, cfg.musicDuckFloorDb - (music.extDuck || 0)));
+      return Math.max(-10, Math.min(db, rt));   // rc8a (AD): every duck clamped at -10 dB (winchester, smoke music, smoke sfx included)
     }
-    function hold(d, key, db, t, dur) {
+    function purge(d, t) { var u = d.until || {}; for (var k in u) if (u[k] <= t) { delete d.holders[k]; delete u[k]; if (d.rel) delete d.rel[k]; } }
+    function applyDuck(d, t, dur) {
+      purge(d, t);
+      var p = d.param, v0 = valueAt(d, t), db = dbAt(d, t), target = d.base * dbToGain(db), t1 = t + Math.max(0.005, dur);
+      p.cancelScheduledValues(t); p.setValueAtTime(v0, t); p.linearRampToValueAtTime(target, t1);
+      d.ramp = { t0: t, t1: t1, v0: v0, v1: target }; d.segs = [d.ramp];
+      // future expiries of timed holders: step to the new deepest holder at each one, with that holder's release time
+      var u = d.until || {}, ex = Object.keys(u).filter(function (k) { return u[k] > t; }).sort(function (a, b) { return u[a] - u[b]; }), prev = target, tp = t1;
+      for (var i = 0; i < ex.length; i++) {
+        var te = Math.max(u[ex[i]], tp), nd = dbAt(d, te + 1e-6), nv = d.base * dbToGain(nd), rl = (d.rel && d.rel[ex[i]]) || 0.4;
+        if (Math.abs(nv - prev) < 1e-6) continue;
+        p.setValueAtTime(prev, te); p.linearRampToValueAtTime(nv, te + rl); d.segs.push({ t0: te, t1: te + rl, v0: prev, v1: nv }); prev = nv; tp = te + rl;
+        if (nd === 0) d.releaseAt = te + rl;
+      }
+      if (db === 0 && !ex.length) d.releaseAt = t1;
+    }
+    // hold(d, key, db, t, attack[, until, release]): until = the holder ends by itself at that audio time (release ramp)
+    function hold(d, key, db, t, dur, until, rel) {
       if (!d) return;
       // bus-gain mode: (re)read the game's level only when starting from rest, so a volume change between ducks is kept
-      if (!d.dedicated && !Object.keys(d.holders).length && (d.base == null || now() >= d.releaseAt)) { d.base = d.param.value; d.ramp = null; }
-      d.holders[key] = db; applyDuck(d, t, dur);
+      if (!d.dedicated && !Object.keys(d.holders).length && (d.base == null || now() >= d.releaseAt)) { d.base = d.param.value; d.ramp = null; d.segs = null; }
+      d.holders[key] = db; d.until = d.until || {}; d.rel = d.rel || {};
+      if (until != null) { d.until[key] = until; d.rel[key] = rel != null ? rel : 0.4; } else { delete d.until[key]; delete d.rel[key]; }
+      applyDuck(d, t, dur);
     }
-    function unhold(d, key, t, dur) { if (!d || !(key in d.holders)) return; delete d.holders[key]; applyDuck(d, t, dur); }
+    function unhold(d, key, t, dur) { if (!d || !(key in d.holders)) return; delete d.holders[key]; if (d.until) delete d.until[key]; applyDuck(d, t, dur); }
+    cfg.musicDuckFloorDb = -10; cfg.voiceMusicDuckDb = -7; cfg.voiceDuckAttack = 0.08; cfg.voiceDuckRelease = 0.4; cfg.gunshipMusicDuckDb = -3;
+    // Public duck API (2026-10-20). duckMusic(key, db, { attack, until, release }) / unduckMusic(key, { release }).
+    // externalMusicDuck(db): the game reports its OWN music duck (index.html MIX specials: -4 dB on MIX.bus.mus) so the
+    // two never stack past cfg.musicDuckFloorDb. voiceDuck(start, end): -7 dB under a voice line (80 ms attack, 400 ms release).
+    P.duckMusic = function (key, db, o) { o = o || {}; if (!ctx) return; var t = o.when != null ? Math.max(o.when, now()) : now();
+      hold(duckTargets.music, 'ext:' + key, db, t, o.attack != null ? o.attack : cfg.voiceDuckAttack, o.until, o.release); };
+    P.unduckMusic = function (key, o) { o = o || {}; if (!ctx) return; unhold(duckTargets.music, 'ext:' + key, o.when != null ? Math.max(o.when, now()) : now(), o.release != null ? o.release : cfg.voiceDuckRelease); };
+    P.externalMusicDuck = function (db) { music.extDuck = Math.min(0, db || 0); var d = duckTargets.music; if (d && Object.keys(d.holders).length) applyDuck(d, now(), 0.05); return music.extDuck; };
+    P.voiceDuck = function (start, end, o) { o = o || {}; if (!ctx) return; var t = Math.max(start != null ? start : now(), now());
+      hold(duckTargets.music, 'voice@' + t.toFixed(3), o.db != null ? o.db : cfg.voiceMusicDuckDb, t, cfg.voiceDuckAttack, end != null ? end : t + 3, cfg.voiceDuckRelease); };
+    P.musicDuckDb = function (t) { var d = duckTargets.music; if (!d) return 0; t = t != null ? t : now(); var v = valueAt(d, t); return 20 * Math.log10(Math.max(1e-6, v / (d.base || 1))); };
     P.duckState = function () { var m = duckTargets.music, s = duckTargets.sfx; return { music: m ? Object.assign({}, m.holders) : null, sfx: s ? Object.assign({}, s.holders) : null }; };
 
     // Sky magazine hit Winchester: music ducks under the rotor. The rotor bus is never touched.
@@ -650,6 +699,7 @@
       if (o.bed !== false && buffers.radio_static_bed_loop && buffers.radio_static_bed_loop.length)
         bed = P.play('radio_static_bed_loop', { when: tv - 0.05, vol: vol * dbToGain(o.bedDb != null ? o.bedDb : cfg.radioBedDb), vary: false });
       var tEnd = tv + dur;
+      if (o.duck !== false) P.voiceDuck(tv - cfg.voiceDuckAttack, tEnd, { db: o.duckDb });   // music -7 dB under the call (2026-10-20)
       if (bed) { var bv = voiceOf(bed);   // end the looping bed sample-accurately with the voice (40 ms fade under the key-out)
         if (bv) { var bg = bv.g.gain.value; bv.g.gain.setValueAtTime(bg, tEnd + 0.02); bv.g.gain.linearRampToValueAtTime(0, tEnd + 0.06); bv.src.stop(tEnd + 0.07); bv.end = tEnd + 0.07; bed.end = bv.end; } }
       var hout = (buffers.radio_key_out && buffers.radio_key_out.length) ? P.play('radio_key_out', { when: tEnd + 0.02, vol: vol, vary: false }) : null;
@@ -741,7 +791,11 @@
     // playMusic(name, { when, fade = 0.5, vol = 1, offset }) -> { name, start, end, loop, stop(fade) } | null
     P.playMusic = function (name, o) {
       o = o || {}; if (!ctx) return null;
-      if (name === 'combat' && !o.exact) name = tierTrack(music.tier);   // 'combat' = the current combat tier (tier 1 = combat)
+      if (ctx) P.musicUpdate();
+      if (music.scene && name === 'combat' && !o.exact && o.when == null && music.cur && !music.cur.dead && soundingName() === music.scene.track) return music.cur.handle;   // the opening scene owns the music until lift-off
+      if (name === 'combat' && !o.exact) name = tierTrack(effTier());   // 'combat' = the current combat tier (tier 1 = combat; a gunship/ramp boost raises it)
+      // boost wins over the combat stings (reinforcements, returnTo: 'combat'): while a boost is on they don't interrupt it
+      if (music.boost && !o.force && sp0(name) && sp0(name).returnTo === 'combat' && music.cur && !music.cur.dead) { info('music "' + name + '" skipped: boost ' + music.boostEv + ' active'); return music.cur.handle; }
       var key = musicName(name), sp = music.spec, tr = sp && sp.tracks[key], buf = music.buffers[key];
       if (!tr) { info('unknown music slot "' + name + '"'); return null; }
       if (!buf) { info('music "' + name + '" not loaded; staying silent'); return null; }
@@ -797,10 +851,13 @@
       o = o || {}; var max = tierList().length; n = Math.max(1, Math.min(max, Math.round(n || 1)));
       if (!ctx) { music.tier = n; return n; }
       var t = now(), cd = cfg.combatTierCooldownSec != null ? cfg.combatTierCooldownSec : 25;
+      P.musicUpdate();
       if (n === music.tier) return n;
       if (n < music.tier && !o.waveBreak && !o.force) return music.tier;              // never step down mid-fight
       if (!o.force && t - music.tierAt < cd) return music.tier;                       // cooldown
-      music.tier = n; music.tierAt = t;
+      var effBefore = effTier(); music.tier = n; music.tierAt = t;
+      if (music.boost && effTier() === effBefore) return n;                            // a boost is holding a higher tier: only the base changes
+      n = effTier();
       var c = music.cur; if (!c || c.dead || !c.intensity) return n;                  // not in combat music: next playMusic('combat') picks it up
       var name = tierTrack(n), fade = o.fade != null ? o.fade : 2.5, tr = music.spec.tracks[c.name] || {};
       var phrase = tr.phraseSec || (tr.phraseBars || 4) * 4 * 60 / (tr.bpm || 120), el = t - c.start, when = c.start + Math.ceil(el / phrase) * phrase;
@@ -809,6 +866,108 @@
       P.playMusic(name, { when: when, fade: fade, exact: true }); return n;
     };
     P.setCombatIntensity = function (level, wave, o) { return P.combatMusicTier(P.combatTierFor(level, wave), o); };
+
+    // ---------- event boost (2026-10-20, Blake via Vietnam Vet): CH-46 reinforcement drop-off with UH-1E gunship runs ----------
+    // musicEvent('gunship_in')  -> boost = base tier + 1 (next phrase, 2.5 s crossfade), cooldown ignored; music -3 dB under the run
+    // musicEvent('ramp_down')   -> boost = tier 5 (at least base + 2, capped at the tier count), 1 s crossfade on the next downbeat
+    // musicEvent('liftoff', { delay = 5 }) -> release back to the wave/level tier ~5 s later, 2.5 s crossfade on a phrase,
+    //                              allowed outside a wave break; the tier cooldown is reset. The gunship duck is released too.
+    // Safety: any boost still on after cfg.musicBoostTimeoutSec (45 s) is released the same way.
+    // While a boost is on: setCombatIntensity()/combatMusicTier() only move the BASE tier (the boost holds the higher one);
+    // a combat sting (returnTo: 'combat', e.g. reinforcements) asked for during a boost is skipped (the boost wins);
+    // a boost that starts while a sting plays hands off at once (1 s crossfade) and cancels the sting's queued return.
+    // musicUpdate() runs the release / timeout checks: it is called by every music API, plus a timer on a realtime context;
+    // the game may also call it from its tick. musicState() -> { tier, boost, effective, boostEv, releaseAt, boostUntil }.
+    cfg.musicBoostTimeoutSec = 45; cfg.musicLiftoffDelaySec = 5; cfg.musicRampFade = 1.0;
+    music.boost = 0; music.boostEv = null; music.boostUntil = 0; music.releaseAt = 0; music.boostId = 0;
+    // the track actually sounding now (music.cur can be a return queued for later, with the sting/scene as .prev)
+    function soundingName() { var c = music.cur; if (!c || c.dead) return null; if (c.start > now() + 1e-6 && c.prev) return c.prev.name; return c.name; }
+    function sp0(n) { var sp = music.spec; return sp && sp.tracks ? sp.tracks[musicName(n)] : null; }
+    function effTier() { return Math.max(music.tier, music.boost || 0); }
+    function nextGrid(c, unitSec, minLead) {
+      var t = now(), el = t - c.start, when = c.start + Math.ceil(el / unitSec) * unitSec; if (when - t < minLead) when += unitSec; return when;
+    }
+    function switchTier(n, fade, grid) {   // grid: 'phrase' | 'beat' | 'now'
+      var c = music.cur, name = tierTrack(n);
+      if (!music.buffers[musicName(name)]) { info('combat tier ' + n + ' ("' + name + '") not loaded'); return null; }
+      if (!c || c.dead) return null;                                   // nothing playing: the next playMusic('combat') starts at the effective tier
+      if (c.name === musicName(name) && !c.auto) return null;
+      if (!c.intensity) {                                              // a sting (reinforcements) or other track: hand off now
+        if (sp0(c.name) && sp0(c.name).returnTo === 'combat') return P.playMusic(name, { fade: Math.min(fade, 1.0), exact: true });
+        return null;                                                   // menu / win / loss / extraction: not ours to override
+      }
+      var tr = sp0(c.name) || {}, beat = 60 / (tr.bpm || 120), phrase = tr.phraseSec || (tr.phraseBars || 4) * 4 * beat;
+      var when = grid === 'now' ? now() : grid === 'beat' ? nextGrid(c, beat * 4, 0.08) : nextGrid(c, phrase, 0.25);   // 'beat' = next bar downbeat
+      if (grid === 'beat' && when - now() > 1.2) when = nextGrid(c, beat, 0.05);    // free-tempo / slow: next beat instead
+      return P.playMusic(name, { when: when, fade: fade, exact: true });
+    }
+    function armTimer(at, id) {
+      if (cfg.musicTimers === false || typeof setTimeout !== 'function' || (typeof OfflineAudioContext !== 'undefined' && ctx instanceof OfflineAudioContext)) return;
+      var ms = Math.max(0, (at - now()) * 1000) + 30;
+      setTimeout(function () { if (music.boostId === id) P.musicUpdate(); }, ms);
+    }
+    function releaseBoost(why) {
+      var was = music.boost; music.boost = 0; music.boostEv = null; music.releaseAt = 0; music.boostUntil = 0; music.tierAt = -1e9;   // cooldown reset
+      unhold(duckTargets.music, 'gunship', now(), 0.6);
+      if (was && was !== music.tier) switchTier(music.tier, 2.5, 'phrase');
+      (music.boostLog || (music.boostLog = [])).push({ t: +now().toFixed(3), ev: 'release', why: why, to: music.tier });
+    }
+    // ---- opening scene (Blake 2026-10-20): the run's FIRST insertion (CH-46 + door guns) plays the 1921 Edison 'Ride of the
+    // Valkyries' (manifest music.scenes.opening -> track 'scene_opening', 76 s, no loop). musicEvent('opening_in') crossfades in over
+    // 1.5 s; ramp_down keeps it; liftoff eases into the current combat tier (2.5 s) ~5 s later; if the 76 s run out first it hands
+    // off to the current combat tier by itself (returnTo). Gunship duck -3 dB for the scene. Reinforcement drop-offs: no Valkyries.
+    cfg.musicSceneTimeoutSec = 100;
+    function startScene(name, o) {
+      var sp = music.spec, sc = sp && sp.scenes && sp.scenes[name], tk = sc && sc.track;
+      if (!tk || !music.buffers[musicName(tk)]) { info('scene "' + name + '" track not loaded; using the tier boost'); return P.musicEvent('gunship_in', o); }
+      var t = now(); music.scene = { name: name, track: musicName(tk), t0: t, releaseAt: 0, until: t + (o.timeout != null ? o.timeout : cfg.musicSceneTimeoutSec) };
+      hold(duckTargets.music, 'gunship', cfg.gunshipMusicDuckDb, t, 0.3); music.boostId++; armTimer(music.scene.until, music.boostId);
+      var h = P.playMusic(tk, { fade: o.fade != null ? o.fade : (sc.fade || 1.5), force: true });
+      (music.boostLog || (music.boostLog = [])).push({ t: +t.toFixed(3), ev: 'scene', scene: name, ok: !!h });
+      return P.musicState();
+    }
+    function endScene(why) {
+      var sc = music.scene; if (!sc) return; music.scene = null; music.tierAt = -1e9;
+      unhold(duckTargets.music, 'gunship', now(), 0.6);
+      var c = music.cur; if (c && !c.dead && (c.name === sc.track || (c.auto && c.prev && c.prev.name === sc.track && c.start > now()))) P.playMusic(tierTrack(effTier()), { fade: 2.5, exact: true });
+      (music.boostLog || (music.boostLog = [])).push({ t: +now().toFixed(3), ev: 'release', why: why, scene: sc.name, to: music.tier });
+    }
+    P.musicUpdate = function () {
+      if (ctx && music.scene) { var ts = now(); if (music.scene.releaseAt && ts >= music.scene.releaseAt) endScene('liftoff'); else if (ts >= music.scene.until) endScene('timeout'); }
+      if (!ctx || !music.boost) return;
+      var t = now();
+      if (music.releaseAt && t >= music.releaseAt) releaseBoost('liftoff');
+      else if (music.boostUntil && t >= music.boostUntil) releaseBoost('timeout');
+    };
+    P.musicEvent = function (ev, o) {
+      o = o || {}; if (!ctx) return null; P.musicUpdate();
+      var max = tierList().length, t = now(), target;
+      if (ev === 'opening_in') return startScene('opening', o);
+      if (music.scene) {   // during the opening scene: the ramp keeps the Valkyries; lift-off eases into combat
+        if (ev === 'ramp_down' || ev === 'gunship_in') return P.musicState();
+        if (ev === 'liftoff') { music.scene.releaseAt = t + (o.delay != null ? o.delay : cfg.musicLiftoffDelaySec); armTimer(music.scene.releaseAt, music.boostId); return P.musicState(); }
+        if (ev === 'release' || ev === 'clear') { endScene('manual'); return P.musicState(); }
+      }
+      if (ev === 'gunship_in') {
+        target = Math.min(max, music.tier + 1);
+        hold(duckTargets.music, 'gunship', cfg.gunshipMusicDuckDb, t, 0.3);
+      } else if (ev === 'ramp_down') {
+        target = Math.min(max, Math.max(max >= 5 ? 5 : max, music.tier + 2));
+      } else if (ev === 'liftoff') {
+        if (!music.boost) return P.musicState();
+        music.releaseAt = t + (o.delay != null ? o.delay : cfg.musicLiftoffDelaySec); armTimer(music.releaseAt, music.boostId);
+        (music.boostLog || (music.boostLog = [])).push({ t: +t.toFixed(3), ev: ev, releaseAt: +music.releaseAt.toFixed(3) });
+        return P.musicState();
+      } else if (ev === 'release' || ev === 'clear') { if (music.boost) releaseBoost('manual'); return P.musicState(); }
+      else { info('musicEvent: unknown event "' + ev + '"'); return null; }
+      var before = effTier(); music.boost = Math.max(music.boost || 0, target); music.boostEv = ev; music.releaseAt = 0;
+      music.boostUntil = t + (o.timeout != null ? o.timeout : cfg.musicBoostTimeoutSec); music.boostId++; armTimer(music.boostUntil, music.boostId);
+      if (effTier() !== before || (music.cur && !music.cur.dead && !music.cur.intensity))
+        switchTier(effTier(), ev === 'ramp_down' ? cfg.musicRampFade : 2.5, ev === 'ramp_down' ? 'beat' : 'phrase');
+      (music.boostLog || (music.boostLog = [])).push({ t: +t.toFixed(3), ev: ev, boost: music.boost, base: music.tier });
+      return P.musicState();
+    };
+    P.musicState = function () { return { scene: music.scene ? music.scene.name : null, tier: music.tier, boost: music.boost, effective: effTier(), boostEv: music.boostEv, releaseAt: music.releaseAt, boostUntil: music.boostUntil, cur: soundingName(), queued: music.cur && !music.cur.dead && music.cur.start > now() + 1e-6 ? music.cur.name : null, log: (music.boostLog || []).slice(-10) }; };
     P.currentCombatTier = function () { return music.tier; };
 
     // playMenu({ intro = 'menu_intro', loop = intro.next || 'menu', mode = 'crossfade' | 'butt', fade = 1.5 }) (2026-10-14):
