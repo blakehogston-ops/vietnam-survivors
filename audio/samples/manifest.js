@@ -45,7 +45,7 @@
       mortar_incoming:    { group: 'specials', batch: 1, files: ['mortar_incoming_1'] },             // Zagge28 (CC0)
       bomb_distant:       { group: 'specials', batch: 1, files: ['bomb_distant_2', 'bomb_distant_3', 'bomb_distant_4', 'bomb_distant_1'] },
                                                                                 // 2-4 Kostrava (CC0); 1 Baradari (CC-BY 3.0, credit)
-      radio_squelch:      { group: 'radio', batch: 1, files: ['radio_squelch_1', 'radio_squelch_2', 'radio_squelch_3'] },  // pdsounds PD + JovianSounds CC0
+      radio_squelch:      { batch: 1, files: ['radio_squelch_1', 'radio_squelch_2', 'radio_squelch_3'] },  // pdsounds PD + JovianSounds CC0
       huey_rotor_loop:    { batch: 1, files: ['huey_rotor_loop_1'], alt: ['huey_rotor_loop_rmutt'] },      // OroborosNZ CC-BY 4.0 (credit); alt Rmutt CC0
       // turret build clunks (batch 1, build phase): FreqMan sandbag (CC BY 4.0) + hotdogtornados ammo box (CC0) / FartBiscuit1700 clink (CC BY 3.0)
       turret_corner_build: { batch: 1, files: ['turret_corner_build_1'] },
@@ -72,7 +72,7 @@
       //      no synth fallback. All guns share the 6-gunshot cap. NOT CLEARED yet (auditor + ear check).
       // bolt rifle (Country's M40 / Springfield): gezortenplotz Remington 700 .308 (CC BY 3.0, credit); alt bolt AugustSandberg Mauser (CC0)
       bolt_rifle_shot:    { group: 'player', batch: 1, files: ['bolt_rifle_shot_1', 'bolt_rifle_shot_2'] },
-      bolt_rifle_bolt:    { group: 'foley', batch: 1, files: ['bolt_rifle_bolt_1'], alt: ['bolt_rifle_bolt_alt_mauser'] },
+      bolt_rifle_bolt:    { group: 'player', batch: 1, files: ['bolt_rifle_bolt_1'], alt: ['bolt_rifle_bolt_alt_mauser'] },
       // shotgun (Ithaca 37 STAND-IN): AnthonyChan0 Mossberg 500 shot + pump (CC0)
       shotgun_shot:       { group: 'player', batch: 1, files: ['shotgun_shot_1', 'shotgun_shot_2'] },
       shotgun_rack:       { group: 'player', batch: 1, files: ['shotgun_rack_1'] },
@@ -122,10 +122,10 @@
       sting_evac:         { group: 'sting', batch: 3, files: ['sting_evac_1'] },   // evac fallback (music missing): acoustic C major. PENDING LEGAL
       sting_over:         { group: 'sting', batch: 3, files: ['sting_over_1'] },   // game-over fallback (music missing): acoustic chords -2 st. PENDING LEGAL
       // 2026-10-20 (samples/build_radio_oct20.py): RTO-down sting, radio beds for Blake's voice lines, battle dressing. New sources PENDING LEGAL.
-      rto_down_sting:     { disabled: true, /* RC4: waiting on the pdsounds listening check; rc8a 2026-10-20: still NOT copied - LICENSES.md/LICENSE_AUDIT.md: pdsounds STE-011 broadcast-bleed ear check open */ group: 'sting', batch: 3, files: ['rto_down_sting_1'] },   // RTO killed: VSCO 2 CE low brass D minor (CC0) + pdsounds static cut to dead air + LukaCafuka key/release. PENDING LEGAL
+      rto_down_sting:     { group: 'sting', batch: 3, files: ['rto_down_sting_1'] },   // RTO killed: VSCO 2 CE low brass D minor (CC0) + pdsounds static cut to dead air + LukaCafuka key/release. PENDING LEGAL
       radio_key_in:       { group: 'radio', batch: 2, files: ['radio_key_in_1'] },     // faint key click + squelch open/hiss: LukaCafuka + pdsounds STE-011 (cleared sources)
       radio_key_out:      { group: 'radio', batch: 2, files: ['radio_key_out_1'] },    // release burst + FM static rush, then silence (no roger beep): LukaCafuka + pdsounds STE-011 (cleared)
-      radio_static_bed_loop: { disabled: true, /* RC4: waiting on the pdsounds listening check; rc8a 2026-10-20: still NOT copied - LICENSES.md/LICENSE_AUDIT.md: pdsounds STE-011 broadcast-bleed ear check open */ group: 'radio', batch: 2, files: ['radio_static_bed_loop_1'] },   // PRC-25-style hiss bed, 6.0 s seamless loop: pdsounds STE-011 (PwC; broadcast-bleed ear check open)
+      radio_static_bed_loop: { group: 'radio', batch: 2, files: ['radio_static_bed_loop_1'] },   // PRC-25-style hiss bed, 6.0 s seamless loop: pdsounds STE-011 (PwC; broadcast-bleed ear check open)
       bandage_dressing:   { group: 'foley', batch: 2, files: ['bandage_dressing_1', 'bandage_dressing_2', 'bandage_dressing_3'] },   // wrapper tear + cloth rip + press: Luckius / OwlishMedia (OGA, CC0). PENDING LEGAL
       // claymore: modusmogulus crack + qubodup snap + Kostrava (all CC0; areniporgen #693421 FAILED the Oct 14 audit)
       explosion_claymore: { group: 'specials', batch: 1, files: ['explosion_claymore_1'] },
@@ -162,15 +162,15 @@
       rain_roof_loop:     { group: 'ambience', batch: 3, files: ['rain_roof_loop_1'] },    // Sassaby #771981 (CC0) medium rain on a tin roof; 30.0 s loop (bunker interiors)
       thunder_distant:    { group: 'ambience', batch: 3, files: ['thunder_distant_1', 'thunder_distant_2', 'thunder_distant_3'] },  // TRP #572443 x2, richwise #361401 (CC0)
       thunder_near:       { group: 'ambience', batch: 3, files: ['thunder_near_1', 'thunder_near_2'] },  // TRP #574412, #567945 (CC0)
-      // ---- rc8 sourcing 2026-10-20 (samples/build_rc8_oct20.py). Real field recordings, NO synth. ALL PENDING LEGAL + ear check.
+      // ---- rc8 sourcing 2026-10-20 (samples/build_rc8_oct20.py). Real field recordings, NO synth. o1 / lvtp5 / firebase: Legal PASS 2026-10-20 (low risk); tokay: Legal PASS 2026-10-20. NOBODY HAS LISTENED to any of them.
       //      Levels (rc8a convention): slot gain 0.5 puts post-gain RMS at ruling target minus the game's MIX.DB bus offset.
       // O-1 Bird Dog FAC marking-run pass: STAND-IN (generic propeller light plane, type unknown, NOT an O-1). ezwa / pdsounds (PD) via Wikimedia Commons. specials -> -31 after the -7 bus
       o1_birddog_flyby:   { group: 'specials', batch: 2, files: ['o1_birddog_flyby_1'] },
-      // amtrac engine + tracks loop, 12 s: amtrac engine loop (sourced from a modern AAV-7 recording; NOT an LVTP-5 recording), USMC/DVIDS b-roll (PD, US gov) via Commons. ambience bus -10 -> -40
+      // amtrac engine + tracks loop, 12 s: real USMC AAV-7 (LVTP-7 family; stand-in for the LVTP-5), USMC/DVIDS b-roll (PD, US gov) via Commons. ambience bus -10 -> -40
       lvtp5_engine_loop:  { group: 'ambience', batch: 2, files: ['lvtp5_engine_loop_1'] },
-      // firebase night bed, 40 s loop: Anon6116 'Rainforest by Night' (CC0), Peten, Guatemala (REGION STAND-IN for Quang Tri). ambience bus -10 -> -43. Game: MIX.AMB 'jungle_loop' -> this slot
+      // firebase night bed, 40 s loop (rev 2: 264-306 s, band-scanned for howler / toucan calls): Anon6116 'Rainforest by Night' (CC0), Peten, Guatemala (REGION STAND-IN for Quang Tri). ambience bus -10 -> -43. Game: MIX.AMB 'jungle_loop' -> this slot
       firebase_amb_loop:  { group: 'ambience', batch: 2, files: ['firebase_amb_loop_1'] },
-      // tokay gecko calls (real, northern Laos), Richard Ling via Commons (PD). Legal cleared 2026-10-20. One-shot, trigger sparingly: once every 1-2 min, night / calm at the firebase. ambience bus -10 -> -40 (gated RMS)
+      // tokay gecko calls (real, northern Laos), Richard Ling via Commons (PD). Legal PASS 2026-10-20. One-shot, trigger sparingly: once every 1-2 min, night / calm at the firebase. ambience bus -10 -> -40 (gated RMS)
       tokay_gecko:        { group: 'ambience', batch: 2, files: ['tokay_gecko_1', 'tokay_gecko_2', 'tokay_gecko_3'] }
     },
     // ---- music slots (2026-10-14). Real recordings only. Loudness matched to combat_loop (-13.6 LUFS integrated, within
