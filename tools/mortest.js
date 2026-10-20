@@ -6,11 +6,11 @@ const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0
 (async()=>{ await new Promise(r=>srv.listen(0,r)); const B='http://localhost:'+srv.address().port+'/';
  const br=await chromium.launch({executablePath:process.env.CH,args:['--no-sandbox']}); let fail=0; const errs=[]; const ok=(c,m,o)=>{ console.log((c?'PASS ':'FAIL ')+m,o?JSON.stringify(o):''); if(!c)fail++ };
  const run=async(q,seed)=>{ const pg=await br.newPage(); pg.on('pageerror',e=>errs.push(e.message));
-  await pg.goto(B+'index.html?nodemo&nointro&nobrief&bot&char=doc&autostart&god&seed='+seed+q); await pg.waitForTimeout(1200);
+  await pg.goto(B+'index.html?nodemo&nointro&nobrief&bot&char=doc&autostart&god&seed='+seed+q+(process.env.Q||'')); await pg.waitForTimeout(1200);
   const r=await pg.evaluate(()=>{ window.__simHold=true; const M=__ms,N2=M.N2,g=M.G,o={open:0,doc:0,dist:[],lead:[],padIn:0,padN:0};
     for(let i=0;i<60*70;i++){ if(M.stateX==='levelup')M.pick(0); M.step(1/60) } window.BOTF.move=()=>[0,0];
     const p=g.p, spare=N2.spareDoc; N2.spareDoc=()=>false;
-    for(let k=0;k<40;k++){ const ha=k*0.7;
+    for(let k=0;k<100;k++){ const ha=k*0.7;
       let c=0;
       const en=M.enemies||[]; for(const e of en){ if(e.dead)continue; const a=ha+(Math.random()-.5)*.8, rr=120+Math.random()*180; e.x=p.x+Math.cos(a)*rr; e.y=p.y+Math.sin(a)*rr; c++ }
       while(c<8){ const e=M.spawn('nva',p.x+Math.cos(ha)*200,p.y+Math.sin(ha)*200); if(!e)break; c++ }
@@ -25,6 +25,6 @@ const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0
  const tot=(q)=>({open:0,doc:0,padIn:0,padN:0,minLead:99,medD:[]});
  for(const [name,q] of [['ON',''],['OFF','&mopen=0']]){ const T=tot(); for(const s of [1,2,3]){ const r=await run(q,s); T.open+=r.open; T.doc+=r.doc; T.padIn+=r.padIn; T.padN+=r.padN; T.minLead=Math.min(T.minLead,r.minLead); T.medD.push(r.medD) }
   T.openPct=Math.round(100*T.open/Math.max(1,T.doc)); console.log(name,JSON.stringify(T));
-  if(name==='ON'){ ok(T.doc>=20&&T.openPct>=90,'ON: rounds near Doc land on his open side (>=90%)',T); ok(T.minLead>=1.8,'ON: INCOMING ring visible >= 1.8 s before impact',{minLead:T.minLead}); ok(T.padIn===0,'ON: no rounds on the pad in the final phase',{padIn:T.padIn,padN:T.padN}) }
+  if(name==='ON'){ ok(T.doc>=40&&T.openPct>=90,'ON: rounds near Doc land on his open side (>=90%)',T); ok(T.minLead>=1.8,'ON: INCOMING ring visible >= 1.8 s before impact',{minLead:T.minLead}); ok(T.padIn===0,'ON: no rounds on the pad in the final phase',{padIn:T.padIn,padN:T.padN}) }
   else console.log('OFF baseline: openPct',T.openPct,'minLead',T.minLead) }
  ok(!errs.length,'no page errors',errs.slice(0,3)); await br.close(); srv.close(); console.log(fail?'MORTEST FAIL '+fail:'MORTEST PASS'); process.exit(fail?1:0) })();
