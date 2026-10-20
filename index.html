@@ -4615,7 +4615,7 @@ const AMT={ON:!/[?&]amtrac=0\b/.test(location.search), V:[], f:null, trk:[], cre
     const ix=s.x+Math.sign(f.x-s.x)*(Math.abs(s.x-f.x)>Math.abs(s.y-f.y)?55:0), iy=s.y+Math.sign(f.y-s.y)*(Math.abs(s.y-f.y)>=Math.abs(s.x-f.x)?55:0);
     let bx=ix, by=iy; for(let k=0;k<6;k++){ const tq=strs.find(q=>(q.type==='m2'||q.type==='m60')&&!q.dead&&Math.hypot(q.x-bx,q.y-by)<70); if(!tq)break; if(Math.abs(s.x-f.x)>Math.abs(s.y-f.y))by+=(by>f.y?-1:1)*30; else bx+=(bx>f.x?-1:1)*30 }   /* never park on a gun pit */
     this.path(v,[[v.hx+40,v.hy],[bx,by]],'breach',195); v.gap=[s.x,s.y]; v.bt=G.t; this.log.push([+G.t.toFixed(1),'breach',v.i]); G.banner={text:'AMTRACS TO THE BREACH',t:2,col:'#ffe58a'} },
-  tick(dt){ const g=G, f=fbS; if(!this.ok()||!g||g.demo)return; if(!f||f.state!=='done'){ if(this.f&&this.f!==f)this.reset(); return } if(this.f!==f)this.mk(f);
+  tick(dt){ const g=G, f=fbS; if(!this.ok()||!g||g.demo)return; if(!f||f.state!=='done'){ if(this.f&&this.f!==f)this.reset(); return } if(this.f!==f){ this.mk(f); if(!g.amtUp&&this.V.length){ g.amtUp=1; gunny('Golf Two-Six, amtracs up. Hauling wire and ammo to the line, over.',4,0,'AMTRAC'); this.jobT=g.t+14 } }   /* AMT_UP_1 (rc8 LPT2, caption only) */
     const late=g.ex&&g.ex.ph>=4, night=ATM.night&&ATM.night(), live=this.V.filter(v=>!v.dead&&!v.lvth), quiet=!this.near(f.x,f.y,520);
     this.qt=quiet?(this.qt||0)+dt:0;
     for(const v of this.V){ v.mv=0; v.spd=0; if(v.hf>0)v.hf-=dt; if(v.dead)continue; if(v.lvth){ this.lvth(v,dt); continue }
@@ -4645,6 +4645,7 @@ const AMT={ON:!/[?&]amtrac=0\b/.test(location.search), V:[], f:null, trk:[], cre
       if(R){ v._hit=R.hitOffset; if(v.stamp&&R.rear){ v.stamp=0; if(this.trk.length>420)this.trk.shift(); this.trk.push([R.rear[0],R.rear[1],v.h,G.t]) }
         if(dis&&R.rampOpen)S.drawDismount(ctx,R,{n:4,phase:Math.min(1,v.dis),t,scale:1}) } }   /* bow ramp: riders file out the front toward the breach */
     for(const s of sl)S.drawRevetment(ctx,{x:s.x,y:s.y,heading:s.lvth?0:Math.PI,scale:1,layer:'front'});
+    for(const v of this.V){ if(v.dead)continue; const L=G.t<(this.jobT||0)?(v.lvth?'105 SUPPORT':'WIRE + AMMO'):v.mode==='shuttle'?'CASEVAC':v.mode==='breach'?'TO THE BREACH':v.mode==='patrol'?'PATROL':''; if(!L)continue; ctx.save(); ctx.font='bold 9px "Courier New",monospace'; ctx.textAlign='center'; const w=ctx.measureText(L).width+6, lx=Math.round(v.x), ly=Math.round(v.y)-30; ctx.fillStyle='rgba(8,14,9,.7)'; ctx.fillRect(lx-w/2,ly-9,w,12); ctx.fillStyle='#ffe58a'; ctx.fillText(L,lx,ly); ctx.restore() }   /* rc8 LPT2: short job label over each amtrac */
     for(const c of this.crew)S.draw(ctx,'marineRifle',(Math.floor(c.t*8)%2)?'walk1':'walk2',Math.round(c.x),Math.round(c.y),1,c.tx<c.x) } };
 /* CREWX (Blake-confirmed): base support men once the firebase is DONE. M60 assistant gunner beside every M60 post (agFeed under fire, agSpot
    otherwise); 2 ammo runners carrying cans bunker -> a random post -> hand-off -> back (visual only); a sharpshooter on the bunker roof
