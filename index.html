@@ -1314,7 +1314,7 @@ function resize(){
   UI=Math.max(.8,Math.min(2.2,Math.min(W,H)/620)); DPR=W/innerWidth;
   { const cs=getComputedStyle(SAEL); SA={t:parseFloat(cs.paddingTop)||0,r:parseFloat(cs.paddingRight)||0,b:parseFloat(cs.paddingBottom)||0,l:parseFloat(cs.paddingLeft)||0} }
   const tb=document.getElementById('topbtns'); if(tb){ tb.style.top=Math.round(SA.t+22*UI/DPR+4)+'px' }
-  PY=Math.max(70*UI,(SA.t+22*UI/DPR+4+(COARSE.matches?44:34)+6)*DPR); PY=Math.max(PY,SA.t*DPR+108*UI);   /* below the timer, the signal line and the MARINES count */
+  PY=Math.max(70*UI,(SA.t+22*UI/DPR+4+(COARSE.matches?44:34)+6)*DPR); PY=Math.max(PY,SA.t*DPR+116*UI);   /* rc8a: +8 so the NVA COMMANDER bar never touches the MARINES line */   /* below the timer, the signal line and the MARINES count */
 }
 window.addEventListener('resize',resize); window.addEventListener('resize',()=>HUDM.set()); if(document.body)HUDM.set(); else addEventListener('DOMContentLoaded',()=>HUDM.set()); window.addEventListener('orientationchange',()=>{ setTimeout(resize,120); setTimeout(resize,500) });
 if(window.visualViewport)visualViewport.addEventListener('resize',resize);
@@ -3788,7 +3788,7 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     const rc=men.filter(m=>m.team==='recon'&&!m.wia&&!m.on).length, sg=men.filter(m=>m.team==='sog'&&!m.wia&&!m.on).length, sp=enemies.reduce((n,e)=>n+(e.spot>0&&!e.dead?1:0),0);
     const T=S.ph==='fight'?Math.max(0,Math.ceil(S.fT-(S.useWall?(performance.now()-S.wall)/1000:S.t))):0;
     const s=S.ph==='in'?'SPEC-OPS INBOUND':S.ph==='out'?'SPEC-OPS EXTRACTING':'RECON '+rc+' · SOG '+sg+(sp?' · SPOTTED '+sp:'')+' · '+fmt(T);
-    txt(s,W/2,H*.205,13*U,S.ph==='fight'?'#9be37a':'#ffe58a','center');
+    txt(s,W/2,laneT(13*U,Math.max(H*.205,exTop(U)+(exStack||0)+14*U)),13*U,S.ph==='fight'?'#9be37a':'#ffe58a','center')   /* rc8a: RECON/SOG line in the lane, below the commander bar */;
     if(S.ph==='fight'&&window.ABILITY_ICONS){ const al=r=>men.some(m=>m.role===r&&!m.wia&&!m.on), I=[['callForFire',al('rto')&&!(S.cff&&S.cff.done)],['sniperOverwatch',al('m14')],['enemyMark',sp>0],['claymoreAmbush',al('oz')&&!S.clay],['silentKill',al('oz')]];
       const sz=U>=1.2?24:16, gap=sz+6, x0=W/2-(I.length-1)*gap/2, y0=H*.205+12*U+sz/2; for(let i=0;i<I.length;i++){ ctx.globalAlpha=I[i][1]?1:.35; ABILITY_ICONS.draw(ctx,I[i][0],Math.round(x0+i*gap),Math.round(y0),sz) } ctx.globalAlpha=1 } } };
 
@@ -5045,7 +5045,7 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
       txt(OFF_RKN[c.rank]||'',x,y-6*U,Math.max(12*DPR,11*U),'#ffe58a','center') }
     const lt=this.ltHit&&coy.find(m=>m.isLt&&m.hp>0); if(lt){ const x=sx(lt.x), y=sy(lt.y)-50*zoom; ctx.fillStyle='rgba(120,20,10,.85)'; ctx.fillRect(x-38*U,y-11*U,76*U,18*U); txt('LT DOWN',x,y+3*U,Math.max(13*DPR,12*U),'#fff','center') }
     if(this.mark&&!this.mark.e.dead&&G.t<this.mark.t){ const e=this.mark.e, x=sx(e.x), y=sy(e.y); ctx.strokeStyle='#ff6a4a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,16*zoom,0,TAU); ctx.moveTo(x-22*zoom,y); ctx.lineTo(x+22*zoom,y); ctx.moveTo(x,y-22*zoom); ctx.lineTo(x,y+22*zoom); ctx.stroke() }
-    if(this.toast){ const k=Math.min(1,this.toast.t*2); ctx.globalAlpha=k; const y=HUDM.on?exTop(U)+(exStack||0)+60*U:Math.max(H*.17,110*U); ctx.font=`bold ${fs}px "Courier New",monospace`; const w=ctx.measureText(this.toast.s).width+20*U; ctx.fillStyle='rgba(12,14,10,.7)'; ctx.fillRect(W/2-w/2,y-fs,w,fs*1.5); txt(this.toast.s,W/2,y+fs*.2,fs,'#ffe58a','center') }
+    if(this.toast){ const k=Math.min(1,this.toast.t*2); ctx.globalAlpha=k; ctx.font=`bold ${fs}px "Courier New",monospace`; const w=ctx.measureText(this.toast.s).width+20*U; const y=laneT(fs*1.3,HUDM.on?exTop(U)+(exStack||0)+60*U:Math.max(H*.17,110*U));   /* rc8a: officer toast (COMMAND · SGT PETTAWAY) takes a lane slot */ ctx.fillStyle='rgba(12,14,10,.7)'; ctx.fillRect(W/2-w/2,y-fs,w,fs*1.5); txt(this.toast.s,W/2,y+fs*.2,fs,'#ffe58a','center') }
     ctx.restore() } };
 window.officerOn=()=>OFFI.on();   /* onboarding tips gate on this (T = mark target) */
 window.OFFI=OFFI;
@@ -6860,12 +6860,13 @@ let ACP=null; function acP(){ if(!ACP){ ACP=new Path2D(); ACP.rect(-28,-3.5,60,7
 const HANLINES=['Good evening, Marines of Quang Tri. This is the Voice of Vietnam. Rest your feet tonight. The rain does not stop here, and neither do we.',
   'Hello, GI. A little music for the boys far from home. Do you know where your relief column is tonight?','Marines, the monsoon is coming. Think of home, and ask yourselves why you are here.','This is Radio Hanoi. Tune your dial, Marine. We know the hills better than you do.'];
 function updateHannah(dt){ const g=G; if(g.demo)return;
-  if(!g.han){ if(g.t>=g.nextHan&&!(g.boss&&!g.boss.dead)&&!lzS){ g.nextHan=g.t+320+rnd()*260; g.han={t:0,dur:11,li:(rnd()*HANLINES.length)|0}; Snd.play('tune') } }
+  if(!g.han){ if(g.t>=g.nextHan&&!(g.boss&&!g.boss.dead)&&!lzS&&!exMsg&&!(g.pullT>0)&&!g.banner){   /* rc8a: waits for a quiet lane (no Gunny/radio card, pull-back or banner) */ g.nextHan=g.t+320+rnd()*260; g.han={t:0,dur:11,li:(rnd()*HANLINES.length)|0}; Snd.play('tune') } }
   else { g.han.t+=dt; if(g.han.t>g.han.dur)g.han=null } }
 function wrapPx(str,maxW){ const w=str.split(' '),out=[]; let cur=''; for(const q of w){ const t=cur?cur+' '+q:q; if(cur&&ctx.measureText(t).width>maxW){ out.push(cur); cur=q } else cur=t } if(cur)out.push(cur); return out }
 function drawHannah(U){ const g=G,h=g.han; if(!h)return; ctx.setTransform(1,0,0,1,0,0);
   const k=Math.min(1,h.t/.4,(h.dur-h.t)/.5); const bw=Math.min(W-20*U,470*U), bx=W/2-bw/2; let y=PY+(52+((g.boss&&!g.boss.dead)?26:0)+((fbS&&fbS.state!=='done')?43:0))*U+exStack;
   ctx.font=`bold ${12*U}px "Courier New",monospace`; const full=HANLINES[h.li], shown=full.slice(0,Math.floor(Math.max(0,h.t-.6)*34)), lines=wrapPx(shown,bw-74*U), hh=(36+Math.max(1,wrapPx(full,bw-74*U).length)*15)*U;
+  y=Math.max(y,LANE.y); LANE.y=y+hh+8*U;   /* rc8a: Hannah's card takes its slot in the top lane, below every banner/line already placed */
   ctx.globalAlpha=k; ctx.fillStyle='rgba(14,22,12,.9)'; ctx.fillRect(bx,y,bw,hh); ctx.strokeStyle='#8fb06a'; ctx.lineWidth=2; ctx.strokeRect(bx+1,y+1,bw-2,hh-2);
   // pixel radio-speaker icon with animated waves
   const ix=bx+10*U, iy=y+10*U, px=3*U; ctx.fillStyle='#3a3a30'; ctx.fillRect(ix,iy,20*U,24*U); ctx.fillStyle='#8a8a70'; ctx.fillRect(ix+2*U,iy+2*U,16*U,20*U); ctx.fillStyle='#22221c'; ctx.beginPath(); ctx.arc(ix+10*U,iy+13*U,6*U,0,TAU); ctx.fill(); ctx.fillStyle='#555'; ctx.beginPath(); ctx.arc(ix+10*U,iy+13*U,2.5*U,0,TAU); ctx.fill();
@@ -6994,11 +6995,11 @@ function mkEx(){ const col0=SIGN[(rnd()*SIGN.length)|0]; return {ph:0,smokeCol:c
   hot:false,broken:false,jet:false,warn:false,nagB:0,pulseT:0,prox:0,pan:0,intro:false,five:false,eight:false,fb:false,gotOn:[],loaded:[],left:[]} }
 /* ---- Gunny radio box (text + radio blip, no voice acting) ---- */
 function gunny(text,dur,pri,who){ const g=G; if(!g||g.demo)return; const m={text,who:who||'GUNNY',dur:dur||Math.max(3.2,1.7+text.length*.05),t:0};
-  if(pri){ exQ.length=0; exMsg=m; Snd.play('radio'); return }
+  if(pri){ const c=exMsg; if(c&&c.t<c.text.length/40+.8){ m.pr=1; exQ.length=0; exQ.push(m); return }   /* rc8a: let the current line finish typing (+0.8 s) before a priority line replaces it */ exQ.length=0; exMsg=m; Snd.play('radio'); return }
   if(!exMsg&&!exQ.length){ exMsg=m; Snd.play('radio') } else { if(exQ.length>=3)exQ.shift(); exQ.push(m) } }
 function updateGunny(dt){ const m=exMsg; if(!m)return; if(HUDM.on&&mobIncoming())return;   /* rc7.1 mobile one-at-a-time: the Gunny card waits while INCOMING is up */ const pr=Math.floor(m.t*40); m.t+=dt; const n=Math.floor(m.t*40);
   if(n>pr&&n<m.text.length+6&&(n&1)===0&&m.text[n]&&m.text[n]!==' ')Snd.blip(150+((rnd()*5)|0)*18);
-  if(m.t>m.dur){ exMsg=exQ.shift()||null; if(exMsg)Snd.play('radio') } }
+  if(m.t>m.dur||(exQ[0]&&exQ[0].pr&&m.t>m.text.length/40+.8)){ exMsg=exQ.shift()||null; if(exMsg)Snd.play('radio') } }
 /* ---- the signal drop ---- */
 function commanderDrop(x,y){ return;   /* Oct 14: no commander smoke pickup any more - Doc carries the canister */ const g=G,ex=g&&g.ex; if(!ex||g.demo||ex.ph!==0)return; const col=SIGN[(rnd()*SIGN.length)|0];
   ex.sig={x,y,kind:'smoke',col,z:70,land:false}; ex.kind='smoke'; ex.col=col; ex.ph=1; ex.dropAt=g.t; g.quiet=EX.QUIET; SAMP.smokeDrop();   /* one quiet second: hit-stop + music duck, the canister hits, then the fight returns */
@@ -7240,7 +7241,7 @@ function drawExHuey(h,tt){ drawHuey(h);
     ctx.strokeStyle='#d9a67a'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx+3,cy-3); ctx.lineTo(cx+7+Math.sin(tt*9)*3,cy-11); ctx.stroke(); ctx.restore() } }
 function exTop(U){ const g=G; return PY+4*U+(((g.boss&&!g.boss.dead)?26:0)+((fbS&&fbS.state!=='done')?43:(fbS?18:0))+(g.inFb?14:0))*U }
 function toScr(x,y,camX,camY){ return [(x-camX)*zoom,(y-camY)*zoom] }
-function edgeArrow(a,U){ const c=Math.cos(a), s=Math.sin(a), r=Math.min((W/2-34*U)/Math.max(1e-3,Math.abs(c)),(H/2-34*U)/Math.max(1e-3,Math.abs(s))); let x=W/2+c*r, y=H/2+s*r; if(y<128*U&&Math.abs(x-W/2)<170*U)y=128*U; return [x,y] }   /* rc7.1: the top-centre band (clock, banner, MARINES) is kept clear: 'PAD 32m' arrow covered the clock */   /* RC2: ray to the screen-edge rectangle (old formula left diagonal arrows floating mid-screen) */
+function edgeArrow(a,U){ const c=Math.cos(a), s=Math.sin(a), r=Math.min((W/2-34*U)/Math.max(1e-3,Math.abs(c)),(H/2-34*U)/Math.max(1e-3,Math.abs(s))); let x=W/2+c*r, y=H/2+s*r; if(y<128*U&&Math.abs(x-W/2)<170*U)y=128*U; { const L0=SA.l*DPR, T0=SA.t*DPR; if(x<L0+300*U&&y<T0+118*U)y=T0+118*U; if(x>W-SA.r*DPR-150*U&&y<T0+80*U)y=T0+80*U }   /* rc8a: arrow + label stay clear of HP / BODY COUNT (top-left) and the top-right buttons */ return [x,y] }   /* rc7.1: the top-centre band (clock, banner, MARINES) is kept clear: 'PAD 32m' arrow covered the clock */   /* RC2: ray to the screen-edge rectangle (old formula left diagonal arrows floating mid-screen) */
 const DIR8=['EAST','SOUTHEAST','SOUTH','SOUTHWEST','WEST','NORTHWEST','NORTH','NORTHEAST'];
 const dirWord=(dx,dy)=>DIR8[((Math.round(Math.atan2(dy,dx)/(Math.PI/4))%8)+8)%8];
 /* the permanent line under the timer: what Doc is doing right now (+ live distance/arrow), and the count of the fifteen */
