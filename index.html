@@ -4318,8 +4318,8 @@ const ZMON={LV:6, ON:!/[?&]zmon=0\b/.test(location.search), R:300,
 /* URG (Blake, Vet verified): at Doc's Triage a random chance flags the worst-wounded Marine URGENT. A CH-46 (no red crosses) flies in, he is
    lifted out, the radio calls "emergency medevac"; he leaves the field squad and counts as extracted (score + end card). Unlimited (rc8 EP), one bird airborne at a time, the rest queued, 75 s apart,
    never once the bird is inbound. ?urg=0 off. */
-const URG={ON:!/[?&]urg=0\b/.test(location.search), P:.3, CD:75, MAX:Infinity, h:null, q:0, reset(){ this.h=null; this.n=0; this.at=-1e9; this.q=0 },   /* rc8 EP: unlimited; one bird airborne at a time, the rest queue (q) */
-  triage(force){ const g=G; if(!this.ON||!g||g.demo||(g.ex&&g.ex.ph>=4))return; if(!force&&rnd()>this.P)return; if(this.h||g.t-this.at<this.CD){ this.q++; return } if(force&&this.q>0)this.q--;
+const URG={ON:!/[?&]urg=0\b/.test(location.search), P:.3, CD:75, MAX:+params.get('urgmax')||Infinity, h:null, q:0, reset(){ this.h=null; this.n=0; this.at=-1e9; this.q=0 },   /* rc8 EP: unlimited; one bird airborne at a time, the rest queue (q) */
+  triage(force){ const g=G; if(!this.ON||!g||g.demo||(g.ex&&g.ex.ph>=4))return; if(!force&&rnd()>this.P)return; if(this.n>=this.MAX)return; if(this.h||g.t-this.at<this.CD){ this.q++; return } if(force&&this.q>0)this.q--;
     let m=null; for(const q of coy){ if(q.hp>0&&q.state==='ok'&&!q.hid&&q.hp<q.mhp*.6&&(!m||q.hp/q.mhp<m.hp/m.mhp))m=q } if(!m)return;
     this.n++; this.at=g.t; m.urg=true; const a=rnd()*TAU, R0=Math.hypot(VW,VH)/2+380;
     this.h={m,x:m.x+Math.cos(a)*R0,y:m.y+Math.sin(a)*R0,z:110,hd:a+Math.PI,rot:0,ch46:true,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,lt:0,out:0};
