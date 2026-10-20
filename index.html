@@ -1235,6 +1235,7 @@ Pause .......... Esc / P     Mute ... M</pre></div>
 })(typeof self !== 'undefined' ? self : this);
 </script>
 <script src="assets/art/sheet1.js?v=2399611"></script>
+<script src="assets/art/recon_team_v1.js?v=rc8"></script><script src="assets/art/recon_team_dirs_v2.js?v=rc8"></script>   <!-- rc8: Art Director recon team (6-man) + front/back views -->
 <script src="assets/art/vfx_water_impacts.js?v=2399611"></script>
 <script src="assets/art/vfx_flame.js?v=2399611"></script><script>/* Artist HUD art (XP strap + health dog tag, ?hudart=0 off) */ if(!/[?&]hudart=0\b/.test(location.search))document.write('<script src="assets/art/hud_art.js?v=2399611"><\/script>')</script>
 <script src="assets/art/map_wrecks.js?v=2399611"></script>
@@ -3693,8 +3694,8 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     g.banner={text:B?'SPEC-OPS INBOUND: RECON BY PBR · SOG BY H-34':'SPEC-OPS INBOUND: RECON BY CH-46 · SOG BY H-34',t:2.8,col:'#ffe58a'}; Snd.play('radio');
     if(!this.sfx('h34','flyby','h34_flyby','squad'))try{ if(SAMP.ready()&&SamplePlayer.hasSample('huey_flyby'))MIX.as('squad',()=>SamplePlayer.play('huey_flyby',{vol:.8})) }catch(e){} if(S.boat)this.sfx('pbrManeuver','runup','pbr_runup','squad',Math.hypot(S.boat.x-g.p.x,S.boat.y-g.p.y)) },
   land(kind){ const g=G,S=this.st();
-    if(kind==='recon'){ const b=S.boat, B=b?b.B:null, L=B?{x:B.bx,y:B.by}:S.helo2.lz; const roles=[['tl','m16'],['rto','m16'],['m79','m79'],['m14','m14'],['pt','m16']];
-      roles.forEach(([ro,w],i)=>S.men.push(this.mkMan('recon','recon',i%4,w,ro,L.x+(i-2)*10,L.y+(i&1?6:-4)))) }
+    if(kind==='recon'){ const b=S.boat, B=b?b.B:null, L=B?{x:B.bx,y:B.by}:S.helo2.lz; const roles=[['tl','m16'],['rto','m16'],['m79','m79'],['m14','m16'],['pt','m16'],['r2','m16']];   /* rc8: 6-man team; the m14 slot is now an M16A1 rifleman (rifleman1), r2 = rifleman2 */
+      roles.forEach(([ro,w],i)=>S.men.push(this.mkMan('recon','recon',i%4,w,ro,L.x+(i-2.5)*10,L.y+(i&1?6:-4)))) }
     else { const L=S.lz, roles=[['oz','car15','sogUS',0],['o1','swk','sogUS',1],['o2','saw79','sogUS',3],['mt1','m2c','sogInd',2],['nung','car15','sogInd',3],['mt2','m16','sogInd',2]];
       roles.forEach(([ro,w,k,s],i)=>S.men.push(this.mkMan('sog',k,s,w,ro,L.x+(i-2.5)*10,L.y+(i&1?6:-6)))); const oz=S.men.find(m=>m.role==='oz'); if(oz)oz.side='hs22' }
     if(S.ph==='in'){ S.ph='fight'; S.t=0; S.fT=this.FIGHT; S.wall=performance.now(); S.useWall=!!(MUSX.has('reinforcements')&&REIN_OK&&!DBG.bot&&!window.__simHold&&Snd.ctx&&Snd.ctx.state==='running'); S.musT0=g.t; S.musW0=performance.now();
@@ -3772,7 +3773,13 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
       else { if(k==='helo')h.sk46=1; drawHuey(h) } } },
   /* Artist Helper sprite for a man (recon_team.js / sog_team.js); null -> procedural fallback */
   ART:{tl:'lead',rto:'rto',m79:'m79',m14:'rifle',pt:'point',oz:'lead',o1:'asst',o2:'rto',mt1:'point',nung:'interp',mt2:'tail'},
-  art(m){ const S1=window.SHEET1; if(!S1)return null; const f=m.team==='recon'?S1.drawRecon:S1.drawSog; if(!f)return null; const r=this.ART[m.role]; return r?{f,r}:null },
+  RT:{tl:'teamLeader',pt:'pointMan',rto:'rto',m79:'grenadier',m14:'rifleman1',r2:'rifleman2'},
+  art(m){ const S1=window.SHEET1; if(!S1)return null;
+    if(m.team==='recon'&&S1.drawReconTeam&&this.RT[m.role]){ const role=this.RT[m.role];   /* rc8 AD recon_team_v1 (+dirs v2): weapon painted from the returned hand point */
+      return {r:role,f:(c,ro,a,x,y,sc,flip)=>{ const an=a==='down'?'down':a==='hit'?'hit':a?'walk':'idle', t=G?G.t:0;
+        if(S1.drawReconTeamDir&&(an==='walk'||an==='idle')){ let d=Math.round((((m.aim||0)%TAU)+TAU)%TAU/(TAU/8))%8; if(!m.mv)d=flip?4:0; return S1.drawReconTeamDir(c,ro,an,t,x,y,d,{scale:sc||1,white:m.hf>0}) }
+        return S1.drawReconTeam(c,ro,an,t,x,y,flip,{scale:sc||1,white:m.hf>0}) }} }
+    const f=m.team==='recon'?S1.drawRecon:S1.drawSog; if(!f)return null; const r=this.ART[m.role]; return r?{f,r}:null },
   /* river landing (terrain.js tLanding) drawn over the baked bank tile where the PBR noses in */
   landing(b){ if(!b.B)return; if(b.lt===undefined)b.lt=TERR.landing(b.B.wx,b.B.wy,b.B.bx,b.B.by); const L=b.lt; if(L)for(const q of L)ctx.drawImage(q.im,q.x,q.y) },
   hud(U){ const g=G; if(!this.ON||!g||!g.spec)return; const S=g.spec; if(!(S.ph==='fight'||S.ph==='in'||S.ph==='out'))return; const men=S.men||[];
@@ -5646,7 +5653,11 @@ function charTick(dt){ const g=G; if(!g||g.demo||!g.char)return; const p=g.p;
     const t=tanks[0]; if(t&&!t.dead&&t.hp<t.mhp&&Math.hypot(t.x-p.x,t.y-p.y)<260)t.hp=Math.min(t.mhp,t.hp+r*dt*3) } }
 
 /* ---- UI ---- */
+/* rc8: squad2 final portraits (artist-assets/squad2, manifest final-v1) plug into ART.portraits[charId]; Hogston (radio) keeps his own. No squad2 role fits flamer/chef, so they keep the sprite card. */
+const SQ2P={doc:'doc_112x128',hammer:'m60_gunner_portrait_112x128',boone:'scout_sniper_portrait_112x128',skipper:'platoon_lieutenant_portrait_112x128',rat:'combat_engineer_portrait_112x128',preacher:'m79_grenadier_portrait_112x128'};
+for(const k in SQ2P){ const im=new Image(); im.onload=()=>{ ART.portraits[k]=im; try{ if(window.__csId===k&&$('csPort'))drawPortrait($('csPort'),k) }catch(e){} }; im.src='assets/art/squad2/'+SQ2P[k]+'.png'+AV }
 function drawPortrait(cv2,id){ const c=cv2.getContext('2d'); c.imageSmoothingEnabled=false; c.clearRect(0,0,cv2.width,cv2.height);
+  const PI=ART.portraits[id]; if(PI&&PI.complete&&PI.naturalWidth){ c.imageSmoothingEnabled=true; const k=Math.max(cv2.width/PI.naturalWidth,cv2.height/PI.naturalHeight), w=PI.naturalWidth*k, h=PI.naturalHeight*k; c.drawImage(PI,Math.round((cv2.width-w)/2),Math.round(cv2.height-h),w,h); return }
   const gr=c.createLinearGradient(0,0,0,cv2.height); gr.addColorStop(0,'#7f9560'); gr.addColorStop(1,'#46583a'); c.fillStyle=gr; c.fillRect(0,0,cv2.width,cv2.height);
   c.fillStyle='rgba(20,34,16,.45)'; for(let i=0;i<6;i++){ c.fillRect(i*22-4,0,6,cv2.height) }
   const spr=CHSPR[id]&&CHSPR[id][0][0][0]; if(spr){ const k=Math.floor(Math.min(cv2.width/spr.width,cv2.height/spr.height)*.95); const w=spr.width*k,h=spr.height*k; c.drawImage(spr,Math.round((cv2.width-w)/2),Math.round(cv2.height-h-4),w,h) }
@@ -5672,7 +5683,7 @@ function selectChar(id){ if(!CHD[id])return; const op=chOpen(id); SEL=id; if(op&
    <div class="tr"><b>SERVICE TIER ${t}/5</b> · ${x} XP · ${c.runs||0} patrols · best ${fmt(c.best||0)}<div class="bar"><i style="width:${pct}%"></i></div>
    ${D.perks.map((p,i)=>`<div class="pk${i<t?' on':''}">${i<t?'✔':'🔒'} Tier ${i+1} (${TIER_XP[i]} XP): ${p.t}</div>`).join('')}</div><div class="stamp">${t>=5?'VETERAN':'CONFIDENTIAL'}</div>`;
   if(!op)$('csRec').insertAdjacentHTML('afterbegin','<div class="lkban">🔒 Opens when Doc comes home.</div>'); $('csRec').classList.toggle('locked',!op); const go=$('btnCsGo'); if(go){ go.disabled=!op; go.textContent=op?'Deploy':'Locked' }
-  drawPortrait($('csPort'),id) }
+  window.__csId=id; drawPortrait($('csPort'),id) }
 function openCharSel(){ squad2Check(); try{ P3.panel() }catch(e){} buildCharList(); selectChar(SEL); $('menu').classList.remove('show'); $('charsel').classList.add('show'); setTimeout(()=>{ try{$('btnCsGo').focus()}catch(e){} },30) }
 function closeCharSel(){ $('charsel').classList.remove('show'); $('menu').classList.add('show') }
 $('btnCsBack').onclick=closeCharSel; $('btnCsGo').onclick=()=>startGame();
