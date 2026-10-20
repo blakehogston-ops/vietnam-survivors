@@ -4567,7 +4567,7 @@ function canWade(x,y,who){ const r=riverAt(x,y); if(!r)return true; const c=Math
   if(k===1){ const pw=who==='p'&&PADLANE?8:0; return d<MAPB.BR_HALF+pw||(Math.abs(r.v)>MAPB.HW-16-pw&&d<MAPB.BR_HALF+14+pw) }   /* rc6b: Doc gets 8 px more deck + apron so he can't snag on the bridge-end corners (?padlane=0) */   /* bridge-end apron: no corner clipping where the bank curves (Blake: can't cross) */ if(k===2)return who!=='tank'&&d<MAPB.FORD_HALF;   /* the tank uses bridges only */ return who==='nva'&&d<MAPB.FORD_HALF }
 const isNvaFoot=e=>e&&(e.type==='nva'||e.type==='officer'||e.type==='sapper');
 /* move o from (o.x,o.y) by (vx,vy): blocked by water except at crossings; slides along banks; never traps anything already in water */
-function rvMove(o,vx,vy,who){ const nx=o.x+vx, ny=o.y+vy; if(!G||G.demo||o.swim>0||canWade(nx,ny,who)){ o.x=nx; o.y=ny; return 0 }
+function rvMove(o,vx,vy,who){ if(!isFinite(vx)||!isFinite(vy)){ vx=0; vy=0; if(G&&(G.nanMove=(G.nanMove|0)+1)===1)console.warn('rvMove: non-finite velocity zeroed') }   /* rc7.1 EP: NaN safety net */ const nx=o.x+vx, ny=o.y+vy; if(!G||G.demo||o.swim>0||canWade(nx,ny,who)){ o.x=nx; o.y=ny; return 0 }
   if(!canWade(o.x,o.y,who)){ o.x=nx; o.y=ny; return 0 }
   if(canWade(nx,o.y,who)){ o.x=nx; return 1 } if(canWade(o.x,ny,who)){ o.y=ny; return 1 }
   const L=Math.hypot(vx,vy), a0=Math.atan2(vy,vx); for(const da of [.6,-.6,1.2,-1.2,1.65,-1.65]){ const ax=o.x+Math.cos(a0+da)*L, ay=o.y+Math.sin(a0+da)*L; if(canWade(ax,ay,who)){ o.x=ax; o.y=ay; return 1 } } return 2 }   /* slide along a curving bank */
@@ -7106,7 +7106,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false; ctx.fillStyle='#2c5226'; ctx.fillRect(0,0,W,H);
   const g=G; if(!g)return; const p=g.p;
   const shx=g.shake>.3?(rnd()-.5)*g.shake:0, shy=g.shake>.3?(rnd()-.5)*g.shake:0;
-  const ic=(c=>{ if(c&&!(isFinite(c.x)&&isFinite(c.y)&&isFinite(c.rot||0))){ simGuard('impactCam',c.x+','+c.y); try{ VFX_IMPACT.reset&&VFX_IMPACT.reset() }catch(e){} return null } return c })(window.VFX_IMPACT?VFX_IMPACT.camera():null), camX=Math.round((p.x+shx+(ic?ic.x:0))*zoom)/zoom-VW/2, camY=Math.round((p.y+shy+(ic?ic.y:0))*zoom)/zoom-VH/2;
+  let ic=(c=>{ if(c&&!(isFinite(c.x)&&isFinite(c.y)&&isFinite(c.rot||0))){ simGuard('impactCam',c.x+','+c.y); try{ VFX_IMPACT.reset&&VFX_IMPACT.reset() }catch(e){} return null } return c })(window.VFX_IMPACT?VFX_IMPACT.camera():null), camX=Math.round((p.x+shx+(ic?ic.x:0))*zoom)/zoom-VW/2, camY=Math.round((p.y+shy+(ic?ic.y:0))*zoom)/zoom-VH/2; if(!isFinite(camX)||!isFinite(camY)){ camX=(isFinite(p.x)?p.x:0)-VW/2; camY=(isFinite(p.y)?p.y:0)-VH/2; if(G&&(G.nanCam=(G.nanCam|0)+1)===1)console.warn('camera: non-finite position, recentred') }   /* rc7.1 EP: camera NaN guard */
   ctx.setTransform(zoom,0,0,zoom,-camX*zoom,-camY*zoom); RCAM.x=camX; RCAM.y=camY; MZW.z=zoom; MZW.cx=camX; MZW.cy=camY;
   // background
   const T=256; for(let x=Math.floor(camX/T)*T;x<camX+VW;x+=T)for(let y=Math.floor(camY/T)*T;y<camY+VH;y+=T){
