@@ -3100,7 +3100,7 @@ function newGame(demo){ N2.reset(); try{ ATM.reset() }catch(e){}
   }
   G.nextLz=demo?9e9:(DBG.t>0?t0+4:t0+100); G.lzN=0; G.fbN=0; G.inFb=false; G.ex=mkEx(); G.sig=[]; G.exHold=false; G.fbLog=[];
   G.seed=seed; G.q15=!demo; G.rl={seed,firstDeath:null}; G.lastHit=null; G.hs={}; G.luN=0; bodies=[];
-  applyChar(demo); if(!demo){ P3.loadout(); insertFifteen() }
+  applyChar(demo); if(!demo){ P3.runAch=[]; P3.loadout(); insertFifteen() }
 }
 const XPK=(()=>{ const v=parseFloat(new URLSearchParams(location.search).get('xpk')); return isFinite(v)?v:3.2 })();   /* Gamer Oct 15: ~5 level-ups a run (was 8). ?xpk= tunes */
 const xpNeed=l=>Math.floor((4+l*3.2+l*l*.55)*(l<=1?1:XPK));
@@ -6600,6 +6600,7 @@ const recOpen=()=>{ try{ return localStorage.getItem('lbo2_open')==='1' }catch(e
 /* ===== P3 (feature/next item 3): hold-out score + local top-10 leaderboard (?score=0), achievements + toast + Steam hook (?ach=0),
    unlockable Marines / Doc loadouts (?unlocks=0). DOC_ONLY stays the public default: other service records only open with ?all. ===== */
 const P3F=k=>!new RegExp('[?&]'+k+'=0\\b').test(location.search);
+const ENDACH=!/[?&]endach=0\b/.test(location.search);
 const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
   dk(k){ return DEMO?k.replace(/^lbo2_/,'lbo2demo_'):k },   /* DEMO progress never mixes with the full game's */
   ls(k,d){ k=this.dk(k); try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d }catch(e){ return d } }, ss(k,v){ k=this.dk(k); try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} },
@@ -6635,10 +6636,11 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
   onOver(win,why){ const g=G; if(!g||g.demo)return; const c=this.ctx(g,{win,why}); let html='';
     if(this.SC){ this.css(); const s=this.score(c); c.score=s.tot; const rank=this.post(c,s); const best=this.ls('lbo2_hiscore',0); if(s.tot>best)this.ss('lbo2_hiscore',s.tot); html=this.endHtml(c,s,rank) }
     if(this.ACH)this.check(c);
+    if(this.ACH&&ENDACH){ this.css(); const ra=this.runAch||[]; html+='<div class="p3sc" id="p3runAch"><div class="row"><b>ACHIEVEMENTS THIS RUN'+(DEMO?' · DEMO':'')+'</b><span>'+ra.length+'</span></div>'+(ra.length?ra.map(a=>'<div class="row"><span>&#9733; '+a.name+'</span><span style="opacity:.7">'+a.desc+'</span></div>').join(''):'<div class="row"><span style="opacity:.7">none this time</span></div>')+'</div>' }   /* rc6 Gamer #9 (?endach=0) */
     if(html){ $('stats').insertAdjacentHTML('beforeend',html); const b=$('p3lbBtn'); if(b)b.onclick=()=>{ const x=$('p3lbBox'); x.style.display=x.style.display==='none'?'block':'none' } } },
   /* ---- (b) achievements ---- */
   got(){ return this.ls('lbo2_ach',{}) },
-  unlock(a){ const m=this.got(); if(m[a.id])return false; m[a.id]=Date.now(); this.ss('lbo2_ach',m); this.toast(a); this.steam(a.id); return true },
+  unlock(a){ const m=this.got(); if(m[a.id])return false; m[a.id]=Date.now(); this.ss('lbo2_ach',m); (this.runAch||(this.runAch=[])).push(a); this.toast(a); this.steam(a.id); return true },
   steam(id){ if(DEMO)return; try{ const sw=window.steamworks; if(sw){ if(sw.achievement&&sw.achievement.activate)sw.achievement.activate(id); else if(sw.activateAchievement)sw.activateAchievement(id); return } const gw=window.greenworks; if(gw&&gw.activateAchievement)gw.activateAchievement(id,()=>{},()=>{}) }catch(e){} },
   toast(a){ (this.tq||(this.tq=[])).push(a); this.pump() },
   pump(){ const w=$('p3toast'); if(!this.tq.length||(w&&w.children.length>=(innerWidth<700?1:3)))return; this.show(this.tq.shift()); setTimeout(()=>this.pump(),900) },
