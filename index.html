@@ -5823,16 +5823,16 @@ function drawBrief(){ const B=BR; ctx.setTransform(1,0,0,1,0,0); ctx.imageSmooth
 window.addEventListener('keydown',e=>{ if(state!=='brief'||!BR||e.repeat)return; if(e.code==='Escape'||e.code==='Backspace'){ endBrief(); return } if(e.code==='KeyM')return; briefNext() });
 window.addEventListener('pointerdown',e=>{ if(state!=='brief'||!BR)return; { const r=BR.skipR, pad=10; if(BR.ph===1&&r&&e.clientX>=r[0]-pad&&e.clientX<=r[2]+pad&&e.clientY>=r[1]-pad&&e.clientY<=r[3]+pad){ endBrief(); return } } briefNext() });
 $('btnBrief').onclick=()=>startBrief();
-/* ====================== ?ltbrief=1: platoon lieutenant's short briefing (Doc present) -> routine CH-46 insert that goes bad after drop-off ======================
+/* ====================== lieutenant briefing (default; ?ltbrief=0 = Colonel): platoon lieutenant's short briefing (Doc present) -> routine CH-46 insert that goes bad after drop-off ======================
    Replaces the Colonel Mercer briefing + map pins on this path only. Text captions + the radio-static sting, no TTS, no recordings yet.
    Line IDs follow the brief_NN convention (audio/brief_NN.mp3): a recording dropped in later as audio/<id>.mp3 can be wired by ID. */
-const INTRO2=/[?&]ltbrief=1\b/.test(location.search);   /* ?ltbrief=1 (not ?intro2: ?intro2=0 already toggles Artist Helper's Colonel art) */
+const INTRO2=!/[?&]ltbrief=0\b/.test(location.search);   /* ON by default; ?ltbrief=0 = old Colonel Mercer briefing + intro (not ?intro2: ?intro2=0 already toggles Artist Helper's Colonel art) */
 const BRIEF2_LINES=[
- {id:'brief2_01',who:'LIEUTENANT',t:"Listen up. Platoon's running a sweep north of Quang Tri. Choppers in, check the villes, out before dark."},
- {id:'brief2_02',who:'LIEUTENANT',t:"S-2 says it's quiet. Don't believe it. Keep your intervals, five meters."},
- {id:'brief2_03',who:'LIEUTENANT',t:"Doc, you're with me. Stick close to the radio."},
- {id:'brief2_04',who:'SERGEANT',t:"Saddle up! Lock and load on the LZ, not before."}];
-const INS2_LINE={id:'ins2_01',who:'LIEUTENANT',t:"Off the ramp, set the perimeter!"};
+ {id:'brief2_01',who:'2ndLt HOLLIS',port:'lt',t:"Listen up. Platoon's running a sweep north of Quang Tri. Choppers in, check the villes, out before dark."},
+ {id:'brief2_02',who:'2ndLt HOLLIS',port:'lt',t:"S-2 says it's quiet. Don't believe it. Keep your intervals, five meters."},
+ {id:'brief2_03',who:'2ndLt HOLLIS',port:'lt',with:'doc',t:"Doc, you're with me. Stick close to the radio."},
+ {id:'brief2_04',who:'Sgt PETTAWAY',port:'sgt',t:"Saddle up! Lock and load on the LZ, not before."}];
+const INS2_LINE={id:'ins2_01',who:'2ndLt HOLLIS',t:"Off the ramp, set the perimeter!"};
 const B2CPS=34, B2HOLD=1.35;
 let BR2=null; const B2CV=mk(320,180), b2c=B2CV.getContext('2d');
 function startBrief2(){ BR2={t:0,page:0,lt:0,typed:0,t0:performance.now()}; state='brief2'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; ttsCancel(); b2Sting() }
@@ -5840,44 +5840,69 @@ function b2Sting(){ if(!Snd.muted){ try{Snd.play('radio')}catch(e){} } }
 function endBrief2(){ if(!BR2)return; window.__brief2Dur=(performance.now()-BR2.t0)/1000; BR2=null; try{sessionStorage.setItem('lco_briefed','1')}catch(e){} last=performance.now(); startIntro(true) }
 function updateBrief2(dt){ const B=BR2; if(!B)return; B.t+=dt; B.lt+=dt; const L=BRIEF2_LINES[B.page]; B.typed=Math.min(L.t.length,B.lt*B2CPS);
   if(B.lt>=L.t.length/B2CPS+B2HOLD){ if(B.page>=BRIEF2_LINES.length-1){ endBrief2(); return } B.page++; B.lt=0; B.typed=0; b2Sting() } }
-function b2Man(c,x,y,o){ /* 3/4-view Marine, ~34 px tall at 320x180: M1 helmet w/ cover, flak jacket, OD utilities */
-  const sk=o.sk||'#b48462'; c.fillStyle='rgba(0,0,0,.28)'; c.beginPath(); c.ellipse(x,y+1,9,2.5,0,0,6.283); c.fill();
-  if(o.kneel){ c.fillStyle='#3d4a2a'; c.fillRect(x-5,y-9,6,9); c.fillRect(x+1,y-4,7,4); c.fillStyle='#22261a'; c.fillRect(x+7,y-2,3,2); y+=10 } else { c.fillStyle='#3d4a2a'; c.fillRect(x-5,y-14,4,14); c.fillRect(x+1,y-14,4,14); c.fillStyle='#22261a'; c.fillRect(x-6,y-2,5,2); c.fillRect(x+1,y-2,5,2) }
-  c.fillStyle='#4b5733'; c.fillRect(x-7,y-28,14,15); c.fillStyle='#3a4428'; c.fillRect(x-7,y-28,14,2); c.fillRect(x-1,y-26,1,12); /* flak jacket */
-  c.fillStyle='#525e38'; c.fillRect(x-9,y-27,3,11); c.fillRect(x+6,y-27,3,11); c.fillStyle=sk; c.fillRect(x-9,y-17,3,3); c.fillRect(x+6,y-17,3,3);
-  c.fillStyle=sk; c.fillRect(x-3,y-34,6,6); c.fillStyle='#2a2216'; c.fillRect(x-1,y-31,1,1);
-  c.fillStyle='#55603a'; c.fillRect(x-5,y-38,10,4); c.fillRect(x-6,y-35,12,2); c.fillStyle='#3e4a2b'; c.fillRect(x-3,y-38,2,1); c.fillRect(x+2,y-37,2,1); /* camo cover */
-  if(o.rifle){ c.fillStyle='#1c1c18'; c.fillRect(x+8,y-30,2,18); c.fillStyle='#4a3a26'; c.fillRect(x+8,y-14,2,4) }
-  if(o.radio){ c.fillStyle='#39432a'; c.fillRect(x-11,y-29,5,10); c.fillStyle='#111'; c.fillRect(x-10,y-40,1,11) }
-  if(o.doc){ c.fillStyle='#5a5a3a'; c.fillRect(x+5,y-20,6,6); c.fillStyle='#3a3a26'; c.fillRect(x+5,y-20,6,1) }
-  if(o.map){ c.fillStyle='#c9bf8f'; c.fillRect(x-14,y-22,8,6); c.fillStyle='#7d9058'; c.fillRect(x-13,y-21,3,2) } }
-function drawBrief2Scene(t){ const c=b2c; c.imageSmoothingEnabled=false;
-  for(let y=0;y<90;y+=2){ const k=y/90; c.fillStyle=`rgb(${Math.round(150+k*70)},${Math.round(150+k*40)},${Math.round(150-k*40)})`; c.fillRect(0,y,320,2) }   /* overcast dawn */
-  c.fillStyle='#5e6e62'; for(let x=0;x<320;x+=2){ const h=60+Math.round(inoise(x,40)*14); c.fillRect(x,h,2,90-h) }   /* hills in haze */
-  c.fillStyle='#2e4429'; for(let x=0;x<320;x+=2){ const h=78+Math.round(inoise(x+500,9)*9); c.fillRect(x,h,2,100-h) }   /* treeline */
-  c.fillStyle='#8a5a36'; c.fillRect(0,96,320,84); c.fillStyle='#7a4e2e'; for(let i=0;i<140;i++){ c.fillRect((ihash(i)*320)|0,96+((ihash(i+7)*84)|0),3,1) }   /* laterite LZ */
-  c.fillStyle='#6b7a44'; for(let i=0;i<70;i++){ c.fillRect((ihash(i+40)*320)|0,96+((ihash(i+90)*14)|0),1,2) }
-  /* CH-46 on the pad behind, rotors turning slowly (tandem, ramp down) */
-  const hx=196,hy=92; c.fillStyle='#3e4a32'; c.fillRect(hx,hy-14,92,14); c.fillRect(hx+4,hy-18,84,4); c.fillRect(hx+84,hy-26,10,12); c.fillRect(hx-4,hy-24,10,10);
-  c.fillStyle='#2a3322'; c.fillRect(hx+8,hy-11,6,5); c.fillRect(hx+20,hy-11,6,5); c.fillRect(hx+92,hy-6,10,6); c.fillStyle='#14180f'; c.fillRect(hx+6,hy,4,3); c.fillRect(hx+80,hy,4,3);
-  const ra=t*2.2; c.strokeStyle='rgba(30,30,26,.45)'; c.lineWidth=1; for(const rx of [hx+1,hx+89]){ for(let k=0;k<3;k++){ const a=ra+k*2.094; c.beginPath(); c.moveTo(rx-Math.cos(a)*30,hy-28+Math.sin(a)*2); c.lineTo(rx+Math.cos(a)*30,hy-28-Math.sin(a)*2); c.stroke() } }
-  c.fillStyle='#4a5733'; for(const [sx,sy] of [[18,110],[40,108],[62,111]]){ c.fillRect(sx,sy,18,5); c.fillStyle='#3d4a2a'; c.fillRect(sx+2,sy+1,14,1); c.fillStyle='#4a5733' }   /* packs */
-  b2Man(c,150,148,{map:1,rifle:1}); /* lieutenant, folded map in hand */
-  b2Man(c,124,150,{radio:1,rifle:1,sk:'#8a5e44'}); /* RTO beside him */
-  b2Man(c,176,150,{doc:1,kneel:1}); /* Doc, Unit One bag, kneeling */
-  b2Man(c,70,154,{rifle:1,kneel:1,sk:'#6e4a34'}); b2Man(c,96,156,{rifle:1}); b2Man(c,214,156,{rifle:1,kneel:1}); b2Man(c,240,154,{rifle:1});
-  c.fillStyle='rgba(60,40,20,.12)'; c.fillRect(0,0,320,180) }
+/* briefing art (Art Director rework): approved game sprites at 1x on a 320x180 buffer, integer upscale. No hand-drawn men.
+   Lt = heroes_tall 'skipper' (2ndLt), Doc = heroDoc 'treat' (kneeling) + his yellow ring, RTO = marine rig 'radio' (PRC-25),
+   riflemen = marine rig with the Company looks (different faces / skin tones), CH-46 = ch46_v2 rampDown with soft blur discs. */
+const B2PORT={}; for(const [k,f] of [['lt','platoon_lieutenant_portrait_112x128.png'],['sgt','squad_leader_portrait_112x128.png']]){ const im=new Image(); im.src='assets/art/squad2/'+f; B2PORT[k]=im }
+let B2BG=null;
+function b2Ground(){ const c=mk(320,180), x=c.getContext('2d');
+  /* dawn sky: cool grey-blue overhead to a warm low band at the horizon */
+  const sk=x.createLinearGradient(0,0,0,52); sk.addColorStop(0,'#5d6b7c'); sk.addColorStop(.55,'#8f949a'); sk.addColorStop(.85,'#c9a882'); sk.addColorStop(1,'#e2b47c'); x.fillStyle=sk; x.fillRect(0,0,320,52);
+  const sun=x.createRadialGradient(262,50,2,262,50,90); sun.addColorStop(0,'rgba(255,214,150,.55)'); sun.addColorStop(1,'rgba(255,190,120,0)'); x.fillStyle=sun; x.fillRect(0,0,320,60);
+  /* layered treelines, far ones lost in haze */
+  const tl=(base,amp,sc,col,seed)=>{ x.fillStyle=col; for(let i=0;i<320;i++){ const h=Math.round(base-inoise(i+seed,sc)*amp-inoise(i*3+seed,4)*amp*.25); x.fillRect(i,h,1,64-h) } };
+  tl(46,9,26,'#8a8a84',100); tl(50,8,17,'#6c7466',300); tl(55,9,11,'#435040',600); tl(60,7,7,'#2c3a2a',900);
+  const hz=x.createLinearGradient(0,40,0,66); hz.addColorStop(0,'rgba(214,196,170,.35)'); hz.addColorStop(1,'rgba(214,196,170,0)'); x.fillStyle=hz; x.fillRect(0,40,320,26);
+  /* wet red laterite: value gradient + mottling + ruts + standing water picking up the sky */
+  const gd=x.createLinearGradient(0,62,0,180); gd.addColorStop(0,'#7e4a32'); gd.addColorStop(.4,'#8f5136'); gd.addColorStop(1,'#6a3a26'); x.fillStyle=gd; x.fillRect(0,62,320,118);
+  for(let i=0;i<900;i++){ const px=(ihash(i)*320)|0, py=62+((ihash(i+3e3)*118)|0), v=ihash(i+7e3); x.fillStyle=v<.4?'rgba(60,28,16,.35)':v<.75?'rgba(168,98,62,.28)':'rgba(40,20,12,.25)'; x.fillRect(px,py,1+(v*3|0),1) }
+  for(let r=0;r<3;r++){ x.strokeStyle='rgba(52,26,16,.45)'; x.lineWidth=2; x.beginPath(); for(let i=0;i<=320;i+=8){ const yy=96+r*26+Math.sin(i/37+r)*3; i?x.lineTo(i,yy):x.moveTo(i,yy) } x.stroke() }
+  for(const [px,py,rw] of [[38,118,22],[118,168,30],[286,148,18],[204,124,14]]){ x.fillStyle='rgba(120,126,134,.55)'; x.beginPath(); x.ellipse(px,py,rw,rw*.22,0,0,TAU); x.fill(); x.fillStyle='rgba(230,184,128,.35)'; x.beginPath(); x.ellipse(px+rw*.25,py-1,rw*.4,rw*.07,0,0,TAU); x.fill() }
+  x.fillStyle='#4f5a2c'; for(let i=0;i<120;i++){ const px=(ihash(i+11)*320)|0, py=64+((ihash(i+12)*30)|0); x.fillRect(px,py,1,2) }
+  return c }
+/* long soft shadow: the sprite's silhouette, flattened and thrown left away from the low sun */
+function b2Shadow(c,draw,x,y){ /* long soft shadow thrown left, away from the low sun on the right */
+  c.save(); const g=c.createLinearGradient(x,0,x-34,0); g.addColorStop(0,'rgba(26,13,6,.42)'); g.addColorStop(1,'rgba(26,13,6,0)'); c.fillStyle=g; c.beginPath(); c.ellipse(x-15,y,20,2.8,-.04,0,TAU); c.fill();
+  c.fillStyle='rgba(26,13,6,.32)'; c.beginPath(); c.ellipse(x,y,8,2.4,0,0,TAU); c.fill(); c.restore() }
+function drawBrief2Scene(t){ const c=b2c; c.setTransform(1,0,0,1,0,0); c.imageSmoothingEnabled=false; if(!B2BG)B2BG=b2Ground(); c.drawImage(B2BG,0,0);
+  const S=window.SHEET1;
+  /* CH-46 on the pad behind, ramp down toward the platoon, rotors turning slowly as soft discs */
+  if(S&&S.drawSeaKnight){ try{ const r=S.drawSeaKnight(c,{x:250,y:96,heading:0,state:'rampDown',t,scale:1,rotor:false,wash:false});
+      { /* Art Director: no national insignia on the briefing bird -> paint the star-and-bar out with the hull colour sampled beside it */ const d=c.getImageData(250+1,96-1,1,1).data; c.fillStyle=`rgb(${d[0]},${d[1]},${d[2]})`; c.fillRect(250+3,96-4,17,8) }
+      for(const h of r.hubs){ const g=c.createRadialGradient(h[0],h[1],2,h[0],h[1],40); g.addColorStop(0,'rgba(40,42,34,.30)'); g.addColorStop(.8,'rgba(40,42,34,.16)'); g.addColorStop(1,'rgba(40,42,34,0)'); c.fillStyle=g; c.beginPath(); c.ellipse(h[0],h[1],40,14,0,0,TAU); c.fill();
+        const a=t*1.6; c.strokeStyle='rgba(28,30,24,.22)'; c.lineWidth=1; c.beginPath(); c.ellipse(h[0],h[1],38,13,0,a,a+.5); c.stroke() } }catch(e){} }
+  if(!S||!S.drawMarine||!S.drawHero)return;
+  /* the platoon, back row first; roles and Company looks vary faces and skin tones */
+  const men=[ [58,128,'rifle',0,1], [88,124,'m60',null,0], [206,132,'rifle',2,1], [232,136,'m79',null,1], [34,150,'rifle',3,0], [268,158,'rifle',1,1], [112,156,'radio',null,0] ];
+  const drawM=(cx,x,y,m)=>S.drawMarine(cx,m[2],0,x,y,1,!!m[4],false,m[3]==null?undefined:m[3]);
+  for(const m of men)b2Shadow(c,(s,x,y)=>drawM(s,x,y,m),m[0],m[1]);
+  b2Shadow(c,(s,x,y)=>S.drawHero(s,'skipper','idle',x,y,1,false,false),146,154); b2Shadow(c,(s,x,y)=>S.drawHero(s,'doc','treat',x,y,1,true,false),176,160);
+  const all=men.map(m=>({y:m[1],f:()=>drawM(c,m[0],m[1],m)}));
+  all.push({y:154,f:()=>{ const hp=S.drawHero(c,'skipper','idle',146,154,1,false,false); /* map in a plastic cover in his hand */ const hx=Math.round((hp&&hp.x)||150), hy=Math.round((hp&&hp.y)||138); c.fillStyle='#cfc49a'; c.fillRect(hx-1,hy-3,7,5); c.fillStyle='#7f9064'; c.fillRect(hx,hy-2,3,2); c.fillStyle='rgba(255,255,255,.35)'; c.fillRect(hx-1,hy-3,7,1) }});
+  all.push({y:160,f:()=>{ c.strokeStyle='rgba(255,214,64,.9)'; c.lineWidth=1.4; c.beginPath(); c.ellipse(176,160,11,3.6,0,0,TAU); c.stroke(); S.drawHero(c,'doc','treat',176,160,1,true,false) }});
+  all.sort((a,b)=>a.y-b.y).forEach(o=>{ try{o.f()}catch(e){} });
+  /* low warm light from the right, cool fill in the shadows */
+  const lg=c.createLinearGradient(320,0,0,0); lg.addColorStop(0,'rgba(255,190,120,.10)'); lg.addColorStop(1,'rgba(60,70,100,.10)'); c.fillStyle=lg; c.fillRect(0,0,320,180) }
+/* dialogue box framed like the Gunny radio box: black frame, silver bevel, navy panel, silver-stroked portrait, gold name plate */
+function b2Portrait(x,y,pw,ph,k){ const im=B2PORT[k]; ctx.fillStyle='#1c2414'; ctx.fillRect(x,y,pw,ph);
+  if(k==='doc'){ const S=window.SHEET1; if(S&&S.drawHero){ const sc=Math.max(1,Math.floor(pw/16)); ctx.save(); ctx.beginPath(); ctx.rect(x,y,pw,ph); ctx.clip(); ctx.imageSmoothingEnabled=false; S.drawHero(ctx,'doc','idle',Math.round(x+pw/2),Math.round(y+37*sc-2*sc),sc,false,false);   /* head-and-shoulders crop of his game sprite, integer scale */ ctx.restore() } }
+  else if(im&&im.complete&&im.naturalWidth){ ctx.imageSmoothingEnabled=true; ctx.drawImage(im,x,y,pw,ph); ctx.imageSmoothingEnabled=false }
+  ctx.strokeStyle='#c8c8c8'; ctx.lineWidth=1.5*b2U; ctx.strokeRect(x,y,pw,ph) }
+let b2U=1;
 function drawBrief2(){ const B=BR2; ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
-  const s=Math.min(W/320,H/180), dw=320*s, dh=180*s, ox=(W-dw)/2, oy=(H-dh)/2; drawBrief2Scene(B.t); ctx.imageSmoothingEnabled=false; ctx.drawImage(B2CV,ox,oy,dw,dh);
+  const s=Math.max(1,Math.floor(Math.min(W/320,H/180))), dw=320*s, dh=180*s, ox=Math.round((W-dw)/2), oy=Math.round((H-dh)/2); drawBrief2Scene(B.t); ctx.imageSmoothingEnabled=false; ctx.drawImage(B2CV,ox,oy,dw,dh);
   if(B.t<.8){ ctx.fillStyle=`rgba(0,0,0,${1-B.t/.8})`; ctx.fillRect(0,0,W,H) }
-  const L=BRIEF2_LINES[B.page]; let fs=Math.max(13,Math.min(28,s*6)); ctx.font=`bold ${fs}px "Courier New",monospace`; const bw=dw*.9, lines=wrapText(ctx,L.t,bw-fs*2), bh=fs*1.9+lines.length*fs*1.25, bx=ox+dw*.05, by=Math.min(H-bh-8,oy+dh*.03);
-  ctx.fillStyle='rgba(0,0,0,.62)'; ctx.fillRect(bx,by,bw,bh); ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.fillStyle='#e8c860'; ctx.fillText(L.who,bx+fs,by+fs*1.15);
-  ctx.fillStyle='#f2efe0'; const shown=L.t.slice(0,Math.floor(B.typed)); let idx=0, y=by+fs*2.35; for(const ln of lines){ ctx.fillText(shown.slice(idx,Math.min(idx+ln.length,shown.length)),bx+fs,y); idx+=ln.length+1; y+=fs*1.25 }
-  ctx.font=`${Math.max(10,fs*.6)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.75)'; ctx.fillText('PRESS ANY KEY / TAP TO SKIP',W-14,H-14);
+  const L=BRIEF2_LINES[B.page]; const U=b2U=Math.max(1,Math.min(W/640,H/360)*1.15), fs=12*U, pw=34*U, ph=38*U, bw=Math.min(W-16*U,430*U), bx=W/2-bw/2, y=oy+10*U;
+  ctx.font=`bold ${fs}px "Courier New",monospace`; const extra=L.with?pw+10*U:0, lines=wrapText(ctx,L.t,bw-pw-26*U-extra), bh=Math.max(ph+14*U,(26+lines.length*15)*U);
+  ctx.fillStyle='#000'; ctx.fillRect(bx-2,y-2,bw+4,bh+4); ctx.fillStyle='#c8c8c8'; ctx.fillRect(bx-1,y-1,bw+2,bh+2); ctx.fillStyle='#101830'; ctx.fillRect(bx+2,y+2,bw-4,bh-4);
+  b2Portrait(bx+8*U,y+7*U,pw,ph,L.port); if(L.with)b2Portrait(bx+bw-8*U-pw,y+7*U,pw,ph,L.with);
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.fillStyle='#e8c030'; ctx.fillText(L.who,bx+pw+16*U,y+16*U);
+  ctx.fillStyle='#f6f6e6'; const shown=L.t.slice(0,Math.floor(B.typed)); let idx=0; lines.forEach((ln,i)=>{ ctx.fillText(shown.slice(idx,Math.min(idx+ln.length,shown.length)),bx+pw+16*U,y+(32+i*15)*U); idx+=ln.length+1 });
+  ctx.font=`${Math.max(10,fs*.8)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.75)'; ctx.fillText('PRESS ANY KEY / TAP TO SKIP',W-14,H-14);
   ctx.textAlign='left'; ctx.fillStyle='rgba(232,200,96,.8)'; ctx.fillText('NORTH OF QUANG TRI · 1968',ox+14,oy+dh-14) }
 ['keydown','pointerdown','touchstart'].forEach(ev=>window.addEventListener(ev,e=>{ if(state!=='brief2'||!BR2||BR2.t<.3)return; if(ev==='keydown'&&(e.repeat||e.code==='KeyM'||e.metaKey))return; endBrief2() },{passive:true}));
-if(INTRO2){ try{ $('btnBrief').style.display='none' }catch(e){} }   /* Mercer briefing is not reachable on the ?ltbrief=1 path */
-if(DBG.bot){ window.__ms_ub2=dt=>updateBrief2(dt); window.__ms_i2c=()=>intro2Contact() }   /* test hooks, ?bot only */
+if(INTRO2){ try{ $('btnBrief').style.display='none' }catch(e){} }   /* Mercer briefing is not reachable unless ?ltbrief=0 */
+if(DBG.bot){ window.__ms_ub2=dt=>updateBrief2(dt); window.__ms_i2c=()=>intro2Contact(); window.__ms_br2=()=>BR2 }   /* test hooks, ?bot only */
 /* the HUD (and G.banner) is not drawn during state 'intro', so the ramp line gets its own caption, same style as the briefing box */
 function drawIns2Cap(){ const I=INTRO; if(!I||!I.quiet||I.ph!==2||I.cap0==null)return; const e=I.t2-I.cap0; if(e<0||e>3.4)return; const a=Math.min(1,e*4,(3.4-e)*3);
   ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=a; const fs=Math.max(13,Math.min(26,H/26)); ctx.font=`bold ${fs}px "Courier New",monospace`; const txt='"'+INS2_LINE.t+'"', w=Math.max(ctx.measureText(txt).width,ctx.measureText(INS2_LINE.who).width)+fs*2, h=fs*3, x=(W-w)/2, y=H*.72;
