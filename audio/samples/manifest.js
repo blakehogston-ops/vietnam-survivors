@@ -161,7 +161,15 @@
       rain_heavy:         { group: 'ambience', batch: 3, files: ['rain_heavy_1'] },        // LG #462774 (CC BY 4.0, credit) torrential rain, Thailand; 32.0 s loop
       rain_roof_loop:     { group: 'ambience', batch: 3, files: ['rain_roof_loop_1'] },    // Sassaby #771981 (CC0) medium rain on a tin roof; 30.0 s loop (bunker interiors)
       thunder_distant:    { group: 'ambience', batch: 3, files: ['thunder_distant_1', 'thunder_distant_2', 'thunder_distant_3'] },  // TRP #572443 x2, richwise #361401 (CC0)
-      thunder_near:       { group: 'ambience', batch: 3, files: ['thunder_near_1', 'thunder_near_2'] }  // TRP #574412, #567945 (CC0)
+      thunder_near:       { group: 'ambience', batch: 3, files: ['thunder_near_1', 'thunder_near_2'] },  // TRP #574412, #567945 (CC0)
+      // ---- rc8 sourcing 2026-10-20 (samples/build_rc8_oct20.py). Real field recordings, NO synth. ALL PENDING LEGAL + ear check.
+      //      Levels (rc8a convention): slot gain 0.5 puts post-gain RMS at ruling target minus the game's MIX.DB bus offset.
+      // O-1 Bird Dog FAC marking-run pass: STAND-IN (generic propeller light plane, type unknown, NOT an O-1). ezwa / pdsounds (PD) via Wikimedia Commons. specials -> -31 after the -7 bus
+      o1_birddog_flyby:   { group: 'specials', batch: 2, files: ['o1_birddog_flyby_1'] },
+      // amtrac engine + tracks loop, 12 s: amtrac engine loop (sourced from a modern AAV-7 recording; NOT an LVTP-5 recording), USMC/DVIDS b-roll (PD, US gov) via Commons. ambience bus -10 -> -40
+      lvtp5_engine_loop:  { group: 'ambience', batch: 2, files: ['lvtp5_engine_loop_1'] },
+      // firebase night bed, 40 s loop: Anon6116 'Rainforest by Night' (CC0), Peten, Guatemala (REGION STAND-IN for Quang Tri). ambience bus -10 -> -43. Game: MIX.AMB 'jungle_loop' -> this slot
+      firebase_amb_loop:  { group: 'ambience', batch: 2, files: ['firebase_amb_loop_1'] }
     },
     // ---- music slots (2026-10-14). Real recordings only. Loudness matched to combat_loop (-13.6 LUFS integrated, within
     // 0.7 dB), true peak <= -1.1 dBFS in both formats. Built by music/build_music.py; report in music/build/music_report.json.

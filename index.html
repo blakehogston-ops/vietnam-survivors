@@ -1286,6 +1286,12 @@ const DEMO_BUILD=false;
 const STEAM_URL='';
 const IS_ELECTRON=!!(window.process&&window.process.versions&&window.process.versions.electron)||/\belectron\//i.test(navigator.userAgent);
 const IS_NEXT=/\/next\//.test(location.pathname);
+/* rc8 AUD_PENDING (Lead, MERGE_NOTE_RC8_SOURCING_OCT20 + gating update 2026-10-20). One flag per new clip; see RC8_NOTES.md for the clear conditions.
+   flyby (o1_birddog_flyby) and lvtp (amtrac engine loop): may ship; flag stays true until Audio Director confirms (flyby = single-engine piston plane;
+   amtrac loop = modern beeps/alarms/identifiable Marine voices cut). fbamb (firebase_amb_loop): QA builds ONLY while true (no howler monkeys / toucan / oropendola). */
+const AUD_PENDING={flyby:true,lvtp:true,fbamb:true};
+const AUD_QA=/[?&]audqa=1\b/.test(location.search)||(!/[?&]audqa=0\b/.test(location.search)&&!IS_ELECTRON&&!DEMO_BUILD);   /* QA build = web, non-demo, non-Electron (Steam is Electron) */
+const AUD_OK={o1_birddog_flyby:true,lvtp5_engine_loop:true,firebase_amb_loop:!AUD_PENDING.fbamb||AUD_QA};
 const DEMO=!IS_ELECTRON&&params.get('demo')!=='0'&&(params.get('demo')==='1'||(DEMO_BUILD&&!IS_NEXT));
 const PUBLIC_BUILD=params.get('public')==='1'||(!IS_NEXT&&!IS_ELECTRON&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname));
 try{ if(DEMO)document.documentElement.classList.add('demo') }catch(e){}
@@ -8121,8 +8127,8 @@ const MIX={DB:{player:0,special:-7,squad:-4,enemy:3,amb:-10,rot:-8,mus:-14},   /
   DUCK:{player:-1.5,squad:-6,enemy:-6,amb:-6,rot:-6,mus:-7},   /* rc8a (AD): music -7 under specials */
  DUCK_T:1.4,
   CAP:{enemy:{ak47:3,ak47_burst:2,sks:2,rpd_burst:2,b40_launch:2,mortar_launch:2,cannon:2},squad:{m16_single:3,m16_burst:2,m60_burst:2,shotgun_shot:1,bolt_rifle_shot:1,m79_launch:2,pbr_50cal_burst:2},_:4},
-  SPECIAL:new Set(['bomb_distant','napalm_ignite','mortar_incoming','minigun_burst','strafe_20mm','tandem_rotor_flyby','huey_flyby','jet_flyby','radio_squelch','explosion_far','bugle','hymn']),
-  AMB:new Set(['river_ambience_loop','pbr_engine_loop','fire_loop','huey_rotor_loop','tandem_rotor_loop']),   /* rc8a (AD): jungle_loop / rain_loop removed (no such slots) */
+  SPECIAL:new Set(['o1_birddog_flyby','bomb_distant','napalm_ignite','mortar_incoming','minigun_burst','strafe_20mm','tandem_rotor_flyby','huey_flyby','jet_flyby','radio_squelch','explosion_far','bugle','hymn']),
+  AMB:new Set(['river_ambience_loop','pbr_engine_loop','fire_loop','huey_rotor_loop','tandem_rotor_loop','lvtp5_engine_loop','firebase_amb_loop']),   /* rc8a (AD): jungle_loop / rain_loop removed (no such slots) */
   ENEMYSL:new Set(['ak47','ak47_burst','sks','rpd_burst','b40_launch']),
   src:'',dist:0,bus:{},an:{},duckUntil:0,
   g:db=>Math.pow(10,db/20),
@@ -8163,6 +8169,7 @@ const SAMP={on:false,real:{},st:{b40:0,b40Late:0,b40Silent:0,charge:0,chargeLate
     this.mDuck=c.createGain(); try{ Snd.mbus.disconnect() }catch(e){} Snd.mbus.connect(this.mDuck); MIX.build(c,this.sfxDuck); this.mDuck.connect(MIX.bus.mus); MIX.bus.mus.connect(Snd.out);
     this.rotEnv=c.createGain(); this.rotEnv.gain.value=0; this.rotPan=c.createStereoPanner?c.createStereoPanner():null; if(this.rotPan){ this.rotEnv.connect(this.rotPan); this.rotPan.connect(MIX.bus.rot) } else this.rotEnv.connect(MIX.bus.rot); MIX.bus.rot.connect(Snd.master); SamplePlayer.route=(sl,s,o)=>MIX.route(sl,s,o);
     SamplePlayer.init(c,{sfxBus:this.sfxDuck,musicBus:Snd.mbus,rotorBus:this.rotEnv,musicDuck:this.mDuck,sfxDuck:this.sfxDuck,cues:window.Cues});
+    for(const k in AUD_OK)if(!AUD_OK[k]&&M.slots[k])M.slots[k].disabled=true;   /* rc8: firebase_amb_loop never loads outside QA while AUD_PENDING.fbamb */
     for(const k in M.slots){ const sl=M.slots[k], has=!sl.disabled&&((sl.files&&sl.files.length)||(sl.alt&&sl.alt.length)); this.real[k]=has?'sample':'silent' }   /* slots not in the manifest (named weapon slots with no clip) stay silent */
     if(M.cues){ if(M.cues.b40&&M.cues.b40.leadMs)EXW.B40=M.cues.b40.leadMs/1000; if(M.cues.chargeWarning&&M.cues.chargeWarning.leadMs)EXW.CHARGE=M.cues.chargeWarning.leadMs/1000 }
     this.on=true; SamplePlayer.load(M,{batch:1}).then(r=>{ this.r1=r; return SamplePlayer.load(M,{batch:2}) }).then(r=>{ this.r2=r; return SamplePlayer.load(M,{batch:3}) }).then(r=>{ this.r3=r }).catch(()=>{}) },
@@ -8248,6 +8255,28 @@ const H34S={h:null,g:null,
   tick(){ const S=G&&!G.demo&&G.spec, hl=S&&S.helo, w=!!(hl&&(hl.ph===1||hl.ph===4)&&(state==='play'||state==='sig'||state==='levelup')&&SAMP.ready()&&SamplePlayer.hasSample('h34_hover_loop'));
     if(this.h&&(!w||this.g!==G)){ try{ this.h.stop(.8) }catch(e){} this.h=null; this.g=null }
     if(w&&!this.h){ this.g=G; try{ this.h=MIX.as('squad',()=>SamplePlayer.h34('hover',{vol:.8,fade:1})) }catch(e){ this.h=null } } } };
+/* AUDP (rc8 sourcing, gated per clip by AUD_OK / AUD_PENDING): Bird Dog pass, amtrac engine loop, firebase night bed. Never touches the seeded RNG.
+   Bird Dog coupling: jr/officer-of (f3fb2df) has no audio hook. AUDP.birdDog() is the public hook the officer code can call (~9 s before
+   the WP marking rocket); until then AUDP.tick() polls OFFI.air / OFFI.fac (fields as on f3fb2df: air.T, air.mk, air.st, fac) and starts the
+   pass once per strike when the impact clock is <= 22.5 s out (the marking rocket fires at <= 13.5 s). Rename those fields = update this. */
+const AUDP={bd:null,amt:null,fb:null,fbF:null,
+  ok(sl){ return AUD_OK[sl]&&SAMP.ready()&&SamplePlayer.hasSample(sl) },
+  birdDog(A){ if(A){ if(A._bd)return null; A._bd=1 } if(!this.ok('o1_birddog_flyby'))return null; try{ this.bd=MIX.as('special',()=>SamplePlayer.play('o1_birddog_flyby',{vol:1})); (this.log||(this.log=[])).push(+(G&&G.t||0).toFixed(1)) }catch(e){} return this.bd },
+  stopAll(){ for(const k of ['amt','fb'])if(this[k]){ try{ this[k].stop(.8) }catch(e){} this[k]=null } this.fbF=null },
+  tick(){ const g=G, play=g&&!g.demo&&(state==='play'||state==='paused'||state==='sig'||state==='levelup');
+    if(!play||Snd.muted||!SAMP.ready()){ this.stopAll(); return }
+    try{ const O=typeof OFFI!=='undefined'?OFFI:null, A=O&&O.air; if(A&&!A._bd&&!A.mk&&(A.st|0)===0&&O.fac&&A.T!=null&&A.T-g.t<=22.5)this.birdDog(A) }catch(e){}
+    /* amtracs: one loop while any is alive, level from the nearest live vehicle */
+    { let d=1e9; try{ if(AMT.live())for(const v of AMT.V)if(!v.dead)d=Math.min(d,Math.hypot(v.x-g.p.x,v.y-g.p.y)) }catch(e){} const vol=Math.max(0,1-d/1100);
+      if(!this.ag&&MIX.bus.amb){ this.ag=Snd.ctx.createGain(); this.ag.gain.value=0; this.ag.connect(MIX.bus.amb) }   /* own fader into the ambience bus (MIX.AMB), so distance falloff never restarts the loop */
+      if(this.ag)try{ this.ag.gain.setTargetAtTime(vol,Snd.ctx.currentTime,.3) }catch(e){}
+      if(vol>0&&!this.amt&&this.ag&&this.ok('lvtp5_engine_loop'))this.amt=SamplePlayer.play('lvtp5_engine_loop',{vol:1,loop:true,dest:this.ag,routed:true,busName:'amb'});
+      else if(vol<=0&&this.amt){ try{ this.amt.stop(.8) }catch(e){} this.amt=null } }
+    /* firebase night bed: from FIREBASE BUILT (fbS.state==='done'); replaces the synth Calm layer (Calm is gated off under SAMP.on) */
+    { const f=typeof fbS!=='undefined'?fbS:null, want=!!(f&&f.state==='done');
+      if(this.fb&&(!want||this.fbF!==f)){ try{ this.fb.stop(1.2) }catch(e){} this.fb=null; this.fbF=null }
+      if(want&&!this.fb&&this.ok('firebase_amb_loop')){ this.fb=SamplePlayer.play('firebase_amb_loop',{vol:1,loop:true}); this.fbF=f } } } };
+window.AUDP=AUDP;
 const HoverS={h:null,g:null,
   want(){ const g=G, ex=g&&!g.demo?g.ex:null; return !!(ex&&ex.ph===5&&(state==='play'||state==='paused'||state==='sig'||state==='levelup')&&SAMP.ready()&&((G.ex&&G.ex.huey&&G.ex.huey.ch46)||/[?&]ch46\b/.test(location.search))) },
   tick(){ const w=this.want()&&SamplePlayer.hasSample('tandem_rotor_loop');
@@ -8352,7 +8381,7 @@ const Music={timer:null,gain:null,send:null,t:0,step:0,abs:0,bpm:90,on:false,las
     this.t=c.currentTime+.1; this.timer=setInterval(()=>this.tick(),25); },
   tick(){ try{
     const c=Snd.ctx; if(!c||c.state!=='running'||!this.gain)return; const now=c.currentTime, dt=Math.min(.1,Math.max(0,now-(this.ln||now))); this.ln=now;
-    try{ MUSX.tick(); RiverS.tick(); HoverS.tick(); H34S.tick() }catch(e){}
+    try{ MUSX.tick(); RiverS.tick(); HoverS.tick(); H34S.tick(); AUDP.tick() }catch(e){}
     const playing=(state==='play'&&G&&!G.demo&&!Snd.muted), menu=false;   /* RC4 (Blake): the synth pentatonic menu tune is deleted; the menu is Semper Fidelis only */
     if(G!==this.lastG){this.lastG=G;this.pe=-9;Amb.reset();Combat.st=0}
     if(menu!==this.on){ this.on=menu; this.gain.gain.cancelScheduledValues(now); this.gain.gain.setTargetAtTime(menu?.75:0,now,menu?.4:.2); if(menu){this.t=now+.05;this.step=0;this.abs=0;this.bpm=90} }
