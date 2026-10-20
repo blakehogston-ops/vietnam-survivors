@@ -2063,7 +2063,10 @@ function setLowFx(v,silent){ LOWFX=!!v; if(!silent){ try{localStorage.setItem('l
   document.querySelectorAll('.lowChk').forEach(c=>{ c.checked=LOWFX }); document.querySelectorAll('.lowTxt').forEach(t=>{ t.textContent=LOWFX?'ON':'OFF' }); window.SKIN&&setTimeout(SKIN.repaint,0); document.querySelectorAll('.lowSw').forEach(w=>w.classList.toggle('off',!LOWFX));
   try{ Cues.setLowEffects(LOWFX) }catch(e){}
   DECAL_CAP=LOWFX?90:380;   /* phone fps gate: scaled decal blits were the late-game cost */ if(decals.length>DECAL_CAP){ decals.length=DECAL_CAP } decalI=0; if(LOWFX&&parts.length>210)parts.length=210 }
-const enemyCap=g=>Math.min(LOWFX?420:700,90+g.t*EX_RAMP*1.6);
+const rampT=t=>LATEB?Math.min(t,300)*EX_RAMP+Math.max(0,t-300)*.1:t*EX_RAMP;   /* late-balance fix: past 5:30 the ramp grows at 1/3 speed (was 1.8x real time forever) */
+const LATEB=!/[?&]lateb=0\b/.test(location.search);
+const lateFire=g=>LATEB&&g.t>360?Math.max(.45,1-(g.t-360)/300):1;   /* late-balance: fire-team rifle hits on Doc taper past 6:00 (the number of shooters keeps growing) */
+const enemyCap=g=>Math.min(LOWFX?420:700,90+rampT(g.t)*1.6);
 function buildSquadSprites(){
   const T=TOP_MARINE.slice(), mod=(rows)=>{ const t=T.slice(); for(const k in rows)t[k]=rows[k]; return t };
   const V={
@@ -3130,7 +3133,7 @@ function killEnemy(e){ e.dead=true; G.kills++; medDrop(e);
 function addXp(v){ const p=G.p; p.xp+=v*(1+(G.xpB||0)+.1*(G.ps.fm|0)); while(p.xp>=p.need){p.xp-=p.need;p.lvl++;p.need=xpNeed(p.lvl);G.pending++;} }
 /* last damage source (QA/Gamer): hurtPlayer(dmg, src). G.lastHit = most recent hit, G.hs = total damage taken per source */
 const ESRC=e=>e.boss?('boss '+(e.name||'')).trim():e.tank?'NVA tank':({vc:'VC melee',nva:'NVA melee',officer:'NVA officer melee',sapper:'sapper blast',rpgt:'B-40 trooper melee',rpg:'RPG gunner melee'}[e.type]||((e.type||'enemy')+' melee'));
-function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return; if(G.ex&&G.ex.ph===4)dmg*=INB_DM; if(G.ex&&G.ex.divert)dmg*=.5; { const D=CHD[G.char], q=parseFloat(params.get('herodr')); const dr=isFinite(q)&&G.char!=='doc'?q:(D&&D.base&&D.base.dr)||0; if(dr)dmg*=1-dr }   /* per-hero survivability (Blake Oct 15: non-Doc heroes survive about as well as Doc; Doc has dr 0) */ if(G.ex&&(G.ex.ph===4||G.ex.ph===5))dmg*=.75;   /* bird inbound/landed: pressure lives in the hold (ph 3); the last 30 s stays tough but survivable */ if(PB.inside())dmg*=PB.DMG; if(src==='RPG/B-40 rocket'&&!PACE.mass(G))dmg*=.5;   /* early levels: B-40 is a threat cue, not a one-shot on Doc */ dmg=Math.max(1,Math.round(dmg*armorMul()*(1+holdT(G)/900))); src=src||'unknown'; PAD.rumble(120,Math.min(1,.25+dmg/40),.3);
+function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return; if(DBG.bot){ const D=G.dmgBy||(G.dmgBy={}), k=String(src||'?').slice(0,24); D[k]=(D[k]||0)+dmg } if(G.ex&&G.ex.ph===4)dmg*=INB_DM; if(G.ex&&G.ex.divert)dmg*=.5; { const D=CHD[G.char], q=parseFloat(params.get('herodr')); const dr=isFinite(q)&&G.char!=='doc'?q:(D&&D.base&&D.base.dr)||0; if(dr)dmg*=1-dr }   /* per-hero survivability (Blake Oct 15: non-Doc heroes survive about as well as Doc; Doc has dr 0) */ if(G.ex&&(G.ex.ph===4||G.ex.ph===5))dmg*=.75;   /* bird inbound/landed: pressure lives in the hold (ph 3); the last 30 s stays tough but survivable */ if(PB.inside())dmg*=PB.DMG; if(src==='RPG/B-40 rocket'&&!PACE.mass(G))dmg*=.5;   /* early levels: B-40 is a threat cue, not a one-shot on Doc */ dmg=Math.max(1,Math.round(dmg*armorMul()*(1+holdT(G)/900))); src=src||'unknown'; PAD.rumble(120,Math.min(1,.25+dmg/40),.3);
   { const W5=G.dw5||(G.dw5=[]); while(W5.length&&G.t-W5[0][0]>5)W5.shift(); let sum=0; for(const q of W5)sum+=q[1]; dmg=Math.min(dmg,Math.max(0,Math.round(p.maxHp*.4-sum))); if(dmg<=0){ p.invul=.2; return } W5.push([G.t,dmg]) }   /* RC2 (Gamer): Doc loses at most 40% max HP in any 5 s window */
   G.lastHit={src,dmg,t:G.t}; (G.hs||(G.hs={}))[src]=(G.hs[src]||0)+dmg;
   p.hp-=dmg; p.invul=.45; p.hurtT=.18; G.hurt=.5; G.shake=Math.max(G.shake,9); Snd.play('hurt');
@@ -3149,7 +3152,7 @@ function explode(x,y,rad,dmg,kb,vol){ rad*=1+.08*(G.ps.demo|0); if(window.VFX_AT
 function edgePoint(m){const p=G.p,hw=VW/2+m,hh=VH/2+m; let x,y; for(let k=0;k<6;k++){ if(rnd()<hw/(hw+hh)){x=(rnd()*2-1)*hw;y=rnd()<.5?-hh:hh}else{y=(rnd()*2-1)*hh;x=rnd()<.5?-hw:hw} if(!riverAt(p.x+x,p.y+y))break } return [p.x+x,p.y+y]}   /* never spawn in the water */
 function spawnEnemy(type,x,y,charge){ if(G&&!G.demo&&(type==='vc'||type==='nva')){ G.spN=(G.spN|0)+1; if(type==='vc'){ if((G.spVC|0)+1>.25*G.spN+3)type='nva'; else G.spVC=(G.spVC|0)+1 } }   /* Blake, Oct 14: about 1 in 4 VC or fewer; khaki NVA is the main force */
   const d=ET[type]; if(enemies.length>=2300)return null; if(x===undefined){[x,y]=edgePoint(50)}
-  const hm=G.t<480?1+G.t/110:5.36+(G.t-480)/160, hp=d.hp*(d.boss?1:hm);
+  const hm=LATEB&&G.t>360?4.27+(G.t-360)/420:G.t<480?1+G.t/110:5.36+(G.t-480)/160,   /* late-balance: HP growth past 6:00 slowed (was +1x per 160 s) */ hp=d.hp*(d.boss?1:hm);
   const e={type,x,y,hp,mhp:hp,spd:d.spd*(.9+rnd()*.2)*(charge?1.3:1),dmg:d.dmg,r:d.r,v:d.v,kx:0,ky:0,flash:0,anim:rnd()*4,dir:0,dead:false,boss:!!d.boss,name:d.name,sk:d.spr,spr:SPR[d.spr],ds:d.ds,
     dash:0,wind:0,cdash:3+rnd()*2,tank:!!d.tank,armor:d.armor||0};
   enemies.push(e); return e }
@@ -3159,7 +3162,7 @@ function fbGrace(){ return !!(fbS&&fbS.age<30) }
 /* engineer grace: full protection for the first 40 s of a call-in, fading out over the next 20 s (so the early build always progresses) */
 function fbProt(){ const f=fbS; if(!f||f.age===undefined)return 0; return f.age<40?1:Math.max(0,1-(f.age-40)/20) }
 function fbCalm(){ const f=fbS; if(!f||f.age===undefined||f.age>=90)return 0; return f.age<30?1:1-(f.age-30)/60 }
-function pickType(){ const t=G.t*EX_RAMP, r=rnd(); if(fbGrace())return 'vc';
+function pickType(){ const t=rampT(G.t), r=rnd(); if(fbGrace())return 'vc';
   const nva=t>15?Math.min(.52,.42+(t-15)/600):.15,   /* Quang Tri: the NVA regular is the main enemy, VC the lighter, less common one */ off=t>90?Math.min(.13,.03+(t-90)/2000):0;   /* officers capped lower than 48fc09a (.16 -> .13) to offset the heavier NVA mix */
   if(r<off)return 'officer'; if(r<off+nva)return 'nva'; return 'vc'; }
 /* ===== N2 (feature/next item 2): surges + lulls that escalate, player-chosen extraction, pre-wave mortar barrage, satchel sappers, hot-LZ wave-off.
@@ -3283,7 +3286,7 @@ const FT={
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
     if(onScreen(e,8)){ SAMP.shooter=e.type; MIX.as('enemy',()=>Snd.play('vcshot'),d) }
     if(mt){ g.ftMs=(g.ftMs|0)+1; if(rnd()<PACE.M_HIT*(1-d/700)){ g.ftMh=(g.ftMh|0)+1; hurtMember(mt,PACE.M_DMG*(1+(g.p.lvl|0)*.05)) } return }
-    if(rnd()<PACE.SHOT_HIT*(g.t<165?1.15:1)*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
+    if(rnd()<PACE.SHOT_HIT*(g.t<165?1.15:1)*(1-d/700)*lateFire(g))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
 /* early levels: the pad hold is a stand-up firefight, not a siege (Blake Oct 14) */
 const HOLD_EARLY={MUL:.65,CAP:26};
 function holdT(g){ return Math.max(0,g.t-(EX_CALL-30)) }   /* hold waves keyed to the old 0:30-call timeline, so a later call isn't a bigger siege */
@@ -3600,7 +3603,7 @@ function update(dt){
   if(tg){g.aim=Math.atan2(tg.y-p.y,tg.x-p.x); p.face=Math.cos(g.aim)>=0?1:-1}else{ if(p.mv){g.aim=Math.atan2(p.fy,p.fx); } if(Math.abs(p.fx)>.1)p.face=p.fx>=0?1:-1 } }
   // spawns
   if(g.massT>0)g.massT-=dt; PULL.qa(g); PULL.breach(g); const pulling=PULL.tick(g,dt); const massOn=!pulling&&(g.demo||PACE.mass(g)); if(!massOn&&!pulling)PACE.tick(g,dt);
-  const cap=massOn?enemyCap(g):0; if(pulling)g.spawnAcc=0; g.spawnAcc+=massOn?dt*(.8+g.t*EX_RAMP*.03)*(g.exHold?EX.SPAWN_MUL:1)*fbDens():0; let guard=0;
+  const cap=massOn?enemyCap(g):0; if(pulling)g.spawnAcc=0; g.spawnAcc+=massOn?dt*(.8+rampT(g.t)*.03)*(g.exHold?EX.SPAWN_MUL:1)*fbDens():0; let guard=0;
   while(g.spawnAcc>=1){g.spawnAcc--; if(enemies.length<cap&&guard++<6){const ty=pickType(), e0=spawnEnemy(ty); if(e0&&ty==='vc'){const k=(rnd()*3)|0; for(let q=0;q<k;q++)spawnEnemy('vc',e0.x+(rnd()-.5)*44,e0.y+(rnd()-.5)*44)}}}
   if(pulling)g.nextSurge=Math.max(g.nextSurge,g.t+30);
   if(massOn&&g.t>=g.nextSurge){surge();g.nextSurge=Math.max(g.nextSurge+60,g.t+30)}
@@ -5872,7 +5875,7 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
       fbSpawnRing(n,false,0); g.banner={text:'WAVE '+f.waveN+' INCOMING!',t:1.8,col:'#ff9a5a'}; MUSI.set(); Snd.play('radio'); assaultCry() }
     if(f.prog>.28){ f.sapT-=dt; if(f.sapT<=0){ f.sapT=Math.max(10,22-f.prog*10); fbSpawnRing(0,false,1+Math.floor(f.prog*2.5)); g.banner={text:'SAPPERS! WATCH THE WIRE!',t:1.8,col:'#ffcf5a'} } } }
   else if(f.state==='done'){ f.holdT+=dt; f.bigT-=dt; f.sapT-=dt;
-    if(f.bigT<=0){ if(!f.log.bigAt)f.log.bigAt=+(g.t-f.t0).toFixed(1); f.bigT=Math.max(32,52-g.fbN*4); const n=26+f.tier*10+Math.min(40,g.t/16); fbSpawnRing(n,true,2+f.tier); MUSI.set(); g.banner={text:'MASSIVE ASSAULT ON '+f.name+'!',t:2.4,col:'#ff6a4a'}; Snd.play('radio'); assaultCry(true); G.shake=Math.max(G.shake,6) }
+    if(f.bigT<=0){ if(!f.log.bigAt)f.log.bigAt=+(g.t-f.t0).toFixed(1); f.bigT=LATEB?Math.max(52,62-g.fbN*3):Math.max(32,52-g.fbN*4); const n=26+f.tier*10+(LATEB?Math.min(14,g.t/45):Math.min(40,g.t/16)); fbSpawnRing(n,true,2+f.tier); MUSI.set(); g.banner={text:'MASSIVE ASSAULT ON '+f.name+'!',t:2.4,col:'#ff6a4a'}; Snd.play('radio'); assaultCry(true); G.shake=Math.max(G.shake,6) }
     else if(f.sapT<=0){ f.sapT=Math.max(9,20-f.tier*3); fbSpawnRing(0,false,1+f.tier) }
     // upgrades
     if(f.tier===1&&f.holdT>110){ f.tier=2; strs.push(mkStr('quad50',f.x,f.y-52,-Math.PI/2,1)); strs.push(mkStr('m2',f.x+104,f.y+10,0,1)); strs.push(mkStr('m2',f.x-104,f.y+10,Math.PI,1)); g.banner={text:'UPGRADE: QUAD-50 AA MOUNT & EXTRA M2s',t:2.6,col:'#ffe58a'} }
