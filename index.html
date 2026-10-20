@@ -1235,7 +1235,7 @@ Pause .......... Esc / P     Mute ... M</pre></div>
 </script>
 <script src="assets/art/sheet1.js?v=e913c2f"></script>
 <script src="assets/art/vfx_water_impacts.js?v=e913c2f"></script>
-<script src="assets/art/vfx_flame.js?v=e913c2f"></script><script src="assets/art/flame_shared.js?v=rc8perf"></script><script>/* Artist HUD art (XP strap + health dog tag, ?hudart=0 off) */ if(!/[?&]hudart=0\b/.test(location.search))document.write('<script src="assets/art/hud_art.js?v=e913c2f"><\/script>')</script>
+<script src="assets/art/vfx_flame.js?v=e913c2f"></script><script>/* rc8 flame package (VFX): ?fshared=0 = old flame look */ if(!/[?&]fshared=0\b/.test(location.search))document.write('<script src="assets/art/flame_shared.js?v=rc8perf"><\/script>')</script><script>/* Artist HUD art (XP strap + health dog tag, ?hudart=0 off) */ if(!/[?&]hudart=0\b/.test(location.search))document.write('<script src="assets/art/hud_art.js?v=e913c2f"><\/script>')</script>
 <script src="assets/art/map_wrecks.js?v=e913c2f"></script>
 <script>/* rc8 jungle default (Lead): ON on desktop; OFF on touch / mobile / LOW quality unless ?jungle=1; ?jungle=0 forces off everywhere */
 window.JUNGLE_ON=(function(){ const q=location.search; if(/[?&]jungle=0\b/.test(q))return false; if(/[?&]jungle=1\b/.test(q))return true;
@@ -2894,7 +2894,7 @@ let TILE_J,TILE_P,TILE_RH,TILE_RV,DECOR=[];
    Lowlands near the base/Route 9: paddy (P), elephant grass (E), scrub / hedgerow bamboo (J). Triple canopy (jungle/rubber/teak) only far out
    (> 2600 px from the start = the map edges) and in the western hills (x < -1800). Baked in 8x8-tile chunks, one per frame budget, nearest first. ===== */
 const JG={ON:!!window.JUNGLE_ON,C:8,F:new Map(),q:[],ms:[],t:0,
-  ok(){ if(window.JUNGLE3)JUNGLE3.lod=LQ.t==='high'?0:1;   /* perf (EP: jungle always on): MED/LOW/Deck or a watchdog downshift -> light jungle LOD (no per-plant bend redraw), HIGH = full */
+  ok(){ if(window.JUNGLE3)JUNGLE3.lod=(LQ.t==='high'&&!(JSTRIKE&&(LQ.sf||0)>=.5))?0:1;   /* perf (EP: jungle always on): MED/LOW/Deck or a watchdog downshift -> light jungle LOD (no per-plant bend redraw), HIGH = full */
     return this.ON&&!!window.JUNGLE3&&!G.demo&&TERR.ready() },
   type(tx,ty){ const x=tx*48+24, y=ty*48+24, m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); if(m==='W'||m==='C'||m==='K')return 'other';
     if(fbS&&Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y))<(fbS.cl?Math.max(FBW+140,FB_CLEAR+24):FBW+140))return 'other'; const ex=G.ex, P=ex&&(ex.pad||ex.pre); if(P&&Math.hypot(x-P.x,y-P.y)<EX.PAD_R+60)return 'other';
@@ -3270,6 +3270,7 @@ const PCAPON=!/[?&]pcap=0\b/.test(location.search); let PCAP=520; LQ.c=LQT.high;
 /* rc8 perf A+B (Lead-approved; AD: counts only, never stages/effect types): LQ.sf 0..1 = "strike on screen" mix, eased at 2/s (~0.5 s in and out), held 0.8 s after the last strike leaves.
    A: VFX_ATMO.setStrikeMix(sf) on HIGH (atmosphere eases to its MED light budget). B: flame_shared HIGH caps lerp to MED counts (tongues/embers/stream segs/blit budget).
    Smoke COUNT is left at HIGH so black cook-off / burn-death smoke is untouched; burn-death frames (burn/skel/ash/smudge) are not cap-driven. ?smix=0 disables both. */
+const JSTRIKE=/[?&]jstrike=1\b/.test(location.search);   /* option (NOT approved, off): light jungle LOD on HIGH while a strike is on screen */
 const SMIX_ON=!/[?&]smix=0\b/.test(location.search); let SFH=null;
 function strikeMixTick(dt,camX,camY,VW,VH){ if(!SMIX_ON)return; let on=false; for(const s of strikes){ if(s.wid!==undefined&&s.wid!==CURW)continue; if(s.cx>camX-260&&s.cx<camX+VW+260&&s.cy>camY-260&&s.cy<camY+VH+260){ on=true; break } }
   LQ.sh=on?.8:Math.max(0,(LQ.sh||0)-dt); const tgt=(LQ.t==='high'&&LQ.sh>0)?1:0, sf=LQ.sf||0; LQ.sf=tgt>sf?Math.min(tgt,sf+dt*2):Math.max(tgt,sf-dt*2);  if(window.__smixForce!=null)LQ.sf=+window.__smixForce;   /* harness: pin the mix for screenshots */
