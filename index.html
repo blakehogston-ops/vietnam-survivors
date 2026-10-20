@@ -2005,13 +2005,13 @@ const RIBBON_RACK_ORDER = ['nc','ss','bs','ph','car']; // Artist Helper's gamepl
 const RIB_ORDER = ['lbo'].concat(RIBBON_RACK_ORDER);   // service-record rack = the Last Chopper Out badge, then the ribbons
 /* NVA medic pack pickup sprite (Artist Helper, assets/artist/medpack.js): 12x10 grid + legend, drawn at 2x */
 const MEDPACK={grid:["....OOOO....","...OssssO...","..OOOOOOOO..",".OGGGGGGGGO.",".OGWWWWWWGO.",".OGWWRRWWGO.",".OGWRRRRWGO.",".OGWWRRWWGO.",".OGGGGGGGGO.","..OOOOOOOO.."],legend:{O:'#1c1a12',s:'#8a7a4a',G:'#5b6b36',W:'#cfc493',R:'#5a5a34'}};   /* battle dressing: OD pouch, khaki printed label (no red cross) */
-let MEDSPR=null; (function(){ const sc=2, rows=(ART.medpack||MEDPACK).grid, pal=(ART.medpack||MEDPACK).legend, c=document.createElement('canvas'); c.width=rows[0].length*sc; c.height=rows.length*sc; const x=c.getContext('2d'); rows.forEach((r,yy)=>{ for(let xx=0;xx<r.length;xx++){ const col=pal[r[xx]]; if(col){ x.fillStyle=col; x.fillRect(xx*sc,yy*sc,sc,sc) } } }); MEDSPR=c })();
+let MEDSPR=null; (function(){ const sc=2, rows=MEDPACK.grid, pal=MEDPACK.legend, c=document.createElement('canvas'); c.width=rows[0].length*sc; c.height=rows.length*sc; const x=c.getContext('2d'); rows.forEach((r,yy)=>{ for(let xx=0;xx<r.length;xx++){ const col=pal[r[xx]]; if(col){ x.fillStyle=col; x.fillRect(xx*sc,yy*sc,sc,sc) } } }); MEDSPR=c })();
 const SPR={}, SQSPR={};
 const CHSPR={};
 function buildCharSprites(){
   const T=TOP_MARINE.slice(), mod=(rows)=>{ const t=T.slice(); for(const k in rows)t[k]=rows[k]; return t };
   const V={
-    doc:[mod({1:"....CCCRCCCC....",2:"....CcRRRcCC....",7:"..UUuUUWWUUuUU..",8:"..SUUuUWWUuUUS.."}),Object.assign({},MP,{R:'#d02020',W:'#f2f2f2'})],
+    doc:[mod({1:"....CCCRCCCC....",2:"....CcRRRcCC....",7:"..UUuUUWWUUuUU..",8:"..SUUuUWWUuUUS.."}),Object.assign({},MP,{R:'#4a5a2c',W:'#5e6438'})],   /* vet: plain helmet cover, OD Unit One bag */
     hammer:[mod({1:"....CCCCCCCC....",5:"....SESSSSES....",7:"..UUKUUUUUUKUU..",8:"..SUUKUUUUKUUS..",9:"..SuUUBBBBUUuS.."}),Object.assign({},MP,{K:'#c8a63a',C:'#5f7a3c',c:'#415a2a'})],
     boone:[mod({0:"................",1:".....CCCCCC.....",2:"..cccCCCCCCccc..",3:"..cccccccccccc..",4:"....SSSSSSSS...."}),Object.assign({},MP,{C:'#8a9560',c:'#667040'})],
     skipper:[mod({1:"....CCCYYCCC....",2:"....CcYYYYcC....",5:"....SKKSSKKS....",8:"..SUUuUUUUuUUS.."}),Object.assign({},MP,{Y:'#e0b43a',K:'#111'})],
@@ -2052,7 +2052,7 @@ function buildSquadSprites(){
     m60:[mod({7:"..UUKUUUUUUKUU..",8:"..SUUKUUUUKUUS.."}),Object.assign({K:'#c8a63a'},MP)],
     m79:[mod({7:"..UUKUUUUUUKUU..",8:"..SUUKUUUUKUUS.."}),Object.assign({K:'#b9bfc4'},MP,{U:'#66803f'})],
     m14:[T,Object.assign({},MP,{C:'#8a9a5c',c:'#667540'})],
-    corps:[mod({1:"....CCCRCCCC....",2:"....CcRRRcCC...."}),Object.assign({R:'#d02020'},MP)],
+    corps:[mod({1:"....CCCRCCCC....",2:"....CcRRRcCC...."}),Object.assign({R:'#4a5a2c'},MP)],
     radio:[mod({0:".....CCCCCC...K.",1:"....CCCCCCCC..K.",2:"....CcCCCCcC..K.",3:"....cccccccc..K.",4:"....SSSSSSSS..K.",5:"....SESSSSES..K.",6:"...UUUUUUUUUUOO.",7:"..UUuUUUUUUuUOO.",8:"..SUUuUUUUuUUOO."}),Object.assign({K:'#9aa0a6',O:'#3a3d36'},MP)]
   };
   /* squad roster variety (batch 1 skin-tone variants): point man, marksman and M60 gunner get different faces; the corpsman is the batch-1 corpsman */
@@ -2605,7 +2605,7 @@ function drawSquad(camX,camY){
     if(m.rto&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56), bx=Math.round(m.x)+(m.face>0?-7:3); ctx.fillStyle='#2f3522'; ctx.fillRect(bx,cy+9,5,9); ctx.fillStyle='#454d33'; ctx.fillRect(bx,cy+9,5,2); ctx.strokeStyle='rgba(20,18,12,.85)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(bx+2,cy+9); ctx.quadraticCurveTo(bx+2+(m.face>0?-3:3)+Math.sin(G.t*3)*1.2,cy-4,bx+2+(m.face>0?-5:5),cy-14); ctx.stroke();   /* PRC-25 + flexing whip antenna */
       if(m.callT>0){ m.callT-=1/60; ctx.fillStyle='rgba(255,229,138,'+Math.min(1,m.callT)*.9+')'; ctx.font='bold 9px monospace'; const sd=m.x<G.p.x?-1:1; ctx.textAlign=sd<0?'right':'left'; ctx.fillStyle='rgba(0,0,0,'+Math.min(1,m.callT)*.6+')'; ctx.fillText('ON THE HORN',m.x+sd*12+1,cy+3); ctx.fillStyle='rgba(255,229,138,'+Math.min(1,m.callT)*.9+')'; ctx.fillText('ON THE HORN',m.x+sd*12,cy+2); ctx.textAlign='left' }   /* beside the RTO, on the side away from Doc's marker */
       if(!(m.coy&&m.hp<m.mhp)){ const r=Math.max(0,m.hp/m.mhp), w=22, bx2=Math.round(m.x-w/2), by=cy-8; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx2-1,by-1,w+2,5); ctx.fillStyle='#6fd04a'; ctx.fillRect(bx2,by,Math.round(w*r),3) } }
-    if(m.role==='corps'&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56); ctx.fillStyle='#fff'; ctx.fillRect(Math.round(m.x)-3,cy-17,7,7); ctx.fillStyle='#d02020'; ctx.fillRect(Math.round(m.x)-2,cy-14,5,1); ctx.fillRect(Math.round(m.x),cy-16,1,5) }   /* Gamer: squad medic marker readable (was 3 px) */
+    if(m.role==='corps'&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56); ctx.fillStyle='#4e5830'; ctx.fillRect(Math.round(m.x)-3,cy-17,7,7); ctx.fillStyle='#cfc493'; ctx.fillRect(Math.round(m.x)-2,cy-14,5,1); ctx.fillRect(Math.round(m.x),cy-16,1,5) }   /* Gamer: squad medic marker readable (was 3 px) */
   }
 }
 
@@ -2719,7 +2719,7 @@ function drawIcon(c,id,s){
     case 'flame': R(1,4,4,10,'#777');R(1,3,4,2,'#aaa');R(5,8,5,2,'#444');R(10,5,5,7,'#ff8a1f');R(11,6,4,5,'#ffd54a');R(14,8,2,2,'#fff4b0');break;
     case 'napalm': R(1,7,13,2,'#8a95a3');R(13,7,2,2,'#c0c8d2');R(7,2,2,12,'#8a95a3');R(1,5,2,6,'#6c7683');R(6,10,4,5,'#ff8a1f');R(7,11,2,3,'#ffd54a');break;
     case 'company': R(1,2,6,1,'#aaa');R(2,3,4,2,'#55633f');R(9,2,6,1,'#aaa');R(10,3,4,2,'#55633f');R(1,8,6,1,'#aaa');R(2,9,4,2,'#55633f');R(9,8,6,1,'#aaa');R(10,9,4,2,'#55633f');R(3,6,2,2,'#f0d23a');R(11,6,2,2,'#f0d23a');R(3,12,2,2,'#f0d23a');R(11,12,2,2,'#f0d23a');break;
-    case 'medevac': R(2,3,12,1,'#bbb');R(3,4,10,6,'#e8e4d6');R(7,5,2,4,'#cf2222');R(6,6,4,2,'#cf2222');R(4,11,8,1,'#3a3a3a');R(12,10,3,1,'#46523a');break;
+    case 'medevac': R(0,3,7,1,'#9a9a8a');R(9,3,7,1,'#9a9a8a');R(2,6,12,4,'#56603a');R(3,5,3,1,'#6b7548');R(10,5,3,1,'#6b7548');R(4,7,2,1,'#a8b0a0');R(2,10,12,1,'#2e3420');break;   /* CH-46 Sea Knight, twin rotors, OD (no red cross) */
     case 'mortar': R(6,1,3,9,'#5c6068');R(6,1,3,1,'#a9aeb6');R(3,9,2,5,'#333');R(10,9,2,5,'#333');R(2,13,12,2,'#2a2a2a');R(11,3,2,4,'#c9b83a');R(11,3,2,1,'#e8d870');break;
     case 'howitzer': R(1,12,6,1,'#333');R(6,6,10,2,'#4f5a3a');R(14,6,2,2,'#2a2a2a');R(4,5,3,6,'#6e8b4a');R(3,10,5,5,'#222');R(4,11,3,3,'#555');R(9,9,2,1,'#3a3a3a');break;
     case 'gunboat': R(0,13,16,3,'#3f7f95');R(1,9,14,4,'#5c6b48');R(12,8,3,1,'#5c6b48');R(5,5,5,4,'#8a9a70');R(6,6,3,2,'#3a4630');R(11,6,5,1,'#111');R(11,8,4,1,'#111');R(7,2,1,3,'#222');R(5,12,6,1,'#e4f2f6');break;
@@ -2735,7 +2735,7 @@ function drawIcon(c,id,s){
     case 'boots': R(4,2,5,9,'#3b3326');R(4,10,10,4,'#3b3326');R(4,13,10,1,'#1d1d1d');R(4,2,5,1,'#6b6a3a');R(6,5,3,1,'#6b6a3a');R(6,7,3,1,'#6b6a3a');break;
     case 'magnet': R(2,5,12,9,'#5f6a3a');R(2,5,12,2,'#475229');R(6,2,4,3,'#475229');for(let k=0;k<3;k++){R(4+k*3,8,2,5,'#c9a43a');R(4+k*3,8,2,1,'#e8c860')}break;
     case 'kc135': R(0,7,14,2,'#cfd3d0');R(14,7,2,2,'#cfd3d0');R(6,2,2,12,'#a9aeb2');R(2,3,1,2,'#6c7075');R(5,4,2,1,'#6c7075');R(5,11,2,1,'#6c7075');R(0,5,2,6,'#a9aeb2');R(0,15,16,1,'#fff');R(3,9,5,1,'#555');break;
-    case 'regen': R(2,2,12,12,'#eee');R(6,3,4,10,'#c0392b');R(3,6,10,4,'#c0392b');break;
+    case 'regen': R(2,2,12,12,'#55603a');R(3,3,10,10,'#6b7548');R(6,4,4,8,'#cfc493');R(4,6,8,4,'#cfc493');break;
     case 'ration': R(3,4,10,9,'#8f9a55');R(3,4,10,2,'#ddd');R(5,8,6,3,'#e8c860');R(7,2,2,2,'#bbb');break;
   }
 }
