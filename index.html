@@ -1235,7 +1235,7 @@ Pause .......... Esc / P     Mute ... M</pre></div>
 </script>
 <script src="assets/art/sheet1.js?v=e913c2f"></script>
 <script src="assets/art/vfx_water_impacts.js?v=e913c2f"></script>
-<script src="assets/art/vfx_flame.js?v=e913c2f"></script><script>/* Artist HUD art (XP strap + health dog tag, ?hudart=0 off) */ if(!/[?&]hudart=0\b/.test(location.search))document.write('<script src="assets/art/hud_art.js?v=e913c2f"><\/script>')</script>
+<script src="assets/art/vfx_flame.js?v=e913c2f"></script><script src="assets/art/flame_shared.js?v=rc8perf"></script><script>/* Artist HUD art (XP strap + health dog tag, ?hudart=0 off) */ if(!/[?&]hudart=0\b/.test(location.search))document.write('<script src="assets/art/hud_art.js?v=e913c2f"><\/script>')</script>
 <script src="assets/art/map_wrecks.js?v=e913c2f"></script>
 <script>/* rc8 jungle default (Lead): ON on desktop; OFF on touch / mobile / LOW quality unless ?jungle=1; ?jungle=0 forces off everywhere */
 window.JUNGLE_ON=(function(){ const q=location.search; if(/[?&]jungle=0\b/.test(q))return false; if(/[?&]jungle=1\b/.test(q))return true;
@@ -3267,6 +3267,15 @@ const LQ={auto:true,t:'high',slow:0,
   set(t,save){ if(!LQT[t])return; this.t=t; this.c=LQT[t]; PCAP=Math.min(PCAP,this.c.pcap); try{ window.VFX_ATMO&&VFX_ATMO.setQuality&&VFX_ATMO.setQuality(t) }catch(e){} if(save){ this.auto=false; try{ localStorage.setItem('lco_quality',t) }catch(e){} } } };
 LQ.bglow=/[?&]bglow=1\b/.test(location.search); window.LCO_QUALITY=LQ;
 const PCAPON=!/[?&]pcap=0\b/.test(location.search); let PCAP=520; LQ.c=LQT.high; LQ.set(LQ.detect());
+/* rc8 perf A+B (Lead-approved; AD: counts only, never stages/effect types): LQ.sf 0..1 = "strike on screen" mix, eased at 2/s (~0.5 s in and out), held 0.8 s after the last strike leaves.
+   A: VFX_ATMO.setStrikeMix(sf) on HIGH (atmosphere eases to its MED light budget). B: flame_shared HIGH caps lerp to MED counts (tongues/embers/stream segs/blit budget).
+   Smoke COUNT is left at HIGH so black cook-off / burn-death smoke is untouched; burn-death frames (burn/skel/ash/smudge) are not cap-driven. ?smix=0 disables both. */
+const SMIX_ON=!/[?&]smix=0\b/.test(location.search); let SFH=null;
+function strikeMixTick(dt,camX,camY,VW,VH){ if(!SMIX_ON)return; let on=false; for(const s of strikes){ if(s.wid!==undefined&&s.wid!==CURW)continue; if(s.cx>camX-260&&s.cx<camX+VW+260&&s.cy>camY-260&&s.cy<camY+VH+260){ on=true; break } }
+  LQ.sh=on?.8:Math.max(0,(LQ.sh||0)-dt); const tgt=(LQ.t==='high'&&LQ.sh>0)?1:0, sf=LQ.sf||0; LQ.sf=tgt>sf?Math.min(tgt,sf+dt*2):Math.max(tgt,sf-dt*2);  if(window.__smixForce!=null)LQ.sf=+window.__smixForce;   /* harness: pin the mix for screenshots */
+  try{ window.VFX_ATMO&&VFX_ATMO.setStrikeMix&&VFX_ATMO.setStrikeMix(LQ.t==='high'?LQ.sf:0) }catch(e){}
+  const F=window.VFX_FLAME; if(F&&F.CAPS&&F.CAPS.high&&F.CAPS.med){ const H=F.CAPS.high, M=F.CAPS.med; if(!SFH)SFH=Object.assign({},H); const k=LQ.t==='high'?LQ.sf:0;
+    for(const q of ['t','e','seg','budget'])H[q]=Math.round(SFH[q]+(M[q]-SFH[q])*k) } }
 function pcapTick(rt){ const c=LQ.c; if(LQ.auto&&state==='play'){ LQ.slow=rt>22?LQ.slow+1:Math.max(0,LQ.slow-2); if(LQ.slow>120&&LQ.t!=='low'){ LQ.slow=0; LQ.set(LQ.t==='high'?'med':'low') } }
   if(!PCAPON)return; PCAP=rt>14?Math.max(c.pmin,PCAP-40):Math.min(c.pcap,PCAP+4) }
 /* perf: per-fire glow = one cached sprite per radius (outer #ff6a1a @.45 + inner #ffc23a @.5 baked; drawn at the fire's intensity alpha) instead of 2 ellipse path fills.
@@ -7917,6 +7926,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   if(p.hp<p.maxHp){ ctx.fillStyle='#000a'; ctx.fillRect(p.x-16,p.y+20,32,5); ctx.fillStyle=p.hp/p.maxHp>.3?'#5bd05b':'#e64a3a'; ctx.fillRect(p.x-15,p.y+21,30*p.hp/p.maxHp,3) }
   // ---- screen space HUD ----
   ctx.setTransform(1,0,0,1,0,0);
+  if(!g.demo){ try{ const sn=performance.now(), sdt=Math.min(.1,(sn-(render.sT||sn))/1000); render.sT=sn; strikeMixTick(sdt,camX,camY,W/zoom,H/zoom) }catch(e){} }
   if(window.VFX_ATMO&&!g.demo){ try{ const now=performance.now(), adt=Math.min(.1,(now-(render.aT||now))/1000); render.aT=now; if(!render.aI){ render.aI=1; try{ VFX_ATMO.setQuality&&VFX_ATMO.setQuality(LQ.t) }catch(e){} VFX_ATMO.init(W,H); VFX_ATMO.hookLowToggle&&VFX_ATMO.hookLowToggle(); VFX_ATMO.setLow&&VFX_ATMO.setLow(!!LOWFX) } if(render.aW!==W||render.aH!==H){ render.aW=W; render.aH=H; VFX_ATMO.init(W,H) } if(ATM.ON)ATM.frame(g,p,adt,camX,camY); else { VFX_ATMO.update(adt); VFX_ATMO.drawWorldOverlay(ctx,camX,camY,zoom); VFX_ATMO.drawScreen(ctx) } }catch(e){ if(!render.aErr){ render.aErr=1; console.warn('atmo',e) } } }   /* Artist Helper atmosphere (day grade, haze, lights) */
   WX.draw(W,H);   /* weather sits under the HUD: never hides prompts, timers or the pad arrow */
   { const low=(!g.demo&&p.hp>0&&p.hp/p.maxHp<.3)?(RFX?.5:.45+(g.hbPulse>0?(g.hbPulse/.38)*(g.hbAmp||.3)*.55:0)+(g.hbT===undefined||g.hbT===0?.06*Math.sin(tt*5):0))*(1-p.hp/p.maxHp/.3*.5):0;   /* pulses on each heartbeat cue (dangerTick) */ const a=Math.max(Math.min(.8,Math.max(g.hurt>0?g.hurt*1.5:0,low))*(GORE?1:.35),low)*VSOFT(); 

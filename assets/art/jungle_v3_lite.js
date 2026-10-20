@@ -288,14 +288,15 @@
     var SAND = ['#a8a088', '#bcb49c', '#ccc6b0', '#dad4c2', '#e6e2d4'], ASH = ['#2e2c28', '#3e3b35', '#504c44', '#645e54', '#7a7468'];
     var EARTH = ['#4a3a24', '#664e30', '#7e623c', '#9a7a4c', '#8a5a34'];
     var base = new Rast(w, h), glint = [];
-    var pw = function (wx, wy) { return [wx + (vnoise(wx / 26, wy / 26, sd) - 0.5) * 12 + (vnoise(wx / 70, wy / 70, sd + 7) - 0.5) * 22, wy + (vnoise(wx / 26, wy / 26, sd + 1) - 0.5) * 12 + (vnoise(wx / 70, wy / 70, sd + 8) - 0.5) * 22]; };
-    var PL = null, PQ = [0, 0], pwf = function (wx, wy) { return PL ? PL.get(wx, wy, [0, 0]) : pw(wx, wy); };
+    // perf (rc8): pw/pwf/WL return one reused scratch pair instead of a fresh [x,y] per call (every caller copies q[0]/q[1] immediately: Lat.fill, Lat.get, dikeRaw, pwf user)
+    var PWS = [0, 0], pw = function (wx, wy) { PWS[0] = wx + (vnoise(wx / 26, wy / 26, sd) - 0.5) * 12 + (vnoise(wx / 70, wy / 70, sd + 7) - 0.5) * 22; PWS[1] = wy + (vnoise(wx / 26, wy / 26, sd + 1) - 0.5) * 12 + (vnoise(wx / 70, wy / 70, sd + 8) - 0.5) * 22; return PWS; };
+    var PL = null, PQ = [0, 0], PFQ = [0, 0], pwf = function (wx, wy) { return PL ? PL.get(wx, wy, PFQ) : pw(wx, wy); };
     var dikeRaw = function (wx, wy) { var q = PL ? PL.get(wx, wy, PQ) : pw(wx, wy), X = q[0], Y = q[1], tx = Math.floor(X / T), ty = Math.floor(Y / T); if (!isP(tx, ty)) return -1;
       var lx = X - tx * T, ly = Y - ty * T, Wd = 3.2 + vnoise(wx / 11, wy / 11, sd + 4) * 2.8;
       if ((lx < Wd && (!isP(tx - 1, ty) || tx % de === 0)) || (lx >= T - Wd && (!isP(tx + 1, ty) || (tx + 1) % de === 0)) ||
           (ly < Wd && (!isP(tx, ty - 1) || ty % de === 0)) || (ly >= T - Wd && (!isP(tx, ty + 1) || (ty + 1) % de === 0))) return 1;
       return 0; };
-    var seedW = this.o.seed || 1968, WQ = [0, 0], WL = new Lat(function (x, y) { return [(fbm(x / 60, y / 60, seedW + 1) - 0.5) * 56, (fbm(x / 60, y / 60, seedW + 2) - 0.5) * 56]; }, x0 - 8, y0 - 8, w + 16, h + 16, 4); yield* WL.fill();
+    var seedW = this.o.seed || 1968, WQ = [0, 0], WS = [0, 0], WL = new Lat(function (x, y) { WS[0] = (fbm(x / 60, y / 60, seedW + 1) - 0.5) * 56; WS[1] = (fbm(x / 60, y / 60, seedW + 2) - 0.5) * 56; return WS; }, x0 - 8, y0 - 8, w + 16, h + 16, 4); yield* WL.fill();
     var wkf = function (wx, wy) { var o2 = WL.get(wx, wy, WQ); return ta(Math.floor((wx + o2[0]) / T), Math.floor((wy + o2[1]) / T)); }; yield 0;
     var hasP = false, tx, ty; for (ty = this.ty0 - 1; ty <= this.ty1 + 1 && !hasP; ty++) for (tx = this.tx0 - 1; tx <= this.tx1 + 1; tx++) if (isP(tx, ty)) { hasP = true; break; }
     var GX0 = -4, GY0 = -4, GW2 = w + 9, GH2 = h + 9, DG = null, gi, gj;

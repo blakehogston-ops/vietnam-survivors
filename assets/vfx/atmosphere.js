@@ -29,6 +29,15 @@ const S={w:0,h:0,low:false,hour:12,rain:0,haze:1,t:0,g:null,gk:'',
 /* atmo-1.2 (perf rc8): quality tiers. Q.ls light-map scale, Q.bloom additive light sprites, Q.lights max lights fed to the map, Q.grain film grain, Q.sat saturation/veil pass, Q.dust motes, Q.shadows max flare shadows */
 const QT={high:{poolMax:1e9,ls:4,bloom:32,lights:160,grain:2,sat:true,dust:70,shadows:240,mistBands:3},med:{poolMax:1e9,ls:6,bloom:16,lights:80,grain:1,sat:true,dust:40,shadows:90,mistBands:2},low:{ls:6,bloom:10,lights:40,grain:0,sat:true,dust:20,shadows:40,mistBands:1,poolMax:160,blastGlow:true}};
 let Q=QT.high, QN='high';
+/* rc8 perf A (Lead-approved, AD-approved): while a strike is on screen, HIGH eases to the MED light budget. setStrikeMix(f), f 0..1 (game fades it over ~0.5 s).
+   bloom/lights/shadows/dust are lerped (counts ramp, no pop); light-map scale + mist bands swap at f=.5 using a pre-built second light map (no re-init, no allocation per frame). */
+const QH0=Object.assign({},QT.high); let SMIX=0;
+function setStrikeMix(f){ f=f>0?(f<1?f:1):0; if(QN!=='high'){ if(SMIX){ SMIX=0; Object.assign(QT.high,QH0) } return api } if(f===SMIX)return api; SMIX=f;
+  const H=QT.high, M=QT.med; for(const k of ['bloom','lights','shadows','dust'])H[k]=Math.round(QH0[k]+(M[k]-QH0[k])*f); H.mistBands=f>=.5?M.mistBands:QH0.mistBands;
+  if(S.w){ const ls=Math.max(f>=.5?M.ls:QH0.ls,S.low?6:4); if(ls!==S.ls){ const C=S.lmC||(S.lmC={}); C[S.ls]={lm:S.lm,lmx:S.lmx};
+    let e=C[ls]; if(!e||e.lm.width!==Math.ceil(S.w/ls)||e.lm.height!==Math.ceil(S.h/ls)){ const lm=mk(Math.ceil(S.w/ls),Math.ceil(S.h/ls)); e=C[ls]={lm,lmx:lm.getContext('2d')} }
+    S.ls=ls; S.lm=e.lm; S.lmx=e.lmx } }
+  return api }
 const GL=[]; for(let i=0;i<12;i++)GL.push({on:false,x:0,y:0,a:0});   /* LOW blast glows (Art Director): one cached warm sprite per active blast */
 function addBlastGlow(x,y,a){ if(!Q.blastGlow)return; for(const g of GL) if(!g.on){ g.on=true; g.x=x; g.y=y; g.a=a; return } }
 const MAXL=160, MAXF=8, MAXD=70, MAXR=360, MAXP=140, MAXW=64, MAXU=60;
@@ -57,7 +66,7 @@ function buildScreen(){ const w=S.w,h=S.h; S.scr=S.scr||[]; const n=Math.max(1,M
     if(!S.low&&Q.grain>0){ x.globalAlpha=.10; for(let yy=0;yy<c.height;yy+=128)for(let xx=0;xx<c.width;xx+=128)x.drawImage(S.grain[(k*2+((xx+yy)>>7))&3],xx,yy); x.globalAlpha=1 }
     if(S.rain>0){ x.fillStyle=`rgba(118,124,124,${(.10*S.rain).toFixed(3)})`; x.fillRect(0,0,c.width,c.height); x.globalAlpha=.7*S.rain; for(let yy=0;yy<c.height;yy+=256)for(let xx=0;xx<c.width;xx+=256)x.drawImage(S.sheen,xx,yy); x.globalAlpha=1 }
     x.drawImage(S.vig,32,32) } S.scr.length=n }
-function init(w,h){ S.w=w|0; S.h=h|0; S.g=true; S.gk=''; S.scr=null;
+function init(w,h){ S.w=w|0; S.h=h|0; S.g=true; S.gk=''; S.scr=null; S.lmC=null; if(SMIX){ SMIX=0; Object.assign(QT.high,QH0) }
   S.ls=Math.max(Q.ls,S.low?6:4); S.lm=mk(Math.ceil(w/S.ls),Math.ceil(h/S.ls)); S.lmx=S.lm.getContext('2d');
   // vignette (cached, full size)
   S.vig=mk(w,h); { const x=S.vig.getContext('2d'), g=x.createRadialGradient(w/2,h/2,Math.min(w,h)*.35,w/2,h/2,Math.hypot(w,h)*.56);
@@ -219,7 +228,7 @@ function drawFlareShadows(ctx,camX,camY,zoom,units){ if(!units||!units.length)re
   if(n){ ctx.globalAlpha=clamp(a/n,.18,.42); ctx.fillStyle='#07090c'; ctx.fill() }
   ctx.restore() }
 function setQuality(t){ t=QT[t]?t:'high'; if(t===QN)return api; QN=t; Q=QT[t]; if(S.w){ const w=S.w,h=S.h; init(w,h) } return api }
-const api={addBlastGlow,setQuality,get quality(){return QN},QT,init,setTime,setWeather,addLight,addFlare,setFlareCadence,addPuddle,clearPuddles,rippleAt,addDust,update,drawWorldOverlay,drawScreen,drawFlareShadows,setLow,hookLowToggle,flareShadow,FLARE,
+const api={addBlastGlow,setQuality,setStrikeMix,get strikeMix(){return SMIX},get quality(){return QN},QT,init,setTime,setWeather,addLight,addFlare,setFlareCadence,addPuddle,clearPuddles,rippleAt,addDust,update,drawWorldOverlay,drawScreen,drawFlareShadows,setLow,hookLowToggle,flareShadow,FLARE,
   stats:()=>({lights:S.L.filter(l=>l.on).length,flares:S.F.filter(f=>f.on).length,rain:S.rain,low:S.low,hour:S.hour,ms:S.perf.last,avgMs:S.perf.avg}),
   _F:()=>S.F, setHQ:(b)=>{S.hq=!!b; return api},
   profile:(on)=>{PR.on=!!on; const r=PR.r; PR.r={}; return r},
