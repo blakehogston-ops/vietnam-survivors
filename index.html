@@ -5021,7 +5021,7 @@ function ch46Tick(h,dt){ const g=G,p=g.p, X=C46X; h.t+=dt; h.rot+=dt*34; SeaKnig
   else if(h.ph===1){ h.z=Math.max(0,h.z-dt*(6+h.z*.9)); h.st=h.z>.5?'hover':'landed'; if(h.z<=0){ h.ph=2; h.t2=0; burst(h.x,h.y+6,16,90,.6,3,['#a8946a','#8a7a52'],false) } }
   else if(h.ph===2){ h.t2+=dt; h.st='landed'; if(h.t2>.55){ h.ph=3; h.t2=0; h.st='rampDown'; Snd.play('thud') } }
   else if(h.ph===3){ h.t2+=dt; h.st='rampDown'; const rx=h.x+X.ramp[0], ry=h.y+X.ramp[1];
-    if(state==='intro'&&g.hide&&!h.docOut&&h.t2>.35){ h.docOut=1; g.hide=false; g.docWalk={x0:rx,y0:ry,x1:p.x,y1:p.y,t:0}; p.x=rx; p.y=ry }
+    if(state==='intro'&&g.hide&&!h.docOut&&h.t2>.35){ h.docOut=1; if(INTRO&&INTRO.quiet){ INTRO.cap0=INTRO.t2; try{Snd.play('radio')}catch(e){} } g.hide=false; g.docWalk={x0:rx,y0:ry,x1:p.x,y1:p.y,t:0}; p.x=rx; p.y=ry }
     if(h.di<h.left){ h.dT-=dt; if(h.dT<=0&&h.t2>.75){ if(coyAlive()<COY.cap){ const j=h.base+h.di, sl=coyFreeSlot(), role=(j===13&&g.char!=='doc'&&CORP.ON)?'corps':Q15.roles[j], hp0=(h.s.hp+Math.min(60,g.t/10))*(1+g.sq.hp)*Q15.HPM, e=X.exit[h.di%X.exit.length], sp=1+Math.floor(h.di/X.exit.length);
           coy.push({role,nm:role==='corps'?'HM3 Fontaine':Q15.names[j],slot:sl,cv:h.di&3,coy:true,pat:true,comp:h.comp,state:'ramp',rt:0,hx:rx,hy:ry,lx:h.x+e[0]-sp*14+(rnd()-.5)*10,ly:h.y+e[1]+((h.di&1)?1:-1)*sp*9,x:rx,y:ry,rz:0,hp:hp0,mhp:hp0,dm:h.s.dm*(1+g.sq.dm),face:-1,anim:rnd()*4,mv:true,cd:.4+rnd()*.5,tg:null,tgT:rnd()*.3,mf:0,hf:0,inv:0,aim:Math.PI,ph:rnd()*TAU,born:g.t});
           h.comp.alive++; h.comp.dr=(h.comp.dr||0)+1; g.cs.dropped++; if(h.comp.alive>g.cs.peak)g.cs.peak=h.comp.alive }
@@ -5432,13 +5432,13 @@ const IT1=8.6, IT2=4.3;
 const IBURSTS=[{t:1.7,n:9,side:1},{t:3.6,n:14,side:1},{t:5.2,n:8,side:1},{t:7.3,n:11,side:1}];
 function ihash(i){ let h=Math.imul(i|0,0x27d4eb2d)^0x165667b1; h=Math.imul(h^(h>>>15),0x85ebca6b); return ((h^(h>>>13))>>>0)/4294967296 }
 function inoise(x,sc){ const i=Math.floor(x/sc), f=x/sc-i; return ihash(i)*(1-f)+ihash(i+1)*f }
-function startIntro(){ BriefSnd.stop(); INTRO={t:0,ph:1,t2:0,boom:0,flash:0,shots:[],si:0,sm:[],brass:[],tr:[],gf:[0,0],rf:0,rt:1.2,sk:0,smT:0};
-  for(const b of IBURSTS)for(let i=0;i<b.n;i++)INTRO.shots.push({t:b.t+i*.092,side:b.side,k:i});
+function startIntro(quiet){ BriefSnd.stop(); INTRO={t:0,ph:1,t2:0,boom:0,flash:0,shots:[],si:0,sm:[],brass:[],tr:[],gf:[0,0],rf:0,rt:1.2,sk:0,smT:0,quiet:!!quiet};   /* quiet = ?intro2 routine insert: no door-gun bursts / tracers / boom in the cabin */
+  if(!quiet)for(const b of IBURSTS)for(let i=0;i<b.n;i++)INTRO.shots.push({t:b.t+i*.092,side:b.side,k:i});
   state='intro'; G.hide=true; for(const m of pat)m.hid=true; introH=null;
   ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none';
   if(!Snd.muted&&Snd.ctx)IntroSnd.start() }
 function skipIntro(){ if(state!=='intro')return; IntroSnd.stop(true); introH=null; finishIntro() }
-function finishIntro(){ IntroSnd.stop(false); { const w=G.docWalk; if(w){ G.p.x=w.x1; G.p.y=w.y1; G.docWalk=null } } state='play'; last=performance.now(); G.hide=false; for(const m of pat){ m.hid=false } INTRO=null; $('topbtns').style.display='flex'; G.banner={text:'LZ HOTEL · MOVE OUT, MARINE',t:2.4,col:'#ffe58a'} }
+function finishIntro(){ const q2=!!(INTRO&&INTRO.quiet); IntroSnd.stop(false); { const w=G.docWalk; if(w){ G.p.x=w.x1; G.p.y=w.y1; G.docWalk=null } } state='play'; last=performance.now(); G.hide=false; for(const m of pat){ m.hid=false } INTRO=null; $('topbtns').style.display='flex'; G.banner={text:'LZ HOTEL · MOVE OUT, MARINE',t:2.4,col:'#ffe58a'}; if(q2)intro2Contact() }
 function c46Bird(){ return CH46INS&&coyH.find(h=>h.ch46) }
 function startLanding(){ const p=G.p; if(c46Bird()){ INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH=null; const h=c46Bird(); h.x=h.lx-820; h.y=h.ly-90; h.z=60; return } INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH={x:p.x-640,y:p.y-8,z:70,hd:0,rot:0,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,out:0}; }
 function updateIntroH(dt){ const h=introH; if(!h)return; const p=G.p; h.t+=dt; h.rot+=dt*34;
@@ -5449,8 +5449,8 @@ function updateIntro(dt){ const I=INTRO; if(!I)return; I.t+=dt;
   if(I.ph===1){ const t=I.t;
     while(I.si<I.shots.length&&I.shots[I.si].t<=t){ const sh=I.shots[I.si++]; I.gf[sh.side]=.06; I.brass.push({x:284,y:106,vx:-(10+Math.random()*40),vy:-30-Math.random()*30,l:1.4});
       if(sh.k%3===0)I.tr.push({x0:326,y0:104,x1:318+Math.random()*30,y1:70+Math.random()*60,t:0,d:.5,c:0}) }
-    I.rt-=dt; if(I.rt<=0&&t<7.8){ I.rt=.5+Math.random()*1.2; const x=Math.random()<.5?10+Math.random()*50:262+Math.random()*50; I.tr.push({x0:x,y0:178,x1:x+(Math.random()-.5)*40,y1:50,t:0,d:.5,c:1}) }
-    if(I.boom===0&&t>5.0)I.boom=1; if(I.boom>0)I.boom=Math.max(0,I.boom-dt*.9)||0.0001;
+    I.rt-=dt; if(!I.quiet&&I.rt<=0&&t<7.8){ I.rt=.5+Math.random()*1.2; const x=Math.random()<.5?10+Math.random()*50:262+Math.random()*50; I.tr.push({x0:x,y0:178,x1:x+(Math.random()-.5)*40,y1:50,t:0,d:.5,c:1}) }
+    if(I.boom===0&&t>5.0&&!I.quiet)I.boom=1; if(I.boom>0)I.boom=Math.max(0,I.boom-dt*.9)||0.0001;
     for(let i=I.brass.length-1;i>=0;i--){ const q=I.brass[i]; q.l-=dt; q.vy+=260*dt; q.x+=q.vx*dt; q.y+=q.vy*dt; if(q.l<=0||q.y>172)I.brass.splice(i,1) }
     for(let i=I.tr.length-1;i>=0;i--){ const q=I.tr[i]; q.t+=dt; if(q.t>=q.d)I.tr.splice(i,1) }
     if(I.gf[0]>0)I.gf[0]-=dt; if(I.gf[1]>0)I.gf[1]-=dt;
@@ -5844,6 +5844,106 @@ function drawBrief(){ const B=BR; ctx.setTransform(1,0,0,1,0,0); ctx.imageSmooth
 window.addEventListener('keydown',e=>{ if(state!=='brief'||!BR||e.repeat)return; if(e.code==='Escape'||e.code==='Backspace'){ endBrief(); return } if(e.code==='KeyM')return; briefNext() });
 window.addEventListener('pointerdown',e=>{ if(state!=='brief'||!BR)return; { const r=BR.skipR, pad=10; if(BR.ph===1&&r&&e.clientX>=r[0]-pad&&e.clientX<=r[2]+pad&&e.clientY>=r[1]-pad&&e.clientY<=r[3]+pad){ endBrief(); return } } briefNext() });
 $('btnBrief').onclick=()=>startBrief();
+/* ====================== lieutenant briefing (default; ?ltbrief=0 = Colonel): platoon lieutenant's short briefing (Doc present) -> routine CH-46 insert that goes bad after drop-off ======================
+   Replaces the Colonel Mercer briefing + map pins on this path only. Text captions + the radio-static sting, no TTS, no recordings yet.
+   Line IDs follow the brief_NN convention (audio/brief_NN.mp3): a recording dropped in later as audio/<id>.mp3 can be wired by ID. */
+const INTRO2=!/[?&]ltbrief=0\b/.test(location.search);   /* ON by default; ?ltbrief=0 = old Colonel Mercer briefing + intro (not ?intro2: ?intro2=0 already toggles Artist Helper's Colonel art) */
+const BRIEF2_LINES=[
+ {id:'brief2_01',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase(),port:'lt',t:"Listen up. Platoon's running a sweep north of Quang Tri. Choppers in, check the villes, out before dark."},
+ {id:'brief2_02',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase(),port:'lt',t:"S-2 says it's quiet. Don't believe it. Keep your intervals, five meters."},
+ {id:'brief2_03',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase(),port:'lt',with:'doc',t:"Doc, you're with me. Stick close to the radio."},
+ {id:'brief2_04',who:'Sgt PETTAWAY',port:'sgt',t:"Saddle up! Lock and load on the LZ, not before."}];
+const INS2_LINE={id:'ins2_01',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase(),t:"Off the ramp, set the perimeter!"};
+const B2CPS=34, B2HOLD=1.35;
+let BR2=null; const B2CV=mk(320,180), b2c=B2CV.getContext('2d');
+function startBrief2(){ BR2={t:0,page:0,lt:0,typed:0,t0:performance.now()}; state='brief2'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; ttsCancel(); b2Sting() }
+function b2Sting(){ if(!Snd.muted){ try{Snd.play('radio')}catch(e){} } }
+function endBrief2(){ if(!BR2)return; window.__brief2Dur=(performance.now()-BR2.t0)/1000; BR2=null; try{sessionStorage.setItem('lco_briefed','1')}catch(e){} last=performance.now(); startIntro(true) }
+function updateBrief2(dt){ const B=BR2; if(!B)return; B.t+=dt; B.lt+=dt; const L=BRIEF2_LINES[B.page]; B.typed=Math.min(L.t.length,B.lt*B2CPS);
+  if(B.lt>=L.t.length/B2CPS+B2HOLD){ if(B.page>=BRIEF2_LINES.length-1){ endBrief2(); return } B.page++; B.lt=0; B.typed=0; b2Sting() } }
+/* briefing art (Art Director rework): approved game sprites at 1x on a 320x180 buffer, integer upscale. No hand-drawn men.
+   Lt = marine rig 'leader' (plain head, no glasses, matches the squad2 portrait), Doc = heroDoc 'treat' (kneeling) + his yellow ring, RTO = marine rig 'radio' (PRC-25),
+   riflemen = marine rig with the Company looks (different faces / skin tones), CH-46 = ch46_v2 rampDown with soft blur discs. */
+const B2PORT={}; for(const [k,f] of [['lt','platoon_lieutenant_portrait_112x128.png'],['sgt','squad_leader_portrait_112x128.png'],['doc','doc_112x128.png']]){ const im=new Image(); im.src='assets/art/squad2/'+f; B2PORT[k]=im }
+let B2BG=null;
+function b2Ground(){ const c=mk(320,180), x=c.getContext('2d');
+  /* dawn sky: cool grey-blue overhead to a warm low band at the horizon */
+  const sk=x.createLinearGradient(0,0,0,52); sk.addColorStop(0,'#5d6b7c'); sk.addColorStop(.55,'#8f949a'); sk.addColorStop(.85,'#c9a882'); sk.addColorStop(1,'#e2b47c'); x.fillStyle=sk; x.fillRect(0,0,320,52);
+  const sun=x.createRadialGradient(262,50,2,262,50,90); sun.addColorStop(0,'rgba(255,214,150,.55)'); sun.addColorStop(1,'rgba(255,190,120,0)'); x.fillStyle=sun; x.fillRect(0,0,320,60);
+  /* layered treelines, far ones lost in haze */
+  const tl=(base,amp,sc,col,seed)=>{ x.fillStyle=col; for(let i=0;i<320;i++){ const h=Math.round(base-inoise(i+seed,sc)*amp-inoise(i*3+seed,4)*amp*.25); x.fillRect(i,h,1,64-h) } };
+  tl(46,9,26,'#8a8a84',100); tl(50,8,17,'#6c7466',300); tl(55,9,11,'#435040',600); tl(60,7,7,'#2c3a2a',900);
+  const hz=x.createLinearGradient(0,40,0,66); hz.addColorStop(0,'rgba(214,196,170,.35)'); hz.addColorStop(1,'rgba(214,196,170,0)'); x.fillStyle=hz; x.fillRect(0,40,320,26);
+  /* wet red laterite: value gradient + mottling + ruts + standing water picking up the sky */
+  const gd=x.createLinearGradient(0,62,0,180); gd.addColorStop(0,'#7e4a32'); gd.addColorStop(.4,'#8f5136'); gd.addColorStop(1,'#6a3a26'); x.fillStyle=gd; x.fillRect(0,62,320,118);
+  for(let i=0;i<900;i++){ const px=(ihash(i)*320)|0, py=62+((ihash(i+3e3)*118)|0), v=ihash(i+7e3); x.fillStyle=v<.4?'rgba(60,28,16,.35)':v<.75?'rgba(168,98,62,.28)':'rgba(40,20,12,.25)'; x.fillRect(px,py,1+(v*3|0),1) }
+  for(let r=0;r<3;r++){ x.strokeStyle='rgba(52,26,16,.45)'; x.lineWidth=2; x.beginPath(); for(let i=0;i<=320;i+=8){ const yy=96+r*26+Math.sin(i/37+r)*3; i?x.lineTo(i,yy):x.moveTo(i,yy) } x.stroke() }
+  for(const [px,py,rw] of [[38,118,22],[118,168,30],[286,148,18],[204,124,14]]){ x.fillStyle='rgba(120,126,134,.55)'; x.beginPath(); x.ellipse(px,py,rw,rw*.22,0,0,TAU); x.fill(); x.fillStyle='rgba(230,184,128,.35)'; x.beginPath(); x.ellipse(px+rw*.25,py-1,rw*.4,rw*.07,0,0,TAU); x.fill() }
+  x.fillStyle='#4f5a2c'; for(let i=0;i<120;i++){ const px=(ihash(i+11)*320)|0, py=64+((ihash(i+12)*30)|0); x.fillRect(px,py,1,2) }
+  return c }
+/* long soft shadow: the sprite's silhouette, flattened and thrown left away from the low sun */
+function b2Shadow(c,draw,x,y){ /* long soft shadow thrown left, away from the low sun on the right */
+  c.save(); const g=c.createLinearGradient(x,0,x-34,0); g.addColorStop(0,'rgba(26,13,6,.42)'); g.addColorStop(1,'rgba(26,13,6,0)'); c.fillStyle=g; c.beginPath(); c.ellipse(x-15,y,20,2.8,-.04,0,TAU); c.fill();
+  c.fillStyle='rgba(26,13,6,.32)'; c.beginPath(); c.ellipse(x,y,8,2.4,0,0,TAU); c.fill(); c.restore() }
+function b2Rotor(c,x,y,t,ph){ /* slow idle rotor: dark blur disc (~.45), sagging tips, motion-blur arcs */
+  c.save(); const g=c.createRadialGradient(x,y,3,x,y,40); g.addColorStop(0,'rgba(22,24,18,.47)'); g.addColorStop(.75,'rgba(22,24,18,.42)'); g.addColorStop(1,'rgba(22,24,18,0)'); c.fillStyle=g;
+  c.beginPath(); c.ellipse(x,y+1.5,40,12.5,0,0,TAU); c.fill();   /* disc sits a touch low at the rim = blade droop at idle */
+  for(let k=0;k<3;k++){ const a=t*2.4+ph+k*2.094; c.strokeStyle='rgba(16,18,14,.55)'; c.lineWidth=1.6; c.beginPath(); c.ellipse(x,y+1.5,38,11.5,0,a,a+.55); c.stroke(); c.strokeStyle='rgba(16,18,14,.25)'; c.lineWidth=1; c.beginPath(); c.ellipse(x,y+1.5,30,9,0,a-.1,a+.35); c.stroke() }
+  c.fillStyle='#1c1e16'; c.fillRect(x-1,y-1,3,3); c.restore() }
+function drawBrief2Scene(t){ const c=b2c; c.setTransform(1,0,0,1,0,0); c.imageSmoothingEnabled=false; if(!B2BG)B2BG=b2Ground(); c.drawImage(B2BG,0,0);
+  /* soft dawn ground mist low over the treeline, drifting */
+  for(let k=0;k<3;k++){ const yy=54+k*5, dx=(t*(2+k)+k*60)%320; const g=c.createLinearGradient(0,yy-6,0,yy+6); g.addColorStop(0,'rgba(222,212,196,0)'); g.addColorStop(.5,`rgba(222,212,196,${.22-k*.05})`); g.addColorStop(1,'rgba(222,212,196,0)'); c.fillStyle=g;
+    for(let i=-1;i<4;i++){ const cx=i*110+dx; c.beginPath(); c.ellipse(cx,yy,70,5,0,0,TAU); c.fill() } }
+  const S=window.SHEET1; let ramp=null;
+  if(S&&S.drawSeaKnight){ try{ const BX=250,BY=96, r=S.drawSeaKnight(c,{x:BX,y:BY,heading:0,state:'rampDown',t,scale:1,rotor:false,wash:false}); ramp=r;
+      const hull=c.getImageData(BX+1,BY-1,1,1).data, hc=`rgb(${hull[0]},${hull[1]},${hull[2]})`;
+      /* star-and-bar stays (correct US insignia, Art Director + Vet) */
+      /* aft MARINES lettering is unreadable at 1x: leave it out (Art Director) */ c.fillStyle=hc; c.fillRect(BX-38,BY-6,38,4);
+      b2Rotor(c,r.hubs[1][0],r.hubs[1][1],t,0); b2Rotor(c,r.hubs[0][0],r.hubs[0][1],t,1.1) }catch(e){} }
+  if(!S||!S.drawMarine||!S.drawHero)return;
+  const LX=150, LY=150;   /* the Lt; men left of him face right, men right of him face left (flip) */
+  /* fireteam clusters of 3-4, staggered; [x,y,role,coyLook] */
+  const men=[ [46,132,'rifle',0],[62,138,'m60',null],[38,146,'rifle',3],[70,150,'m79',null],
+              [214,140,'rifle',2],[232,146,'rifle',1],[204,156,'m14',null],
+              [124,152,'radio',null] ];
+  const all=[];
+  for(const m of men){ const fl=m[0]>LX; b2Shadow(c,null,m[0],m[1]); all.push({y:m[1],f:()=>S.drawMarine(c,m[2],0,m[0],m[1],1,fl,false,m[3]==null?undefined:m[3])}) }
+  /* 1-2 men walking off the ramp toward the platoon, looping */
+  if(ramp&&ramp.ramp){ const [rx,ry]=ramp.ramp; for(let k=0;k<2;k++){ const u=((t*.16+k*.5)%1), x=rx-6-u*44, y=ry+4+u*14+k*3, fr=1+(Math.floor(t*6+k)&1); b2Shadow(c,null,x,y); all.push({y,f:()=>{ c.globalAlpha=Math.min(1,u*6); S.drawMarine(c,'rifle',fr,Math.round(x),Math.round(y),1,true,false,k?2:0); c.globalAlpha=1 }}) } }
+  b2Shadow(c,null,LX,LY); b2Shadow(c,null,176,160);
+  all.push({y:LY,f:()=>{ const hp=S.drawMarine(c,'leader',0,LX,LY,1,false,false); /* plain rig head, no glasses; map in a plastic cover */ const hx=Math.round((hp&&hp.x)||LX+4), hy=Math.round((hp&&hp.y)||LY-16); c.fillStyle='#cfc49a'; c.fillRect(hx-1,hy-3,7,5); c.fillStyle='#7f9064'; c.fillRect(hx,hy-2,3,2); c.fillStyle='rgba(255,255,255,.35)'; c.fillRect(hx-1,hy-3,7,1) }});
+  all.push({y:160,f:()=>{ c.strokeStyle='rgba(255,214,64,.9)'; c.lineWidth=1.4; c.beginPath(); c.ellipse(176,160,11,3.6,0,0,TAU); c.stroke(); S.drawHero(c,'doc','treat',176,160,1,true,false) }});
+  all.sort((a,b)=>a.y-b.y).forEach(o=>{ try{o.f()}catch(e){} });
+  const lg=c.createLinearGradient(320,0,0,0); lg.addColorStop(0,'rgba(255,190,120,.10)'); lg.addColorStop(1,'rgba(60,70,100,.10)'); c.fillStyle=lg; c.fillRect(0,0,320,180) }
+/* dialogue box framed like the Gunny radio box: black frame, silver bevel, navy panel, silver-stroked portrait, gold name plate */
+function b2Portrait(x,y,pw,ph,k){ const im=B2PORT[k]; ctx.fillStyle='#1c2414'; ctx.fillRect(x,y,pw,ph);
+  if(k==='doc'&&!(im&&im.complete&&im.naturalWidth)){ const S=window.SHEET1; if(S&&S.drawHero){ const sc=Math.max(1,Math.floor(pw/16)); ctx.save(); ctx.beginPath(); ctx.rect(x,y,pw,ph); ctx.clip(); ctx.imageSmoothingEnabled=false; S.drawHero(ctx,'doc','idle',Math.round(x+pw/2),Math.round(y+37*sc-2*sc),sc,false,false);   /* head-and-shoulders crop of his game sprite, integer scale */ ctx.restore() } }
+  else if(im&&im.complete&&im.naturalWidth){ ctx.imageSmoothingEnabled=true; ctx.drawImage(im,x,y,pw,ph); ctx.imageSmoothingEnabled=false }
+  ctx.strokeStyle='#c8c8c8'; ctx.lineWidth=1.5*b2U; ctx.strokeRect(x,y,pw,ph) }
+let b2U=1;
+function drawBrief2(){ const B=BR2; ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  const s=Math.max(1,Math.floor(Math.min(W/320,H/180))), dw=320*s, dh=180*s, ox=Math.round((W-dw)/2), oy=Math.round((H-dh)/2); drawBrief2Scene(B.t); ctx.imageSmoothingEnabled=false; ctx.drawImage(B2CV,ox,oy,dw,dh);
+  if(B.t<.8){ ctx.fillStyle=`rgba(0,0,0,${1-B.t/.8})`; ctx.fillRect(0,0,W,H) }
+  const L=BRIEF2_LINES[B.page]; const U=b2U=Math.max(1,Math.min(W/640,H/360)*1.15), fs=12*U, pw=34*U, ph=38*U, bw=Math.min(W-16*U,430*U), bx=W/2-bw/2, y=oy+10*U;
+  ctx.font=`bold ${fs}px "Courier New",monospace`; const extra=L.with?pw+10*U:0, lines=wrapText(ctx,L.t,bw-pw-26*U-extra), bh=Math.max(ph+14*U,(26+lines.length*15)*U);
+  ctx.fillStyle='#000'; ctx.fillRect(bx-2,y-2,bw+4,bh+4); ctx.fillStyle='#c8c8c8'; ctx.fillRect(bx-1,y-1,bw+2,bh+2); ctx.fillStyle='#101830'; ctx.fillRect(bx+2,y+2,bw-4,bh-4);
+  b2Portrait(bx+8*U,y+7*U,pw,ph,L.port); if(L.with)b2Portrait(bx+bw-8*U-pw,y+7*U,pw,ph,L.with);
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.fillStyle='#e8c030'; ctx.fillText(L.who,bx+pw+16*U,y+16*U);
+  ctx.fillStyle='#f6f6e6'; const shown=L.t.slice(0,Math.floor(B.typed)); let idx=0; lines.forEach((ln,i)=>{ ctx.fillText(shown.slice(idx,Math.min(idx+ln.length,shown.length)),bx+pw+16*U,y+(32+i*15)*U); idx+=ln.length+1 });
+  ctx.font=`${Math.max(10,fs*.8)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.75)'; ctx.fillText('PRESS ANY KEY / TAP TO SKIP',W-14,H-14);
+  ctx.textAlign='left'; ctx.fillStyle='rgba(232,200,96,.8)'; ctx.fillText('NORTH OF QUANG TRI · 1968',ox+14,oy+dh-14) }
+['keydown','pointerdown','touchstart'].forEach(ev=>window.addEventListener(ev,e=>{ if(state!=='brief2'||!BR2||BR2.t<.3)return; if(ev==='keydown'&&(e.repeat||e.code==='KeyM'||e.metaKey))return; endBrief2() },{passive:true}));
+if(INTRO2){ try{ $('btnBrief').style.display='none' }catch(e){} }   /* Mercer briefing is not reachable unless ?ltbrief=0 */
+if(DBG.bot){ window.__ms_ub2=dt=>updateBrief2(dt); window.__ms_i2c=()=>intro2Contact(); window.__ms_br2=()=>BR2 }   /* test hooks, ?bot only */
+/* the HUD (and G.banner) is not drawn during state 'intro', so the ramp line gets its own caption, same style as the briefing box */
+function drawIns2Cap(){ const I=INTRO; if(!I||!I.quiet||I.ph!==2||I.cap0==null)return; const e=I.t2-I.cap0; if(e<0||e>3.4)return; const a=Math.min(1,e*4,(3.4-e)*3);
+  ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=a; const fs=Math.max(13,Math.min(26,H/26)); ctx.font=`bold ${fs}px "Courier New",monospace`; const txt='"'+INS2_LINE.t+'"', w=Math.max(ctx.measureText(txt).width,ctx.measureText(INS2_LINE.who).width)+fs*2, h=fs*3, x=(W-w)/2, y=H*.72;
+  ctx.fillStyle='rgba(0,0,0,.62)'; ctx.fillRect(x,y,w,h); ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.fillStyle='#e8c860'; ctx.fillText(INS2_LINE.who,x+fs,y+fs*1.15); ctx.fillStyle='#f2efe0'; ctx.fillText(txt,x+fs,y+fs*2.4); ctx.globalAlpha=1 }
+function intro2Contact(){ /* the insert goes bad: fire from the treeline right after the bird lifts */
+  try{ const p=G.p, a=rnd()*TAU; for(let i=0;i<6;i++){ const b=a+(i-2.5)*.18, d=360+i*14; spawnEnemy(i%3?'nva':'vc',p.x+Math.cos(b)*d,p.y+Math.sin(b)*d) } }catch(e){}
+  try{ Snd.play('radio') }catch(e){} try{ gunny("Contact! Treeline, get down!",2.6,1) }catch(e){}
+  G.banner=null }   /* the Gunny's voice caption carries the contact call; a second banner under it overlapped (06_contact) */
+
 /* quick tutorial (Blake Oct 14 night): click-through cards, each one short line + a real screenshot from this build. Next/Back, Esc closes, touch + pad work.
    Offered once on first launch ('Quick tutorial? Yes / Skip'), then always on the menu. */
 const TUT={i:0,on:false,ask:false,IMG:{move:1,squad:1,smoke:1,hold:1,gems:1,confirm:1,board:1,fb:1,bunker:1},C:[
@@ -6775,7 +6875,7 @@ function drawFlashes(camX,camY){ if(!flashes.length)return; ctx.save(); ctx.glob
   for(const f of flashes){ const k=f.t/f.d, r=f.r*(.75+.35*k), a=k<.15?k/.15:Math.max(0,1-(k-.15)/.85); ctx.globalAlpha=a*.9; ctx.drawImage(FIREBALL,Math.round(f.x-r),Math.round(f.y-r*.8-8),r*2,r*1.6) } ctx.restore() }
 
 /* ====================== game flow ====================== */
-function startGame(){ if(!chOpen(SEL)){ if($('charsel').classList.contains('show'))return; SEL='doc' } try{document.activeElement&&document.activeElement.blur()}catch(e){} if(!navigator.userActivation||navigator.userActivation.hasBeenActive){Snd.init(); Snd.resume();} newGame(false); state='play'; ['menu','charsel','over','pause','levelup','sigask'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='flex'; if(!(DBG.t>0||DBG.nointro))startIntro(); }
+function startGame(){ if(!chOpen(SEL)){ if($('charsel').classList.contains('show'))return; SEL='doc' } try{document.activeElement&&document.activeElement.blur()}catch(e){} if(!navigator.userActivation||navigator.userActivation.hasBeenActive){Snd.init(); Snd.resume();} newGame(false); state='play'; ['menu','charsel','over','pause','levelup','sigask'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='flex'; if(!(DBG.t>0||DBG.nointro)){ if(INTRO2)startBrief2(); else startIntro() } }
 function toMenu(){ setTimeout(()=>window.martHow&&martHow(),60); if(G&&!G.demo&&(state==='paused'||state==='over'||state==='play'))awardRun(); state='menu'; ['over','pause','levelup','charsel','sigask'].forEach(i=>$(i).classList.remove('show')); $('menu').classList.add('show'); $('topbtns').style.display='none'; showBest(); if(!DBG.nodemo)newGame(true); }
 function pauseGame(){ if(state==='play'){state='paused';$('pause').classList.add('show')} }
 function resumeGame(){ if(state==='paused'){state='play';$('pause').classList.remove('show');last=performance.now()} }
@@ -7368,15 +7468,15 @@ function frame(now){
   /* real time: a slow frame runs several <=50 ms steps (up to 0.2 s per frame), so the game clock keeps pace on slow machines instead of running at half speed */
   if(state==='play'||(state==='menu'&&G&&G.demo)){ let rem=Math.min(dt,.2); while(rem>1e-6){ const st=Math.min(.05,rem); try{ update(st) }catch(e){ simGuard('update',String(e&&e.message||e)); if(!SIMG.thrown){ SIMG.thrown=1; console.error(e) } } rem-=st; if(state!=='play'&&!(state==='menu'&&G&&G.demo))break } } else { if(dt>.05)dt=.05; }
   try{ simWatch() }catch(e){}
-  if(state==='intro')updateIntro(dt); else if(state==='brief')updateBrief(dt);
-  hudAbil(); hudSig(); hudTanker(); hudSupport(); Snd.duckTick(); const t0=performance.now(); if(state==='brief'&&BR){ drawBrief() } else if(state==='intro'&&INTRO&&INTRO.ph===1){ (CAB46&&window.SHEET1&&SHEET1.drawBanter?drawCabin46:drawCargo)(INTRO.t); drawIntroOverlay() } else { render(); if(state==='intro'&&INTRO)drawIntroOverlay() } const rt=performance.now()-t0; pcapTick(rt); perf.frames++;perf.acc+=rt;perf.worst=Math.max(perf.worst,rt);
+  if(state==='intro')updateIntro(dt); else if(state==='brief')updateBrief(dt); else if(state==='brief2')updateBrief2(dt);
+  hudAbil(); hudSig(); hudTanker(); hudSupport(); Snd.duckTick(); const t0=performance.now(); if(state==='brief'&&BR){ drawBrief() } else if(state==='brief2'&&BR2){ drawBrief2() } else if(state==='intro'&&INTRO&&INTRO.ph===1){ (CAB46&&window.SHEET1&&SHEET1.drawBanter?drawCabin46:drawCargo)(INTRO.t); drawIntroOverlay() } else { render(); if(state==='intro'&&INTRO){ drawIntroOverlay(); drawIns2Cap() } } const rt=performance.now()-t0; pcapTick(rt); perf.frames++;perf.acc+=rt;perf.worst=Math.max(perf.worst,rt);
   requestAnimationFrame(frame);
 }
 buildSprites(); buildGore(); buildDeathArt(); buildExArt(); buildBubbles(); buildWorldArt(); applySheet(); Snd.setMuted(Snd.muted);
 if(DBG.nodemo){ G=null; newGame(false); } else newGame(true);
 showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
-{ let bd=false; try{bd=sessionStorage.getItem('lco_briefed')==='1'||(BRIEF1&&localStorage.getItem('lco_briefed')==='1')}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
+{ let bd=false; try{bd=sessionStorage.getItem('lco_briefed')==='1'||(BRIEF1&&localStorage.getItem('lco_briefed')==='1')}catch(e){} if(!INTRO2&&(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart'))))startBrief(); }
 try{ ZMON.warm() }catch(e){}
 DBG.zmon=()=>callBoat(Object.assign({hold:30,range:420,d50:20,d60:12,cd:60},{}),true);
 window.__ms={gunny:(...a)=>gunny(...a),hurtMember:(m,d)=>hurtMember(m,d),spawn:(t,x,y)=>spawnEnemy(t,x,y),get genChoices(){return genChoices},get ZIS(){return ZIS},get JG(){return JG},get P3(){return P3},get ACH(){return ACH},get gameOver(){return gameOver},get openCharSel(){return openCharSel},get N2(){return N2},get EXc(){return EX},get Q46(){ return {startGame,coyH,coy,INTRO,G,state,sel:v=>{SEL=v}} },get SAMP(){return SAMP},get Snd(){return Snd},get MOH(){return MOH},get FBO(){return FBO},get URG(){return URG},get MAGS(){return MAGS},get IMP(){return IMP},get FIELD(){return FIELD},get GUNS(){return GUNS},get MEDV(){return MEDV},get CREWX(){return CREWX},useAb(){ return useAbility() },openConfirm(a){ openConfirm(a) },pick(i){ if(state==='levelup')pickChoice(i|0); return state },answer(y){ if(state==='sig'){ clearTimeout(SIGASK.q); answerSignal(!!y) } return state },get BARK(){return BARK},get KIA(){return KIA},get ZMON(){return ZMON},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
@@ -7713,7 +7813,7 @@ const IntroSnd={bus:null,gbus:null,rot:null,wind:null,
       if(bar>=2){ const L=[12,15,12,10,7,10,12,15]; for(let i=0;i<4;i++){ const sm=L[((bar-2)*4+i)&7]; gtrNote(ld,t0+bar*8*e+i*b,f(sm)*2,b*.95,.075,true) } } }
     // --- door-gun test bursts (a gunner clearing the M60) ---
     this.gbus=c.createGain(); this.gbus.gain.value=1; this.gbus.connect(Snd.master);
-    for(const bu of IBURSTS){ if(SAMP.ok('m60_burst'))SamplePlayer.play('m60_burst',{when:t0+bu.t}) }   /* real M60 door-gun bursts; no synth gun (silent if the clip is not decoded yet) */
+    if(!(INTRO&&INTRO.quiet))for(const bu of IBURSTS){ if(SAMP.ok('m60_burst'))SamplePlayer.play('m60_burst',{when:t0+bu.t}) }   /* real M60 door-gun bursts; no synth gun (silent if the clip is not decoded yet) */
     nz(t0+5.0,1.4,.3,'lowpass',320,this.gbus); tn('sine',60,26,t0+5.0,1.2,.35,this.gbus);
     // --- loud low rotor "whop" (Huey ~5.5 Hz) + wind roar through the open doors: both ramp up from the first moment, no clicks ---
     const k=Rotor.make(now); this.rot=k; k.lfo.frequency.value=5.5; k.lp.frequency.setValueAtTime(190,now); k.lp.frequency.linearRampToValueAtTime(330,t0+4);
