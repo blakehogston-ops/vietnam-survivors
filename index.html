@@ -3253,7 +3253,11 @@ function explode(x,y,rad,dmg,kb,vol){ rad*=1+.08*(G.ps.demo|0); if(window.VFX_AT
 
 /* ====================== spawning ====================== */
 function edgePoint(m){const p=G.p,hw=VW/2+m,hh=VH/2+m; let x,y; for(let k=0;k<6;k++){ if(rnd()<hw/(hw+hh)){x=(rnd()*2-1)*hw;y=rnd()<.5?-hh:hh}else{y=(rnd()*2-1)*hh;x=rnd()<.5?-hw:hw} if(!riverAt(p.x+x,p.y+y))break } return [p.x+x,p.y+y]}   /* never spawn in the water */
-function spawnEnemy(type,x,y,charge){ if(G&&!G.demo&&(type==='vc'||type==='nva')){ G.spN=(G.spN|0)+1; if(type==='vc'){ if((G.spVC|0)+1>.25*G.spN+3)type='nva'; else G.spVC=(G.spVC|0)+1 } }   /* Blake, Oct 14: about 1 in 4 VC or fewer; khaki NVA is the main force */
+function padFair(type,x,y){ const g=G, ex=g&&g.ex; if(!g||g.demo||!ex||!ex.pad||ex.ph<3||ex.ph>5||ex.evac||!(type==='vc'||type==='nva'||type==='sapper'||type==='rpg'||type==='rpgt'))return null; const pad=ex.pad, P=g.p;
+  if(!(g.pfT>g.t)){ g.pfT=g.t+.25; let n=0; for(const e of enemies)if(!e.dead&&Math.abs(e.x-pad.x)<350&&Math.abs(e.y-pad.y)<350&&Math.hypot(e.x-pad.x,e.y-pad.y)<350)n++; g.pfN=n }
+  const dP=Math.hypot(x-P.x,y-P.y), nearPad=Math.hypot(x-pad.x,y-pad.y)<350; if(!(nearPad&&g.pfN>=12)&&dP>=520)return null;
+  const a=Math.atan2(pad.y-P.y,pad.x-P.x)+Math.PI+(rnd()-.5)*1.2; (DBG.spawnLog||(DBG.spawnLog=[])).push({t:+g.t.toFixed(1),moved:1,type}); return [P.x+Math.cos(a)*(560+rnd()*80),P.y+Math.sin(a)*(560+rnd()*80)] }   /* route9 F2/F5 for every spawner during pad->lift: >=520 px from Doc, <=12 within 350 px of the pad */
+function spawnEnemy(type,x,y,charge){ { const r=padFair(type,x,y); if(r){ x=r[0]; y=r[1] } } if(G&&!G.demo&&(type==='vc'||type==='nva')){ G.spN=(G.spN|0)+1; if(type==='vc'){ if((G.spVC|0)+1>.25*G.spN+3)type='nva'; else G.spVC=(G.spVC|0)+1 } }   /* Blake, Oct 14: about 1 in 4 VC or fewer; khaki NVA is the main force */
   const d=ET[type]; if(enemies.length>=2300)return null; if(x===undefined){[x,y]=edgePoint(50)}
   const hm=LATEB&&G.t>360?4.27+(G.t-360)/420:G.t<480?1+G.t/110:5.36+(G.t-480)/160,   /* late-balance: HP growth past 6:00 slowed (was +1x per 160 s) */ hp=d.hp*(d.boss?1:hm);
   const e={type,x,y,hp,mhp:hp,spd:d.spd*(.9+rnd()*.2)*(charge?1.3:1),dmg:d.dmg,r:d.r,v:d.v,kx:0,ky:0,flash:0,anim:rnd()*4,dir:0,dead:false,boss:!!d.boss,name:d.name,sk:d.spr,spr:SPR[d.spr],ds:d.ds,
