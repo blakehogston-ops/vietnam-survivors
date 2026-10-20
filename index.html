@@ -4228,7 +4228,7 @@ const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,spooky:10,arclight:14,boxmission:22},
     const c=sr?[sr]:coy.filter(q=>q.hp>0&&q.state==='ok'&&!q.hid&&q.role!=='corps'); if(!c.length)return null;
     c.sort((a,b)=>(a.role==='rifle'?0:1)-(b.role==='rifle'?0:1)||Math.hypot(a.x-g.p.x,a.y-g.p.y)-Math.hypot(b.x-g.p.x,b.y-g.p.y)); m=c[0]; m.rto=1; if(m.coy)m.role0='rto'; m.mhp*=1.25; m.hp=Math.min(m.mhp,m.hp*1.25);
     g.banner={text:'RTO: '+(m.nm||'RADIOMAN')+' HAS THE HANDSET — KEEP HIM ALIVE',t:3,col:'#9be37a'}; Snd.play('radio'); return m },
-  lost(m){ const g=G; if(!m.rto||g.rtoLost)return; g.rtoLost=true; g.banner={text:'RTO DOWN — '+(m.nm||'RADIOMAN')+' KIA. NO MORE AIR SUPPORT',t:4,col:'#ff6a4a'}; Snd.play('radio'); g.shake=Math.max(g.shake,4) },
+  lost(m){ const g=G; if(!m.rto||g.rtoLost)return; g.rtoLost=true; try{ PAD.rumble(400,.9,.7) }catch(e){} Snd.play('hurt'); g.banner={text:'RTO DOWN — '+(m.nm||'RADIOMAN')+' KIA. NO MORE AIR SUPPORT',t:4,col:'#ff6a4a'}; Snd.play('radio'); g.shake=Math.max(g.shake,4) },
   /* densest enemy concentration anywhere near the fight (whole live map, capped so the strike stays readable) */
   densest(){ const p=G.p; let best=null,bs=0; const n=enemies.length; for(let k=0;k<Math.min(40,n*2);k++){ const e=enemies[(rnd()*n)|0]; if(!e||e.dead||Math.hypot(e.x-p.x,e.y-p.y)>1100)continue; let sc=0; for(let j=0;j<n;j++){ const o=enemies[j]; if(!o.dead&&Math.abs(o.x-e.x)<130&&Math.abs(o.y-e.y)<130)sc++ } if(sc>bs){bs=sc;best=e} }
     if(!best)return null; let sx=0,sy=0,c=0; for(const o of enemies){ if(!o.dead&&Math.abs(o.x-best.x)<130&&Math.abs(o.y-best.y)<130){sx+=o.x;sy+=o.y;c++} } let x=sx/c,y=sy/c;
@@ -4236,7 +4236,7 @@ const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,spooky:10,arclight:14,boxmission:22},
     return {x,y,n:bs} },
   /* returns false = hold the strike; otherwise stat overrides sized to the enemy count */
   call(g,id,w){ const m=this.get(g); if(!m)return false; if(m.state!=='ok')return false; if((g.rtoGap||0)>g.t)return false;
-    let N=0; for(const e of enemies)if(!e.dead)N++; const held=w.held=(w.held||0)+1/60; const need=Math.max(3,Math.round((this.MIN[id]||5)*(held>25?.5:1)));   /* waits for a worthy target; after ~25 s held he settles for half */
+    let N=0; for(const e of enemies)if(!e.dead)N++; if(!w.held&&!g.demo){ Snd.play('ready'); ftexts.push({x:m.x,y:m.y-6,t:0,s:'STRIKE READY',c:'#d8cf9a'}) } const held=w.held=(w.held||0)+1/60;   /* soft tick: he has a strike in his pocket */ const need=Math.max(3,Math.round((this.MIN[id]||5)*(held>25?.5:1)));   /* waits for a worthy target; after ~25 s held he settles for half */
     if(N<need)return false; const t=this.densest(); if(!t||t.n<Math.min(3,need))return false;
     RTO_T=[t.x,t.y]; w.held=0; g.rtoGap=g.t+this.GAP; g.rtoCalls=(g.rtoCalls|0)+1;
     const big=N>=60?2:N>=30?1:0, o={};
