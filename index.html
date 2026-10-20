@@ -207,7 +207,8 @@ Move ........... WASD / Arrow keys (stick or drag on touch)
 Shooting ....... automatic. Stay alive, keep your Marines alive
 Special ........ SPACE
 Patch Doc ...... H        Patch a Marine ... Q
-Pop smoke ...... X (only on the PAD circle)
+Call the bird .. X (on the PAD circle)
+Pop smoke ...... G (on the PAD, when the bird asks)
 Confirm smoke .. Y / Enter = it's ours   N / Esc = not ours
 Bunker ......... E (step in for cover, you can still shoot)
 Call engineers . hold F at a firebase call point
@@ -1250,7 +1251,7 @@ const DRES=window.DRES={cap:1, a:0, n:0, tick(dt){ if(!COARSE.matches||state!=='
    Smoke Y/N, INCOMING and low-HP prompts keep their full size. */
 const HUDM=window.HUDM={P:(location.search.match(/[?&]hudmobile=([01])/)||[])[1], on:false,
   set(){ this.on=this.P==='1'?true:this.P==='0'?false:(COARSE.matches||innerWidth<900); document.body&&document.body.classList.toggle('hudm',this.on) },
-  SH:[[/SMOKE ON DOC'S BELT/,'SMOKE'],[/GET ON THE PAD (\d+m) TO CALL THE BIRD/,'TO PAD $1'],[/CALL THE BIRD FROM/,'CALL AT'],[/POP SMOKE WHEN READY · BIRD 2:00 OUT/,'POP SMOKE'],[/ON THE PAD · POP SMOKE WHEN READY/,'ON PAD · POP SMOKE'],
+  SH:[[/SMOKE ON DOC'S BELT/,'SMOKE'],[/GET ON THE PAD (\d+m) TO CALL THE BIRD/,'TO PAD $1'],[/CALL THE BIRD FROM/,'CALL AT'],[/CALL THE BIRD WHEN READY · BIRD 1:15 OUT/,'CALL BIRD'],[/ON THE PAD · CALL THE BIRD WHEN READY/,'ON PAD · CALL BIRD'],
     [/HOLD FOR LZ — BIRD IN/,'BIRD'],[/BIRD WANTS SMOKE · GET ON THE PAD/,'SMOKE! PAD'],[/SMOKE OUT · THE BIRD IS LOOKING · BIRD IN/,'BIRD LOOKING ·'],[/NEED ONE MORE MARINE ON THE RAMP/,'+1 ON RAMP'],[/BIRD LIFTS —/,'LIFT'],
     [/WRONG SMOKE · BIRD SETTING DOWN ELSEWHERE · NEW PAD/,'WRONG SMOKE · NEW PAD'],[/BIRD WENT TO CHARLIE'S SMOKE · BACK IN/,"CHARLIE'S SMOKE · BACK"],[/  ·  /g,' · '],[/ON THE PAD/,'ON PAD'],[/STAND STILL TO CALL ENGINEERS/,'STAND STILL: ENGINEERS'],[/FIREBASE: REGEN \+ AMMO \+ ARMOR/,'FIREBASE +HP +AMMO']],
   short(t){ if(!this.on||!t)return t; for(const [a,b] of this.SH)t=t.replace(a,b); return t },
@@ -3380,12 +3381,12 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
     for(let i=this.shells.length-1;i>=0;i--){ const q=this.shells[i]; q.t+=dt; this.padSafe(q); if(q.t>=q.d){ this.land(q); this.shells.splice(i,1) } }
     const ex=g.ex; if(this.XC&&ex&&ex.ph===0&&!ex.padPlan){ if(this.SMB&&ex.pre&&!g.demo){ ex.preBad=PADLANE&&!laneOk(g.p.x,g.p.y,ex.pre.x,ex.pre.y)?(ex.preBad||0)+(1/60):0 }   /* no straight lane from Doc for 2 s -> re-mark a reachable pad */
       if(this.SMB&&g.t>=this.XMIN&&!g.demo&&(!ex.pre||ex.preBad>2||Math.hypot(ex.pre.x-g.p.x,ex.pre.y-g.p.y)>900)){ ex.preBad=0; const a=rnd()*TAU, Rp=Math.max(60,Math.min(200,Math.min(VW,VH)/2-90)); ex.pre=pickLz(g.p.x+Math.cos(a)*Rp,g.p.y+Math.sin(a)*Rp) }   /* route9 L2 at selection: the 5:00 pre-pick is what planPad reuses */   /* rc6b blocker 1: the first call pops smoke ON a marked pad, shown from 3:30 */
-      if(g.t>=this.XMIN&&!ex.xr){ ex.xr=1; g.banner={text:'EXTRACTION AVAILABLE · POP SMOKE WHEN READY',t:3.4,col:'#9be37a'};
-        gunny("Doc, Gunny. The bird can come for us any time now. Pop smoke when you're ready ("+(matchMedia('(pointer:coarse)').matches?'tap CALL BIRD':'press X')+"). He needs a minute fifteen to get here.",5.6,1) }
+      if(g.t>=this.XMIN&&!ex.xr){ ex.xr=1; g.banner={text:'EXTRACTION AVAILABLE · CALL THE BIRD WHEN READY',t:3.4,col:'#9be37a'};
+        gunny("Doc, Gunny. The bird can come for us any time now. Call him when you're ready ("+(matchMedia('(pointer:coarse)').matches?'tap CALL BIRD':'press X')+"). He needs a minute fifteen to get here.",5.6,1) }
       if(ex.xr&&(g.t>=this.XAUTO||(DBG.bot&&g.t>=(+params.get('botcall')||this.XMIN+15))))this.call(g.t>=this.XAUTO) }
     const b=this.btn(); if(b){ const sw=this.smokeWait(); let on=state==='play'&&((this.canCall(g)&&ex.xr)||!!sw), mode=sw?(sw==='on'?'pop':'off'):(this.SMB&&!this.atPad(g)?'off':'call');
       if(HUDM.on&&mode==='off'){ if(on&&b._offT!==1){ b._offT=1; if(!g.banner||g.banner.t<=0)g.banner={text:'GET TO THE PAD FIRST',t:1.8,col:'#ffcf5a'} } on=false } else b._offT=0;   /* rc7.1 mobile: the greyed button covered medic/TRIAGE; it becomes one top-lane message */
-      if(b._on!==on){ b._on=on; b.style.display=on?'block':'none' } if(b._m!==mode){ b._m=mode; b.textContent=mode==='call'?'POP SMOKE · CALL BIRD (X)':mode==='pop'?'POP SMOKE ON THE PAD (X)':'GET TO THE PAD FIRST'; b.style.filter=mode==='off'?'grayscale(1) brightness(.75)':''; b.style.opacity=mode==='off'?'.75':'1'; b.style.cursor=mode==='off'?'not-allowed':'pointer'; b.disabled=mode==='off'; b.setAttribute('aria-disabled',mode==='off'?'true':'false') } } },
+      if(b._on!==on){ b._on=on; b.style.display=on?'block':'none' } if(b._m!==mode){ b._m=mode; b.textContent=mode==='call'?(COARSE.matches?'CALL THE BIRD':'CALL THE BIRD (X)'):mode==='pop'?(COARSE.matches?'POP SMOKE ON THE PAD':'POP SMOKE ON THE PAD (G)'):'GET TO THE PAD FIRST'; b.style.filter=mode==='off'?'grayscale(1) brightness(.75)':''; b.style.opacity=mode==='off'?'.75':'1'; b.style.cursor=mode==='off'?'not-allowed':'pointer'; b.disabled=mode==='off'; b.setAttribute('aria-disabled',mode==='off'?'true':'false') } } },
   /* Gamer rc6 #2 (?smokebtn=0 off): while the bird wants smoke the same button pops it - greyed 'GET TO THE PAD FIRST' until Doc is inside the pad circle */
   SMB:N2F('smokebtn'),
   smokeWait(){ const g=G,ex=g&&g.ex,c=ex&&ex.call; if(!this.SMB||!c||c.st!=='wait'||ex.ph!==4||ex.divert||state!=='play')return null; return onPad(g.p.x,g.p.y)&&g.p.hp>0?'on':'off' },
@@ -3393,7 +3394,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
   atPad(g){ if(!g||g.p.hp<=0)return false; const ex=g.ex; if(ex&&ex.ph===0&&ex.pre)return Math.hypot(g.p.x-ex.pre.x,g.p.y-ex.pre.y)<=EX.PAD_R*1.35;   /* EP: bigger snap onto the pad */ return onPad(g.p.x,g.p.y) },   /* rc6b blocker 1: the FIRST call (pop smoke + call bird) also needs Doc inside the pad circle */
   hud(U){ if(!this.shells.some(q=>q.t>=(q.w||0))||G.demo)return; const a=.75+.25*Math.sin(performance.now()/90); ctx.globalAlpha=a; txt('INCOMING!',W/2,Math.max(H*.34,170*U),Math.round(30*U),'#ff5a3a','center'); ctx.globalAlpha=1 },
   qaSpawn(t,x,y){ return spawnEnemy(t,x,y) },
-  btn(){ let b=document.getElementById('n2x'); if(!b&&this.XC&&document.body){ b=document.createElement('button'); b.id='n2x'; b.textContent='POP SMOKE · CALL BIRD (X)';
+  btn(){ let b=document.getElementById('n2x'); if(!b&&this.XC&&document.body){ b=document.createElement('button'); b.id='n2x'; b.textContent='CALL THE BIRD (X)';
       b.style.cssText='position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;display:none;padding:12px 18px;font:bold 15px "Courier New",monospace;color:#10180c;background:#b9e08a;border:3px solid #2c3e1c;border-radius:6px;box-shadow:0 3px 0 #2c3e1c;touch-action:manipulation';
       b.addEventListener('pointerdown',ev=>{ ev.stopPropagation(); ev.preventDefault(); N2.press() }); document.body.appendChild(b) } return b },
   draw(){ const tt=performance.now()/1000;
@@ -3402,7 +3403,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
     for(const q of this.shells){ const w=q.w||0; if(q.t<w)continue; const k=Math.min(1,(q.t-w)/(q.d-w)); if(k<.15)continue; ctx.globalAlpha=.35+.45*k; ctx.strokeStyle='#ff3a2a'; ctx.lineWidth=2+k*2;
       ctx.beginPath(); ctx.arc(q.x,q.y,this.BR*(q.cal===60?.8:1)*(1.25-.25*k),0,TAU); ctx.stroke(); ctx.globalAlpha=.12+.18*k*(.6+.4*Math.sin(tt*16)); ctx.fillStyle='#ff3a2a'; ctx.beginPath(); ctx.arc(q.x,q.y,this.BR*(q.cal===60?.8:1)*k,0,TAU); ctx.fill();
       ctx.globalAlpha=.8; ctx.fillRect(q.x-6,q.y-1,12,2); ctx.fillRect(q.x-1,q.y-6,2,12) } ctx.globalAlpha=1 } };
-document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code==='KeyX')N2.press() });
+document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code==='KeyX'){ const ex=G&&G.ex; if(ex&&ex.ph<3)N2.press() } });   /* EP key map: X = call extraction only; G = pop smoke only */
 /* ===== PACE (Blake Oct 14: "most levels in the beginning are more firefights"): early levels are contacts with small NVA/VC fire teams and lulls between them;
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
 const EARLY=!/[?&]early=0\b/.test(location.search);
@@ -6612,7 +6613,7 @@ function sigLine(){ const g=G,ex=g.ex,p=g.p; if(!ex)return {t:'',c:'#fff'};
   const T=exTarget(), dm=T?Math.max(1,Math.round(Math.max(0,Math.hypot(T.x-p.x,T.y-p.y)-((T===ex.pad||T===ex.pre)?EX.PAD_R:0))/10)):0;   /* distance to pad EDGE */
   const pdm=ex.pad?Math.round(Math.hypot(ex.pad.x-p.x,ex.pad.y-p.y)/10):0;
   const scOn=!N2.SMH||(ex.saidT!=null&&G.t-ex.saidT<10);   /* Vet: colour shown ~10 s after Gunny says it, then just 'SMOKE ON DOC'S BELT' */
-  if(ex.ph===0)return {t:(scOn?(ex.smokeCol||'').toUpperCase()+' ':'')+'SMOKE ON DOC\'S BELT  ·  '+(N2.XC?(G.t>=N2.XMIN?(ex.pre&&N2.SMB?(N2.atPad(G)?'ON THE PAD · POP SMOKE WHEN READY':'GET ON THE PAD '+dm+'m TO CALL THE BIRD'):'POP SMOKE WHEN READY · BIRD 1:15 OUT'):'CALL THE BIRD FROM '+fmt(N2.XMIN)):'PAD AT '+fmt(EX.PAD_T)),c:scOn?SIGC[ex.smokeCol]||'#c8c8b0':'#c8c8b0'};
+  if(ex.ph===0)return {t:(scOn?(ex.smokeCol||'').toUpperCase()+' ':'')+'SMOKE ON DOC\'S BELT  ·  '+(N2.XC?(G.t>=N2.XMIN?(ex.pre&&N2.SMB?(N2.atPad(G)?'ON THE PAD · CALL THE BIRD WHEN READY':'GET ON THE PAD '+dm+'m TO CALL THE BIRD'):'CALL THE BIRD WHEN READY · BIRD 1:15 OUT'):'CALL THE BIRD FROM '+fmt(N2.XMIN)):'PAD AT '+fmt(EX.PAD_T)),c:scOn?SIGC[ex.smokeCol]||'#c8c8b0':'#c8c8b0'};
   if(ex.ph===4&&ex.divert)return {t:"BIRD WENT TO CHARLIE'S SMOKE · BACK IN "+Math.max(0,Math.ceil(ex.divert.cost-ex.divert.t))+'s',c:'#ff6a4a',T:null};
   if(ex.ph===4&&ex.call&&ex.call.st==='wait')return {t:(onPad(p.x,p.y)?'POPPING SMOKE...':'BIRD WANTS SMOKE · GET ON THE PAD '+dm+'m')+' · BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t))),c:'#ffcf5a',T:onPad(p.x,p.y)?null:T};
   if(ex.ph===4&&ex.call&&ex.call.st!=='ok')return {t:'SMOKE OUT · THE BIRD IS LOOKING · BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t))),c:SIGC[ex.col],T:null};
