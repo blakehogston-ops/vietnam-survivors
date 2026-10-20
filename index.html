@@ -2349,6 +2349,7 @@ const VEH=()=>!!(window.SHEET1&&SHEET1.vehiclesBig);
 const IMPDEC=/[?&]jungle=1\b/.test(location.search)&&!/[?&]impdec=0\b/.test(location.search), IGR=(x,y)=>{ const j=JG.ground(x,y); if(j)return j; try{ const m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); return m==='P'?'paddy':'dirt' }catch(e){ return 'dirt' } };
 const MORB=!/[?&]morb=0\b/.test(location.search);
 const RTOP=/[?&]rtop=0\b/.test(location.search)?0:(+(location.search.match(/[?&]rtop=(\d+)/)||[])[1]||300);
+const LULLCUE=!/[?&]lullcue=0\b/.test(location.search);
 const V3V=()=>VEH()&&!!SHEET1.drawZiS3&&!/[?&]veh3=0\b/.test(location.search);   /* rc7 #4 vehicles_v3 (?veh3=0 = old draws) */
 /* PBR v2 (80x68, pivot 40,36): wake first (speed from the hull's own motion, 0..1), then the boat */
 function pbrWake(b,hd){ if(!SHEET1.drawPBRWake||b.dead)return; const px=b._wx===undefined?b.x:b._wx, py=b._wy===undefined?b.y:b._wy; b._wx=b.x; b._wy=b.y; const v=Math.hypot(b.x-px,b.y-py)*60;
@@ -3372,7 +3373,7 @@ const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_
   tick(g,dt){ const P=g.pc||(g.pc={st:'lull',t:16,teams:[],n:0,log:[]}); P.teams=P.teams.filter(T=>FT.alive(T)>0&&!T.gone);
     const hold=this.hold(g), maxT=N2.maxT(g,hold?this.HOLD_TEAMS:this.MAX_TEAMS+((g.p.lvl|0)>=8?1:0));
     if(P.st==='lull'){ P.t-=dt; if(!P.bq&&P.t<=3.2&&g.t>50&&!hold){ P.bq=1; N2.barrage(g) } if(P.t<=0){ P.st='contact'; P.ct=0; P.bq=0; this.spawnTeam(g,hold); N2.wave(g) } }
-    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=N2.lull(g,hold?this.HOLD_LULL:this.LULL); P.t=L[0]+rnd()*(L[1]-L[0]); if(EARLY&&!hold&&g.t<330)P.t=Math.max(P.t,15+rnd()*5);   /* Gamer rc6 #5: a real 15-20 s breather after every surge */ P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)}) }
+    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=N2.lull(g,hold?this.HOLD_LULL:this.LULL); P.t=L[0]+rnd()*(L[1]-L[0]); if(EARLY&&!hold&&g.t<330)P.t=Math.max(P.t,15+rnd()*5);   /* Gamer rc6 #5: a real 15-20 s breather after every surge */ P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)})  if(LULLCUE&&!hold&&!g.demo&&g.t>45&&P.t>=9&&g.t>=(P.lcT||0)){ P.lcT=g.t+40; P.lcN=(P.lcN|0)+1; const L=['Cease fire! They\'re pulling back.','Lull. Reload, redistribute ammo.','Quiet for now. Wounded to Doc!','They\'re regrouping. Check your ammo.']; if(!g.banner||g.banner.t<=0)g.banner={text:'LULL · REARM · TREAT WOUNDED',t:2.4,col:'#9fe07a'}; try{ gunny(L[(P.lcN-1)%L.length],2.6,1) }catch(e){} } }   /* rc7 #7: the lull is visible - Gunny line + green HUD cue, max once per 40 s, not in the pad hold (?lullcue=0) */
       else if(P.teams.length<maxT&&P.ct>(hold?6:18)&&P.ct-(P.lastSp||0)>N2.gap(g,hold)){ this.spawnTeam(g,hold) } }
     for(const T of P.teams)FT.tick(T,g,dt) },
   spawnTeamAt(g,x,y,a){ for(let k=0;k<8&&riverAt(x,y);k++){ x+=(rnd()-.5)*160; y+=(rnd()-.5)*160 } return this.spawnTeam(g,this.hold(g),[x,y,a]) },
