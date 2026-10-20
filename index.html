@@ -6022,7 +6022,7 @@ function fbPadPos(){ return fbStructPos('pad') }
 function fbOnWounded(m){ for(const fn of FBHOOK.wounded){ try{ fn(m) }catch(e){} } }
 function fbRto(){ try{ const r=RTO.get(G); return r&&r.hp>0?r:null }catch(e){ return null } }   /* the run's RTO (same man who calls air); none / KIA = no medevac bird */
 function fbCpMan(){ const c=fbStructPos('cp'); if(!c)return null; let b=null,bd=60; for(const L of [coy,squad])for(const q of L){ if(!(q.hp>0)||q.state!=='ok'||q.hid||q.hp<=q.mhp*.15)continue; const d=Math.hypot(q.x-c.x,q.y-c.y); if(d<bd){ bd=d; b=q } } return b }
-function fbCaller(){ const r=fbRto(); if(r)return {m:r,who:'RTO',k:'rto'}; const c=fbCpMan(); return c?{m:c,who:'CP',k:'cp'}:null }   /* EP Oct 20: RTO if alive, else any living Marine at the CP radio; neither = "Radio's out!" */
+function fbCaller(){ const r=fbRto(); if(r)return {m:r,who:'RTO',k:'rto'}; const c=fbCpMan(); return c?{m:c,who:'CP',k:'cp'}:null }   /* EP Oct 20: RTO if alive, else any living Marine at the CP radio; neither = "Nobody on the radio!" */
 function fbCrit(){ const a=fbAidPos(), pd=fbPadPos(), near=(q,P)=>P&&Math.hypot(q.x-P.x,q.y-P.y)<70; return coy.filter(q=>q.hp>0&&q.state==='ok'&&!q.hid&&!q.rto&&q.hp<=q.mhp*.15&&(near(q,a)||near(q,pd))) }
 function fbLine(id,who,dur){ const L=fbBanterSlots[id]; if(!L)return; try{ gunny(L.text,dur||Math.min(3.4,1.6+L.text.length*.035),1,who||'RTO') }catch(e){} const f=fbS; if(f)(f.log.lines||(f.log.lines=[])).push([+G.t.toFixed(1),id]) }
 function fbMedevac(dt){ const g=G, f=fbS; if(!g||g.demo)return;
@@ -6030,9 +6030,9 @@ function fbMedevac(dt){ const g=G, f=fbS; if(!g||g.demo)return;
   const mv=f.mv||(f.mv={st:0,t:0}); mv.t+=dt;
   if(mv.st>=3&&!fbH){ mv.st=0; mv.ib=0; mv.out=0 }   /* EP: no per-run cap - re-offer once this bird is gone */
   if(mv.st===0){ if(f.state!=='done'||fbH)return; const c=fbCrit(); if(!c.length)return;   /* one medevac CH-46 in the air at a time; the rest wait */
-    if(!fbCaller()){ if(!mv.out){ mv.out=1; try{ gunny("Radio's out!",2.2,1,'MARINE') }catch(e){} f.log.mvNoRto=+g.t.toFixed(1) } return }   /* no RTO and nobody at the CP radio = no bird */
+    if(!fbCaller()){ if(!mv.out){ mv.out=1; try{ gunny("Nobody on the radio!",2.2,1,'MARINE') }catch(e){} f.log.mvNoRto=+g.t.toFixed(1) } return }   /* no RTO and nobody at the CP radio = no bird */
     mv.st=1; mv.t=0; mv.n=c.length; if(!f.log.mvOffer)f.log.mvOffer=+g.t.toFixed(1); (f.log.mvOffers||(f.log.mvOffers=[])).push(+g.t.toFixed(1)); g.banner={text:'MEDEVAC AVAILABLE · '+c.length+' AT THE AID STATION',t:3,col:'#9be37a'}; Snd.play('radio'); return }
-  if(mv.st===1){ if(mv.t<2.5)return; const r=fbCaller(), pd=fbPadPos(); if(!r){ if(!mv.out){ mv.out=1; try{ gunny("Radio's out!",2.2,1,'MARINE') }catch(e){} f.log.mvNoRto=+g.t.toFixed(1) } return }
+  if(mv.st===1){ if(mv.t<2.5)return; const r=fbCaller(), pd=fbPadPos(); if(!r){ if(!mv.out){ mv.out=1; try{ gunny("Nobody on the radio!",2.2,1,'MARINE') }catch(e){} f.log.mvNoRto=+g.t.toFixed(1) } return }
     if(!pd||!pd.built||fbH)return; if(callFbHeli('medevac',pd.x,pd.y)){ mv.st=2; mv.t=0; mv.who=r.who; if(!f.log.mvCall)f.log.mvCall=+g.t.toFixed(1); (f.log.mvCalls||(f.log.mvCalls=[])).push(+g.t.toFixed(1)); f.log.mvCaller=r.k; const nC=Math.max(1,Math.min(3,fbCrit().length)); f.log.mvCallN=nC; fbLine('MV_CALL_1'+'abc'[nC-1],r.who,3.4) } return }
   if(mv.st===2&&mv.t>4&&!mv.ib){ mv.ib=1; fbLine('MV_INBOUND_1',mv.who||'RTO') } }
 function fbMedevacLoad(h){ const g=G, f=fbS; if(!f)return; const pd=fbPadPos()||h, c=coy.filter(q=>q.hp>0&&q.state==='ok'&&!q.hid&&!q.rto&&q.hp<=q.mhp*.15&&Math.max(Math.abs(q.x-f.x),Math.abs(q.y-f.y))<FBS).sort((a,b)=>Math.hypot(a.x-pd.x,a.y-pd.y)-Math.hypot(b.x-pd.x,b.y-pd.y)).slice(0,3), out=[];   /* litter teams bring the critical men inside the wire to the pad */
