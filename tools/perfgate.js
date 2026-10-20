@@ -33,10 +33,13 @@ const outDir=V('out')||'/workspace/perf/out'; fs.mkdirSync(outDir,{recursive:tru
    await cdp.send('HeapProfiler.collectGarbage');
    const m0=(await cdp.send('Performance.enable'),await cdp.send('Performance.getMetrics')).metrics;
    const r=await pg.evaluate(([N,strike,SH])=>{const M=__ms,X=__perf,T=[],U=[],R=[],cc=window.__cc,ccs={},cv=document.querySelector('canvas'),c2=cv.getContext('2d');let pk=0,fk=0,h0=performance.memory?performance.memory.usedJSHeapSize:0,hmax=0,gcs=0,last=h0;
+     if(/[?&]pgamt=1\b/.test(location.search)&&X.AMT&&X.AMT.ok&&X.AMT.ok()&&!X.AMT.V.length)X.AMT.mk({x:X.G.p.x-40,y:X.G.p.y-120});   /* full stack: park the 3 amtracs (2 LVTP-5 + LVTH-6) by the player */
+     { const m=location.search.match(/[?&]pgsmix=([\d.]+)/); if(m)window.__smixForce=+m[1] }
+     const SHF=+((location.search.match(/[?&]pgshotf=(\d+)/)||[])[1]||100);
      const strikeRun=()=>{const p=X.G.p;const a=0.6,nx=-Math.sin(a),ny=Math.cos(a);for(let i=0;i<3;i++){const off=(i-1)*80;X.strikes.push({wid:X.CURW,cx:p.x+120+nx*off,cy:p.y+ny*off,a,len:360,t:-i*.25,delay:.3,drops:0,dropN:9,dmg:40,rad:70,fdmg:12,flife:6,sfx:true,jx:0,jy:0,show:false})}};
      for(let i=0;i<N;i++){if(M.stateX==='levelup')M.pick(0);if(strike&&i%150===0)strikeRun();
        if(cc&&i===N-1)for(const k in cc)cc[k]=0;
-       const a=performance.now();M.step(1/60);const b=performance.now();M.render();const c=performance.now();c2.getImageData(0,0,1,1);const d=performance.now();if(SH&&strike&&i===100)window.__shot=cv.toDataURL('image/png');
+       const a=performance.now();M.step(1/60);const b=performance.now();M.render();const c=performance.now();c2.getImageData(0,0,1,1);const d=performance.now();if(SH&&strike&&i===SHF)window.__shot=cv.toDataURL('image/png');
        U.push(b-a);R.push(c-b);T.push(d-a);pk=Math.max(pk,X.parts.length);fk=Math.max(fk,X.fires.length);
        if(performance.memory){const h=performance.memory.usedJSHeapSize;if(h<last-2e5)gcs++;last=h;hmax=Math.max(hmax,h)}}
      if(cc)Object.assign(ccs,cc);
