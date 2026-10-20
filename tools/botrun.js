@@ -35,8 +35,7 @@ const SUMMARY=[];
         // EXTRACTION: fetch a dropped signal, hold the LZ after popping, then run for the Huey and stand in its ring
         const ex=G.ex;
         if(ex&&ex.ph<=1&&!G.sig.length&&m.sigs.length&&p.hp>40){ let bs=null,bd=1e18; for(const s of m.sigs){ const d=(s.x-p.x)**2+(s.y-p.y)**2; if(d<bd){bd=d;bs=s} } const d=Math.sqrt(bd)+1; x+=(bs.x-p.x)/d*1.3; y+=(bs.y-p.y)/d*1.3 }
-        else if(ex&&ex.ph===3&&ex.lz){ const dx=ex.lz.x-p.x,dy=ex.lz.y-p.y,d=Math.hypot(dx,dy); if(d>70){ x+=dx/d*1.1; y+=dy/d*1.1 } }
-        else if(ex&&ex.ph===4&&ex.huey){ const dx=ex.huey.x-p.x,dy=ex.huey.y-p.y,d=Math.hypot(dx,dy); if(d>22){ x=x*.25+dx/d*1.2; y=y*.25+dy/d*1.2 } else { return [0,0] } }
+        else if(ex&&ex.pad&&ex.ph>=3&&!ex.evac&&ex.padShown){ const dx=ex.pad.x-p.x,dy=ex.pad.y-p.y,d=Math.hypot(dx,dy); if(d<14)return [0,0]; x=x*.2+dx/d*1.2; y=y*.2+dy/d*1.2 }   // RC3: walk to the marked pad and stand on it (pop smoke, board)
         // radio a firebase when an LZ appears and it's calm; stay near the base
         else if(m.lzS&&G.p.hp>45){ const dx=m.lzS.x-p.x,dy=m.lzS.y-p.y,d=Math.hypot(dx,dy); if(d>40){ x+=dx/d*.9; y+=dy/d*.9 } else { x=0;y=0; return [0,0] } }
         else if(m.fbS&&m.fbS.state!=='lost'&&calm){ const dx=m.fbS.x-p.x,dy=m.fbS.y-p.y,d=Math.hypot(dx,dy); if(d>110){ x+=dx/d*.8; y+=dy/d*.8 } }

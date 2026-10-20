@@ -58,7 +58,7 @@
     rpd_burst:          { cat: 'gun',       prio: 1, gain: 0.215, vary: true, maxDur: 1.8 },   // enemy LMG STAND-IN: FFSL AK-47 edited, 6/8-rd belt bursts, ~730 rpm, lower, farther
     // M79 (Blake's pick 2026-10-07): launch = LeMudCrab M203/M320 STAND-IN, counts toward the 6-gunshot cap, between the
     // M60 and the mortar launch; impact = Kostrava blast, ~5 dB under the mortar impact. No synth fallback (weapon).
-    m79_launch:         { cat: 'gun',       prio: 2, gain: 0.323, vary: true, maxDur: 0.6 },
+    m79_launch:         { cat: 'gun',       prio: 2, gain: 0.305, vary: true, maxDur: 0.6 },
     m79_impact:         { cat: 'explosive', prio: 3, gain: 0.284, vary: true },
     b40_launch:         { cat: 'explosive', prio: 3, gain: 0.114, vary: true },                // STAND-IN; short bang (b40Launch(), lead 1 s)
     whistle:            { cat: 'signal',    prio: 3, gain: 0.333, vary: true },                // standard charge warning (chargeWarning(), lead 2 s)
@@ -108,9 +108,9 @@
     radio_squelch:      { cat: 'radio',     prio: 3, gain: 0.370, vary: true, fallback: 'radioSquelch' },
     // ---- week of 2026-10-14 (build_weapons_oct14.py). Every shot slot is cat 'gun' (6-gunshot cap). Gains calibrated
     // to TARGET_POST in samples/measure_levels.py: rifles under the Huey, bomb and Gunny; bomb_distant stays loudest.
-    bolt_rifle_shot:    { cat: 'gun',       prio: 2, gain: 0.077, vary: true },                // M40 / Springfield (.308 Remington 700)
+    bolt_rifle_shot:    { cat: 'gun',       prio: 2, gain: 0.073, vary: true },                // M40 / Springfield (.308 Remington 700)
     bolt_rifle_bolt:    { cat: 'mech',      prio: 1, gain: 0.662, vary: true },                // bolt cycle after the shot
-    shotgun_shot:       { cat: 'gun',       prio: 2, gain: 0.298, vary: true },                // Ithaca 37 STAND-IN (Mossberg 500)
+    shotgun_shot:       { cat: 'gun',       prio: 2, gain: 0.294, vary: true },                // Ithaca 37 STAND-IN (Mossberg 500)
     shotgun_rack:       { cat: 'mech',      prio: 1, gain: 0.386, vary: true },
     cannon:             { cat: 'gun',       prio: 3, gain: 0.397, vary: true },                // field guns (21-gun salute); tank90 / t54 / howitzer
     cannon_76mm:        { cat: 'gun',       prio: 3, gain: 0.11, vary: true },                // ZiS-3 76 mm; pt76
@@ -128,7 +128,7 @@
     car15_burst:        { cat: 'gun',       prio: 1, gain: 0.282, vary: true, maxDur: 1.0, burstOf: 'car15_single', rate: 13.3, rounds: [3, 5], maxRounds: 5 },  // ~800 rpm
     m79_sawed:          { cat: 'gun',       prio: 2, gain: 0.123, vary: true, maxDur: 0.4 },       // sawed-off M79 launch (hit = m79_impact)
     smg_m45_burst:      { cat: 'gun',       prio: 1, gain: 0.539, vary: true, maxDur: 1.2 },       // Swedish K stand-in (Sten 9 mm), 600 rpm
-    pistol22_suppressed:{ cat: 'gun',       prio: 1, gain: 0.21, vary: true, maxDur: 0.4 },       // STAND-IN suppressed .22 (muffled .22LR + action)
+    pistol22_suppressed:{ cat: 'gun',       prio: 1, gain: 0.229, vary: true, maxDur: 0.4 },       // STAND-IN suppressed .22 (muffled .22LR + action)
     bunker_enter:       { cat: 'foley',     prio: 1, gain: 0.393, vary: true },
     bunker_exit:        { cat: 'foley',     prio: 1, gain: 0.35, vary: true },
     pbr_runup:          { cat: 'engine',    prio: 4, gain: 0.377 },                                // STAND-IN for the Jacuzzi water-jet
