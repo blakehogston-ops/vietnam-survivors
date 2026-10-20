@@ -72,7 +72,7 @@
       //      no synth fallback. All guns share the 6-gunshot cap. NOT CLEARED yet (auditor + ear check).
       // bolt rifle (Country's M40 / Springfield): gezortenplotz Remington 700 .308 (CC BY 3.0, credit); alt bolt AugustSandberg Mauser (CC0)
       bolt_rifle_shot:    { group: 'player', batch: 1, files: ['bolt_rifle_shot_1', 'bolt_rifle_shot_2'] },
-      bolt_rifle_bolt:    { group: 'foley', batch: 1, files: ['bolt_rifle_bolt_1'], alt: ['bolt_rifle_bolt_alt_mauser'] },
+      bolt_rifle_bolt:    { group: 'player', batch: 1, files: ['bolt_rifle_bolt_1'], alt: ['bolt_rifle_bolt_alt_mauser'] },
       // shotgun (Ithaca 37 STAND-IN): AnthonyChan0 Mossberg 500 shot + pump (CC0)
       shotgun_shot:       { group: 'player', batch: 1, files: ['shotgun_shot_1', 'shotgun_shot_2'] },
       shotgun_rack:       { group: 'player', batch: 1, files: ['shotgun_rack_1'] },
@@ -122,10 +122,10 @@
       sting_evac:         { group: 'sting', batch: 3, files: ['sting_evac_1'] },   // evac fallback (music missing): acoustic C major. PENDING LEGAL
       sting_over:         { group: 'sting', batch: 3, files: ['sting_over_1'] },   // game-over fallback (music missing): acoustic chords -2 st. PENDING LEGAL
       // 2026-10-20 (samples/build_radio_oct20.py): RTO-down sting, radio beds for Blake's voice lines, battle dressing. New sources PENDING LEGAL.
-      rto_down_sting:     { disabled: true, /* RC4: waiting on the pdsounds listening check */ group: 'sting', batch: 3, files: ['rto_down_sting_1'] },   // RTO killed: VSCO 2 CE low brass D minor (CC0) + pdsounds static cut to dead air + LukaCafuka key/release. PENDING LEGAL
+      rto_down_sting:     { group: 'sting', batch: 3, files: ['rto_down_sting_1'] },   // RTO killed: VSCO 2 CE low brass D minor (CC0) + pdsounds static cut to dead air + LukaCafuka key/release. PENDING LEGAL
       radio_key_in:       { group: 'radio', batch: 2, files: ['radio_key_in_1'] },     // faint key click + squelch open/hiss: LukaCafuka + pdsounds STE-011 (cleared sources)
       radio_key_out:      { group: 'radio', batch: 2, files: ['radio_key_out_1'] },    // release burst + FM static rush, then silence (no roger beep): LukaCafuka + pdsounds STE-011 (cleared)
-      radio_static_bed_loop: { disabled: true, /* RC4: waiting on the pdsounds listening check */ group: 'radio', batch: 2, files: ['radio_static_bed_loop_1'] },   // PRC-25-style hiss bed, 6.0 s seamless loop: pdsounds STE-011 (PwC; broadcast-bleed ear check open)
+      radio_static_bed_loop: { group: 'radio', batch: 2, files: ['radio_static_bed_loop_1'] },   // PRC-25-style hiss bed, 6.0 s seamless loop: pdsounds STE-011 (PwC; broadcast-bleed ear check open)
       bandage_dressing:   { group: 'foley', batch: 2, files: ['bandage_dressing_1', 'bandage_dressing_2', 'bandage_dressing_3'] },   // wrapper tear + cloth rip + press: Luckius / OwlishMedia (OGA, CC0). PENDING LEGAL
       // claymore: modusmogulus crack + qubodup snap + Kostrava (all CC0; areniporgen #693421 FAILED the Oct 14 audit)
       explosion_claymore: { group: 'specials', batch: 1, files: ['explosion_claymore_1'] },
@@ -161,7 +161,17 @@
       rain_heavy:         { group: 'ambience', batch: 3, files: ['rain_heavy_1'] },        // LG #462774 (CC BY 4.0, credit) torrential rain, Thailand; 32.0 s loop
       rain_roof_loop:     { group: 'ambience', batch: 3, files: ['rain_roof_loop_1'] },    // Sassaby #771981 (CC0) medium rain on a tin roof; 30.0 s loop (bunker interiors)
       thunder_distant:    { group: 'ambience', batch: 3, files: ['thunder_distant_1', 'thunder_distant_2', 'thunder_distant_3'] },  // TRP #572443 x2, richwise #361401 (CC0)
-      thunder_near:       { group: 'ambience', batch: 3, files: ['thunder_near_1', 'thunder_near_2'] }  // TRP #574412, #567945 (CC0)
+      thunder_near:       { group: 'ambience', batch: 3, files: ['thunder_near_1', 'thunder_near_2'] },  // TRP #574412, #567945 (CC0)
+      // ---- rc8 sourcing 2026-10-20 (samples/build_rc8_oct20.py). Real field recordings, NO synth. o1 / lvtp5 / firebase: Legal PASS 2026-10-20 (low risk); tokay: Legal PASS 2026-10-20. NOBODY HAS LISTENED to any of them.
+      //      Levels (rc8a convention): slot gain 0.5 puts post-gain RMS at ruling target minus the game's MIX.DB bus offset.
+      // O-1 Bird Dog FAC marking-run pass: STAND-IN (generic propeller light plane, type unknown, NOT an O-1). ezwa / pdsounds (PD) via Wikimedia Commons. specials -> -31 after the -7 bus
+      o1_birddog_flyby:   { group: 'specials', batch: 2, files: ['o1_birddog_flyby_1'] },
+      // amtrac engine + tracks loop, 12 s: real USMC AAV-7 (LVTP-7 family; stand-in for the LVTP-5), USMC/DVIDS b-roll (PD, US gov) via Commons. ambience bus -10 -> -40
+      lvtp5_engine_loop:  { group: 'ambience', batch: 2, files: ['lvtp5_engine_loop_1'] },
+      // firebase night bed, 40 s loop (rev 2: 264-306 s, band-scanned for howler / toucan calls): Anon6116 'Rainforest by Night' (CC0), Peten, Guatemala (REGION STAND-IN for Quang Tri). ambience bus -10 -> -43. Game: MIX.AMB 'jungle_loop' -> this slot
+      firebase_amb_loop:  { group: 'ambience', batch: 2, files: ['firebase_amb_loop_1'] },
+      // tokay gecko calls (real, northern Laos), Richard Ling via Commons (PD). Legal PASS 2026-10-20. One-shot, trigger sparingly: once every 1-2 min, night / calm at the firebase. ambience bus -10 -> -40 (gated RMS)
+      tokay_gecko:        { group: 'ambience', batch: 2, files: ['tokay_gecko_1', 'tokay_gecko_2', 'tokay_gecko_3'] }
     },
     // ---- music slots (2026-10-14). Real recordings only. Loudness matched to combat_loop (-13.6 LUFS integrated, within
     // 0.7 dB), true peak <= -1.1 dBFS in both formats. Built by music/build_music.py; report in music/build/music_report.json.
@@ -193,12 +203,19 @@
         // menu_theme (2026-10-20): Semper Fidelis (Sousa, 1888), United States Marine Band 2016, Wikimedia Commons, U.S. gov work, PUBLIC DOMAIN.
         // Replaces Zapatista (Content ID HIGH; music_menu_theme.* kept unused, DO NOT SHIP). One repeated strain 56.00-112.51 s, -14.0 LUFS.
         menu_theme: { file: 'music_menu_march', group: 'music', loop: true, loopStart: 0, loopEnd: 56.510, m4aOffsetSec: 0.046440, gain: 1 },
+        scene_opening: { file: 'music_easter_valkyries', group: 'music', loop: false, scene: 'opening', dur: 76.000, m4aOffsetSec: 0.046440, gain: 1, returnTo: 'combat', returnXf: 2.5 },   // Ride of the Valkyries, Edison 1921 (PD) - opening insertion ONLY
         menu_intro: { file: 'music_menu_intro', group: 'music', loop: false, sting: true, dur: 14.500, finalHitSec: 12.150, m4aOffsetSec: 0.046440, gain: 1, next: 'menu_theme' }  // When Johnny Comes Marching Home, U.S. Navy Band Brass Quartet (Wikimedia Commons, U.S. gov work, PD). playMenu() plays it, then the loop
       },
       combatTiers: ['combat', 'combat_2', 'combat_3', 'combat_4', 'combat_5'],   // playMusic('combat') plays the current tier
       // combat_4_alt: CANDIDATE only (Rock Oco, Ə, CC BY 4.0; human-made). NOT a track: Blake keeps combat_4 for now. To swap: point combat_4.file at
       // 'music_combat_4_alt' with loopEnd 36.540, bpm 158, phraseSec 9.135 (loop/4).
       alternates: { combat_4_alt: { file: 'music_combat_4_alt', loop: true, loopStart: 0, loopEnd: 36.540, m4aOffsetSec: 0.046440, gain: 1, intensity: true, tier: 4, bpm: 158, phraseSec: 9.135 } },
+      // scenes (2026-10-20, Blake's override): the OPENING insertion (first CH-46 drop at game start, with the door guns / gunships) plays
+      // "Ride of the Valkyries" (Wagner), American Symphony Orchestra, Edison Diamond Disc 80638-R (rec./rel. Dec 1921), Wikimedia Commons
+      // (NPS Edison NHS collection). US PD (published before 1923). Period crackle kept. 76.0 s excerpt (source 18.0-94.0 s), 2 s fade in /
+      // 5 s fade out, NO loop, -14.0 LUFS. Legal: PASS with conditions (no Apocalypse Now material; courtesy credit; no 'authentic period' claim).
+      // SamplePlayer.musicEvent('opening_in') plays it; it is never a combat tier and never plays on reinforcement drop-offs. (Was unlockables.valkyries.)
+      scenes: { opening: { track: 'scene_opening', fade: 1.5 } },
       aliases: { dedication: 'win' },   // the Hogston dedication uses the same Hymn file
       doNotShip: ['music_menu_asian', 'music_menu_theme']   // cut (Vet) / Content ID HIGH (Zapatista): files kept, never loaded. music_combat_5 is now Ə (La Menteuse file overwritten; source kept in research/)
     },

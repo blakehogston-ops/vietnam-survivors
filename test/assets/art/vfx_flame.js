@@ -1,12 +1,12 @@
-/* flame.js — Artist Helper: Quang Tri 1968 flame VFX (M2-2 flamethrower, M67A2 "Zippo" flame tank).
+/* flame.js — Artist Helper: Quang Tri 1968 flame VFX (M2-2 flamethrower, M67A2 flame tank).
  * Thickened-fuel (napalm-style) stream: arcing rod of burning fuel -> breaks into rolling fireballs -> splash + pooled fire,
  * rolling orange-lit -> grey-black smoke (value floor #2f2a22 warm char, never pure black), heat shimmer, lingering burn patches, scorch decals.
  * Palette matches vfx/explosions.js (W H Y O F R r / S s m n). Pixel art: sprites built ONCE at first use (24 small canvases,
  * ~49 KB RGBA total), drawn with imageSmoothingEnabled=false. No per-frame canvases, no per-frame allocation.
  *
  * VFX_FLAME.drawFlame(ctx, {x0,y0,x1,y1,t,level,scale,kind,shimmer})  -> {x,y} impact point (reused object; copy if kept)
- *     x0,y0 nozzle, x1,y1 aim point (screen px; M2 ~260-320 px, Zippo ~480-600 px), t seconds (game clock), level 1-5,
- *     scale = size multiplier (default 1), kind 'm2'|'zippo', shimmer: default 'cheap' at level>=3 (warm wavering haze bands),
+ *     x0,y0 nozzle, x1,y1 aim point (screen px; M2 ~260-320 px, flame tank ~480-600 px), t seconds (game clock), level 1-5,
+ *     scale = size multiplier (default 1), kind 'm2'|'heavy', shimmer: default 'cheap' at level>=3 (warm wavering haze bands),
  *     false = off, 'real' = displaces slices of ctx.canvas onto itself (identity transform only; costly on software canvases).
  * Burning ground (pooled, 96 slots, no allocation after init):
  *     VFX_FLAME.spawnPatch(x,y,level,life?) -> slot or null     VFX_FLAME.updatePatches(dt)
@@ -95,7 +95,7 @@
     { w: 1.10, hot: 0.6, glow: 1.00, smoke: 1.00, splash: 1.15, n: 1.12 },
     { w: 1.28, hot: 0.85, glow: 1.20, smoke: 1.20, splash: 1.35, n: 1.25 }];
   var KIND = { m2: { thick: 9, n: 30, smoke: 22, arc: 0.16, flow: 2.4, splash: 7 },
-               zippo: { thick: 15, n: 46, smoke: 36, arc: 0.10, flow: 1.7, splash: 11 } };
+               heavy: { thick: 15, n: 46, smoke: 36, arc: 0.10, flow: 1.7, splash: 11 } };
   var OUT = { x: 0, y: 0 };
   function blit(ctx, img, x, y, sz) { var s = Math.round(sz); if (s < 2) s = 2; ctx.drawImage(img, Math.round(x - s / 2), Math.round(y - s / 2), s, s); }
   function drawFlame(ctx, o) {
@@ -121,8 +121,8 @@
     var i, j, u, w, f, n;
     // ground glow under rod + splash
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.min(1, 0.5 * L.glow);
-    for (i = 1; i <= 4; i++) { u = i / 4; blit(ctx, sp.glow, x0 + ex * u, y0 + ey * u, (40 + 50 * u) * sc * L.w * (K === KIND.zippo ? 1.4 : 1)); }
-    ctx.globalAlpha = Math.min(1, 0.8 * L.glow); blit(ctx, sp.glow, o.x1, o.y1, 150 * sc * L.splash * (K === KIND.zippo ? 1.35 : 1));
+    for (i = 1; i <= 4; i++) { u = i / 4; blit(ctx, sp.glow, x0 + ex * u, y0 + ey * u, (40 + 50 * u) * sc * L.w * (K === KIND.heavy ? 1.4 : 1)); }
+    ctx.globalAlpha = Math.min(1, 0.8 * L.glow); blit(ctx, sp.glow, o.x1, o.y1, 150 * sc * L.splash * (K === KIND.heavy ? 1.35 : 1));
     ctx.restore();
     // smoke: rises off the rod's back half and the splash, fire-lit underside while young, value floor n
     n = Math.round(K.smoke * L.smoke);
@@ -130,7 +130,7 @@
       var h1 = hash(seed + j * 17), h2 = hash(seed + j * 31 + 5), p = (h1 + t * (0.32 + h2 * 0.15)) % 1;
       u = 0.38 + 0.62 * Math.pow(hash(seed + j * 53), 0.6);
       var bx = px(u, 0) + (h2 - 0.5) * th * 2, by = py(u, 0), rise = (70 + 130 * h2) * sc * (0.8 + L.smoke * 0.3) * p;
-      var sz = (22 + 64 * p) * sc * (0.75 + 0.35 * L.w) * (K === KIND.zippo ? 1.25 : 1);
+      var sz = (22 + 64 * p) * sc * (0.75 + 0.35 * L.w) * (K === KIND.heavy ? 1.25 : 1);
       ctx.globalAlpha = (p < 0.12 ? p / 0.12 : 1 - (p - 0.12) / 0.88) * (0.6 + 0.3 * L.smoke > 0.95 ? 0.95 : 0.6 + 0.3 * L.smoke);
       blit(ctx, (p < 0.42 ? sp.smokeLit : sp.smoke)[j % 3], bx + Math.sin(p * 4 + j) * 10 * sc + p * 18 * sc, by - rise - th, sz);
     }
@@ -150,11 +150,11 @@
     // splash: fuel slams the ground, bounces into a crown of fire + rolling ball
     n = Math.round(K.splash * L.splash);
     for (i = 0; i < n; i++) {
-      var a = hash(seed + i * 13) * 6.283, ph = (hash(seed + i * 19) + t * 2.6) % 1, r = (12 + 34 * ph) * sc * L.splash * (K === KIND.zippo ? 1.3 : 1);
+      var a = hash(seed + i * 13) * 6.283, ph = (hash(seed + i * 19) + t * 2.6) % 1, r = (12 + 34 * ph) * sc * L.splash * (K === KIND.heavy ? 1.3 : 1);
       var hx = o.x1 + Math.cos(a) * r * 1.3, hy = o.y1 + Math.sin(a) * r * 0.55 - Math.sin(ph * 3.14) * 22 * sc * L.splash;
       blit(ctx, sp.fire[Math.max(0, Math.min(4, Math.round(1 + ph * 3 - L.hot))) * 2 + (i & 1)], hx, hy, th * (1.8 + 1.2 * (1 - ph)));
     }
-    for (i = 0; i < 5; i++) { var tf = sp.tongue[(i + ((t * 12) | 0)) % 3], tw = (13 + i % 2 * 5) * sc * L.splash * (K === KIND.zippo ? 1.3 : 1), tx = o.x1 + (i - 2) * tw * 0.75;
+    for (i = 0; i < 5; i++) { var tf = sp.tongue[(i + ((t * 12) | 0)) % 3], tw = (13 + i % 2 * 5) * sc * L.splash * (K === KIND.heavy ? 1.3 : 1), tx = o.x1 + (i - 2) * tw * 0.75;
       ctx.drawImage(tf, Math.round(tx - tw / 2), Math.round(o.y1 - tw * 2 + 4 * sc), Math.round(tw), Math.round(tw * 2)); }
     blit(ctx, sp.fire[2 + (((t * 8) | 0) & 1)], o.x1, o.y1 - 8 * sc, th * 2.6 * L.splash);
     // embers thrown off
@@ -203,7 +203,7 @@
     }
     ctx.imageSmoothingEnabled = smooth;
   }
-  function emit(st, o, dt) { st.acc = (st.acc || 0) + dt; var every = o.kind === 'zippo' ? 0.16 : 0.24; var R = 26 * ((o.level || 1) * 0.15 + 0.6);
+  function emit(st, o, dt) { st.acc = (st.acc || 0) + dt; var every = o.kind === 'heavy' ? 0.16 : 0.24; var R = 26 * ((o.level || 1) * 0.15 + 0.6);
     while (st.acc >= every) { st.acc -= every; spawnPatch(o.x1 + (Math.random() - 0.5) * R * 2, o.y1 + (Math.random() - 0.5) * R, o.level, 0); } }
   function drawScorch(ctx, x, y, size, alpha, v) { var sp = S(), w = size || 64; ctx.globalAlpha = alpha == null ? 0.9 : alpha;
     ctx.drawImage(sp.scorch[(v || 0) % 3], Math.round(x - w / 2), Math.round(y - w * 0.28), Math.round(w), Math.round(w * 0.5625)); ctx.globalAlpha = 1; }

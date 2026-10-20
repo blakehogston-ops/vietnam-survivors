@@ -154,7 +154,7 @@
 
   /* ---------------- pixel grids -> baked images ---------------- */
   // palette indices: 0 empty
-  var PAL = [null, '#2a2418', '#3a3022', '#4c3e2a', '#62503a', '#7a6648', '#8e7a58', '#1a1c12', '#b08a3a', '#e0c070', '#6a4a20', '#8a3a28', '#c05a40', '#5a5a52', '#82827a', '#3e2a16', '#6e4a26', '#a07040', '#4a4630', '#665e40', '#f6e6a8', '#2e2216', '#55432c', '#735c3c', '#93795a', '#a08a6a', '#b0623e', '#8e4a2e', '#6c3622', '#46241a', '#7a5a34', '#5c4226', '#3c2a18', '#26190f'];
+  var PAL = [null, '#2a2418', '#3a3022', '#4c3e2a', '#62503a', '#7a6648', '#8e7a58', '#1a1c12', '#b08a3a', '#e0c070', '#6a4a20', '#8a3a28', '#c05a40', '#5a5a52', '#82827a', '#3e2a16', '#6e4a26', '#a07040', '#4a4630', '#665e40', '#f6e6a8', '#2e2216', '#55432c', '#735c3c', '#93795a', '#a08a6a', '#b0623e', '#8e4a2e', '#6c3622', '#46241a', '#7a5a34', '#5c4226', '#3c2a18', '#26190f', '#d6dad8', '#b4b9b8', '#8c9291', '#62686a'];
   var DEC = {   // decal kinds -> [w, h] art px, builder
     crater_s: [18, 14], crater_m: [28, 22], crater_l: [42, 32], crater_xl: [104, 78], crater_xl7: [73, 55], crater_xl13: [135, 101], scorch: [34, 26], scorch_napalm: [72, 26],
     brass_556: [4, 2], brass_762: [5, 2], brass_50: [7, 3], link_762: [3, 2], hull_12g: [4, 2],
@@ -186,8 +186,8 @@
       put(w - 1, 0, 10); put(w - 1, h - 1, 10); if (kind === 'brass_556' || kind === 'brass_762') put(0, h - 1, 9); }
     else if (kind === 'canister') {   // BLU-27 style finless aluminium tank: rounded nose, lit top row, dark belly, filler band
       for (var cxx = 0; cxx < w; cxx++) for (var cyy = 0; cyy < h; cyy++) { var endc = (cxx === 0 || cxx === w - 1) && (cyy === 0 || cyy === h - 1); if (endc) continue;
-        var nose = cxx < 2 || cxx > w - 3, c = cyy === 0 ? 14 : cyy === 1 ? (nose ? 14 : 20) : cyy < h - 2 ? 13 : cyy === h - 2 ? 18 : 7; if (cxx === 8 || cxx === 17) c = cyy < 2 ? 13 : 7; put(cxx, cyy, c); }
-      put(1, 0, 7); put(w - 2, 0, 7); put(1, h - 1, 7); put(w - 2, h - 1, 7); }
+        var nose = cxx < 2 || cxx > w - 3, c = cyy === 0 ? 35 : cyy === 1 ? (nose ? 35 : 34) : cyy < h - 2 ? 36 : 37; put(cxx, cyy, c); }   // vet E3: bare unpainted aluminium, no bands/markings
+      put(1, 0, 37); put(w - 2, 0, 37); put(1, h - 1, 37); put(w - 2, h - 1, 37); }
     else if (kind === 'link_762') { put(0, 0, 13); put(1, 0, 14); put(2, 1, 13); put(0, 1, 13); }
     else if (kind === 'hull_12g') { put(0, 0, 9); put(0, 1, 8); put(1, 0, 12); put(2, 0, 12); put(3, 0, 12); put(1, 1, 11); put(2, 1, 11); put(3, 1, 11); }
     else if (kind.indexOf('bit_') === 0) {
@@ -286,11 +286,67 @@
     SIMG[key] = cv; IMGN++; return cv;
   }
   // soft dust/smoke puff (dithered-free radial), bucketed radii so the cache stays tiny
-  var PB = [2, 3, 5, 7, 10, 14, 19, 26], PSH = [[58, 30, 20], [128, 58, 34], [170, 92, 58], [70, 64, 58], [214, 96, 26], [255, 214, 150], [22, 18, 14], [112, 38, 16], [96, 82, 66], [178, 66, 18]];   // dark wet laterite, rust-red soil, red dust, smoke grey, fire orange, fire core, oily black   // dark soil, soil, dry dust, smoke grey
+  var PB = [2, 3, 5, 7, 10, 14, 19, 26], PSH = [[58, 30, 20], [128, 58, 34], [170, 92, 58], [70, 64, 58], [214, 96, 26], [255, 214, 150], [22, 18, 14], [112, 38, 16], [96, 82, 66], [178, 66, 18], [255, 233, 160], [255, 122, 26], [138, 42, 8], [255, 140, 40]];   // 10 hot core #ffe9a0, 11 napalm body #ff7a1a, 12 red-brown edge #8a2a08, 13 ground glow (additive)   // dark wet laterite, rust-red soil, red dust, smoke grey, fire orange, fire core, oily black   // dark soil, soil, dry dust, smoke grey
   function puffImg(b, shd, sc) { var key = 'p' + b + 's' + shd + '@' + sc; if (SIMG[key]) return SIMG[key]; var R0 = PB[b] * sc, cv = canvas(R0 * 2 + 2, R0 * 2 + 2), x = cv.getContext('2d'), C = PSH[shd], r = rng(b * 31 + shd * 7 + sc);
     for (var i = 0; i < 4; i++) blob(x, R0 + 1 + (r() - 0.5) * R0 * 0.5, R0 + 1 + (r() - 0.5) * R0 * 0.5, R0 * (0.55 + r() * 0.35), R0 * (0.55 + r() * 0.35), [[0, 'rgba(' + C + ',0.85)'], [0.6, 'rgba(' + C + ',0.5)'], [1, 'rgba(' + C + ',0)']]);
     blob(x, R0 + 1 - R0 * 0.2, R0 + 1 - R0 * 0.25, R0 * 0.45, R0 * 0.4, [[0, 'rgba(' + [C[0] + 40, C[1] + 36, C[2] + 30] + ',0.25)'], [1, 'rgba(' + C + ',0)']]);   // sun side
     SIMG[key] = cv; IMGN++; return cv; }
+  /* napalm flame sheet textures (art pass): soft licking flame tongues + ground fire bed + oily smoke, baked once per frame/heat/scale.
+     Napalm fire puffs keep their approved positions, timing and sizes; only their look changes (no more round hard dots). */
+  var NT_W = 40, NT_H = 52, NT_FR = 8;
+  function napNoise(seed) { var r = rng(seed), G = []; for (var i = 0; i < 289; i++) G.push(r()); return function (x, y) { var xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi; fx = fx * fx * (3 - 2 * fx); fy = fy * fy * (3 - 2 * fy);
+    var g = function (a, b) { return G[(((a % 17) + 17) % 17) * 17 + (((b % 17) + 17) % 17)]; }; return (g(xi, yi) * (1 - fx) + g(xi + 1, yi) * fx) * (1 - fy) + (g(xi, yi + 1) * (1 - fx) + g(xi + 1, yi + 1) * fx) * fy; }; }
+  var NZ1 = null, NZ2 = null;
+  function fbm(n, x, y) { return n(x, y) * 0.5 + n(x * 2.03, y * 2.03) * 0.3 + n(x * 4.1, y * 4.1) * 0.2; }
+  // heat ramp: transparent -> dark red-brown -> deep red-orange -> orange -> yellow -> white-yellow core
+  var RAMP = [[0.0, [60, 18, 8]], [0.22, [96, 26, 8]], [0.4, [168, 48, 12]], [0.56, [232, 106, 24]], [0.72, [255, 168, 56]], [0.86, [255, 226, 140]], [1.0, [255, 250, 228]]];
+  function ramp(T) { for (var i = 1; i < RAMP.length; i++) if (T <= RAMP[i][0]) { var a = RAMP[i - 1], b = RAMP[i], k = (T - a[0]) / (b[0] - a[0]); return [a[1][0] + (b[1][0] - a[1][0]) * k, a[1][1] + (b[1][1] - a[1][1]) * k, a[1][2] + (b[1][2] - a[1][2]) * k]; } return RAMP[RAMP.length - 1][1]; }
+  function sstep(a, b, v) { v = Math.max(0, Math.min(1, (v - a) / (b - a))); return v * v * (3 - 2 * v); }
+  // soft turbulent flame patch: fbm noise scrolled upward per frame (rolling, licking tongues at the top edge), heat-ramped, soft alpha edges
+  function napTongue(fr, heat, sc) { sc = 1; var key = 'nt' + fr + 'h' + heat;   // baked once at 1x (soft texture; scaled up smoothly at draw)
+    if (SIMG[key]) return SIMG[key];
+    var W = NT_W * sc, H = NT_H * sc, cv = canvas(W, H), x = cv.getContext('2d');
+    if (!x.createImageData) { blob(x, W / 2, H * 0.6, W * 0.4, H * 0.35, [[0, 'rgba(255,170,60,0.9)'], [1, 'rgba(160,40,10,0)']]); SIMG[key] = cv; IMGN++; return cv; }
+    if (!NZ1) { NZ1 = napNoise(1337); NZ2 = napNoise(4711); }
+    var id = x.createImageData(W, H), d = id.data, ph = fr / NT_FR, hb = [0.86, 1.08, 1.25][heat], off = heat * 5.3;
+    for (var py = 0; py < H; py++) for (var px = 0; px < W; px++) { var u = (px / W - 0.5) * 2, v = py / H, nx = px / sc * 0.16 + off, ny = py / sc * 0.13 + ph * 2.6;
+      var n = fbm(NZ1, nx, ny), n2 = fbm(NZ2, nx * 0.7 + 3, ny * 0.8), up = Math.max(0, 0.66 - v);
+      var uu = u + (n2 - 0.5) * 0.9 * (up + 0.1), vv = v - 0.66, el = vv < 0 ? vv / (0.66 + (n2 - 0.5) * 0.7) : vv / 0.3, rr = Math.sqrt(uu * uu * (1 + up * 3.2) + el * el);
+      var fall = 1 - sstep(0.4, 1.0, rr), D = fall * (0.64 + (n - 0.5) * (1.1 + up * 1.4)); if (D <= 0.05) continue;
+      var T = Math.min(1, D * hb * (0.72 + 0.5 * v)), al = sstep(0.06, 0.34, D) * (0.55 + 0.45 * sstep(0.1, 0.5, T)), c = ramp(T), o = (py * W + px) * 4;
+      d[o] = c[0]; d[o + 1] = c[1]; d[o + 2] = c[2]; d[o + 3] = Math.round(255 * Math.min(1, al)); }
+    x.putImageData(id, 0, 0); SIMG[key] = cv; IMGN++; return cv; }
+  function napBed(v, sc) { sc = 1; var key = 'nb' + v; if (SIMG[key]) return SIMG[key];   // wide, low, soft ground fire bed: fills gaps so the sheet is continuous
+    var W = 48 * sc, H = 20 * sc, cv = canvas(W, H), x = cv.getContext('2d'), r = rng(911 + v * 37 + sc), i;
+    blob(x, W / 2, H * 0.55, W * 0.48, H * 0.42, [[0, 'rgba(206,74,16,0.85)'], [0.6, 'rgba(150,40,10,0.55)'], [1, 'rgba(90,22,8,0)']]);
+    for (i = 0; i < 9; i++) blob(x, W * (0.15 + r() * 0.7), H * (0.4 + r() * 0.3), W * (0.06 + r() * 0.09), H * (0.14 + r() * 0.12), [[0, 'rgba(255,' + (150 + (r() * 60 | 0)) + ',60,0.75)'], [1, 'rgba(240,110,30,0)']]);
+    for (i = 0; i < 5; i++) blob(x, W * (0.12 + r() * 0.76), H * (0.3 + r() * 0.5), W * (0.05 + r() * 0.06), H * (0.1 + r() * 0.1), [[0, 'rgba(70,20,8,0.6)'], [1, 'rgba(70,20,8,0)']]);
+    SIMG[key] = cv; IMGN++; return cv; }
+  function napSmoke(b, v, sc) { sc = 1; var key = 'ns' + b + 'v' + v; if (SIMG[key]) return SIMG[key];   // dense black oily smoke: soft turbulent billow, no hard round edge
+    var R0 = PB[b] * sc, S2 = R0 * 2 + 2, cv = canvas(S2, S2), x = cv.getContext('2d');
+    if (!x.createImageData) { blob(x, R0 + 1, R0 + 1, R0, R0, [[0, 'rgba(16,13,11,0.8)'], [1, 'rgba(16,13,11,0)']]); SIMG[key] = cv; IMGN++; return cv; }
+    if (!NZ1) { NZ1 = napNoise(1337); NZ2 = napNoise(4711); }
+    var id = x.createImageData(S2, S2), d = id.data, f = 2.6 / R0 * sc, o0 = v * 7.7 + b * 3.1;
+    for (var py = 0; py < S2; py++) for (var px = 0; px < S2; px++) { var u = (px - R0 - 1) / R0, w = (py - R0 - 1) / R0, n = fbm(NZ1, px / sc * f * 1.5 + o0, py / sc * f * 1.5 + o0), rr = Math.sqrt(u * u + w * w) + (n - 0.5) * 0.55;
+      var al = (1 - sstep(0.25, 1.0, rr)) * (0.55 + n * 0.6); if (al <= 0.01) continue; var lit = Math.max(0, -u - w) * 0.5 * (1 - rr), o = (py * S2 + px) * 4;
+      d[o] = 14 + lit * 60; d[o + 1] = 12 + lit * 46; d[o + 2] = 10 + lit * 34; d[o + 3] = Math.round(255 * Math.min(0.92, al)); }
+    x.putImageData(id, 0, 0); SIMG[key] = cv; IMGN++; return cv; }
+  var NAP_FIRE = { 9: 1, 10: 2, 11: 1, 12: 0 };   // puff shade -> tongue heat (2 hot core, 1 body, 0 red-brown edge)
+  function drawNapFire(ctx, SX, SY, sc) {   // bed pass then tongue pass, all napalm fire puffs
+    var pu, k, al, i;
+    ctx.imageSmoothingEnabled = true;
+    for (i = 0; i < UM; i++) { pu = U[i]; if (!pu.on || pu.t < 0 || !pu.nap || NAP_FIRE[pu.shd] == null) continue; k = pu.t / pu.life;
+      al = pu.a * Math.min(1, pu.t * 30) * Math.pow(1 - k, 0.8); var bim = napBed((i & 3), sc), bw = pu.r * 3.2 * sc, bh = pu.r * 1.3 * sc;
+      ctx.globalAlpha = al * 0.8; ctx.drawImage(bim, SX(pu.x) - bw / 2, SY(pu.y) - bh * 0.6, bw, bh); }
+    for (i = 0; i < UM; i++) { pu = U[i]; if (!pu.on || pu.t < 0 || !pu.nap || NAP_FIRE[pu.shd] == null) continue; k = pu.t / pu.life;
+      al = pu.a * Math.min(1, pu.t * 30) * Math.pow(1 - k, 0.8); var heat = NAP_FIRE[pu.shd]; if (heat === 1 && k > 0.55) heat = 0;   // cools as it ages
+      var fr = ((Math.floor(pu.t * 14 + pu.ph * 7) % NT_FR) + NT_FR) % NT_FR, tim = napTongue(fr, heat, sc), tw = pu.r * 2.4 * sc * (1 + 0.06 * Math.sin(pu.t * 11 + pu.ph)), th = pu.r * (2.7 + 0.5 * Math.min(1, pu.t * 2.5)) * sc * (1 + 0.08 * Math.sin(pu.t * 17 + pu.ph * 3));
+      var bx = SX(pu.x), by = SY(pu.y - pu.z * 0.5) + th * 0.36;
+      ctx.globalAlpha = Math.min(1, al * 1.05);
+      if (pu.fl) { ctx.save(); ctx.translate(bx, 0); ctx.scale(-1, 1); ctx.drawImage(tim, -tw / 2, by - th, tw, th); ctx.restore(); } else ctx.drawImage(tim, bx - tw / 2, by - th, tw, th);
+      if (heat === 2) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = al * 0.18; ctx.drawImage(tim, bx - tw / 2, by - th, tw, th); ctx.globalCompositeOperation = 'source-over'; } }
+    ctx.imageSmoothingEnabled = false; ctx.globalAlpha = 1; }
+  var FIRE_SHD = { 4: 1, 7: 1, 9: 1, 10: 1, 11: 1, 12: 1, 13: 1 };
   function bucket(r0) { for (var i = 0; i < PB.length; i++) if (r0 <= PB[i] * 1.2) return i; return PB.length - 1; }
   // tiny pixel flames for lingering napalm patches (3 frames)
   function flameImg(fr, sc) { var key = 'fl' + fr + '@' + sc; if (SIMG[key]) return SIMG[key]; var W = 7, H = 11, cv = canvas(W * sc, H * sc), x = cv.getContext('2d'), r = rng(99 + fr * 13);
@@ -304,15 +360,15 @@
   var FM = 72, FI = []; for (var iff = 0; iff < FM; iff++) FI.push({ on: false, x: 0, y: 0, t: 0, life: 0, s: 0, ph: 0 });
   var uRing = 0, gRing = 0, fRing = 0;
   function slotOf(A, M, ring) { for (var j = 0; j < M; j++) { var e = A[(ring + j) % M]; if (!e.on) return e; } return A[ring % M]; }
-  function puff(x, y, z, vx, vy, vz, delay, life, r0, grow, shd, a) { var e = slotOf(U, UM, uRing); uRing = (uRing + 1) % UM; e.on = true; e.x = x; e.y = y; e.z = z; e.vx = vx; e.vy = vy; e.vz = vz; e.t = -delay; e.life = life; e.r = r0; e.gr = grow; e.shd = shd; e.a = a; return e; }
+  function puff(x, y, z, vx, vy, vz, delay, life, r0, grow, shd, a) { var e = slotOf(U, UM, uRing); uRing = (uRing + 1) % UM; e.on = true; e.x = x; e.y = y; e.z = z; e.vx = vx; e.vy = vy; e.vz = vz; e.t = -delay; e.life = life; e.r = r0; e.gr = grow; e.shd = shd; e.a = a; e.nap = 0; return e; }
   function eruption(x, y, size, opts) {
-    size = size || 1; opts = opts || {}; var mud = opts.ground === 'paddy', sq = Math.sqrt(size);
+    size = size || 1; opts = opts || {}; var mud = opts.ground === 'paddy', sq = Math.sqrt(size), bs = opts.burst || 1;   // bs: optional size of the first 0.2 s burst (column + base)
     // vertical column t = 0..0.2 s: dark wet soil at the root, lighter dust as it climbs
     var nc = Math.round(16 * size); for (var i = 0; i < nc; i++) { var dl = rnd() * 0.2;
-      puff(x + (rnd() - 0.5) * 6 * sq, y + (rnd() - 0.5) * 4 * sq, 0, (rnd() - 0.5) * 30 * sq, (rnd() - 0.5) * 20 * sq, (300 + rnd() * 320) * sq * (1 - dl * 2.5), dl, 0.9 + rnd() * 0.9, (7 + rnd() * 5) * sq, (10 + rnd() * 12) * sq, mud ? 0 : dl < 0.1 ? 0 : rnd() < 0.7 ? 8 : 1, 0.9); }
+      puff(x + (rnd() - 0.5) * 6 * sq, y + (rnd() - 0.5) * 4 * sq, 0, (rnd() - 0.5) * 30 * sq, (rnd() - 0.5) * 20 * sq, (300 + rnd() * 320) * sq * (1 - dl * 2.5), dl, 0.9 + rnd() * 0.9, (7 + rnd() * 5) * sq * bs, (10 + rnd() * 12) * sq, mud ? 0 : dl < 0.1 ? 0 : rnd() < 0.7 ? 8 : 1, 0.9); }
     // column base: wide, dense, dark soil puffs that dominate the first 0.15 s, then thin out fast
     for (var bp = 0; bp < Math.round(9 * size); bp++) { var ba = rnd() * TAU, bd = rnd() * 7 * sq;
-      puff(x + Math.cos(ba) * bd, y + Math.sin(ba) * bd * 0.7, 0, Math.cos(ba) * 40 * sq, Math.sin(ba) * 28 * sq, (40 + rnd() * 140) * sq, rnd() * 0.06, 0.45 + rnd() * 0.45, (10 + rnd() * 6) * sq, (16 + rnd() * 10) * sq, mud ? 0 : rnd() < 0.7 ? 0 : 1, 1); }
+      puff(x + Math.cos(ba) * bd, y + Math.sin(ba) * bd * 0.7, 0, Math.cos(ba) * 40 * sq, Math.sin(ba) * 28 * sq, (40 + rnd() * 140) * sq, rnd() * 0.06, 0.45 + rnd() * 0.45, (10 + rnd() * 6) * sq * bs, (16 + rnd() * 10) * sq, mud ? 0 : rnd() < 0.7 ? 0 : 1, 1); }
     // grey-brown smoke/dust cap that lingers
     var ncap = Math.round((4 + rnd() * 5) * size); for (var c = 0; c < ncap; c++) { var cr = (2.5 + Math.pow(rnd(), 1.6) * 8) * sq, lobe = rnd() < 0.35;   // clustered lobes, uneven sizes and launch times
       puff(x + (rnd() - 0.5) * (lobe ? 28 : 12) * sq, y + (rnd() - 0.5) * 8 * sq, (4 + rnd() * 14) * sq, (rnd() - 0.5) * 30, (rnd() - 0.5) * 14, (40 + rnd() * 190) * sq, 0.03 + Math.pow(rnd(), 1.5) * 0.4, 1.6 + rnd() * 2.6, cr, (4 + rnd() * 12) * sq, mud ? 0 : rnd() < 0.6 ? 8 : rnd() < 0.5 ? 2 : 0, 0.45 + rnd() * 0.4); }
@@ -380,19 +436,29 @@
     e.on = true; e.a = a; e.sp = sp; e.T = T; e.t = 0; e.tx = x; e.ty = y; e.x = x - Math.cos(a) * sp * T; e.y = y - Math.sin(a) * sp * T; e.z = opts.z || 40; e.o = opts; return e;
   }
   function napalmBurst(x, y, a, o) {
-    var ca = Math.cos(a), sa = Math.sin(a), L = 120, sh = o && o.cx != null ? shake('napalm', { x: x, y: y, cx: o.cx, cy: o.cy }) : shake('napalm', {}); if (sh) hitStop('napalm', {});
-    decal('scorch_teardrop', x + ca * L * 0.42, y + sa * L * 0.42, { angle: a }); flameSheet(x - ca * 8, y - sa * 8, a, L * 1.15, 64);
-    // rolling fireball: dense orange from frame 1 at the burst point, a front that rolls forward along the path over ~0.6 s,
-    // dark red-brown cores inside, and only a few short-lived yellow-white hot spots
-    for (var i = 0; i < 64; i++) { var f = i < 18 ? rnd() * 0.3 : Math.pow(rnd(), 0.9), u = f * L, l = (rnd() - 0.5) * (18 + f * 50), dl = i < 18 ? 0 : f * 0.55 + rnd() * 0.06, core = rnd(), fwd = i < 18 ? 110 + rnd() * 110 : 40 + rnd() * 70;
-      puff(x + ca * u - sa * l, y + sa * u + ca * l, 2 + rnd() * 8, ca * fwd + (rnd() - 0.5) * 24, sa * fwd + (rnd() - 0.5) * 16, 20 + rnd() * 50, dl, 0.7 + rnd() * 0.6, 7 + rnd() * 7 + f * 4, 8 + rnd() * 8, core < 0.28 ? 7 : core < 0.55 ? 9 : 4, 0.93); }
-    for (var hs = 0; hs < 7; hs++) { var fh = rnd(); puff(x + ca * fh * L, y + sa * fh * L + (rnd() - 0.5) * 10, 4, ca * 60, sa * 60, 30, fh * 0.55, 0.12 + rnd() * 0.12, 4 + rnd() * 3, 6, 5, 0.55); }
-    // thick black oily smoke boiling off the top, lingering, uneven
-    for (var k = 0; k < 26; k++) { var f2 = rnd(), u2 = f2 * L * 1.05, l2 = (rnd() - 0.5) * (16 + f2 * 40);
-      puff(x + ca * u2 - sa * l2, y + sa * u2 + ca * l2, 8 + rnd() * 16, ca * 30 * rnd() + (rnd() - 0.5) * 12, sa * 30 * rnd() - 4, 40 + rnd() * 90, 0.12 + f2 * 0.5 + Math.pow(rnd(), 2) * 0.6, 2.6 + rnd() * 3.5, 7 + rnd() * 9, 8 + rnd() * 10, 6, 0.75 + rnd() * 0.2); }
-    // fire patches that keep burning: clustered, uneven sizes, inside the teardrop
-    var np = 16 + ((rnd() * 8) | 0); for (var p2 = 0; p2 < np; p2++) { var fe = slotOf(FI, FM, fRing); fRing = (fRing + 1) % FM; var f3 = Math.sqrt(rnd()), w3 = 6 + f3 * 26, u3 = f3 * L * 0.95, l3 = (rnd() - 0.5) * 2 * w3;
-      fe.on = true; fe.x = x + ca * u3 - sa * l3; fe.y = y + sa * u3 + ca * l3; fe.t = -rnd() * 0.4; fe.life = 8 + rnd() * 16; fe.s = rnd() * 0.4; fe.ph = rnd() * 10; fe.sz = rnd() < 0.3 ? 2 : rnd() < 0.6 ? 1.5 : 1; }
+    var ca = Math.cos(a), sa = Math.sin(a), L = 240, WS = 1.5, sh = o && o.cx != null ? shake('napalm', { x: x, y: y, cx: o.cx, cy: o.cy }) : shake('napalm', {}); if (sh) hitStop('napalm', {});
+    decal('scorch_teardrop', x + ca * L * 0.3, y + sa * L * 0.3, { angle: a }); decal('scorch_teardrop', x + ca * L * 0.68, y + sa * L * 0.68, { angle: a });
+    // jr rev 3 (Art Director final): sheet 2x longer (240 px) and 1.5x wider along the flight line, hot #ffe9a0 spine, strong #8a2a08 edges,
+    // one brief mild additive ground bloom (~0.1 s), ~120 puffs per canister (pool 260). Drawn above bamboo/canopy by the game (debris layer).
+    // perf (rc8, optional): MED/LOW/Deck tier (window.LCO_QUALITY.t) keeps every 2nd puff (~60 per canister) at 1.2x radius so the sheet still reads filled; HIGH = all ~121
+    var QT = (typeof window !== 'undefined' && window.LCO_QUALITY && window.LCO_QUALITY.t) || 'high', PK = 0, PCUT = QT !== 'high' && !(typeof location !== 'undefined' && /[?&]napcap=0\b/.test(location.search));
+    var P = function (u, l, z, fwd, lat, vz, dl, life, r0, grow, shd, al) { if (PCUT) { if ((PK++ & 1) && PK > 1) return; r0 *= 1.2; } var pe = puff(x + ca * u - sa * l, y + sa * u + ca * l, z, ca * fwd - sa * lat, sa * fwd + ca * lat, vz, dl, life, r0, grow, shd, al); pe.nap = 1; pe.ph = rnd() * 6; pe.fl = rnd() < 0.5 ? 1 : 0; };
+    var i, f, u, l, w, D = 0.36;   // D: time for the front to roll the length of the sheet
+    P(L * 0.35, 0, 0, 0, 0, 0, 0, 0.12, 34, 10, 13, 0.22);   // brief ground bloom, isolated and mild
+    for (i = 0; i < 34; i++) { f = Math.pow(rnd(), 0.85); u = f * L * 0.88; w = (8 + f * 22) * WS; l = (rnd() - 0.5) * 2 * w * (0.45 + rnd() * 0.5);   // orange body
+      P(u, l, 2 + rnd() * 4, 30 + rnd() * 50, (rnd() - 0.5) * 16, 10 + rnd() * 20, f * D, 0.9 + rnd() * 0.7, 9 + rnd() * 6, 7 + rnd() * 6, 11, 0.7 + rnd() * 0.25); }
+    for (i = 0; i < 20; i++) { f = rnd(); u = f * L * 0.92; w = (10 + f * 24) * WS; l = (rnd() < 0.5 ? -1 : 1) * w * (0.8 + rnd() * 0.3);   // strong red-brown edges
+      P(u, l, 1 + rnd() * 3, 20 + rnd() * 30, l * 0.3, 6 + rnd() * 10, f * D + 0.03, 1.2 + rnd() * 0.9, 8 + rnd() * 5, 6 + rnd() * 4, 12, 0.8 + rnd() * 0.18); }
+    for (i = 0; i < 14; i++) { f = (i + rnd()) / 14; u = f * L * 0.85; l = (rnd() - 0.5) * 8;   // hot spine along the flight line
+      P(u, l, 4 + rnd() * 3, 40 + rnd() * 40, 0, 15 + rnd() * 15, f * D + rnd() * 0.04, 0.35 + rnd() * 0.35, 4 + rnd() * 3, 4, 10, 0.7 + rnd() * 0.3); }
+    for (var tI = 0; tI < 6; tI++) { var tl = (rnd() - 0.5) * 70, reach = L * (0.95 + rnd() * 0.22), t0 = D * 0.6 + rnd() * 0.1;   // ragged rolling front
+      for (i = 0; i < 4; i++) { f = i / 3; u = L * 0.8 + (reach - L * 0.8) * f; var tip = i === 3;
+        P(u, tl + (rnd() - 0.5) * 6, 3 + f * 6 + (tip ? 4 : 0), 70 + f * 80 + rnd() * 30, (rnd() - 0.5) * 20, 20 + f * 30, t0 + f * 0.18, 0.55 + rnd() * 0.35 - f * 0.1, 7 - f * 3 + rnd() * 2, 5, tip ? 10 : i === 2 ? 9 : 11, 0.8 + rnd() * 0.2); } }
+    for (i = 0; i < 6; i++) { f = (i + 0.5) / 6; P(f * L * 0.9, 0, 0, 20, 0, 0, f * D * 0.8, 1.8 + rnd() * 0.6, 20 + f * 6, 4, 13, 0.14 + rnd() * 0.05); }   // faint ~20 px glow
+    for (i = 0; i < 30; i++) { f = rnd() * 0.8; u = f * L; l = (rnd() - 0.5) * (16 + f * 34) * WS;   // vet E2: thick black oily smoke column builds from ~0.4-0.6 s and dominates the sheet by 1.5-3 s
+      P(u, l, 8 + rnd() * 10, 8 + rnd() * 16, (rnd() - 0.5) * 10, 30 + rnd() * 45, 0.4 + Math.pow(rnd(), 1.3) * 0.9, 3.6 + rnd() * 2.4, 10 + rnd() * 7, 13 + rnd() * 8, 6, 0.86 + rnd() * 0.12); }
+    var np = 16 + ((rnd() * 6) | 0); for (var p2 = 0; p2 < np; p2++) { var fe = slotOf(FI, FM, fRing); fRing = (fRing + 1) % FM; var f3 = rnd(), w3 = (6 + f3 * 26) * WS, u3 = f3 * L * 0.95, l3 = (rnd() - 0.5) * 2 * w3 * 0.7;
+      fe.on = true; fe.x = x + ca * u3 - sa * l3; fe.y = y + sa * u3 + ca * l3; fe.t = -rnd() * 0.6; fe.life = 8 + rnd() * 16; fe.s = rnd() * 0.4; fe.ph = rnd() * 10; fe.sz = rnd() < 0.3 ? 2 : rnd() < 0.6 ? 1.5 : 1; }
     debris('dirt', x, y, 4, 90);
   }
 
@@ -513,9 +579,10 @@
         if (!e.rest) { var svx = e.vx, svy = e.vy - e.vz, spd = Math.sqrt(svx * svx + svy * svy); if (spd > 150) { var st = Math.min(3, spd / 40) * 0.006;   // motion smear: trailing ghosts along screen velocity
           for (var gh = 2; gh >= 1; gh--) { ctx.globalAlpha = gh === 2 ? 0.18 : 0.38; ctx.drawImage(im2, ex - Math.round(svx * st * gh) * sc, ey - Math.round(svy * st * gh) * sc); } ctx.globalAlpha = 1; } }
         ctx.drawImage(im2, ex, ey); }
-      for (var u = 0; u < UM; u++) { var pu = U[u]; if (!pu.on || pu.t < 0) continue; var k = pu.t / pu.life, pim = puffImg(bucket(pu.r), pu.shd, sc);
-        ctx.globalAlpha = pu.a * Math.min(1, pu.t * (pu.shd === 4 || pu.shd === 7 || pu.shd === 9 ? 60 : 12)) * Math.pow(1 - k, pu.shd === 4 || pu.shd === 7 || pu.shd === 9 ? 0.8 : 1.4); var ps = pu.r / PB[bucket(pu.r)], pw = Math.max(2, Math.round(pim.width * ps));
-        if (pu.shd === 5) { ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(pim, SX(pu.x) - (pw >> 1), SY(pu.y - pu.z) - (pw >> 1), pw, pw); ctx.globalCompositeOperation = 'source-over'; }
+      drawNapFire(ctx, SX, SY, sc);
+      for (var u = 0; u < UM; u++) { var pu = U[u]; if (!pu.on || pu.t < 0) continue; if (pu.nap && NAP_FIRE[pu.shd] != null) continue; var k = pu.t / pu.life, nsm = pu.nap && pu.shd === 6, pim = nsm ? napSmoke(bucket(pu.r), u & 3) : puffImg(bucket(pu.r), pu.shd, sc); ctx.imageSmoothingEnabled = nsm;
+        ctx.globalAlpha = pu.a * Math.min(1, pu.t * (FIRE_SHD[pu.shd] ? 60 : nsm ? 4 : 12)) * Math.pow(1 - k, FIRE_SHD[pu.shd] ? 0.8 : nsm ? 0.55 : 1.4); /* vet E2: napalm black smoke holds its density (slow fade) */ var ps = pu.r / PB[bucket(pu.r)] * (nsm ? sc : 1), pw = Math.max(2, Math.round(pim.width * ps));
+        if (pu.shd === 5 || pu.shd === 13) { ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(pim, SX(pu.x) - (pw >> 1), SY(pu.y - pu.z) - (pw >> 1), pw, pw); ctx.globalCompositeOperation = 'source-over'; }
         else ctx.drawImage(pim, SX(pu.x) - (pw >> 1), SY(pu.y - pu.z) - (pw >> 1), pw, pw); }
     }
     ctx.globalAlpha = pA; ctx.globalCompositeOperation = pC; ctx.imageSmoothingEnabled = pS;
@@ -524,7 +591,7 @@
   function counts() { var c = function (a) { var n = 0; for (var i = 0; i < a.length; i++) if (a[i].on) n++; return n; }; return { shakes: c(SH), kicks: c(KK), decals: c(D), debris: c(B), puffs: c(U), grit: c(GR), fires: c(FI), queued: c(Q), canisters: c(CN), sheets: c(SHT), hitStop: Math.max(0, stopT) }; }
   var API = { SHAKE: SHAKE, KICK: KICK, HITSTOP: HITSTOP, RECIPE: RECIPE, WEAPON: WEAPON, MAXAMP: MAXAMP, sampleShake: sampleShake, shake: shake, kick: kick, hitStop: hitStop,
     timeScale: timeScale, stepDt: function (dt) { return dt * timeScale(); }, camera: camera, decal: decal, brass: brass, debris: debris, impact: impact, forRadius: forRadius,
-    update: update, drawAll: drawAll, reset: reset, counts: counts, seed: function (n) { seedV = n >>> 0; }, POOLS: { shakes: SHM, kicks: KM, decals: DM, debris: BM, puffs: UM, grit: GM, fires: FM, queued: QM, canisters: CM, sheets: SM }, flameSheet: flameSheet, eruption: eruption, fireline: fireline, arclightBox: arclightBox, napalmDrop: napalmDrop,
+    update: update, drawAll: drawAll, reset: reset, counts: counts, seed: function (n) { seedV = n >>> 0; }, POOLS: { shakes: SHM, kicks: KM, decals: DM, debris: BM, puffs: UM, grit: GM, fires: FM, queued: QM, canisters: CM, sheets: SM }, warmNapalm: function () { for (var f = 0; f < NT_FR; f++) for (var h = 0; h < 3; h++) napTongue(f, h); for (var v = 0; v < 4; v++) { napBed(v); for (var b = 0; b < PB.length; b++) napSmoke(b, v); } return IMGN; }, flameSheet: flameSheet, eruption: eruption, fireline: fireline, arclightBox: arclightBox, napalmDrop: napalmDrop,
     imageCount: function () { return IMGN; } };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.VFX_IMPACT = API;
 })(typeof self !== 'undefined' ? self : this);

@@ -70,6 +70,7 @@ Music (with thanks)
 - "Marines' Hymn", performed by the United States Marine Band ("The President's Own")
 - "The Thunderer" (John Philip Sousa, 1889), performed by "The President's Own" United States Marine Band (2017). Public domain. Use does not imply endorsement by the U.S. Marine Corps or DoD.
 - "Semper Fidelis" (John Philip Sousa, 1888), performed by "The President's Own" United States Marine Band (2016). Public domain. Use does not imply endorsement by the U.S. Marine Corps or DoD.
+- "Ride of the Valkyries" (Richard Wagner), performed by the American Symphony Orchestra, Edison Records (1921). Public domain. <!-- opening insertion scene: Legal PASS with conditions 2026-10-20 -->
 - "When Johnny Comes Marching Home", performed by the United States Navy Band Brass Quartet. Public domain. Use does not imply endorsement by the U.S. Navy or DoD.
 - "60s Underground Organ Rock" by JuliusH, via Pixabay (https://pixabay.com/music/vintage-60s-underground-organ-rock-4209/) <!-- combat_2: Legal review pending -->
 - "Steampunk Garage" by Pixabay user 4379051, via Pixabay (https://pixabay.com/music/rock-steampunk-garage-142325/) <!-- combat_3: Legal review pending -->
@@ -86,3 +87,4 @@ Full per-file sources and licences: THIRD_PARTY_AUDIO.txt
 
 
 [2026-10-20] The paste block now covers the full shipping music set (menu intro + loop, combat 1-5, extraction, win, loss/stings). Items marked <!-- ... --> are HTML comments: invisible when pasted into index.html; strip them if pasting anywhere else.
+- 'Tokay gecko call' by Richard Ling (Wikimedia Commons), public domain
