@@ -3198,6 +3198,7 @@ const FT={
     let p=g.p, d=Math.hypot(p.x-e.x,p.y-e.y), mt=null;
     const hold=g.ex&&g.ex.ph>=3&&g.ex.ph<=5; if(hold&&d<520&&d>60&&rnd()<PACE.HOLD_DOC*(g.ex.ph===3?1:.2)){ g.holdShots=(g.holdShots|0)+1; if(rnd()<PACE.SHOT_HIT*1.3*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,'rifle fire on the pad') }   /* Gamer 134331: extra fire aimed at Doc during the hold (on top of the normal shot, so the Marine curve is unchanged) */
     if(rnd()<PACE.M_TGT){ let bd=460; for(const L of [squad,coy])for(const m of L){ if(m.hp<=0||m.state!=='ok'||m.hid)continue; const q=Math.hypot(m.x-e.x,m.y-e.y); if(q<bd){bd=q;mt=m} } if(mt){ p=mt; d=bd } }
+    if(rnd()<RTO.AGGRO){ const r=coy.find(q=>q.rto&&q.hp>0&&q.state==='ok'&&!q.hid); if(r){ const q=Math.hypot(r.x-e.x,r.y-e.y); if(q<500){ mt=r; p=r; d=q } } }   /* Blake Oct 20: the antenna draws fire */
     if(d>540||d<(mt?20:60))return; e.fire=.25; const a=Math.atan2(p.y-e.y,p.x-e.x)+(rnd()-.5)*.12, sp=430;
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
     if(onScreen(e,8)){ SAMP.shooter=e.type; MIX.as('enemy',()=>Snd.play('vcshot'),d) }
@@ -4231,7 +4232,7 @@ function addCloud(x,y,r,life,dmg,slow){ if(clouds.length>=48)clouds.shift(); clo
    He holds a ready strike until the count justifies it, then puts it on the densest enemy concentration on the map.
    He stays at Doc's shoulder. If he dies, air support is gone for the run. Doc can patch him with a med pack (Q). ===== */
 let RTO_T=null;
-const RTO={MIN:{napalm:5,strafe:4,ranch:6,spooky:10,arclight:14,boxmission:22},GAP:2.5,
+const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,ranch:6,spooky:10,arclight:14,boxmission:22},GAP:2.5,
   on(g){ if(g.demo||!g.char)return false; if(g.rtoLost)return true; return !!this.get(g) },
   get(g){ if(g.rtoLost)return null; let m=coy.find(q=>q.rto); if(m)return m.hp>0?m:null;   /* one RTO per run: a man at 0 HP this frame is not replaced */
     if(!Object.keys(g.w).some(k=>AIRCALL[k]))return null;
