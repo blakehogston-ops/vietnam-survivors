@@ -3279,6 +3279,7 @@ document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code===
 /* ===== PACE (Blake Oct 14: "most levels in the beginning are more firefights"): early levels are contacts with small NVA/VC fire teams and lulls between them;
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
 const EARLY=!/[?&]early=0\b/.test(location.search);
+const QAHP=Math.max(0,Math.min(100,+params.get('qahp')||0));
 const PADSPREAD=/[?&]padspread=0\b/.test(location.search)?0:(+params.get('padspread')||.75); const PSDOC=+params.get('psdoc')||4;
 const LATE6=/[?&]late6=0\b/.test(location.search)?0:(+params.get('late6')||.7);   /* rc6: rifle hits on Doc x0.7 after 6:00 while holding for the bird (?late6=0 off, ?late6=X tune) */   /* Gamer rc6 #5: gentler 1:00-4:30 + guaranteed lulls (?early=0 off) */
 const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.1,HOLD_DOC:+(new URLSearchParams(location.search).get('holddoc')||.18),M_TGT:.6,M_HIT:.4,M_DMG:38,SHOT_DMG:4,COVER_DR:.4,RET_AT:.25,
@@ -3630,7 +3631,7 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){const dx=p.
 
 function update(dt){
   if(window.VFX_IMPACT)try{ VFX_IMPACT.update(dt) }catch(e){}
-  N2.tick(dt); P3.tick(dt);
+  N2.tick(dt); P3.tick(dt); if(QAHP&&G.p.hp>G.p.maxHp*QAHP/100)G.p.hp=G.p.maxHp*QAHP/100;   /* QA only: ?qahp=N holds Doc at N% HP (screenshots of the low-HP vignette) */
   CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt); FIELD.tick(dt); GUNS.tick(dt); MEDV.tick(dt); CREWX.tick(dt); PADRUSH(dt); IMP.tick(dt); BARK.tick(dt); if(window.VFX_MUZZLE)try{ VFX_MUZZLE.update(dt) }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.update(dt) }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.update(dt) }catch(e){}
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
