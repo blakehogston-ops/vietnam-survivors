@@ -3285,6 +3285,7 @@ document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code===
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
 const EARLY=!/[?&]early=0\b/.test(location.search);
 const QAHP=Math.max(0,Math.min(100,+params.get('qahp')||0));
+const FTSTACK=!/[?&]ftstack=0\b/.test(location.search);
 const PADLANE=!/[?&]padlane=0\b/.test(location.search);
 const PADSPREAD=/[?&]padspread=0\b/.test(location.search)?0:(+params.get('padspread')||.75); const PSDOC=+params.get('psdoc')||4;
 const LATE6=/[?&]late6=0\b/.test(location.search)?0:(+params.get('late6')||.7);   /* rc6: rifle hits on Doc x0.7 after 6:00 while holding for the bird (?late6=0 off, ?late6=X tune) */   /* Gamer rc6 #5: gentler 1:00-4:30 + guaranteed lulls (?early=0 off) */
@@ -7000,7 +7001,9 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   for(let ty=0;ty<3;ty++){ ctx.fillStyle=GEMC[ty]; ctx.beginPath(); const s=3.5+ty*2;
     for(const q of gems){ if(q.t!==ty)continue; if(q.x<camX-20||q.x>camX+VW+20||q.y<camY-20||q.y>camY+VH+20)continue; const y=q.y+Math.sin(tt*4+q.x)*1.2; ctx.moveTo(q.x,y-s-1);ctx.lineTo(q.x+s,y);ctx.lineTo(q.x,y+s+1);ctx.lineTo(q.x-s,y); ctx.closePath(); } ctx.fill(); }
   for(const q of medpacks){ if(q.x<camX-20||q.x>camX+VW+20||q.y<camY-20||q.y>camY+VH+20)continue; if(q.life<MED.blink&&Math.floor(q.life*6)%2===0)continue; if(window.SHEET1&&SHEET1.drawDressing){ try{ SHEET1.drawDressing(ctx,'single',Math.round(q.x),Math.round(q.y+6),tt+q.x*.01,2); continue }catch(e){} } const sp=MEDSPR, ph=tt*4+q.x, bob=Math.sin(ph)*1.5, pu=1+Math.sin(ph*.8)*.06, w=Math.round(sp.width*pu), h=Math.round(sp.height*pu); ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(q.x-8,q.y+7,16,3); ctx.drawImage(sp,Math.round(q.x-w/2),Math.round(q.y-h/2+bob),w,h) }
-  for(const q of ftexts){ if(q.x<camX-60||q.x>camX+VW+60||q.y<camY-40||q.y>camY+VH+40)continue; ctx.globalAlpha=Math.min(1,(1.4-q.t)*2); txt(intNums(q.s),Math.round(q.x),Math.round(q.y),13,q.c,'center'); ctx.globalAlpha=1 }
+  { const R=[]; for(const q of ftexts){ if(q.x<camX-60||q.x>camX+VW+60||q.y<camY-40||q.y>camY+VH+40)continue; let y=q.y; const s2=intNums(q.s);
+    if(FTSTACK&&/[A-Z]{3}/.test(String(s2))){ const w=String(s2).length*7.8+8; for(let k=0;k<8;k++){ const hit=R.find(r=>Math.abs(r.x-q.x)<(r.w+w)/2&&Math.abs(r.y-y)<15); if(!hit)break; y=hit.y-15 } R.push({x:q.x,y,w}) }   /* rc6c blocker 3: word labels (NO WOUNDED / FULL HEALTH / ...) stack instead of printing on top of each other (?ftstack=0) */
+    ctx.globalAlpha=Math.min(1,(1.4-q.t)*2); txt(s2,Math.round(q.x),Math.round(y),13,q.c,'center'); ctx.globalAlpha=1 } }
   for(const q of gems){ if(q.t!==3)continue; ctx.fillStyle='#f4f4ea'; ctx.fillRect(q.x-7,q.y-6,14,12); ctx.fillStyle='#d03a2e'; ctx.fillRect(q.x-1.5,q.y-5,3,10); ctx.fillRect(q.x-5,q.y-1.5,10,3); ctx.strokeStyle='#17110a';ctx.lineWidth=1;ctx.strokeRect(q.x-7,q.y-6,14,12) }
   // grenades shadow/body
   for(const q of grenades){ if(q.t<0)continue; const k=Math.min(1,q.t/q.d), z=Math.sin(Math.PI*k)*46; if(window.VFX_ROCKETS){ try{ VFX_ROCKETS.drawProjectile(ctx,'m79',q.x,q.y,Math.atan2(q.ty-q.sy,q.tx-q.sx),q.t,1,z) }catch(e){} continue } ctx.fillStyle='rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(q.x,q.y,5,2.5,0,0,TAU); ctx.fill(); ctx.fillStyle='#4f6b2a'; ctx.fillRect(q.x-3,q.y-z-5,6,7); ctx.fillStyle='#17110a'; ctx.fillRect(q.x-1,q.y-z-7,3,2);
