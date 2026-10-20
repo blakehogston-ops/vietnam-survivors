@@ -4150,6 +4150,9 @@ const AIS={ON:!/[?&]aismoke=0\b/.test(location.search),L:[],cd:30,
    Quotes are verbatim from the official citations (CMOHS / NHHC / USMC History Division). Ballard is a LIVING recipient: 'in honor of' only, no memorial wording. Taylor (posthumous): 'in memory of'. Never imply Taylor was in Quang Tri. */
 /* rc8: character names live here only (swap = one line) */
 const NAMES={gunny:{rank:'GySgt',first:'Raymond',mi:'T.',last:'Mabry',home:'Lubbock, TX'},lt:{rank:'2ndLt',first:'Edward',mi:'J.',last:'Hollis',cs:'Golf Two-Six'},co:{rank:'Capt',first:'Patrick',last:"O'Malley",nick:'Skipper',cs:'Golf Six'}};
+function drawTrib(U){ const g=G; if(!g||g.demo)return; let T=g.trib; if(!T){ if(!g.tribQ||!g.tribQ.length)return; if(exMsg||state!=='play'||(g.banner&&g.banner.t>0)||(MOH.cur&&MOH.card>0))return; T=g.trib={text:g.tribQ.shift(),t0:g.t} }
+  const a=Math.max(0,Math.min(1,(g.t-T.t0)/.8,(4-(g.t-T.t0))/.8)); if(g.t-T.t0>=4){ g.trib=null; return } if(exMsg)return;   /* never over dialogue */
+  ctx.save(); ctx.globalAlpha=a; txt(T.text,W/2,laneT(18*U,H*.2),Math.min(16*U,(W-24*U)/Math.max(8,T.text.length*.62)),'#f0d890','center'); ctx.restore() }   /* rc8: tribute line in its own lane, ~4 s fade, only when no dialogue / MoH card / combat banner */
 const DBGSPD=/[?&]dbg=speed\b/.test(location.search);
 const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   C:{ballard:{lab:'IN HONOR OF',nm:'HM2 Donald E. Ballard',svc:'U.S. Navy',unit:'M Company, 3rd Battalion, 4th Marines',date:'16 May 1968 · Quang Tri Province',
@@ -4181,7 +4184,7 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
     if(!fbS){ this.end('baseLost'); return }
     if(this.away()&&this.integ()<.6&&!(this.alertT>0)){ this.alertT=6; g.banner={text:'FIREBASE '+(fbS.name||'')+' IS FALLING · GET BACK',t:2.6,col:'#ff6a4a'}; try{ Snd.play('radio') }catch(e){} }
     if(c.ph==='go'){ c.hot=(c.hotT=(c.hotT||0)-dt)>0?c.hot:(c.hotT=.25,enemies.some(e=>!e.dead&&Math.abs(e.x-c.x)<this.P.HR&&Math.abs(e.y-c.y)<this.P.HR&&Math.hypot(e.x-c.x,e.y-c.y)<this.P.HR)); if(Math.hypot(g.p.x-c.x,g.p.y-c.y)<46&&!c.hot){ c.h+=dt; if(c.h>=this.C[c.k].hold){ c.ph='ret'; c.t=0; c.life=this.P.R; g.banner={text:'DONE · GET BACK TO THE FIREBASE',t:2.4,col:'#f0d890'}; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'done'}) } } else c.h=Math.max(0,c.h-dt) }
-    else if(Math.hypot(g.p.x-fbS.x,g.p.y-fbS.y)<200){ this.done[c.k]=1; (g.honor||(g.honor=[])).push(this.C[c.k].lab.toLowerCase().replace(/^./,x=>x.toUpperCase())+' '+this.C[c.k].nm); const p=g.p; p.xp+=p.need*.75; g.banner={text:this.C[c.k].lab+' '+this.C[c.k].nm.toUpperCase(),t:3.2,col:'#f0d890'}; this.end('home'); return }
+    else if(Math.hypot(g.p.x-fbS.x,g.p.y-fbS.y)<200){ this.done[c.k]=1; (g.honor||(g.honor=[])).push(this.C[c.k].lab.toLowerCase().replace(/^./,x=>x.toUpperCase())+' '+this.C[c.k].nm); const p=g.p; p.xp+=p.need*.75; (g.tribQ||(g.tribQ=[])).push(this.C[c.k].lab+' '+this.C[c.k].nm.toUpperCase()); this.end('home');   /* rc8: tribute waits for a clear moment (drawTrib) */ return }
     if(c.t>c.life)this.end(c.ph==='go'?'expired':'late') },
   drawWorld(){ const c=this.cur; if(!c||c.ph!=='go')return; const t=G.t, r=34+Math.sin(t*4)*4; ctx.save(); ctx.strokeStyle='#f0d890'; ctx.lineWidth=2; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.arc(c.x,c.y,r,0,TAU); ctx.stroke(); ctx.setLineDash([]);
     if(c.h>0){ ctx.strokeStyle='#ffffff'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(c.x,c.y,r+6,-Math.PI/2,-Math.PI/2+TAU*c.h/this.C[c.k].hold); ctx.stroke() } ctx.restore() },
@@ -7331,7 +7334,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   if(HUDM.on){ const tw=document.getElementById('p3toast'); if(tw){ const top=Math.round((exTop(U)+(exStack||0)+(g.pullT>0?40:18)*U+(g.banner?16*U:0)+44*U)/DPR+6)+"px"; if(tw.style.top!==top)tw.style.top=top } }   /* rc7 hudmobile fix: toast lane sits BELOW the banner (no overlap) */
   if(g.banner){ const b=g.banner,k=Math.min(1,(3.2-b.t)*5,b.t*2); if(HUDM.on){ const cr=HUDM.crit(b), fs=Math.min((cr?22:15)*U,(W-20)/Math.max(8,b.text.length)*1.6), k2=cr?k:Math.min(k,b.t*1.4,(b.t>1.6?1:b.t/1.6)); ctx.globalAlpha=Math.max(0,Math.min(1,k2)); txt(HUDM.short(b.text),W/2,exTop(U)+(exStack||0)+(g.pullT>0?40:18)*U,fs,b.col,'center'); ctx.globalAlpha=1 }   /* hudmobile: in the top lane under the signal line, smaller; non-critical ones fade faster */
     else { ctx.globalAlpha=Math.max(0,Math.min(1,k)); txt(b.text,W/2,laneT(30*U,b.top?Math.max(H*.12,96*U):H*.27),Math.min((30+6*(1-Math.min(1,k)))*U,(W-40*U)/Math.max(8,b.text.length*.62)),b.col,'center');   /* rc7.1: long banners shrink to fit (SUPPLY DROP clipped at ~910 px) */ ctx.globalAlpha=1 } }
-  N2.hud(U); PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); try{ PB.hud(U) }catch(e){} FIELD.hud(U); KIA.hud(U); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
+  N2.hud(U); PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); try{ PB.hud(U); drawTrib(U) }catch(e){} FIELD.hud(U); KIA.hud(U); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
   // joystick
   if(joy.on){ ctx.globalAlpha=.45; ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(joy.ox*(W/innerWidth),joy.oy*(H/innerHeight),55*(W/innerWidth),0,TAU); ctx.stroke(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc((joy.ox+joy.x*55)*(W/innerWidth),(joy.oy+joy.y*55)*(H/innerHeight),22*(W/innerWidth),0,TAU); ctx.fill(); ctx.globalAlpha=1 }
 }
