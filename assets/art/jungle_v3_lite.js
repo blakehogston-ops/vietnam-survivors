@@ -219,7 +219,11 @@
       var jb = Q[bi]; while (now() < lim) { if (jb.g.next().done) { Q.splice(bi, 1); jb.f._job = null; break; } } }
     var tn = now(); for (var k = BAKED.length - 1; k >= 0; k--) { var G = BAKED[k]; if (tn - G._lastDraw > J.evictSec * 1000) { G._layers = null; G._layersQueued = false; BAKED.splice(k, 1); } }
     return Q.length; };
-  function autoPump() { var t = now(); if (t - lastPump > 7) J.pump(); }
+  function autoPump() { var t = now(); if (t - lastPump > 7) J.pump(); if (J.chunkFlat) idleKick(); }
+  // jr perf: most bake work runs in browser idle time after the frame (requestIdleCallback), only a small slice stays in-frame
+  var idleOn = false; function idleKick() { if (idleOn || !Q.length || typeof requestIdleCallback === 'undefined') return; idleOn = true;
+    requestIdleCallback(function (d) { idleOn = false; var ms = Math.min(8, d.timeRemaining() - 1); if (ms > 0.5) { var lp = lastPump; J.pump(ms); lastPump = lp; } if (Q.length) idleKick(); }, { timeout: 250 }); }
+  if (J.chunkFlat) J.budgetMs = 1;
   function enqueue(F, g, pri) { var jb = { f: F, g: g, pri: pri || 0 }; Q.push(jb); return jb; }
 
   // ---------- field ----------
@@ -336,7 +340,7 @@
     this.paddy = []; if (!any) { this.isPaddy = null; }
     for (var fr = 0; fr < 3; fr++) { yield 0; if (!DG && fr) { this.paddy.push(this.paddy[0]); continue; } var Rf = new Rast(w, h); Rf.d.set(base.d);
       for (var g = 0; g < w * h / 260; g++) { var gx = (hsh(g, fr, sd + 30) * w) | 0, gy = (hsh(g, fr, sd + 31) * h) | 0; if (dike(x0 + gx, y0 + gy) === 0 && dike(x0 + gx + 1, y0 + gy) === 0) { Rf.set(gx, gy, '#b4bca4', 0.8); Rf.set(gx + 1, gy, '#8a9478', 0.7); } }
-      yield 0; this.paddy.push(Rf.canvas()); }
+      yield 0; this.paddy.push(Rf.canvas()); toBmp(this.paddy, this.paddy.length - 1); }
     this.isPaddy = any ? function (tx, ty) { return isP(tx, ty); } : null; this.inPaddy = function (wx, wy) { return dike(wx, wy) >= 0; };
   };
   // canopy: identical art to rev 3, sliced into resumable steps
@@ -355,6 +359,7 @@
     for (y = 0; y < h; y++) { for (x = 0; x < w; x++) { var i4 = (y * w + x) * 4; if (R.d[i4 + 3]) { out.d.set(R.d.subarray(i4, i4 + 4), i4); } else if (R.a(x - 8, y - 10) > 128) { out.d[i4] = 10; out.d[i4 + 1] = 18; out.d[i4 + 2] = 8; out.d[i4 + 3] = 110; } } if ((y & 15) === 15) yield 0; }
     var full = out.canvas(); yield 0; var cnp = []; this.cx0 = x0; this.cy0 = y0;
     if (w <= 512 && h <= 512) cnp.push({ x: 0, y: 0, c: full }); else for (y = 0; y < h; y += 512) for (x = 0; x < w; x += 512) cnp.push({ x: x, y: y, c: sub(full, x, y, Math.min(512, w - x), Math.min(512, h - y)) });
+    for (var cb = 0; cb < cnp.length; cb++) toBmp(cnp[cb], 'c');
     this.canopy = cnp; };
 
   // ---------- plant layers: flattened per 48 px horizontal strip (exact y-order kept), 2 sway states ----------
@@ -387,7 +392,17 @@
   Field.prototype._bakeLayers = function* () { var S = this._strips, n = (this.o.swayFrames === 1 ? 1 : 2), L = [], i, st;
     for (st = 0; st < n; st++) { var row = { under: [], over: [] }; L.push(row); for (i = 0; i < S.length; i++) { row.under.push(this._bakeStrip(S[i], 'under', st)); yield 0; row.over.push(this._bakeStrip(S[i], 'over', st)); yield 0; } }
     var bytes = 0; L.forEach(function (rw) { ['under', 'over'].forEach(function (pt) { rw[pt].forEach(function (b) { if (b) bytes += b.c.width * b.c.height * 4; }); }); }); this.layerBytes = bytes;
+    if (J.chunkFlat) for (st = 0; st < n; st++) { yield 0; L[st].underC = flat(L[st].under); toBmp(L[st].underC, 'c'); yield 0; L[st].overC = flat(L[st].over); toBmp(L[st].overC, 'c'); }
     this._layers = L; this._layersQueued = false; this._lastDraw = now(); BAKED.push(this); };
+  // jr perf: the strips of a part are also flattened into ONE canvas per chunk (same pixels, same order); used whenever no strip in the chunk is bent
+  function flat(arr) { var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, i, b; for (i = 0; i < arr.length; i++) { b = arr[i]; if (!b) continue; if (b.x < x0) x0 = b.x; if (b.y < y0) y0 = b.y; if (b.x + b.c.width > x1) x1 = b.x + b.c.width; if (b.y + b.c.height > y1) y1 = b.y + b.c.height; }
+    if (x1 < x0) return null; var c = mkc(x1 - x0, y1 - y0), g = c.getContext('2d'); g.imageSmoothingEnabled = false; for (i = 0; i < arr.length; i++) { b = arr[i]; if (b) g.drawImage(b.c, b.x - x0, b.y - y0); } return { c: c, x: x0, y: y0 }; }
+  J.stat = { flat: 0, strip: 0, plant: 0, nolayer: 0 };
+  // jr perf: baked canvases are swapped for ImageBitmaps (immutable, pre-decoded: much cheaper to blit than a canvas source); same pixels
+  J.useBitmap = J.chunkFlat && typeof createImageBitmap !== 'undefined' && !(typeof location !== 'undefined' && /[?&]jbmp=0\b/.test(location.search));
+  function toBmp(o, k) { if (!J.useBitmap || !o || !o[k] || typeof o[k].getContext !== 'function') return; var c = o[k]; createImageBitmap(c).then(function (b) { if (o[k] === c) o[k] = b; }, function () {}); }
+  // jr perf: all strips of a part flattened into ONE canvas per chunk (exact same pixels & order, strips never overlap units within a part)
+  J.chunkFlat = !(typeof location !== 'undefined' && /[?&]jperf=0\b/.test(location.search));
 
   // per-frame: dt seconds, player {x,y} world px, units [{x,y}] (incl. enemies) -> grass/bamboo bend, ripples, canopy hole
   // lite: units are pre-filtered to this field's box, and only strips that have a unit in reach or still-springing plants are touched
@@ -403,7 +418,7 @@
       for (var i = 0; i < s.p.length; i++) { var p = s.p[i]; if (p.k !== 'grass' && p.k !== 'bamboo') continue; var tgt = 0, R = p.k === 'grass' ? 20 : 26;
         if (near) for (j = 0; j < us.length; j++) { u = us[j]; var dx = p.x - u.x, dyy = (p.y - u.y) * 1.6; if (Math.abs(dx) > R || Math.abs(dyy) > R) continue; var d = Math.sqrt(dx * dx + dyy * dyy); if (d < R) { var sv = (1 - d / R) * 3.6 * (dx >= 0 ? 1 : -1); if (Math.abs(sv) > Math.abs(tgt)) tgt = sv; } }
         if (!tgt && !p.bend) continue;
-        p.bend += (tgt - p.bend) * (tgt ? k * 1.6 : k * 0.45); if (!tgt && Math.abs(p.bend) < 0.02) p.bend = 0; p.b = Math.max(0, Math.min(6, Math.round(p.bend) + 3)); if (p.b !== 3 || p.bend) bent++; }
+        p.bend += (tgt - p.bend) * (tgt ? k * 1.6 : k * 0.45); if (!tgt && Math.abs(p.bend) < 0.02) p.bend = 0; p.b = Math.max(0, Math.min(6, Math.round(p.bend) + 3)); if (p.b !== 3 || (p.bend && !J.chunkFlat)) bent++; }   // jr perf: a plant whose bend rounds to 3 draws exactly the baked pose, so it no longer forces the per-plant path
       s.bent = bent; }
     var under = player && this.coveredAt(player.x, player.y); this.open += ((under || this.o.alwaysHole ? 1 : 0) - this.open) * Math.min(1, (dt || 0.016) * 6);
     if (this.isPaddy) for (j = 0; j < us.length; j++) { u = us[j]; if (this.isPaddy(Math.floor(u.x / T), Math.floor(u.y / T)) && (u.moving !== false) && Math.random() < (dt || 0.016) * 3) this.ripples.push({ x: u.x, y: u.y, a: 0 }); }
@@ -412,7 +427,7 @@
   Field.prototype.coveredAt = function (x, y) { if (!this.canopy) return false; var k = this.o.typeAt(Math.floor(x / T), Math.floor(y / T)); return k === 'jungle' || k === 'rubber' || k === 'teak'; };
 
   function S_(scale) { var s = Math.round(scale || 1); return s < 1 ? 1 : s; }
-  function blit(ctx, c, wx, wy, sc, cx, cy) { ctx.drawImage(c, Math.round(wx * sc - cx), Math.round(wy * sc - cy), c.width * sc, c.height * sc); }
+  function blit(ctx, c, wx, wy, sc, cx, cy) { J.stat.px_ground = (J.stat.px_ground || 0) + c.width * c.height / 1e6; ctx.drawImage(c, Math.round(wx * sc - cx), Math.round(wy * sc - cy), c.width * sc, c.height * sc); }
   function view(ctx) { return [ctx.canvas ? ctx.canvas.width : 4096, ctx.canvas ? ctx.canvas.height : 4096]; }
   Field.prototype._fadeOn = function (ctx) { var a0 = ctx.globalAlpha; if (this.fade < 1) ctx.globalAlpha = a0 * this.fade; return a0; };
   // LAYER 1: paddy water + dikes + wading ripples (placeholder until built: nothing, terrain_v2 shows through; fades in over 0.35 s)
@@ -426,12 +441,31 @@
   Field.prototype._draw = function (ctx, scale, camX, camY, part) { this._lastDraw = now(); if (!this.ready) return; var S = this._strips; if (!S || !S.length) return;
     var sc = S_(scale), cx = camX || 0, cy = camY || 0, vw = view(ctx), n = this.o.swayFrames === 1 ? 1 : 2, st = n === 1 ? 0 : Math.floor(this.t * 4) & 1, L = this._layers, p0 = ctx.imageSmoothingEnabled, a0 = this._fadeOn(ctx); ctx.imageSmoothingEnabled = false;
     if (!L && !this._layersQueued && !this._job) { this._layersQueued = true; enqueue(this, this._bakeLayers(), -1e12); }
+    if (J.chunkFlat && L && L[st][part + 'C'] !== undefined) { var anyB = false; for (var q0 = 0; q0 < S.length; q0++) if (S[q0].bent) { anyB = true; break; }
+      if (!anyB) { var F0 = L[st][part + 'C']; if (F0) { var FX = F0.x * sc - cx, FY = F0.y * sc - cy; if (!(FX > vw[0] || FY > vw[1] || FX + F0.c.width * sc < 0 || FY + F0.c.height * sc < 0)) J.stat.flat++, J.stat['px_' + part] = (J.stat['px_' + part] || 0) + F0.c.width * F0.c.height / 1e6, ctx.drawImage(F0.c, Math.round(FX), Math.round(FY), F0.c.width * sc, F0.c.height * sc); }
+        ctx.imageSmoothingEnabled = p0; ctx.globalAlpha = a0; return; } }
     for (var i = 0; i < S.length; i++) { var s = S[i], Yt = (s.y0 - 110) * sc - cy, Yb = (s.y0 + this._sh + 50) * sc - cy; if (Yb < 0 || Yt > vw[1]) continue;
-      var b = L && !s.bent ? L[st][part][i] : undefined;
+      var b = L && !s.bent && L[st][part] ? L[st][part][i] : undefined;
       if (b === null) continue;
-      if (b) { var X = b.x * sc - cx, Y = b.y * sc - cy; if (X > vw[0] || Y > vw[1] || X + b.c.width * sc < 0 || Y + b.c.height * sc < 0) continue; ctx.drawImage(b.c, Math.round(X), Math.round(Y), b.c.width * sc, b.c.height * sc); continue; }
-      for (var j = 0; j < s.p.length; j++) { var q = spr(s.p[j], part, st + (s.p[j].ph || 0)); if (!q) continue; var qx = q.x * sc - cx, qy = q.y * sc - cy; if (qx > vw[0] || qy > vw[1] || qx + q.c.width * sc < 0 || qy + q.c.height * sc < 0) continue; ctx.drawImage(q.c, Math.round(qx), Math.round(qy), q.c.width * sc, q.c.height * sc); } }
+      if (J.chunkFlat && s.bent && L && L[st][part] && L[st][part][i] && this._bentDraw(ctx, s, L[st][part][i], part, st, sc, cx, cy, vw)) continue;
+      if (b) { var X = b.x * sc - cx, Y = b.y * sc - cy; if (X > vw[0] || Y > vw[1] || X + b.c.width * sc < 0 || Y + b.c.height * sc < 0) continue; J.stat.strip++; J.stat['px_' + part] = (J.stat['px_' + part] || 0) + b.c.width * b.c.height / 1e6; ctx.drawImage(b.c, Math.round(X), Math.round(Y), b.c.width * sc, b.c.height * sc); continue; }
+      if (!L) J.stat.nolayer++;
+      for (var j = 0; j < s.p.length; j++) { var q = spr(s.p[j], part, st + (s.p[j].ph || 0)); if (!q) continue; var qx = q.x * sc - cx, qy = q.y * sc - cy; if (qx > vw[0] || qy > vw[1] || qx + q.c.width * sc < 0 || qy + q.c.height * sc < 0) continue; J.stat.plant++; J.stat['px_' + part] = (J.stat['px_' + part] || 0) + q.c.width * q.c.height / 1e6; ctx.drawImage(q.c, Math.round(qx), Math.round(qy), q.c.width * sc, q.c.height * sc); } }
     ctx.imageSmoothingEnabled = p0; ctx.globalAlpha = a0; };
+  // jr perf: a bent strip = its baked canvas outside the x-span of the bent plants + only the plants that touch that span (cropped to it), in y order.
+  // Every pixel comes from exactly the same y-ordered stack as the per-plant path, but ~6x fewer drawImage calls.
+  Field.prototype._bentDraw = function (ctx, s, b, part, st, sc, cx, cy, vw) { var P = s.p, rx0 = 1e9, rx1 = -1e9, i, q, p;
+    for (i = 0; i < P.length; i++) { p = P[i]; if (p.b === undefined || p.b === 3) continue; q = spr(p, part, st + (p.ph || 0)); if (!q) continue; var qx = Math.round(q.x); if (qx < rx0) rx0 = qx; if (qx + q.c.width > rx1) rx1 = qx + q.c.width; }
+    var X = Math.round(b.x * sc - cx), Y = Math.round(b.y * sc - cy), W = b.c.width, H = b.c.height;
+    if (X > vw[0] || Y > vw[1] || X + W * sc < 0 || Y + H * sc < 0) return true;
+    if (rx1 < rx0) { J.stat.strip++; ctx.drawImage(b.c, X, Y, W * sc, H * sc); return true; }
+    var a0 = Math.max(0, rx0 - b.x), a1 = Math.min(W, rx1 - b.x);
+    if (a0 > 0) { J.stat.strip++; ctx.drawImage(b.c, 0, 0, a0, H, X, Y, a0 * sc, H * sc); }
+    if (a1 < W) { J.stat.strip++; ctx.drawImage(b.c, a1, 0, W - a1, H, X + a1 * sc, Y, (W - a1) * sc, H * sc); }
+    if (a1 <= a0) return true;
+    for (i = 0; i < P.length; i++) { p = P[i]; q = spr(p, part, st + (p.ph || 0)); if (!q) continue; var ox = Math.round(q.x) - b.x, oy = Math.round(q.y) - b.y, w = q.c.width, h = q.c.height, c0 = Math.max(ox, a0), c1 = Math.min(ox + w, a1);
+      if (c1 <= c0) continue; J.stat.plant++; ctx.drawImage(q.c, c0 - ox, 0, c1 - c0, h, X + c0 * sc, Y + oy * sc, (c1 - c0) * sc, h * sc); }
+    return true; };
   // LAYER 4: canopy. Chunks with no see-through hole on them go straight to ctx; only a chunk under a hole is composited (in a chunk-sized scratch, not a view-sized buffer)
   var SCR = null;
   Field.prototype.drawCanopy = function (ctx, scale, camX, camY, extraReveal) { this._lastDraw = now(); if (!this.ready || !this.canopy) return; var sc = S_(scale), cx = camX || 0, cy = camY || 0, vw = view(ctx), i, hr = this.holeR;

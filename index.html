@@ -2848,16 +2848,18 @@ const JG={ON:/[?&]jungle=1\b/.test(location.search),C:8,F:new Map(),q:[],ms:[],t
     if(m==='P')return 'paddy'; if(m==='E')return far&&h<.3?'jungle':'grass';
     if(m==='J')return far?(h<.45?'jungle':h<.75?'rubber':'teak'):(h<.6?'scrub':'hedgerow'); return h<.08?'scrub':'other' },
   key(cx,cy){ return cx+','+cy },
-  bake(cx,cy){ const C=this.C, t0=performance.now(); let F=null; try{ F=JUNGLE3.createField({tx0:cx*C,ty0:cy*C,tx1:cx*C+C-1,ty1:cy*C+C-1,typeAt:(a,b)=>this.type(a,b),seed:1968+cx*31+cy*17,damage:.15,holeRadius:84}) }catch(e){ console.warn('JG bake',e) }
+  bake(cx,cy){ const C=this.C, t0=performance.now(); let F=null; try{ F=JUNGLE3.createField({tx0:cx*C,ty0:cy*C,tx1:cx*C+C-1,ty1:cy*C+C-1,typeAt:(a,b)=>this.type(a,b),seed:1968+cx*31+cy*17,damage:.15,holeRadius:84,swayFrames:(LOWFX&&this.PF&&!/[?&]jsway=2\b/.test(location.search))?1:2}) }catch(e){ console.warn('JG bake',e) }
     this.F.set(this.key(cx,cy),F); this.ms.push(performance.now()-t0) },
-  vis(cam){ const S=48*this.C, out=[]; for(let cx=Math.floor((cam.x-60)/S);cx<=Math.floor((cam.x+VW+60)/S);cx++)for(let cy=Math.floor((cam.y-120)/S);cy<=Math.floor((cam.y+VH+60)/S);cy++)out.push([cx,cy]); return out },
-  pre(cam,budget){ if(!this.ok())return; const v=this.vis(cam); let n=0; for(const [cx,cy] of v){ if(this.F.has(this.key(cx,cy)))continue; if(n>=budget)break; this.bake(cx,cy); n++ }
+  vis(cam,m){ const S=48*this.C, M=m|0, out=[]; for(let cx=Math.floor((cam.x-60-M)/S);cx<=Math.floor((cam.x+VW+60+M)/S);cx++)for(let cy=Math.floor((cam.y-120-M)/S);cy<=Math.floor((cam.y+VH+60+M)/S);cy++)out.push([cx,cy]); return out },
+  PF:/[?&]jperf=0\b/.test(location.search)?0:300,   /* jr perf: queue chunks up to 300 px beyond the view so they are baked (incl. flattened plant layers) before they scroll in */
+  pre(cam,budget){ if(!this.ok())return; const v=this.vis(cam,this.PF).sort((a,b)=>{ const S=48*this.C, X=cam.x+VW/2, Y=cam.y+VH/2; return Math.hypot((a[0]+.5)*S-X,(a[1]+.5)*S-Y)-Math.hypot((b[0]+.5)*S-X,(b[1]+.5)*S-Y) }); let n=0; for(const [cx,cy] of v){ if(this.F.has(this.key(cx,cy)))continue; if(n>=budget)break; this.bake(cx,cy); n++ }
     if(this.F.size>40){ const S=48*this.C; for(const [k] of this.F){ const [a,b]=k.split(',').map(Number); if(Math.abs((a+.5)*S-G.p.x)>2400||Math.abs((b+.5)*S-G.p.y)>2000)this.F.delete(k) } } },
   each(cam,f){ for(const [cx,cy] of this.vis(cam)){ const F=this.F.get(this.key(cx,cy)); if(F)f(F) } },
   px(){ const c={width:Math.ceil(VW)+2,height:Math.ceil(VH)+2}, X=ctx; return {canvas:c,drawImage:(...a)=>X.drawImage(...a),get imageSmoothingEnabled(){return X.imageSmoothingEnabled},set imageSmoothingEnabled(v){X.imageSmoothingEnabled=v},get globalAlpha(){return X.globalAlpha},set globalAlpha(v){X.globalAlpha=v}} },
   boot(){ if(!G||!this.ok())return; const p=G.p; this.pre({x:p.x-VW/2,y:p.y-VH/2},99); if(JUNGLE3.pump)JUNGLE3.pump(50) },   /* lite: queue the first screen + pump 50 ms on the loading/intro screen */
   update(dt,cam){ if(!this.ok())return; this.pre(cam,1); const p=G.p, U=[]; for(const m of coy)if(m.hp>0&&!m.hid&&Math.abs(m.x-p.x)<VW&&Math.abs(m.y-p.y)<VH)U.push({x:m.x,y:m.y,moving:true});
-    for(let i=0;i<enemies.length&&U.length<160;i++){ const e=enemies[i]; if(!e.dead&&Math.abs(e.x-p.x)<VW/2+60&&Math.abs(e.y-p.y)<VH/2+60)U.push({x:e.x,y:e.y,moving:true}) } U.push({x:p.x,y:p.y,moving:true}); this.each(cam,F=>F.update(dt,p,U)) },
+    for(let i=0;i<enemies.length&&U.length<160;i++){ const e=enemies[i]; if(!e.dead&&Math.abs(e.x-p.x)<VW/2+60&&Math.abs(e.y-p.y)<VH/2+60)U.push({x:e.x,y:e.y,moving:true}) } U.push({x:p.x,y:p.y,moving:true}); this.each(cam,F=>F.update(dt,p,U));
+    if(this.PF){ const nw=performance.now(); for(const [cx,cy] of this.vis(cam,this.PF)){ const F=this.F.get(this.key(cx,cy)); if(F)F._lastDraw=nw } } },   /* jr perf: prefetched chunks keep their baked layers until they scroll in */
   layer(part,cam,zoom){ if(!this.ok()||!this.F.size)return; const P=this.px(); ctx.save(); ctx.setTransform(zoom,0,0,zoom,0,0); this.each(cam,F=>{ if(part==='ground')F.drawGround(P,1,cam.x,cam.y); else if(part==='under')F.drawUnder(P,1,cam.x,cam.y); else if(part==='over')F.drawOver(P,1,cam.x,cam.y); else F.drawCanopy(P,1,cam.x,cam.y) }); ctx.restore() },
   covered(x,y){ if(!this.ok())return false; const S=48*this.C, F=this.F.get(this.key(Math.floor(x/S),Math.floor(y/S))); return !!(F&&F.coveredAt(x,y)) },
   ground(x,y){ if(!this.ok())return null; const t=this.type(Math.floor(x/48),Math.floor(y/48)); return t==='paddy'?'paddy':null } };
