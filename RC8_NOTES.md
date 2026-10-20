@@ -68,3 +68,9 @@ Per Lead (MERGE_NOTE_RC8_SOURCING_OCT20 rev 2). Files were recopied fresh from s
 - **Every rc8 audio clip is now cleared.** Nothing is left pending, so the `AUD_PENDING` flag has been removed. `AUD_OK` stays as a per-clip kill switch, and all its entries are true.
 - **Not copied:** rto_down_sting and radio_static_bed_loop stay disabled because the pdsounds STE-011 broadcast-bleed ear check is still open.
 - Bus offsets are unchanged.
+
+## rc8.1 (branch rc8.1, off 622cade) — no new VO line IDs
+- FX81 (`?fx81=0` disables): (A) CH-46 rotor wash dust/grass + smoke bend (ph4 descent → lift), touchdown shake 3.5, staggered boarding (0.28 s/Marine), door-gun M60 tracers now red (US M62, Vet). (B) VFX flame_rc81 patches applied (explosions/vehicles/tanks_v2/amtrac_support + index fires/fireball merged with FGLOW); hut_destroy/impact_feel/vehicle_hits patches target files not in this tree → not applied. F-4B low pass (alt 26 + ground shadow) with jet swell; napalm rolling wall, fireball + heat shimmer, smoke column, shockwave ring + debris; FX81 pool capped 40/90/150 (LOW/MED-or-strike/HIGH).
+- (C) Firebase life between waves (no hostiles within FBS+260, not in extraction): idle props (sandbag, ammo can, RTO whip); night 81mm illum flare + outgoing H&I thump every 28–52 s; day radio chatter (existing cleared Snd clips only).
+- Blake: idle Marines repair damaged built structures (wall, sandbags, bunkers, guns) at 40% of engineer rate (16 hp/s → 6.4 hp/s), max 3 Marines, stops the moment a wave reaches the wire. Repair swing animation + green progress bar over the structure. Log: FX81.log.rep.
+- Fixes: firebase arrow turn-limited (≤0.12 rad/frame) + never re-sites behind Doc; HOLD F ring margin +8 px, layout-independent F (e.key), slower decay inside ring; `?nobrief` skips brief2; FIREBASE BUILT (held banner) preempts and is never dropped/expired from the banner queue.
