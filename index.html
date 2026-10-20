@@ -3253,19 +3253,24 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
     const ex=g.ex; if(this.XC&&ex&&ex.ph===0&&!ex.padPlan){ if(g.t>=this.XMIN&&!ex.xr){ ex.xr=1; g.banner={text:'EXTRACTION AVAILABLE · POP SMOKE WHEN READY',t:3.4,col:'#9be37a'};
         gunny("Doc, Gunny. The bird can come for us any time now. Pop smoke when you're ready ("+(matchMedia('(pointer:coarse)').matches?'tap CALL BIRD':'press X')+"). He needs two mikes to get here.",5.6,1) }
       if(ex.xr&&(g.t>=this.XAUTO||(DBG.bot&&g.t>=(+params.get('botcall')||this.XMIN+15))))this.call(g.t>=this.XAUTO) }
-    const b=this.btn(); if(b){ const on=this.canCall(g)&&ex.xr; if(b._on!==on){ b._on=on; b.style.display=on?'block':'none' } } },
+    const b=this.btn(); if(b){ const sw=this.smokeWait(), on=(this.canCall(g)&&ex.xr)||!!sw, mode=sw?(sw==='on'?'pop':'off'):'call';
+      if(b._on!==on){ b._on=on; b.style.display=on?'block':'none' } if(b._m!==mode){ b._m=mode; b.textContent=mode==='call'?'POP SMOKE · CALL BIRD (X)':mode==='pop'?'POP SMOKE ON THE PAD (X)':'GET TO THE PAD FIRST'; b.style.filter=mode==='off'?'grayscale(1) brightness(.75)':''; b.style.opacity=mode==='off'?'.75':'1'; b.style.cursor=mode==='off'?'not-allowed':'pointer' } } },
+  /* Gamer rc6 #2 (?smokebtn=0 off): while the bird wants smoke the same button pops it - greyed 'GET TO THE PAD FIRST' until Doc is inside the pad circle */
+  SMB:N2F('smokebtn'),
+  smokeWait(){ const g=G,ex=g&&g.ex,c=ex&&ex.call; if(!this.SMB||!c||c.st!=='wait'||ex.ph!==4||ex.divert||state!=='play')return null; return onPad(g.p.x,g.p.y)&&g.p.hp>0?'on':'off' },
+  press(){ const w=this.smokeWait(); if(w==='on'){ popSmoke(); return true } if(w==='off'){ G.banner={text:'GET TO THE PAD FIRST',t:1.4,col:'#ffcf5a'}; return false } return this.call(false) },
   hud(U){ if(!this.shells.some(q=>q.t>=(q.w||0))||G.demo)return; const a=.75+.25*Math.sin(performance.now()/90); ctx.globalAlpha=a; txt('INCOMING!',W/2,Math.max(H*.34,170*U),Math.round(30*U),'#ff5a3a','center'); ctx.globalAlpha=1 },
   qaSpawn(t,x,y){ return spawnEnemy(t,x,y) },
   btn(){ let b=document.getElementById('n2x'); if(!b&&this.XC&&document.body){ b=document.createElement('button'); b.id='n2x'; b.textContent='POP SMOKE · CALL BIRD (X)';
       b.style.cssText='position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;display:none;padding:12px 18px;font:bold 15px "Courier New",monospace;color:#10180c;background:#b9e08a;border:3px solid #2c3e1c;border-radius:6px;box-shadow:0 3px 0 #2c3e1c;touch-action:manipulation';
-      b.addEventListener('pointerdown',ev=>{ ev.stopPropagation(); ev.preventDefault(); N2.call(false) }); document.body.appendChild(b) } return b },
+      b.addEventListener('pointerdown',ev=>{ ev.stopPropagation(); ev.preventDefault(); N2.press() }); document.body.appendChild(b) } return b },
   draw(){ const tt=performance.now()/1000;
     for(const d of this.dead){ ctx.globalAlpha=Math.max(0,Math.min(1,(14-d.t)/3)); if(ctx.globalAlpha>0)try{ SHEET1.drawSapper(ctx,d.a,d.t,Math.round(d.x),Math.round(d.y+12*d.sc),d.f,{scale:d.sc,unarmed:true,gore:!!GORE}) }catch(er){} } ctx.globalAlpha=1;
     for(const q of this.thrown){ const k=Math.min(1,q.t/q.d), x=q.sx+(q.tx-q.sx)*k, y=q.sy+(q.ty-q.sy)*k-Math.sin(k*Math.PI)*28; ctx.fillStyle='#2c2a1c'; ctx.fillRect(Math.round(x-2),Math.round(y-2),5,4); if(Math.sin(tt*40)>0){ ctx.fillStyle='#ffd060'; ctx.fillRect(Math.round(x+2),Math.round(y-3),1,1) } }
     for(const q of this.shells){ const w=q.w||0; if(q.t<w)continue; const k=Math.min(1,(q.t-w)/(q.d-w)); if(k<.15)continue; ctx.globalAlpha=.35+.45*k; ctx.strokeStyle='#ff3a2a'; ctx.lineWidth=2+k*2;
       ctx.beginPath(); ctx.arc(q.x,q.y,this.BR*(q.cal===60?.8:1)*(1.25-.25*k),0,TAU); ctx.stroke(); ctx.globalAlpha=.12+.18*k*(.6+.4*Math.sin(tt*16)); ctx.fillStyle='#ff3a2a'; ctx.beginPath(); ctx.arc(q.x,q.y,this.BR*(q.cal===60?.8:1)*k,0,TAU); ctx.fill();
       ctx.globalAlpha=.8; ctx.fillRect(q.x-6,q.y-1,12,2); ctx.fillRect(q.x-1,q.y-6,2,12) } ctx.globalAlpha=1 } };
-document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code==='KeyX')N2.call(false) });
+document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code==='KeyX')N2.press() });
 /* ===== PACE (Blake Oct 14: "most levels in the beginning are more firefights"): early levels are contacts with small NVA/VC fire teams and lulls between them;
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
 const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.1,HOLD_DOC:+(new URLSearchParams(location.search).get('holddoc')||.18),M_TGT:.6,M_HIT:.4,M_DMG:38,SHOT_DMG:4,COVER_DR:.4,RET_AT:.25,
