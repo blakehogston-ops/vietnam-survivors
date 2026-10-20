@@ -55,7 +55,7 @@ Proposed starting roster: the Rifleman/default Marine plus Doc (corpsman) are fr
 - Country (M1903): get 100 kills with a single weapon / reach level 10.
 - Radio: secure a firebase once.
 - Skipper (squad leader): extract successfully once.
-- Zippo (flamethrower): kill 500 enemies total.
+- Lighter (flamethrower): kill 500 enemies total.
 - Cook: reach service tier 2 (or collect 10 ribbons' worth of XP).
 - MSgt. Hogston (tribute character): unlock after earning a Bronze Star ribbon, or reach tier 3, so it feels earned and special.
 - Washington variants / skin tones: free cosmetic choices, not locked.

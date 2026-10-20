@@ -10,7 +10,7 @@ Skip anything already in the build.
 - XP magnet after boss death
 
 ## History (Vietnam Vet)
-- Helmet-cover markings (6-8 variants: peace sign, hometown, short-timer calendar, slogan), Zippo, cigarettes in helmet band, P-38 on dog tags
+- Helmet-cover markings (6-8 variants: peace sign, hometown, short-timer calendar, slogan), lighter, cigarettes in helmet band, P-38 on dog tags
 - Period slang: in-country, the World, beaucoup, Willy Pete, slick
 - Map names with one-line blurbs: Khe Sanh, Hue, Con Thien, Hill 881, Cua Viet (I Corps 1968)
 - Monsoon weather (rain, fog, red laterite mud tile), with a low-effects setting; must not hide enemies/warnings

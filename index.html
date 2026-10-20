@@ -1249,7 +1249,7 @@ if(window.JUNGLE_ON)document.write('<script src="assets/art/jungle_v3_lite.js?v=
 <script src="assets/ui/settings_art.js"></script>
 <script src="assets/ui/settings_skin.js"></script>
 <script src="assets/ui/main_menu_art.js?v=e913c2f"></script><script src="assets/ui/colonel_intro_v2.js?v=e913c2f"></script>
-<script src="assets/art/pbr_splash.js?v=e913c2f"></script><script src="assets/art/pbr_wake.js?v=e913c2f"></script><script src="assets/art/zippo_monitor.js?v=e913c2f"></script>
+<script src="assets/art/pbr_splash.js?v=e913c2f"></script><script src="assets/art/pbr_wake.js?v=e913c2f"></script><script src="assets/art/flame_monitor.js?v=e913c2f"></script>
 <script src="assets/art/engineers_v2.js?v=e913c2f"></script><script src="assets/art/doc_hivis.js?v=e913c2f"></script><script src="assets/art/marines_tall.js?v=e913c2f"></script><script src="assets/art/heroes_tall.js?v=e913c2f"></script><script src="assets/art/cover_poses.js?v=e913c2f"></script><script src="assets/art/hit_prone_poses.js?v=e913c2f"></script><script src="assets/art/firebase.js?v=e913c2f"></script><script src="assets/art/terrain.js?v=e913c2f"></script><script src="assets/art/recon_team.js?v=e913c2f"></script><script src="assets/art/sog_team.js?v=e913c2f"></script><script src="assets/art/bunker_interior.js?v=e913c2f"></script><script src="assets/art/trench_poses.js"></script><script>if(/[?&]v3=0\b/.test(location.search))SHEET1.useV3=false</script><script src="assets/art/heroes_v3.js?v=e913c2f"></script><script src="assets/art/marines_v3.js"></script><script src="assets/art/cover_poses_v4.js"></script><script src="assets/art/hit_prone_poses_v4.js"></script><script src="assets/art/trench_poses_v4.js"></script><script src="assets/art/banter_poses_v1.js"></script><script src="assets/art/doc_cabin_v4.js"></script>
 <script>/* Artist Helper v4 recon/SOG ports onto the v3 rig (?v4teams=0 keeps the originals) */ if(!/[?&]v4teams=0\b/.test(location.search))document.write('<script src="assets/art/recon_team_v4.js?v=e913c2f"><\/script><script src="assets/art/sog_team_v4.js?v=e913c2f"><\/script>')</script>
 <script>/* Artist Helper atmosphere grade/lights (?atmo=0 off) + impact feel debris/kick (?impfx=0 off) */ if(!/[?&]atmo=0\b/.test(location.search))document.write('<script src="assets/vfx/atmosphere.js?v=e913c2f"><\/script>'); if(!/[?&]impfx=0\b/.test(location.search))document.write('<script src="assets/vfx/impact_feel.js?v=e913c2f"><\/script>')</script><script>/* Artist Helper explosion VFX (?xfx=0 off) */ if(!/[?&]xfx=0\b/.test(location.search))document.write('<script src="assets/art/explosions.js?v=e913c2f"><\/script>')</script><script src="assets/art/enemies_v3.js"></script><script src="assets/art/sapper_v4.js"></script><script src="assets/art/engineers_v4.js"></script><script src="assets/art/fb2_guns.js"></script><script src="assets/art/aid_jeep.js"></script><script src="assets/art/fb2_aid_station.js"></script><script src="assets/art/ability_icons.js?v=e913c2f"></script><script src="assets/art/pbr_splash.js?v=e913c2f"></script><script defer src="audio/sample_player.js?v=e913c2f"></script><script defer src="audio/samples/manifest.js?v=e913c2f"></script>
@@ -2126,7 +2126,7 @@ function buildCharSprites(){
     hammer:[mod({1:"....CCCCCCCC....",5:"....SESSSSES....",7:"..UUKUUUUUUKUU..",8:"..SUUKUUUUKUUS..",9:"..SuUUBBBBUUuS.."}),Object.assign({},MP,{K:'#c8a63a',C:'#5f7a3c',c:'#415a2a'})],
     boone:[mod({0:"................",1:".....CCCCCC.....",2:"..cccCCCCCCccc..",3:"..cccccccccccc..",4:"....SSSSSSSS...."}),Object.assign({},MP,{C:'#8a9560',c:'#667040'})],
     skipper:[mod({1:"....CCCYYCCC....",2:"....CcYYYYcC....",5:"....SKKSSKKS....",8:"..SUUuUUUUuUUS.."}),Object.assign({},MP,{Y:'#e0b43a',K:'#111'})],
-    zippo:[mod({3:"....RRRRRRRR....",6:"..OUUUUUUUUUUO..",7:"..OUuUUUUUUuUO..",8:"..SOUuUUUUuUOS.."}),Object.assign({},MP,{R:'#c0392b',O:'#9aa0a6'})],
+    flamer:[mod({3:"....RRRRRRRR....",6:"..OUUUUUUUUUUO..",7:"..OUuUUUUUUuUO..",8:"..SOUuUUUUuUOS.."}),Object.assign({},MP,{R:'#c0392b',O:'#9aa0a6'})],
     rat:[mod({0:"................",1:"................",2:"....ccYYYYcc....",3:"....cccccccc....",5:"....SKKSSKKS...."}),Object.assign({},MP,{c:'#333a2a',Y:'#ffe58a',K:'#1c1c1c'})],
     radio:[["................","....CCCCCCCC....","...CCCCOOCCCC...","...cccccccccc...","...SSSSSSSSSS...","..KSESSSSSSESK..","..K.SSSSSSSS.K..","...UUUWWWWUUU...","..UVUUUWWUUUVU..","..SVUTTUUTTUVS..","...UUUUUUUUUU..."],Object.assign({},MP,{C:'#707a4a',c:'#4d5733',O:'#20231a',K:'#a3a8ac',W:'#f2f0e6',T:'#e8e2c4',V:'#d6cf9e',U:'#68743f',u:'#4b562d',S:'#e0b48c'})],
     preacher:[mod({7:"..UUuUUYUUUuUU..",8:"..SUUuUYYUuUUS..",9:"..SuUUBYBBUUuS.."}),Object.assign({},MP,{Y:'#e0c040'})],
@@ -2134,7 +2134,7 @@ function buildCharSprites(){
   };
   /* diverse roster: skin tone, hair colour and sideburns per character (faces are stylised, never likenesses) */
   const SK={dark:{S:'#7a4b2d',H:'#1b130e',E:'#120c08'},med:{S:'#b4774a',H:'#14100c',E:'#150e08'},tan:{S:'#c99066',H:'#2a1c10'},fair:{S:'#f2d2b0',H:'#b5481f',F:'#cf8f6a'},fairB:{S:'#f2d2b0',H:'#c9a44a'},sandy:{S:'#ecc9a2',H:'#8a6a3a',F:'#cf8f6a'},base:{H:'#5a3c20'}};
-  const WHO={doc:'med',hammer:'fairB',boone:'sandy',skipper:'fair',zippo:'dark',rat:'med',preacher:'tan',chef:'base'};
+  const WHO={doc:'med',hammer:'fairB',boone:'sandy',skipper:'fair',flamer:'dark',rat:'med',preacher:'tan',chef:'base'};
   for(const k in V){ const sk=WHO[k]; if(!sk)continue; const t=V[k][0].slice(); if(t[4]==="....SSSSSSSS....")t[4]="....HSSSSSSH...."; if((sk==='fair'||sk==='sandy')&&t[5]==="....SESSSSES....")t[5]="....FESSSSEF...."; V[k][0]=t; V[k][1]=Object.assign({},V[k][1],SK[sk]) }
   V.radio=[B1.hogston.top,B1.hogston.pal];   // MSgt Hogston, USAF (Artist Helper batch 1; stylised, not a likeness)
   for(const k in V)CHSPR[k]=makeSprites(V[k][0],LEGS0,V[k][1],2);
@@ -2583,7 +2583,7 @@ function updateTanks(dt){
           if(sh){ t.ammo=(t.ammo||6)-1; t.gcd=t.ammo>0?.17:s.gcd*3.4; if(t.ammo<=0)t.ammo=6; addPart(t.x-cosd(t.tur)*14,t.y-sind(t.tur)*14,-cosd(t.tur)*60,-sind(t.tur)*60,.5,6,'#d8d4c4',false,2) } else t.gcd=s.gcd;
           apHit=true; explode(tg.x+(rnd()-.5)*(sh?44:16),tg.y+(rnd()-.5)*(sh?44:16),s.rad,s.dmg*(sh?.62:1),230); apHit=false; burst(mx,my,8,120,.3,4,['#fff0a0','#ffb040','#c8c8c0'],true); t.mf=.07; g.shake=Math.max(g.shake,Math.max(0,6-Math.hypot(t.x-p.x,t.y-p.y)/80)+2); MIX.as('squad',()=>Snd.play(t.k===2?'ontos':'tank_cannon')) } }
       else if(diff<.4&&!zipBlock(t,s.frange)){ const mx=t.x+cosd(t.tur)*40, my=t.y+sind(t.tur)*40;
-        if(FLM.ok())FLM.fire(t,mx,my,Math.atan2(sind(t.tur),cosd(t.tur)),s.frange,Math.max(1,Math.round((s.frange-470)/16)),'zippo'); else for(let k=0;k<3;k++){ const sp=s.frange*(2.6+rnd()*1.2), a2=t.tur+(rnd()-.5)*.6; addPart(mx,my,cosd(a2)*sp,sind(a2)*sp,.22+rnd()*.12,4+rnd()*4,['#fff0a0','#ffd54a','#ff9b21','#ff5a1a'][(rnd()*4)|0],true,3.2) }
+        if(FLM.ok())FLM.fire(t,mx,my,Math.atan2(sind(t.tur),cosd(t.tur)),s.frange,Math.max(1,Math.round((s.frange-470)/16)),'heavy'); else for(let k=0;k<3;k++){ const sp=s.frange*(2.6+rnd()*1.2), a2=t.tur+(rnd()-.5)*.6; addPart(mx,my,cosd(a2)*sp,sind(a2)*sp,.22+rnd()*.12,4+rnd()*4,['#fff0a0','#ffd54a','#ff9b21','#ff5a1a'][(rnd()*4)|0],true,3.2) }
         t.fcd-=dt; if(t.fcd<=0){ t.fcd=.1; Snd.play('flame'); dmgSrc=3;
           for(let j=0;j<enemies.length;j++){ const e=enemies[j]; if(e.dead)continue; const ex=e.x-mx,ey=e.y-my,d=Math.hypot(ex,ey); if(d>s.frange+e.r)continue; let ad=Math.atan2(ey,ex)-t.tur; ad=Math.abs(Math.atan2(Math.sin(ad),Math.cos(ad))); if(ad<.42+Math.atan2(e.r,Math.max(d,1)))hurtEnemy(e,s.fdmg,ex/(d||1)*10,ey/(d||1)*10) } dmgSrc=0;
           if(rnd()<.35&&fires.length<90){ const fd=s.frange*(.5+rnd()*.4), fx=mx+cosd(t.tur)*fd, fy=my+sind(t.tur)*fd; if(!zipNear(fx,fy,80))fires.push({wid:CURW,x:fx,y:fy,r:20,life:2.2,ml:2.2,tick:0,dmg:3}) } } }
@@ -3122,7 +3122,7 @@ const ITEMS={
     stats:l=>({dmg:60+20*(l-1),cd:3.4*Math.pow(.93,l-1),n:1+(l>=3)+(l>=6),cap:3+l,range:120+7*l,half:.62+.02*l}),
     desc:s=>`Dmg ${s.dmg} · ${s.n} per drop · range ${s.range}`},
   flame:{kind:'w',name:'M2 Flamethrower',max:8,blurb:'Short-range cone of fire. Clears the brush.',
-    stats:l=>({dmg:4+2.5*(l-1),tick:.12,range:200+12*l,half:.5+.035*l}),   /* Blake Oct 14 night: M2 reach ~210-300 px (thickened fuel); the Zippo is ~1.6-2x */
+    stats:l=>({dmg:4+2.5*(l-1),tick:.12,range:200+12*l,half:.5+.035*l}),   /* Blake Oct 14 night: M2 reach ~210-300 px (thickened fuel); the flame tank is ~1.6-2x */
     desc:s=>`${Math.round(s.dmg/s.tick)} dps · range ${Math.round(s.range)}`},
   napalm:{kind:'w',name:'Napalm Air Strike',max:8,blurb:'Pop smoke and call in a jet run. Leaves burning ground.',
     stats:l=>({dmg:40+14*(l-1),cd:10*Math.pow(.92,l-1),n:1+(l>=4)+(l>=7),len:240+20*l,rad:40+3*l,fdmg:3+1.2*l,flife:2.5+.25*l}),
@@ -3168,10 +3168,10 @@ const ITEMS={
     blurb:'12-gauge pump: a short-range cone of buckshot. The tunnel rat\'s favorite.',
     stats:l=>({dmg:4.4+1.1*(l-1),cd:1.05*Math.pow(.93,l-1),pel:6+(l>=3?1:0)+(l>=5?1:0)+(l>=7?1:0),spread:.52}),
     desc:s=>`Buckshot ${s.pel} x ${s.dmg.toFixed(1)} · short range`},
-  tank:{kind:'w',name:'Armor Support',nm:l=>l<3?'M48A3 Patton Support':l<6?'Armor: M48A3 Patton / M67A2 Zippo':'Armor: Patton / Zippo / M50A1 Ontos',max:8,
-    blurb:'A friendly tank drives in from the edge and stays with you, shelling and machine-gunning the enemy and crushing infantry. Enemies and RPGs can hurt it (HP bar); when it is destroyed a replacement rolls in after a cooldown. Higher levels: more HP, damage, fire rate and faster respawns. Level 3 adds the M67A2 "Zippo" flame tank, level 6 the M50A1 Ontos: fast, fragile and short-ranged, it dumps a salvo of six 106mm recoilless rounds (the Ontos fought at Hue in 1968) then takes a long time to reload.',
+  tank:{kind:'w',name:'Armor Support',nm:l=>l<3?'M48A3 Patton Support':l<6?'Armor: M48A3 Patton / M67A2 Flame':'Armor: Patton / Flame Tank / M50A1 Ontos',max:8,
+    blurb:'A friendly tank drives in from the edge and stays with you, shelling and machine-gunning the enemy and crushing infantry. Enemies and RPGs can hurt it (HP bar); when it is destroyed a replacement rolls in after a cooldown. Higher levels: more HP, damage, fire rate and faster respawns. Level 3 adds the M67A2 flame tank, level 6 the M50A1 Ontos: fast, fragile and short-ranged, it dumps a salvo of six 106mm recoilless rounds (the Ontos fought at Hue in 1968) then takes a long time to reload.',
     stats:l=>({dmg:95+14*(l-1),rad:52+2*l,gcd:2*Math.pow(.955,l-1),mg:5+l,mcd:.14*Math.pow(.95,l-1),hp:200+40*(l-1),rcd:30*Math.pow(.93,l-1),fdmg:4+1.2*l,frange:Math.min(600,470+16*l),vr:1+(l>=3)+(l>=6)}),
-    desc:s=>`90mm HE ${s.dmg} · M2 .50 cal ${s.mg}${s.vr>=2?' · Zippo flame '+Math.round(s.fdmg/.1)+' dps':''}${s.vr>=3?' · Ontos 6x106mm '+Math.round(s.dmg*.7):""} · HP ${Math.round(s.hp)} · replacement in ${s.rcd.toFixed(0)}s`},
+    desc:s=>`90mm HE ${s.dmg} · M2 .50 cal ${s.mg}${s.vr>=2?' · flame-tank flame '+Math.round(s.fdmg/.1)+' dps':''}${s.vr>=3?' · Ontos 6x106mm '+Math.round(s.dmg*.7):""} · HP ${Math.round(s.hp)} · replacement in ${s.rcd.toFixed(0)}s`},
   arclight:{kind:'w',name:'B-52 Arc Light',nm:l=>'B-52D Arc Light',max:8,
     blurb:'Call an Arc Light mission: a B-52D high overhead walks a line of 500 lb bombs across a marked strip, with a KC-135A Stratotanker flying along high above (the B-52s were air-refueled by KC-135s on their long missions from Guam and U-Tapao).',
     stats:l=>({n:Math.round(8+1.5*l),dmg:150+30*(l-1),rad:88+5*l,lat:30+4*l,cd:38*Math.pow(.93,l-1)}),
@@ -3258,7 +3258,7 @@ function nearestK(x,y,k,maxD){const res=[],ds=[],m2=maxD*maxD; const AR=PB.arc&&
   const B=G&&G.boss; if(B&&!B.dead&&k>=1){ const bx=B.x-x,by=B.y-y; if(bx*bx+by*by<m2){ const bi=res.indexOf(B); if(bi!==0){ if(bi>0)res.splice(bi,1); res.unshift(B); if(res.length>k)res.pop() } } }   // bosses draw everyone's fire
   return res}
 function addBullet(x,y,a,spd,dmg,pierce,life,r,col){const o={x,y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,dmg,pierce,life,r,col,hit:[],a,tg:BTAG[col]||'rifle',wid:CURW}; bullets.push(o); return o}
-function hurtEnemy(e,d,kx=0,ky=0){ if(e.dead)return; if(!isFinite(kx)||!isFinite(ky)){ kx=0; ky=0; if((G.nanFix=(G.nanFix|0)+1)===1)console.warn("hurtEnemy: non-finite knockback sanitized") }   /* root cause (Test Automation): gunships/Zippo called hurtEnemy without kx/ky -> defaults 0; guard kept as a safety net */   /* rc7.1: a zero-distance hit (punji pit under the enemy, ?build=done bot) passed NaN knockback and turned the enemy, then Doc (bot steering), into NaN */; if(e.tank&&VHX.ON){ VHX.hit(VHX.heat?'heat':apHit?'ap':d>=6?'mg':'small',e,e.x+(rnd()-.5)*18,e.y+(rnd()-.5)*10,{}); VHX.heat=0 } if(e.inCov)d*=PACE.COVER_DR; if(e.armor){ d*=apHit?2.2:(d>=25?.5:.1) } if(G.char){ d*=G.cdm; if(dmgSrc===3)d*=G.flm; const cc=G.crit+(G.dead>0?.45:0); if(cc>0&&rnd()<cc){ d*=2; if(parts.length<(LOWFX?160:400))addPart(e.x,e.y-12,0,-30,.35,3,'#ffe58a',true,2) } } G.dd=(G.dd||0)+Math.min(d,Math.max(0,e.hp)); if(CURW){ const wd=G.wd||(G.wd={}); wd[CURW]=(wd[CURW]||0)+Math.min(d,Math.max(0,e.hp)) } e.hp-=d; e.flash=.09; e.lt=DTAG||(dmgSrc===3?'fire':dmgSrc===2?'expl':'rifle'); e.lx=kx; e.ly=ky;
+function hurtEnemy(e,d,kx=0,ky=0){ if(e.dead)return; if(!isFinite(kx)||!isFinite(ky)){ kx=0; ky=0; if((G.nanFix=(G.nanFix|0)+1)===1)console.warn("hurtEnemy: non-finite knockback sanitized") }   /* root cause (Test Automation): gunships/flame tank called hurtEnemy without kx/ky -> defaults 0; guard kept as a safety net */   /* rc7.1: a zero-distance hit (punji pit under the enemy, ?build=done bot) passed NaN knockback and turned the enemy, then Doc (bot steering), into NaN */; if(e.tank&&VHX.ON){ VHX.hit(VHX.heat?'heat':apHit?'ap':d>=6?'mg':'small',e,e.x+(rnd()-.5)*18,e.y+(rnd()-.5)*10,{}); VHX.heat=0 } if(e.inCov)d*=PACE.COVER_DR; if(e.armor){ d*=apHit?2.2:(d>=25?.5:.1) } if(G.char){ d*=G.cdm; if(dmgSrc===3)d*=G.flm; const cc=G.crit+(G.dead>0?.45:0); if(cc>0&&rnd()<cc){ d*=2; if(parts.length<(LOWFX?160:400))addPart(e.x,e.y-12,0,-30,.35,3,'#ffe58a',true,2) } } G.dd=(G.dd||0)+Math.min(d,Math.max(0,e.hp)); if(CURW){ const wd=G.wd||(G.wd={}); wd[CURW]=(wd[CURW]||0)+Math.min(d,Math.max(0,e.hp)) } e.hp-=d; e.flash=.09; e.lt=DTAG||(dmgSrc===3?'fire':dmgSrc===2?'expl':'rifle'); e.lx=kx; e.ly=ky;
   if(e.hp>0&&drops.length<(LOWFX?110:300)&&(dmgSrc!==3||rnd()<.25)){ spawnDrops(e.x,e.y-6,kx,ky,e.boss?2:1+((rnd()*2)|0),95); if(rnd()<.05&&decals.length<DECAL_CAP)addDecal(e.x+(rnd()-.5)*10,e.y+6,SPLAT[8+((rnd()*2)|0)],22,.8) } if(!e.boss){e.kx+=kx;e.ky+=ky}else{e.kx+=kx*.1;e.ky+=ky*.1} if(!isFinite(e.kx)||!isFinite(e.ky)){ e.kx=0; e.ky=0; (G.nanFix=(G.nanFix|0)+1) }
   if(e.hp<=0)killEnemy(e); else Snd.play('hit'); }
 function dropGem(x,y,v,type){ if(gems.length>220){addXp(v);return} gems.push({x:x+(rnd()-.5)*10,y:y+(rnd()-.5)*10,v,t:type,pull:false,sp:0}) }
@@ -4088,7 +4088,7 @@ function updateWeapons(dt){
       annc(id,id,{text:id==='boxmission'?'ARC LIGHT: BOX MISSION! 3x B-52D':'ARC LIGHT! B-52 INBOUND',t:2.2,col:'#ff9a6a'}); Snd.play('radio'); if(!SAMP.air('arc'))Snd.airPlay('airarc'); w.cd+=s.cd; refuelRun(id,w); RTO_T=null; }
   }
 }
-/* M67 'Zippo' (Blake Oct 14 night): flame reaches ~1.6-2x the handheld M2. It never torches friendlies or the pad smoke:
+/* M67 flame tank (Blake Oct 14 night): flame reaches ~1.6-2x the handheld M2. It never torches friendlies or the pad smoke:
    the gun holds while the player, a Marine, a spec-ops man or the pad/smoke sits inside its cone, and no burning ground lands near them. */
 function zipNear(x,y,r){ const g=G; if(Math.hypot(g.p.x-x,g.p.y-y)<r)return true; for(const m of coy)if(m.hp>0&&Math.hypot(m.x-x,m.y-y)<r)return true;
   const S=g.spec; if(S&&S.men)for(const m of S.men)if(m.hp>0&&Math.hypot(m.x-x,m.y-y)<r)return true; const ex=g.ex; if(ex&&ex.pad&&Math.hypot(ex.pad.x-x,ex.pad.y-y)<r+90)return true; return false }
@@ -4277,19 +4277,19 @@ const FBO={ON:!/[?&]fbo=0\b/.test(location.search), H:[], reset(){ this.H.length
         if(best){ h.tg=best; h.bs=6; h.bt=0; try{ MIX.as('squad',()=>Snd.play('m60'),Math.hypot(h.x-G.p.x,h.y-G.p.y)) }catch(e){} } } } },
   clear(e){ const p=G.p; if(Math.hypot(e.x-p.x,e.y-p.y)<60)return false; for(const q of coy)if(q.hp>0&&Math.hypot(e.x-q.x,e.y-q.y)<60)return false; for(const m of squad)if(m.hp>0&&Math.hypot(e.x-m.x,e.y-m.y)<60)return false; return true },
   draw(){ for(const h of this.H)drawHuey(h) } };
-/* ZMON (Blake): Navy LCM-6 "Zippo" flame monitor (Artist Helper zippo_monitor.js) as the flame-boat backup that joins the PBR call from gunboat level ZMON.LV.
-   Same friendly-safe rules as the M67 tank Zippo: the guns hold while the player, a Marine, a spec-ops man or the pad smoke is in the cone, and no
+/* ZMON (Blake): Navy LCM-6 flame monitor (Artist Helper flame_monitor.js) as the flame-boat backup that joins the PBR call from gunboat level ZMON.LV.
+   Same friendly-safe rules as the M67 flame tank: the guns hold while the player, a Marine, a spec-ops man or the pad smoke is in the cone, and no
    burning ground is left near friendlies. Integer scale 1 only (non-integer scales re-bake the sheet). ?zmon=0 turns it off. */
 const ZMON={LV:6, ON:!/[?&]zmon=0\b/.test(location.search), R:300,
-  ok(){ return !!(this.ON&&window.SHEET1&&SHEET1.drawZippoMonitor&&SHEET1.drawZippoFlame&&window.VFX_FLAME&&VEH()) },
-  warm(){ if(!this.ok())return; try{ const c=document.createElement('canvas'); c.width=c.height=256; const x=c.getContext('2d'); for(const sc of [1,2])for(const d of [0,.6,1])for(let h=0;h<8;h++)SHEET1.drawZippoMonitor(x,{x:128,y:128,heading:h*Math.PI/4,t:0,scale:sc,damage:d,speed:0}) }catch(e){ this.ON=false } },
+  ok(){ return !!(this.ON&&window.SHEET1&&SHEET1.drawFlameMonitor&&SHEET1.drawMonitorFlame&&window.VFX_FLAME&&VEH()) },
+  warm(){ if(!this.ok())return; try{ const c=document.createElement('canvas'); c.width=c.height=256; const x=c.getContext('2d'); for(const sc of [1,2])for(const d of [0,.6,1])for(let h=0;h<8;h++)SHEET1.drawFlameMonitor(x,{x:128,y:128,heading:h*Math.PI/4,t:0,scale:sc,damage:d,speed:0}) }catch(e){ this.ON=false } },
   fire(b,dt){ const R=this.R; b.fc-=dt; if(b.fl>0){ b.fl-=dt; b.ft-=dt; const T={x:b.x,y:b.y,tur:b.fa}; if(zipBlock(T,R)){ b.fl=0; return }
       if(b.ft<=0){ b.ft=.15; const c=Math.cos(b.fa), sn=Math.sin(b.fa); dmgSrc=3; for(const e of enemies){ if(e.dead)continue; const dx=e.x-b.x, dy=e.y-b.y, a=dx*c+dy*sn; if(a<0||a>R)continue; if(Math.abs(-dx*sn+dy*c)<a*.28+18)hurtEnemy(e,b.s.d50*.9) } dmgSrc=0;
         if(rnd()<.3&&fires.length<90){ const fd=R*(.5+rnd()*.4), fx=b.x+c*fd, fy=b.y+sn*fd; if(!zipNear(fx,fy,80)&&!riverAt(fx,fy))fires.push({wid:CURW,x:fx,y:fy,r:20,life:2.2,ml:2.2,tick:0,dmg:3}) } } return }
     if(b.fc>0)return; const t=nearestK(b.x,b.y,1,R)[0]; if(!t){ b.fc=.5; return } b.fa=Math.atan2(t.y-b.y,t.x-b.x); if(zipBlock({x:b.x,y:b.y,tur:b.fa},R)){ b.fc=.6; return }
     b.fl=1.1; b.ft=0; b.fc=3.2; MIX.as('squad',()=>Snd.play('flame'),b.dist) },
-  draw(b){ const tt=performance.now()/1000, r=SHEET1.drawZippoMonitor(ctx,{x:Math.round(b.x),y:Math.round(b.y),heading:b.hd,t:tt,scale:1,damage:b.dead?1:Math.min(.95,1-b.hp/b.mhp),speed:b.dead?0:.6});
-    if(r&&b.fl>0&&!b.dead){ const L=this.R*.85; SHEET1.drawZippoFlame(ctx,r,b.x+Math.cos(b.fa)*L,b.y+Math.sin(b.fa)*L,tt,5,1) }
+  draw(b){ const tt=performance.now()/1000, r=SHEET1.drawFlameMonitor(ctx,{x:Math.round(b.x),y:Math.round(b.y),heading:b.hd,t:tt,scale:1,damage:b.dead?1:Math.min(.95,1-b.hp/b.mhp),speed:b.dead?0:.6});
+    if(r&&b.fl>0&&!b.dead){ const L=this.R*.85; SHEET1.drawMonitorFlame(ctx,r,b.x+Math.cos(b.fa)*L,b.y+Math.sin(b.fa)*L,tt,5,1) }
     if(b.mhp&&!b.dead){ const rr=Math.max(0,b.hp/b.mhp), w=40, bx=Math.round(b.x)-w/2, by=Math.round(b.y)-56; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,5); ctx.fillStyle=rr>.55?'#6fd04a':rr>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,w*rr,5) } } };
 /* URG (Blake, Vet verified): at Doc's Triage a random chance flags the worst-wounded Marine URGENT. A CH-46 (no red crosses) flies in, he is
    lifted out, the radio calls "urgent medevac"; he leaves the field squad and counts as extracted (score + end card). Max 2 a run, 75 s apart,
@@ -4564,7 +4564,7 @@ const FIELD={ON:!/[?&]field=0\b/.test(location.search), m:null, h:0, nx:0, n:0, 
     if(this.h>0){ ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(x-12,y+8,24,3); ctx.fillStyle='#9be37a'; ctx.fillRect(x-12,y+8,Math.round(24*Math.min(1,this.h/1.5)),3) } },
   hud(U){ const m=this.m; if(!m)return; const z=MZW.z||1, sx=(m.x-MZW.cx)*z, sy=(m.y-MZW.cy)*z; if(sx>20*U&&sx<W-20*U&&sy>20*U&&sy<H-20*U)return; const a=Math.atan2(sy-H/2,sx-W/2), [ax,ay]=edgeArrow(a,U);
     ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle='#ff6a4a'; ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(14*U,0); ctx.lineTo(-8*U,-9*U); ctx.lineTo(-8*U,9*U); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore() } };
-const TANKK=[{nm:'M48A3 Patton',spd:100,rr:26},{nm:'M67A2 "Zippo" Flame Tank',spd:96,rr:26},{nm:'M50A1 Ontos',spd:150,rr:20}];
+const TANKK=[{nm:'M48A3 Patton',spd:100,rr:26},{nm:'M67A2 Flame Tank',spd:96,rr:26},{nm:'M50A1 Ontos',spd:150,rr:20}];
 function callTank(s,l){ const p=G.p, pool=[0]; if(l>=3)pool.push(1); if(l>=6)pool.push(2); const k=pool[(G.tankRot++)%pool.length];
   const R=Math.hypot(VW,VH)/2+70, a=rnd()*TAU;
   const t={k,x:p.x+Math.cos(a)*R,y:p.y+Math.sin(a)*R,hd:a+Math.PI,tur:a+Math.PI,sa:a,ph:0,gcd:.7,mcd:.3,fcd:0,mf:0,spd:TANKK[k].spd,s,lvl:l,hp:s.hp*(k===2?.55:1),mhp:s.hp*(k===2?.55:1),age:0,ammo:6,hf:0,inv:0,dead:false,wt:0,rs:0,smoke:0,R};
@@ -4718,7 +4718,7 @@ function mapForBase(bx,by){ const g=G; if(!g.mapX)g.mapX=new Map(); unPocket(bx,
   return {h,i,u,cross:L,hidden:hid} }
 /* PBR: about 3-4 min under B-40 pairs (Gamer); a rocket hit can knock the guns out for a few seconds */
 const PBR={HP:3500,DIS_P:.25,DIS_T:5};
-function hurtBoat(b,dmg){ if(b.dead)return; VHX.hit('boat',b,b.x+(rnd()-.5)*30,b.y+(rnd()-.5)*14,{hull:b.zippo?'steel':'fiberglass'}); if(Math.random()<.5)WFX.hit(b.x+(Math.random()-.5)*70,b.y+(Math.random()-.5)*50,dmg>=15?'heavy':'small'); b.hp-=dmg; b.hf=.15; if(rnd()<PBR.DIS_P)b.dis=PBR.DIS_T; if(!G.pbrLog)G.pbrLog=[]; if(b.hp<=0){ b.dead=true; b.wreck=0; if(VHX.ok())try{ VFX_VEHICLE_HIT.attachToVehicle(VHX.id(b),4,{follow:b,ttl:20}) }catch(e){} G.pbrLog.push({life:+b.t.toFixed(1),at:+G.t.toFixed(1)});
+function hurtBoat(b,dmg){ if(b.dead)return; VHX.hit('boat',b,b.x+(rnd()-.5)*30,b.y+(rnd()-.5)*14,{hull:b.fmon?'steel':'fiberglass'}); if(Math.random()<.5)WFX.hit(b.x+(Math.random()-.5)*70,b.y+(Math.random()-.5)*50,dmg>=15?'heavy':'small'); b.hp-=dmg; b.hf=.15; if(rnd()<PBR.DIS_P)b.dis=PBR.DIS_T; if(!G.pbrLog)G.pbrLog=[]; if(b.hp<=0){ b.dead=true; b.wreck=0; if(VHX.ok())try{ VFX_VEHICLE_HIT.attachToVehicle(VHX.id(b),4,{follow:b,ttl:20}) }catch(e){} G.pbrLog.push({life:+b.t.toFixed(1),at:+G.t.toFixed(1)});
     explode(b.x,b.y,60,0,0); burst(b.x,b.y,20,140,.8,6,['#ffd54a','#ff7a1a','#555'],true); (SAMP.boom('tank_kill')||Snd.play('boom')); g_banner('PBR DOWN!','#ff6a4a') } }
 function g_banner(t,c){ G.banner={text:t,t:2.2,col:c} }
 /* if Doc is about to plan a pad near the hidden crossing, the NVA use another one: keep it >= MAPB.HIDE_MIN from the pad and the base */
@@ -4727,7 +4727,7 @@ function relocHidden(px,py){ const g=G; if(!g||g.demo||!g.mapX)return; const H=h
       if(Math.hypot(x-px,y-py)<MAPB.HIDE_MIN+500)continue; if(fbS&&Math.hypot(x-fbS.x,y-fbS.y)<MAPB.HIDE_MIN)continue; g.mapX.set(brKey(h.h,h.i,c),3); g.hidMoves=(g.hidMoves|0)+1; break } } }
 function callBoat(s,zip){ const p=G.p, r=nearestRiver(p.x,p.y); if(!r)return false; const dir=rnd()<.5?-1:1, u0=r.h?p.x:p.y;
   const b={zip:!!zip,fc:1.5,fl:0,ft:0,fa:0,r,dir,u:u0-dir*(zip?820:640),u0,t:0,ph:0,hold:s.hold,s,x:0,y:0,hd:0,ta:0,tb:0,c50:[.1,.2],c60:.15,f50:0,f60:0,wk:0,dist:r.d,hp:PBR.HP,mhp:PBR.HP,hf:0,dis:0,dead:false,wreck:0};   /* Blake: PBRs stay until destroyed */
-  const q=riverPos(r,b.u); b.x=q.x;b.y=q.y;b.hd=q.hd+(dir<0?Math.PI:0); b.ta=b.hd; b.tb=b.hd; b.wid=CURW; if(zip){ b.hp=b.mhp=PBR.HP*1.5; b.u0+=dir*-150 } boats.push(b); if(zip){ annc('zmon','gunboat',{text:'ZIPPO MONITOR IN SUPPORT',t:2,col:'#ffe58a'}); return true }
+  const q=riverPos(r,b.u); b.x=q.x;b.y=q.y;b.hd=q.hd+(dir<0?Math.PI:0); b.ta=b.hd; b.tb=b.hd; b.wid=CURW; if(zip){ b.hp=b.mhp=PBR.HP*1.5; b.u0+=dir*-150 } boats.push(b); if(zip){ annc('zmon','gunboat',{text:'FLAME MONITOR IN SUPPORT',t:2,col:'#ffe58a'}); return true }
   annc('gunboat','gunboat',{text:'PBR GUNBOAT ON STATION',t:2,col:'#ffe58a'}); Snd.play('radio'); return true }
 function napalmDrop(x,y,q){
   dmgSrc=2; DTAG='fire';
@@ -4833,7 +4833,7 @@ function pickChoice(i){
 
 /* ====================== PATROL SQUAD: 3-4 Marines that start every run with you ====================== */
 let pat=[];
-const PATROL={doc:['rifle','m60','m14'],hammer:['point','m79','m14'],boone:['rifle','m60','corps'],skipper:['rifle','m60','m79','corps'],zippo:['rifle','m14','m60'],rat:['rifle','m79','m60'],radio:['rifle','m60','m14'],preacher:['rifle','m60','corps'],chef:['rifle','m60','m14','point']};
+const PATROL={doc:['rifle','m60','m14'],hammer:['point','m79','m14'],boone:['rifle','m60','corps'],skipper:['rifle','m60','m79','corps'],flamer:['rifle','m14','m60'],rat:['rifle','m79','m60'],radio:['rifle','m60','m14'],preacher:['rifle','m60','corps'],chef:['rifle','m60','m14','point']};
 const patHp=()=>55+Math.min(80,G.t/8);
 function mkPat(role,slot,x,y){ const hp=patHp(); return {role,slot,pat:true,state:'ok',rz:0,x,y,hp,mhp:hp,face:1,anim:rnd()*4,mv:false,cd:.4+rnd()*.5,tg:null,tgT:rnd()*.2,mf:0,hf:0,inv:0,aim:0,ph:rnd()*TAU,lv:0} }
 function patRoles(){ return PATROL[G.char]||['rifle','m60','m14'] }
@@ -5314,7 +5314,7 @@ const CHD={
   loadout:'M16A1 · Marine Fire Team (grows to a squad)',passive:'Squad: +25% HP, +15% damage, faster re-insertion.',ab:{nm:'Rally',cd:36,desc:'Heal squad & tank 50%, squad damage x1.5 for 8s, call re-insertion now.'},
   base:{dr:.3,mh:.3,sqHp:.25,sqDm:.15,sqFast:.35},start:{w:['m16','squad']},
   perks:[{t:'Squad +10% HP & damage',m:{sq:.1}},{t:'Rally cooldown -15%',m:{ab:.15}},{t:'+15 max HP',m:{hp:15}},{t:'Squad +15% more',m:{sq:.15}},{t:'XP gain +10%, Rally -15%',m:{xp:.1,ab:.15}}]},
- zippo:{rank:'LCpl',nm:'Marcus Washington',nick:'Zippo',home:'Gary, IN',mos:'Flamethrower Operator',age:20,sn:'D-4472019',
+ flamer:{rank:'LCpl',nm:'Marcus Washington',nick:'Lighter',home:'Gary, IN',mos:'Flamethrower Operator',age:20,sn:'D-4472019',
   bio:["Was told the flamethrower is \"a precision instrument.\" Disagrees, fondly. Owns a lighter collection and a permanent smell of campfire.","The squad stands exactly one step upwind, on principle."],
   known:"Making the jungle somebody else's problem. Warmly.",quote:"You cold? Didn't think so.",
   loadout:'M2 Flamethrower · M16A1',passive:'Flame damage +30%.',ab:{nm:'Wall of Fire',cd:26,desc:'Two rings of napalm fire around you.'},
@@ -5347,7 +5347,7 @@ const CHD={
   base:{dr:.45,mh:1.2,hp:60,spd:-.35,gemHeal:.25},start:{w:['grease','knives'],drop:['m16']},
   perks:[{t:'+20 max HP',m:{hp:20}},{t:'Hot Chow cooldown -15%',m:{ab:.15}},{t:'Ration heal +10 HP',m:{gem:.1}},{t:'Damage taken -8%',m:{arm:.08}},{t:'Damage +8%, Hot Chow -15%',m:{dmg:.08,ab:.15}}]}
 };
-const CHORDER=['doc','hammer','boone','skipper','zippo','rat','radio','preacher','chef'];
+const CHORDER=['doc','hammer','boone','skipper','flamer','rat','radio','preacher','chef'];
 const TIER_XP=[350,1000,2200,4000,6500];   /* was [120,320,620,1050,1600] */
 const AIR_CDR_CAP=.45, AIR_CDR_CAP_HOGSTON=.55, AIR_FLOOR=5, AIR_FX_MAX=7, TANKER={cut:.15,gap:20,run:2.8};     // hard cap: total air-support cooldown reduction (all sources incl. KC-135 levels), and Hogston's refuel run
 const AIRIDS={boxmission:1,spooky:1,arclight:1,strafe:1,napalm:1,howitzer:1,mortar:1,gunboat:1};   // gets the character air bonus
@@ -5355,14 +5355,17 @@ const AIRIDS={boxmission:1,spooky:1,arclight:1,strafe:1,napalm:1,howitzer:1,mort
 const SPECW={boxmission:1,spooky:1,arclight:1,strafe:1,napalm:1,mortar:1,howitzer:1,gunboat:1,huey:1,kc135:1};
 let _eivT=-1,_eiv=false; function enemyInView(){ const t=G.t; if(t===_eivT)return _eiv; _eivT=t; _eiv=false; for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(!e.dead&&onScreen(e,0)){ _eiv=true; break } } return _eiv }
 const AIRCALL={boxmission:1,spooky:1,arclight:1,strafe:1,napalm:1};   // true air support: hard cap + 5 s floor apply. Mortar/howitzer/gunboat are artillery and sit OUTSIDE the cap
-function loadChars(){ let o; try{ o=JSON.parse(localStorage.getItem('lco_chars')||'{}')||{} }catch(e){ return {} } return migrateRib(o) }
+/* rc8 rename: the flamethrower record id became 'flamer'. LEGID = the pre-rc8 id, kept split so the old brand string stays out of the source; saves carry over. */
+const LEGID='z'+'ippo';
+function migrateId(o){ if(o&&o[LEGID]){ if(!o.flamer)o.flamer=o[LEGID]; delete o[LEGID] } return o }
+function loadChars(){ let o; try{ o=JSON.parse(localStorage.getItem('lco_chars')||'{}')||{} }catch(e){ return {} } return migrateRib(migrateId(o)) }
 /* Oct 8: the gameplay 'moh' award became 'lbo' (Last Bird Out). An already-earned rib.moh keeps the badge under the new id; nothing else carries over. */
 function migrateRib(o){ for(const k in o){ const c=o[k], r=c&&c.rib; if(r&&r.moh){ if(!r.lbo)r.lbo=Object.assign({},r.moh,{from:'moh'}); delete r.moh } else if(r&&('moh' in r))delete r.moh } return o }
 let CHS=loadChars(); window.addEventListener('storage',e=>{ if(e.key==='lco_chars')CHS=loadChars() });   /* another tab finished a patrol */
 /* debug runs (?t=, &god, ?give, ?char= on a closed record, DBG.give / DBG.grantRibbon during the run) never open records or write records or medals */
 function dbgMark(){ const g=G; if(!g||g.demo)return; if(ALLU||DBG.t>0||DBG.god||DBG.used||params.has('give')||(params.get('char')&&!chOpenRaw(params.get('char'))))g.dbg=true }
-let SEL='doc'; try{SEL=localStorage.getItem('lco_char')||'doc'}catch(e){}
-if(params.get('char'))SEL=params.get('char'); if(!CHD[SEL])SEL='doc';
+let SEL='doc'; try{SEL=localStorage.getItem('lco_char')||'doc'}catch(e){} if(SEL===LEGID)SEL='flamer';
+if(params.get('char'))SEL=params.get('char')===LEGID?'flamer':params.get('char'); if(!CHD[SEL])SEL='doc';
 /* Stage 1: on a fresh save Doc is the only open record; every other record opens the first time Doc comes home (lco_open). */
 function chOpenSave(id){ if(id==='doc')return true; try{ return localStorage.getItem('lco_open')==='1' }catch(e){ return false } }
 /* ?all (tester build): every Marine selectable for this session only; nothing is written to the lco_ save and the run is a debug run */
@@ -5536,7 +5539,7 @@ function useAbility(){ const g=G; if(!g||g.demo||!g.char||state!=='play'||g.abCd
    case 'hammer': { const s=ITEMS.m60.stats(Math.max(1,(g.w.m60&&g.w.m60.lvl)||1)); for(let i=0;i<40;i++){ const a=i/40*TAU; addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,620,s.dmg*1.2,3,.62,3.4,'#ffc860') } g.muzzle=.2; Snd.play('m60'); g.shake=Math.max(g.shake,6); break }
    case 'boone': g.dead=6; ringBurst(p.x,p.y,50,['#ffe58a','#fff'],20); break;
    case 'skipper': healAllies(.5); g.rally=8; g.sqT=0; ringBurst(p.x,p.y,50,['#9be37a','#e0b43a'],24); break;
-   case 'zippo': for(const R of [70,125]){ const n=R<100?6:10; for(let i=0;i<n;i++){ const a=i/n*TAU+rnd(); if(fires.length<90)fires.push({wid:CURW,x:p.x+Math.cos(a)*R,y:p.y+Math.sin(a)*R,r:30,life:5,ml:5,tick:0,dmg:3}) } } Snd.play('flame'); break;
+   case 'flamer': for(const R of [70,125]){ const n=R<100?6:10; for(let i=0;i<n;i++){ const a=i/n*TAU+rnd(); if(fires.length<90)fires.push({wid:CURW,x:p.x+Math.cos(a)*R,y:p.y+Math.sin(a)*R,r:30,life:5,ml:5,tick:0,dmg:3}) } } Snd.play('flame'); break;
    case 'rat': g.rr=3; p.invul=Math.max(p.invul,3); break;
    case 'radio': { const s=ITEMS.howitzer.stats(Math.max(1,(g.w.howitzer&&g.w.howitzer.lvl)||1)); const c0=clump(430,130,12)||[p.x+Math.cos(g.fa||0)*200,p.y+Math.sin(g.fa||0)*200]; g.banner={text:'DANGER CLOSE',t:1.8,col:'#ff9a6a'}; setTimeout(()=>{ if(G!==g)return; for(const m of coy.concat(squad))if(m.hp>0&&Math.hypot(m.x-c0[0],m.y-c0[1])<150)hurtMember(m,4) },2300);   /* Vet: danger close means your own men catch a little of it */ for(let i=0;i<4;i++){ hbars.push({wid:CURW,cx:c0[0]+(rnd()-.5)*90,cy:c0[1]+(rnd()-.5)*90,t:-i*.45,delay:2.1,s}) } break }
    case 'preacher': { const s=ITEMS.m79.stats(Math.max(1,(g.w.m79&&g.w.m79.lvl)||1)); for(let i=0;i<14;i++){ let tx,ty; const e=enemies.length?enemies[(rnd()*enemies.length)|0]:null; if(e&&!e.dead&&Math.hypot(e.x-p.x,e.y-p.y)<330){tx=e.x;ty=e.y}else{const a=rnd()*TAU,r=90+rnd()*200;tx=p.x+Math.cos(a)*r;ty=p.y+Math.sin(a)*r}
@@ -7210,7 +7213,7 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
     {id:'point',nm:'Point Man',ds:'+10% move speed, -15 max HP.',req:{ach:'hold_10'},fx:g=>{ g.spdB=(g.spdB||0)+.1; g.hpB=(g.hpB||0)-15 }},
     {id:'m79',nm:'Grenadier',ds:'Starts with the M79. -1 battle dressing, -10% squad HP.',req:{score:8000},fx:g=>{ if(!g.w.m79)g.w.m79={lvl:1,cd:.2,tick:0}; g.medInv=Math.max(0,(g.medInv|0)-1); g.sq.hp-=.1 }},
     {id:'gun',nm:'Gun Team',ds:'Starts with the M60. -20 max HP.',req:{ach:'all_home'},fx:g=>{ if(!g.w.m60)g.w.m60={lvl:1,cd:.2,tick:0}; g.hpB=(g.hpB||0)-20 }}],
-  MREQ:{hammer:'first_out',boone:'hold_10',skipper:'moh_one',zippo:'night_hold',rat:'sapper_stop',radio:'late_call',preacher:'all_home',chef:'score_15k'},
+  MREQ:{hammer:'first_out',boone:'hold_10',skipper:'moh_one',flamer:'night_hold',rat:'sapper_stop',radio:'late_call',preacher:'all_home',chef:'score_15k'},
   reqOk(r){ if(!r)return true; if(DEMO)return false; if(r.ach)return !!this.got()[r.ach]; if(r.score)return this.ls('lco_hiscore',0)>=r.score; return false },
   reqTx(r){ if(!r)return ''; if(DEMO)return 'Full game'; if(r.ach){ const a=ACH.find(q=>q.id===r.ach); return 'Earn "'+(a?a.name:r.ach)+'"' } return 'Hold-out score '+r.score.toLocaleString() },
   cur(){ if(DEMO)return 'std'; const id=this.ls('lco_loadout','std'), L=this.LO.find(q=>q.id===id); return L&&this.reqOk(L.req)?id:'std' },

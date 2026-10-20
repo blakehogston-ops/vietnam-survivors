@@ -12,7 +12,7 @@
  *          'heli_down' helicopter shot down: airburst (VFX_EXPLOSIONS 'vehicle' at altitude), 2-4 rotor blades flying, smoking/burning fall,
  *                  then big wreck explosion + a burning wreck emitter. opts: {z (alt, default 34), vx, vy (drift px/s), follow: obj with x,y,z
  *                  (e.g. the game's crash object) instead of the built-in fall, id (emitter id for the wreck), wreckLife (s, default 30; 0 = forever)}
- *          'boat'  splinters + water splash. opts.hull: 'fiberglass' (PBR, default) | 'wood' (sampan) | 'steel' (Zippo monitor / LCM: sparks)
+ *          'boat'  splinters + water splash. opts.hull: 'fiberglass' (PBR, default) | 'wood' (sampan) | 'steel' (flame monitor / LCM: sparks)
  *          'he'    HE/mortar near-miss on a vehicle: frag spray + dust (no decal)
  *   target: the vehicle object (optional). Hull decals follow target.x/target.y (offset kept from the hit point); null = fixed decal.
  *   angle:  incoming round heading (radians, 0 = +x).   opts.z height of the hit point (default 6 armour, 34 helicopters), opts.big (x1.5).
