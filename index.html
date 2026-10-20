@@ -2436,7 +2436,7 @@ function updateSupport(dt){
 const VEH=()=>!!(window.SHEET1&&SHEET1.vehiclesBig);
 /* jr Oct 20: optional VFX_IMPACT hooks, each OFF unless its flag is set. ?impnapalm=1 canister+rolling fireball+teardrop scorch on each napalm drop (replaces the old G.shake there),
    ?implat (ON by default, ?implat=0 off) red laterite soil eruption column on big blasts (rad>=40, mud on paddy), ?impm40=1 M40 sniper uses SHAKE.m40 + KICK.m40 recoil instead of the flat G.shake 2.2. arcLight deliberately NOT wired (doubles the booms). */
-const IMPNP=/[?&]impnapalm=1\b/.test(location.search), IMPLAT=!/[?&]implat=0\b/.test(location.search), IMPM40=/[?&]impm40=1\b/.test(location.search);
+const IMPNP=!/[?&]impnapalm=0\b/.test(location.search)   /* rc8.1: impact napalm ON by default (?impnapalm=0 off) */, IMPLAT=!/[?&]implat=0\b/.test(location.search), IMPM40=!/[?&]impm40=0\b/.test(location.search);   /* rc8.1 flag rule: ON by default, ?impm40=0 off */
 if(IMPNP){try{if(typeof VFX_IMPACT!=='undefined'&&typeof VFX_IMPACT.warmNapalm==='function'){const _t0=performance.now();VFX_IMPACT.warmNapalm();window.__warmNapalmMs=performance.now()-_t0;}}catch(e){console.warn('warmNapalm',e);}}
 const IMPDEC=!!window.JUNGLE_ON&&!/[?&]impdec=0\b/.test(location.search), IGR=(x,y)=>{ const j=JG.ground(x,y); if(j)return j; try{ const m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); return m==='P'?'paddy':'dirt' }catch(e){ return 'dirt' } };
 const MOPEN=!/[?&]mopen=0\b/.test(location.search), MLEAD=2.0;
@@ -7236,10 +7236,11 @@ const FX81={ON:!/[?&]fx81=0\b/.test(location.search), P:[], W:[], R:[], log:{was
   board(list,h){ list.forEach((m,i)=>{ m.hid=false; m.fxB={t:-.28*i,h}; }); this.log.boardStag=list.length },
   /* (B) napalm canister: rolling wall, fireball + heat shimmer, smoke column, shockwave ring + debris */
   nap(x,y,q){ if(!this.ON)return; this.log.nap++; const a=(q&&q.a)||0, lo=this.cap()<100;
-    this.W.push({x,y,a,t:0,d:1.1,len:lo?70:110}); this.R.push({x,y,t:0,d:.55,r:q&&q.rad?q.rad*2.2:120});
+    const imp=IMPNP&&window.VFX_IMPACT&&!G.demo;   /* rc8.1: VFX_IMPACT draws the rolling fireball + flame sheet; FX81 keeps shockwave, debris, smoke column */
+    if(!imp)this.W.push({x,y,a,t:0,d:1.1,len:lo?70:110}); this.R.push({x,y,t:0,d:.55,r:q&&q.rad?q.rad*2.2:120});
     for(let i=0;i<(lo?5:10);i++){ const b=Math.random()*TAU, v=90+Math.random()*160; this.add({x,y,vx:Math.cos(b)*v,vy:Math.sin(b)*v-60,l:.9,ml:.9,s:2+Math.random()*2,c:'#2a2418',dr:1.2,k:2,z:0,vz:120+Math.random()*120}) }
     for(let i=0;i<(lo?3:6);i++)this.add({x:x+(Math.random()-.5)*30,y,vx:(Math.random()-.5)*8,vy:-26-Math.random()*20,l:3.5+Math.random()*2,ml:5,s:14+Math.random()*10,c:Math.random()<.5?'#2c2924':'#45403a',dr:.25,k:3});
-    this.add({x,y,vx:0,vy:0,l:.7,ml:.7,s:q&&q.rad?q.rad*.9:50,c:'#ffb040',dr:0,k:4}) },
+    if(!imp)this.add({x,y,vx:0,vy:0,l:.7,ml:.7,s:q&&q.rad?q.rad*.9:50,c:'#ffb040',dr:0,k:4}) },
   jetSwell(){ try{ if(!SAMP.air('jet'))Snd.play('jet') }catch(e){} G.shake=Math.max(G.shake||0,2.5) },
   /* (C) firebase life between waves */
   calm(f){ try{ return nearCount(f.x,f.y,FBS+260)===0&&!(G.ex&&G.ex.ph>=4) }catch(e){ return false } },

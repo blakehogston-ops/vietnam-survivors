@@ -74,3 +74,20 @@ Per Lead (MERGE_NOTE_RC8_SOURCING_OCT20 rev 2). Files were recopied fresh from s
 - (C) Firebase life between waves (no hostiles within FBS+260, not in extraction): idle props (sandbag, ammo can, RTO whip); night 81mm illum flare + outgoing H&I thump every 28–52 s; day radio chatter (existing cleared Snd clips only).
 - Blake: idle Marines repair damaged built structures (wall, sandbags, bunkers, guns) at 40% of engineer rate (16 hp/s → 6.4 hp/s), max 3 Marines, stops the moment a wave reaches the wire. Repair swing animation + green progress bar over the structure. Log: FX81.log.rep.
 - Fixes: firebase arrow turn-limited (≤0.12 rad/frame) + never re-sites behind Doc; HOLD F ring margin +8 px, layout-independent F (e.key), slower decay inside ring; `?nobrief` skips brief2; FIREBASE BUILT (held banner) preempts and is never dropped/expired from the banner queue.
+
+## FLAG_DEFAULTS (rc8.1 re-freeze, flag rule: finished features ON by default, =0 turns off)
+| flag | default now | why |
+|---|---|---|
+| impnapalm | ON (?impnapalm=0 off) | finished VFX_IMPACT napalm (canister, rolling fireball, teardrop scorch, flame sheet); FX81 skips its own rolling wall + fireball when it is on (no double draw) |
+| impm40 | ON (?impm40=0 off) | finished M40 SHAKE/KICK recoil |
+| implat | ON (unchanged) | already default |
+| jungle | ON desktop (unchanged) | Lead ruling rc8; off on touch/LOW |
+| terrain | kept OFF (?terrain=1) | terrain v2 has no Art Director sign-off on record and replaces the whole ground; unreviewed |
+| tts | kept OFF | browser robot voice; captions + recordings are the design |
+| jstrike | kept OFF | option NOT approved (jungle LOD during strikes) |
+| fglow | kept OFF | measured ~5 ms slower in software raster; re-test on real GPU |
+| bglow | kept OFF | ~0.4 ms per glow on LOW; perf |
+| smksheet | kept OFF | AD rc8: sheet smoke reads cartoony |
+| napalm rev 2 | kept OFF | EP/perf ruling (option D) |
+| lowfx | auto (unchanged) | on for touch devices only |
+| decoy, capture, napsafe, botfb, padmel, t, nobrief, nointro, nodemo, autostart, bot, god, give, win, loss, unlockall, demo, public, meter, fps, all, brief, combat, reinforcements, menu_intro, intro_riff, moht/mohd | opt-in | QA / debug / harness / test-only |
