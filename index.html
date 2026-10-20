@@ -5885,7 +5885,7 @@ function drawIns2Cap(){ const I=INTRO; if(!I||!I.quiet||I.ph!==2||I.cap0==null)r
 function intro2Contact(){ /* the insert goes bad: fire from the treeline right after the bird lifts */
   try{ const p=G.p, a=rnd()*TAU; for(let i=0;i<6;i++){ const b=a+(i-2.5)*.18, d=360+i*14; spawnEnemy(i%3?'nva':'vc',p.x+Math.cos(b)*d,p.y+Math.sin(b)*d) } }catch(e){}
   try{ Snd.play('radio') }catch(e){} try{ gunny("Contact! Treeline, get down!",2.6,1) }catch(e){}
-  G.banner={text:'CONTACT · TREELINE',t:2.6,col:'#ff6a4a'} }
+  G.banner=null }   /* the Gunny's voice caption carries the contact call; a second banner under it overlapped (06_contact) */
 
 /* quick tutorial (Blake Oct 14 night): click-through cards, each one short line + a real screenshot from this build. Next/Back, Esc closes, touch + pad work.
    Offered once on first launch ('Quick tutorial? Yes / Skip'), then always on the menu. */
