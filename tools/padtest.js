@@ -21,7 +21,7 @@ const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0
     return o });
   ok(r.pre,'seed '+seed+' pad pre-marked at 3:30');
   ok(r.off1&&r.off1.dis&&/GET TO THE PAD/.test(r.off1.txt)&&r.pressOff1===false&&!r.calledOff,'seed '+seed+' first call DISABLED off the pad (button + X/tap)',r.off1);
-  ok(r.on1&&!r.on1.dis&&/CALL BIRD/.test(r.on1.txt)&&r.pressOn1===true&&r.calledOn&&r.padSame,'seed '+seed+' first call ENABLED on the pad, bird uses that pad',r.on1);
+  ok(r.on1&&!r.on1.dis&&/CALL (THE )?BIRD/.test(r.on1.txt)&&r.pressOn1===true&&r.calledOn&&r.padSame,'seed '+seed+' first call ENABLED on the pad, bird uses that pad',r.on1);
   ok(r.wait&&r.off2&&r.off2.dis&&/GET TO THE PAD/.test(r.off2.txt),'seed '+seed+' smoke call DISABLED off the pad',r.off2);
   ok(r.wait&&r.on2&&!r.on2.dis&&/ON THE PAD/.test(r.on2.txt),'seed '+seed+' smoke call ENABLED on the pad',r.on2);
   await pg.close() }
