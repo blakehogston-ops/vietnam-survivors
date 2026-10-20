@@ -2493,7 +2493,7 @@ function callSquad(s,l){
    and a squad catch-up on incoming damage by how many are still alive (8 or fewer x.45, 9-10 x.75, 12 x1.1, 13+ x1.45). ?bal=0 turns both off. */
 const BAL={ON:!/[?&]bal=0\b/.test(location.search),GRACE:120,
   k(){ const g=G; if(g._bk!==undefined&&g.t-g._bkT<.5)return g._bk; let n=0; for(const q of coy)if(q.hp>0&&q.state==='ok')n++; g._bkT=g.t; return (g._bk=n<=8?.3:n<=10?.65:n>=13?1.8:n>=12?1.1:1) } };
-function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER; if(m.coy&&AIS.L.length&&AIS.cover(m))dmg*=.75;   /* in cover */
+function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.rto)dmg*=.5;   /* RC4: RTO takes half damage */ if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER; if(m.coy&&AIS.L.length&&AIS.cover(m))dmg*=.75;   /* in cover */
   if(m.coy&&BAL.ON&&!G.demo){ dmg*=BAL.k()*(MOH.away()?.5:1)*(fbS&&G.ex&&G.ex.ph>=4?.6:1); if(G.t<BAL.GRACE&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) } }
   if(!m.coy&&BAL.ON&&!G.demo&&G.char!=='doc'&&G.t<BAL.GRACE&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) }   /* non-Doc heroes bring their own patrol: same 120 s grace as the company */
   m.hp-=dmg; m.hf=.12; m.inv=.5;
@@ -3196,7 +3196,7 @@ const FT={
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
     if(onScreen(e,8)){ SAMP.shooter=e.type; MIX.as('enemy',()=>Snd.play('vcshot'),d) }
     if(mt){ g.ftMs=(g.ftMs|0)+1; if(rnd()<PACE.M_HIT*(1-d/700)){ g.ftMh=(g.ftMh|0)+1; hurtMember(mt,PACE.M_DMG*(1+(g.p.lvl|0)*.05)) } return }
-    if(rnd()<PACE.SHOT_HIT*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
+    if(rnd()<PACE.SHOT_HIT*(g.t<165?1.15:1)*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
 /* early levels: the pad hold is a stand-up firefight, not a siege (Blake Oct 14) */
 const HOLD_EARLY={MUL:.65,CAP:26};
 function holdT(g){ return Math.max(0,g.t-(EX_CALL-30)) }   /* hold waves keyed to the old 0:30-call timeline, so a later call isn't a bigger siege */
@@ -4756,13 +4756,13 @@ function updateCompany(dt){ const g=G,p=g.p; if(g.demo||!g.char||!g.cs)return; c
     if(toPad&&m.bk)m.bk=null;   /* boarding call overrides cover / bunker holds */
     let sx,sy; if(toPad||!PLT.on){ const cx0=toPad?exq.pad.x:p.x, cy0=toPad?exq.pad.y:p.y, sa=m.slot*2.39996+g.t*.04, sr=toPad?Math.min(EX.PAD_R-14,10+Math.sqrt(m.slot+1)*14):70+Math.sqrt(m.slot+1)*34, wob=toPad?0:Math.sin(g.t*.8+m.ph)*8;
       sx=cx0+Math.cos(sa)*(sr+wob); sy=cy0+Math.sin(sa)*(sr+wob) } else { const q=PLT.slot(m,p); sx=q[0]; sy=q[1] }
-    if(m.rto&&!toPad&&!m.hid){ const q=RTO.slot(m,p); sx=q[0]; sy=q[1]; m.bk=null }   /* RTO: at Doc's shoulder, never in a bunker */
+    if(m.rto&&!m.hid){ const q=RTO.slot(m,p); sx=q[0]; sy=q[1]; m.bk=null }   /* RTO: at Doc's shoulder, never in a bunker */
     if(!toPad)CORP.tick(m,dt); else if(m.htg)CORP.end(m);
     if(m.htg){ sx=m.htg.x+12; sy=m.htg.y+2 } else if(m.cov){ if(!m.cov.healBy||m.cov.hp<=0)m.cov=null; else { const t=nearestK(m.cov.x,m.cov.y,1,600)[0], a=t?Math.atan2(t.y-m.cov.y,t.x-m.cov.x):0; sx=m.cov.x+Math.cos(a)*34; sy=m.cov.y+Math.sin(a)*34 } }
     const frz=!!(m.healBy&&m.healBy.hp>0&&m.healBy.htg===m&&m.healBy.ht>0); if(m.healBy&&!frz&&(m.healBy.hp<=0||m.healBy.htg!==m))m.healBy=null;   /* patient stays down and still while treated */
     let dx=sx-m.x, dy=sy-m.y, d=Math.hypot(dx,dy);
     if(!frz&&!PLT.on&&d>COY.leash){ const a=rnd()*TAU, E=Math.hypot(VW,VH)/2+60; m.x=p.x+Math.cos(a)*E; m.y=p.y+Math.sin(a)*E; dx=sx-m.x; dy=sy-m.y; d=Math.hypot(dx,dy) }
-    if(frz){ m.mv=false } else { if(m.rto&&!toPad&&!m.htg){ RTO.move(m,sx,sy,d,dt) } else if(PLT.on){ PLT.move(m,sx,sy,d,dt,toPad) } else { m.mv=d>10; if(m.mv){ const sp=Math.min(d*3.2,(d>260?310:176)*Math.max(1,speedMul())); m.x+=dx/d*sp*dt; m.y+=dy/d*sp*dt; m.anim+=dt*9; if(!m.tg)m.face=dx>=0?1:-1 } }
+    if(frz){ m.mv=false } else { if(m.rto&&!m.htg){ RTO.move(m,sx,sy,d,dt) } else if(PLT.on){ PLT.move(m,sx,sy,d,dt,toPad) } else { m.mv=d>10; if(m.mv){ const sp=Math.min(d*3.2,(d>260?310:176)*Math.max(1,speedMul())); m.x+=dx/d*sp*dt; m.y+=dy/d*sp*dt; m.anim+=dt*9; if(!m.tg)m.face=dx>=0?1:-1 } }
     if(!(m.htg&&m.ht>0))memberCombat(m,dt,m.dm*dm0); } if(!m.tg)m.aim=(m.mv?Math.atan2(dy,dx):m.aim);
     if(((coyF+i)&1)===0&&m.inv<=0){ const cx=Math.floor(m.x/CS),cy=Math.floor(m.y/CS); let hit=null;
       out: for(let ox=-1;ox<=1;ox++)for(let oy=-1;oy<=1;oy++){ for(let j=head[(((cx+ox)&63)<<6)|((cy+oy)&63)];j>=0;j=nextI[j]){ const e=enemies[j]; if(!e||e.dead)continue; const ex=e.x-m.x,ey=e.y-m.y,rr=e.r+8; if(ex*ex+ey*ey<rr*rr){ hit=e; break out } } }
@@ -6020,7 +6020,7 @@ function showSigAsk(){ const ex=G.ex, col=ex.idCol, c=SIGC[col], mir=col==='whit
   try{ const a=document.activeElement; if(a&&a.blur)a.blur() }catch(e){} }   /* nothing focused: no button can be fired by Space */
 const SIGASK={at:0,held:new Set()};
 const sigAskReady=()=>state==='sig'&&performance.now()-SIGASK.at>=EX.ASK_GRACE*1000;   /* ~400 ms grace after the dialog opens */
-function closeSigAsk(){ $('sigask').classList.remove('show'); if(state==='sig'){ state='play'; last=performance.now() } }
+function closeSigAsk(){ SIGASK.closeAt=performance.now(); $('sigask').classList.remove('show'); if(state==='sig'){ state='play'; last=performance.now() } }
 function confirmSignal(){ answerSignal(true) }
 DBG.counts=()=>{ const o={}; for(const n of ["BUBSPR", "COYSPR", "CRATER", "DECOR", "DRYC", "FLOW", "GIBSPR", "GUNNY", "HEAVY", "HELD", "PLANEP", "RUNLOGS", "SCORCH", "SPLAT", "WRECKS", "air", "ans", "bad", "blasts", "bnkLog", "boats", "bodies", "brk", "brkT", "bubbles", "bullets", "cache", "called", "chgs", "choices", "cones", "coy", "coyH", "crashes", "craterRec", "craters", "crates", "deathSndT", "decals", "drops", "ds", "dying", "e12", "enemies", "engs", "eprojs", "exQ", "fbLog", "fires", "flashes", "ftexts", "gems", "gibs", "got", "grenades", "grid", "hbars", "healFx", "held", "hidRev", "hl", "hshells", "hueys", "icons", "ins", "knives", "later", "ld", "lft", "lines", "live", "lobes", "log", "luLog", "mapX", "marks", "medpacks", "memo", "mines", "missing", "mshells", "nodes", "on", "os", "out", "parts", "pat", "pbrLog", "pits", "plLog", "plWL", "pool", "prev", "pts", "pullHist", "res", "rockets", "rows", "sig", "sigs", "squad", "strikes", "strs", "stuckL", "tanks", "tr", "tunnels", "used", "vtr"]){ try{ const v=eval(n); if(v&&typeof v.length==='number')o[n]=v.length; else if(v&&typeof v.size==='number')o[n]=v.size }catch(e){} } return o };   /* QA: entity / cache counts for the memory profile */
 if(DBG.bot||DBG.god){ window.__ans=answerSignal; window.__rl=()=>runLogOf(G); window.__rv={riverAt,canWade,needCross} }   /* QA harness only */   /* bot harness only */
@@ -6033,8 +6033,9 @@ function answerCall(yes){ const g=G,ex=g.ex,c=ex.call; closeSigAsk(); const real
   if(yes&&!real){ c.st='wrong'; c.wrongAt=g.t; ex.wrongN=(ex.wrongN||0)+1; const cost=EX.WRONG_COST[0]+rnd()*(EX.WRONG_COST[1]-EX.WRONG_COST[0]);
     ex.divert={t:0,cost,to:{x:ex.charlie.x,y:ex.charlie.y},back:{x:ex.huey.x,y:ex.huey.y},toCharlie:true}; c.divTo={x:ex.charlie.x,y:ex.charlie.y}; c.divPlanned=+cost.toFixed(1);
     g.banner={text:"WRONG SMOKE! THE BIRD IS GOING TO CHARLIE'S",t:3,col:'#ff6a4a'}; gunny('Bird, Doc. Roger '+ex.col+'. Over.  -  Bird: Wilco, inbound to your smoke...',3.4,1,'DOC'); return }
-  if(!yes&&!real){ c.st='popped'; c.look='real'; c.seeAt=g.t+1.2; gunny("Bird, Doc. Negative, that's not our smoke. Over.  -  Bird: Roger. Looking again. Over.",3.6,1,'DOC'); return }
-  c.st='popped'; c.look=c.decoy?'charlie':'real'; c.seeAt=g.t+3; gunny("Bird, Doc. Negative, that's not our smoke. Over.  -  Bird: Say again? Holding. Looking again. Over.",3.6,1,'DOC') }
+  if(!yes&&!real){ c.st='popped'; c.look='real'; c.rejected=true; c.decoy=false; ex.charlie=null; c.seeAt=g.t+1.2;   /* RC4 (Gamer soft-lock): a rejected decoy is gone for good */ gunny("Bird, Doc. Negative, that's not our smoke. Over.  -  Bird: Roger. Looking again. Over.",3.6,1,'DOC'); return }
+  c.noReal=(c.noReal|0)+1; if(c.rejected||c.noReal>=2||!c.decoy||!ex.charlie){ c.st='ok'; c.okAt=g.t; ex.confAt=g.t; ex.wrong=false; ex.charlie=null; gunny("Bird, Doc. Negative...  -  Bird: I have one smoke on your pad, Doc. Setting down on it. Over.",3.6,1,'BIRD'); return }   /* RC4: never loop; with no decoy left the bird lands on the pad smoke */
+  c.st='popped'; c.look='charlie'; c.seeAt=g.t+3; gunny("Bird, Doc. Negative, that's not our smoke. Over.  -  Bird: Say again? Holding. Looking again. Over.",3.6,1,'DOC') }
 function planPad(){ const g=G,ex=g.ex,p=g.p; let q; relocHidden(p.x,p.y); { const a=rnd()*TAU; q=pickLz(p.x+Math.cos(a)*220,p.y+Math.sin(a)*220) }
   if(ex.ph===0){ padMedBonus(); ex.pad={x:q.x,y:q.y}; ex.padPlan=true; ex.padShown=true; ex.padCol=ex.col; ex.ph=3; ex.landT=EX.LZ_T; ex.popped=false;
     g.banner={text:'PAD MARKED · BIRD IN '+fmt(EX.LZ_T-EX.PAD_T),t:3.2,col:'#9be37a'}; Snd.play('level');
@@ -6116,7 +6117,7 @@ function decoyPlan(r,n,last,vw,vh,okAt){ const roll=r(), b0=Math.floor((n-1)/3)*
 function newCall(){ const g=G,ex=g.ex; if(!ex.callN&&!ex.careerLoaded){ decoyCareer.load(); ex.careerLoaded=1 } decoyCareer.n++; ex.callN++;
   ex.call={n:decoyCareer.n,run:ex.callN,st:ex.popped?'popped':'wait',onT:0,t:0,seeAt:ex.popped?g.t+EX.SEE_T:null,plan:null}; ex.calls.push(ex.call);
   if(ex.popped)rollDecoy(); decoyCareer.save() }
-function rollDecoy(){ const g=G,ex=g.ex,c=ex.call,s=ex.sig; const P=decoyPlan(rnd,c.n,decoyCareer.last,VW,VH,(dx,dy)=>!onRiver(s.x+dx,s.y+dy,30)); c.plan=P;
+function rollDecoy(){ const g=G,ex=g.ex,c=ex.call,s=ex.sig; const P=decoyPlan(/[?&]decoy=1\b/.test(location.search)&&!ex.forcedD?(ex.forcedD=1,()=>0):rnd,/[?&]decoy=1\b/.test(location.search)?3:c.n,/[?&]decoy=1\b/.test(location.search)?-99:decoyCareer.last,VW,VH,(dx,dy)=>!onRiver(s.x+dx,s.y+dy,30));   /* ?decoy=1 (QA): the first pad call of the run is a decoy */ c.plan=P;
   if(P.decoy){ decoyCareer.last=c.n; ex.charlie={x:s.x+P.dx,y:s.y+P.dy,col:ex.col,kind:'smoke',at:g.t,w:P.widths}; c.look=P.first; c.decoy=true } else { ex.charlie=null; c.look='real'; c.decoy=false } decoyCareer.save() }
 function popSmoke(){ try{ const c0=G.ex&&G.ex.call; if(c0)c0.popT=G.t }catch(e){} const g=G,ex=g.ex,p=g.p; ex.popped=true; ex.sig={x:p.x,y:p.y+4,kind:'smoke',col:ex.col,land:true,landAt:g.t,z:0}; ex.dropAt=g.t; ex.padCol=ex.col;
   gunny('Bird, Doc. Smoke out. Over.',2.6,1,'DOC'); if(SAMP.ready()&&SamplePlayer.hasSample('smoke_pop'))SamplePlayer.smokePop(); else Snd.play('sigpop'); burst(ex.sig.x,ex.sig.y,8,50,.4,3,[SIGC[ex.col],'#ddd'],false);
@@ -6219,8 +6220,8 @@ function sigLine(){ const g=G,ex=g.ex,p=g.p; if(!ex)return {t:'',c:'#fff'};
   const pdm=ex.pad?Math.round(Math.hypot(ex.pad.x-p.x,ex.pad.y-p.y)/10):0;
   if(ex.ph===0)return {t:(ex.smokeCol||'').toUpperCase()+' SMOKE ON DOC\'S BELT  ·  PAD AT '+fmt(EX.PAD_T),c:SIGC[ex.smokeCol]||'#c8c8b0'};
   if(ex.ph===4&&ex.divert)return {t:"BIRD WENT TO CHARLIE'S SMOKE · BACK IN "+Math.max(0,Math.ceil(ex.divert.cost-ex.divert.t))+'s',c:'#ff6a4a',T:null};
-  if(ex.ph===4&&ex.call&&ex.call.st==='wait')return {t:onPad(p.x,p.y)?'POPPING SMOKE...':'BIRD WANTS SMOKE · GET ON THE PAD '+dm+'m',c:'#ffcf5a',T:onPad(p.x,p.y)?null:T};
-  if(ex.ph===4&&ex.call&&ex.call.st!=='ok')return {t:'SMOKE OUT · THE BIRD IS LOOKING',c:SIGC[ex.col],T:null};
+  if(ex.ph===4&&ex.call&&ex.call.st==='wait')return {t:(onPad(p.x,p.y)?'POPPING SMOKE...':'BIRD WANTS SMOKE · GET ON THE PAD '+dm+'m')+' · BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t))),c:'#ffcf5a',T:onPad(p.x,p.y)?null:T};
+  if(ex.ph===4&&ex.call&&ex.call.st!=='ok')return {t:'SMOKE OUT · THE BIRD IS LOOKING · BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t))),c:SIGC[ex.col],T:null};
   if(ex.ph===1||ex.ph===2)return {t:sigName(ex.sig.kind,ex.sig.col)+' — '+dm+'m'+(ex.padPlan?'  ·  PAD MARKED':''),c:SIGC[ex.sig.col==='white'?'yellow':ex.sig.col],T};
   if(ex.ph===3&&ex.wrong&&ex.padShown&&!onPad(p.x,p.y))return {t:'WRONG SMOKE · BIRD SETTING DOWN ELSEWHERE · NEW PAD '+dm+'m',c:'#ffcf5a',T};
   if(ex.ph===3)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+Math.min(15,G.pullEx||0)-G.t)))+(ex.padShown?(onPad(p.x,p.y)?'  ·  ON THE PAD':'  ·  PAD '+dm+'m'):''),c:'#9be37a',T:ex.padShown&&!onPad(p.x,p.y)?T:null};
@@ -6441,10 +6442,10 @@ document.addEventListener('keydown',e=>{
   keys[e.code]=true;
   if(e.code.startsWith('Arrow')||e.code==='Space')e.preventDefault();
   if(e.code==='KeyM'){Snd.setMuted(!Snd.muted)}
-  if(state==='play'&&(e.code==='KeyP'||e.code==='Escape'))pauseGame(); else if(state==='paused'&&(e.code==='KeyP'||e.code==='Escape'))resumeGame();
+  if(state==='play'&&(e.code==='KeyP'||e.code==='Escape')&&!(performance.now()-(SIGASK.closeAt||0)<300))pauseGame();   /* RC4: Esc used as NO never opens pause */ else if(state==='paused'&&(e.code==='KeyP'||e.code==='Escape'))resumeGame();
   if(state==='play'&&e.code==='KeyG'&&!e.repeat)popSignal();
   if(state==='play'&&e.code==='KeyE'&&!e.repeat)PB.toggle();
-  if(state==='sig'){ const k=e.code, held=SIGASK.held.has(k); if(k==='Enter'||k==='NumpadEnter'||k==='Escape'){ e.preventDefault(); if(!e.repeat&&!held&&sigAskReady())answerSignal(k!=='Escape') } }
+  if(state==='sig'){ const k=e.code, held=SIGASK.held.has(k); if(k==='Enter'||k==='NumpadEnter'||k==='Escape'||k==='KeyN'||k==='KeyY'){ e.preventDefault(); if(!e.repeat&&!held&&sigAskReady())answerSignal(k==='Enter'||k==='NumpadEnter'||k==='KeyY') } }
   if(state==='levelup'){ const i={Digit1:0,Digit2:1,Digit3:2,Numpad1:0,Numpad2:1,Numpad3:2}[e.code]; if(i!==undefined&&i<choices.length)pickChoice(i); if(e.code==='KeyR')doReroll(); if(e.code==='KeyB')toggleBan() }
   if(state==='menu'&&(e.code==='Enter'||e.code==='Space')){ if($('charsel').classList.contains('show'))startGame(); else openCharSel() }
   if(state==='over'&&performance.now()-overAt>900&&(e.code==='Enter'||e.code==='KeyR'))startGame();
