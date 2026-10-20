@@ -1164,7 +1164,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <script src="assets/art/vfx_flame.js?v=ac1dbb7"></script>
 <script src="assets/art/map_wrecks.js?v=ac1dbb7"></script>
 <script>if(/[?&]terrain=1\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=ac1dbb7"><\/script>')</script>
-<script src="assets/art/vehicles.js?v=9c96cb9"></script><script src="assets/art/tanks_v2.js?v=7bb5384"></script><script src="assets/vfx/muzzle_flash.js"></script>
+<script src="assets/art/vehicles.js?v=9c96cb9"></script><script src="assets/art/ch46_v2.js?v=4e2d943"></script><script src="assets/art/dressing_pickups.js?v=4e2d943"></script><script src="assets/art/tanks_v2.js?v=7bb5384"></script><script src="assets/vfx/muzzle_flash.js"></script>
 <script src="assets/vfx/rockets.js"></script>
 <script src="assets/vfx/vehicle_hits.js"></script>
 <script src="assets/ui/settings_art.js"></script>
@@ -2326,7 +2326,9 @@ function drawBoat(b){ if(b.zip&&ZMON.ok())return ZMON.draw(b); if(VEH()&&SHEET1.
   if(b.f50>0){ ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(15,-2.2,3.4,0,TAU); ctx.arc(15,2.2,3.4,0,TAU); ctx.fill() } ctx.restore();
   ctx.save(); ctx.translate(-18,0); ctx.rotate(b.tb-b.hd); ctx.fillStyle='#111'; ctx.fillRect(0,-1,9,2); if(b.f60>0){ ctx.fillStyle='#ffd26a'; ctx.beginPath(); ctx.arc(11,0,3,0,TAU); ctx.fill() } ctx.restore();
   ctx.restore() }
-function drawCH46(h){ if(VEH()&&SHEET1.drawEvacBird){ const alt=h.z===undefined?34:h.z, r=SHEET1.drawEvacBird(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt,heading:h.hd||0,t:(h.rot||0)/34,scale:1}); h.muz=r&&r.muzzles; const x=Math.round(h.x), y=Math.round(h.y-alt);
+function drawCH46(h){ if(VEH()&&SHEET1.drawSeaKnight&&!/[?&]ch46v2=0/.test(location.search)){ const alt=h.z===undefined?34:h.z; let r=null; try{ r=SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt,heading:h.hd||0,t:(h.rot||0)/34,scale:1,state:alt>30?'flying':alt>3?'hover':'landed',damage:h.mhp&&h.hp<h.mhp*.4?1:0,hit:h.hf>0}) }catch(e){ r=null }
+    if(r){ h.muz=r.muzzles; const x=Math.round(h.x), y=Math.round(h.y-alt); if(h.mhp&&!h.crash){ const rr=Math.max(0,h.hp/h.mhp), w=48, bx=x-w/2, by=y-62; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,5); ctx.fillStyle=rr>.55?'#6fd04a':rr>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,w*rr,5) } return } }   /* Artist Helper ch46_v2 (same model/scale as vehicles.js ch46); falls through to drawEvacBird */
+  if(VEH()&&SHEET1.drawEvacBird){ const alt=h.z===undefined?34:h.z, r=SHEET1.drawEvacBird(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt,heading:h.hd||0,t:(h.rot||0)/34,scale:1}); h.muz=r&&r.muzzles; const x=Math.round(h.x), y=Math.round(h.y-alt);
     if(h.hf>0){ ctx.fillStyle='rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(x,y-4,34,14,0,0,TAU); ctx.fill() }
     if(h.mhp&&!h.crash){ const rr=Math.max(0,h.hp/h.mhp), w=48, bx=x-w/2, by=y-62; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,5); ctx.fillStyle=rr>.55?'#6fd04a':rr>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,w*rr,5) } return } const x=Math.round(h.x), y=Math.round(h.y-(h.z===undefined?34:h.z));
   ctx.fillStyle='rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(Math.round(h.x)+8,Math.round(h.y)+6,52,13,h.hd,0,TAU); ctx.fill();
@@ -6576,7 +6578,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   // gems
   for(let ty=0;ty<3;ty++){ ctx.fillStyle=GEMC[ty]; ctx.beginPath(); const s=3.5+ty*2;
     for(const q of gems){ if(q.t!==ty)continue; if(q.x<camX-20||q.x>camX+VW+20||q.y<camY-20||q.y>camY+VH+20)continue; const y=q.y+Math.sin(tt*4+q.x)*1.2; ctx.moveTo(q.x,y-s-1);ctx.lineTo(q.x+s,y);ctx.lineTo(q.x,y+s+1);ctx.lineTo(q.x-s,y); ctx.closePath(); } ctx.fill(); }
-  for(const q of medpacks){ if(q.x<camX-20||q.x>camX+VW+20||q.y<camY-20||q.y>camY+VH+20)continue; if(q.life<MED.blink&&Math.floor(q.life*6)%2===0)continue; const sp=MEDSPR, ph=tt*4+q.x, bob=Math.sin(ph)*1.5, pu=1+Math.sin(ph*.8)*.06, w=Math.round(sp.width*pu), h=Math.round(sp.height*pu); ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(q.x-8,q.y+7,16,3); ctx.drawImage(sp,Math.round(q.x-w/2),Math.round(q.y-h/2+bob),w,h) }
+  for(const q of medpacks){ if(q.x<camX-20||q.x>camX+VW+20||q.y<camY-20||q.y>camY+VH+20)continue; if(q.life<MED.blink&&Math.floor(q.life*6)%2===0)continue; if(window.SHEET1&&SHEET1.drawDressing){ try{ SHEET1.drawDressing(ctx,'single',Math.round(q.x),Math.round(q.y+6),tt+q.x*.01,2); continue }catch(e){} } const sp=MEDSPR, ph=tt*4+q.x, bob=Math.sin(ph)*1.5, pu=1+Math.sin(ph*.8)*.06, w=Math.round(sp.width*pu), h=Math.round(sp.height*pu); ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(q.x-8,q.y+7,16,3); ctx.drawImage(sp,Math.round(q.x-w/2),Math.round(q.y-h/2+bob),w,h) }
   for(const q of ftexts){ if(q.x<camX-60||q.x>camX+VW+60||q.y<camY-40||q.y>camY+VH+40)continue; ctx.globalAlpha=Math.min(1,(1.4-q.t)*2); txt(intNums(q.s),Math.round(q.x),Math.round(q.y),13,q.c,'center'); ctx.globalAlpha=1 }
   for(const q of gems){ if(q.t!==3)continue; ctx.fillStyle='#f4f4ea'; ctx.fillRect(q.x-7,q.y-6,14,12); ctx.fillStyle='#d03a2e'; ctx.fillRect(q.x-1.5,q.y-5,3,10); ctx.fillRect(q.x-5,q.y-1.5,10,3); ctx.strokeStyle='#17110a';ctx.lineWidth=1;ctx.strokeRect(q.x-7,q.y-6,14,12) }
   // grenades shadow/body
