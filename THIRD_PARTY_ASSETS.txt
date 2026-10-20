@@ -45,4 +45,9 @@ radio_key_in_1 / radio_key_out_1 (added Oct 20): Sound Helper build_radio_oct20.
 Battle dressing foley: Luckius "Various paper sound effects" (OpenGameArt, CC0); Owlish Media / Ashe Kirk "202 More Sound Effects" and "Sound Effects Pack" (CC0). Courtesy credit.
 Radio key-in/out: LukaCafuka "Walkie-talkie end of transmission" (Freesound #760245, CC0, Legal PASS 2026-10-20); JovianSounds #524205 (CC0); pdsounds.org STE-011 (public domain).
 VSCO 2 Community Edition, Versilian Studios (CC0) — courtesy.
-Removed from the build: "La Menteuse" and "Zapatista" (JoshuaHudesMusic), "Garage Rock" (NewEraMusic), "60s Underground Organ Rock" (JuliusH), "Steampunk Garage" (Pixabay user 4379051), "Rock Oco" (Ə, not in the final credits block) and the menu_asian track (not shipped).
+Removed from the build: "La Menteuse" and "Zapatista" (JoshuaHudesMusic) and the menu_asian track (not shipped).
+--- RC5 (2026-10-20): combat tiers restored (Sound Helper); full sources in audio/THIRD_PARTY_AUDIO.txt ---
+combat_2: "60s Underground Organ Rock" by JuliusH, via Pixabay (https://pixabay.com/music/vintage-60s-underground-organ-rock-4209/). Legal review pending.
+combat_3: "Steampunk Garage" by Pixabay user 4379051, via Pixabay (https://pixabay.com/music/rock-steampunk-garage-142325/). Legal review pending.
+combat_4: "Garage Rock" by NewEraMusic, via Pixabay (https://pixabay.com/music/rock-garage-rock-559346/). Legal flagged likely AI; review pending.
+combat_4_alt (?c4=alt only, off by default): "Rock Oco" by Ə (Petites Maisons / Jangwa Nook Records), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: https://freemusicarchive.org/music/e/heavy-pizza-jams/rock-oco/ - edited.
