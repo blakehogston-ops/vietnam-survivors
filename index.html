@@ -210,6 +210,7 @@ body.hudm #rtoHud{max-width:40px;overflow:hidden;white-space:nowrap}body.hudm #r
   #levelup.show{overflow:hidden}#levelup .card{min-height:0}
 }
 /* rc8 ?nohud: hide every DOM HUD element (overlays/menus stay) */
+body.capture #p3toast,body.capture #p3runAch,body.capture .p3sc,body.capture .p3lb,body.capture #over .ocsm,body.capture .srbw,body.capture #overSvc{display:none!important}
 body.nohud>*:not(canvas#c):not(.overlay):not(script):not(#tut),body.nohud .bstamp,body.nohud #overDed,body.nohud #over .ocsm,body.nohud #p3toast,body.nohud #p3runAch,body.nohud #crashNote{display:none!important}
 /* rc8 Art Director nit: How to Play body text lifted for contrast */
 .howto,.howto .htBody{color:#c9c3a0!important}
@@ -1264,6 +1265,7 @@ const BUILD={id:'e913c2f',date:'2026-10-20 12:00 ET',tag:'rc7.1'}, AV='?v='+BUIL
 /* ====================== setup ====================== */
 const cv=document.getElementById('c'), ctx=cv.getContext('2d');
 /* rc8 ?nohud (store screenshots): no DOM or canvas HUD, no achievement toasts, no dedication / seed / build text on the end card. World + gameplay unchanged. */
+const CAPTURE=window.CAPTURE=/[?&]capture=1\b/.test(location.search); if(CAPTURE){ const f=()=>document.body.classList.add('capture'); if(document.body)f(); else addEventListener('DOMContentLoaded',f) }   /* rc8 ?capture=1: trailer/screenshot mode; gameplay unchanged */
 const NOHUD=window.NOHUD=/[?&]nohud(=1)?(&|$)/.test(location.search); if(NOHUD){ const f=()=>document.body.classList.add('nohud'); if(document.body)f(); else addEventListener('DOMContentLoaded',f) }
 /* rc8 Steam Deck (deck_fixes_rc8.md 1): canvas text floor. On every screen (incl. phones / hudmobile), any main-canvas font that would
    land at 5..12 CSS px on screen (after zoom/DPR transform) is raised to 12 px. <5 px = painted signage decals, left alone. ?decktext=0 disables. */
@@ -7428,7 +7430,7 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
   got(){ return this.ls('lco_ach',{}) },
   unlock(a){ const m=this.got(); if(m[a.id])return false; m[a.id]=Date.now(); this.ss('lco_ach',m); (this.runAch||(this.runAch=[])).push(a); this.toast(a); this.steam(a.id); return true },
   steam(id){ if(DEMO)return; try{ const sw=window.steamworks; if(sw){ if(sw.achievement&&sw.achievement.activate)sw.achievement.activate(id); else if(sw.activateAchievement)sw.activateAchievement(id); return } const gw=window.greenworks; if(gw&&gw.activateAchievement)gw.activateAchievement(id,()=>{},()=>{}) }catch(e){} },
-  toast(a){ if(NOHUD)return; (this.tq||(this.tq=[])).push(a); this.pump() },
+  toast(a){ if(NOHUD||CAPTURE)return; (this.tq||(this.tq=[])).push(a); this.pump() },
   pump(){ const w=$('p3toast'); if(this.tq.length&&toastBlocked()){ clearTimeout(this._pt); this._pt=setTimeout(()=>this.pump(),500); return } if(!this.tq.length||(w&&w.children.length>=1))return; this.show(this.tq.shift()); setTimeout(()=>this.pump(),900) },
   show(a){ this.css(); let w=$('p3toast'); if(!w){ w=document.createElement('div'); w.id='p3toast'; document.body.appendChild(w) } const d=document.createElement('div'); d.className='p3t';
     d.innerHTML=`<i>ACHIEVEMENT UNLOCKED${DEMO?' · DEMO':''}</i><b>${a.name}</b>${a.desc}`; w.appendChild(d); requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('on'))); try{ Snd.play('chime') }catch(e){}
@@ -7786,7 +7788,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   for(let ty=0;ty<3;ty++){ ctx.fillStyle=GEMC[ty]; ctx.beginPath(); const s=3.5+ty*2;
     for(const q of gems){ if(q.t!==ty)continue; if(q.x<camX-20||q.x>camX+VW+20||q.y<camY-20||q.y>camY+VH+20)continue; const y=q.y+Math.sin(tt*4+q.x)*1.2; ctx.moveTo(q.x,y-s-1);ctx.lineTo(q.x+s,y);ctx.lineTo(q.x,y+s+1);ctx.lineTo(q.x-s,y); ctx.closePath(); } ctx.fill(); }
   for(const q of medpacks){ if(q.x<camX-20||q.x>camX+VW+20||q.y<camY-20||q.y>camY+VH+20)continue; if(q.life<MED.blink&&Math.floor(q.life*6)%2===0)continue; if(window.SHEET1&&SHEET1.drawDressing){ try{ SHEET1.drawDressing(ctx,'single',Math.round(q.x),Math.round(q.y+6),tt+q.x*.01,2); continue }catch(e){} } const sp=MEDSPR, ph=tt*4+q.x, bob=Math.sin(ph)*1.5, pu=1+Math.sin(ph*.8)*.06, w=Math.round(sp.width*pu), h=Math.round(sp.height*pu); ctx.fillStyle='rgba(0,0,0,.25)'; ctx.fillRect(q.x-8,q.y+7,16,3); ctx.drawImage(sp,Math.round(q.x-w/2),Math.round(q.y-h/2+bob),w,h) }
-  { const R=[], FT=HUDM.on?HUDM.ft(ftexts.filter(q=>!(q.x<camX-60||q.x>camX+VW+60||q.y<camY-40||q.y>camY+VH+40))).map(o=>Object.assign({},o.q,{s:o.n>1?o.q.s+' ×'+o.n:o.q.s})):ftexts; HUDM.nft=FT.length; for(const q of FT){ if(q.x<camX-60||q.x>camX+VW+60||q.y<camY-40||q.y>camY+VH+40)continue; let y=q.y; const s2=intNums(q.s);
+  { const R=[], FT=CAPTURE?[]:HUDM.on?HUDM.ft(ftexts.filter(q=>!(q.x<camX-60||q.x>camX+VW+60||q.y<camY-40||q.y>camY+VH+40))).map(o=>Object.assign({},o.q,{s:o.n>1?o.q.s+' ×'+o.n:o.q.s})):ftexts; HUDM.nft=FT.length; for(const q of FT){ if(q.x<camX-60||q.x>camX+VW+60||q.y<camY-40||q.y>camY+VH+40)continue; let y=q.y; const s2=intNums(q.s);
     if(FTSTACK&&/[A-Z]{3}/.test(String(s2))){ const w=String(s2).length*7.8+8; for(let k=0;k<8;k++){ const hit=R.find(r=>Math.abs(r.x-q.x)<(r.w+w)/2&&Math.abs(r.y-y)<15); if(!hit)break; y=hit.y-15 } R.push({x:q.x,y,w}) }   /* rc6c blocker 3: word labels (NO WOUNDED / FULL HEALTH / ...) stack instead of printing on top of each other (?ftstack=0) */
     ctx.globalAlpha=Math.min(1,(1.4-q.t)*2); txt(s2,Math.round(q.x),Math.round(y),HUDM.on?Math.round(11/Math.max(.4,zoom)):13,q.c,'center'); ctx.globalAlpha=1 } }
   for(const q of gems){ if(q.t!==3)continue; ctx.fillStyle='#56603a'; ctx.fillRect(q.x-7,q.y-6,14,12); ctx.fillStyle='#f4f4ea'; ctx.fillRect(q.x-1.5,q.y-5,3,10); ctx.fillRect(q.x-5,q.y-1.5,10,3);   /* rc7.1 legal: OD kit, white + (no red cross emblem) */ ctx.strokeStyle='#17110a';ctx.lineWidth=1;ctx.strokeRect(q.x-7,q.y-6,14,12) }
@@ -7903,14 +7905,14 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   // xp bar
   const oy=SA.t*DPR, ox=SA.l*DPR, orr=SA.r*DPR, ob=SA.b*DPR;
   const HA=window.HUD_ART;
-  if(HA){ ctx.fillStyle='#0b140c'; ctx.fillRect(0,0,W,oy); HA.drawXpBar(ctx,0,oy,W,22*U,p.xp,p.need,p.lvl,U) } else { ctx.fillStyle='#0b140c'; ctx.fillRect(0,0,W,22*U+oy); ctx.fillStyle='#3a8fd8'; ctx.fillRect(0,oy,W*p.xp/p.need,22*U); ctx.fillStyle='rgba(255,255,255,.18)'; ctx.fillRect(0,oy,W*p.xp/p.need,7*U);
+  if(CAPTURE){} else if(HA){ ctx.fillStyle='#0b140c'; ctx.fillRect(0,0,W,oy); HA.drawXpBar(ctx,0,oy,W,22*U,p.xp,p.need,p.lvl,U) } else { ctx.fillStyle='#0b140c'; ctx.fillRect(0,0,W,22*U+oy); ctx.fillStyle='#3a8fd8'; ctx.fillRect(0,oy,W*p.xp/p.need,22*U); ctx.fillStyle='rgba(255,255,255,.18)'; ctx.fillRect(0,oy,W*p.xp/p.need,7*U);
   txt('LV '+p.lvl,W/2,17*U+oy,14*U,'#fff','center') }
   // hp
   const bx=12*U+ox,by=32*U+oy,bw=Math.min(220*U,W*.34),bh=20*U; if(HA)HA.drawHealth(ctx,bx,by,bw,bh,Math.max(0,p.hp),p.maxHp,U,{flash:p.hf>0?1:0}); else { ctx.fillStyle='#0b140c'; ctx.fillRect(bx-3,by-3,bw+6,bh+6); ctx.fillStyle='#4a1713'; ctx.fillRect(bx,by,bw,bh); ctx.fillStyle=p.hp/p.maxHp>.3?'#47b84a':'#e64a3a'; ctx.fillRect(bx,by,bw*Math.max(0,p.hp)/p.maxHp,bh);
   ctx.fillStyle='rgba(255,255,255,.2)'; ctx.fillRect(bx,by,bw*Math.max(0,p.hp)/p.maxHp,bh*.35); txt(`HP ${Math.ceil(p.hp)}/${p.maxHp}`,bx+bw/2,by+bh-4*U,13*U,'#fff','center') }
   // timer / kills
   txt(fmt(g.t),W/2,56*U+oy,28*U,'#f6f0cc','center');
-  txt('BODY COUNT '+g.kills,bx,by+bh+17*U,15*U,'#f0e6a8','left');
+  if(!CAPTURE)txt('BODY COUNT '+g.kills,bx,by+bh+17*U,15*U,'#f0e6a8','left');   /* ?capture=1: no kill counter */
   LANE.y=exTop(U)+(exStack||0)+6*U; LANE.U=U;   /* rc8 one top lane: everything below the timer / commander bar / firebase lines / Gunny card stacks, nothing overlaps */
   if(OB.lowhp&&p.hp>0&&p.hp/p.maxHp<.3)obLowTag(bx+bw+8*U,by,bh,U);
   drawSigLine(U,oy);   /* permanent line under the timer + MARINES count */
