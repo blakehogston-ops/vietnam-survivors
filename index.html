@@ -3143,7 +3143,7 @@ const ITEMS={
     stats:l=>({hp:80+30*(l-1),dm:1+.2*(l-1),cd:120-15*(l-1)}),
     desc:s=>`2 CH-46s x 10 Marines · HP ${Math.round(s.hp)} each · dmg x${s.dm.toFixed(2)} · call-in cooldown ${s.cd.toFixed(0)}s (needs <=5 survivors)`},
   medevac:{kind:'w',name:'Medevac (CH-46)',max:3,req:()=>!!G&&!G.demo&&G.p.lvl>=5,
-    blurb:'Radio for a Marine CH-46 Sea Knight medevac ("Medevac inbound, urgent"). It hovers over you for a few seconds and heals EVERYONE nearby: you, your squad and patrol Marines, Company Reinforcement Marines, the tank and the firebase engineers. Only comes when someone is hurt. Separate from the one-time Emergency Medevac revive. Higher levels: bigger heal, shorter cooldown.',
+    blurb:'Radio for a Marine CH-46 Sea Knight medevac ("Emergency medevac inbound"). It hovers over you for a few seconds and heals EVERYONE nearby: you, your squad and patrol Marines, Company Reinforcement Marines, the tank and the firebase engineers. Only comes when someone is hurt. Separate from the one-time Emergency Medevac revive. Higher levels: bigger heal, shorter cooldown.',
     stats:l=>({frac:.2+.2*l,cd:90-12*(l-1)}),
     desc:s=>`Heals everyone ${Math.round(s.frac*100)}% max HP over ~3.5s · cooldown ${s.cd.toFixed(0)}s`},
   grease:{kind:'w',name:'M3A1 "Grease Gun"',max:8,req:()=>!!G&&G.char==='chef',
@@ -4836,7 +4836,7 @@ const OFFVO={
   'HO-P01':"I've got it! On me! Stay low!",'HO-X01':"It's just me. Get to the bird, Doc.",
   'HO-F01':'Everybody on that position, fire!','HO-F02':'Fire on that bunch! Fire!','HO-T01':'B-40! Take him out first!','HO-T03':'RPG! Take him out first!','HO-T02':'Gun! Pin that gun down!',
   'HO-W01':'Out of LAWs!','HO-W02':'LAW! Hit that bunker! Backblast clear!','HO-M01':'Shot, over!','HO-M02':'Splash!',
-  'HO-Y01':"Can't raise anybody, the radio's out!",'HO-Y02':'Sparks is down, no radio!',
+  'HO-Y01':"Sparks is down! Somebody get on the hook!",'HO-Y02':'Sparks is down, no radio!',
   'SK-F02':'Two-Six, Six. Your fire mission is approved. Keep me advised. Out.'};
 const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,fire:0}, toast:null, barkT:-99, used:{}, log:[], live:false, noCmd:false, hoT:-99, hoP:null, mark:null, ltHit:false, seq:[], mort:null, lawQ:null, ri:0,
   reset(){ Object.assign(this,{cmd:null,tgt:null,sT:0,oT:0,cd:{focus:0,sup:0,law:0,fire:0},toast:null,barkT:-99,used:{},log:[],live:false,noCmd:false,hoT:-99,hoP:null,mark:null,ltHit:false,seq:[],mort:null,lawQ:null,ri:0,hoN:0,radioOutT:-99});
