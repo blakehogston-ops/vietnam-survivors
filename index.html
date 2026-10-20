@@ -3299,7 +3299,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
   TH:N2F('thunk'),CAL:N2F('mcal'),SAPT:N2F('saptime'),SV4:N2F('sapv4'),SMH:N2F('smokehud'),thrown:[],dead:[],whT:0,sapAt:0,   /* Vet item 2 fixes: tube thunk before impacts (?thunk=0), 82mm/60mm labels (?mcal=0), sappers after barrages/at night (?saptime=0), low-crawl + throw sprites (?sapv4=0), smoke colour on the HUD ~10 s (?smokehud=0) */
   V4(){ return this.SV4&&!!(window.SHEET1&&SHEET1.drawSapper) },
   night(){ return typeof ATM!=='undefined'&&ATM.night() },   /* item 4: the atmosphere's hour (night from ~7:00 on the run clock) */
-  XMIN:+params.get('xmin')||165,XIN:+params.get('xin')||120,XAUTO:DEMO?600:900,BR:58,WO_N:4,WO_MAX:2,WO_T:20,shells:[],log:{bar:0,shells:0,sap:0,satch:0,wo:0,call:null},
+  XMIN:+params.get('xmin')||300,XIN:+params.get('xin')||120,XAUTO:DEMO?600:900,BR:58,WO_N:4,WO_MAX:2,WO_T:20,shells:[],log:{bar:0,shells:0,sap:0,satch:0,wo:0,call:null},
   holdX(g){ const ex=g.ex; return HOLDSURGE&&!!(ex&&ex.ph>=3&&ex.ph<=5) },   /* rc6 QA fix: the pad hold has its own tuned pressure (HOLD_TEAMS/HOLD_LULL); surge escalation no longer stacks on it (?holdsurge=0 = old) */
   esc(g){ return Math.min(1,Math.max(0,(g.t-60)/600)) },   /* 0 at 1:00 -> 1 at 10:00 */
   reset(){ ZIS.reset(); this.shells.length=0; this.thrown.length=0; this.dead.length=0; this.whT=0; this.sapAt=0; this.log={bar:0,shells:0,sap:0,satch:0,wo:0,call:null}; const b=document.getElementById('n2x'); if(b)b.style.display='none' },
@@ -3750,10 +3750,10 @@ function inputVec(){
   if(PAD.on){x+=PAD.mx;y+=PAD.my}
   const l=Math.hypot(x,y); if(l>1){x/=l;y/=l} return [x,y]; }
 /* bot harness fix (rc7.1): any bot steering source that returns a non-finite vector is skipped (and logged in G.botNaN) instead of turning Doc's position into NaN */
-/* ?earlyfight (default OFF, rc7.1 Gamer): light contact before the pad opens at 2:45 - a lone NVA sniper ~0:45, a 3-man VC probe ~1:30, a 5-man patrol ~2:15.
+/* ?earlyfight (default OFF, rc7.1 Gamer): light contact before the pad opens at 5:00 - a lone NVA sniper ~0:45, a 3-man VC probe ~1:30, a 5-man patrol ~2:15, a second sniper ~3:20, a probe ~4:15.
    Spawned off screen on one side, never on the pad; each logged in G.efLog. */
 const EFIGHT={ON:/[?&]earlyfight(=1)?\b/.test(location.search)&&!/[?&]earlyfight=0\b/.test(location.search),
-  W:[{t:45,k:['nva'],r:560,txt:'SNIPER! GET DOWN',say:"Sniper! Get down, find that shooter!"},{t:90,k:['vc','vc','vc'],r:520,txt:'PROBE ON THE PERIMETER',say:"Movement on the perimeter! Probe, three men!"},{t:135,k:['nva','nva','vc','nva','vc'],r:540,txt:'ENEMY PATROL',say:"Patrol coming in! Squad, hold your fire till they're close!"}],
+  W:[{t:45,k:['nva'],r:560,txt:'SNIPER! GET DOWN',say:"Sniper! Get down, find that shooter!"},{t:90,k:['vc','vc','vc'],r:520,txt:'PROBE ON THE PERIMETER',say:"Movement on the perimeter! Probe, three men!"},{t:135,k:['nva','nva','vc','nva','vc'],r:540,txt:'ENEMY PATROL',say:"Patrol coming in! Squad, hold your fire till they're close!"},{t:200,k:['nva'],r:580,txt:'SNIPER! GET DOWN',say:"Sniper! Get down, find that shooter!"},{t:255,k:['vc','vc','vc'],r:520,txt:'PROBE ON THE PERIMETER',say:"Movement on the perimeter! Probe, three men!"}],
   tick(){ const g=G; if(!this.ON||!g||g.demo||state!=='play'||!g.p||g.p.hp<=0)return; g.efI=g.efI|0; const w=this.W[g.efI]; if(!w||g.t<w.t||g.t>=N2.XMIN)return; g.efI++;
     const a=rnd()*TAU; for(let i=0;i<w.k.length;i++){ const aa=a+(i-(w.k.length-1)/2)*.12, r=w.r+rnd()*40; try{ spawnEnemy(w.k[i],g.p.x+Math.cos(aa)*r,g.p.y+Math.sin(aa)*r) }catch(e){} }
     if(!g.banner||g.banner.t<=0)g.banner={text:w.txt,t:2.2,col:'#ffcf5a'}; try{ gunny(w.say,2.8) }catch(e){} (g.efLog||(g.efLog=[])).push({t:+g.t.toFixed(1),n:w.k.length}) } };
@@ -6315,7 +6315,7 @@ const EXQ=new URLSearchParams(location.search).get('diff');
    Phases: 0 no signal · 1 signal on the ground · 2 confirm dialog · 3 confirmed, hold for LZ · 4 bird inbound · 5 bird on the pad · 6 evac lift · 7 left without you */
 /* Blake Oct 14: the 10-minute wait was too long. ONE tunable: EX_HOLD = seconds from the extraction call (pad marked) to the bird setting down.
    Old: pad 8:00, bird 10:00 (10 min from the start). New: call at 0:30, bird at 0:30 + EX_HOLD. EX_RAMP compresses the wave ramp into that window. */
-const EX_HOLD=135, EX_CALL=165, EX_RAMP=600/(EX_CALL+EX_HOLD);
+const EX_HOLD=135, EX_CALL=300, EX_RAMP=600/(165+EX_HOLD);   /* rc7.1 (Blake): earliest extraction call 2:45 -> 5:00; the difficulty ramp keeps its rc7 slope */
 const EX={DROP_T:180,PAD_T:EX_CALL,FALL_T:EX_CALL+EX_HOLD-60,LZ_T:EX_CALL+EX_HOLD,INBOUND:24,GROUND:EXQ==='easy'?30:EXQ==='hard'?60:45,PAD_R:78,BOARD_T:2,BOARD_DECAY:1.5,SPAWN_MUL:.8,REACH_R:30,QUIET:1.0,
   HOT_AT:8,HOT_LEN:3.6,LIFT:2.2,WAVE3:6,WAVE4:5,N3:8,N4:10,TOUCH_N:14,LULL:8,COY_PER:.01,COY_MAX:.15,OFF_GRACE:2,SEE_T:1.5,ASK_GRACE:.4,GUN_AT:8,GUN_R:300,GUN_DMG:70,GUN_CD:.09,WRONG_MIN:520,WRONG_MAX:720,CHARLIE_P:.5,
   /* Oct 14 smoke rules: Doc carries the canister and pops it on the pad circle when the bird calls; Charlie may pop the SAME colour off the pad */
