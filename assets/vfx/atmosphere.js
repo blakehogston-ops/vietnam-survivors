@@ -27,7 +27,7 @@ const S={w:0,h:0,low:false,hour:12,rain:0,haze:1,t:0,g:null,gk:'',
   L:[],nL:0, F:[],D:[],R:[],P:[],
   lm:null,lmx:null,ls:2, vig:null,grain:[],gp:[],sheen:null,mist:null,spr:{},flareSpr:null,chute:null,perf:{last:0,avg:0,n:0}};
 /* atmo-1.2 (perf rc8): quality tiers. Q.ls light-map scale, Q.bloom additive light sprites, Q.lights max lights fed to the map, Q.grain film grain, Q.sat saturation/veil pass, Q.dust motes, Q.shadows max flare shadows */
-const QT={high:{poolMax:1e9,ls:4,bloom:32,lights:160,grain:2,sat:true,dust:70,shadows:240,mistBands:3},med:{poolMax:1e9,ls:6,bloom:16,lights:80,grain:1,sat:true,dust:40,shadows:90,mistBands:2},low:{ls:6,bloom:10,lights:40,grain:0,sat:true,dust:20,shadows:40,mistBands:1,poolMax:160,blastGlow:true}};
+const QT={high:{poolMax:160,ls:4,bloom:32,lights:160,grain:2,sat:true,dust:70,shadows:240,mistBands:3},med:{poolMax:160,ls:6,bloom:16,lights:80,grain:1,sat:true,dust:40,shadows:90,mistBands:2},low:{ls:6,bloom:10,lights:40,grain:0,sat:true,dust:20,shadows:40,mistBands:1,poolMax:160,blastGlow:true}};
 let Q=QT.high, QN='high';
 /* rc8 perf A (Lead-approved, AD-approved): while a strike is on screen, HIGH eases to the MED light budget. setStrikeMix(f), f 0..1 (game fades it over ~0.5 s).
    bloom/lights/shadows/dust are lerped (counts ramp, no pop); light-map scale + mist bands swap at f=.5 using a pre-built second light map (no re-init, no allocation per frame). */
@@ -102,6 +102,7 @@ function setWeather(o){ if(o){ if(o.rain!=null)S.rain=clamp(+o.rain,0,1); if(o.h
 const FLARE_COL='#f8f7ea';   /* harsh magnesium white, faint yellow, never orange */
 const PRESET={muzzle:['#ffd27a',70,1,.06],fire:['#ff8a3a',140,.85,0],explosion:['#ffb35a',260,1,.5],napalm:['#ff7a2a',320,1,0],flare:[FLARE_COL,800,1,0],rpg:['#ffc070',110,1,.12]};
 function addLight(x,y,radius,color,intensity,ttl){ if(typeof radius==='string'){ const p=PRESET[radius]||PRESET.fire; return addLight(x,y,p[1]*(color||1),p[0],p[2],intensity!=null?intensity:p[3]) }
+  if(ttl>0&&color!==FLARE_COL){ for(let i=0;i<MAXL;i++){ const l=S.L[i]; if(l.on&&l.ttl>0&&l.c===(color||'#ffc070')&&Math.abs(l.x-x)<90&&Math.abs(l.y-y)<90){ l.i=Math.min(1.15,Math.max(l.i,intensity==null?1:intensity)+.1); if(ttl>l.ttl){ l.ttl=ttl; l.t0=Math.max(l.t0,ttl) } return l } } }   /* rc8 AD: nearby strike pools merge (no flat orange sheet over the base) */
   if(S.nOn>=Q.lights&&color!==FLARE_COL)return null; S.nOn=(S.nOn|0)+1;
   let L=null, oldest=null; for(let i=0;i<MAXL;i++){ const l=S.L[i]; if(!l.on){L=l;break} if(!oldest||l.ttl<oldest.ttl)oldest=l } L=L||oldest;
   L.on=true; L.x=x; L.y=y; L.r=radius||80; L.c=color||'#ffc070'; L.i=intensity==null?1:intensity; L.ttl=ttl==null?0:ttl; L.t0=L.ttl; return L; }
