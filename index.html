@@ -4005,8 +4005,10 @@ function updateWeapons(dt){
       Snd.play('thud'); w.cd+=s.cd; }
     else if(id==='napalm'){
       // pick the densest clump near the player (or the RTO's call)
-      const c0=clump(440,120,14); let bx,by; if(c0){bx=c0[0];by=c0[1]}else{const a=rnd()*TAU; bx=p.x+Math.cos(a)*170; by=p.y+Math.sin(a)*170}
-      const a=rnd()*TAU, nx=-Math.sin(a), ny=Math.cos(a);
+      // vet E1: no target -> no run; heading parallel to the friendly line (perpendicular to Doc->target); every point of every line >=NAP_SAFE px from Doc/live Marines
+      const c0=clump(440,120,14); if(!c0){w.cd=.5;continue} const bx=c0[0],by=c0[1];
+      const a=Math.atan2(by-p.y,bx-p.x)+Math.PI/2, nx=-Math.sin(a), ny=Math.cos(a);
+      if(napMinFriendly(bx,by,a,s.len,s.n)<NAP_SAFE){w.cd=.5;continue}
       for(let i=0;i<s.n;i++){ const off=(i-(s.n-1)/2)*80; strikes.push({wid:CURW,cx:bx+nx*off,cy:by+ny*off,a,len:s.len,t:-i*.25,delay:1.4,drops:0,dropN:7+w.lvl,dmg:s.dmg,rad:s.rad,fdmg:s.fdmg,flife:s.flife,sfx:false,jx:0,jy:0,show:false}) }
       Snd.play('radio'); Snd.play('napalm'); w.cd+=s.cd; refuelRun(id,w); RTO_T=null; }
     else if(id==='mortar'){
@@ -4558,6 +4560,14 @@ const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,spooky:10,arclight:14,boxmission:22},
   move(m,sx,sy,d,dt){ m.mv=d>6; if(!m.mv)return; if(d>320&&!riverAt(sx,sy)){ m.x=sx; m.y=sy; return }   /* fell way behind (river, bunker exit): back at Doc's shoulder */
     const sp=Math.min(d*7,430*Math.max(1,speedMul())), k=sp*dt/d; rvMove(m,(sx-m.x)*k,(sy-m.y)*k,'m'); m.anim+=dt*9; if(!m.tg)m.face=sx>=m.x?1:-1 },
   slot(m,p){ const g=G, a=(g.fa||0)+Math.PI*.72; return [p.x+Math.cos(a)*24, p.y+Math.sin(a)*20] } };
+const NAP_SAFE=220;
+function napFriends(){ const p=G.p, o=[p]; for(const m of squad)if(m.hp>0)o.push(m); for(const q of coy)if(q.hp>0)o.push(q); return o }
+function napMinFriendly(bx,by,a,len,n){ const ca=Math.cos(a),sa=Math.sin(a),nx=-sa,ny=ca; let best=1e9;
+  for(let i=0;i<n;i++){ const off=(i-(n-1)/2)*80, cx=bx+nx*off, cy=by+ny*off;
+    for(const f of napFriends()){ const dx=f.x-cx,dy=f.y-cy, t=Math.max(-len/2,Math.min(len/2,dx*ca+dy*sa)); best=Math.min(best,Math.hypot(dx-ca*t,dy-sa*t)) } }
+  return best }
+function napLineMin(q){ const ca=Math.cos(q.a),sa=Math.sin(q.a); let best=1e9; for(const f of napFriends()){ const dx=f.x-q.cx,dy=f.y-q.cy,t=Math.max(-q.len/2,Math.min(q.len/2,dx*ca+dy*sa)); best=Math.min(best,Math.hypot(dx-ca*t,dy-sa*t)) } return best }
+window.DBG_NAP={safe:NAP_SAFE,min:napMinFriendly,friends:napFriends};
 function clump(maxD,box,tries){ if(RTO_T)return RTO_T; const p=G.p; let bx=0,by=0,bs=-1;
   for(let k=0;k<tries&&enemies.length;k++){const e=enemies[(rnd()*enemies.length)|0]; if(e.dead||Math.hypot(e.x-p.x,e.y-p.y)>maxD)continue; let sc=0; for(let j=0;j<enemies.length;j+=2){const o=enemies[j]; if(!o.dead&&Math.abs(o.x-e.x)<box&&Math.abs(o.y-e.y)<box)sc++} if(sc>bs){bs=sc;bx=e.x;by=e.y}}
   return bs<0?null:[bx,by] }
@@ -4706,7 +4716,9 @@ function updateHazards(dt){
       continue; }
     const s=(q.t-q.delay)*1000-420; // position along the run
     q.show=true; q.jx=q.cx-ca*q.len/2+ca*s; q.jy=q.cy-sa*q.len/2+sa*s;
-    while(q.drops<q.dropN&&s>=q.drops*q.len/(q.dropN-1)){ napalmDrop(q.cx-ca*q.len/2+ca*(q.drops*q.len/(q.dropN-1)),q.cy-sa*q.len/2+sa*(q.drops*q.len/(q.dropN-1)),q); q.drops++ }
+    if(!q.safeChk){ q.safeChk=1; if(napLineMin(q)<NAP_SAFE){ q.abort=1 } }   // vet E1: friendlies moved under the line during the 1.4 s lead-in -> wave off, no drops
+    while(!q.abort&&q.drops<q.dropN&&s>=q.drops*q.len/(q.dropN-1)){ const dx0=q.cx-ca*q.len/2+ca*(q.drops*q.len/(q.dropN-1)), dy0=q.cy-sa*q.len/2+sa*(q.drops*q.len/(q.dropN-1)); if(napFriends().some(f=>Math.hypot(f.x-dx0,f.y-dy0)<NAP_SAFE)){ q.drops++; continue }   // never release a canister within NAP_SAFE of a friendly
+      napalmDrop(q.cx-ca*q.len/2+ca*(q.drops*q.len/(q.dropN-1)),q.cy-sa*q.len/2+sa*(q.drops*q.len/(q.dropN-1)),q); q.drops++ }
     if(s>q.len+460){strikes[i]=strikes[strikes.length-1];strikes.pop()} }
   // burning ground
   for(let i=fires.length-1;i>=0;i--){const f=fires[i]; CURW=f.wid||''; f.life-=dt; if(f.life<=0){fires[i]=fires[fires.length-1];fires.pop();continue}
