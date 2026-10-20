@@ -210,14 +210,18 @@
   var now = (typeof performance !== 'undefined' && performance.now) ? function () { return performance.now(); } : function () { return Date.now(); };
   var Q = [], BAKED = [], lastPump = -1e9;
   J.budgetMs = 2;          // ms of bake work per frame (auto-pumped from the first Field.update of each frame)
-  J.evictSec = 4;          // plant-layer caches of fields not drawn for this long are freed (rebuilt on demand)
+  J.evictSec = 4;
+  // jr mem: per-strip bakes are only needed where grass gets parted. A chunk with no unit within J.hotPx for J.stripCold s keeps only its
+  // flattened layer (strips freed); when units come near again the strips are rebuilt (high priority) before they reach the grass. ?jstrips=1 keeps all.
+  J.stripCold = (typeof location !== 'undefined' && /[?&]jstrips=1\b/.test(location.search)) ? 0 : 3; J.hotPx = 260;          // plant-layer caches of fields not drawn for this long are freed (rebuilt on demand)
   J.focus = null;          // {x,y}: queue builds nearest-first to this point (set automatically from update's player)
   J.pending = function () { return Q.length; };
   J.pump = function (ms) { var t0 = now(), lim = t0 + (ms === undefined ? J.budgetMs : ms); lastPump = t0;
     while (Q.length && now() < lim) { var bi = 0;
       if (J.focus && Q.length > 1) { var bd = 1e18; for (var i = 0; i < Q.length; i++) { var F = Q[i].f, dx = (F.tx0 + F.tx1 + 1) * T / 2 - J.focus.x, dy = (F.ty0 + F.ty1 + 1) * T / 2 - J.focus.y, d = dx * dx + dy * dy + (Q[i].pri || 0); if (d < bd) { bd = d; bi = i; } } }
       var jb = Q[bi]; while (now() < lim) { if (jb.g.next().done) { Q.splice(bi, 1); jb.f._job = null; break; } } }
-    var tn = now(); for (var k = BAKED.length - 1; k >= 0; k--) { var G = BAKED[k]; if (tn - G._lastDraw > J.evictSec * 1000) { G._layers = null; G._layersQueued = false; BAKED.splice(k, 1); } }
+    var tn = now(); for (var k = BAKED.length - 1; k >= 0; k--) { var G = BAKED[k]; if (tn - G._lastDraw > J.evictSec * 1000) { G._layers = null; G._layersQueued = false; BAKED.splice(k, 1); continue; }
+      if (J.stripCold && G._layers && !G._stripsFreed && tn - (G._hotAt || 0) > J.stripCold * 1000 && G._layers[0].underC !== undefined) { for (var rr = 0; rr < G._layers.length; rr++) { G._layers[rr].under = null; G._layers[rr].over = null; } G._stripsFreed = true; } }
     return Q.length; };
   function autoPump() { var t = now(); if (t - lastPump > 7) J.pump(); if (J.chunkFlat) idleKick(); }
   // jr perf: most bake work runs in browser idle time after the frame (requestIdleCallback), only a small slice stays in-frame
@@ -234,7 +238,7 @@
       var key = tx + ',' + ty, w = extra.get(key); if (w === undefined) { w = ta(tx, ty); extra.set(key, w); } return w; }; }
   function Field(o) { this.o = o; this.tx0 = o.tx0 | 0; this.ty0 = o.ty0 | 0; this.tx1 = o.tx1 | 0; this.ty1 = o.ty1 | 0; this.typeAt = memoType(o); this.t = 0; this.holeR = o.holeRadius || 84; this.open = 0;
     this.canopyAlpha = o.canopyAlpha === undefined ? 1 : o.canopyAlpha; this.dikeEvery = o.dikeEvery || 3; this.reveal = []; this.ripples = []; this.plants = []; this.craters = []; this.paddy = null; this.canopy = null;
-    this.ready = false; this.fade = 0; this._lastDraw = now(); this._layers = null; this._strips = null; this._buildMs = 0;
+    this.ready = false; this.fade = 0; this._lastDraw = now(); this._hotAt = now(); this._layers = null; this._strips = null; this._buildMs = 0;
     this._job = enqueue(this, this._build()); }
   Field.prototype._build = function* () { var self = this, o = this.o, tx0 = this.tx0, ty0 = this.ty0, tx1 = this.tx1, ty1 = this.ty1, ta = this.typeAt, seed = o.seed || 1968, tx, ty;
     yield* needInit();
@@ -394,6 +398,9 @@
     var bytes = 0; L.forEach(function (rw) { ['under', 'over'].forEach(function (pt) { rw[pt].forEach(function (b) { if (b) bytes += b.c.width * b.c.height * 4; }); }); }); this.layerBytes = bytes;
     if (J.chunkFlat) for (st = 0; st < n; st++) { yield 0; L[st].underC = flat(L[st].under); toBmp(L[st].underC, 'c'); yield 0; L[st].overC = flat(L[st].over); toBmp(L[st].overC, 'c'); }
     this._layers = L; this._layersQueued = false; this._lastDraw = now(); BAKED.push(this); };
+  Field.prototype._rebuildStrips = function* () { var S = this._strips, L = this._layers, i, st; if (!S || !L) { this._stripJob = null; return; }
+    var rows = []; for (st = 0; st < L.length; st++) { var row = { under: [], over: [] }; rows.push(row); for (i = 0; i < S.length; i++) { row.under.push(this._bakeStrip(S[i], 'under', st)); row.over.push(this._bakeStrip(S[i], 'over', st)); if ((i & 3) === 3) yield 0; } }
+    if (this._layers === L) { for (st = 0; st < L.length; st++) { L[st].under = rows[st].under; L[st].over = rows[st].over; } this._stripsFreed = false; } this._stripJob = null; };
   // jr perf: the strips of a part are also flattened into ONE canvas per chunk (same pixels, same order); used whenever no strip in the chunk is bent
   function flat(arr) { var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, i, b; for (i = 0; i < arr.length; i++) { b = arr[i]; if (!b) continue; if (b.x < x0) x0 = b.x; if (b.y < y0) y0 = b.y; if (b.x + b.c.width > x1) x1 = b.x + b.c.width; if (b.y + b.c.height > y1) y1 = b.y + b.c.height; }
     if (x1 < x0) return null; var c = mkc(x1 - x0, y1 - y0), g = c.getContext('2d'); g.imageSmoothingEnabled = false; for (i = 0; i < arr.length; i++) { b = arr[i]; if (b) g.drawImage(b.c, b.x - x0, b.y - y0); } return { c: c, x: x0, y: y0 }; }
@@ -410,6 +417,9 @@
     if (this.ready && this.fade < 1) this.fade = Math.min(1, this.fade + (dt || 0.016) / 0.35);
     var X0 = this.tx0 * T - 40, X1 = (this.tx1 + 1) * T + 40, Y0 = this.ty0 * T - 40, Y1 = (this.ty1 + 1) * T + 40, us = [], j, u;
     var all = units || []; for (j = 0; j < all.length; j++) { u = all[j]; if (u.x > X0 && u.x < X1 && u.y > Y0 && u.y < Y1) us.push(u); }
+    if (J.stripCold) { var H = J.hotPx, hot = false, hx0 = X0 - H, hx1 = X1 + H, hy0 = Y0 - H, hy1 = Y1 + H; for (j = 0; j < all.length && !hot; j++) { u = all[j]; if (u.x > hx0 && u.x < hx1 && u.y > hy0 && u.y < hy1) hot = true; }
+      if (!hot && player && player.x > hx0 && player.x < hx1 && player.y > hy0 && player.y < hy1) hot = true;
+      if (hot) { this._hotAt = now(); if (this._stripsFreed && !this._stripJob && this._layers) this._stripJob = enqueue(this, this._rebuildStrips(), -1e12); } }
     if (player && player.x > X0 && player.x < X1 && player.y > Y0 && player.y < Y1 && us.indexOf(player) < 0) us.push(player);
     var k = Math.min(1, (dt || 0.016) * 10), S = this._strips;
     if (S) for (var si = 0; si < S.length; si++) { var s = S[si], near = false;

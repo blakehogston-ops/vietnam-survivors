@@ -1203,7 +1203,11 @@ Pause .......... Esc / P     Mute ... M</pre></div>
 <script src="assets/art/vfx_water_impacts.js?v=2399611"></script>
 <script src="assets/art/vfx_flame.js?v=2399611"></script><script>/* Artist HUD art (XP strap + health dog tag, ?hudart=0 off) */ if(!/[?&]hudart=0\b/.test(location.search))document.write('<script src="assets/art/hud_art.js?v=2399611"><\/script>')</script>
 <script src="assets/art/map_wrecks.js?v=2399611"></script>
-<script>if(!/[?&]jungle=0\b/.test(location.search))document.write('<script src="assets/art/jungle_v3_lite.js?v=rc8jr"><\/script>')</script>
+<script>/* rc8 jungle default (Lead): ON on desktop; OFF on touch / mobile / LOW quality unless ?jungle=1; ?jungle=0 forces off everywhere */
+window.JUNGLE_ON=(function(){ const q=location.search; if(/[?&]jungle=0\b/.test(q))return false; if(/[?&]jungle=1\b/.test(q))return true;
+  const touch=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window)||(navigator.maxTouchPoints>0); let lv=null; try{ lv=localStorage.getItem('lco_lowfx')||localStorage.getItem('lbo2_lowfx') }catch(e){}
+  const m=q.match(/[?&]lowfx=([^&]*)/), low=m?m[1]!=='0':lv==='1'; return !touch&&!low })();
+if(window.JUNGLE_ON)document.write('<script src="assets/art/jungle_v3_lite.js?v=rc8jr2"><\/script>')</script>
 <script>if(/[?&]terrain=1\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=2399611"><\/script>')</script>
 <script src="assets/art/vehicles.js?v=2399611"></script><script src="assets/art/ch46_v2.js?v=2399611"></script><script src="assets/art/dressing_pickups.js?v=2399611"></script><script src="assets/art/tanks_v2.js?v=2399611"></script><script src="assets/art/vehicles_v3.js?v=2399611"></script><script src="assets/vfx/muzzle_flash.js"></script>
 <script src="assets/vfx/rockets.js"></script>
@@ -2380,7 +2384,7 @@ const VEH=()=>!!(window.SHEET1&&SHEET1.vehiclesBig);
 /* jr Oct 20: optional VFX_IMPACT hooks, each OFF unless its flag is set. ?impnapalm=1 canister+rolling fireball+teardrop scorch on each napalm drop (replaces the old G.shake there),
    ?implat=1 red laterite soil eruption column on big blasts (rad>=40, mud on paddy), ?impm40=1 M40 sniper uses SHAKE.m40 + KICK.m40 recoil instead of the flat G.shake 2.2. arcLight deliberately NOT wired (doubles the booms). */
 const IMPNP=/[?&]impnapalm=1\b/.test(location.search), IMPLAT=/[?&]implat=1\b/.test(location.search), IMPM40=/[?&]impm40=1\b/.test(location.search);
-const IMPDEC=!/[?&]jungle=0\b/.test(location.search)&&!/[?&]impdec=0\b/.test(location.search), IGR=(x,y)=>{ const j=JG.ground(x,y); if(j)return j; try{ const m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); return m==='P'?'paddy':'dirt' }catch(e){ return 'dirt' } };
+const IMPDEC=!!window.JUNGLE_ON&&!/[?&]impdec=0\b/.test(location.search), IGR=(x,y)=>{ const j=JG.ground(x,y); if(j)return j; try{ const m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); return m==='P'?'paddy':'dirt' }catch(e){ return 'dirt' } };
 const MOPEN=!/[?&]mopen=0\b/.test(location.search), MLEAD=2.0;
 const RTOP=/[?&]rtop=0\b/.test(location.search)?0:(+(location.search.match(/[?&]rtop=(\d+)/)||[])[1]||300);
 const LULLCUE=!/[?&]lullcue=0\b/.test(location.search);
@@ -2840,10 +2844,10 @@ function drawIcon(c,id,s){
 }
 /* ---- background tiles + decor ---- */
 let TILE_J,TILE_P,TILE_RH,TILE_RV,DECOR=[];
-/* ===== JG (rc7 #4, ON by default since jr rc8 perf pass, ?jungle=0 turns it off): Artist Idea Bot's jungle_v3 rev 3 depth layer (48 px tiles) on top of the ground.
+/* ===== JG (rc7 #4, ON by default on desktop since rc8; off on touch/mobile/LOW unless ?jungle=1; ?jungle=0 off everywhere): Artist Idea Bot's jungle_v3 rev 3 depth layer (48 px tiles) on top of the ground.
    Lowlands near the base/Route 9: paddy (P), elephant grass (E), scrub / hedgerow bamboo (J). Triple canopy (jungle/rubber/teak) only far out
    (> 2600 px from the start = the map edges) and in the western hills (x < -1800). Baked in 8x8-tile chunks, one per frame budget, nearest first. ===== */
-const JG={ON:!/[?&]jungle=0\b/.test(location.search),C:8,F:new Map(),q:[],ms:[],t:0,
+const JG={ON:!!window.JUNGLE_ON,C:8,F:new Map(),q:[],ms:[],t:0,
   ok(){ return this.ON&&!!window.JUNGLE3&&!G.demo&&TERR.ready() },
   type(tx,ty){ const x=tx*48+24, y=ty*48+24, m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); if(m==='W'||m==='C'||m==='K')return 'other';
     if(fbS&&Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y))<FBW+140)return 'other'; const ex=G.ex, P=ex&&(ex.pad||ex.pre); if(P&&Math.hypot(x-P.x,y-P.y)<EX.PAD_R+60)return 'other';
@@ -2854,7 +2858,7 @@ const JG={ON:!/[?&]jungle=0\b/.test(location.search),C:8,F:new Map(),q:[],ms:[],
   bake(cx,cy){ const C=this.C, t0=performance.now(); let F=null; try{ F=JUNGLE3.createField({tx0:cx*C,ty0:cy*C,tx1:cx*C+C-1,ty1:cy*C+C-1,typeAt:(a,b)=>this.type(a,b),seed:1968+cx*31+cy*17,damage:.15,holeRadius:84,swayFrames:(LOWFX&&this.PF&&!/[?&]jsway=2\b/.test(location.search))?1:2}) }catch(e){ console.warn('JG bake',e) }
     this.F.set(this.key(cx,cy),F); this.ms.push(performance.now()-t0) },
   vis(cam,m){ const S=48*this.C, M=m|0, out=[]; for(let cx=Math.floor((cam.x-60-M)/S);cx<=Math.floor((cam.x+VW+60+M)/S);cx++)for(let cy=Math.floor((cam.y-120-M)/S);cy<=Math.floor((cam.y+VH+60+M)/S);cy++)out.push([cx,cy]); return out },
-  PF:/[?&]jperf=0\b/.test(location.search)?0:300,   /* jr perf: queue chunks up to 300 px beyond the view so they are baked (incl. flattened plant layers) before they scroll in */
+  PF:/[?&]jperf=0\b/.test(location.search)?0:(LOWFX?150:300),   /* LOW: 150 px ring -> ~20 chunk floor for the cap */   /* jr perf: queue chunks up to 300 px beyond the view so they are baked (incl. flattened plant layers) before they scroll in */
   pre(cam,budget){ if(!this.ok())return; const v=this.vis(cam,this.PF).sort((a,b)=>{ const S=48*this.C, X=cam.x+VW/2, Y=cam.y+VH/2; return Math.hypot((a[0]+.5)*S-X,(a[1]+.5)*S-Y)-Math.hypot((b[0]+.5)*S-X,(b[1]+.5)*S-Y) }); let n=0; for(const [cx,cy] of v){ if(this.F.has(this.key(cx,cy)))continue; if(n>=budget)break; this.bake(cx,cy); n++ }
     /* perf: LRU-ish cap (?jcap=N; 40 desktop / 24 LOW): evict farthest chunks outside view+prefetch ring */ { const CAP=+(params.get('jcap')||(LOWFX?24:40)); if(this.F.size>CAP){ const S=48*this.C, keep=new Set(v.map(([x,y])=>this.key(x,y))), d=[]; for(const [k] of this.F){ if(keep.has(k))continue; const [a,b]=k.split(',').map(Number); d.push([Math.hypot((a+.5)*S-G.p.x,(b+.5)*S-G.p.y),k]) } d.sort((x,y)=>y[0]-x[0]); for(let n=0;n<d.length&&this.F.size>CAP;n++)this.F.delete(d[n][1]) } } },
   each(cam,f){ for(const [cx,cy] of this.vis(cam)){ const F=this.F.get(this.key(cx,cy)); if(F)f(F) } },
