@@ -193,12 +193,19 @@
         // menu_theme (2026-10-20): Semper Fidelis (Sousa, 1888), United States Marine Band 2016, Wikimedia Commons, U.S. gov work, PUBLIC DOMAIN.
         // Replaces Zapatista (Content ID HIGH; music_menu_theme.* kept unused, DO NOT SHIP). One repeated strain 56.00-112.51 s, -14.0 LUFS.
         menu_theme: { file: 'music_menu_march', group: 'music', loop: true, loopStart: 0, loopEnd: 56.510, m4aOffsetSec: 0.046440, gain: 1 },
+        scene_opening: { file: 'music_easter_valkyries', group: 'music', loop: false, scene: 'opening', dur: 76.000, m4aOffsetSec: 0.046440, gain: 1, returnTo: 'combat', returnXf: 2.5 },   // Ride of the Valkyries, Edison 1921 (PD) - opening insertion ONLY
         menu_intro: { file: 'music_menu_intro', group: 'music', loop: false, sting: true, dur: 14.500, finalHitSec: 12.150, m4aOffsetSec: 0.046440, gain: 1, next: 'menu_theme' }  // When Johnny Comes Marching Home, U.S. Navy Band Brass Quartet (Wikimedia Commons, U.S. gov work, PD). playMenu() plays it, then the loop
       },
       combatTiers: ['combat', 'combat_2', 'combat_3', 'combat_4', 'combat_5'],   // playMusic('combat') plays the current tier
       // combat_4_alt: CANDIDATE only (Rock Oco, Ə, CC BY 4.0; human-made). NOT a track: Blake keeps combat_4 for now. To swap: point combat_4.file at
       // 'music_combat_4_alt' with loopEnd 36.540, bpm 158, phraseSec 9.135 (loop/4).
       alternates: { combat_4_alt: { file: 'music_combat_4_alt', loop: true, loopStart: 0, loopEnd: 36.540, m4aOffsetSec: 0.046440, gain: 1, intensity: true, tier: 4, bpm: 158, phraseSec: 9.135 } },
+      // scenes (2026-10-20, Blake's override): the OPENING insertion (first CH-46 drop at game start, with the door guns / gunships) plays
+      // "Ride of the Valkyries" (Wagner), American Symphony Orchestra, Edison Diamond Disc 80638-R (rec./rel. Dec 1921), Wikimedia Commons
+      // (NPS Edison NHS collection). US PD (published before 1923). Period crackle kept. 76.0 s excerpt (source 18.0-94.0 s), 2 s fade in /
+      // 5 s fade out, NO loop, -14.0 LUFS. Legal: PASS with conditions (no Apocalypse Now material; courtesy credit; no 'authentic period' claim).
+      // SamplePlayer.musicEvent('opening_in') plays it; it is never a combat tier and never plays on reinforcement drop-offs. (Was unlockables.valkyries.)
+      scenes: { opening: { track: 'scene_opening', fade: 1.5 } },
       aliases: { dedication: 'win' },   // the Hogston dedication uses the same Hymn file
       doNotShip: ['music_menu_asian', 'music_menu_theme']   // cut (Vet) / Content ID HIGH (Zapatista): files kept, never loaded. music_combat_5 is now Ə (La Menteuse file overwritten; source kept in research/)
     },
