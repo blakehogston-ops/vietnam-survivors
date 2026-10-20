@@ -6249,7 +6249,7 @@ function answerCall(yes){ const g=G,ex=g.ex,c=ex.call; closeSigAsk(); const real
   if(yes&&!real){ c.st='wrong'; c.wrongAt=g.t; ex.wrongN=(ex.wrongN||0)+1; const cost=EX.WRONG_COST[0]+rnd()*(EX.WRONG_COST[1]-EX.WRONG_COST[0]);
     ex.divert={t:0,cost,to:{x:ex.charlie.x,y:ex.charlie.y},back:{x:ex.huey.x,y:ex.huey.y},toCharlie:true}; c.divTo={x:ex.charlie.x,y:ex.charlie.y}; c.divPlanned=+cost.toFixed(1);
     g.banner={text:"WRONG SMOKE! THE BIRD IS GOING TO CHARLIE'S",t:3,col:'#ff6a4a'}; gunny('Bird, Doc. Roger '+ex.col+'. Over.  -  Bird: Wilco, inbound to your smoke...',3.4,1,'DOC'); return }
-  if(!yes&&!real){ c.st='popped'; c.look='real'; c.rejected=true; c.decoy=false; ex.charlie=null; c.seeAt=g.t+1.2;   /* RC4 (Gamer soft-lock): a rejected decoy is gone for good */ gunny("Bird, Doc. Negative, that's not our smoke. Over.  -  Bird: Roger. Looking again. Over.",3.6,1,'DOC'); return }
+  if(!yes&&!real){ c.st='popped'; c.look='real'; c.rejected=true; c.decoy=false; ex.charlie=null; { const L="Bird, Doc. Negative, that's not our smoke. Over.  -  Bird: Roger. Looking again. Over."; c.seeAt=g.t+Math.max(1.2,L.length/40+1); gunny(L,Math.max(3.6,L.length/40+1.6),1,'DOC') }   /* RC4 (Gamer soft-lock): a rejected decoy is gone for good. RC5.1 (Gamer): the next ask waits until Doc's whole reply has typed out (it was cut at "Negati") */ return }
   c.noReal=(c.noReal|0)+1; if(c.rejected||c.noReal>=2||!c.decoy||!ex.charlie){ c.st='ok'; c.okAt=g.t; ex.confAt=g.t; ex.wrong=false; ex.charlie=null; gunny("Bird, Doc. Negative...  -  Bird: I have one smoke on your pad, Doc. Setting down on it. Over.",3.6,1,'BIRD'); return }   /* RC4: never loop; with no decoy left the bird lands on the pad smoke */
   c.st='popped'; c.look='charlie'; c.seeAt=g.t+3; gunny("Bird, Doc. Negative, that's not our smoke. Over.  -  Bird: Say again? Holding. Looking again. Over.",3.6,1,'DOC') }
 function planPad(){ const g=G,ex=g.ex,p=g.p; let q; relocHidden(p.x,p.y); { const a=rnd()*TAU; q=pickLz(p.x+Math.cos(a)*220,p.y+Math.sin(a)*220) }
@@ -6341,7 +6341,7 @@ function popSmoke(){ try{ const c0=G.ex&&G.ex.call; if(c0)c0.popT=G.t }catch(e){
 function smokeCall(dt){ const g=G,ex=g.ex,p=g.p,c=ex.call; if(!c||c.st==='ok'||ex.divert)return; c.t+=dt;
   if(c.st==='wait'){ if(onPad(p.x,p.y)&&p.hp>0){ c.onT+=dt; if(c.onT>=EX.POP_HOLD)popSmoke() } else c.onT=0;
     c.nag=(c.nag||0)+dt; if(c.nag>=10){ c.nag=0; gunny("Doc, Bird. I need smoke on that pad. Over.",3,0,'BIRD') } return }
-  if(c.st==='popped'&&g.t>=c.seeAt&&state==='play'){ c.st='ask'; openCall() } }
+  if(c.st==='popped'&&g.t>=c.seeAt&&state==='play'&&!(exMsg&&exMsg.who==='DOC'&&exMsg.t<exMsg.text.length/40+.6)){ c.st='ask'; openCall() }   /* RC5.1: never open the next ask over Doc's half-typed reply */ }
 function openCall(){ const g=G,ex=g.ex,c=ex.call; ex.at=c.look; ex.idCol=ex.col; ex.sayAgain=false; c.askAt=g.t; c.asks=(c.asks||0)+1; Snd.play('radio'); state='sig'; showSigAsk(); if(DBG.bot&&/[?&]botsig\b/.test(location.search))answerCall(c.look==='real') }   /* QA bot only: answers like a careful player */
 const callTarget=()=>{ const ex=G&&G.ex, c=ex&&ex.call; if(!c)return null; return c.look==='charlie'?ex.charlie:ex.sig };
 function divertTick(dt){ const g=G,ex=g.ex,d=ex.divert,hu=ex.huey; d.t+=dt; const T=d.t<d.cost*.55?d.to:d.back; hu.x+=(T.x-hu.x)*Math.min(1,dt*1.2); hu.y+=(T.y-hu.y)*Math.min(1,dt*1.2); hu.z+=((d.t<d.cost*.55?40:90)-hu.z)*Math.min(1,dt); hu.rot+=dt*40; hu.hd=Math.atan2(T.y-hu.y,T.x-hu.x);
@@ -6446,7 +6446,7 @@ function sigLine(){ const g=G,ex=g.ex,p=g.p; if(!ex)return {t:'',c:'#fff'};
   if(ex.ph===4)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t)))+(onPad(p.x,p.y)?'  ·  ON THE PAD':'  ·  PAD '+dm+'m'),c:onPad(p.x,p.y)?'#9be37a':'#ffcf5a',T:onPad(p.x,p.y)?null:T};
   if(ex.ph===5){ const left=Math.max(0,EX.GROUND-ex.t), inR=onPad(p.x,p.y); const ow=!inR&&ex.offWarn; return {t:'BIRD LIFTS — '+fmt(Math.ceil(left))+'  ·  '+(ow?'GET ON THE PAD '+dm+'m':!inR?'PAD '+dm+'m':ex.ramp?'BOARDING':'NEED ONE MORE MARINE ON THE RAMP'),c:(left<10||ow)?'#ff6a4a':'#9be37a',T:inR?null:T} }
   if(ex.ph===6)return {t:'EXTRACTED',c:'#9be37a'}; return {t:'THE BIRD IS GONE',c:'#ff6a4a'} }
-const q15Alive=()=>{ const g=G; return (g.p.hp>0?1:0)+coyAlive()+coyIncoming() };
+const q15Alive=()=>{ const g=G; let n=0; for(const m of coy)if(m.hp>0&&(!m.comp||m.comp.q15))n++; let k=0; for(const h of coyH)if((h.ph<2||(h.ch46&&h.ph<4))&&h.comp&&h.comp.q15)k+=Math.max(0,h.left-h.di); const v=(g.p.hp>0?1:0)+n+k; if(state==='over'){ g.mlOver=Math.min(v,g.mlOver==null?v:g.mlOver); return g.mlOver } return v };   /* RC5.2 (QA m0): frozen once the run is over (the world kept ticking after Doc fell and his hp flickered back);: the HUD 'MARINES' count is the fifteen only; late company reinforcements landing no longer bump it back up */
 function hudArrowGlyph(c,U,col){ c.fillStyle=col; c.strokeStyle='#000'; c.lineWidth=2; c.beginPath(); c.moveTo(11*U,0); c.lineTo(2*U,-7*U); c.lineTo(2*U,-2.5*U); c.lineTo(-7*U,-2.5*U); c.lineTo(-7*U,2.5*U); c.lineTo(2*U,2.5*U); c.lineTo(2*U,7*U); c.closePath(); c.stroke(); c.fill() }   /* points along +x */
 window.hudArrowGlyph=hudArrowGlyph;
 function drawSigLine(U,oy){ const g=G,p=g.p,ex=g.ex; if(!ex||g.demo)return; const L=sigLine(), y=oy+80*U, fs=15*U;
@@ -6469,7 +6469,7 @@ function drawExHud(U,camX,camY,tt){ const g=G,p=g.p,ex=g.ex; exStack=0; if(!ex||
     ctx.strokeStyle='#c8c8c8'; ctx.lineWidth=1.5*U; ctx.strokeRect(bx+8*U,y+7*U,pw,ph);
     if(m.t<.5||Math.random()<.03){ ctx.fillStyle='rgba(255,255,255,.16)'; for(let i=0;i<20;i++)ctx.fillRect(bx+4+Math.random()*(bw-8),y+4+Math.random()*(bh-8),3*U,Math.random()*2*U+1) }
     ctx.textAlign='left'; ctx.fillStyle='#e8c030'; ctx.fillText(m.who==='GUNNY'?'GySgt "GUNNY" HOLLIS, USMC':m.who==='DOC'?'DOC (YOU)':m.who,bx+pw+16*U,y+16*U);
-    ctx.fillStyle='#f6f6e6'; const shown=Math.floor(m.t*40); let idx=0; const full=m.text; lines.forEach((L,i)=>{ const part=full.slice(idx,idx+L.length).slice(0,Math.max(0,shown-idx)); ctx.fillText(part,bx+pw+16*U,y+(32+i*15)*U); idx+=L.length+1 });
+    ctx.fillStyle='#f6f6e6'; const shown=Math.floor(m.t*40); let idx=0; const full=m.text; lines.forEach((L,i)=>{ const at=Math.max(idx,full.indexOf(L,idx)); const part=L.slice(0,Math.max(0,shown-at)); ctx.fillText(part,bx+pw+16*U,y+(32+i*15)*U); idx=at+L.length });   /* RC5.1: find each wrapped line in the text (double spaces no longer shift the typewriter) */
     ctx.globalAlpha=1; y+=bh+4*U }
   exStack=y-exTop(U) }
 function hudMed(){ const el=document.getElementById('medHud'), g=G; if(!el)return; const show=!!(g&&g.char&&!g.demo&&state==='play'); el.style.display=show?'flex':'none'; if(!show)return; const n=g.medInv|0, t=document.getElementById('medN'); if(t.textContent!==''+n)t.textContent=n; document.getElementById('medBtn').disabled=!n; document.getElementById('medMate').disabled=!n;
@@ -6711,11 +6711,12 @@ function gameOver(win,why){ state='over'; overAt=performance.now(); const g=G, e
   dbgMark(); let opened=false; if(!g.dbg&&!g.demo)try{ const best=+localStorage.getItem('lbo2_best')||0; if(g.t>best)localStorage.setItem('lbo2_best',String(g.t)); if(win&&!g.demo){ if(!DBG.bot)localStorage.setItem('lbo2_evacs',String((+localStorage.getItem('lbo2_evacs')||0)+1)); if(g.char==='doc'&&!recOpen()){ localStorage.setItem('lbo2_open','1'); opened=true } } }catch(e){}
   const aw=awardRun(true), sm=t=>`<div class="ocsm">${t}</div>`, seedTx='Seed '+g.seed, D=CHD[g.char]||CHD.doc;
   if(win){ $('overTitle').textContent='EXTRACTED — THE BIRD IS OUT'; $('rank').textContent='';
-    const on=[D.nick+' ('+D.rank+' '+D.nm.split(' ').pop()+')'].concat(ex.gotOn||[]);
-    const ROLL=((g.kiaL&&g.kiaL.length)?`<div class="ockia"><b>KIA:</b> ${g.kiaL.join(', ')}</div>`:'')+((g.urgL&&g.urgL.length)?`<div class="ockia"><b>MEDEVAC:</b> ${g.urgL.join(', ')}</div>`:'');
+    const on=[D.nick+' ('+D.rank+' '+D.nm.split(' ').pop()+')'].concat((ex.gotOn||[]).filter(n=>!(g.kiaL||[]).includes(n)&&!(ex.loaded||[]).includes(n)));
+    const LD=ex.loaded||[], KIA=(g.kiaL||[]).concat(LD.filter(n=>!(g.kiaL||[]).includes(n))), KH=KIA.filter(n=>LD.includes(n)), KO=KIA.filter(n=>!LD.includes(n)); const LB=(ex.left||[]).filter(n=>!KIA.includes(n));   /* RC5.1 (Gamer): a fallen Marine carried aboard is "KIA, brought home", never also LOADED / alive */
+    const ROLL=(KH.length?`<div class="ockia"><b>KIA, BROUGHT HOME:</b> ${KH.join(', ')}</div>`:'')+(KO.length?`<div class="ockia"><b>KIA:</b> ${KO.join(', ')}</div>`:'')+((g.urgL&&g.urgL.length)?`<div class="ockia"><b>MEDEVAC:</b> ${g.urgL.join(', ')}</div>`:'');
     const HON=(g.honor&&g.honor.length)?`<div class="ochon">${g.honor.map(h=>'<span class="hrib"></span> '+h).join('<br>')}</div>`:'';
-    $('stats').innerHTML=HON+ROLL+`<div class="ocon"><b>GOT ON:</b> ${on.join(', ')}</div><div class="ocld"><b>LOADED:</b> ${(ex.loaded&&ex.loaded.length)?ex.loaded.join(', '):'nobody'}</div>`+
-      ((ex.left&&ex.left.length)?`<div class="oclf"><b>LEFT BEHIND:</b> ${ex.left.join(', ')}</div>`:'')+
+    $('stats').innerHTML=HON+ROLL+`<div class="ocon"><b>GOT ON:</b> ${on.join(', ')}</div>`+
+      (LB.length?`<div class="oclf"><b>LEFT BEHIND:</b> ${LB.join(', ')}</div>`:'')+   /* RC5.2 (QA): living Marines only - the dead are listed under KIA */
       `<div class="ocopt"><b>OPTIONAL CALL:</b> ${ex.optCall?ex.optCall:'none'}</div>`+
       (opened&&!DEMO?'<div class="ocop">The other service records are open.</div>':'')+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')); $('overSvc').innerHTML=serviceCard(aw) }
   else { $('overTitle').textContent=why==='left'?'LEFT ON THE LZ — THE BIRD IS GONE':charNick(g).toUpperCase()+' IS DOWN'; $('rank').textContent='';

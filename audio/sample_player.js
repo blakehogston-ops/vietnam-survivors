@@ -83,7 +83,7 @@
     // ---- week of 2026-10-14 (build_weapons_oct14.py). Every shot slot is cat 'gun' (6-gunshot cap). Gains calibrated
     // to TARGET_POST in samples/measure_levels.py: rifles under the Huey, bomb and Gunny; bomb_distant stays loudest.
     bolt_rifle_shot:    { cat: 'gun',       prio: 2, gain: 0.1023, vary: true },                // M40 / Springfield (.308 Remington 700)
-    bolt_rifle_bolt:    { cat: 'mech',      prio: 1, gain: 1.0255, vary: true },                // bolt cycle after the shot
+    bolt_rifle_bolt:    { cat: 'mech',      prio: 1, gain: 0.514, vary: true },                // bolt cycle after the shot
     shotgun_shot:       { cat: 'gun',       prio: 2, gain: 0.3749, vary: true },                // Ithaca 37 STAND-IN (Mossberg 500)
     shotgun_rack:       { cat: 'mech',      prio: 1, gain: 0.598, vary: true },
     cannon:             { cat: 'gun',       prio: 3, gain: 0.397, vary: true },                // field guns (21-gun salute); tank90 / t54 / howitzer
@@ -340,7 +340,7 @@
       }
       if (loop) src.loop = true;
       src.start(t); if (!loop) src.stop(t + dur + 0.01);
-      var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g };
+      var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g, bus: o.busName || '' };
       src.onended = function () { v.dead = true; };
       voices.push(v); stats.played++;
       return v;
@@ -368,12 +368,18 @@
       var s = SLOTS[slot]; if (!s) { info('unknown slot "' + slot + '"'); return null; }
       var t = o.when != null ? Math.max(o.when, now()) : now();
       prune(Math.min(t, now()));
+      /* game patch (mix buses, restored RC5.1 - lost when the rc4 pack copy overwrote this file): P.route(slot, s, o) -> { dest, vol, prio, cat, bus, cap } or { drop: true }; per-bus per-slot voice caps */
+      if (P.route && !o.routed) { var rt = P.route(slot, s, o); if (rt) { if (rt.drop) { stats.dropped++; return null; }
+          if (rt.cap) { var same = overlapping(t, t + 0.05, function (v) { return v.slot === slot && v.bus === rt.bus; }); if (same.length >= rt.cap) { stats.capped = (stats.capped || 0) + 1; return null; } }
+          o = Object.assign({}, o, { dest: rt.dest || o.dest, vol: (o.vol == null ? 1 : o.vol) * (rt.vol == null ? 1 : rt.vol), routed: true, busName: rt.bus });
+          if (rt.prio != null || rt.cat) s = Object.assign({}, s, { prio: rt.prio != null ? rt.prio : s.prio, cat: rt.cat || s.cat }); } }
       // recorded bursts are used when loaded; play(..., { rounds: n }) or no burst files -> re-trigger the single shot
       if (s.burstOf && (o.rounds || !(buffers[slot] && buffers[slot].length))) return playBurst(slot, s, t, o);
       // o.variant: preferred file index (explosion(kind)); falls back to a random variant if that file is not loaded
       var buf = o.variant != null && buffers[slot] && buffers[slot][o.variant] ? buffers[slot][o.variant] : pickBuffer(slot);
       if (!buf) return WEAPONS[slot] ? silentWeapon(slot) : fallback(slot, s, t, o);
       var plan = planVoice(s, buf, o, s.maxDur);
+      if (o.warnVoice) { var wv = startVoice(slot, s, buf, t, o, s.maxDur, plan); wv.cat = 'warn'; wv.prio = 99; stats.warnVoices = (stats.warnVoices || 0) + 1; return handle(wv); }   /* game patch: warning voice outside the caps (restored RC5.1) */
       if (!makeRoom(s, t, plan.dur)) { stats.dropped++; return null; }
       return handle(startVoice(slot, s, buf, t, o, s.maxDur, plan));
     };
@@ -474,7 +480,7 @@
     function warnCue(slot, leadMs, attackAt, o) {
       o = o || {}; if (!ctx) return null;
       var lead = leadMs / 1000, t = now(), want = attackAt != null ? attackAt - lead : (o.when != null ? o.when : t);
-      var at = Math.max(want, t), h = P.play(slot, Object.assign({}, o, { when: at }));
+      var at = Math.max(want, t), h = P.play(slot, Object.assign({}, o, { when: at, warnVoice: true }));
       return { slot: slot, cueAt: at, attackAt: attackAt != null ? attackAt : at + lead, leadMs: leadMs, late: want < t - 1e-3, handle: h, played: !!h };
     }
     // b40Launch({ impactAt }) or b40Launch({ when }): launch bang 1 s (cues.b40.leadMs) before the rocket impact.
