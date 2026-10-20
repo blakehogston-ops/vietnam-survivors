@@ -4786,7 +4786,7 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
   chain(){ return coy.filter(m=>{ this.init(m); return this.ok(m) }).sort((a,b)=>b.rank-a.rank||b.timeInCountry-a.timeInCountry||a.rosterIdx-b.rosterIdx) },
   who(m){ return (m.nm||'MARINE').toUpperCase() },
   say(id,m,pri){ const g=G; if(!OFFVO[id])return false; const ho=/^HO-[SCLPX]|LT-H/.test(id);
-    if(!ho&&!pri){ if(g.t-this.barkT<3||g.t-(this.used[id]||-99)<30)return false }
+    if(!ho&&!pri){ if(this.seq.length)return false;   /* fire-mission radio sequence plays uninterrupted */ if(g.t-this.barkT<3||g.t-(this.used[id]||-99)<30)return false }
     this.barkT=g.t; this.used[id]=g.t; const sp=id.startsWith('SK-')?'GOLF SIX':m?this.who(m):'MARINE'; if(!pri&&exMsg&&exQ.length>=1)return false; gunny(OFFVO[id],null,false,sp);   /* never pre-empt or push out a Gunny/extraction card */ (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'bark',id]); return true },
   pick1(ids){ for(const id of ids)if(G.t-(this.used[id]||-99)>=30)return id; return ids[0] },
   hoBark(m,n){ const r=m.rank; if(n===1)return 'HO-X01'; if(m.isLt)return 'LT-H01';
