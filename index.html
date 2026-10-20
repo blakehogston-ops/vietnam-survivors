@@ -4814,7 +4814,7 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
   mortar(g){ if(this.cd.fire>0||this.mort)return; const c=this.cmd, p=g.p; let best=null,bn=0;
     for(const e of nearestK(c.x,c.y,12,650)){ if(Math.hypot(e.x-p.x,e.y-p.y)<260)continue; const n=nearestK(e.x,e.y,10,110).length; if(n>bn){bn=n;best=e} } if(!best||bn<6)return;
     for(const m of coy)if(m.hp>0&&Math.hypot(m.x-best.x,m.y-best.y)<170)return;   /* danger close: hold it */
-    if(!this.rtoAlive(g)){ this.cd.fire=60; if(g.t-this.radioOutT>=60){ this.radioOutT=g.t; this.say(c.rank>=5?'HO-Y02':'HO-Y01',c,1) } return }
+    if(!this.rtoAlive(g)){ if(!g.rtoLost)return; this.cd.fire=60; if(g.t-this.radioOutT>=60){ this.radioOutT=g.t; const sp=c.rank<=4?c:this.members(14).find(q=>q.rank<=4); if(sp)this.say(this.radioOutT%2?'HO-Y01':'HO-Y02',sp,1) } return }   /* only once the RTO is actually lost; HO-Y is a Cpl-or-below line */
     this.cd.fire=75; const lt=c.isLt; g.banner={text:(lt?'LT':'RTO')+': "GOLF SIX, THIS IS GOLF TWO-SIX. FIRE MISSION, OVER" · SIX ROUNDS',t:2.4,col:'#ffe58a'}; Snd.play('radio');
     if(lt)this.say('LT-R03',c,1); this.seq=[[g.t+3.6,'SK-F02',null],lt?[g.t+7.4,'LT-R04',c]:null].filter(Boolean); this.mort={x:best.x,y:best.y,t:8.5,n:0}; g.offLog.push([+g.t.toFixed(1),'mortar',bn]) },
   tick(g,dt){ if(!this.on())return; const lg=g.offLog||(g.offLog=[]);
