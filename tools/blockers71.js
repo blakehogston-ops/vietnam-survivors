@@ -17,6 +17,6 @@ const log=await pg.evaluate(()=>(window.__simLog||[]).map(l=>l.k)); ok('logged_r
 /* 3 MoH card never on a stage-banner frame */
 const cw=await pg.evaluate(()=>{ __ms.G.banner={text:'STAGE 2/3 BUNKER',t:2,col:'#fff'}; return __ms.MOH.cardWait() }); ok('moh_card_waits_for_stage_banner',cw===true);
 /* 5 keys: E no longer fires the special; G = X */
-const k=await pg.evaluate(()=>{ __ms.G.banner=null; return {g:popSignal.toString().includes('N2.press')} }); ok('G_bound',k.g);
+const k=await pg.evaluate(async()=>{ __ms.G.banner=null; const t=await (await fetch(location.pathname)).text(); return {g:t.includes('function popSignal(){ try{ return N2.press()')} }); ok('G_bound',k.g);
 ok('no_page_errors',errs.length===0,errs);
 await b.close(); console.log(JSON.stringify(R)); console.log(fail?'BLOCKERS71 FAIL '+fail:'BLOCKERS71 PASS'); process.exit(fail?1:0) })();
