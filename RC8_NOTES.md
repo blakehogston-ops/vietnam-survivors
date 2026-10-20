@@ -11,12 +11,12 @@ Every line ID that rc8 adds, changes or cuts compared with rc7.1. All of these a
   - SK-E01: bird inbound
   - SK-E02: bird has your smoke
   - SK-E03: Lt down, "whoever's on this handset"
-- **Officer OF- lines** (EP, back in rc8; jr/officer-of 2d15937):
+- **Officer OF- lines** (EP, back in rc8; jr/officer-of f3fb2df, merged 3a16b92):
   - OF-L01 "Corpsman up! Lieutenant's hit!"
   - OF-A01 "Get me air on that position!"
   - OF-A02 "Air's coming in. Get down!" (O-1 FAC, 20-30 s from call to impact)
   - OF-D01 "Check fire, check fire! Too close!"
-  - OF-Q01 "Hold the fire mission! Doc's got men out there!"
+  - OF-Q01 "Hold the fire mission! Doc's got men out there!" (narrowed, f3fb2df: Doc's air call is never overridden; friendlies or wounded inside NAP_SAFE hold the strike, which resumes automatically)
 - **Radio sequence order**:
   - Fire mission: LT-R03 -> SK-F02 -> LT-R04
   - Firebase: SK-F01, then LT-R04 at +4.6 s if the Lt is alive

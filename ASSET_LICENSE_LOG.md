@@ -41,3 +41,7 @@
 > **Live-generated content:** None. The game does not generate content with AI while it is running.
 > **AI tools used in development (not shipped):** An AI source-separation tool (Demucs) was used only to check licensed music tracks for hidden vocals. None of its output ships in the game. *(Steam only requires this note if it's useful context. Source: Sound Helper, music/research/demucs_run.log.)*
 - 2026-10-20 (Blake, direct in chat): the Hogston family photo (his granddad) is Blake's own. It may appear anywhere (game, store page, screenshots, trailer), but not as a focal point. This replaces the earlier "keep it out of screenshots and trailer" advice.
+
+| o1_birddog_flyby_1.ogg/.m4a | Commons "Propeller_plane_and_birds_singing.ogg" (pdsounds #127) | ezwa | Public domain dedication | No | PASS (Legal 2026-10-20), courtesy credit; stand-in aircraft |
+| lvtp5_engine_loop_1.ogg/.m4a | Commons "Amphibious_Assault_Vehicles.ogv" = DVIDS 469793 (B-roll) | Sgt. David J. Adams, USMC | Public domain (US gov work, 17 USC 105) | No | PASS (Legal 2026-10-20), courtesy credit; ear check voices; no endorsement implied |
+| firebase_amb_loop_1.ogg/.m4a | archive.org RainforestNight | Anon6116 | CC0 1.0 | No | PASS (Legal 2026-10-20), optional credit; thin provenance, evidence kept |
