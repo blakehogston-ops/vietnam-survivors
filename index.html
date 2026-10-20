@@ -2382,8 +2382,8 @@ function updateSupport(dt){
 /* vehicles.js (Artist Helper, Oct 14): all aircraft / vehicles; the old canvas drawings stay as fallbacks. Hitboxes unchanged (art is ~20% bigger). */
 const VEH=()=>!!(window.SHEET1&&SHEET1.vehiclesBig);
 /* jr Oct 20: optional VFX_IMPACT hooks, each OFF unless its flag is set. ?impnapalm=1 canister+rolling fireball+teardrop scorch on each napalm drop (replaces the old G.shake there),
-   ?implat=1 red laterite soil eruption column on big blasts (rad>=40, mud on paddy), ?impm40=1 M40 sniper uses SHAKE.m40 + KICK.m40 recoil instead of the flat G.shake 2.2. arcLight deliberately NOT wired (doubles the booms). */
-const IMPNP=/[?&]impnapalm=1\b/.test(location.search), IMPLAT=/[?&]implat=1\b/.test(location.search), IMPM40=/[?&]impm40=1\b/.test(location.search);
+   ?implat (ON by default, ?implat=0 off) red laterite soil eruption column on big blasts (rad>=40, mud on paddy), ?impm40=1 M40 sniper uses SHAKE.m40 + KICK.m40 recoil instead of the flat G.shake 2.2. arcLight deliberately NOT wired (doubles the booms). */
+const IMPNP=/[?&]impnapalm=1\b/.test(location.search), IMPLAT=!/[?&]implat=0\b/.test(location.search), IMPM40=/[?&]impm40=1\b/.test(location.search);
 const IMPDEC=!!window.JUNGLE_ON&&!/[?&]impdec=0\b/.test(location.search), IGR=(x,y)=>{ const j=JG.ground(x,y); if(j)return j; try{ const m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); return m==='P'?'paddy':'dirt' }catch(e){ return 'dirt' } };
 const MOPEN=!/[?&]mopen=0\b/.test(location.search), MLEAD=2.0;
 const RTOP=/[?&]rtop=0\b/.test(location.search)?0:(+(location.search.match(/[?&]rtop=(\d+)/)||[])[1]||300);
