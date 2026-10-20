@@ -3166,8 +3166,8 @@ function pickType(){ const t=G.t*EX_RAMP, r=rnd(); if(fbGrace())return 'vc';
    Flags (all default on): ?surge=0 ?xchoose=0 ?barrage=0 ?sappers=0 ?waveoff=0. Sounds: existing pack only (mortar_incoming / mortar impact / chargeWarning). ===== */
 const N2F=k=>!new RegExp('[?&]'+k+'=0\\b').test(location.search);
 const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappers'),WO:N2F('waveoff'),
-  XMIN:210,XIN:120,XAUTO:900,BR:58,WO_N:5,WO_MAX:2,WO_T:20,shells:[],log:{bar:0,shells:0,sap:0,satch:0,wo:0,call:null},
-  esc(g){ return Math.min(1,Math.max(0,(g.t-60)/540)) },   /* 0 at 1:00 -> 1 at 10:00 */
+  XMIN:210,XIN:120,XAUTO:900,BR:58,WO_N:4,WO_MAX:2,WO_T:20,shells:[],log:{bar:0,shells:0,sap:0,satch:0,wo:0,call:null},
+  esc(g){ return Math.min(1,Math.max(0,(g.t-60)/600)) },   /* 0 at 1:00 -> 1 at 10:00 */
   reset(){ this.shells.length=0; this.log={bar:0,shells:0,sap:0,satch:0,wo:0,call:null}; const b=document.getElementById('n2x'); if(b)b.style.display='none' },
   /* (a) surge tuning read by PACE */
   maxT(g,base){ return this.SURGE?base+Math.floor(this.esc(g)*3):base },
@@ -3185,10 +3185,10 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
     try{ if(SAMP.ready()&&SamplePlayer.hasSample('mortar_incoming'))MIX.as('special',()=>SamplePlayer.play('mortar_incoming')); else Snd.play('mortar') }catch(er){} },
   land(q){ const g=G,p=g.p, R=this.BR, e=this.esc(g); this.log.shells++; EXIMP=1; try{ SAMP.impact('mortar') }catch(er){} explode(q.x,q.y,R,40,200); EXIMP=0;
     if(window.VFX_IMPACT)try{ VFX_IMPACT.impact('mortar',q.x,q.y,{cx:p.x,cy:p.y}) }catch(er){}
-    if(Math.hypot(p.x-q.x,p.y-q.y)<R)hurtPlayer(16+10*e,'mortar round');
-    for(const m of coy)if(m.hp>0&&m.state==='ok'&&Math.hypot(m.x-q.x,m.y-q.y)<R)hurtMember(m,34+16*e) },
+    if(Math.hypot(p.x-q.x,p.y-q.y)<R)hurtPlayer(12+8*e,'mortar round');
+    for(const m of coy)if(m.hp>0&&m.state==='ok'&&Math.hypot(m.x-q.x,m.y-q.y)<R)hurtMember(m,26+14*e) },
   /* (c) sappers: 2-4 VC sappers run in with satchels; at the wire they plant a charge (defusable), in the open they arm on a Marine (1.6 s 'SATCHEL!') */
-  sappers(g){ const p=g.p, e=this.esc(g), n=Math.min(Math.max(0,enemyCap(g)-enemies.length),2+Math.round(e*2)), o=fbS||p, a0=rnd()*TAU, R=Math.hypot(VW,VH)/2+60;
+  sappers(g){ const p=g.p, e=this.esc(g), n=Math.min(Math.max(0,enemyCap(g)-enemies.length),1+Math.round(e*2)), o=fbS||p, a0=rnd()*TAU, R=Math.hypot(VW,VH)/2+60;
     for(let i=0;i<n;i++){ const a=a0+(rnd()-.5)*1.2; const s=spawnEnemy('sapper',o.x+Math.cos(a)*(R+rnd()*60),o.y+Math.sin(a)*(R+rnd()*60),true); if(s){ s.n2s=1; s.brg=null; this.log.sap++ } }
     if(n)g.banner={text:'SAPPERS IN THE WIRE!',t:2,col:'#ff6a4a'} },
   wireFor(e){ if(!fbS)return null; let b=null,bd=380*380; for(const s of strs){ if(s.dead||s.type!=='wire'||s.b<1)continue; const dx=s.x-e.x,dy=s.y-e.y,d2=dx*dx+dy*dy; if(d2<bd){bd=d2;b=s} } return b },
@@ -3210,15 +3210,16 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
     if(ex.wo){ const w=ex.wo; w.t+=dt; w.a+=dt*.32; const R=520; hu.x+=(lz.x+Math.cos(w.a)*R-hu.x)*Math.min(1,dt*1.5); hu.y+=(lz.y+Math.sin(w.a)*R-hu.y)*Math.min(1,dt*1.5); hu.z+=(90-hu.z)*Math.min(1,dt*1.2); hu.hd=w.a+Math.PI/2; hu.rot+=dt*40;
       if(!w.say&&w.t>9){ w.say=1; gunny("Doc, Bird. Coming around. Clear that pad for me. Over.",3.6,1,'BIRD') }
       if(w.t>=this.WO_T){ ex.wo=null; hu.ox=Math.cos(w.a); hu.oy=Math.sin(w.a); hu.R=R/.16; ex.t=EX.INBOUND*.6; gunny("Doc, Bird. On final again. Over.",3,1,'BIRD') } return true }
-    if((ex.woN|0)>=this.WO_MAX||ex.t<EX.INBOUND-4||ex.t>=EX.INBOUND)return false; let n=0; for(const e of enemies)if(!e.dead&&Math.hypot(e.x-lz.x,e.y-lz.y)<EX.PAD_R+30)n++;
+    if((ex.woN|0)>=this.WO_MAX||ex.t<EX.INBOUND-6||ex.t>=EX.INBOUND)return false; let n=0; for(const e of enemies)if(!e.dead&&Math.hypot(e.x-lz.x,e.y-lz.y)<EX.PAD_R+30)n++;
     if(n<this.WO_N)return false; ex.woN=(ex.woN|0)+1; this.log.wo++; ex.wo={t:0,a:Math.atan2(hu.y-lz.y,hu.x-lz.x),n};
     g.banner={text:'WAVE-OFF! LZ TOO HOT!',t:3,col:'#ff6a4a'}; gunny("Bird: Wave-off, wave-off! Too many of them on the pad! Going around!",4,1,'BIRD'); Snd.play('radio'); return true },
   tick(dt){ const g=G; if(!g||g.demo||!g.char)return;
     for(let i=this.shells.length-1;i>=0;i--){ const q=this.shells[i]; q.t+=dt; if(q.t>=q.d){ this.land(q); this.shells.splice(i,1) } }
     const ex=g.ex; if(this.XC&&ex&&ex.ph===0&&!ex.padPlan){ if(g.t>=this.XMIN&&!ex.xr){ ex.xr=1; g.banner={text:'EXTRACTION AVAILABLE · POP SMOKE WHEN READY',t:3.4,col:'#9be37a'};
         gunny("Doc, Gunny. The bird can come for us any time now. Pop smoke when you're ready ("+(matchMedia('(pointer:coarse)').matches?'tap CALL BIRD':'press X')+"). He needs two mikes to get here.",5.6,1) }
-      if(ex.xr&&(g.t>=this.XAUTO||(DBG.bot&&g.t>=this.XMIN+15)))this.call(g.t>=this.XAUTO) }
+      if(ex.xr&&(g.t>=this.XAUTO||(DBG.bot&&g.t>=(+params.get('botcall')||this.XMIN+15))))this.call(g.t>=this.XAUTO) }
     const b=this.btn(); if(b){ const on=this.canCall(g)&&ex.xr; if(b._on!==on){ b._on=on; b.style.display=on?'block':'none' } } },
+  qaSpawn(t,x,y){ return spawnEnemy(t,x,y) },
   btn(){ let b=document.getElementById('n2x'); if(!b&&this.XC&&document.body){ b=document.createElement('button'); b.id='n2x'; b.textContent='POP SMOKE · CALL BIRD (X)';
       b.style.cssText='position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;display:none;padding:12px 18px;font:bold 15px "Courier New",monospace;color:#10180c;background:#b9e08a;border:3px solid #2c3e1c;border-radius:6px;box-shadow:0 3px 0 #2c3e1c;touch-action:manipulation';
       b.addEventListener('pointerdown',ev=>{ ev.stopPropagation(); ev.preventDefault(); N2.call(false) }); document.body.appendChild(b) } return b },
@@ -6284,7 +6285,7 @@ function smokeCall(dt){ const g=G,ex=g.ex,p=g.p,c=ex.call; if(!c||c.st==='ok'||e
   if(c.st==='wait'){ if(onPad(p.x,p.y)&&p.hp>0){ c.onT+=dt; if(c.onT>=EX.POP_HOLD)popSmoke() } else c.onT=0;
     c.nag=(c.nag||0)+dt; if(c.nag>=10){ c.nag=0; gunny("Doc, Bird. I need smoke on that pad. Over.",3,0,'BIRD') } return }
   if(c.st==='popped'&&g.t>=c.seeAt&&state==='play'){ c.st='ask'; openCall() } }
-function openCall(){ const g=G,ex=g.ex,c=ex.call; ex.at=c.look; ex.idCol=ex.col; ex.sayAgain=false; c.askAt=g.t; c.asks=(c.asks||0)+1; Snd.play('radio'); state='sig'; showSigAsk() }
+function openCall(){ const g=G,ex=g.ex,c=ex.call; ex.at=c.look; ex.idCol=ex.col; ex.sayAgain=false; c.askAt=g.t; c.asks=(c.asks||0)+1; Snd.play('radio'); state='sig'; showSigAsk(); if(DBG.bot&&/[?&]botsig\b/.test(location.search))answerCall(c.look==='real') }   /* QA bot only: answers like a careful player */
 const callTarget=()=>{ const ex=G&&G.ex, c=ex&&ex.call; if(!c)return null; return c.look==='charlie'?ex.charlie:ex.sig };
 function divertTick(dt){ const g=G,ex=g.ex,d=ex.divert,hu=ex.huey; d.t+=dt; const T=d.t<d.cost*.55?d.to:d.back; hu.x+=(T.x-hu.x)*Math.min(1,dt*1.2); hu.y+=(T.y-hu.y)*Math.min(1,dt*1.2); hu.z+=((d.t<d.cost*.55?40:90)-hu.z)*Math.min(1,dt); hu.rot+=dt*40; hu.hd=Math.atan2(T.y-hu.y,T.x-hu.x);
   if(!d.fire&&d.t>4){ d.fire=1; gunny("Bird: Taking fire, taking fire! That's not your smoke! Coming around. Over.",4,1,'BIRD'); Snd.play('vcshot') }
