@@ -6897,7 +6897,7 @@ const EXQ=new URLSearchParams(location.search).get('diff');
 /* Blake Oct 14: the 10-minute wait was too long. ONE tunable: EX_HOLD = seconds from the extraction call (pad marked) to the bird setting down.
    Old: pad 8:00, bird 10:00 (10 min from the start). New: call at 0:30, bird at 0:30 + EX_HOLD. EX_RAMP compresses the wave ramp into that window. */
 const EX_HOLD=+params.get("exhold")||135, EX_CALL=300, EX_RAMP=2;   /* rc7.1 (Blake): earliest extraction call 2:45 -> 5:00; the difficulty ramp keeps its rc7 slope */
-const EX={DROP_T:180,PAD_T:EX_CALL,FALL_T:EX_CALL+EX_HOLD-60,LZ_T:EX_CALL+EX_HOLD,INBOUND:24,GROUND:EXQ==='easy'?30:EXQ==='hard'?60:45,PAD_R:78,BOARD_T:2,BOARD_DECAY:1.5,SPAWN_MUL:.8,REACH_R:30,QUIET:1.0,
+const EX={DROP_T:180,PAD_T:EX_CALL,FALL_T:EX_CALL+EX_HOLD-60,LZ_T:EX_CALL+EX_HOLD,INBOUND:24,GROUND:EXQ==='easy'?30:EXQ==='hard'?60:45,PAD_R:78,BOARD_T:2,BOARD_DECAY:1.5,SPAWN_MUL:(+params.get("holdmul")||.8),REACH_R:30,QUIET:1.0,
   HOT_AT:8,HOT_LEN:3.6,LIFT:2.2,WAVE3:6,WAVE4:5,N3:8,N4:10,TOUCH_N:14,LULL:8,COY_PER:.01,COY_MAX:.15,OFF_GRACE:2,SEE_T:1.5,ASK_GRACE:.4,GUN_AT:8,GUN_R:300,GUN_DMG:70,GUN_CD:.09,WRONG_MIN:520,WRONG_MAX:720,CHARLIE_P:.5,
   /* Oct 14 smoke rules: Doc carries the canister and pops it on the pad circle when the bird calls; Charlie may pop the SAME colour off the pad */
   DECOY_P:.6,DECOY_GAP:2,DECOY_FAR:3,DECOY_NEAR:1.5,DECOY_MAXW:3.4,WRONG_COST:[15,20],POP_HOLD:.4,HOLD_U:.45};
