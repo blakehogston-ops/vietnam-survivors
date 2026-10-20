@@ -2863,8 +2863,8 @@ function mapTick(dt){ const g=G; if(!g||g.demo)return; g.pkT=(g.pkT||0)-dt; if(g
   if(g.brkT)for(const [k,t] of g.brkT){ if(g.t>=t){ g.brkT.delete(k); g.brk.delete(k); g_banner('SEABEES: BRIDGE BACK IN SERVICE','#9be37a') } }
   /* illumination flare from the base (or over Doc before there is one) about every 50 s: reveals the nearest hidden NVA crossing for 20 s */
   g.flT=(g.flT===undefined?18:g.flT)-dt; if(g.flT<=0){ g.flT=50; const c=fbS||g.p, H=hiddenNear(c.x,c.y,4600); if(H.length){ H.sort((a,b)=>Math.hypot(a.x-c.x,a.y-c.y)-Math.hypot(b.x-c.x,b.y-c.y)); const h=H[0];
-      if(!g.hidRev)g.hidRev=new Map(); g.hidRev.set(h.k,g.t+20); g.flareAt={x:h.x,y:h.y-60,t:g.t}; g_banner('ILLUMINATION: NVA CROSSING SPOTTED','#ffe58a'); g.hidRevN=(g.hidRevN|0)+1 } } }
-function addCrater(x,y,rad){ if(!G||G.demo||riverAt(x,y))return; craters.push({x,y,s:rad<60?16:rad<110?24:40,t:G.t}); if(craters.length>50)craters.shift() }
+      if(!g.hidRev)g.hidRev=new Map(); g.hidRev.set(h.k,g.t+20); g.flareAt={x:h.x,y:h.y-60,t:g.t}; ATM.flare(h.x,h.y,fbS?'arty155':'mortar81'); g_banner('ILLUMINATION: NVA CROSSING SPOTTED','#ffe58a'); g.hidRevN=(g.hidRevN|0)+1 } } }
+function addCrater(x,y,rad){ if(!G||G.demo||riverAt(x,y))return; craters.push({x,y,s:rad<60?16:rad<110?24:40,t:G.t}); if(craters.length>50)craters.shift(); if(rad>=60)ATM.crater(x,y,rad<110?24:40) }
 function drawCraters(){ if(!TERR.ready())return; for(const c of craters){ const a=G.t-c.t; if(c.x<RCAM.x-40||c.x>RCAM.x+VW+40||c.y<RCAM.y-40||c.y>RCAM.y+VH+40)continue; const im=TERR.frame('tCrater'+c.s,a<25?'fresh':a<80?'old':'faded'); if(im)ctx.drawImage(im,Math.round(c.x-c.s/2),Math.round(c.y-c.s*.375)) } }
 function buildWorldArt(){
   const T=256; let s=987654; const r=()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296};
@@ -3070,7 +3070,7 @@ let bodies=[],knives=[],squad=[],ins=[],crashes=[],pits=[],bubbles=[],mshells=[]
 const CS=48, head=new Int32Array(4096), nextI=new Int32Array(2400);
 const keys={}; const joy={on:false,id:-1,ox:0,oy:0,x:0,y:0};
 
-function newGame(demo){ N2.reset();
+function newGame(demo){ N2.reset(); try{ ATM.reset() }catch(e){}
   let seed=0; if(!demo){ seed=newSeed(); seedRun(seed); try{ localStorage.setItem('lbo2_lastseed',String(seed)) }catch(e){} }
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];
   const t0=demo?150:DBG.t;
@@ -3171,7 +3171,7 @@ const N2F=k=>!new RegExp('[?&]'+k+'=0\\b').test(location.search);
 const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappers'),WO:N2F('waveoff'),
   TH:N2F('thunk'),CAL:N2F('mcal'),SAPT:N2F('saptime'),SV4:N2F('sapv4'),SMH:N2F('smokehud'),thrown:[],dead:[],whT:0,sapAt:0,   /* Vet item 2 fixes: tube thunk before impacts (?thunk=0), 82mm/60mm labels (?mcal=0), sappers after barrages/at night (?saptime=0), low-crawl + throw sprites (?sapv4=0), smoke colour on the HUD ~10 s (?smokehud=0) */
   V4(){ return this.SV4&&!!(window.SHEET1&&SHEET1.drawSapper) },
-  night(){ try{ const h=window.VFX_ATMO&&VFX_ATMO.stats&&VFX_ATMO.stats().hour; return h!=null&&(h>=19||h<5.5) }catch(e){ return false } },
+  night(){ return typeof ATM!=='undefined'&&ATM.night() },   /* item 4: the atmosphere's hour (night from ~7:00 on the run clock) */
   XMIN:210,XIN:120,XAUTO:900,BR:58,WO_N:4,WO_MAX:2,WO_T:20,shells:[],log:{bar:0,shells:0,sap:0,satch:0,wo:0,call:null},
   esc(g){ return Math.min(1,Math.max(0,(g.t-60)/600)) },   /* 0 at 1:00 -> 1 at 10:00 */
   reset(){ this.shells.length=0; this.thrown.length=0; this.dead.length=0; this.whT=0; this.sapAt=0; this.log={bar:0,shells:0,sap:0,satch:0,wo:0,call:null}; const b=document.getElementById('n2x'); if(b)b.style.display='none' },
@@ -3833,10 +3833,10 @@ function updateWeapons(dt){
       const c0=clump(380,90,10);
       for(let i=0;i<s.n;i++){ let tx,ty; if(c0){tx=c0[0]+(rnd()-.5)*(i?90:30);ty=c0[1]+(rnd()-.5)*(i?90:30)}else{const a=rnd()*TAU,r=110+rnd()*140;tx=p.x+Math.cos(a)*r;ty=p.y+Math.sin(a)*r}
         mshells.push({wid:CURW,sx:p.x,sy:p.y-6,x:p.x,y:p.y,tx,ty,t:-i*.2,d:1.25,dmg:s.dmg,rad:s.rad,fired:false}) }
-      g.mortarT=.6; w.cd+=s.cd; }
+      g.mortarT=.6; w.cd+=s.cd; ATM.support('mortar',c0?c0[0]:p.x,c0?c0[1]:p.y-120); }
     else if(id==='howitzer'){
       const c0=clump(430,130,12)||[p.x+Math.cos(g.t)*170,p.y+Math.sin(g.t)*170];
-      hbars.push({wid:CURW,cx:c0[0],cy:c0[1],t:0,delay:2.1,s});
+      hbars.push({wid:CURW,cx:c0[0],cy:c0[1],t:0,delay:2.1,s}); ATM.support('howitzer',c0[0],c0[1]);
       annc('howitzer','howitzer',{text:'"FIRE MISSION, OVER" · 105mm',t:1.4,col:'#ffe58a'}); radioSeq([[1.2,'"SHOT, OVER"'],[3.6,'"SHOT, OUT"']]); Snd.play('radio'); w.cd+=s.cd; }
     else if(id==='gunboat'){ if(boats.some(b=>!b.dead)){w.cd=1;continue} if(callBoat(s)){ w.cd+=s.cd; if(w.lvl>=ZMON.LV&&ZMON.ok())callBoat(s,true) } else w.cd=3 }
     else if(id==='huey'){ if(hueys.length){w.cd=1;continue}
@@ -3852,7 +3852,7 @@ function updateWeapons(dt){
     else if(id==='medevac'){ if(g.demo||medevac||!medevacNeeded()){ w.cd=1.5; continue } g.ms.snd=0; callMedevac(s); w.cd+=s.cd }
     else if(id==='squad'){ w.cd=0; g.sqS=Object.assign({},s,{hp:s.hp*(1+g.sq.hp),dm:s.dm*(1+g.sq.dm),cd:s.cd*(1-Math.min(.6,g.sq.fast))}); g.sqL=w.lvl; }
     else if(id==='tank'){ w.cd=0; const t0=tanks[0]; if(!t0)callTank(s,w.lvl); else tankStats(t0,s,w.lvl); }
-    else if(id==='spooky'){ if(!g.spk){ g.spk={t:0,hold:s.hold,ang:rnd()*TAU,tx:p.x,ty:p.y,s,acc:0,snd:0,R:s.R,fire:false}; annc('spooky','spooky',{text:'AC-47 SPOOKY ON STATION!',t:2.4,col:'#ff6a5a'}); Snd.play('radio'); if(!SAMP.air('spooky'))Snd.airPlay('airspooky'); Amb.support(s.hold+2) } w.cd+=s.cd+s.hold; refuelRun(id,w); RTO_T=null; }
+    else if(id==='spooky'){ if(!g.spk){ g.spk={t:0,hold:s.hold,ang:rnd()*TAU,tx:p.x,ty:p.y,s,acc:0,snd:0,R:s.R,fire:false}; ATM.support('spooky',p.x,p.y); annc('spooky','spooky',{text:'AC-47 SPOOKY ON STATION!',t:2.4,col:'#ff6a5a'}); Snd.play('radio'); if(!SAMP.air('spooky'))Snd.airPlay('airspooky'); Amb.support(s.hold+2) } w.cd+=s.cd+s.hold; refuelRun(id,w); RTO_T=null; }
     else if(id==='arclight'||id==='boxmission'){
       const nB=Math.min(s.n,id==='boxmission'?24:40), lines=s.lines||1, c0=clump(430,150,12)||[p.x+Math.cos(g.t)*170,p.y+Math.sin(g.t)*170], a=rnd()*TAU, len=(nB-1)*64, nx=-Math.sin(a), ny=Math.cos(a), gap=2*(s.rad+s.lat)*.95;
       for(let i=0;i<lines;i++){ const off=(i-(lines-1)/2)*gap; air.push({wid:CURW,kind:3,nokc:i>0,cx:c0[0]+nx*off,cy:c0[1]+ny*off,a,len,w:s.rad+s.lat,t:-i*.15,delay:2.6,speed:(len+1000)/3.0,s:Object.assign({},s,{n:nB}),mk:['#ff4a3a','#ffb0a0'],go:false}) }
@@ -3952,6 +3952,7 @@ const WX={ON:!/[?&]wx=0\b/.test(location.search),k:null,a:0,T:0,dur:0,at:0,R:[],
       const fw=128, fh=Math.max(32,Math.round(128*H/W)); if(!this.FC){ this.FC=document.createElement('canvas') } const F=this.FC; if(F.width!==fw||F.height!==fh){ F.width=fw; F.height=fh } const fx=F.getContext('2d'); fx.clearRect(0,0,fw,fh);
       const n=lo?3:5; for(let i=0;i<n;i++){ const x=fw*((i*.27+t*.006*(1+i*.3))%1.3-.15), y=fh*(.2+.6*i/(n-1||1)), r=fw*.36; fx.globalAlpha=.22*a; fx.drawImage(this.FS,x-r,y-r,r*2,r*2) }
       ctx.save(); ctx.imageSmoothingEnabled=true; ctx.drawImage(F,0,0,W,H); ctx.restore(); return }
+    if(ATM.ON){ if(this.fl>0){ ctx.save(); ctx.fillStyle='rgba(235,240,255,'+(Math.min(.3,this.fl*.33)).toFixed(3)+')'; ctx.fillRect(0,0,W,H); ctx.restore() } return }   /* VFX_ATMO draws the rain (setWeather({rain:WX.a})): no doubled streaks */
     ctx.save(); if(!lo){ ctx.fillStyle='rgba(20,30,40,'+((this.heavy?.16:.09)*a).toFixed(3)+')'; ctx.fillRect(0,0,W,H) }
     ctx.strokeStyle='rgba(190,205,220,'+((this.heavy?.42:.3)*a).toFixed(3)+')'; ctx.lineWidth=Math.max(1,W/900); ctx.beginPath(); const n=(this.heavy?90:50)>>(lo?1:0), L=H*(this.heavy?.05:.035);
     for(let i=0;i<n;i++){ const q=this.R[i], y=((q.y+t*q.v*1.6)%1)*H*1.1-H*.05, x=((q.x+t*q.v*.25)%1)*W; ctx.moveTo(x,y); ctx.lineTo(x-L*.25,y+L) } ctx.stroke();
@@ -6867,6 +6868,31 @@ function jetShape(sc,col){ ctx.scale(sc,sc);
   ctx.beginPath(); ctx.moveTo(6,3); ctx.lineTo(-10,28); ctx.lineTo(-17,28); ctx.lineTo(-8,3); ctx.closePath(); ctx.fill();
   f(-26,-9,6,18,col?'#6a7480':'#000'); if(col){ f(8,-2,8,3,'#2c3640'); f(-30,-2,6,4,'#ff8a1f'); f(-34,-1,5,2,'#ffe08a'); f(-8,-11,3,5,'#ff8a1f'); f(-8,6,3,5,'#ff8a1f') } }
 const RCAM={x:0,y:0};   /* camera of the last rendered frame (the HUD-arrow test reads it) */
+/* ===== ITEM 4: day -> dusk -> night with illumination flares (Artist Helper VFX_ATMO v1.1). ?atmo=0 off (script not loaded), ?tod=H forces the hour, ?todspd=X speeds the clock (QA).
+   Run clock -> hour: 0:00-5:00 day (12 -> 16.5), 5:00-6:30 dusk (-> 19), 6:30-8:00 last light (-> 20.5), 8:00+ night, capped at NIGHT_MAX (visibility floor, darkness ~.47). ===== */
+const ATM={ON:!!window.VFX_ATMO&&!/[?&]atmo=0\b/.test(location.search),NIGHT_MAX:21.5,h:-1,rn:-1,cad:null,U:[],dT:0,low:null,hq:null,mor:0,how:0,
+  hourAt(t){ const q=params.get('tod'); if(q!==null&&isFinite(+q)&&q!=='')return +q; const T=t*(+params.get('todspd')||1);
+    if(T<300)return 12+4.5*T/300; if(T<390)return 16.5+2.5*(T-300)/90; if(T<480)return 19+1.5*(T-390)/90; return Math.min(this.NIGHT_MAX,20.5+(T-480)/120) },
+  night(){ return this.ON&&!!G&&this.hourAt(G.t)>=19.5 },
+  weak(){ const n=navigator.hardwareConcurrency||8, m=navigator.deviceMemory||8; return COARSE.matches||n<=4||m<=4 },
+  gpu(){ if(this._gpu!==undefined)return this._gpu; let ok=false; try{ const c=document.createElement('canvas'), gl=c.getContext('webgl'); if(gl){ const d=gl.getExtension('WEBGL_debug_renderer_info'), r=String(d?gl.getParameter(d.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)); ok=!/swiftshader|llvmpipe|software|basic render/i.test(r) } }catch(e){} return this._gpu=ok },
+  reset(){ this.h=-1; this.rn=-1; this.cad=null; this.mor=0; this.how=0; if(this.ON)try{ VFX_ATMO.clearPuddles(); VFX_ATMO.setFlareCadence({on:false}) }catch(e){} },
+  /* player support at night: illumination rounds mixed into the fire missions */
+  support(id,x,y){ if(!this.night())return; try{ if(id==='mortar'&&(++this.mor%3)===1)VFX_ATMO.addFlare(x,y-40,'mortar81'); else if(id==='howitzer'&&(++this.how%2)===1)VFX_ATMO.addFlare(x,y-60,'arty155'); else if(id==='spooky')VFX_ATMO.addFlare(x,y-80,'mk24') }catch(e){} },
+  flare(x,y,type){ if(this.ON)try{ VFX_ATMO.addFlare(x,y,type||'mortar81') }catch(e){} },
+  crater(x,y,r){ if(this.ON)try{ VFX_ATMO.addPuddle(x,y,Math.max(10,r*.7)) }catch(e){} },
+  frame(g,p,adt,camX,camY){ const A=VFX_ATMO;
+    const low=!!LOWFX||this.weak(); if(low!==this.low){ this.low=low; A.setLow(low) } const hq=!low&&this.gpu(); if(hq!==this.hq){ this.hq=hq; A.setHQ&&A.setHQ(hq) }
+    const h=Math.round(this.hourAt(g.t)*20)/20; if(h!==this.h){ this.h=h; A.setTime(h) }   /* setTime rebuilds the grade: only when the hour moves */
+    const rain=WX.ON&&(WX.k==='rain'||WX.k==='storm')?Math.round(WX.a*(WX.k==='storm'||WX.heavy?1:.65)*20)/20:0; if(rain!==this.rn){ this.rn=rain; A.setWeather({rain}) }
+    const nt=this.night(), ty=fbS?'arty155':'mortar81'; if(this.cad!==(nt?ty:'')){ this.cad=nt?ty:''; A.setFlareCadence({on:nt,type:ty,gap:low?[14,26]:[10,22]}) }
+    const x0=camX-80,x1=camX+VW+80,y0=camY-80,y1=camY+VH+80, dark=h>=17.5;
+    if(dark){ let n=0; for(const f of fires){ if(f.x<x0||f.x>x1||f.y<y0||f.y>y1)continue; if(++n>40)break; A.addLight(f.x,f.y,f.r>=26?'napalm':'fire',f.r>=26?.55:Math.max(.5,f.r/20)) }   /* persistent fires/napalm: ttl 0, re-registered every frame */
+      let m=0; for(const e of enemies){ if(e.dead||!(e.mf>0)||e.x<x0||e.x>x1||e.y<y0||e.y>y1)continue; if(++m>24)break; A.addLight(e.x,e.y-4,'muzzle',.8) }   /* fair night: muzzle flashes give the shooters away */
+      if(p&&p.hp>0)A.addLight(p.x,p.y,120,'#f2ead0',.5,0) }   /* readable night: a soft pool around Doc (the yellow ring stays on top) */
+    this.dT-=adt; if(this.dT<=0){ this.dT=.12; for(const t of tanks.concat(enemies.filter(e=>e.tank&&!e.dead))){ if(t.dead)continue; if(t._ax!==undefined&&Math.abs(t.x-t._ax)+Math.abs(t.y-t._ay)>2&&t.x>x0&&t.x<x1&&t.y>y0&&t.y<y1)A.addDust(t.x+(Math.random()-.5)*16,t.y+8,1); t._ax=t.x; t._ay=t.y } }
+    const U=this.U; U.length=0; if(p&&p.hp>0)U.push({x:p.x,y:p.y,h:28}); for(const q of coy){ if(U.length>=(low?60:240))break; if(q.hp>0&&!q.hid&&q.x>x0&&q.x<x1&&q.y>y0&&q.y<y1)U.push({x:q.x,y:q.y,h:26}) } for(const e of enemies){ if(U.length>=(low?60:240))break; if(!e.dead&&e.x>x0&&e.x<x1&&e.y>y0&&e.y<y1)U.push({x:e.x,y:e.y,h:e.tank?30:24,w:e.tank?40:undefined}) }
+    A.update(adt); A.drawFlareShadows&&A.drawFlareShadows(ctx,camX,camY,zoom,U); A.drawWorldOverlay(ctx,camX,camY,zoom); A.drawScreen(ctx) } };
 function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:4);
   ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false; ctx.fillStyle='#2c5226'; ctx.fillRect(0,0,W,H);
   const g=G; if(!g)return; const p=g.p;
@@ -7020,7 +7046,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   if(p.hp<p.maxHp){ ctx.fillStyle='#000a'; ctx.fillRect(p.x-16,p.y+20,32,5); ctx.fillStyle=p.hp/p.maxHp>.3?'#5bd05b':'#e64a3a'; ctx.fillRect(p.x-15,p.y+21,30*p.hp/p.maxHp,3) }
   // ---- screen space HUD ----
   ctx.setTransform(1,0,0,1,0,0);
-  if(window.VFX_ATMO&&!g.demo){ try{ const now=performance.now(), adt=Math.min(.1,(now-(render.aT||now))/1000); render.aT=now; if(!render.aI){ render.aI=1; VFX_ATMO.init(W,H); VFX_ATMO.hookLowToggle&&VFX_ATMO.hookLowToggle(); VFX_ATMO.setLow&&VFX_ATMO.setLow(!!LOWFX) } if(render.aW!==W||render.aH!==H){ render.aW=W; render.aH=H; VFX_ATMO.init(W,H) } VFX_ATMO.update(adt); VFX_ATMO.drawWorldOverlay(ctx,camX,camY,zoom); VFX_ATMO.drawScreen(ctx) }catch(e){} }   /* Artist Helper atmosphere (day grade, haze, lights) */
+  if(window.VFX_ATMO&&!g.demo){ try{ const now=performance.now(), adt=Math.min(.1,(now-(render.aT||now))/1000); render.aT=now; if(!render.aI){ render.aI=1; VFX_ATMO.init(W,H); VFX_ATMO.hookLowToggle&&VFX_ATMO.hookLowToggle(); VFX_ATMO.setLow&&VFX_ATMO.setLow(!!LOWFX) } if(render.aW!==W||render.aH!==H){ render.aW=W; render.aH=H; VFX_ATMO.init(W,H) } if(ATM.ON)ATM.frame(g,p,adt,camX,camY); else { VFX_ATMO.update(adt); VFX_ATMO.drawWorldOverlay(ctx,camX,camY,zoom); VFX_ATMO.drawScreen(ctx) } }catch(e){ if(!render.aErr){ render.aErr=1; console.warn('atmo',e) } } }   /* Artist Helper atmosphere (day grade, haze, lights) */
   WX.draw(W,H);   /* weather sits under the HUD: never hides prompts, timers or the pad arrow */
   { const low=(!g.demo&&p.hp>0&&p.hp/p.maxHp<.3)?(.45+(g.hbPulse>0?(g.hbPulse/.38)*(g.hbAmp||.3)*.55:0)+(g.hbT===undefined||g.hbT===0?.06*Math.sin(tt*5):0))*(1-p.hp/p.maxHp/.3*.5):0;   /* pulses on each heartbeat cue (dangerTick) */ const a=Math.max(Math.min(.8,Math.max(g.hurt>0?g.hurt*1.5:0,low))*(GORE?1:.35),low);
     if(a>.01){ const gr=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.18,W/2,H/2,Math.max(W,H)*.68); gr.addColorStop(0,'rgba(120,0,0,0)'); gr.addColorStop(.6,`rgba(140,6,6,${a*.45})`); gr.addColorStop(1,`rgba(110,0,0,${a})`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H) } if(low>0){ const pu=.55+.45*(g.hbPulse>0?g.hbPulse/.38:0), lw=Math.max(6,Math.min(W,H)*.018); ctx.strokeStyle=`rgba(200,20,16,${.7*pu})`; ctx.lineWidth=lw; ctx.strokeRect(lw/2,lw/2,W-lw,H-lw) } }   /* RC2: hard red screen edge under 30% HP, pulsing with the heartbeat */
