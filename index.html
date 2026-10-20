@@ -4787,7 +4787,7 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
   who(m){ return (m.nm||'MARINE').toUpperCase() },
   say(id,m,pri){ const g=G; if(!OFFVO[id])return false; const ho=/^HO-[SCLPX]|LT-H/.test(id);
     if(!ho&&!pri){ if(g.t-this.barkT<3||g.t-(this.used[id]||-99)<30)return false }
-    this.barkT=g.t; this.used[id]=g.t; const sp=id.startsWith('SK-')?'GOLF SIX':m?this.who(m):'MARINE'; gunny(OFFVO[id],null,ho,sp); (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'bark',id]); return true },
+    this.barkT=g.t; this.used[id]=g.t; const sp=id.startsWith('SK-')?'GOLF SIX':m?this.who(m):'MARINE'; if(exMsg&&exQ.length>=1)return false; gunny(OFFVO[id],null,false,sp);   /* never pre-empt or push out a Gunny/extraction card */ (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'bark',id]); return true },
   pick1(ids){ for(const id of ids)if(G.t-(this.used[id]||-99)>=30)return id; return ids[0] },
   hoBark(m,n){ const r=m.rank; if(n===1)return 'HO-X01'; if(m.isLt)return 'LT-H01';
     return r===5?this.pick1(['HO-S01','HO-S03']):r===4?this.pick1(['HO-C01','HO-C02','HO-C03']):r===3?this.pick1(['HO-L01','HO-L02','HO-L03']):'HO-P01' },
@@ -4802,9 +4802,9 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
     const cur=this.tgt&&!this.tgt.e.dead?this.score(this.tgt.e,c):null; if(cur&&best&&best.e!==cur.e&&best.S<cur.S*1.15)return cur; if(best&&cur&&best.e!==cur.e)best.sw=1; return best },
   members(n){ const c=this.cmd; return coy.filter(m=>m!==c&&this.ok(m)&&!m.htg).sort((a,b)=>Math.hypot(a.x-c.x,a.y-c.y)-Math.hypot(b.x-c.x,b.y-c.y)).slice(0,n) },
   order(g,k,T){ const c=this.cmd, lt=c.isLt, r=c.rank; this.log.push({t:+g.t.toFixed(1),k,by:c.nm,tgt:T.e.type}); g.offLog.push([+g.t.toFixed(1),'order',k,c.nm]);
-    if(k==='focus'){ this.cd.focus=8; for(const m of this.members(14)){ m.focusT=T.e; m.focusU=g.t+6 }
+    if(k==='focus'){ this.cd.focus=8; for(const m of this.members(14).filter(q=>(q.role==='rifle'||q.role==='m14')&&Math.hypot(q.x-T.x,q.y-T.y)<(SQR[q.role].rng||400)).slice(0,6)){ m.focusT=T.e; m.focusU=g.t+6 }   /* riflemen in range only, at most 6: the guns keep covering Doc */
       let id; if(T.rpg)id=this.pick1(['HO-T01','HO-T03']); else if(lt)id=T.sw?'LT-F03':T.mark?'LT-F01':this.pick1(['LT-F01','LT-F02','LT-F04']); else id=r===5?'HO-F01':'HO-F02'; this.say(id,c) }
-    else if(k==='sup'){ this.cd.sup=14; const gun=coy.filter(m=>this.ok(m)&&(m.role==='m60'||m.role==='m79')&&m!==c); for(const m of gun){ m.focusT=T.e; m.focusU=g.t+8 }
+    else if(k==='sup'){ this.cd.sup=14; const gun=coy.filter(m=>this.ok(m)&&m.role==='m60'&&m!==c&&Math.hypot(m.x-T.x,m.y-T.y)<(SQR.m60.rng||400)); for(const m of gun){ m.focusT=T.e; m.focusU=g.t+8 }
       for(const e of nearestK(T.x,T.y,12,90))e.supT=g.t+8; T.e.supT=g.t+8; let id; if(T.mg&&!lt)id='HO-T02'; else if(lt)id=this.docTreat(g)?'LT-S04':T.crew?'LT-S03':'LT-S01'; else id=T.mg?'HO-T02':'HO-T02'; this.say(id,c) }
     else if(k==='law'){ this.cd.law=20; const L=this.lawCarrier(T); if(!L){ this.say('HO-W01',c); return } L.law--; L.lawW={e:T.e,t:2}; this.say(lt?(T.e.tank?'LT-A02':'LT-A01'):'HO-W02',c) } },
   lawCarrier(T){ let b=null,bd=1e9; for(const m of coy){ if(!this.ok(m)||!(m.law>0))continue; const d=Math.hypot(m.x-T.x,m.y-T.y); if(d<bd){bd=d;b=m} } return b&&bd<300?b:null },
@@ -4844,7 +4844,7 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
     for(const e of nearestK(p.x,p.y,16,520)){ const d=Math.hypot(e.x-p.x,e.y-p.y), da=Math.abs(Math.atan2(Math.sin(Math.atan2(e.y-p.y,e.x-p.x)-a),Math.cos(Math.atan2(e.y-p.y,e.x-p.x)-a))); const s=-da*300-d*.4; if(s>bs){bs=s;b=e} }
     if(!b)return false; this.mark={e:b,t:g.t+8}; (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'mark',b.type]); if(this.cmd){ this.cd.focus=0; this.sT=0; this.oT=0 } else this.toast={s:'NO COMMAND · NOBODY TO PASS THE MARK',t:1.6}; return true },
   hitMul(m,e){ return this.ON&&m.focusT===e&&G.t<(m.focusU||0)?1.25:1 },
-  focusTg(m){ if(!this.ON||!m.focusT)return; if(m.focusT.dead||G.t>=(m.focusU||0)){ m.focusT=null; return } m.tg=m.focusT },
+  focusTg(m){ if(!this.ON||!m.focusT)return; if(m.focusT.dead||G.t>=(m.focusU||0)){ m.focusT=null; return } const n=nearestK(m.x,m.y,1,110)[0]; if(n&&n!==m.focusT)return; m.tg=m.focusT },   /* self-defence first: an enemy within 110 px overrides the order */
   hud(U,camX,camY){ if(!this.on())return; const fs=Math.max(16*DPR,16*U); ctx.save(); ctx.setTransform(1,0,0,1,0,0);
     const sx=x=>(x-camX)*zoom, sy=y=>(y-camY)*zoom, c=this.cmd;
     if(c&&c.hp>0){ const x=sx(c.x), y=sy(c.y)-34*zoom; if(!(this.chev>0)||((performance.now()/120)|0)%2===0){ ctx.fillStyle='#ffe58a'; ctx.strokeStyle='#0b140c'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x-7*U,y+5*U); ctx.lineTo(x,y-3*U); ctx.lineTo(x+7*U,y+5*U); ctx.lineTo(x+7*U,y+9*U); ctx.lineTo(x,y+1*U); ctx.lineTo(x-7*U,y+9*U); ctx.closePath(); ctx.stroke(); ctx.fill() }
