@@ -4114,7 +4114,7 @@ function updateWeapons(dt){
       const a=Math.atan2(by-p.y,bx-p.x)+Math.PI/2, nx=-Math.sin(a), ny=Math.cos(a);
       if(napMinFriendly(bx,by,a,s.len,s.n)<NAP_SAFE){w.cd=.5;continue}
       for(let i=0;i<s.n;i++){ const off=(i-(s.n-1)/2)*80; strikes.push({wid:CURW,cx:bx+nx*off,cy:by+ny*off,a,len:s.len,t:-i*.25,delay:1.4,drops:0,dropN:7+w.lvl,dmg:s.dmg,rad:s.rad,fdmg:s.fdmg,flife:s.flife,sfx:false,jx:0,jy:0,show:false}) }
-      Snd.play('radio'); Snd.play('napalm'); w.cd+=s.cd; refuelRun(id,w); RTO_T=null; }
+      Snd.play('radio'); w.cd+=s.cd; refuelRun(id,w); RTO_T=null; }
     else if(id==='mortar'){
       const c0=clump(380,90,10);
       for(let i=0;i<s.n;i++){ let tx,ty; if(c0){tx=c0[0]+(rnd()-.5)*(i?90:30);ty=c0[1]+(rnd()-.5)*(i?90:30)}else{const a=rnd()*TAU,r=110+rnd()*140;tx=p.x+Math.cos(a)*r;ty=p.y+Math.sin(a)*r}
