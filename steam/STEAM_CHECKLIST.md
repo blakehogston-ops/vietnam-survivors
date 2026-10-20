@@ -5,7 +5,7 @@ Status of this folder: a **local, unpublished** Steam-ready scaffold (Electron +
 ## 0. What is already done in this repo
 - Settings menu (music / SFX sliders, screen-shake + gore toggles, fullscreen), pause menu, gamepad support (stick/D-pad move, A confirm, B back, Start pause), settings persisted.
 - Electron wrapper (`main.js`, `preload.js`), fullscreen/windowed (F11 / Alt+Enter / settings button), placeholder icon (`build/icon.png`, `build/icon.ico`).
-- Steamworks scaffold (`steam.js`): 26 achievements (from `ACH` in `index.html`), graceful no-op fallback when Steam isn't running, optional Steam Cloud write/read of `save.json`.
+- Steamworks scaffold (`steam.js`): 27 achievements (from `ACH` in `index.html`), graceful no-op fallback when Steam isn't running, optional Steam Cloud write/read of `save.json`.
 - Single JSON save file `save.json` in Electron `userData` (atomic write, `savedAt` timestamp) — Auto-Cloud friendly.
 - electron-builder config for Windows x64 (NSIS installer + zip) and Linux (dir).
 
@@ -19,7 +19,7 @@ Status of this folder: a **local, unpublished** Steam-ready scaffold (Electron +
 ### Steamworks configuration
 - [ ] Create the app → get the real **App ID**. Replace `480` in: `main.js` (`STEAM_APP_ID`), `steam_appid.txt`. (Do NOT ship `steam_appid.txt` in the final depot if you launch via Steam; it is only for dev launches.)
 - [ ] Create the **achievements** in Steamworks (App Admin → Stats & Achievements) with these exact API names (the game calls `steamworks.achievement.activate(id)` with the lowercase `ACH` ids; checked 2026-10-20), plus 256×256 unlocked + greyed icons:
-  `boots, hold_5, hold_10, hold_15, first_out, all_home, ten_home, full_home, fallen_home, early_call, mid_call, late_call, later_call, waveoff, waveoff2, moh_one, moh_two, barrage5, barrage10, sapper_stop, night_hold, firebase, kills_250, kills_1000, lvl_10, lvl_20` (26; display names/descriptions are in `ACH` in `index.html`). The old `ACH_*` list (incl. `ACH_HUEY_UNLOCK`) is obsolete: the game no longer has it.
+  `boots, hold_5, hold_10, hold_15, first_out, all_home, ten_home, full_home, fallen_home, early_call, mid_call, late_call, later_call, waveoff, waveoff2, moh_one, moh_two, barrage5, barrage10, sapper_stop, night_hold, firebase, kills_250, kills_1000, lvl_10, lvl_20, ACH_HUEY_UNLOCK` (27; display names/descriptions are in `ACH` in `index.html`). The other old `ACH_*` names are obsolete. `ACH_HUEY_UNLOCK` is kept (Vet, rc7.1): display "Guns Up", description "Huey gunship escort unlocked."
   - [ ] Wiring gap: `preload.js` exposes `window.vsHost` (old `ACH_*` regex in `main.js`), but the game looks for `window.steamworks`/`window.greenworks`. Bridge one to the other before shipping, or unlocks will not reach Steam.
   Publish the stats/achievements config.
 - [ ] **Steam Cloud**: enable it and add an Auto-Cloud rule: root `WinAppDataRoaming` (Electron's userData = `%APPDATA%/Last Chopper Out`), subdirectory `Last Chopper Out`, pattern `save.json`, OS Windows (+Linux/Mac if shipped). Set byte/file quota (≥ 1 file, ~64 KB is plenty). The in-app `steam.cloud` API path is a fallback; use one or the other deliberately and test sync across two machines.

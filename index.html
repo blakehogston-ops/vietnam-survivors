@@ -281,7 +281,7 @@ body.hudm #rtoHud{max-width:40px;overflow:hidden;white-space:nowrap}body.hudm #r
 </div>
 <button id="sigBtn" title="Pop your signal at the LZ (G)"><i id="sigDot"></i><b id="sigNm">SIGNAL</b><span>G</span></button>
 <div id="sigask" class="overlay">
-  <div class="rbox"><canvas id="sigPort" width="36" height="40"></canvas><div><div class="who" id="sigWho">BIRD · UH-1E</div><div id="sigQ">"Doc, Bird. I've got red. Over."</div></div></div>
+  <div class="rbox"><canvas id="sigPort" width="36" height="40"></canvas><div><div class="who" id="sigWho">BIRD · CH-46D</div><div id="sigQ">"Doc, Bird. I've got red. Over."</div></div></div>
   <div id="sigSw">RED</div>
   <div class="note" id="sigNote">Smoke out. The pilot names the color he sees - check it against your line. Charlie pops his own smoke. No timer.</div>
   <div class="sigbtns"><button class="btn" id="btnSigOk">CONFIRM</button><button class="btn alt" id="btnSigNo">NEGATIVE</button></div>
@@ -614,7 +614,7 @@ body.hudm #rtoHud{max-width:40px;overflow:hidden;white-space:nowrap}body.hudm #r
   };
 
   BODY.medevacCall = function (ctx, out, t) {
-    // calm "Dustoff inbound" call: radio squelch, two soft roger pips, then a slow, DESCENDING pair of rounded notes (A4 -> F4) and un-key.
+    // calm "Medevac inbound" call: radio squelch, two soft roger pips, then a slow, DESCENDING pair of rounded notes (A4 -> F4) and un-key.
     // Distinct from reinforcementCall, which is urgent: square stabs rising G4-C5-E5 plus a rising whine.
     noise(ctx, out, { t: t, dur: 0.13, vol: 0.26, a: 0.01, filters: [['bandpass', 1700, 1400, 2.5], ['highpass', 500]] });
     osc(ctx, out, { t: t + 0.01, dur: 0.05, vol: 0.06, type: 'square', f0: 1000, a: 0.003 });
@@ -2326,7 +2326,7 @@ function drawPit(q,tt){ const r=q.r, k=q.rev, x=Math.round(q.x), y=Math.round(q.
 /* ====================== support weapons: mortar, howitzer, PBR gunboat, Huey ====================== */
 function updateSupport(dt){
   const g=G,p=g.p;
-  if(!g.hueyUnlocked&&!g.demo&&ITEMS.huey.req()){ g.hueyUnlocked=true; g.banner={text:'UH-1 HUEY SUPPORT UNLOCKED!',t:2.6,col:'#9be37a'} }
+  if(!g.hueyUnlocked&&!g.demo&&ITEMS.huey.req()){ g.hueyUnlocked=true; g.banner={text:'GUNS UP: HUEY GUNSHIP ESCORT UNLOCKED',t:2.6,col:'#9be37a'} }
   if(g.mortarT>0)g.mortarT-=dt;
   // 81mm mortar rounds (lobbed with a high arc, ring warning at the impact point)
   for(let i=mshells.length-1;i>=0;i--){ const q=mshells[i]; CURW=q.wid||''; q.t+=dt; if(q.t<0)continue;
@@ -2414,7 +2414,7 @@ function drawCH46(h){ if(VEH()&&SHEET1.drawSeaKnight&&!/[?&]ch46v2=0/.test(locat
   if(h.mhp&&!h.crash){ const r=Math.max(0,h.hp/h.mhp), w=48, bx=x-w/2, by=y-58; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,5); ctx.fillStyle=r>.55?'#6fd04a':r>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,Math.round(w*r),5) }
   const c=Math.cos(h.hd), sn=Math.sin(h.hd);
   for(const off of [-24,24]){ const rx=x+c*off, ry=y+sn*off; ctx.save(); ctx.translate(rx,ry); ctx.globalAlpha=.13; ctx.fillStyle='#cfcfc6'; ctx.beginPath(); ctx.arc(0,0,33,0,TAU); ctx.fill(); ctx.globalAlpha=.75; ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=2.4; ctx.rotate(off<0?-h.rot:h.rot); ctx.beginPath(); ctx.moveTo(-33,0); ctx.lineTo(33,0); ctx.stroke(); ctx.globalAlpha=1; ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(0,0,3,0,TAU); ctx.fill(); ctx.restore() } }
-function drawHuey(h){ if(h.ch46)return drawCH46(h);
+function drawHuey(h){ if(h.ch46||h.sk46)return drawCH46(h);   /* rc7.1 Vet keep/cut: every troop/resupply/extraction bird is a CH-46 (sk46); only the VMO-6 gunship escort stays a UH-1E */
   if(window.SHEET1&&SHEET1.drawHuey&&hasSheet('huey')){   /* Artist Helper UH-1E (assets/art/huey.js): wash, shadow, body, rotor; door-gunner birds return their M60 muzzles */
     const gun=(h.gunner||hueys.indexOf(h)>=0)&&hasSheet('hueyGunner'), alt=h.z===undefined?34:h.z;
     const r=SHEET1.drawHuey(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt,heading:h.hd||0,t:(h.rot||0)/34,variant:gun?'hueyGunner':'huey',scale:1}); h.muz=r&&r.muzzles&&r.muzzles.length?r.muzzles:null;
@@ -2557,8 +2557,8 @@ function callSquad(s,l){
   const have={}; for(const m of squad)have[m.role]=1; for(const h of ins)for(const r of h.need)have[r]=1;
   const sz=s.size||8, need=SQROLES.slice(0,sz).filter(r=>!have[r]); if(!need.length)return false;
   const p=G.p, a=rnd()*TAU, R=Math.hypot(VW,VH)/2+130;
-  ins.push({ch46:!!s.ch,hp:s.hhp,mhp:s.hhp,hf:0,x:p.x+Math.cos(a)*R,y:p.y+Math.sin(a)*R,a,t:0,ph:0,need,di:0,dT:0,endT:0,vs:60,s,off:84,rot:0,hd:a+Math.PI,mf:[0,0]});
-  G.banner={text:need.length>=sz?(sz<=4?'MARINE FIRE TEAM INBOUND (UH-1E)':sz<8?'MARINE SQUAD INBOUND (UH-1E)':'MARINE SQUAD INBOUND (CH-46)'):'MARINE REPLACEMENTS INBOUND',t:2.2,col:'#9be37a'}; Snd.play('radio'); Amb.support(11); return true }
+  ins.push({ch46:!!s.ch,sk46:1,hp:s.hhp,mhp:s.hhp,hf:0,x:p.x+Math.cos(a)*R,y:p.y+Math.sin(a)*R,a,t:0,ph:0,need,di:0,dT:0,endT:0,vs:60,s,off:84,rot:0,hd:a+Math.PI,mf:[0,0]});
+  G.banner={text:need.length>=sz?(sz<=4?'MARINE FIRE TEAM INBOUND (CH-46)':'MARINE SQUAD INBOUND (CH-46)'):'MARINE REPLACEMENTS INBOUND',t:2.2,col:'#9be37a'}; Snd.play('radio'); Amb.support(11); return true }
 /* balance band (Blake: 9-12 home, first death >= 2:00): a grace floor (no Marine dies before 2:00; they still get hurt to 1 HP and need the corpsman)
    and a squad catch-up on incoming damage by how many are still alive (8 or fewer x.45, 9-10 x.75, 12 x1.1, 13+ x1.45). ?bal=0 turns both off. */
 const BAL={ON:!/[?&]bal=0\b/.test(location.search),GRACE:120,
@@ -2721,7 +2721,7 @@ function crashHuey(h){
   try{ Amb.kill(Snd.ctx.currentTime,.25) }catch(e){}
   const a=h.hd+(rnd()<.5?1:-1)*.6;
   { const c={crash:true,x:h.x,y:h.y,z:34,hd:h.hd,rot:h.rot,t:0,vx:Math.cos(a)*70,vy:Math.sin(a)*70,sp:rnd()<.5?7:-7,mf:[0,0],smoke:0}; crashes.push(c); try{ if(h._vh&&window.VFX_VEHICLE_HIT)VFX_VEHICLE_HIT.detach(h._vh) }catch(e){} if(VHX.ok()){ try{ VFX_VEHICLE_HIT.hit('heli_down',null,h.x,h.y,h.hd,{z:34,follow:c}); c.vfx=1 }catch(e){} } }
-  G.banner={text:wasIns?'TRANSPORT HUEY SHOT DOWN!':'HUEY SHOT DOWN!',t:2.6,col:'#ff6a4a'}; (SAMP.boom('huey_crash')||Snd.play('boom')) }
+  G.banner={text:wasIns?'TRANSPORT CH-46 SHOT DOWN!':'GUNSHIP ESCORT SHOT DOWN!',t:2.6,col:'#ff6a4a'}; (SAMP.boom('huey_crash')||Snd.play('boom')) }
 function updateCrashes(dt){
   for(let i=crashes.length-1;i>=0;i--){ const c=crashes[i]; c.t+=dt; c.rot+=dt*20; c.hd+=c.sp*dt; c.x+=c.vx*dt; c.y+=c.vy*dt; c.z=Math.max(0,34*(1-c.t/1.1)*(1-c.t/1.1));
     c.smoke-=dt; if(!c.vfx&&c.smoke<=0){ c.smoke=.04; addPart(c.x+(rnd()-.5)*10,c.y-c.z,(rnd()-.5)*20,-10-rnd()*16,.9,5+rnd()*4,rnd()<.4?'#ff9b21':'#2d2a27',rnd()<.4,1.4) }
@@ -3080,7 +3080,7 @@ const ITEMS={
   gunboat:{kind:'w',name:'PBR Mk II River Gunboat',max:8,blurb:'A Patrol Boat, River cruises the nearest river firing twin .50 cal M2s and M60s, then moves on.',
     stats:l=>({d50:11+3*(l-1),d60:6+1.6*(l-1),cd:26*Math.pow(.93,l-1),hold:9+1.2*l,range:300+10*l}),
     desc:s=>`.50 cal ${s.d50} · M60 ${s.d60.toFixed(0)} · on station ${s.hold.toFixed(0)}s · range ${s.range}`},
-  huey:{kind:'w',name:'UH-1 Huey Door Gunners',max:8,blurb:'A Huey circles overhead while its M60 door gunners rake the enemy. Unlocks at M60 level 6 or player level 12.',
+  huey:{kind:'w',name:'UH-1E Gunship Escort (VMO-6)',max:8,blurb:'A VMO-6 UH-1E gunship escort makes gun runs overhead: door M60s, rocket pods and fixed forward M60s. Unlocks at M60 level 6 or player level 12.',
     req:()=>!!G&&((G.w.m60&&G.w.m60.lvl>=6)||G.w.spooky||G.p.lvl>=12),
     stats:l=>({dmg:8+2.2*(l-1),gcd:.085*Math.pow(.95,l-1),hold:8+1.2*l,cd:32*Math.pow(.93,l-1),pierce:l>=4?2:1,range:380,hhp:150+35*(l-1)}),
     desc:s=>`Dmg ${s.dmg.toFixed(0)} x2 guns · ${(2/s.gcd).toFixed(0)} rds/s · ${s.hold.toFixed(0)}s on station · Huey HP ${s.hhp}`},
@@ -3095,7 +3095,7 @@ const ITEMS={
   company:{kind:'w',name:'Company Reinforcement',max:3,req:()=>!!G&&!G.demo&&G.p.lvl>=6,
     blurb:'Radio in a rifle company. Two CH-46 Sea Knights land and offload the company: riflemen, M14 marksmen, M60 gunners and M79 grenadiers. They stay on the ring around you and fight until they die or you extract; the birds leave empty. Can only be called again when the cooldown is up AND 5 or fewer of the last company survive. Never more than 30 company Marines alive. Higher levels: tougher, harder-hitting Marines and a shorter cooldown.',
     stats:l=>({hp:80+30*(l-1),dm:1+.2*(l-1),cd:120-15*(l-1)}),
-    desc:s=>`4 Hueys x 5 Marines · HP ${Math.round(s.hp)} each · dmg x${s.dm.toFixed(2)} · call-in cooldown ${s.cd.toFixed(0)}s (needs <=5 survivors)`},
+    desc:s=>`2 CH-46s x 10 Marines · HP ${Math.round(s.hp)} each · dmg x${s.dm.toFixed(2)} · call-in cooldown ${s.cd.toFixed(0)}s (needs <=5 survivors)`},
   medevac:{kind:'w',name:'Medevac (CH-46)',max:3,req:()=>!!G&&!G.demo&&G.p.lvl>=5,
     blurb:'Radio for a Marine CH-46 Sea Knight medevac ("Medevac inbound, urgent"). It hovers over you for a few seconds and heals EVERYONE nearby: you, your squad and patrol Marines, Company Reinforcement Marines, the tank and the firebase engineers. Only comes when someone is hurt. Separate from the one-time Emergency Medevac revive. Higher levels: bigger heal, shorter cooldown.',
     stats:l=>({frac:.2+.2*l,cd:90-12*(l-1)}),
@@ -3611,8 +3611,8 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     /* (2) Huey + SOG on dry land, off Doc's far side from the river */
     const away=r&&B?Math.atan2(p.y-B.by,p.x-B.bx):rnd()*TAU, lz=pickLz(p.x+Math.cos(away)*170,p.y+Math.sin(away)*170);
     S.lz={x:lz.x,y:lz.y}; const a0=away+Math.PI*.6; S.helo={x:lz.x+Math.cos(a0)*900,y:lz.y+Math.sin(a0)*900,z:60,hd:a0+Math.PI,rot:0,ph:0,t:0,sx:lz.x+Math.cos(a0)*900,sy:lz.y+Math.sin(a0)*900};
-    if(!B){ /* no river in reach: recon rides a second Huey (logged) */ const a1=a0+1.3; S.helo2={x:lz.x+Math.cos(a1)*900,y:lz.y+Math.sin(a1)*900,z:60,hd:a1+Math.PI,rot:0,ph:0,t:0,sx:lz.x+Math.cos(a1)*900,sy:lz.y+Math.sin(a1)*900,lz:{x:lz.x+60,y:lz.y+30}}; g.specLog.push({ev:'noRiver'}) }
-    g.banner={text:'SPEC-OPS INBOUND: RECON BY PBR · SOG BY HUEY',t:2.8,col:'#ffe58a'}; Snd.play('radio');
+    if(!B){ /* no river in reach: recon rides a CH-46 (logged) */ const a1=a0+1.3; S.helo2={sk46:1,x:lz.x+Math.cos(a1)*900,y:lz.y+Math.sin(a1)*900,z:60,hd:a1+Math.PI,rot:0,ph:0,t:0,sx:lz.x+Math.cos(a1)*900,sy:lz.y+Math.sin(a1)*900,lz:{x:lz.x+60,y:lz.y+30}}; g.specLog.push({ev:'noRiver'}) }
+    g.banner={text:B?'SPEC-OPS INBOUND: RECON BY PBR · SOG BY H-34':'SPEC-OPS INBOUND: RECON BY CH-46 · SOG BY H-34',t:2.8,col:'#ffe58a'}; Snd.play('radio');
     if(!this.sfx('h34','flyby','h34_flyby','squad'))try{ if(SAMP.ready()&&SamplePlayer.hasSample('huey_flyby'))MIX.as('squad',()=>SamplePlayer.play('huey_flyby',{vol:.8})) }catch(e){} if(S.boat)this.sfx('pbrManeuver','runup','pbr_runup','squad',Math.hypot(S.boat.x-g.p.x,S.boat.y-g.p.y)) },
   land(kind){ const g=G,S=this.st();
     if(kind==='recon'){ const b=S.boat, B=b?b.B:null, L=B?{x:B.bx,y:B.by}:S.helo2.lz; const roles=[['tl','m16'],['rto','m16'],['m79','m79'],['m14','m14'],['pt','m16']];
@@ -3691,7 +3691,7 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     if(S.cff&&!S.cff.done&&S.cff.x!==undefined){ ctx.strokeStyle='rgba(255,90,60,.7)'; ctx.lineWidth=2; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.arc(S.cff.x,S.cff.y,70,0,TAU); ctx.stroke(); ctx.setLineDash([]) } },
   drawAir(){ const g=G; if(!this.ON||!g||!g.spec)return; const S=g.spec; for(const k of ['helo','helo2']){ const h=S[k]; if(!h||h.ph===6)continue;
       if(k==='helo'&&VEH()&&SHEET1.drawKingbee){ const st=(h.ph===1||h.ph===4)?'landed':h.z<20?'hovering':'flying'; SHEET1.drawKingbee(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt:st==='landed'?0:h.z,heading:h.hd,t:performance.now()/1000,scale:1,state:st}) }   /* SOG rides a VNAF H-34 Kingbee */
-      else drawHuey(h) } },
+      else { if(k==='helo')h.sk46=1; drawHuey(h) } } },
   /* Artist Helper sprite for a man (recon_team.js / sog_team.js); null -> procedural fallback */
   ART:{tl:'lead',rto:'rto',m79:'m79',m14:'rifle',pt:'point',oz:'lead',o1:'asst',o2:'rto',mt1:'point',nung:'interp',mt2:'tail'},
   art(m){ const S1=window.SHEET1; if(!S1)return null; const f=m.team==='recon'?S1.drawRecon:S1.drawSog; if(!f)return null; const r=this.ART[m.role]; return r?{f,r}:null },
@@ -4002,7 +4002,7 @@ function updateWeapons(dt){
     else if(id==='gunboat'){ if(boats.some(b=>!b.dead)){w.cd=1;continue} if(callBoat(s)){ w.cd+=s.cd; if(w.lvl>=ZMON.LV&&ZMON.ok())callBoat(s,true) } else w.cd=3 }
     else if(id==='huey'){ if(hueys.length){w.cd=1;continue}
       hueys.push({wid:CURW,hp:s.hhp,mhp:s.hhp,hf:0,a:rnd()*TAU,t:0,hold:s.hold,s,x:p.x+700,y:p.y,hd:0,rot:0,gcd:[.1,.25],mf:[0,0]});
-      annc('huey','huey',{text:'UH-1 HUEY ON STATION',t:2,col:'#ffe58a'}); Snd.play('radio'); Amb.support(s.hold+3.2); w.cd+=s.cd; }
+      annc('huey','huey',{text:'VMO-6 GUNSHIP ESCORT ON STATION',t:2,col:'#ffe58a'}); Snd.play('radio'); Amb.support(s.hold+3.2); w.cd+=s.cd; }
     else if(id==='strafe'){
       const c0=clump(420,110,12)||[p.x+Math.cos(g.t)*150,p.y+Math.sin(g.t)*150], a=rnd()*TAU, nx=-Math.sin(a), ny=Math.cos(a);
       let kk=s.kind; w.altN=(w.altN||0)+1; const spad=s.alt&&w.altN%3===0; if(spad)kk=0;
@@ -4959,7 +4959,7 @@ function callCompany(s){ const g=G,p=g.p, room=COY.cap-coyAlive()-coyIncoming();
   const a0=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+170; let left=room;
   const comp={t0:g.t,n:0,alive:0,half:null,few:null,end:null,id:(g.cs.comps.length)}; g.cs.comps.push(comp);
   for(let k=0;k<COY.hueys&&left>0;k++){ const a=a0+k*TAU/COY.hueys, nn=Math.min(COY.per,left); left-=nn; comp.n+=nn;
-    coyH.push({x:p.x+Math.cos(a)*Rf,y:p.y+Math.sin(a)*Rf,a,ph:0,t:-k*.45,left:nn,di:0,dT:0,endT:0,vs:60,rot:0,hd:a+Math.PI,hp:1,mhp:0,hf:0,mf:[0,0],s,comp,k,go:false}) }
+    coyH.push({sk46:1,x:p.x+Math.cos(a)*Rf,y:p.y+Math.sin(a)*Rf,a,ph:0,t:-k*.45,left:nn,di:0,dT:0,endT:0,vs:60,rot:0,hd:a+Math.PI,hp:1,mhp:0,hf:0,mf:[0,0],s,comp,k,go:false}) }
   comp.hueyAt=g.t+1; comp.dropAt=g.t+4; g.cs.calls++; g.banner={text:'COMPANY REINFORCEMENT INBOUND (2x CH-46)',t:2.4,col:'#9be37a'}; Snd.cue('reinforcementCall'); Amb.support(10); return true }
 /* ---- THE FIFTEEN (Stage 1): Doc + 14 Marines. Three Hueys insert them at the start (4 + 5 + 5), then leave. Dead stay dead, bodies stay where they fell,
    no replacement call of any kind (Company Reinforcement, squad/patrol refills and the Medevac perk are out of the pool). The count only goes down. ---- */
@@ -4979,7 +4979,7 @@ const Q15={HPM:2.2,names:['Sgt Savage','Cpl Washington','LCpl Ortiz','LCpl Brenn
 const Q15_BAN={squad:1,company:1,medevac:1};
 /* CH-46 insertion (feature/next item 1): the whole squad (Doc + 14) comes in on ONE CH-46D Sea Knight (a CH-46 seats ~17 troops), lands, drops the ramp,
    and the Marines walk off the ramp to the ch46_v2 exit points, then fan out. ?ch46ins=0 restores the three-Huey insertion. */
-const CH46INS=!/[?&]ch46ins=0\b/.test(location.search);
+const CH46INS=true;   /* rc7.1 Vet: no Huey insertion, ?ch46ins=0 retired */
 const C46X=(()=>{ try{ if(!window.SHEET1||!SHEET1.drawSeaKnight)return null; const c=mk(2,2).getContext('2d'), r=SHEET1.drawSeaKnight(c,{x:0,y:0,heading:0,t:0,state:'rampDown'}); return r&&r.ramp&&r.exit&&r.exit.length?r:null }catch(e){ return null } })();
 function insertCH46(){ const g=G,p=g.p, S={hp:Q15.hp,dm:1}, X=C46X;
   const comp={t0:g.t,n:Q15.names.length,alive:0,half:null,few:null,end:null,id:g.cs.comps.length,q15:true}; g.cs.comps.push(comp);
@@ -5006,7 +5006,7 @@ function drawCH46Ins(h){ try{ SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x),y:Math
 function insertFifteen(){ if(CH46INS&&C46X)return insertCH46(); const g=G,p=g.p, a0=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+170, S={hp:Q15.hp,dm:1};
   const comp={t0:g.t,n:0,alive:0,half:null,few:null,end:null,id:g.cs.comps.length,q15:true}; g.cs.comps.push(comp); let base=0;
   for(let k=0;k<3;k++){ const a=a0+k*TAU/3, nn=Q15.sizes[k]; comp.n+=nn;
-    coyH.push({x:p.x+Math.cos(a)*Rf,y:p.y+Math.sin(a)*Rf,a,ph:0,t:-k*.45,left:nn,base,di:0,dT:0,endT:0,vs:60,rot:0,hd:a+Math.PI,hp:1,mhp:0,hf:0,mf:[0,0],s:S,comp,k,go:false}); base+=nn }
+    coyH.push({sk46:1,x:p.x+Math.cos(a)*Rf,y:p.y+Math.sin(a)*Rf,a,ph:0,t:-k*.45,left:nn,base,di:0,dT:0,endT:0,vs:60,rot:0,hd:a+Math.PI,hp:1,mhp:0,hf:0,mf:[0,0],s:S,comp,k,go:false}); base+=nn }
   comp.hueyAt=g.t+1; comp.dropAt=g.t+3 }
 function coyFreeSlot(){ const used=new Set(); for(const m of coy)used.add(m.slot); let i=0; while(used.has(i))i++; return i }
 function updateCompany(dt){ const g=G,p=g.p; if(g.demo||!g.char||!g.cs)return; coyF++;
@@ -5907,14 +5907,14 @@ function beginFirebase(){ const g=G; fbS={x:lzS.x,y:lzS.y,name:lzS.name,state:'i
   g.banner={text:'RADIO: SUPPLY DROP & ENGINEERS INBOUND. HOLD THE LZ!',t:3.2,col:'#9be37a'}; Snd.play('radio'); Amb.support(12);
   callFbHeli('build',fbS.x,fbS.y) }
 function callFbHeli(job,tx,ty){ if(fbH)return false; const p=G.p, a=rnd()*TAU, R=Math.hypot(VW,VH)/2+300;
-  fbH={x:tx+Math.cos(a)*R,y:ty+Math.sin(a)*R,z:80,hd:a+Math.PI,rot:0,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,lt:0,out:0,job,tx,ty,dropped:false}; return true }
+  fbH={sk46:1,x:tx+Math.cos(a)*R,y:ty+Math.sin(a)*R,z:80,hd:a+Math.PI,rot:0,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,lt:0,out:0,job,tx,ty,dropped:false}; return true }
 function mkEng(x,y){ return {x,y,hp:170,mhp:170,face:1,anim:rnd()*4,mv:false,hf:0,inv:0,danger:0,job:null,tgS:null,ph:rnd()*TAU,sp:0,work:0} }
 function heliDrop(h){ const f=fbS; if(!f)return;
   if(h.job==='build'||h.job==='reinf'){ const n=h.job==='build'?4+((G.fbN>=1)?1:0):2; for(let i=0;i<n;i++){ if(engs.length<6)engs.push(mkEng(h.x+(i-1)*12,h.y+(i&1?16:-16))) }
     burst(h.x,h.y+8,14,80,.6,3,['#a8946a','#8a7a52'],false); Snd.play('thud'); if(f.state==='inbound'||f.state==='stalled')f.state='building'; G.banner={text:h.job==='build'?'ENGINEERS ON THE GROUND: BUILD STARTED':'ENGINEER REINFORCEMENTS LANDED',t:2.4,col:'#ffe58a'} }
   else { // helipad resupply
     const p=G.p; p.hp=Math.min(p.maxHp,p.hp+p.maxHp*.6); healAllies(.5); for(const s of strs)if(!s.dead&&s.b>=1)s.hp=Math.min(s.mhp,s.hp+s.mhp*.3); if(engs.length<4)engs.push(mkEng(h.x,h.y+12));
-    G.banner={text:'HUEY RESUPPLY: AMMO, MEDICAL & ENGINEER',t:2.4,col:'#9be37a'}; ringBurst(h.x,h.y,40,['#7be37a','#fff'],20); Snd.play('heal') } }
+    G.banner={text:'CH-46 RESUPPLY: AMMO, MEDICAL & ENGINEER',t:2.4,col:'#9be37a'}; ringBurst(h.x,h.y,40,['#7be37a','#fff'],20); Snd.play('heal') } }
 function updateFbH(dt){ const h=fbH; if(!h)return; const p=G.p; h.t+=dt; h.rot+=dt*34;
   if(h.ph===0){ const dx=h.tx-h.x,dy=h.ty-h.y,d=Math.hypot(dx,dy)||1, sp=Math.min(340,50+d*1.15); h.x+=dx/d*sp*dt; h.y+=dy/d*sp*dt; h.hd=turnTo(h.hd,Math.atan2(dy,dx),3.5*dt); if(d<300)h.z+=(16-h.z)*Math.min(1,dt*1.6); if(d<16){ h.ph=1; h.lt=0 } }
   else if(h.ph===1){ h.lt+=dt; h.z+=(14-h.z)*Math.min(1,dt*3); if(!h.dropped&&h.lt>1.1){ h.dropped=true; heliDrop(h) } if(h.lt>(h.job==='build'?3.8:2.8)){ h.ph=2; h.ex=h.hd+(rnd()-.5)*1.2 } }
@@ -6466,7 +6466,7 @@ function exDoorGuns(h,lz,dt){ for(let gi=0;gi<2;gi++){ if(h.mf[gi]>0)h.mf[gi]-=d
     if(t&&bullets.length<560){ const a=Math.atan2(t.y-ay,t.x-ax)+(rnd()-.5)*.08; CURW='exgun'; addBullet(ax,ay,a,700,EX.GUN_DMG,2,.8,3.2,'#ffd46a'); CURW=''; h.mf[gi]=.05; if(gi===0)MIX.as('squad',()=>Snd.play('m60')); h.gcd[gi]=EX.GUN_CD*(.85+rnd()*.3) } else h.gcd[gi]=.15 } }
 function quietTick(dt){ const ex=G.ex, s=ex&&ex.sig; if(s&&!s.land){ s.z=Math.max(0,s.z-dt*110); if(s.z<=0){ s.land=true; s.landAt=G.t; Snd.play('thud'); G.shake=Math.max(G.shake,4); burst(s.x,s.y,10,60,.5,3,['#8a7a52','#6d675a'],false) } } updateGunny(dt) }
 function startInbound(){ const g=G,ex=g.ex,lz=ex.pad; ex.ph=4; ex.t=0; ex.padShown=true; ex.k0=g.kills; ex.hot=ex.broken=ex.jet=ex.warn=false; ex.pulseT=0; ex.board=0;
-  const a=rnd()*TAU, R=Math.max(VW,VH)*.5+1100; ex.huey={x:lz.x+Math.cos(a)*R,y:lz.y+Math.sin(a)*R,ox:Math.cos(a),oy:Math.sin(a),R,z:90,hd:a+Math.PI,rot:0,mf:[0,0],gcd:[.2,.35],gunner:true,hf:0,hp:1,mhp:0,lift:0,landed:false,ch46:!!(VEH()&&SHEET1.drawEvacBird)};   /* the evac bird is the CH-46 Sea Knight when vehicles.js is loaded */
+  const a=rnd()*TAU, R=Math.max(VW,VH)*.5+1100; ex.huey={x:lz.x+Math.cos(a)*R,y:lz.y+Math.sin(a)*R,ox:Math.cos(a),oy:Math.sin(a),R,z:90,hd:a+Math.PI,rot:0,mf:[0,0],gcd:[.2,.35],gunner:true,hf:0,hp:1,mhp:0,lift:0,landed:false,ch46:!!(VEH()&&SHEET1.drawEvacBird),sk46:1};   /* the evac bird is the CH-46 Sea Knight when vehicles.js is loaded */
   newCall(); gunny("Doc, Bird. Inbound to your pad. Pop smoke. Over.",4,1,'BIRD'); Snd.play('radio'); Amb.support(12) }
 /* ---- the pad call: Doc pops his smoke on the circle; Charlie may pop the same colour off the pad; the bird names what it sees ---- */
 const decoyCareer={n:0,last:-99,load(){ try{ this.n=+localStorage.getItem('lco_padcalls')||0; this.last=+(localStorage.getItem('lco_lastdecoy')??-99) }catch(e){} },
@@ -6741,7 +6741,7 @@ const HIT_FACT={'punji pit':'a punji pit he walked over','satchel charge':'a sat
 const mDist=(dx,dy)=>Math.max(1,Math.round(Math.hypot(dx,dy)/10))+'m '+dirWord(dx,dy).toLowerCase();
 const charNick=g=>((g&&CHD[g.char])||CHD.doc).nick;   /* the character actually played (Doc, Hammer, Country, ...) */
 function deathFact(g){ const ex=g.ex||{}, p=g.p, lh=g.lastHit, who=charNick(g);   /* one plain fact - never a debug string */
-  if(ex.result==='left'){ return 'The Huey waited '+(ex.waited||EX.GROUND)+' seconds'+((onPad(p.x,p.y)&&!ex.ramp)?' with no other Marine on the ramp.':'.') }
+  if(ex.result==='left'){ return 'The bird waited '+(ex.waited||EX.GROUND)+' seconds'+((onPad(p.x,p.y)&&!ex.ramp)?' with no other Marine on the ramp.':'.') }
   if(lh&&lh.src==='punji pit'&&g.t-lh.t<4)return who+' went down to '+HIT_FACT['punji pit']+'.';
   if((ex.ph===4||ex.ph===5)&&ex.pad&&!onPad(p.x,p.y)){ return 'The pad was '+mDist(ex.pad.x-p.x,ex.pad.y-p.y)+'.' }
   if(lh&&HIT_FACT[lh.src])return who+' went down to '+HIT_FACT[lh.src]+'.'; if(lh&&lh.src&&lh.src.indexOf('boss ')===0)return who+' went down to the '+lh.src.slice(5)+'.';
@@ -6851,6 +6851,7 @@ const ACH=[
   {id:'kills_1000',name:'Heavy Contact',desc:'Stop 1,000 enemy soldiers in one run.',live:1,cond:c=>c.kills>=1000},
   {id:'lvl_10',name:'Seasoned',desc:'Reach level 10.',live:1,cond:c=>c.lvl>=10},
   {id:'lvl_20',name:'Salt',desc:'Reach level 20.',live:1,cond:c=>c.lvl>=20},
+  {id:'ACH_HUEY_UNLOCK',name:'Guns Up',desc:'Huey gunship escort unlocked.',live:1,cond:c=>!!(G&&G.hueyUnlocked)}   /* rc7.1 Vet: Steam API name kept as ACH_HUEY_UNLOCK */,
   {id:'score_5k',name:'Commendation',desc:'Earn a hold-out score of 5,000.',cond:c=>c.score>=5000},
   {id:'score_15k',name:'Citation',desc:'Earn a hold-out score of 15,000.',cond:c=>c.score>=15000},
   {id:'score_30k',name:'Unit Honor',desc:'Earn a hold-out score of 30,000.',cond:c=>c.score>=30000},
