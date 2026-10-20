@@ -2522,7 +2522,7 @@ function updateSquad(dt){
   { const fl=Math.hypot(g.fdx,g.fdy)||1; g.fdx/=fl; g.fdy/=fl }
   const px=-g.fdy, py=g.fdx; let alive=0, radio=false, healer=null;
   for(let i=squad.length-1;i>=0;i--){ const m=squad[i];
-    if(m.hp<=0){ squad.splice(i,1); continue }
+    if(m.hp<=0){ if(m.rto)RTO.lost(m); squad.splice(i,1); continue }
     if(m.state==='rope'){ m.rt+=dt; const k=Math.min(1,m.rt/.8); m.x=m.hx+(m.lx-m.hx)*k; m.y=m.hy+(m.ly-m.hy)*k; m.rz=34*(1-k);
       if(k>=1){ m.state='ok'; m.rz=0; if(riverAt(m.x,m.y)){ const p0=G.p; for(let q=1;q<40;q++){ const a=q*2.4, r=q*10, x=m.x+Math.cos(a)*r, y=m.y+Math.sin(a)*r; if(!riverAt(x,y)&&!needCross(x,y,p0.x,p0.y)){ m.x=x; m.y=y; break } } }   /* never land a Marine in the river */ burst(m.x,m.y+8,5,50,.4,3,['#a8946a','#8a7a52'],false) } alive++; continue }
     // level scaling
@@ -2532,10 +2532,11 @@ function updateSquad(dt){
     // formation slot
     const row=m.slot>>1, col=(m.slot&1?1:-1)*(1+(m.slot>>2)*.6) ; const wob=Math.sin(g.t*.9+m.ph)*7;
     let sx=p.x+g.fdx*(52+row*30)+px*(col*38)+wob*px, sy=p.y+g.fdy*(52+row*30)+py*(col*38)+wob*py; { const hs=fbHoldSlot(m); if(hs){ sx=hs[0]; sy=hs[1] } }
+    if(m.rto){ const q=RTO.slot(m,p); sx=q[0]; sy=q[1] }
     let dx=sx-m.x, dy=sy-m.y, d=Math.hypot(dx,dy);
     if(d>1100){ const a=rnd()*TAU, E=Math.hypot(VW,VH)/2+60; m.x=p.x+Math.cos(a)*E; m.y=p.y+Math.sin(a)*E; dx=sx-m.x; dy=sy-m.y; d=Math.hypot(dx,dy) }
     { const w=rvSteer(m,sx,sy,'m'); if(w){ dx=w[0]-m.x; dy=w[1]-m.y; d=Math.max(13,Math.hypot(dx,dy)) } }
-    m.mv=d>12; if(m.mv){ const sp=Math.min(d*3.5,(d>260?300:178)*Math.max(1,speedMul())); rvMove(m,dx/d*sp*dt,dy/d*sp*dt,'m'); m.anim+=dt*9; if(!m.tg)m.face=dx>=0?1:-1 }
+    if(m.rto)RTO.move(m,sx,sy,Math.hypot(sx-m.x,sy-m.y),dt); else m.mv=d>12; if(!m.rto&&m.mv){ const sp=Math.min(d*3.5,(d>260?300:178)*Math.max(1,speedMul())); rvMove(m,dx/d*sp*dt,dy/d*sp*dt,'m'); m.anim+=dt*9; if(!m.tg)m.face=dx>=0?1:-1 }
     for(let j=i-1;j>=0;j--){ const o=squad[j]; if(o.state!=='ok')continue; const ex=m.x-o.x, ey=m.y-o.y, dd=ex*ex+ey*ey; if(dd<324&&dd>.01){ const dist=Math.sqrt(dd), push=(18-dist)*.5; m.x+=ex/dist*push; m.y+=ey/dist*push; o.x-=ex/dist*push; o.y-=ey/dist*push } }
     // targeting + firing
     m.tgT-=dt; if(m.tgT<=0){ m.tgT=.22+rnd()*.14; m.tg=nearestK(m.x,m.y,1,R.rng)[0]||null }
@@ -3190,7 +3191,7 @@ const FT={
     let p=g.p, d=Math.hypot(p.x-e.x,p.y-e.y), mt=null;
     const hold=g.ex&&g.ex.ph>=3&&g.ex.ph<=5; if(hold&&d<520&&d>60&&rnd()<PACE.HOLD_DOC*(g.ex.ph===3?1:.2)){ g.holdShots=(g.holdShots|0)+1; if(rnd()<PACE.SHOT_HIT*1.3*(1-d/700))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,'rifle fire on the pad') }   /* Gamer 134331: extra fire aimed at Doc during the hold (on top of the normal shot, so the Marine curve is unchanged) */
     if(rnd()<PACE.M_TGT){ let bd=460; for(const L of [squad,coy])for(const m of L){ if(m.hp<=0||m.state!=='ok'||m.hid)continue; const q=Math.hypot(m.x-e.x,m.y-e.y); if(q<bd){bd=q;mt=m} } if(mt){ p=mt; d=bd } }
-    if(rnd()<RTO.AGGRO){ const r=coy.find(q=>q.rto&&q.hp>0&&q.state==='ok'&&!q.hid); if(r){ const q=Math.hypot(r.x-e.x,r.y-e.y); if(q<500){ mt=r; p=r; d=q } } }   /* Blake Oct 20: the antenna draws fire */
+    if(rnd()<RTO.AGGRO){ const r=coy.find(q=>q.rto&&q.hp>0&&q.state==='ok'&&!q.hid)||squad.find(q=>q.rto&&q.hp>0&&q.state==='ok'); if(r){ const q=Math.hypot(r.x-e.x,r.y-e.y); if(q<500){ mt=r; p=r; d=q } } }   /* Blake Oct 20: the antenna draws fire */
     if(d>540||d<(mt?20:60))return; e.fire=.25; const a=Math.atan2(p.y-e.y,p.x-e.x)+(rnd()-.5)*.12, sp=430;
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
     if(onScreen(e,8)){ SAMP.shooter=e.type; MIX.as('enemy',()=>Snd.play('vcshot'),d) }
@@ -4221,10 +4222,11 @@ function addCloud(x,y,r,life,dmg,slow){ if(clouds.length>=48)clouds.shift(); clo
 let RTO_T=null;
 const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,spooky:10,arclight:14,boxmission:22},GAP:2.5,
   on(g){ if(g.demo||!g.char)return false; if(g.rtoLost)return true; return !!this.get(g) },
-  get(g){ if(g.rtoLost)return null; let m=coy.find(q=>q.rto); if(m)return m.hp>0?m:null;   /* one RTO per run: a man at 0 HP this frame is not replaced */
+  get(g){ if(g.rtoLost)return null; let m=coy.find(q=>q.rto)||squad.find(q=>q.rto); if(m)return m.hp>0?m:null;   /* one RTO per run: a man at 0 HP this frame is not replaced */
     if(!Object.keys(g.w).some(k=>AIRCALL[k]))return null;
-    const c=coy.filter(q=>q.hp>0&&q.state==='ok'&&!q.hid&&q.role!=='corps'); if(!c.length)return null;
-    c.sort((a,b)=>(a.role==='rifle'?0:1)-(b.role==='rifle'?0:1)||Math.hypot(a.x-g.p.x,a.y-g.p.y)-Math.hypot(b.x-g.p.x,b.y-g.p.y)); m=c[0]; m.rto=1; m.role0='rto'; m.mhp*=1.25; m.hp=Math.min(m.mhp,m.hp*1.25);
+    const sr=squad.find(q=>q.role==='radio'&&q.hp>0&&q.state==='ok');   /* old 8-man squad: its radioman takes the strikes */
+    const c=sr?[sr]:coy.filter(q=>q.hp>0&&q.state==='ok'&&!q.hid&&q.role!=='corps'); if(!c.length)return null;
+    c.sort((a,b)=>(a.role==='rifle'?0:1)-(b.role==='rifle'?0:1)||Math.hypot(a.x-g.p.x,a.y-g.p.y)-Math.hypot(b.x-g.p.x,b.y-g.p.y)); m=c[0]; m.rto=1; if(m.coy)m.role0='rto'; m.mhp*=1.25; m.hp=Math.min(m.mhp,m.hp*1.25);
     g.banner={text:'RTO: '+(m.nm||'RADIOMAN')+' HAS THE HANDSET — KEEP HIM ALIVE',t:3,col:'#9be37a'}; Snd.play('radio'); return m },
   lost(m){ const g=G; if(!m.rto||g.rtoLost)return; g.rtoLost=true; g.banner={text:'RTO DOWN — '+(m.nm||'RADIOMAN')+' KIA. NO MORE AIR SUPPORT',t:4,col:'#ff6a4a'}; Snd.play('radio'); g.shake=Math.max(g.shake,4) },
   /* densest enemy concentration anywhere near the fight (whole live map, capped so the strike stays readable) */
