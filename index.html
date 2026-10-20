@@ -3674,7 +3674,7 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     /* recon RTO: PRC-25 call for fire, once, 6 s after touchdown; 6 rounds, 4 s time of flight; never within 220 px of Doc or a friendly */
     const rto=men.find(m=>m.role==='rto'&&!m.wia);
     if(rto&&!S.cff&&T>6&&!(G.pullT>0)&&enemyInView()&&((S.cfT=(S.cfT||0)-dt)<=0)){ S.cfT=.5; let best=null,bn=0; for(let i0=0;i0<40&&enemies.length;i0++){ const e=enemies[(rnd()*enemies.length)|0]; if(!e||e.dead)continue; if(Math.hypot(e.x-p.x,e.y-p.y)<300)continue; let n=0; for(const q of nearestK(e.x,e.y,10,110))n++; if(n>bn){bn=n;best=e} }
-      if(best&&bn>=4){ S.cff={x:best.x,y:best.y,t:4,n:0}; g.banner={text:'RTO: "KILO SIX, THIS IS BRAVO TWO-ONE. FIRE MISSION, OVER" · SIX ROUNDS',t:2.2,col:'#ffe58a'}; if(!this.sfx('radioCff',null,'radio_cff','special'))Snd.play('radio'); g.specLog.push({ev:'cff',t:+g.t.toFixed(1),n:bn}) } else if(T>20)S.cff={done:1} }
+      if(best&&bn>=4){ S.cff={x:best.x,y:best.y,t:4,n:0}; g.banner={text:'RTO: "GOLF SIX, THIS IS GOLF TWO-SIX. FIRE MISSION, OVER" · SIX ROUNDS',t:2.2,col:'#ffe58a'}; if(!this.sfx('radioCff',null,'radio_cff','special'))Snd.play('radio'); g.specLog.push({ev:'cff',t:+g.t.toFixed(1),n:bn}) } else if(T>20)S.cff={done:1} }
     if(S.cff&&!S.cff.done){ const c=S.cff; c.t-=dt; if(c.t<=0){ c.t=.38; c.n++; const x=c.x+(rnd()-.5)*120, y=c.y+(rnd()-.5)*120; let safe=Math.hypot(x-p.x,y-p.y)>220; for(const m of men)if(Math.hypot(x-m.x,y-m.y)<160)safe=false; for(const m of coy)if(Math.hypot(x-m.x,y-m.y)<140)safe=false;
         if(safe){ CURW='spec'; explode(x,y,70,40,220,.8); CURW='' } if(c.n>=6)c.done=1 } }
     /* SOG one-zero: claymore ambush, once, 3 s after touchdown: 2 mines facing the nearest threat */
@@ -4331,7 +4331,7 @@ const BARK={ON:!/[?&]bark=0\b/.test(location.search), L:[], T:0, used:{}, C:{},
     ['Got a light?','Here. Keep the matches, I got more.','Thanks. Sure is quiet.','Don\'t say that.'],
     ['Your deal.','Gin. Pay up, Marine.','I\'ll owe you. Payday.','You said that last payday.'],
     ['I\'m gonna buy a Mustang when I get home.','With what, your combat pay?','Every dollar of it.'],
-    ['Sarge says chow\'s at eighteen hundred.','Hot chow?','Don\'t get your hopes up.'],
+    ['The sergeant says chow\'s at eighteen hundred.','Hot chow?','Don\'t get your hopes up.'],
     ['You hear from your folks?','My mom sent cookies. All crumbs now.','Still cookies. Hand \'em over.']
   ],
   Q:[], G:[],
@@ -4787,7 +4787,7 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
   who(m){ return (m.nm||'MARINE').toUpperCase() },
   say(id,m,pri){ const g=G; if(!OFFVO[id])return false; const ho=/^HO-[SCLPX]|LT-H/.test(id);
     if(!ho&&!pri){ if(g.t-this.barkT<3||g.t-(this.used[id]||-99)<30)return false }
-    this.barkT=g.t; this.used[id]=g.t; const sp=id.startsWith('SK-')?'GOLF SIX':m?this.who(m):'MARINE'; if(exMsg&&exQ.length>=1)return false; gunny(OFFVO[id],null,false,sp);   /* never pre-empt or push out a Gunny/extraction card */ (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'bark',id]); return true },
+    this.barkT=g.t; this.used[id]=g.t; const sp=id.startsWith('SK-')?'GOLF SIX':m?this.who(m):'MARINE'; if(!pri&&exMsg&&exQ.length>=1)return false; gunny(OFFVO[id],null,false,sp);   /* never pre-empt or push out a Gunny/extraction card */ (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'bark',id]); return true },
   pick1(ids){ for(const id of ids)if(G.t-(this.used[id]||-99)>=30)return id; return ids[0] },
   hoBark(m,n){ const r=m.rank; if(n===1)return 'HO-X01'; if(m.isLt)return 'LT-H01';
     return r===5?this.pick1(['HO-S01','HO-S03']):r===4?this.pick1(['HO-C01','HO-C02','HO-C03']):r===3?this.pick1(['HO-L01','HO-L02','HO-L03']):'HO-P01' },
@@ -4815,8 +4815,8 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
     for(const e of nearestK(c.x,c.y,12,650)){ if(Math.hypot(e.x-p.x,e.y-p.y)<260)continue; const n=nearestK(e.x,e.y,10,110).length; if(n>bn){bn=n;best=e} } if(!best||bn<6)return;
     for(const m of coy)if(m.hp>0&&Math.hypot(m.x-best.x,m.y-best.y)<170)return;   /* danger close: hold it */
     if(!this.rtoAlive(g)){ if(!g.rtoLost)return; this.cd.fire=60; if(g.t-this.radioOutT>=60){ this.radioOutT=g.t; const sp=c.rank<=4?c:this.members(14).find(q=>q.rank<=4); if(sp)this.say(this.radioOutT%2?'HO-Y01':'HO-Y02',sp,1) } return }   /* only once the RTO is actually lost; HO-Y is a Cpl-or-below line */
-    this.cd.fire=75; const lt=c.isLt; g.banner={text:(lt?'LT':'RTO')+': "GOLF SIX, THIS IS GOLF TWO-SIX. FIRE MISSION, OVER" · SIX ROUNDS',t:2.4,col:'#ffe58a'}; Snd.play('radio');
-    if(lt)this.say('LT-R03',c,1); this.seq=[[g.t+3.6,'SK-F02',null],lt?[g.t+7.4,'LT-R04',c]:null].filter(Boolean); this.mort={x:best.x,y:best.y,t:8.5,n:0}; g.offLog.push([+g.t.toFixed(1),'mortar',bn]) },
+    this.cd.fire=75; const lt=c.isLt; g.banner={text:(lt?'LT':'RTO')+': "GOLF SIX, THIS IS GOLF TWO-SIX. FIRE MISSION, OVER" · SIXTY MIKE-MIKE · SIX ROUNDS',t:2.4,col:'#ffe58a'}; Snd.play('radio');
+    if(lt)this.say('LT-R03',c,1); const rto=coy.find(q=>q.rto&&q.hp>0); this.seq=[[g.t+3.6,'SK-F02',null],lt?[g.t+7.4,'LT-R04',c]:null,[g.t+10.6,'HO-M01',rto],[g.t+13,'HO-M02',rto]].filter(Boolean); this.mort={x:best.x,y:best.y,t:18,n:0};   /* Vet order: R03, SK-F02, R04, 'Shot, over', 'Splash' ~5 s before the rounds land */ g.offLog.push([+g.t.toFixed(1),'mortar',bn]) },
   tick(g,dt){ if(!this.on())return; const lg=g.offLog||(g.offLog=[]);
     for(const k in this.cd)this.cd[k]=Math.max(0,this.cd[k]-dt);
     if(!this.live){ if(coy.some(m=>m.state==='ok'&&m.hp>0)&&!coyH.some(h=>h.ch46&&h.di<h.left)){ this.live=true; this.succ(g,true) } else return }
@@ -4824,7 +4824,7 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
     if(this.hoP&&g.t>=this.hoP.t){ const P=this.hoP; this.hoP=null; if(P.m===this.cmd&&P.m.hp>0)this.say(P.id,P.m) }
     while(this.seq.length&&g.t>=this.seq[0][0]){ const s=this.seq.shift(); this.say(s[1],s[2],1) }
     if(this.mort){ const M=this.mort; M.t-=dt; if(M.t<=0){ M.t=.4; M.n++; const a=M.n*2.4, x=M.x+Math.cos(a)*M.n*9, y=M.y+Math.sin(a)*M.n*9; let safe=Math.hypot(x-g.p.x,y-g.p.y)>200; for(const m of coy)if(m.hp>0&&Math.hypot(x-m.x,y-m.y)<130)safe=false;
-        if(M.n===1)this.say('HO-M02',coy.find(q=>q.rto&&q.hp>0),1); if(safe){ CURW='off_mortar'; explode(x,y,62,38,220,.8); CURW='' } if(M.n>=6)this.mort=null } }
+        if(safe){ CURW='off_mortar'; explode(x,y,62,38,220,.8); CURW='' } if(M.n>=6)this.mort=null } }
     /* Lt wounded: LT DOWN banner + marker, and he is Doc's top-priority patient (medTarget) */
     const lt=coy.find(m=>m.isLt&&m.hp>0); if(lt){ const f=lt.hp/lt.mhp; if(!this.ltHit&&f<.35){ this.ltHit=true; g.banner={text:'LT DOWN · DOC, GET TO '+this.who(lt),t:2.6,col:'#ff8a4a'}; lg.push([+g.t.toFixed(1),'ltdown']) } else if(this.ltHit&&f>=.6)this.ltHit=false }
     else if(this.ltHit&&!lt)this.ltHit=false;
