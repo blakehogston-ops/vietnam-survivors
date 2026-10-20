@@ -2265,7 +2265,7 @@ function updatePits(dt){
     if(dp>900||q.kills>=8){ if(q.kills>=8)burst(q.x,q.y,10,60,.5,3,['#6b5a2a','#3a2c12'],false); pits[i]=pits[pits.length-1]; pits.pop(); continue }
     const want=Math.max(0,Math.min(1,1-(dp-34)/(g.detect?420:120))); if(want>q.rev)q.rev=want;                 // camouflage lifts as you approach
     if(q.pc>0)q.pc-=dt; if(q.spr>0)q.spr-=dt;
-    if(dp<q.r+2&&q.pc<=0&&!g.demo){ q.pc=1.6; q.rev=1; q.spr=.5; p.slow=1.4; hurtPlayer(14,'punji pit'); Snd.play('punji'); burst(q.x,q.y-3,8,90,.4,2.5,['#b01818','#7a0e0e','#d8c890'],false) }
+    if(dp<q.r+2&&q.pc<=0&&!g.demo){ q.pc=1.6; q.rev=1; q.spr=.5; p.slow=1.4; hurtPlayer(7,'punji pit'); Snd.play('punji'); burst(q.x,q.y-3,8,90,.4,2.5,['#b01818','#7a0e0e','#d8c890'],false) }
     if(Math.abs(pdx)<VW*.75&&Math.abs(pdy)<VH*.75){                                             // enemies only checked near the screen
       for(let j=0;j<enemies.length;j++){ const e=enemies[j]; if(e.dead||e.boss)continue; const dx=e.x-q.x; if(dx>q.r||dx<-q.r)continue; const dy=e.y-q.y; if(dx*dx+dy*dy>q.r*q.r)continue;
         if(g.t-(e.pitT||-9)<1.2)continue; e.pitT=g.t; e.slow=1.2; e.limp=4; e.bleed=4; e.pit=q; q.rev=1; q.spr=.4; q.kills++; dmgSrc=0; Snd.play('punji'); burst(q.x,q.y-3,5,80,.35,2.5,['#b01818','#7a0e0e'],false);
@@ -3146,7 +3146,7 @@ const ITEMS={
 };
 const ET={
   vc:{hp:9,spd:86,dmg:5,r:8,v:1,spr:'vc',ds:.9,name:'Viet Cong'},
-  nva:{hp:26,spd:62,dmg:9,r:10,v:2,spr:'nva',ds:1,name:'NVA Regular'},
+  nva:{hp:26,spd:62,dmg:7,r:10,v:2,spr:'nva',ds:1,name:'NVA Regular'},
   officer:{hp:120,spd:54,dmg:14,r:14,v:6,spr:'officer',ds:.95,name:'NVA Officer'},
   boss:{hp:1275,spd:52,dmg:26,r:12,v:10,spr:'boss',ds:1.9,name:'NVA Commander',boss:true},   /* Stage 1: ~1.2x a regular man (ds set in bossScale), hitbox 12 (was 28), HP -15% (was 1500) */
   rpg:{hp:978,spd:46,dmg:20,r:12,v:10,spr:'rpg',ds:1.8,name:'RPG Heavy',boss:true},   /* was r 26, hp 1150 */
@@ -3173,7 +3173,7 @@ function newGame(demo){ N2.reset(); try{ ATM.reset() }catch(e){}
   craters=[]; try{ TERR.inval() }catch(e){}
   WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FIELD.reset(); GUNS.reset(); MEDV.reset(); CREWX.reset(); BARK.reset(); VHX.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); MAGS.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
-    p:{x:0,y:0,hp:100,maxHp:100,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
+    p:{x:0,y:0,hp:130,maxHp:130,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,medInv:3,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
     tankRot:0,nextRpgT:EX.PAD_T+75,rpgSeen:false,sqT:.8,sqS:null,sqL:0,fdx:0,fdy:1,nextTunnel:t0+2,nextVc:0,mortarT:0,hueyUnlocked:false,nextPit:t0+1.5,nextShout:t0+3,han:null,nextHan:(DBG.t>0?t0+6:t0+250+rnd()*120),cryQ:0,lastShout:-1,aim:0,hasTarget:false,flameAng:0,pending:0,boss:null,levelTimer:0,botTimer:0};
   if(demo||DBG.t>0){ // give some kit for demo / debug start
@@ -3188,7 +3188,7 @@ function newGame(demo){ N2.reset(); try{ ATM.reset() }catch(e){}
 }
 const XPK=(()=>{ const v=parseFloat(new URLSearchParams(location.search).get('xpk')); return isFinite(v)?v:3.2 })();   /* Gamer Oct 15: ~5 level-ups a run (was 8). ?xpk= tunes */
 const xpNeed=l=>Math.floor((4+l*3.2+l*l*.55)*(l<=1?1:XPK));
-function applyPassives(){const p=G.p;p.maxHp=100+20*G.ps.flak+(G.hpB||0);}
+function applyPassives(){const p=G.p;p.maxHp=130+20*G.ps.flak+(G.hpB||0);}
 const FBHOLD=()=>!!(G&&G.ex&&G.ex.ph>=3&&G.ex.ph<=5);   /* Gamer 134331: firebase regen 2->0.5 hp/s and no armor bonus while holding for the bird */
 const speedMul=()=>Math.max(.4,1+.1*G.ps.boots+(G.spdB||0)+(G.rr>0?.8:0)), armorMul=()=>(1-.08*G.ps.helmet)*(1-(G.armB||0))*(G.full>0?.7:1)*(G.inFb&&!FBHOLD()?.8:1), magR=()=>80+38*G.ps.magnet+(G.magB||0), regenR=()=>.6*G.ps.regen+(G.regB||0)+(G.inFb?(FBHOLD()?.5:2):0);
 
@@ -3210,7 +3210,7 @@ function hurtEnemy(e,d,kx,ky){ if(e.dead)return; if(!isFinite(kx)||!isFinite(ky)
 function dropGem(x,y,v,type){ if(gems.length>220){addXp(v);return} gems.push({x:x+(rnd()-.5)*10,y:y+(rnd()-.5)*10,v,t:type,pull:false,sp:0}) }
 /* NVA medic packs: ~3.5% of NVA Regular kills (pity: guaranteed after 60 NVA kills without one), at least 20 s apart, max 3 on the ground,
    25 s lifetime (blinks in the last 6 s), heals 17% max HP (halved if you picked one up in the last 10 s). VC do not drop them (the NVA rate is plenty). */
-const MED={chance:.05,pity:45,gap:16,cap:3,life:40,blink:6,heal:.17,inv:5,self:.35,mate:.6,reach:110};
+const MED={chance:.05,pity:30,gap:16,cap:3,life:40,blink:6,heal:.17,inv:5,self:.35,mate:.6,reach:110};
 /* Blake Oct 20: med packs go in Doc's pouch (max 5). H = use on yourself, Q = patch the most hurt Marine within reach (RTO first) */
 function useMed(mate){ const g=G; if(!g||g.demo||state!=='play'||!(g.medInv>0))return false; const p=g.p; const now=performance.now(); if(now-(g.medLock||0)<400)return false; g.medLock=now;   /* RC2: H+Q together use one dressing, never two */
   if(!mate){ if(p.maxHp-p.hp<1){ g.medLock=0; medLabel(p,'FULL HEALTH'); return false } const amt=Math.round(p.maxHp*MED.self), got=Math.min(amt,p.maxHp-p.hp); p.hp+=got; g.med.healed+=got; g.medInv--;
@@ -3235,9 +3235,9 @@ const PADMOR=!/[?&]padmor=0\b/.test(location.search);
 const YHALF=!/[?&]yhalf=0\b/.test(location.search);
 const MEDLBL=!/[?&]medlbl=0\b/.test(location.search);   /* rc6d: one 'FULL HEALTH'/'NO WOUNDED IN REACH' label at a time, 1 s debounce (?medlbl=0 = old stacking) */
 function medLabel(p,s){ if(MEDLBL){ const g=G; if(g.medLblT!=null&&g.t-g.medLblT<1)return; g.medLblT=g.t; for(let i=ftexts.length-1;i>=0;i--)if(ftexts[i].s==='FULL HEALTH'||ftexts[i].s==='NO WOUNDED IN REACH')ftexts.splice(i,1) } ftexts.push({x:p.x,y:p.y-18,t:0,s,c:'#cfcfb0'}) }
-const PRENIGHT=(q=>isFinite(q)&&q>0&&q<1?q:(q===1?0:.65))(parseFloat(new URLSearchParams(location.search).get('prenight')));
-function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return; if(DBG.bot){ const D=G.dmgBy||(G.dmgBy={}), k=String(src||'?').slice(0,24); D[k]=(D[k]||0)+dmg } if(PRENIGHT&&G.t>=240&&G.t<480&&!(G.ex&&G.ex.ph>=1))dmg*=PRENIGHT;   /* rc7.1 (Gamer): bird not called yet -> ease the 4:00-8:00 grind so night is reachable (?prenight=1 = off) */ if(G.ex&&G.ex.ph===4)dmg*=INB_DM; if(YHALF&&G.ex&&G.ex.confAt!=null&&G.ex.ph>=4&&G.ex.ph<=5)dmg*=.5;   /* rc6d: half damage from the smoke confirm (Y) until the lift (?yhalf=0) */ if(G.ex&&G.ex.divert)dmg*=.5; { const D=CHD[G.char], q=parseFloat(params.get('herodr')); const dr=isFinite(q)&&G.char!=='doc'?q:(D&&D.base&&D.base.dr)||0; if(dr)dmg*=1-dr }   /* per-hero survivability (Blake Oct 15: non-Doc heroes survive about as well as Doc; Doc has dr 0) */ if(G.ex&&(G.ex.ph===4||G.ex.ph===5))dmg*=.75;   /* bird inbound/landed: pressure lives in the hold (ph 3); the last 30 s stays tough but survivable */ if(PB.inside())dmg*=PB.DMG; if(src==='RPG/B-40 rocket'&&!PACE.mass(G))dmg*=.5;   /* early levels: B-40 is a threat cue, not a one-shot on Doc */ dmg=Math.max(1,Math.round(dmg*armorMul()*(1+holdT(G)/900))); src=src||'unknown'; PAD.rumble(120,Math.min(1,.25+dmg/40),.3);
-  { const W5=G.dw5||(G.dw5=[]); while(W5.length&&G.t-W5[0][0]>5)W5.shift(); let sum=0; for(const q of W5)sum+=q[1]; dmg=Math.min(dmg,Math.max(0,Math.round(p.maxHp*.4-sum))); if(dmg<=0){ p.invul=.2; return } W5.push([G.t,dmg]) }   /* RC2 (Gamer): Doc loses at most 40% max HP in any 5 s window */
+const PRENIGHT=(q=>isFinite(q)&&q>0&&q<1?q:0)(parseFloat(new URLSearchParams(location.search).get('prenight')));   /* default OFF: replaced by the 04_pacing_review set A+B1/B2 tuning; ?prenight=0.65 to test */
+function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return; if(DBG.bot){ const D=G.dmgBy||(G.dmgBy={}), k=String(src||'?').slice(0,24); D[k]=(D[k]||0)+dmg } if(PRENIGHT&&G.t>=240&&G.t<480&&!(G.ex&&G.ex.ph>=1))dmg*=PRENIGHT;   /* rc7.1 (Gamer): bird not called yet -> ease the 4:00-8:00 grind so night is reachable (?prenight=0.x to enable) */ if(G.ex&&G.ex.ph===4)dmg*=INB_DM; if(YHALF&&G.ex&&G.ex.confAt!=null&&G.ex.ph>=4&&G.ex.ph<=5)dmg*=.5;   /* rc6d: half damage from the smoke confirm (Y) until the lift (?yhalf=0) */ if(G.ex&&G.ex.divert)dmg*=.5; { const D=CHD[G.char], q=parseFloat(params.get('herodr')); const dr=isFinite(q)&&G.char!=='doc'?q:(D&&D.base&&D.base.dr)||0; if(dr)dmg*=1-dr }   /* per-hero survivability (Blake Oct 15: non-Doc heroes survive about as well as Doc; Doc has dr 0) */ if(G.ex&&(G.ex.ph===4||G.ex.ph===5))dmg*=.75;   /* bird inbound/landed: pressure lives in the hold (ph 3); the last 30 s stays tough but survivable */ if(PB.inside())dmg*=PB.DMG; if(src==='RPG/B-40 rocket'&&!PACE.mass(G))dmg*=.5;   /* early levels: B-40 is a threat cue, not a one-shot on Doc */ dmg=Math.max(1,Math.round(dmg*armorMul()*(1+holdT(G)/900))); src=src||'unknown'; PAD.rumble(120,Math.min(1,.25+dmg/40),.3);
+  { const W5=G.dw5||(G.dw5=[]); while(W5.length&&G.t-W5[0][0]>5)W5.shift(); let sum=0; for(const q of W5)sum+=q[1]; dmg=Math.min(dmg,Math.max(0,Math.round(p.maxHp*.3-sum))); if(dmg<=0){ p.invul=.2; return } W5.push([G.t,dmg]) }   /* RC2 (Gamer): Doc loses at most 40% max HP in any 5 s window */
   G.lastHit={src,dmg,t:G.t}; (G.hs||(G.hs={}))[src]=(G.hs[src]||0)+dmg;
   p.hp-=dmg; p.invul=.45; p.hurtT=.18; G.hurt=.5; G.shake=Math.max(G.shake,9); Snd.play('hurt');
   spawnDrops(p.x,p.y-6,0,0,12,130); if(rnd()<.6)addDecal(p.x+(rnd()-.5)*16,p.y+8,SPLAT[(rnd()*5)|0],30,.8);
@@ -3308,7 +3308,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
   gap(g,hold){ const b=hold?8:16; return this.SURGE&&!this.holdX(g)?Math.max(hold?6:7,b-9*this.esc(g)):b },
   lull(g,L){ if(!this.SURGE||this.holdX(g))return L; const e=this.esc(g); return [Math.max(5,L[0]-3*e),Math.max(8,L[1]-6*e)] },
   teamN(g){ return this.SURGE&&!this.holdX(g)?Math.floor(this.esc(g)*3):0 },
-  wave(g){ const e=this.esc(g), p=g.p; if(this.SURGE&&e>.45&&!PACE.hold(g)&&!this.holdX(g)){ const n=Math.min(Math.max(0,enemyCap(g)-enemies.length),Math.round(4+10*(e-.45)/.55)), a0=rnd()*TAU, R=Math.hypot(VW,VH)/2+90;   /* late surge: a rush on top of the fire teams */
+  wave(g){ const e=this.esc(g), p=g.p; if(this.SURGE&&e>.55&&!PACE.hold(g)&&!this.holdX(g)){ const n=Math.min(Math.max(0,enemyCap(g)-enemies.length),Math.round(4+10*(e-.55)/.45)), a0=rnd()*TAU, R=Math.hypot(VW,VH)/2+90;   /* late surge: a rush on top of the fire teams */
       for(let i=0;i<n;i++){ const a=a0+(rnd()-.5)*1.6; spawnEnemy(rnd()<.5?'vc':'nva',p.x+Math.cos(a)*(R+rnd()*80),p.y+Math.sin(a)*(R+rnd()*80),true) } }
     if(this.SAP&&g.t>90&&(!this.SAPT||rnd()<(this.night()?.45:.15)))this.sappers(g) },
   /* (b) barrage: 'INCOMING!' + whistle, red rings on the impact spots ~2 s before each round lands */
@@ -3413,7 +3413,7 @@ const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_
   tick(g,dt){ const P=g.pc||(g.pc={st:'lull',t:16,teams:[],n:0,log:[]}); P.teams=P.teams.filter(T=>FT.alive(T)>0&&!T.gone);
     const hold=this.hold(g), maxT=N2.maxT(g,hold?this.HOLD_TEAMS:this.MAX_TEAMS+((g.p.lvl|0)>=8?1:0));
     if(P.st==='lull'){ P.t-=dt; if(!P.bq&&P.t<=3.2&&g.t>50&&!hold){ P.bq=1; N2.barrage(g) } if(P.t<=0){ P.st='contact'; P.ct=0; P.bq=0; this.spawnTeam(g,hold); N2.wave(g) } }
-    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=N2.lull(g,hold?this.HOLD_LULL:this.LULL); P.t=L[0]+rnd()*(L[1]-L[0]); if(EARLY&&!hold&&g.t<330)P.t=Math.max(P.t,15+rnd()*5);   /* Gamer rc6 #5: a real 15-20 s breather after every surge */ P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)}); if(LULLCUE&&!hold&&!g.demo&&g.t>45&&P.t>=9&&g.t>=(P.lcT||0)){ P.lcT=g.t+40; P.lcN=(P.lcN|0)+1; const L=['Cease fire! They\'re pulling back.','Redistribute ammo, reload, check your weapons!','Wounded to Doc! Move \'em now!','They\'re regrouping. Check your ammo.']; if(!g.banner||g.banner.t<=0)g.banner={text:'LULL · REARM · TREAT WOUNDED',t:2.4,col:'#9fe07a'}; try{ gunny(L[(P.lcN-1)%L.length],2.6,1) }catch(e){} } }   /* rc7 #7: the lull is visible - Gunny line + green HUD cue, max once per 40 s, not in the pad hold (?lullcue=0) */
+    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=N2.lull(g,hold?this.HOLD_LULL:this.LULL); P.t=L[0]+rnd()*(L[1]-L[0]); if(EARLY&&!hold&&g.t<450)P.t=Math.max(P.t,15+rnd()*5);   /* Gamer rc6 #5: a real 15-20 s breather after every surge */ P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)}); if(LULLCUE&&!hold&&!g.demo&&g.t>45&&P.t>=9&&g.t>=(P.lcT||0)){ P.lcT=g.t+40; P.lcN=(P.lcN|0)+1; const L=['Cease fire! They\'re pulling back.','Redistribute ammo, reload, check your weapons!','Wounded to Doc! Move \'em now!','They\'re regrouping. Check your ammo.']; if(!g.banner||g.banner.t<=0)g.banner={text:'LULL · REARM · TREAT WOUNDED',t:2.4,col:'#9fe07a'}; try{ gunny(L[(P.lcN-1)%L.length],2.6,1) }catch(e){} } }   /* rc7 #7: the lull is visible - Gunny line + green HUD cue, max once per 40 s, not in the pad hold (?lullcue=0) */
       else if(P.teams.length<maxT&&P.ct>(hold?6:18)&&P.ct-(P.lastSp||0)>N2.gap(g,hold)){ this.spawnTeam(g,hold) } }
     for(const T of P.teams)FT.tick(T,g,dt) },
   spawnTeamAt(g,x,y,a){ for(let k=0;k<8&&riverAt(x,y);k++){ x+=(rnd()-.5)*160; y+=(rnd()-.5)*160 } return this.spawnTeam(g,this.hold(g),[x,y,a]) },
@@ -3463,7 +3463,7 @@ const FT={
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
     if(onScreen(e,8)){ SAMP.shooter=e.type; MIX.as('enemy',()=>Snd.play('vcshot'),d) }
     if(mt){ g.ftMs=(g.ftMs|0)+1; if(rnd()<PACE.M_HIT*(1-d/700)){ g.ftMh=(g.ftMh|0)+1; hurtMember(mt,PACE.M_DMG*(1+(g.p.lvl|0)*.05)) } return }
-    if(rnd()<PACE.SHOT_HIT*(EARLY?(g.t<270?.75:1):(g.t<165?1.15:1))*(1-d/700)*lateFire(g)*(LATE6&&g.t>360?LATE6:1)*(rd&&!mt?(g.t<330?PSDOC:PSDOC*.4):1))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
+    if(rnd()<PACE.SHOT_HIT*(EARLY?(g.t<420?.75:1):(g.t<165?1.15:1))*(1-d/700)*lateFire(g)*(LATE6&&g.t>360?LATE6:1)*(rd&&!mt?(g.t<330?PSDOC:PSDOC*.4):1))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
 /* early levels: the pad hold is a stand-up firefight, not a siege (Blake Oct 14) */
 const HOLD_EARLY={MUL:.65,CAP:26};
 function holdT(g){ return Math.max(0,g.t-(EX_CALL-30)) }   /* hold waves keyed to the old 0:30-call timeline, so a later call isn't a bigger siege */
@@ -4975,7 +4975,7 @@ const CORP={ON:!/[?&]corp=0\b/.test(location.search),T:4,CD:20,FRAC:.5,
     if(t){ if(t.hp<=0||t.hid||t.state!=='ok'){ this.end(m); return } if(Math.hypot(t.x-m.x,t.y-m.y)<22){ m.ht=(m.ht||0)+dt; m.mv=false; if(m.ht>=this.T){ t.hp=Math.min(t.mhp,t.hp+t.mhp*this.FRAC); (G.corpLog||(G.corpLog=[])).push(+G.t.toFixed(1)); this.end(m); m.hcd=this.CD } } return }
     if(m.hcd>0)return; let best=null,bd=420; for(const q of coy){ if(q===m||q.hp<=0||q.state!=='ok'||q.hid||q.hp>=q.mhp*.5||q.healBy)continue; const d=Math.hypot(q.x-m.x,q.y-m.y); if(d<bd){bd=d;best=q} }
     if(!best){ m.hcd=1; return } m.htg=best; m.ht=0; best.healBy=m; let cv=null,cd=1e9; for(const q of coy){ if(q===m||q===best||q.hp<=0||q.state!=='ok'||q.cov)continue; const d=Math.hypot(q.x-best.x,q.y-best.y); if(d<cd){cd=d;cv=q} } if(cv)cv.cov=best } };
-const INB_DM=(q=>isFinite(q)&&q>0?q:1.6)(parseFloat(new URLSearchParams(location.search).get('inbdm')));   /* RC4 balance: damage x during the bird-inbound phase (?inbdm=1 = rc3) */
+const INB_DM=(q=>isFinite(q)&&q>0?q:1.15)(parseFloat(new URLSearchParams(location.search).get('inbdm')));   /* RC4 balance: damage x during the bird-inbound phase (?inbdm=1 = rc3) */
 const HOME_CAP=12;   /* RC5 (QA): at most 12 Marines + Doc brought home: late company reinforcements stop landing once the pad is called */
 const Q15={HPM:2.2,names:['Sgt Savage','Cpl Washington','LCpl Ortiz','LCpl Brennan','PFC Jackson','PFC Delgado','PFC Murphy','PFC Haskins','LCpl Turner','PFC Romero','Pvt Lindqvist','PFC Banks','Cpl Yazzie','LCpl Fontaine'],
   roles:['rifle','m60','rifle','m79','m14','rifle','rifle','m60','rifle','m14','rifle','m79','rifle','rifle'],sizes:[4,5,5],hp:80};
