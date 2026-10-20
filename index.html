@@ -3275,13 +3275,14 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
 document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code==='KeyX')N2.press() });
 /* ===== PACE (Blake Oct 14: "most levels in the beginning are more firefights"): early levels are contacts with small NVA/VC fire teams and lulls between them;
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
+const EARLY=!/[?&]early=0\b/.test(location.search);   /* Gamer rc6 #5: gentler 1:00-4:30 + guaranteed lulls (?early=0 off) */
 const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.1,HOLD_DOC:+(new URLSearchParams(location.search).get('holddoc')||.18),M_TGT:.6,M_HIT:.4,M_DMG:38,SHOT_DMG:4,COVER_DR:.4,RET_AT:.25,
   mass(g){ return (g.p.lvl|0)>=this.MASS_LV||(g.massT>0) },
   hold(g){ const ex=g.ex; return !!(ex&&ex.ph>=4&&ex.ph<=5) },
   tick(g,dt){ const P=g.pc||(g.pc={st:'lull',t:16,teams:[],n:0,log:[]}); P.teams=P.teams.filter(T=>FT.alive(T)>0&&!T.gone);
     const hold=this.hold(g), maxT=N2.maxT(g,hold?this.HOLD_TEAMS:this.MAX_TEAMS+((g.p.lvl|0)>=8?1:0));
     if(P.st==='lull'){ P.t-=dt; if(!P.bq&&P.t<=3.2&&g.t>50&&!hold){ P.bq=1; N2.barrage(g) } if(P.t<=0){ P.st='contact'; P.ct=0; P.bq=0; this.spawnTeam(g,hold); N2.wave(g) } }
-    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=N2.lull(g,hold?this.HOLD_LULL:this.LULL); P.t=L[0]+rnd()*(L[1]-L[0]); P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)}) }
+    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=N2.lull(g,hold?this.HOLD_LULL:this.LULL); P.t=L[0]+rnd()*(L[1]-L[0]); if(EARLY&&!hold&&g.t<330)P.t=Math.max(P.t,15+rnd()*5);   /* Gamer rc6 #5: a real 15-20 s breather after every surge */ P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)}) }
       else if(P.teams.length<maxT&&P.ct>(hold?6:18)&&P.ct-(P.lastSp||0)>N2.gap(g,hold)){ this.spawnTeam(g,hold) } }
     for(const T of P.teams)FT.tick(T,g,dt) },
   spawnTeamAt(g,x,y,a){ for(let k=0;k<8&&riverAt(x,y);k++){ x+=(rnd()-.5)*160; y+=(rnd()-.5)*160 } return this.spawnTeam(g,this.hold(g),[x,y,a]) },
@@ -3328,7 +3329,7 @@ const FT={
     if(vtr.length<60)vtr.push({x:e.x+Math.cos(a)*9,y:e.y-3+Math.sin(a)*9,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:Math.max(.08,(d-26)/sp)}); e.mf=.07; MAGS.brass({aim:a},'ak',e.x,e.y);
     if(onScreen(e,8)){ SAMP.shooter=e.type; MIX.as('enemy',()=>Snd.play('vcshot'),d) }
     if(mt){ g.ftMs=(g.ftMs|0)+1; if(rnd()<PACE.M_HIT*(1-d/700)){ g.ftMh=(g.ftMh|0)+1; hurtMember(mt,PACE.M_DMG*(1+(g.p.lvl|0)*.05)) } return }
-    if(rnd()<PACE.SHOT_HIT*(g.t<165?1.15:1)*(1-d/700)*lateFire(g))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
+    if(rnd()<PACE.SHOT_HIT*(EARLY?(g.t<270?.75:1):(g.t<165?1.15:1))*(1-d/700)*lateFire(g))hurtPlayer(PACE.SHOT_DMG+(g.p.lvl|0)*.15,e.type==='vc'?'VC rifle fire':'NVA rifle fire') } };
 /* early levels: the pad hold is a stand-up firefight, not a siege (Blake Oct 14) */
 const HOLD_EARLY={MUL:.65,CAP:26};
 function holdT(g){ return Math.max(0,g.t-(EX_CALL-30)) }   /* hold waves keyed to the old 0:30-call timeline, so a later call isn't a bigger siege */
