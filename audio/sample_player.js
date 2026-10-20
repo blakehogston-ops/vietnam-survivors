@@ -60,13 +60,17 @@
     m79_launch:         { cat: 'gun',       prio: 2, gain: 0.404, vary: true, maxDur: 0.6 },
     m79_impact:         { cat: 'explosive', prio: 3, gain: 0.357, vary: true },
     b40_launch:         { cat: 'explosive', prio: 3, gain: 0.0853, vary: true },                // STAND-IN; short bang (b40Launch(), lead 1 s)
-    whistle:            { cat: 'signal',    prio: 3, gain: 0.333, vary: true },                // standard charge warning (chargeWarning(), lead 2 s)
-    bugle:              { cat: 'signal',    prio: 3, gain: 0.273 },                            // big night assault only; on via manifest cues.bigNightAssault.enabled
+    whistle:            { cat: 'signal',    prio: 3, gain: 0.4704, vary: true },   // rc8a +3 dB (was 0.333)
+                   // standard charge warning (chargeWarning(), lead 2 s)
+    bugle:              { cat: 'signal',    prio: 3, gain: 0.3856 },   // rc8a +3 dB (was 0.273)
+                               // big night assault only; on via manifest cues.bigNightAssault.enabled
     // river map (batch 3, on for the map build). The .50 shares the 6-gunshot cap; the loops use prio 5 so gunfire
     // never steals the engine or the river bed (a stolen loop would not come back).
     pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.241, vary: true },                 // STAND-IN .50 cal (M2 not confirmed)
-    pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.146, loop: true },                 // under the Huey loop
-    river_ambience_loop: { cat: 'ambience', prio: 5, gain: 0.062, loop: true },                 // under the footsteps
+    pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.1159, loop: true },   // rc8a -2 dB (was 0.146)
+                    // under the Huey loop
+    river_ambience_loop: { cat: 'ambience', prio: 5, gain: 0.35, loop: true },   // rc8a (AD) ~0.35 (was 0.062)
+                    // under the footsteps
     // weather (2026-10-14 night, 'ambience' group): loops prio 5 so gunfire never steals the bed; thunder prio 3, not a gun
     rain_light:         { cat: 'ambience',  prio: 5, gain: 0.2359, loop: true },                    // post-gain RMS -42
     rain_heavy:         { cat: 'ambience',  prio: 5, gain: 0.3057, loop: true },                    // post-gain RMS -40
@@ -79,7 +83,8 @@
     bomb_distant:       { cat: 'explosive', prio: 4, gain: 0.4513, vary: true },
     flamethrower_loop:  { cat: 'fire',      prio: 3, gain: 0.4582, loop: true },
     flamethrower_burst: { cat: 'fire',      prio: 3, gain: 0.4866, vary: true },
-    radio_squelch:      { cat: 'radio',     prio: 3, gain: 0.370, vary: true },
+    radio_squelch:      { cat: 'radio',     prio: 3, gain: 0.6504, vary: true },   // rc8a +4.9 dB (was 0.370), group radio
+   
     // ---- week of 2026-10-14 (build_weapons_oct14.py). Every shot slot is cat 'gun' (6-gunshot cap). Gains calibrated
     // to TARGET_POST in samples/measure_levels.py: rifles under the Huey, bomb and Gunny; bomb_distant stays loudest.
     bolt_rifle_shot:    { cat: 'gun',       prio: 2, gain: 0.1023, vary: true },                // M40 / Springfield (.308 Remington 700)
@@ -135,7 +140,8 @@
     hatch_metal:        { cat: 'foley',     prio: 2, gain: 0.2049 },   // metal hatch
     stage_hammer:       { cat: 'foley',     prio: 3, gain: 0.2278 },   // build stage complete: three hammer blows
     radio_tune:         { cat: 'radio',     prio: 3, gain: 0.5409 },   // Hanoi Hannah broadcast start: radio tuning static
-    sting_boss:         { cat: 'sting',     prio: 5, gain: 1.5866 },   // boss inbound: timpani hit
+    sting_boss:         { cat: 'sting',     prio: 5, gain: 0.35 },   // rc8a (AD) 0.35 (was 1.5866)
+      // boss inbound: timpani hit
     sting_evac:         { cat: 'sting',     prio: 5, gain: 0.5481 },   // evac fallback (music missing): acoustic C major
     sting_over:         { cat: 'sting',     prio: 5, gain: 0.53 },   // game-over fallback (music missing): acoustic chords -2 st
     // 2026-10-20 (samples/build_radio_oct20.py; new sources PENDING LEGAL)

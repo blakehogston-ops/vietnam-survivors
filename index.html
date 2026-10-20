@@ -8137,7 +8137,7 @@ const MIX={DB:{player:0,special:-7,squad:-4,enemy:3,amb:-10,rot:-8,mus:-14},   /
     if(gr==='specials'||gr==='radio'||gr==='sting')return 'special'; if(gr==='ambience')return 'amb'; if(gr==='foley')return 'player'; if(gr==='enemy')return 'enemy'; if(this.src)return this.src; if(this.GROUPED.has(sl))return gr;   /* RC3 (QA): enemy clips always on the enemy bus; m1911 keeps Sound Helper's squad group */ if(gr)return 'player';   /* untagged squad-group clips are the player's own (M60, cannon...) - Marines, PBR and the friendly tank are tagged squad */
     if(this.SPECIAL.has(sl)||/^bomb|^radio|flyby/.test(sl))return 'special'; if(this.ENEMYSL.has(sl))return 'enemy'; return 'player' },
   route(sl,s,o){ if(!this.c)return null; if(MENUQ())return {drop:true}; if(s.out==='rotor')return null; const b=o.bus||this.busOf(sl); const r={bus:b,dest:this.bus[b]};
-    if(b==='player'){ r.prio=9; r.cat=s.cat==='gun'?'pgun':s.cat }   /* the player's own sounds are never culled */
+    if(b==='player'){ r.prio=9; r.cat=s.cat==='gun'?'pgun':s.cat; if(sl==='m60_burst')r.vol=.8414 }   /* rc8a (AD): the player's own M60 -1.5 dB (squad M60s unchanged) */   /* the player's own sounds are never culled */
     else if(b==='enemy'||b==='squad'){ r.cap=(this.CAP[b]&&this.CAP[b][sl])||this.CAP._; const d=this.dist||0; r.vol=b==='enemy'?Math.max(.4,1-d/900):Math.max(.4,1-d/1100); if(b==='enemy')r.prio=Math.min(s.prio||2,2) }
     else if(b==='special'){ r.prio=8; if(this.DUCKERS.has(sl))this.duck() }
     if(this.st){ this.st[b]=(this.st[b]||0)+1 } return r },

@@ -45,7 +45,7 @@
       mortar_incoming:    { group: 'specials', batch: 1, files: ['mortar_incoming_1'] },             // Zagge28 (CC0)
       bomb_distant:       { group: 'specials', batch: 1, files: ['bomb_distant_2', 'bomb_distant_3', 'bomb_distant_4', 'bomb_distant_1'] },
                                                                                 // 2-4 Kostrava (CC0); 1 Baradari (CC-BY 3.0, credit)
-      radio_squelch:      { batch: 1, files: ['radio_squelch_1', 'radio_squelch_2', 'radio_squelch_3'] },  // pdsounds PD + JovianSounds CC0
+      radio_squelch:      { group: 'radio', batch: 1, files: ['radio_squelch_1', 'radio_squelch_2', 'radio_squelch_3'] },  // pdsounds PD + JovianSounds CC0
       huey_rotor_loop:    { batch: 1, files: ['huey_rotor_loop_1'], alt: ['huey_rotor_loop_rmutt'] },      // OroborosNZ CC-BY 4.0 (credit); alt Rmutt CC0
       // turret build clunks (batch 1, build phase): FreqMan sandbag (CC BY 4.0) + hotdogtornados ammo box (CC0) / FartBiscuit1700 clink (CC BY 3.0)
       turret_corner_build: { batch: 1, files: ['turret_corner_build_1'] },
