@@ -7515,7 +7515,7 @@ const IntroSnd={bus:null,gbus:null,rot:null,wind:null,
     if(fast!==false)Amb.kill(now,.1) }
 };
 
-window.__ms.IntroSnd=IntroSnd; window.__ms.startIntro=startIntro; window.__ms.hurtPlayer=hurtPlayer; window.__ms.RTO=RTO; window.__ms.edgeArrow=edgeArrow;
+Object.defineProperty(window.__ms,'ftexts',{get:()=>ftexts}); window.__ms.IntroSnd=IntroSnd; window.__ms.startIntro=startIntro; window.__ms.hurtPlayer=hurtPlayer; window.__ms.RTO=RTO; window.__ms.edgeArrow=edgeArrow;
 
 /* audio unlock for mobile browsers (iOS needs a gesture + playback audio session) */
 (function(){
