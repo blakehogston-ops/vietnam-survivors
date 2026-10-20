@@ -1,0 +1,88 @@
+IN-GAME CREDITS BLOCK - Last Bird Out: Quang Tri, 1968 (audio)
+Prepared 2026-10-08 (ET) by Sound Helper from samples/LICENSES.md (credit block) for Lead Developer.
+Everything between the two cut lines is ready to paste into the in-game Credits screen.
+
+Notes for Lead Developer (do not paste):
+- Every CC BY sound effect in samples/ogg + samples/m4a is credited below, with its licence link. Alt (fallback)
+  clips are included because they ship, whether or not they play.
+- The byjoshberry and NickTayloe lines cover the river-map files (pbr_engine_loop_1, river_ambience_loop_1),
+  which are ON in the 2026-10-14 map build (batch 3). Required CC BY credits: keep them.
+- Music (2026-10-14): three Kevin MacLeod tracks (menu, briefing, loss stings) are CC BY 4.0 and credited below.
+  Not included because they are not in the build: juskiddink "Military exercise.wav"; Lemon Knife music.
+- MultiMax2121, Mozfoo and areniporgen are deliberately absent (FAILED licence audits; areniporgen #693421 failed
+  the Oct 14 audit). qubodup is back ONLY for #840508 (CC0, phone recording, pending a listen for voices).
+  rob762x51 (minigun, CC0) is CONDITIONAL, pending Blake's decision.
+  The 2026-10-14 weapon/explosion lines (gezortenplotz .308, juskiddink quarry, CC0 names) are
+  pending the auditor; the cannon lines (daveincamas, Walking.With.Microphones, t-man95) passed with conditions (ear
+  check); the Walking.With.Microphones (cannon_76mm) line approved by Blake Oct 14.
+  craigsmith FAILED the audit (studio/film effects) and is deliberately absent.
+- knife_throw (2026-10-14): Legal PASS. The Sophia O. Caldwell line is required for knife_throw_2/3 (her whoosh);
+  kylepyke and Gingie (fallback only) are courtesy names.
+- Blake's new features (2026-10-14 evening): poissonmort (smg_m45_burst), Geoff-Bremner-Audio (pistol22_suppressed),
+  Franki-01234 (alt only), wjauch (ear-check dock voices), LukaCafuka and dynamique — Legal PASS 2026-10-14.
+  The other new slots reuse sources already credited (FFSL, LeMudCrab, FreqMan, hotdogtornados, FartBiscuit1700,
+  Nox_Sound, byjoshberry, NickTayloe, Fight2FlyPhoto, OroborosNZ, pdsounds, JovianSounds).
+- Keep THIRD_PARTY_AUDIO.txt (per-file list) next to the executable as well.
+
+----------8<---------- cut here ----------8<----------
+AUDIO
+
+Sound effects (Creative Commons Attribution)
+- "UH-1 "Huey" Iroquois Helicopter" by OroborosNZ, https://freesound.org/people/OroborosNZ/sounds/157722/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, looped, level-adjusted.
+- "Explosion" from "2 High Quality Explosions", (c) Michel Baradari (apollo-music.de), https://opengameart.org/content/2-high-quality-explosions, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: low-pass filtered, echo added, shortened; also layered unfiltered into close-explosion clips.
+- Footsteps from "Footsteps on different surfaces" by congusbongus, https://opengameart.org/content/footsteps-on-different-surfaces, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). That pack is derived from: "footstep-wood.wav", "footstep-grass.wav" and "footstep-concrete.wav" by swuing (https://freesound.org/people/swuing/sounds/38876/, https://freesound.org/people/swuing/sounds/38874/, https://freesound.org/people/swuing/sounds/38873/); "boots on aluminum ladder 01" by Eelke (https://freesound.org/people/Eelke/sounds/462598/); "Water Footsteps" by EminYILDIRIM (https://freesound.org/people/EminYILDIRIM/sounds/608663/). The original recordings are licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), as shown on their Freesound pages. Further edited for this game: trimmed, level-matched, peak-limited.
+- "referee_whistle_01.wav" by joedeshon, https://freesound.org/people/joedeshon/sounds/78508/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, level.
+- "Old rusty police whistle being blowen.wav" by bigal13, https://freesound.org/people/bigal13/sounds/654496/, and "WHSTMech-Blue Snowball Microphone_Whistle, Pea, Blow, Distant_Nicholas Judy_TDC" by designerschoice (recorded by Nicholas Judy), https://freesound.org/people/designerschoice/sounds/815647/. Both CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, level.
+- "JetDielefsiF5Good_ST.wav" by kleanthism, https://freesound.org/people/kleanthism/sounds/183627/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, mixed to mono, faded in and out, level.
+- "A-1H Skyraider and P-47D Thunderbolt Flyby" by Fight2FlyPhoto, https://freesound.org/people/Fight2FlyPhoto/sounds/143564/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, mixed to mono, faded in and out, level.
+- "c130_swamp.wav" by gezortenplotz, https://freesound.org/people/gezortenplotz/sounds/151828/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, mono, filtered, faded in and out, level.
+- "sandbag.wav" by FreqMan, https://freesound.org/people/FreqMan/sounds/43607/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, low-pass filtered, layered with other sounds, level.
+- "Metal being dropped on concrete surface" by FartBiscuit1700, https://freesound.org/people/FartBiscuit1700/sounds/322477/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, filtered, layered with other sounds, level.
+- "308_rifle_02.wav" by gezortenplotz, https://freesound.org/people/gezortenplotz/sounds/43756/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, mono, filtered, level.
+- "Quarry blasting.wav" by juskiddink, https://freesound.org/people/juskiddink/sounds/82682/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, mono, low-pass filtered, layered with other sounds, level.
+- "Longsword Swing 1 {Good edge alignment}" by Sophia O. Caldwell, https://freesound.org/people/Sophia_C/sounds/525166/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, pitched up, filtered, layered with other sounds, level.
+- "21GunSalute.wav" by daveincamas, https://freesound.org/people/daveincamas/sounds/43783/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, mono, filtered, level.
+- "ZiS-3 (Зис 3) guns and firework in honor of day of the 75th anniversary of Sevastopol Liberation." by Walking.With.Microphones, https://freesound.org/people/Walking.With.Microphones/sounds/556134/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, mono, filtered, level.
+- "Stengun near 1" by poissonmort, https://freesound.org/people/poissonmort/sounds/157206/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, mono, re-spliced rounds, level.   [PASS]
+- "22lr Caliber Rifle Shots and Reloading" by Geoff-Bremner-Audio, https://freesound.org/people/Geoff-Bremner-Audio/sounds/717133/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, mono, low-pass filtered, layered, level.   [PASS]
+- "Diesel boat engine" by byjoshberry, https://freesound.org/people/byjoshberry/sounds/435669/, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: looped, filtered, level.
+- "Small Whirlpool Current by Flooding Creek Bridge (loop)" created by NickTayloe on Freesound.org, https://freesound.org/people/NickTayloe/sounds/851608/, under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: shortened loop, mono, filtered, level.
+- (weather, Legal PASS) "20180616 - Tropical rain Thailand 02.wav" by LG, https://freesound.org/people/LG/sounds/462774/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: excerpt looped with a crossfade, mono, high-pass filtered, level.   [PASS with credit]
+
+Music (Creative Commons Attribution)
+- "Happy Bee - Surf" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / https://creativecommons.org/licenses/by/4.0/
+- "DD Groove" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / https://creativecommons.org/licenses/by/4.0/
+- "Last Kiss Goodnight" Kevin MacLeod (incompetech.com) / Licensed under Creative Commons: By Attribution 4.0 / https://creativecommons.org/licenses/by/4.0/
+  (excerpts and loops of the original recordings; level matched)
+
+- "Real Colt 45 M1911 (shot)" by Carmelomike, https://freesound.org/people/Carmelomike/sounds/255216/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, filtered, level.  [Legal PASS]
+- "M4 Charging Handle 1.mp3" by Pjkasinski3, https://freesound.org/people/Pjkasinski3/sounds/174059/, licensed CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/). Edited: trimmed, filtered, layered, level.  [Legal PASS]
+- "Dog tags swinging.wav" by Jolindi, https://freesound.org/people/Jolindi/sounds/654282/, licensed CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Edited: trimmed, filtered, layered, level.  [Legal PASS]
+
+Music (Creative Commons Attribution)
+- "Heavy Pizza Jam" by Ə (Petites Maisons / Jangwa Nook Records), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: https://freemusicarchive.org/music/e/heavy-pizza-jams/heavy-pizza-jam/ - edited (looped/trimmed).
+<!-- ALTERNATE (combat_4, paste only if Blake swaps out NewEraMusic): - "Rock Oco" by Ə (Petites Maisons / Jangwa Nook Records), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: https://freemusicarchive.org/music/e/heavy-pizza-jams/rock-oco/ - edited. -->
+
+Music (with thanks)
+- "PSYCH ROCK" by fredsylvestre66 and "60s Garage Rock - No voice edit" by Abydos_Music, via Pixabay
+- "60s Rock" by Abydos_Music, via Pixabay   [PASS WITH CONDITIONS: medium YouTube Content ID risk — Blake should privately test-upload a clip; same risk on shipping Abydos "60s Garage Rock"]
+- "Solemn Asian String Melody Loop (Wind, Water, Wood)" by CVLTIV8R, via Freesound (CC0)   [PASS WITH CONDITIONS: low-medium Kontakt terms risk; rebuilt from original WAV. nqhieu2023 Pixabay #433110 REJECTED]
+- "Marines' Hymn", performed by the United States Marine Band ("The President's Own")
+- "The Thunderer" (John Philip Sousa, 1889), performed by "The President's Own" United States Marine Band (2017). Public domain. Use does not imply endorsement by the U.S. Marine Corps or DoD.
+- "Semper Fidelis" (John Philip Sousa, 1888), performed by "The President's Own" United States Marine Band (2016). Public domain. Use does not imply endorsement by the U.S. Marine Corps or DoD.
+- "When Johnny Comes Marching Home", performed by the United States Navy Band Brass Quartet. Public domain. Use does not imply endorsement by the U.S. Navy or DoD.
+- "60s Underground Organ Rock" by JuliusH, via Pixabay (https://pixabay.com/music/vintage-60s-underground-organ-rock-4209/) <!-- combat_2: Legal review pending -->
+- "Steampunk Garage" by Pixabay user 4379051, via Pixabay (https://pixabay.com/music/rock-steampunk-garage-142325/) <!-- combat_3: Legal review pending -->
+- "Garage Rock" by NewEraMusic, via Pixabay (https://pixabay.com/music/rock-garage-rock-559346/) <!-- combat_4: current track per Blake ("keep it for now"); Legal flagged likely AI; review pending; alternate Rock Oco above -->
+
+Additional sounds (CC0 / public domain / Pixabay; credited with thanks)
+Free Firearm Sound Library (Ben Jaszczak, Brian Nelson, Kevin Heras, Matthew Nanney); Rmutt; FranklinRook1984; Zagge28; Kostrava; AslakHostaker; JovianSounds; Nox_Sound; j1987; conleec; klangfabrik; felix.blume; Auxide_Audio; LeMudCrab; vabadus; barryshamir; greenbastardd; surrey_film; hotdogtornados; AnthonyChan0; AugustSandberg; rob762x51; modusmogulus; qubodup; samararaine; SGAK; vckhaze; t-man95; kylepyke; Gingie; pdsounds.org (Marcus Kuerten, Stephan Möbius); "PSYCH ROCK" by fredsylvestre66 via Pixabay; U.S. Marine Band.; Franki-01234 (alt only); wjauch (ear-check dock voices); LukaCafuka; dynamique  [Legal PASS 2026-10-14]
+Weather (CC0, courtesy; Legal PASS): nyoz (light tropical rain), Sassaby (rain on a tin roof, low risk), TRP (thunder), richwise (distant thunder)
+
+Foley, UI and stings (CC0, courtesy; Legal PASS): C-V, Rudmer_Rotteveel, SecureSubset, Sojan, Sorinious_Genious, Wigglesworth, cognito perceptu, deleted_user_7146007, dmj, klakmart, o_ciz, quantumriver, sgrowe, spitefuloctopus, vckhaze
+
+Full per-file sources and licences: THIRD_PARTY_AUDIO.txt
+----------8<---------- cut here ----------8<----------
+
+
+[2026-10-20] The paste block now covers the full shipping music set (menu intro + loop, combat 1-5, extraction, win, loss/stings). Items marked <!-- ... --> are HTML comments: invisible when pasted into index.html; strip them if pasting anywhere else.
