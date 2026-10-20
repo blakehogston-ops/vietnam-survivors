@@ -2941,7 +2941,7 @@ function drawCrossings(x0,y0,x1,y1,t){ const fr=TERR.frame;
 function fbLanding(f){ const r=nearestRiver(f.x,f.y); if(!r)return null; if(r.h){ const cy=rowCy(r.wy,f.x), s=Math.sign(f.y-cy); return {h:true,x:f.x,y:cy+s*(MAPB.HW-4),s,u:f.x,r} } const cx=colCx(r.wx,f.y), s=Math.sign(f.x-cx); return {h:false,x:cx+s*(MAPB.HW-4),y:f.y,s,u:f.y,r} }
 function fbProps(f){ const out=[]; let k=0;
   if(FB2){ for(const L of (f.lay||[])){ if(L[0]!=='bunker'&&L[0]!=='cp')continue; const h=hash2(k*7+3,9); k++; out.push([h>.6?'fbDrums':'fbDrum',h>.6?'group':'od',L[1]+(L[0]==='cp'?-34:-36),L[2]+18]) }
-    const X=f.x, Y=f.y; out.push(['fbAmmo','crate',X-92,Y+44],['fbAmmo','stack',X-34,Y+136],['fbAmmo','open',X+138,Y+24],['fbAmmo','crate',X+6,Y-92],['fbAmmo','stack',X+96,Y+58]);   /* crates beside the pits and CP */
+    const X=f.x, Y=f.y; out.push(['fbAmmo','crate',X-92,Y+44],['fbAmmo','stack',X-34,Y+136],['fbAmmo','open',X+112,Y+150],['fbAmmo','crate',X+6,Y-92],['fbAmmo','stack',X+96,Y+58]);   /* crates beside the pits and CP */
     out.push(['fb2WaterBuffalo','v0',X+30,Y+50,.5]);   /* water trailer in the open by the mess */
     for(const [fx,fy,fc] of [[-100,165,'S'],[90,-165,'N'],[165,90,'E'],[-165,-100,'W']])out.push(['fb2FightPos',fc,X+fx,Y+fy,.625,1]);   /* sandbagged foxholes along the inside of the wall */
     return out }   /* rc8 C8: ammo lives in the 3 revetted pits; fuel drums only beside bunker/CP */
@@ -3107,7 +3107,7 @@ const ITEMS={
     stats:l=>({hp:80+30*(l-1),dm:1+.2*(l-1),cd:120-15*(l-1)}),
     desc:s=>`2 CH-46s x 10 Marines · HP ${Math.round(s.hp)} each · dmg x${s.dm.toFixed(2)} · call-in cooldown ${s.cd.toFixed(0)}s (needs <=5 survivors)`},
   medevac:{kind:'w',name:'Medevac (CH-46)',max:3,req:()=>!!G&&!G.demo&&G.p.lvl>=5,
-    blurb:'Radio for a Marine CH-46 Sea Knight medevac ("Medevac inbound, urgent"). It hovers over you for a few seconds and heals EVERYONE nearby: you, your squad and patrol Marines, Company Reinforcement Marines, the tank and the firebase engineers. Only comes when someone is hurt. Separate from the one-time Emergency Medevac revive. Higher levels: bigger heal, shorter cooldown.',
+    blurb:'Radio for a Marine CH-46 Sea Knight medevac ("Medevac inbound, emergency"). It hovers over you for a few seconds and heals EVERYONE nearby: you, your squad and patrol Marines, Company Reinforcement Marines, the tank and the firebase engineers. Only comes when someone is hurt. Separate from the one-time Emergency Medevac revive. Higher levels: bigger heal, shorter cooldown.',
     stats:l=>({frac:.2+.2*l,cd:90-12*(l-1)}),
     desc:s=>`Heals everyone ${Math.round(s.frac*100)}% max HP over ~3.5s · cooldown ${s.cd.toFixed(0)}s`},
   grease:{kind:'w',name:'M3A1 "Grease Gun"',max:8,req:()=>!!G&&G.char==='chef',
@@ -3809,7 +3809,7 @@ function update(dt){
   if(massOn&&g.t>=g.nextSurge){surge();g.nextSurge=Math.max(g.nextSurge+60,g.t+30)}
   if(g.t>=g.nextBoss&&!g.exHold&&!(g.q15&&g.ex&&g.t>=EX.PAD_T-30)&&!(fbS&&fbS.age<90)){   /* Stage 1: no boss once the pad is about to be marked - the hold is the siege */spawnBoss();g.nextBoss=Math.max(g.nextBoss+180,g.t+60)}
   if(g.t>=g.nextRpgT&&!g.demo&&!(fbS&&fbS.age<90)){ let n=0; for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(e.type==='rpgt'&&!e.dead)n++ }
-    const cap=PACE.mass(g)?Math.min(4,2+Math.floor((g.t-240)/240)):Math.min(2,1+Math.floor((g.t-EX.PAD_T)/120));   /* early levels: at most 1-2 B-40 teams, from ~75 s into the pad hold */ if(n<cap){ const e0=spawnEnemy('rpgt'); if(e0){ e0.cdash=2.5+rnd()*2; if(g.t>=720&&rnd()<.5){ e0.rpg7=true; if(!g.rpg7Seen){ g.rpg7Seen=true; g.banner={text:'RPG-7 ISSUED! FASTER ROCKETS',t:3,col:'#ff8a4a'} } } g.nextRpgT=g.t+14+rnd()*8; if(!g.rpgSeen){ g.rpgSeen=true; g.banner={text:'B-40 ROCKET TROOPERS! WATCH YOUR ARMOR & HUEYS',t:3,col:'#ff9a5a'} } } } else g.nextRpgT=g.t+5 }
+    const cap=PACE.mass(g)?Math.min(4,2+Math.floor((g.t-240)/240)):Math.min(2,1+Math.floor((g.t-EX.PAD_T)/120));   /* early levels: at most 1-2 B-40 teams, from ~75 s into the pad hold */ if(n<cap){ const e0=spawnEnemy('rpgt'); if(e0){ e0.cdash=2.5+rnd()*2; if(g.t>=720&&rnd()<.5){ e0.rpg7=true; if(!g.rpg7Seen){ g.rpg7Seen=true; g.banner={text:'RPG-7 ISSUED! FASTER ROCKETS',t:3,col:'#ff8a4a'} } } g.nextRpgT=g.t+14+rnd()*8; if(!g.rpgSeen){ g.rpgSeen=true; g.banner={text:'B-40 ROCKET TROOPERS! WATCH YOUR ARMOR & BIRDS',t:3,col:'#ff9a5a'} } } } else g.nextRpgT=g.t+5 }
   CURW=''; updateWeapons(dt); CURW='';
   // enemies
   const far=Math.hypot(VW,VH)/2+260;
@@ -4233,14 +4233,14 @@ const URG={ON:!/[?&]urg=0\b/.test(location.search), P:.3, CD:75, MAX:2, h:null, 
     let m=null; for(const q of coy){ if(q.hp>0&&q.state==='ok'&&!q.hid&&q.hp<q.mhp*.6&&(!m||q.hp/q.mhp<m.hp/m.mhp))m=q } if(!m)return;
     this.n++; this.at=g.t; m.urg=true; const a=rnd()*TAU, R0=Math.hypot(VW,VH)/2+380;
     this.h={m,x:m.x+Math.cos(a)*R0,y:m.y+Math.sin(a)*R0,z:110,hd:a+Math.PI,rot:0,ch46:true,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,lt:0,out:0};
-    g.banner={text:'RADIO: URGENT MEDEVAC INBOUND FOR '+(m.nm||'A MARINE').toUpperCase(),t:2.8,col:'#9be37a'}; Snd.play('radio');
+    g.banner={text:'RADIO: EMERGENCY MEDEVAC INBOUND FOR '+(m.nm||'A MARINE').toUpperCase(),t:2.8,col:'#9be37a'}; Snd.play('radio');
     (g.urgLog||(g.urgLog=[])).push({t:+g.t.toFixed(1),ev:'call',nm:m.nm}) },
   tick(dt){ const h=this.h; if(!h)return; const g=G, m=h.m; h.t+=dt; h.rot+=dt*20;
     if(h.ph===0){ if(m.hp<=0){ h.ph=2; h.ex=h.hd; return } const dx=m.x-h.x, dy=m.y-4-h.y, d=Math.hypot(dx,dy)||1, sp=Math.min(260,50+d*1.1); try{ if(d<330)SeaKnightS.cue(h,'in') }catch(e){}
       h.x+=dx/d*sp*dt; h.y+=dy/d*sp*dt; h.hd=turnTo(h.hd,Math.atan2(dy,dx),1.8*dt); if(d<300)h.z+=(30-h.z)*Math.min(1,dt*1.5); if(d<16){ h.ph=1; h.lt=0 } }
     else if(h.ph===1){ h.lt+=dt; h.z+=(14-h.z)*Math.min(1,dt*3); h.x+=(m.x-h.x)*Math.min(1,dt*3); h.y+=(m.y-4-h.y)*Math.min(1,dt*3); try{ SeaKnightS.cue(h,'hover') }catch(e){}
       if(h.lt>2.4){ const i=coy.indexOf(m); if(i>=0&&m.hp>0){ coy.splice(i,1); for(const q of coy){ if(q.cov===m)q.cov=null; if(q.htg===m)q.htg=null } (g.urgL||(g.urgL=[])).push(m.nm||'Marine'); g.urgLog.push({t:+g.t.toFixed(1),ev:'out',nm:m.nm});
-          g.banner={text:'URGENT MEDEVAC: '+(m.nm||'MARINE').toUpperCase()+' IS OUT',t:2.4,col:'#9be37a'}; Snd.play('radio') } h.ph=2; h.ex=h.hd+(rnd()-.5)*.8 } }
+          g.banner={text:'EMERGENCY MEDEVAC: '+(m.nm||'MARINE').toUpperCase()+' IS OUT',t:2.4,col:'#9be37a'}; Snd.play('radio') } h.ph=2; h.ex=h.hd+(rnd()-.5)*.8 } }
     else { try{ SeaKnightS.cue(h,'out') }catch(e){} h.out+=dt; h.z+=(40*h.out+8)*dt; h.hd=turnTo(h.hd,h.ex,1.2*dt); h.x+=Math.cos(h.hd)*(40+200*h.out)*dt; h.y+=Math.sin(h.hd)*(40+200*h.out)*dt; if(h.out>7)this.h=null } },
   draw(){ if(this.h)drawHuey(this.h) } };
 /* KIA (Blake): a short, dignified notice when a Marine falls ("KIA: LCpl Ortiz"), muted typewriter style, queued, soft radio tone.
@@ -4448,11 +4448,12 @@ const MEDV={ON:!/[?&]medv=0\b/.test(location.search)&&!!(window.AID_JEEP&&window
    Strongpoint: 2 hull-down in berm revetments on the west wall, nose out, M1919 .30 cal from the cupola in short bursts with pauses.
    Patrol: by day, when quiet, the pair rolls slowly round the cleared field outside the wire (~2.5 hull lengths apart), stopping to fire;
    never at night, never alone, never through jungle/water (route checked once per base), back home if an RPG team is near.
-   Breach: nearest idle amtrac blocks the breached wall from inside, .30 cal firing, riders dismount off the rear and fire.
+   Breach: nearest idle amtrac blocks the breached wall from inside, .30 cal firing, riders dismount off the bow ramp and fire.
    Shuttle: a Marine at <=25% outside the wall (520 px, clear ground) -> drives out via the west gate, loads him, drops him at the aid tent
    (medevac/carrier flow). 4-8 riders on the roof while moving. 3 RPG hits disable one: burns (vehicle_hits cook-off), crew of 3 bails out.
-   Speed: road 195 px/s (a running Marine is 178), half in paddy/mud; patrol 90. Dust trail + track marks in the laterite. No LVTH-6 (no art). */
+   Speed: road 195 px/s (a running Marine is 178), half in paddy/mud; patrol 90. Dust trail + track marks in the laterite. */
 const AMT={ON:!/[?&]amtrac=0\b/.test(location.search), V:[], f:null, trk:[], crew:[], log:[],
+  segOk(a,b){ for(let u=0;u<=1;u+=.04){ const x=a[0]+(b[0]-a[0])*u, y=a[1]+(b[1]-a[1])*u; if(riverAt(x,y))return false; const k=TERR.mat(Math.floor(x/32),Math.floor(y/32)); if(k==='J'||k==='E'||k==='W')return false } return true },   /* no jungle/water on the shuttle out-leg */
   ok(){ return this.ON&&FB2&&!!(window.SHEET1&&SHEET1.drawLVTP5) },
   slots(f){ return [{x:f.x-180,y:f.y-50},{x:f.x-180,y:f.y+100},{x:f.x+195,y:f.y+55,lvth:1}] },
   reset(){ this.V=[]; this.f=null; this.trk=[]; this.crew=[]; this.log=[] },
@@ -4489,18 +4490,18 @@ const AMT={ON:!/[?&]amtrac=0\b/.test(location.search), V:[], f:null, trk:[], cre
     for(const v of this.V){ v.mv=0; v.spd=0; if(v.hf>0)v.hf-=dt; if(v.dead)continue; if(v.lvth){ this.lvth(v,dt); continue }
       if(v.mode==='hold'){ v.h=turnTo(v.h,Math.PI,2*dt); this.gun(v,dt,320);
         if(!late&&!v.m&&!v.lvth){ let b=null; for(const m of coy){ if(!(m.hp>0)||m.hid||m.amt||m.medv||m.hp>m.mhp*.25)continue; const c=Math.max(Math.abs(m.x-f.x),Math.abs(m.y-f.y)); if(c>FBS&&Math.hypot(m.x-f.x,m.y-f.y)<520&&!this.near(m.x,m.y,140)){ b=m; break } }
-          if(b&&!this.rpgNear(b,300)){ b.amt=1; v.m=b; v.load=0; this.path(v,[[v.hx+40,v.hy]].concat(this.gateOut(v)).concat([[b.x,b.y]]),'shuttle',195); this.log.push([+g.t.toFixed(1),'shuttle',v.i,b.nm]); continue } }
+          if(b&&!this.rpgNear(b,300)&&this.segOk([v.hx-60,v.hy],[b.x,b.y])){ b.amt=1; v.m=b; v.load=0; this.path(v,[[v.hx+40,v.hy]].concat(this.gateOut(v)).concat([[b.x,b.y]]),'shuttle',195); this.log.push([+g.t.toFixed(1),'shuttle',v.i,b.nm]); continue } }
         if(!v.lvth&&this.loopOk&&!night&&!late&&live.length===2&&this.qt>20&&v.i===0&&live.every(q=>q.mode==='hold')){ const H=345, L=[[f.x-H,f.y-30],[f.x-H,f.y-H],[f.x+H,f.y-H],[f.x+H,f.y+H],[f.x-H,f.y+H],[f.x-H,f.y+30],[f.x-262,f.y+30],[f.x-120,f.y+30]];
           for(const q of live){ this.path(q,[[q.hx+40,q.hy]].concat(this.gateOut(q)).concat(L).concat([[q.hx+40,q.hy],[q.hx,q.hy]]),'patrol',90); q.dl=q.i?3.2:0 } this.log.push([+g.t.toFixed(1),'patrol']); this.qt=-60 } }
       else if(v.mode==='patrol'){ if(v.dl>0){ v.dl-=dt; continue } const e=this.near(v.x,v.y,260); if(this.rpgNear(v,350)||night){ this.home(v); continue }
         if(e){ this.gun(v,dt,260); continue }   /* stop to fire */ if(this.drive(v,dt)){ v.mode='hold'; v.x=v.hx; v.y=v.hy } }
-      else if(v.mode==='breach'){ if(v.path){ this.drive(v,dt); continue } if(v.gap)v.h=turnTo(v.h,Math.atan2(v.gap[1]-v.y,v.gap[0]-v.x),2*dt); this.gun(v,dt,280); v.dis=Math.min(1,v.dis+dt); if(v.dis>=1){ const e=this.near(v.x,v.y,200); if(e&&rnd()<dt*3){ dmgSrc=1; hurtEnemy(e,6); dmgSrc=0 } }   /* riders off the rear, firing */
+      else if(v.mode==='breach'){ if(v.path){ this.drive(v,dt); continue } if(v.gap)v.h=turnTo(v.h,Math.atan2(v.gap[1]-v.y,v.gap[0]-v.x),2*dt); this.gun(v,dt,280); v.dis=Math.min(1,v.dis+dt); if(v.dis>=1){ const e=this.near(v.x,v.y,200); if(e&&rnd()<dt*3){ dmgSrc=1; hurtEnemy(e,6); dmgSrc=0 } }   /* riders off the bow ramp, firing */
         if(!this.near(v.x,v.y,180)&&g.t-v.bt>25){ v.dis=0; this.home(v) } }
       else if(v.mode==='shuttle'){ const m=v.m; if(!m||m.hp<=0||!coy.includes(m)){ if(m)m.amt=0; v.m=null; this.home(v); continue } if(this.rpgNear(v,300)){ m.amt=0; v.m=null; this.home(v); continue }
         if(v.path&&!v.load)v.path[v.path.length-1]=[m.x,m.y]; if(v.load){ m.x=v.x; m.y=v.y }
         if(this.drive(v,dt)){ if(!v.load){ v.load=1; m.hid=1; this.path(v,[[f.x-262,f.y-30],[f.x-120,f.y-30],[f.x+20,f.y-30]],'shuttle',195) } else { const a=fbAidPos()||f; m.hid=0; m.amt=0; m.x=a.x-20; m.y=a.y+20; this.log.push([+g.t.toFixed(1),'aid',v.i,m.nm]); v.m=null; v.load=0; this.path(v,[[f.x-120,f.y-30],[v.hx+40,v.hy],[v.hx,v.hy]],'home',195) } } }
-      else if(v.mode==='home'){ if(this.drive(v,dt)){ v.mode='hold'; v.x=v.hx; v.y=v.hy } this.gun(v,dt,200) }
-      v.riders=(v.mv&&(v.mode==='patrol'||v.mode==='breach'||v.mode==='home'))?4+(v.i*3+((v.hx|0)&1))%5:0; v.aim=v.tg?Math.atan2(v.tg[1]-v.y,v.tg[0]-v.x):v.h }
+      else if(v.mode==='home'){ if(this.drive(v,dt)){ v.mode='hold'; v.x=v.hx; v.y=v.hy } if(!v.mv)this.gun(v,dt,200) }   /* .30 only when stopped */
+      v.riders=(v.mv&&(v.mode==='patrol'||v.mode==='breach'||v.mode==='home'||v.mode==='shuttle'))?4+(v.i*3+((v.hx|0)&1))%5:0; v.aim=v.tg?Math.atan2(v.tg[1]-v.y,v.tg[0]-v.x):v.h }
     for(let i=this.crew.length-1;i>=0;i--){ const c=this.crew[i]; c.t+=dt; const dx=c.tx-c.x,dy=c.ty-c.y,d=Math.hypot(dx,dy); if(d>4){ c.x+=dx/d*150*dt; c.y+=dy/d*150*dt } if(c.t>8)this.crew.splice(i,1) } },
   /* burning look in ONE place (art now; VFX shared flame renderer later): returns the drawLVTP5 burning flag */
   burnFx(v){ return v.dead?1:0 },
@@ -5146,7 +5147,7 @@ function medevacUnits(){ const g=G,out=[g.p]; for(const arr of [squad,pat,coy])f
 function medevacNeeded(){ const p=G.p; if(p.hp<p.maxHp*.8)return true; let n=0; for(const u of medevacUnits()){ if(u!==p&&u.hp<u.mhp*.6)n++ } return n>=3 }
 function callMedevac(s){ const g=G,p=g.p, a=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+170;
   medevac={x:p.x+Math.cos(a)*Rf,y:p.y+Math.sin(a)*Rf,a,ph:0,t:0,hold:0,tk:0,hd:a+Math.PI,rot:0,hp:1,mhp:0,hf:0,mf:[0,0],z:34,s,vs:60,medic:true};
-  g.ms.calls++; g.banner={text:'MEDEVAC INBOUND, URGENT',t:2.4,col:'#ff9a8a'}; Snd.cue('medevacCall'); Amb.support(8) }
+  g.ms.calls++; g.banner={text:'MEDEVAC INBOUND, EMERGENCY',t:2.4,col:'#ff9a8a'}; Snd.cue('medevacCall'); Amb.support(8) }
 function medevacHeal(u,frac,scale){ if(u.hp<=0)return; const mx=u.maxHp||u.mhp, add=Math.min(mx-u.hp,mx*frac*scale); if(add<=0)return; u.hp+=add; u._mh=(u._mh||0)+add; G.ms.healed+=add }
 function updateMedevac(dt){ const g=G,p=g.p,h=medevac; updateHealFx(dt); if(g.demo||!g.char||!g.ms)return; if(!h)return; h.t+=dt; h.rot+=dt*34; if(!h.sa&&h.t>=.6){ h.sa=1; (RotorS.ok()||Snd.cue('medevacHuey')) }
   const hx=p.x, hy=p.y-6;
@@ -5994,7 +5995,7 @@ function fbLayout(f){ const L=[], C=f;
 function fbLayout2(f,L,wall){ const C=f, n0=()=>L.length;
   wall(FBS,15,40,'sandbag',.02,.28,0); if(AMT.ON)for(let i=L.length-1;i>=0;i--){ const q=L[i]; if(q[0]==='sandbag'&&Math.abs(q[1]-(C.x-FBS))<1&&(Math.abs(q[2]-(C.y-50))<40||Math.abs(q[2]-(C.y+100))<40))L.splice(i,1) } if(AMT.ON)for(let i=L.length-1;i>=0;i--){ const q=L[i]; if(q[0]==='sandbag'&&Math.abs(q[1]-(C.x+FBS))<1&&Math.abs(q[2]-(C.y+55))<40)L.splice(i,1) }   /* amtrac revetments sit in the west wall line */
   L.push(['bunker',C.x-90,C.y-78,0,.33,1]); L.push(['cp',C.x-20,C.y-100,0,.35,1]);
-  L.push(['ammo',C.x-120,C.y+40,0,.36,1]); L.push(['ammo',C.x-60,C.y+130,0,.37,1]); L.push(['ammo',C.x+110,C.y+20,0,.38,1]);
+  L.push(['ammo',C.x-120,C.y+40,0,.36,1]); L.push(['ammo',C.x-60,C.y+130,0,.37,1]); L.push(['ammo',C.x+140,C.y+165,0,.38,1]);
   const T=[['m2',-1,-1,.40],['m60',1,-1,.44],['m2',1,1,.48],['m60',-1,1,.52],['m60',0,-1,.55],['m2',1,0,.58],['m60',0,1,.61],['m2',-1,0,.64]];
   for(const [ty,sx,sy,at] of T){ const x=sx*(FBS-56), y=sy*(FBS-56); L.push([ty,C.x+x,C.y+y,Math.atan2(sy||0,sx||0),at,2]) }
   for(const [h,n,t,k] of FBW_BANDS){ const i0=n0(); wall(h,n,44,t,.66,.76,3); for(let i=i0;i<L.length;i++)L[i][6]=k }
@@ -6027,11 +6028,12 @@ function fbLine(id,who,dur){ const L=fbBanterSlots[id]; if(!L)return; try{ gunny
 function fbMedevac(dt){ const g=G, f=fbS; if(!g||g.demo)return;
   if(f.state!=='inbound'){ const W=FBW+120; for(const L of [coy,squad])for(const m of L){ if(!(m.hp>0)||!m.mhp)continue; const r=m.hp/m.mhp; if(m._fbW&&r>.6)m._fbW=0; if(!m._fbW&&r<=.25&&Math.max(Math.abs(m.x-f.x),Math.abs(m.y-f.y))<W){ m._fbW=1; fbOnWounded(m) } } }   /* fbOnWounded: once per wound, re-arms above 60% */
   const mv=f.mv||(f.mv={st:0,t:0}); mv.t+=dt;
-  if(mv.st===0){ if(f.state!=='done'||g.dustUsed)return; const c=fbCrit(); if(!c.length)return;
+  if(mv.st>=3&&!fbH){ mv.st=0; mv.ib=0; mv.out=0 }   /* EP: no per-run cap - re-offer once this bird is gone */
+  if(mv.st===0){ if(f.state!=='done'||fbH)return; const c=fbCrit(); if(!c.length)return;   /* one medevac CH-46 in the air at a time; the rest wait */
     if(!fbCaller()){ if(!mv.out){ mv.out=1; try{ gunny("Radio's out!",2.2,1,'MARINE') }catch(e){} f.log.mvNoRto=+g.t.toFixed(1) } return }   /* no RTO and nobody at the CP radio = no bird */
-    mv.st=1; mv.t=0; mv.n=c.length; f.log.mvOffer=+g.t.toFixed(1); g.banner={text:'MEDEVAC AVAILABLE · '+c.length+' AT THE AID STATION',t:3,col:'#9be37a'}; Snd.play('radio'); return }
+    mv.st=1; mv.t=0; mv.n=c.length; if(!f.log.mvOffer)f.log.mvOffer=+g.t.toFixed(1); (f.log.mvOffers||(f.log.mvOffers=[])).push(+g.t.toFixed(1)); g.banner={text:'MEDEVAC AVAILABLE · '+c.length+' AT THE AID STATION',t:3,col:'#9be37a'}; Snd.play('radio'); return }
   if(mv.st===1){ if(mv.t<2.5)return; const r=fbCaller(), pd=fbPadPos(); if(!r){ if(!mv.out){ mv.out=1; try{ gunny("Radio's out!",2.2,1,'MARINE') }catch(e){} f.log.mvNoRto=+g.t.toFixed(1) } return }
-    if(!pd||!pd.built||fbH)return; if(callFbHeli('medevac',pd.x,pd.y)){ mv.st=2; mv.t=0; mv.who=r.who; g.dustUsed=true; f.log.mvCall=+g.t.toFixed(1); f.log.mvCaller=r.k; const nC=Math.max(1,Math.min(3,fbCrit().length)); f.log.mvCallN=nC; fbLine('MV_CALL_1'+'abc'[nC-1],r.who,3.4) } return }
+    if(!pd||!pd.built||fbH)return; if(callFbHeli('medevac',pd.x,pd.y)){ mv.st=2; mv.t=0; mv.who=r.who; if(!f.log.mvCall)f.log.mvCall=+g.t.toFixed(1); (f.log.mvCalls||(f.log.mvCalls=[])).push(+g.t.toFixed(1)); f.log.mvCaller=r.k; const nC=Math.max(1,Math.min(3,fbCrit().length)); f.log.mvCallN=nC; fbLine('MV_CALL_1'+'abc'[nC-1],r.who,3.4) } return }
   if(mv.st===2&&mv.t>4&&!mv.ib){ mv.ib=1; fbLine('MV_INBOUND_1',mv.who||'RTO') } }
 function fbMedevacLoad(h){ const g=G, f=fbS; if(!f)return; const pd=fbPadPos()||h, c=coy.filter(q=>q.hp>0&&q.state==='ok'&&!q.hid&&!q.rto&&q.hp<=q.mhp*.15&&Math.max(Math.abs(q.x-f.x),Math.abs(q.y-f.y))<FBS).sort((a,b)=>Math.hypot(a.x-pd.x,a.y-pd.y)-Math.hypot(b.x-pd.x,b.y-pd.y)).slice(0,3), out=[];   /* litter teams bring the critical men inside the wire to the pad */
   for(const m of c){ const i=coy.indexOf(m); if(i<0)continue; coy.splice(i,1); for(const q of coy){ if(q.cov===m)q.cov=null; if(q.htg===m)q.htg=null } out.push(m.nm||'Marine') }
@@ -6223,7 +6225,7 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
     if(f.tier===1&&f.holdT>110){ f.tier=2; strs.push(mkStr('quad50',f.x,f.y-52,-Math.PI/2,1)); strs.push(mkStr('m2',f.x+104,f.y+10,0,1)); strs.push(mkStr('m2',f.x-104,f.y+10,Math.PI,1)); g.banner={text:'UPGRADE: QUAD-50 AA MOUNT & EXTRA M2s',t:2.6,col:'#ffe58a'} }
     else if(f.tier===2&&f.holdT>240){ f.tier=3; strs.push(mkStr('rr106',f.x-50,f.y+84,Math.PI/2,1)); strs.push(mkStr('m60',f.x,f.y-108,-Math.PI/2,1)); strs.push(mkStr('m60',f.x+110,f.y+108,Math.PI/2,1)); g.banner={text:'UPGRADE: SECOND 106mm RECOILLESS & M60 NESTS',t:2.6,col:'#ffe58a'} }
     // helipad resupply
-    if(f.padOk&&!fbH){ f.supT-=dt; if(f.supT<=0){ f.supT=50; const pad=strs.find(s=>s.type==='pad'&&!s.dead&&s.b>=1); if(pad){ callFbHeli('sup',pad.x,pad.y); annc('resup','huey',{text:'HUEY RESUPPLY INBOUND TO THE HELIPAD',t:2,col:'#9be37a'}) } } }
+    if(f.padOk&&!fbH){ f.supT-=dt; if(f.supT<=0){ f.supT=50; const pad=strs.find(s=>s.type==='pad'&&!s.dead&&s.b>=1); if(pad){ callFbHeli('sup',pad.x,pad.y); annc('resup','huey',{text:'CH-46 RESUPPLY INBOUND TO THE PAD',t:2,col:'#9be37a'}) } } }
     // NVA armor
     f.tankT-=dt; if(f.tankT<=0&&f.age>=120&&(g.t>=420||g.p.lvl>=10)){ let nt=0; for(const e of enemies)if(e.tank&&!e.dead)nt++;
       const cap=Math.min(3,1+Math.floor((g.t-420)/300)); f.tankT=75+rnd()*35; if(nt<cap){ const k='pt76';   /* Vet: in 1968 the only enemy tank is the PT-76 - no T-54 */ const e=spawnNTank(k); if(e){ if(!f.log.tankAt)f.log.tankAt=+(f.age).toFixed(1); g.banner={text:k==='t54'?'NVA T-54 (ARTISTIC LICENSE) ADVANCING ON THE FIREBASE!':'NVA PT-76 LIGHT TANK ADVANCING ON THE FIREBASE!',t:3.2,col:'#ff6a4a'}; Snd.play('boss') } } } } }
