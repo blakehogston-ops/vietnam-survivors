@@ -3219,6 +3219,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
         gunny("Doc, Gunny. The bird can come for us any time now. Pop smoke when you're ready ("+(matchMedia('(pointer:coarse)').matches?'tap CALL BIRD':'press X')+"). He needs two mikes to get here.",5.6,1) }
       if(ex.xr&&(g.t>=this.XAUTO||(DBG.bot&&g.t>=(+params.get('botcall')||this.XMIN+15))))this.call(g.t>=this.XAUTO) }
     const b=this.btn(); if(b){ const on=this.canCall(g)&&ex.xr; if(b._on!==on){ b._on=on; b.style.display=on?'block':'none' } } },
+  hud(U){ if(!this.shells.length||G.demo)return; const a=.75+.25*Math.sin(performance.now()/90); ctx.globalAlpha=a; txt('INCOMING!',W/2,Math.max(H*.34,170*U),Math.round(30*U),'#ff5a3a','center'); ctx.globalAlpha=1 },
   qaSpawn(t,x,y){ return spawnEnemy(t,x,y) },
   btn(){ let b=document.getElementById('n2x'); if(!b&&this.XC&&document.body){ b=document.createElement('button'); b.id='n2x'; b.textContent='POP SMOKE · CALL BIRD (X)';
       b.style.cssText='position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;display:none;padding:12px 18px;font:bold 15px "Courier New",monospace;color:#10180c;background:#b9e08a;border:3px solid #2c3e1c;border-radius:6px;box-shadow:0 3px 0 #2c3e1c;touch-action:manipulation';
@@ -6377,7 +6378,7 @@ function exTarget(){ const g=G,ex=g.ex; if(!ex)return null;
 function sigLine(){ const g=G,ex=g.ex,p=g.p; if(!ex)return {t:'',c:'#fff'};
   const T=exTarget(), dm=T?Math.max(1,Math.round(Math.max(0,Math.hypot(T.x-p.x,T.y-p.y)-(T===ex.pad?EX.PAD_R:0))/10)):0;   /* distance to pad EDGE */
   const pdm=ex.pad?Math.round(Math.hypot(ex.pad.x-p.x,ex.pad.y-p.y)/10):0;
-  if(ex.ph===0)return {t:(ex.smokeCol||'').toUpperCase()+' SMOKE ON DOC\'S BELT  ·  PAD AT '+fmt(EX.PAD_T),c:SIGC[ex.smokeCol]||'#c8c8b0'};
+  if(ex.ph===0)return {t:(ex.smokeCol||'').toUpperCase()+' SMOKE ON DOC\'S BELT  ·  '+(N2.XC?(G.t>=N2.XMIN?'POP SMOKE WHEN READY · BIRD 2:00 OUT':'CALL THE BIRD FROM '+fmt(N2.XMIN)):'PAD AT '+fmt(EX.PAD_T)),c:SIGC[ex.smokeCol]||'#c8c8b0'};
   if(ex.ph===4&&ex.divert)return {t:"BIRD WENT TO CHARLIE'S SMOKE · BACK IN "+Math.max(0,Math.ceil(ex.divert.cost-ex.divert.t))+'s',c:'#ff6a4a',T:null};
   if(ex.ph===4&&ex.call&&ex.call.st==='wait')return {t:(onPad(p.x,p.y)?'POPPING SMOKE...':'BIRD WANTS SMOKE · GET ON THE PAD '+dm+'m')+' · BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t))),c:'#ffcf5a',T:onPad(p.x,p.y)?null:T};
   if(ex.ph===4&&ex.call&&ex.call.st!=='ok')return {t:'SMOKE OUT · THE BIRD IS LOOKING · BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t))),c:SIGC[ex.col],T:null};
@@ -6915,7 +6916,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   for(const id in g.w)row(id,g.w[id].lvl); for(const id in g.ps)if(g.ps[id]>0)row(id,g.ps[id]);
   // banner
   if(g.banner){ const b=g.banner,k=Math.min(1,(3.2-b.t)*5,b.t*2); ctx.globalAlpha=Math.max(0,Math.min(1,k)); txt(b.text,W/2,g.pullT>0?Math.max(H*.25,150*U)+34*U:H*.27,(30+6*(1-Math.min(1,k)))*U,b.col,'center'); ctx.globalAlpha=1 }
-  PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); FIELD.hud(U); KIA.hud(U); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
+  N2.hud(U); PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); FIELD.hud(U); KIA.hud(U); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
   // joystick
   if(joy.on){ ctx.globalAlpha=.45; ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(joy.ox*(W/innerWidth),joy.oy*(H/innerHeight),55*(W/innerWidth),0,TAU); ctx.stroke(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc((joy.ox+joy.x*55)*(W/innerWidth),(joy.oy+joy.y*55)*(H/innerHeight),22*(W/innerWidth),0,TAU); ctx.fill(); ctx.globalAlpha=1 }
 }
