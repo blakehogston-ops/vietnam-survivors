@@ -5638,7 +5638,9 @@ function fbRing(x,y,hold,tt){ ctx.save(); ctx.translate(x,y+4); ctx.scale(1,.62)
 /* announcements (Stage 1): Gunny, bosses and the signal always get text; every other support call announces once per run with text, then only its icon */
 /* timed radio lines (call-for-fire phrasing): [[delay s, text], ...] shown as short banners on the sim clock */
 function radioSeq(list){ const g=G; if(!g||g.demo)return; const q=g.rq||(g.rq=[]); for(const [d,t] of list)q.push({at:g.t+d,text:t}); }
-function radioTick(){ const g=G, q=g&&g.rq; if(!q||!q.length)return; for(let i=q.length-1;i>=0;i--){ if(g.t>=q[i].at){ const it=q.splice(i,1)[0]; if(!g.banner||g.banner.t<.6||/^"|Two-One|RTO:/.test(g.banner.text)){ g.banner={text:it.text.toUpperCase(),t:1.6,col:'#e8e2c0'}; Snd.play('radio') } } } }
+function radioTick(){ const g=G, q=g&&g.rq; if(!q||!q.length)return; for(let i=q.length-1;i>=0;i--){ if(g.t>=q[i].at){ const it=q.splice(i,1)[0]; if(!g.banner||g.banner.t<.6||/^"|Two-One|RTO:/.test(g.banner.text)){ g.banner={text:it.text.toUpperCase(),t:1.6,col:'#e8e2c0'}; radioKey() } } } }
+/* PTT key-up / squelch tail around a radio line (Sound Helper radio_key_in / radio_key_out, cleared sources; SFX only). Falls back to the synth squelch */
+function radioKey(){ try{ if(SAMP.ready()&&SamplePlayer.hasSample('radio_key_in')&&SamplePlayer.hasSample('radio_key_out')){ MIX.as('special',()=>SamplePlayer.play('radio_key_in',{vol:.55})); setTimeout(()=>{ try{ MIX.as('special',()=>SamplePlayer.play('radio_key_out',{vol:.5})) }catch(e){} },1250); return } }catch(e){} Snd.play('radio') }
 function annc(key,icon,b){ const g=G; if(!g)return; const a=g.anc||(g.anc={}); if(!a[key]){ a[key]=1; g.banner=b; return } const q=g.icons||(g.icons=[]); q.push({id:icon,until:g.t+2.2}); if(q.length>5)q.shift() }
 function drawAnncIcons(U){ const g=G, q=g.icons; if(!q||!q.length)return; const sz=26*U; let x=W/2+70*U, y=26*U+SA.t*DPR+8*U;
   for(let i=q.length-1;i>=0;i--){ if(q[i].until<=g.t)q.splice(i,1) }

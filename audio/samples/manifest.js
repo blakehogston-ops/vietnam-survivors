@@ -163,6 +163,18 @@
     "bomb_distant_1"
    ]
   },
+  "radio_key_in": {
+   "batch": 1,
+   "files": [
+    "radio_key_in_1"
+   ]
+  },
+  "radio_key_out": {
+   "batch": 1,
+   "files": [
+    "radio_key_out_1"
+   ]
+  },
   "radio_squelch": {
    "batch": 1,
    "files": [

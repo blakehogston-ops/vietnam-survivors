@@ -34,3 +34,5 @@ assets/photos/pbr_perfume.webp (replaces pbr_nh96707, per Vietnam Vet: an I Corp
     Caption (source): PERFUME RIVER, REPUBLIC OF VIETNAM...Vietnamese aboard a junk show their identification papers to the crewmen of a U.S. Navy River Patrol Boat (PBR). 20 August 1968.
     Author: LT Storck. Source: https://commons.wikimedia.org/wiki/File:PBR_checks_IDs_of_Vietnamese_sampan_crew_on_the_Perfume_River.jpg ; NARA 127-GVC-127-A704280
     Basis: Public domain (US government work, 17 U.S.C. 105). Edited: greyscale, WebP. (Game caption new: needs a quick Vet re-check.)
+
+radio_key_in_1 / radio_key_out_1 (added Oct 20): Sound Helper build_radio_oct20.py. Sources per Sound Helper manifest: LukaCafuka key/release, pdsounds STE-011 squelch, JovianSounds roger chirp (marked cleared). Full credit lines still to be added to Sound Helper THIRD_PARTY_AUDIO.txt.
