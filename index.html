@@ -2347,7 +2347,6 @@ function updateSupport(dt){
 /* vehicles.js (Artist Helper, Oct 14): all aircraft / vehicles; the old canvas drawings stay as fallbacks. Hitboxes unchanged (art is ~20% bigger). */
 const VEH=()=>!!(window.SHEET1&&SHEET1.vehiclesBig);
 const IMPDEC=/[?&]jungle=1\b/.test(location.search)&&!/[?&]impdec=0\b/.test(location.search), IGR=(x,y)=>{ const j=JG.ground(x,y); if(j)return j; try{ const m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); return m==='P'?'paddy':'dirt' }catch(e){ return 'dirt' } };
-const MORB=!/[?&]morb=0\b/.test(location.search);
 const RTOP=/[?&]rtop=0\b/.test(location.search)?0:(+(location.search.match(/[?&]rtop=(\d+)/)||[])[1]||300);
 const LULLCUE=!/[?&]lullcue=0\b/.test(location.search);
 const AIRW=+(location.search.match(/[?&]airw=([\d.]+)/)||[])[1]||2;
@@ -3945,7 +3944,7 @@ function updateWeapons(dt){
       for(let i=0;i<s.n;i++){ const off=(i-(s.n-1)/2)*80; strikes.push({wid:CURW,cx:bx+nx*off,cy:by+ny*off,a,len:s.len,t:-i*.25,delay:1.4,drops:0,dropN:7+w.lvl,dmg:s.dmg,rad:s.rad,fdmg:s.fdmg,flife:s.flife,sfx:false,jx:0,jy:0,show:false}) }
       Snd.play('radio'); Snd.play('napalm'); w.cd+=s.cd; refuelRun(id,w); RTO_T=null; }
     else if(id==='mortar'){
-      let c0=clump(380,90,10); if(c0&&MORB){ c0=[c0[0],c0[1]]; const dx=p.x-c0[0], dy=p.y-c0[1], d=Math.hypot(dx,dy), k=Math.min(70,Math.max(0,d-120)); if(d>1){ c0[0]+=dx/d*k; c0[1]+=dy/d*k } }   /* rc7 #5: walk the 60mm onto Doc's side of the horde - the men about to reach him - never closer than 120 px (?morb=0) */
+      const c0=clump(380,90,10);
       for(let i=0;i<s.n;i++){ let tx,ty; if(c0){tx=c0[0]+(rnd()-.5)*(i?90:30);ty=c0[1]+(rnd()-.5)*(i?90:30)}else{const a=rnd()*TAU,r=110+rnd()*140;tx=p.x+Math.cos(a)*r;ty=p.y+Math.sin(a)*r}
         mshells.push({wid:CURW,sx:p.x,sy:p.y-6,x:p.x,y:p.y,tx,ty,t:-i*.2,d:1.25,dmg:s.dmg,rad:s.rad,fired:false}) }
       g.mortarT=.6; w.cd+=s.cd; ATM.support('mortar',c0?c0[0]:p.x,c0?c0[1]:p.y-120); }
