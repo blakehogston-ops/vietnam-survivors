@@ -440,7 +440,9 @@
     decal('scorch_teardrop', x + ca * L * 0.3, y + sa * L * 0.3, { angle: a }); decal('scorch_teardrop', x + ca * L * 0.68, y + sa * L * 0.68, { angle: a });
     // jr rev 3 (Art Director final): sheet 2x longer (240 px) and 1.5x wider along the flight line, hot #ffe9a0 spine, strong #8a2a08 edges,
     // one brief mild additive ground bloom (~0.1 s), ~120 puffs per canister (pool 260). Drawn above bamboo/canopy by the game (debris layer).
-    var P = function (u, l, z, fwd, lat, vz, dl, life, r0, grow, shd, al) { var pe = puff(x + ca * u - sa * l, y + sa * u + ca * l, z, ca * fwd - sa * lat, sa * fwd + ca * lat, vz, dl, life, r0, grow, shd, al); pe.nap = 1; pe.ph = rnd() * 6; pe.fl = rnd() < 0.5 ? 1 : 0; };
+    // perf (rc8, optional): MED/LOW/Deck tier (window.LCO_QUALITY.t) keeps every 2nd puff (~60 per canister) at 1.2x radius so the sheet still reads filled; HIGH = all ~121
+    var QT = (typeof window !== 'undefined' && window.LCO_QUALITY && window.LCO_QUALITY.t) || 'high', PK = 0, PCUT = QT !== 'high' && !(typeof location !== 'undefined' && /[?&]napcap=0\b/.test(location.search));
+    var P = function (u, l, z, fwd, lat, vz, dl, life, r0, grow, shd, al) { if (PCUT) { if ((PK++ & 1) && PK > 1) return; r0 *= 1.2; } var pe = puff(x + ca * u - sa * l, y + sa * u + ca * l, z, ca * fwd - sa * lat, sa * fwd + ca * lat, vz, dl, life, r0, grow, shd, al); pe.nap = 1; pe.ph = rnd() * 6; pe.fl = rnd() < 0.5 ? 1 : 0; };
     var i, f, u, l, w, D = 0.36;   // D: time for the front to roll the length of the sheet
     P(L * 0.35, 0, 0, 0, 0, 0, 0, 0.12, 34, 10, 13, 0.22);   // brief ground bloom, isolated and mild
     for (i = 0; i < 34; i++) { f = Math.pow(rnd(), 0.85); u = f * L * 0.88; w = (8 + f * 22) * WS; l = (rnd() - 0.5) * 2 * w * (0.45 + rnd() * 0.5);   // orange body
