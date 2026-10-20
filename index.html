@@ -295,6 +295,7 @@ Pause .......... Esc / P     Mute ... M</pre></div>
 <div id="medHud"><button id="medBtn" title="Use a battle dressing on yourself (H / pad B)">✚ <b id="medN">0</b><span>H</span></button><button id="medMate" title="Patch the most hurt Marine in reach (Q / pad RB)">✚ <i id="medMateT">MARINE</i><span>Q</span></button><b id="rtoHud" style="display:none;align-self:center;font:bold 12px monospace;padding:4px 7px;background:rgba(10,12,8,.75);border-radius:4px"></b></div>
 <div id="tkr" aria-live="off"><i id="tkrRing"></i><span id="tkrTx"></span></div>
 <button id="abil" title="Special ability (Space / E)"><i id="abilCd"></i><span id="abilKey">SPACE</span><b id="abilNm"></b></button>
+<div id="mohCard" class="overlay"><div style="margin:auto;max-width:560px;background:#0d140d;border:2px solid #8a7a40;padding:14px 18px;color:#f6f0cc;font-family:monospace;text-align:left"><div id="mohTxt"></div><div style="display:flex;gap:12px;margin-top:12px;justify-content:center"><button id="mohGo" class="btn" style="min-width:140px">GO (Enter)</button><button id="mohStay" class="btn" style="min-width:140px">STAY (Esc)</button></div></div></div>
 <div id="levelup" class="overlay">
   <h2>LEVEL UP!</h2>
   <div class="sub" style="margin-top:0">Choose an upgrade</div>
@@ -4169,7 +4170,7 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
         for(let k=1;k<=Math.ceil(D/24)&&okP;k++){ const u=k*24/D, sx=fbS.x+(x-fbS.x)*u, sy=fbS.y+(y-fbS.y)*u; if(riverAt(sx,sy)||!canWade(sx,sy,'p'))okP=false } }   /* objective must be reachable on foot in a straight line from the base */
       if(!okP){ this.next=g.t+20; this.q.unshift(k); return }
       for(let j=0;j<this.P.E;j++){ const a=rnd()*TAU, r=60+rnd()*90; try{ const n0=enemies.length; spawnEnemy(rnd()<.5?'vc':'nva',x+Math.cos(a)*r,y+Math.sin(a)*r); for(let q=n0;q<enemies.length;q++)enemies[q].mohA=1 }catch(e){} }   /* the pinned-down men are under fire: a small enemy group at the objective */
-      const dist=Math.hypot(x-fbS.x,y-fbS.y); this.cur={k,x,y,t:0,h:0,ph:'go',life:(+params.get('moht'))||Math.max(this.P.T,dist/150+this.C[k].hold+10,k==='taylor'?Math.max(30,dist/8/3.5):0)+4,dist};   /* go timer scales with distance: walk + hold + ~10 s to clear the ambush (fixed 11 s was unwinnable for players) */ this.card=6; try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
+      const dist=Math.hypot(x-fbS.x,y-fbS.y); this.cur={k,x,y,t:0,h:0,ph:'go',life:(+params.get('moht'))||Math.max(this.P.T,dist/150+this.C[k].hold+10,k==='taylor'?Math.max(30,dist/8/3.5):0)+4,dist};   /* go timer scales with distance: walk + hold + ~10 s to clear the ambush (fixed 11 s was unwinnable for players) */ this.card=6; try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} this.open(); (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
     const c=this.cur; if(!c)return; if(!this.cardWait())this.card=Math.max(0,(this.card||0)-dt); if(!(c.ph==='go'&&this.card>0))c.t+=dt; this.alertT=Math.max(0,this.alertT-dt);
     if(!fbS){ this.end('baseLost'); return }
     if(this.away()&&this.integ()<.6&&!(this.alertT>0)){ this.alertT=6; g.banner={text:'FIREBASE '+(fbS.name||'')+' IS FALLING · GET BACK',t:2.6,col:'#ff6a4a'}; try{ Snd.play('radio') }catch(e){} }
@@ -4180,6 +4181,12 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
     if(c.h>0){ ctx.strokeStyle='#ffffff'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(c.x,c.y,r+6,-Math.PI/2,-Math.PI/2+TAU*c.h/this.C[c.k].hold); ctx.stroke() } ctx.restore() },
   img(){ if(this.IM!==undefined)return this.IM; try{ const M=MEDAL_OF_HONOR, gr=M.grid, L=M.legend, c=document.createElement('canvas'); c.width=gr[0].length; c.height=gr.length; const x=c.getContext('2d');
       for(let j=0;j<gr.length;j++)for(let i=0;i<gr[j].length;i++){ const ch=gr[j][i], col=L[ch]; if(!col||ch==='.')continue; x.fillStyle=col; x.fillRect(i,j,1,1) } this.IM=c }catch(e){ this.IM=null } return this.IM },
+  open(){ const c=this.cur; if(!c)return; if(DBG.bot||!$('mohCard')){ this.card=0; return }   /* Blake's design: decision card, game paused until GO / STAY */
+    const C=this.C[c.k], esc=x=>String(x).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+    $('mohTxt').innerHTML='<div style="color:#b8a868;font-size:12px">'+esc(C.lab)+'</div><div style="font-size:18px">'+esc(C.nm)+'</div><div style="color:#c8c8b0;font-size:12px">'+esc(C.svc+' · '+C.unit)+'<br>'+esc(C.date)+'</div>'+
+      '<div style="margin-top:8px;font-size:14px"><b>SITUATION:</b> '+esc(C.task)+'<br><b>LOCATION:</b> '+Math.round(c.dist/8)+' m from the firebase<br><b>RISK:</b> enemy at the objective, firebase unguarded while you are away<br><b>REWARD:</b> big XP boost and his name on your record<br><b>TIME:</b> '+Math.ceil(c.life)+' s, starts when you choose GO</div>';
+    this.card=0; state='mohcard'; $('mohCard').classList.add('show'); try{ $('mohGo').focus() }catch(e){} },
+  choose(go){ if(state!=='mohcard')return; $('mohCard').classList.remove('show'); state='play'; try{ last=performance.now() }catch(e){} const c=this.cur; if(!c)return; if(go){ c.t=0; (G.mohLog||(G.mohLog=[])).push({k:c.k,t:+G.t.toFixed(1),ev:'go'}) } else this.end('stay') },
   cardWait(){ const b=G&&G.banner; return !!exMsg||mobIncoming()||!!(b&&b.t>0&&/STAGE|PHASE|BUNKER|FIREBASE/.test(b.text)) },   /* + never on the same frame as a stage banner */   /* rc7.1 queue: the MoH card waits for the Gunny card / INCOMING instead of overlapping them */
   hud(U,W,H){ const c=this.cur; if(!c)return; const C=this.C[c.k], g=G, p=g.p;
     const go=c.ph==='go', ox=go?c.x:(fbS?fbS.x:p.x), oy=go?c.y:(fbS?fbS.y:p.y), dx=ox-p.x, dy=oy-p.y, d=Math.hypot(dx,dy); txt((go?(c.hot?'UNDER FIRE · CLEAR THE AREA TO TREAT HIM':'OPTIONAL · '+C.task):'RETURN TO THE FIREBASE')+'  '+Math.max(0,Math.ceil(c.life-c.t))+'s · '+Math.round(d/8)+'m',W/2,H*.86,13*U,go?'#f0d890':'#ffffff','center');
@@ -6040,6 +6047,8 @@ function drawSeaKnightLoad(c){ if(c.placed||c.ph>=2)return; const zc=Math.max(0,
 function drawCrate(x,y){ ctx.fillStyle='#6a4a26'; ctx.fillRect(x-9,y-10,18,14); ctx.fillStyle='#8a6a3a'; ctx.fillRect(x-9,y-10,18,3); ctx.fillStyle='#4a321a'; ctx.fillRect(x-9,y-3,18,1); ctx.fillRect(x-1,y-10,2,14); ctx.fillStyle='#d8d0a0'; ctx.fillRect(x-6,y-7,5,2); ctx.fillStyle='#c82020'; ctx.fillRect(x+3,y-7,3,3) }
 /* Firebase point: HOLD F (keyboard) / hold X (controller) inside the ground ring to call the engineers; touch: stand still in the ring */
 function fbHoldBusy(){ try{ const s=lzS||fbS; return !!(s&&s.hold>0&&s.hold<1) }catch(e){ return false } }
+addEventListener('keydown',e=>{ if(state!=='mohcard')return; if(e.code==='Enter'||e.code==='NumpadEnter'){ e.preventDefault(); e.stopImmediatePropagation(); MOH.choose(true) } else if(e.code==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); MOH.choose(false) } },true);
+setTimeout(()=>{ try{ $('mohGo').onclick=()=>MOH.choose(true); $('mohStay').onclick=()=>MOH.choose(false) }catch(e){} },0);
 function fbHeld(){ const p=G.p; return !!(keys.KeyF||(PAD.on&&PAD.prev[PAD.BTN.X])||((COARSE.matches||DBG.bot)&&!p.mv)) }
 /* rc7 #2: the engineers prompt hides while an extraction pad is active within 260 px (it printed over the pad), ?fbpadhide=0 */
 const FBPADHIDE=!/[?&]fbpadhide=0\b/.test(location.search);
