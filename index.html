@@ -6633,7 +6633,7 @@ function drawExGround(tt){ const g=G,ex=g.ex; if(!ex)return;
     if(ex.ph===3)txt('PICKUP PAD · BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+Math.min(15,G.pullEx||0)-G.t))),lz.x,lz.y+R*.78+18,Math.round(12*PADL()),'#f2e8c0','center'); else if(ex.ph===4&&ex.call&&ex.call.st==='wait')txt('STAND HERE: POP SMOKE',lz.x,lz.y+R*.78+18,Math.round(13*PADL()),'#ffe58a','center') } }
 /* smoke columns + the bird: drawn above the men so the column reads */
 function drawExAir(tt){ const g=G,ex=g.ex; if(!ex)return;
-  if(DBG.smokeTest){ const p=g.p; (DBG.smokeTest===2?SIGN.concat('red'):SIGN).forEach((c,i)=>drawSigFx(p.x-240+i*160,p.y-70,'smoke',c,tt,1))  if(DBG.smokeTest===2){ drawSigFx(p.x-160,p.y+120,'flare','yellow',tt,1); drawSigFx(p.x+160,p.y+120,'mirror','white',tt,1) } }   /* QA only (console: DBG.smokeTest=true) - all four smoke columns side by side */
+  if(DBG.smokeTest){ const p=g.p; (DBG.smokeTest===2?SIGN.concat('red'):SIGN).forEach((c,i)=>drawSigFx(p.x-240+i*160,p.y-70,'smoke',c,tt,1)); if(DBG.smokeTest===2){ drawSigFx(p.x-160,p.y+120,'flare','yellow',tt,1); drawSigFx(p.x+160,p.y+120,'mirror','white',tt,1) } }   /* QA only (console: DBG.smokeTest=true) - all four smoke columns side by side */
   const fade=ex.ph>=6?Math.max(0,1-ex.t/(EX.LIFT+1)):1;
   const s=ex.sig; if(s&&ex.popped){ drawSigFx(s.x,s.y,'smoke',s.col,tt,fade) } else if(false&&s&&!(ex.ph>=3&&!ex.wrong)){ if(!s.land){ ctx.fillStyle='#2b2f2a'; ctx.fillRect(Math.round(s.x-3),Math.round(s.y-s.z-6),6,9) } else drawSigFx(s.x,s.y,s.kind,s.col,tt,1) }
   if(ex.charlie)drawSigFx(ex.charlie.x,ex.charlie.y,'smoke',ex.charlie.col,tt+.37,1);
