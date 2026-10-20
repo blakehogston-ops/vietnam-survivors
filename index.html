@@ -4044,7 +4044,6 @@ function updateWeapons(dt){
     if(SPECW[id]&&!enemyInView()){ w.cd=0; continue }   /* Blake: never fire with no enemy on screen; held ready, not wasted or reset */
     if(AIRCALL[id]&&id!=='spooky'&&(air.length+strikes.length)>=AIR_FX_MAX){ w.cd=.5; continue }   // limit overlapping air-call effects
     if(AIRCALL[id]&&RTO.on(g)){ const r=RTO.call(g,id,w); if(r===false){ w.cd=0; continue } s=Object.assign({},s,r) }   /* Blake Oct 20: the radio operator calls (or holds) every air strike */
-    if(AIRCALL[id]&&OFF_ON&&OFFI.air)OFFI.override(g,id);   /* rc8 OF-Q01: Doc's own air call holds the officer's pending air mission */
     if(AIRCALL[id]&&g.char==='radio'&&!g.demo)Snd.play('ready');   // soft tick: call is off cooldown
     w.rf=false;
     if(id==='grease'){ const t=faceK(p,1,s.range)[0]; if(!t){w.cd=.05;continue} const a=Math.atan2(t.y-p.y,t.x-p.x)+(rnd()-.5)*.05; addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,640,s.dmg,s.pierce,.8,3,'#ffe08a'); Snd.play('grease'); MAGS.shot(p,'grease',p.x,p.y); g.muzzle=.05; w.cd+=s.cd; }
@@ -5038,28 +5037,36 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
     const D=force&&force.d?force.d:20+((g.t*7.31)%10); this.airCd=150; this.air={x:tx,y:ty,a,len,T:g.t+D,st:0,q:null,by:c};
     g.banner={text:(c.isLt?OFFN.LT.toUpperCase():this.who(c))+': AIR ON THAT POSITION · FAC ON STATION, ~'+Math.round(D)+' S',t:2.6,col:'#ffe58a'}; Snd.play('radio');
     if(c.isLt)this.say('OF-A01',c,1); (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'air',Math.round(D)]); return true },
-  airTick(g,dt){ if(this.airCd>0)this.airCd-=dt; const A=this.air; if(!A)return; const left=A.T-g.t, lg=g.offLog;
+  airTick(g,dt){ if(this.airCd>0)this.airCd-=dt; const A=this.air; if(!A)return; const lg=g.offLog;
+    /* Lead 10/20 OF-Q01: before the 3 s call, friendlies (Marines, wounded under treatment, Doc) within NAP_SAFE of the run = HOLD the strike (clock frozen), resume when clear; stand down after 25 s held */
+    if(A.st<3&&A.T-g.t>3){ const hot=napMinFriendly(A.x,A.y,A.a,A.len,1)<NAP_SAFE;
+      if(hot){ if(!A.held){ A.held=1; A.hN=(A.hN|0)+1; const sp=this.ltOrSgt(); if(sp)this.say('OF-Q01',sp,1); g.banner={text:'FIRE MISSION HELD · MARINES IN THE TARGET AREA',t:2.4,col:'#ffe58a'}; lg.push([+g.t.toFixed(1),'airhold']) }
+        A.hT=(A.hT||0)+dt; A.T+=dt; if(A.q)A.q.t-=dt; if(this.fac&&this.fac.ph==='dive')this.fac.ph='orbit';
+        if(A.hT>25){ this.airDrop(); g.banner={text:'AIR STANDS DOWN · TARGET AREA NEVER CLEARED',t:2.4,col:'#ffe58a'}; lg.push([+g.t.toFixed(1),'airsd']); return } return }
+      else if(A.held){ A.held=0; const ex=Math.max(0,(A.mk?4.5:14.5)-(A.T-g.t)); A.T+=ex; if(A.q)A.q.t-=ex; g.banner={text:'AREA CLEAR · FIRE MISSION RESUMED',t:2,col:'#9fe07a'}; lg.push([+g.t.toFixed(1),'airresume']) } }
+    const left=A.T-g.t;
     if(A.st===0&&!this.fac&&!A.mk){ this.fac={x:A.x+170,y:A.y,th:0,a:Math.PI/2,alt:70,ph:'orbit',rk:null,A,life:0}; g.banner={text:'BIRD DOG ON STATION',t:2.4,col:'#e8eef2'}; lg.push([+g.t.toFixed(1),'airfac']) }   /* O-1 orbits high and slow over the target */
     if(this.fac&&this.fac.ph==='orbit'&&left<=15){ this.fac.ph='dive' }   /* one shallow dive at the smoke point */
-    if(A.st===0&&!A.mk&&this.fac&&this.fac.ph==='dive'&&left<=13.5){ if(napMinFriendly(A.x,A.y,A.a,A.len,1)<NAP_SAFE){ this.airVeto(g); return } A.st=.7; const F=this.fac; F.rk={x:F.x,y:F.y,sx:F.x,sy:F.y,sa:F.alt,t:0,d:.9,tr:[]}; F.ph='pull'; Snd.play('rpg') }   /* one WP marking rocket, never within NAP_SAFE of a friendly */
+    if(A.st===0&&!A.mk&&this.fac&&this.fac.ph==='dive'&&left<=13.5){ A.st=.7; const F=this.fac; F.rk={x:F.x,y:F.y,sx:F.x,sy:F.y,sa:F.alt,t:0,d:.9,tr:[]}; F.ph='pull'; Snd.play('rpg') }   /* one WP marking rocket, never within NAP_SAFE of a friendly */
     if(A.st===.7&&left<=12.6){ A.st=0; A.mk=1; this.wpBurst(A.x,A.y); if(this.fac)this.fac.rk=null; lg.push([+g.t.toFixed(1),'airwp']) }   /* WP: white streamer spray + billowing column ~36 s */
     if(A.st===0&&A.mk&&left<=12.6){ A.st=1; const s=ITEMS.napalm.stats(3); A.q={wid:'off_air',cx:A.x,cy:A.y,a:A.a,len:A.len,t:0,delay:Math.max(.5,left),drops:0,dropN:9,dmg:s.dmg,rad:s.rad,fdmg:s.fdmg,flife:s.flife,sfx:false,jx:0,jy:0,show:false,wp:1,off:1}; strikes.push(A.q);
       g.banner={text:'FAC MARKING · WILLIE PETER ON THE TARGET',t:2.4,col:'#e8eef2'}; lg.push([+g.t.toFixed(1),'airmark']) }
     if(A.st===1&&left<=7){ A.st=2; g.banner={text:'AIR INBOUND · FAST MOVERS, NAPE · STAY CLEAR OF THE WHITE SMOKE',t:2.6,col:'#ffb04a'}; Snd.play('radio'); lg.push([+g.t.toFixed(1),'airinb']) }
     if(A.st===2&&left<=3){ A.st=3; if(napMinFriendly(A.x,A.y,A.a,A.len,1)<NAP_SAFE){ this.airVeto(g); return } const s=this.sgt(); if(s)this.say('OF-A02',s,1); lg.push([+g.t.toFixed(1),'air3s']) }
-    if(A.st===3&&A.q){ if(A.q.abort){ this.airVeto(g); return } if(!strikes.includes(A.q)){ this.air=null; lg.push([+g.t.toFixed(1),'airdone']) } } },
+    if(A.st===3&&A.q){ if(A.q.abort){ this.airVeto(g); return } if(!strikes.includes(A.q)){ this.air=null; lg.push([+g.t.toFixed(1),'airdone']) } else if(A.q.drops>0&&!A.hit){ A.hit=1; lg.push([+g.t.toFixed(1),'airhit']) } } },
   wpTick(dt){ const W=this.wp; if(!W)return; W.age=(W.age||0)+dt; if((W.t-=dt)<=0){ this.wp=null; return }
     for(const k of W.st){ if(k.l<=0)continue; k.l-=dt; k.vz-=260*dt; k.x+=k.vx*dt; k.y+=k.vy*dt; k.z=Math.max(0,k.z+k.vz*dt); k.vx*=.985; k.vy*=.985; k.tr.push([k.x,k.y-k.z]); if(k.tr.length>22)k.tr.shift() } },
   wpBurst(x,y){ const st=[]; for(let k=0;k<12;k++){ const an=k/12*TAU+Math.random()*.4, v=70+Math.random()*90; st.push({x,y,z:4,vx:Math.cos(an)*v,vy:Math.sin(an)*v*.7,vz:120+Math.random()*120,l:1.1+Math.random()*.5,tr:[]}) } this.wp={x,y,t:36,T:36,age:0,st} },
   /* WP mark: airburst streamers arcing out with smoking trails, then a billowing column of soft puffs (same renderer as the M18 column), rising and drifting down-wind */
   drawWP(){ const W=this.wp; if(!W)return; const tt=W.age, fade=Math.min(1,W.t/4); ctx.save(); try{ this.wpAt=new DOMPoint(W.x,W.y).matrixTransform(ctx.getTransform()) }catch(e){}
-    for(const k of W.st){ if(k.tr.length<2)continue; const a=Math.max(0,k.l)/1.4; for(let i=1;i<k.tr.length;i++){ const f=i/k.tr.length; ctx.globalAlpha=(.15+.5*f)*Math.max(.25,a)*fade; ctx.strokeStyle=f>.85&&k.l>0?'#ffffff':'#cfd2c8'; ctx.lineWidth=1+2.5*(1-f)+ (1-a)*3; ctx.beginPath(); ctx.moveTo(k.tr[i-1][0],k.tr[i-1][1]); ctx.lineTo(k.tr[i][0],k.tr[i][1]); ctx.stroke() }
-      if(k.l>0){ const h=k.tr[k.tr.length-1]; ctx.globalAlpha=fade; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(h[0],h[1],1.8,0,TAU); ctx.fill() } }
-    const grow=Math.min(1,tt/2.5), N=22, H=210*grow+20; if(tt<.5){ const r=10+tt*60; const gr=ctx.createRadialGradient(W.x,W.y-8,1,W.x,W.y-8,r); gr.addColorStop(0,'rgba(255,255,255,.95)'); gr.addColorStop(1,'rgba(255,255,255,0)'); ctx.globalAlpha=1-tt*2; ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(W.x,W.y-8,r,0,TAU); ctx.fill() }   /* initial white flash-puff */
+    for(const k of W.st){ if(k.tr.length<2)continue; const a=Math.max(0,k.l)/1.4; for(let i=1;i<k.tr.length;i++){ const f=i/k.tr.length; ctx.globalAlpha=(.35+.65*f)*Math.max(.4,a)*fade; ctx.strokeStyle=f>.7&&k.l>0?'#ffffff':'#f4f4ee'; ctx.lineWidth=1.6+3*(1-f)+(1-a)*3; ctx.beginPath(); ctx.moveTo(k.tr[i-1][0],k.tr[i-1][1]); ctx.lineTo(k.tr[i][0],k.tr[i][1]); ctx.stroke() }
+      if(k.l>0){ const h=k.tr[k.tr.length-1]; ctx.globalAlpha=fade; ctx.fillStyle='rgba(255,255,255,.45)'; ctx.beginPath(); ctx.arc(h[0],h[1],5,0,TAU); ctx.fill(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(h[0],h[1],2.6,0,TAU); ctx.fill() } }
+    const grow=Math.min(1,tt/2.5), N=15, H=210*grow+20; if(tt<.5){ const r=10+tt*60; const gr=ctx.createRadialGradient(W.x,W.y-8,1,W.x,W.y-8,r); gr.addColorStop(0,'rgba(255,255,255,.95)'); gr.addColorStop(1,'rgba(255,255,255,0)'); ctx.globalAlpha=1-tt*2; ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(W.x,W.y-8,r,0,TAU); ctx.fill() }   /* initial white flash-puff */
     for(let i=0;i<N;i++){ const u=(tt*.22+i/N)%1, h=u*H, j=Math.sin(i*12.9898)*.5+.5, r=(8+u*36+j*14)*(.5+.5*grow), sway=Math.sin(tt*.7+i*1.9)*u*12+u*u*70*grow+(j-.5)*(10+u*26);
-      const px=W.x+sway, py=W.y-8-h, a0=Math.min(1,u*6)*(1-u)*(1-u*.3)*.85*fade, gr=ctx.createRadialGradient(px,py,r*.1,px,py,r); gr.addColorStop(0,'#f4f4ee'); gr.addColorStop(.45,'#ecede6'); gr.addColorStop(.75,'rgba(207,210,200,.75)'); gr.addColorStop(1,'rgba(207,210,200,0)');
+      const px=W.x+sway, py=W.y-8-h, a0=Math.min(1,u*6)*(1-u)*(1-u*.3)*.85*fade, gr=ctx.createRadialGradient(px,py,r*.1,px,py,r); gr.addColorStop(0,'#f4f4ee'); gr.addColorStop(.6,'#eeefe8'); gr.addColorStop(.85,'rgba(207,210,200,.9)'); gr.addColorStop(1,'rgba(207,210,200,0)');
       ctx.globalAlpha=a0; ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(px,py,r,0,TAU); ctx.fill();
-      ctx.globalAlpha=a0*.3; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(px-r*.3,py-r*.35,r*.45,0,TAU); ctx.fill(); ctx.globalAlpha=a0*.32; ctx.fillStyle='#a3a69d'; ctx.beginPath(); ctx.arc(px+r*.38,py+r*.32,r*.55,0,TAU); ctx.fill() }   /* lit top-left, shaded bottom-right */
+      ctx.globalAlpha=a0*.3; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(px-r*.3,py-r*.35,r*.45,0,TAU); ctx.fill(); ctx.globalAlpha=a0*.38; ctx.fillStyle='#a3a69d'; ctx.beginPath(); ctx.arc(px+r*.38,py+r*.32,r*.55,0,TAU); ctx.fill();
+      for(let q=0;q<3;q++){ const qa=i*1.7+q*2.1, qx=px+Math.cos(qa)*r*.62, qy=py+Math.sin(qa)*r*.5, qr=r*(.38+.12*q); ctx.globalAlpha=a0*.9; const g2=ctx.createRadialGradient(qx-qr*.3,qy-qr*.3,qr*.1,qx,qy,qr); g2.addColorStop(0,'#fafaf5'); g2.addColorStop(.7,'#e2e4dc'); g2.addColorStop(1,'rgba(207,210,200,0)'); ctx.fillStyle=g2; ctx.beginPath(); ctx.arc(qx,qy,qr,0,TAU); ctx.fill() } }   /* cauliflower lobes */   /* lit top-left, shaded bottom-right */
     const bg=ctx.createRadialGradient(W.x,W.y,2,W.x,W.y,34); bg.addColorStop(0,'rgba(244,244,238,.8)'); bg.addColorStop(1,'rgba(207,210,200,0)'); ctx.globalAlpha=.8*fade*grow; ctx.fillStyle=bg; ctx.beginPath(); ctx.ellipse(W.x,W.y,34,14,0,0,TAU); ctx.fill();   /* base ground cloud */
     ctx.restore() },
   facTick(dt){ const F=this.fac; if(!F)return; const A=F.A;
