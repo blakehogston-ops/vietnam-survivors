@@ -3255,15 +3255,18 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
     if(this.whT&&g.t>=this.whT){ this.whT=0; this.warn(g) } if(this.sapAt&&g.t>=this.sapAt){ this.sapAt=0; if(state==='play')this.sappers(g) }
     for(let i=this.thrown.length-1;i>=0;i--){ const q=this.thrown[i]; q.t+=dt; if(q.t>=q.d+q.f){ this.blast(q.tx,q.ty); this.thrown.splice(i,1) } } for(const d of this.dead)d.t+=dt;
     for(let i=this.shells.length-1;i>=0;i--){ const q=this.shells[i]; q.t+=dt; if(q.t>=q.d){ this.land(q); this.shells.splice(i,1) } }
-    const ex=g.ex; if(this.XC&&ex&&ex.ph===0&&!ex.padPlan){ if(g.t>=this.XMIN&&!ex.xr){ ex.xr=1; g.banner={text:'EXTRACTION AVAILABLE · POP SMOKE WHEN READY',t:3.4,col:'#9be37a'};
+    const ex=g.ex; if(this.XC&&ex&&ex.ph===0&&!ex.padPlan){ if(this.SMB&&ex.pre&&!g.demo){ ex.preBad=PADLANE&&!laneOk(g.p.x,g.p.y,ex.pre.x,ex.pre.y)?(ex.preBad||0)+(1/60):0 }   /* no straight lane from Doc for 2 s -> re-mark a reachable pad */
+      if(this.SMB&&g.t>=this.XMIN&&!g.demo&&(!ex.pre||ex.preBad>2||Math.hypot(ex.pre.x-g.p.x,ex.pre.y-g.p.y)>900)){ ex.preBad=0; const a=rnd()*TAU; ex.pre=pickLz(g.p.x+Math.cos(a)*200,g.p.y+Math.sin(a)*200) }   /* rc6b blocker 1: the first call pops smoke ON a marked pad, shown from 3:30 */
+      if(g.t>=this.XMIN&&!ex.xr){ ex.xr=1; g.banner={text:'EXTRACTION AVAILABLE · POP SMOKE WHEN READY',t:3.4,col:'#9be37a'};
         gunny("Doc, Gunny. The bird can come for us any time now. Pop smoke when you're ready ("+(matchMedia('(pointer:coarse)').matches?'tap CALL BIRD':'press X')+"). He needs two mikes to get here.",5.6,1) }
       if(ex.xr&&(g.t>=this.XAUTO||(DBG.bot&&g.t>=(+params.get('botcall')||this.XMIN+15))))this.call(g.t>=this.XAUTO) }
-    const b=this.btn(); if(b){ const sw=this.smokeWait(), on=(this.canCall(g)&&ex.xr)||!!sw, mode=sw?(sw==='on'?'pop':'off'):'call';
-      if(b._on!==on){ b._on=on; b.style.display=on?'block':'none' } if(b._m!==mode){ b._m=mode; b.textContent=mode==='call'?'POP SMOKE · CALL BIRD (X)':mode==='pop'?'POP SMOKE ON THE PAD (X)':'GET TO THE PAD FIRST'; b.style.filter=mode==='off'?'grayscale(1) brightness(.75)':''; b.style.opacity=mode==='off'?'.75':'1'; b.style.cursor=mode==='off'?'not-allowed':'pointer' } } },
+    const b=this.btn(); if(b){ const sw=this.smokeWait(), on=(this.canCall(g)&&ex.xr)||!!sw, mode=sw?(sw==='on'?'pop':'off'):(this.SMB&&!this.atPad(g)?'off':'call');
+      if(b._on!==on){ b._on=on; b.style.display=on?'block':'none' } if(b._m!==mode){ b._m=mode; b.textContent=mode==='call'?'POP SMOKE · CALL BIRD (X)':mode==='pop'?'POP SMOKE ON THE PAD (X)':'GET TO THE PAD FIRST'; b.style.filter=mode==='off'?'grayscale(1) brightness(.75)':''; b.style.opacity=mode==='off'?'.75':'1'; b.style.cursor=mode==='off'?'not-allowed':'pointer'; b.disabled=mode==='off'; b.setAttribute('aria-disabled',mode==='off'?'true':'false') } } },
   /* Gamer rc6 #2 (?smokebtn=0 off): while the bird wants smoke the same button pops it - greyed 'GET TO THE PAD FIRST' until Doc is inside the pad circle */
   SMB:N2F('smokebtn'),
   smokeWait(){ const g=G,ex=g&&g.ex,c=ex&&ex.call; if(!this.SMB||!c||c.st!=='wait'||ex.ph!==4||ex.divert||state!=='play')return null; return onPad(g.p.x,g.p.y)&&g.p.hp>0?'on':'off' },
-  press(){ const w=this.smokeWait(); if(w==='on'){ popSmoke(); return true } if(w==='off'){ G.banner={text:'GET TO THE PAD FIRST',t:1.4,col:'#ffcf5a'}; return false } return this.call(false) },
+  press(){ const w=this.smokeWait(); if(w==='on'){ popSmoke(); return true } if(w==='off'){ G.banner={text:'GET TO THE PAD FIRST',t:1.4,col:'#ffcf5a'}; return false } if(this.SMB&&!this.atPad(G)){ G.banner={text:'GET TO THE PAD FIRST',t:1.4,col:'#ffcf5a'}; return false } return this.call(false) },
+  atPad(g){ if(!g||g.p.hp<=0)return false; const ex=g.ex; if(ex&&ex.ph===0&&ex.pre)return Math.hypot(g.p.x-ex.pre.x,g.p.y-ex.pre.y)<=EX.PAD_R; return onPad(g.p.x,g.p.y) },   /* rc6b blocker 1: the FIRST call (pop smoke + call bird) also needs Doc inside the pad circle */
   hud(U){ if(!this.shells.some(q=>q.t>=(q.w||0))||G.demo)return; const a=.75+.25*Math.sin(performance.now()/90); ctx.globalAlpha=a; txt('INCOMING!',W/2,Math.max(H*.34,170*U),Math.round(30*U),'#ff5a3a','center'); ctx.globalAlpha=1 },
   qaSpawn(t,x,y){ return spawnEnemy(t,x,y) },
   btn(){ let b=document.getElementById('n2x'); if(!b&&this.XC&&document.body){ b=document.createElement('button'); b.id='n2x'; b.textContent='POP SMOKE · CALL BIRD (X)';
@@ -3280,6 +3283,7 @@ document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code===
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
 const EARLY=!/[?&]early=0\b/.test(location.search);
 const QAHP=Math.max(0,Math.min(100,+params.get('qahp')||0));
+const PADLANE=!/[?&]padlane=0\b/.test(location.search);
 const PADSPREAD=/[?&]padspread=0\b/.test(location.search)?0:(+params.get('padspread')||.75); const PSDOC=+params.get('psdoc')||4;
 const LATE6=/[?&]late6=0\b/.test(location.search)?0:(+params.get('late6')||.7);   /* rc6: rifle hits on Doc x0.7 after 6:00 while holding for the bird (?late6=0 off, ?late6=X tune) */   /* Gamer rc6 #5: gentler 1:00-4:30 + guaranteed lulls (?early=0 off) */
 const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_LULL:[5,8],MAX_TEAMS:1,HOLD_TEAMS:2,SHOT_HIT:.1,HOLD_DOC:+(new URLSearchParams(location.search).get('holddoc')||.18),M_TGT:.6,M_HIT:.4,M_DMG:38,SHOT_DMG:4,COVER_DR:.4,RET_AT:.25,
@@ -4427,7 +4431,7 @@ function crossOpen(h,i,c){ const k=crossKind(h,i,c); if(k&&!crossDryC(h,i,c))ret
 function riverAt(x,y){ const wy=Math.floor(y/RT); if(riverRow(wy)){ const cy=rowCy(wy,x); if(Math.abs(y-cy)<MAPB.HW)return {h:true,i:wy,u:x,v:y-cy} }
   const wx=Math.floor(x/RT); if(riverCol(wx)){ const cx=colCx(wx,y); if(Math.abs(x-cx)<MAPB.HW)return {h:false,i:wx,u:y,v:x-cx} } return null }
 function canWade(x,y,who){ const r=riverAt(x,y); if(!r)return true; const c=Math.floor(r.u/RT), k=crossOpen(r.h,r.i,c); if(!k)return false; const d=Math.abs(r.u-crossU(c));
-  if(k===1)return d<MAPB.BR_HALF||(Math.abs(r.v)>MAPB.HW-16&&d<MAPB.BR_HALF+14);   /* bridge-end apron: no corner clipping where the bank curves (Blake: can't cross) */ if(k===2)return who!=='tank'&&d<MAPB.FORD_HALF;   /* the tank uses bridges only */ return who==='nva'&&d<MAPB.FORD_HALF }
+  if(k===1){ const pw=who==='p'&&PADLANE?8:0; return d<MAPB.BR_HALF+pw||(Math.abs(r.v)>MAPB.HW-16-pw&&d<MAPB.BR_HALF+14+pw) }   /* rc6b: Doc gets 8 px more deck + apron so he can't snag on the bridge-end corners (?padlane=0) */   /* bridge-end apron: no corner clipping where the bank curves (Blake: can't cross) */ if(k===2)return who!=='tank'&&d<MAPB.FORD_HALF;   /* the tank uses bridges only */ return who==='nva'&&d<MAPB.FORD_HALF }
 const isNvaFoot=e=>e&&(e.type==='nva'||e.type==='officer'||e.type==='sapper');
 /* move o from (o.x,o.y) by (vx,vy): blocked by water except at crossings; slides along banks; never traps anything already in water */
 function rvMove(o,vx,vy,who){ const nx=o.x+vx, ny=o.y+vy; if(!G||G.demo||o.swim>0||canWade(nx,ny,who)){ o.x=nx; o.y=ny; return 0 }
@@ -6210,7 +6214,8 @@ function dropSig(x,y,kind){ const g=G,ex=g.ex,p=g.p; if(ex.ph!==0)return; if(x==
 function exCrateSig(){}
 function updateSigs(dt){}
 /* ---- pad site validation (rivers, firebase walls, tunnel hatches, pits) ---- */
-function lzOk(x,y){ if(onRiver(x,y,86))return false; if(G&&G.p&&!G.demo&&needCross(G.p.x,G.p.y,x,y))return false; if(G&&!G.demo&&hiddenNear(x,y,MAPB.HIDE_MIN).length)return false;   /* Doc walks straight to the pad: no river between; never within ~15 s of the hidden crossing */ for(const s of strs)if(!s.dead&&Math.hypot(s.x-x,s.y-y)<(s.r||20)+85)return false;
+function laneOk(ax,ay,bx,by){ const L=Math.hypot(bx-ax,by-ay), n=Math.max(1,Math.ceil(L/14)); for(let i=1;i<=n;i++){ const t=i/n; if(!canWade(ax+(bx-ax)*t,ay+(by-ay)*t,'p'))return false } return true }   /* rc6b: Doc can walk a straight line from where he stands to the pad */
+function lzOk(x,y){ if(onRiver(x,y,86))return false; if(PADLANE&&G&&G.p&&!G.demo&&!laneOk(G.p.x,G.p.y,x,y))return false; if(G&&G.p&&!G.demo&&needCross(G.p.x,G.p.y,x,y))return false; if(G&&!G.demo&&hiddenNear(x,y,MAPB.HIDE_MIN).length)return false;   /* Doc walks straight to the pad: no river between; never within ~15 s of the hidden crossing */ for(const s of strs)if(!s.dead&&Math.hypot(s.x-x,s.y-y)<(s.r||20)+85)return false;
   for(const q of tunnels)if(Math.hypot(q.x-x,q.y-y)<85)return false; for(const q of pits)if(Math.hypot(q.x-x,q.y-y)<55)return false; return true }
 function pickLz(x,y){ if(lzOk(x,y))return {x,y,moved:false}; for(let r=40;r<=440;r+=40)for(let k=0;k<12;k++){ const a=k/12*TAU+r; const nx=x+Math.cos(a)*r, ny=y+Math.sin(a)*r; if(lzOk(nx,ny))return {x:nx,y:ny,moved:true} } return {x,y,moved:true,forced:true} }
 const exBlocked=(x,y)=>{ const ex=G&&G.ex; return !!(ex&&ex.pad&&ex.ph>=3&&ex.ph<=5&&Math.hypot(ex.pad.x-x,ex.pad.y-y)<EX.PAD_R+40) };
@@ -6256,7 +6261,7 @@ function answerCall(yes){ const g=G,ex=g.ex,c=ex.call; closeSigAsk(); const real
   if(!yes&&!real){ c.st='popped'; c.look='real'; c.rejected=true; c.decoy=false; ex.charlie=null; { const L="Bird, Doc. Negative, that's not our smoke. Over.  -  Bird: Roger. Looking again. Over."; c.seeAt=g.t+Math.max(1.2,L.length/40+1); gunny(L,Math.max(3.6,L.length/40+1.6),1,'DOC') }   /* RC4 (Gamer soft-lock): a rejected decoy is gone for good. RC5.1 (Gamer): the next ask waits until Doc's whole reply has typed out (it was cut at "Negati") */ return }
   c.noReal=(c.noReal|0)+1; if(c.rejected||c.noReal>=2||!c.decoy||!ex.charlie){ c.st='ok'; c.okAt=g.t; ex.confAt=g.t; ex.wrong=false; ex.charlie=null; gunny("Bird, Doc. Negative...  -  Bird: I have one smoke on your pad, Doc. Setting down on it. Over.",3.6,1,'BIRD'); return }   /* RC4: never loop; with no decoy left the bird lands on the pad smoke */
   c.st='popped'; c.look='charlie'; c.seeAt=g.t+3; gunny("Bird, Doc. Negative, that's not our smoke. Over.  -  Bird: Say again? Holding. Looking again. Over.",3.6,1,'DOC') }
-function planPad(){ const g=G,ex=g.ex,p=g.p; let q; relocHidden(p.x,p.y); { const a=rnd()*TAU; q=pickLz(p.x+Math.cos(a)*220,p.y+Math.sin(a)*220) }
+function planPad(){ const g=G,ex=g.ex,p=g.p; let q; relocHidden(p.x,p.y); if(ex.ph===0&&ex.pre){ q=ex.pre; ex.pre=null } else { const a=rnd()*TAU; q=pickLz(p.x+Math.cos(a)*220,p.y+Math.sin(a)*220) }
   if(ex.ph===0){ padMedBonus(); ex.pad={x:q.x,y:q.y}; ex.padPlan=true; ex.padShown=true; ex.padCol=ex.col; ex.ph=3; ex.landT=EX.LZ_T; ex.popped=false;
     g.banner={text:'PAD MARKED · BIRD IN '+fmt(EX.LZ_T-EX.PAD_T),t:3.2,col:'#9be37a'}; Snd.play('level');
     gunny("Pad is marked. Bird sets down in "+fmt(EX.LZ_T-EX.PAD_T)+". When he calls for smoke, get on that circle and pop yours.",4.6,1); return }
@@ -6384,6 +6389,7 @@ function drawSigIcon(c,x,y,r,it,tt){ c.fillStyle='#1b1b18'; c.fillRect(x-r*.5,y-
 function drawExGround(tt){ const g=G,ex=g.ex; if(!ex)return;
   const can=(s)=>{ ctx.fillStyle='rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(s.x,s.y+2,10,4,0,0,TAU); ctx.fill() };
   if(ex.sig&&ex.popped)can(ex.sig); if(ex.charlie)can(ex.charlie);
+  if(ex.ph===0&&ex.pre&&N2.XC&&G.t>=N2.XMIN){ const lz=ex.pre, R=EX.PAD_R, on=N2.atPad(G); ctx.save(); ctx.translate(lz.x,lz.y+2); ctx.scale(1,.78); ctx.lineWidth=7; ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.beginPath(); ctx.arc(0,0,R+2,0,TAU); ctx.stroke(); ctx.setLineDash([14,10]); ctx.lineDashOffset=-tt*20; ctx.strokeStyle=on?'#9be37a':'#fff6a0'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(0,0,R,0,TAU); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); ctx.save(); ctx.font='bold 12px "Courier New",monospace'; ctx.textAlign='center'; ctx.fillStyle='#000'; ctx.fillText('PAD',lz.x+1,lz.y+5); ctx.fillStyle='#fff6a0'; ctx.fillText('PAD',lz.x,lz.y+4); ctx.restore() }   /* rc6b: pre-marked pad for the first call */
   if(ex.pad&&ex.padShown&&(ex.ph>=3||ex.padPlan)&&ex.ph<=7){ const lz=ex.pad, R=EX.PAD_R, c=SIGC[ex.padCol==='white'?'yellow':ex.padCol];
     ctx.save(); ctx.globalAlpha=.4; ctx.fillStyle='#8f7a4e'; ctx.beginPath(); ctx.ellipse(lz.x,lz.y+4,R+20,(R+20)*.7,0,0,TAU); ctx.fill(); ctx.restore();
     const pulse=1+.05*Math.sin(tt*5); ctx.save(); ctx.translate(lz.x,lz.y+2); ctx.scale(1,.78); ctx.lineWidth=6; ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.beginPath(); ctx.arc(0,0,R*pulse+2,0,TAU); ctx.stroke();
@@ -6435,12 +6441,12 @@ const dirWord=(dx,dy)=>DIR8[((Math.round(Math.atan2(dy,dx)/(Math.PI/4))%8)+8)%8]
 /* the permanent line under the timer: what Doc is doing right now (+ live distance/arrow), and the count of the fifteen */
 const PADARR=!/[?&]padarrow=0\b/.test(location.search);   /* Gamer rc6 #3: the pad gets rc5's big pale-yellow pulsing pointer whenever it is off-screen */
 function exTarget(){ const g=G,ex=g.ex; if(!ex)return null;
-  if(ex.ph===4&&ex.divert&&ex.huey)return ex.huey; if(ex.ph===0&&ex.padPlan&&ex.pad)return ex.pad; if(ex.ph>=3&&ex.ph<=5&&ex.pad&&(ex.padShown||ex.ph>=4))return (ex.ph===5&&ex.huey)?ex.huey:ex.pad; return null }
+  if(ex.ph===4&&ex.divert&&ex.huey)return ex.huey; if(ex.ph===0&&ex.padPlan&&ex.pad)return ex.pad; if(ex.ph===0&&ex.pre&&N2.XC&&g.t>=N2.XMIN)return ex.pre; if(ex.ph>=3&&ex.ph<=5&&ex.pad&&(ex.padShown||ex.ph>=4))return (ex.ph===5&&ex.huey)?ex.huey:ex.pad; return null }
 function sigLine(){ const g=G,ex=g.ex,p=g.p; if(!ex)return {t:'',c:'#fff'};
-  const T=exTarget(), dm=T?Math.max(1,Math.round(Math.max(0,Math.hypot(T.x-p.x,T.y-p.y)-(T===ex.pad?EX.PAD_R:0))/10)):0;   /* distance to pad EDGE */
+  const T=exTarget(), dm=T?Math.max(1,Math.round(Math.max(0,Math.hypot(T.x-p.x,T.y-p.y)-((T===ex.pad||T===ex.pre)?EX.PAD_R:0))/10)):0;   /* distance to pad EDGE */
   const pdm=ex.pad?Math.round(Math.hypot(ex.pad.x-p.x,ex.pad.y-p.y)/10):0;
   const scOn=!N2.SMH||(ex.saidT!=null&&G.t-ex.saidT<10);   /* Vet: colour shown ~10 s after Gunny says it, then just 'SMOKE ON DOC'S BELT' */
-  if(ex.ph===0)return {t:(scOn?(ex.smokeCol||'').toUpperCase()+' ':'')+'SMOKE ON DOC\'S BELT  ·  '+(N2.XC?(G.t>=N2.XMIN?'POP SMOKE WHEN READY · BIRD 2:00 OUT':'CALL THE BIRD FROM '+fmt(N2.XMIN)):'PAD AT '+fmt(EX.PAD_T)),c:scOn?SIGC[ex.smokeCol]||'#c8c8b0':'#c8c8b0'};
+  if(ex.ph===0)return {t:(scOn?(ex.smokeCol||'').toUpperCase()+' ':'')+'SMOKE ON DOC\'S BELT  ·  '+(N2.XC?(G.t>=N2.XMIN?(ex.pre&&N2.SMB?(N2.atPad(G)?'ON THE PAD · POP SMOKE WHEN READY':'GET ON THE PAD '+dm+'m TO CALL THE BIRD'):'POP SMOKE WHEN READY · BIRD 2:00 OUT'):'CALL THE BIRD FROM '+fmt(N2.XMIN)):'PAD AT '+fmt(EX.PAD_T)),c:scOn?SIGC[ex.smokeCol]||'#c8c8b0':'#c8c8b0'};
   if(ex.ph===4&&ex.divert)return {t:"BIRD WENT TO CHARLIE'S SMOKE · BACK IN "+Math.max(0,Math.ceil(ex.divert.cost-ex.divert.t))+'s',c:'#ff6a4a',T:null};
   if(ex.ph===4&&ex.call&&ex.call.st==='wait')return {t:(onPad(p.x,p.y)?'POPPING SMOKE...':'BIRD WANTS SMOKE · GET ON THE PAD '+dm+'m')+' · BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t))),c:'#ffcf5a',T:onPad(p.x,p.y)?null:T};
   if(ex.ph===4&&ex.call&&ex.call.st!=='ok')return {t:'SMOKE OUT · THE BIRD IS LOOKING · BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t))),c:SIGC[ex.col],T:null};
@@ -6462,8 +6468,8 @@ function drawSigLine(U,oy){ const g=G,p=g.p,ex=g.ex; if(!ex||g.demo)return; cons
 function drawExHud(U,camX,camY,tt){ const g=G,p=g.p,ex=g.ex; exStack=0; if(!ex||g.demo)return; ctx.setTransform(1,0,0,1,0,0);
   const bw=Math.min(W-16*U-(SA.l+SA.r)*DPR,430*U), bx=W/2-bw/2; let y=exTop(U);
   // edge arrow to the smoke / pad / bird when it is off screen
-  const T=exTarget(); if(T){ const sg=ex.ph>=1&&ex.ph<=2&&ex.sig, c=sg?SIGC[ex.sig.col==='white'?'yellow':ex.sig.col]:'#9be37a', dx=T.x-p.x,dy=T.y-p.y,d=Math.hypot(dx,dy), on=Math.abs(dx)<VW/2-40&&Math.abs(dy)<VH/2-40, big=(PADARR&&T===ex.pad)?1.7+.12*Math.sin(performance.now()/160):ex.ph>=4?1.25:1, lab=sg?(ex.sig.kind==='mirror'?'MIRROR':ex.sig.kind==='flare'?'FLARE':'SMOKE'):ex.ph===5?'BIRD':'PAD';
-    if(!on){ const a=Math.atan2(dy,dx), [ax,ay]=edgeArrow(a,U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); if(PADARR&&T===ex.pad)ctx.translate(-8*U,0); ctx.fillStyle=(PADARR&&T===ex.pad&&!sg)?'#fff6a0':c; ctx.strokeStyle='#000'; ctx.lineWidth=PADARR&&T===ex.pad?5:4; ctx.beginPath(); ctx.moveTo(22*U*big,0); ctx.lineTo(-10*U*big,-14*U*big); ctx.lineTo(-10*U*big,14*U*big); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
+  const T=exTarget(); if(T){ const sg=ex.ph>=1&&ex.ph<=2&&ex.sig, c=sg?SIGC[ex.sig.col==='white'?'yellow':ex.sig.col]:'#9be37a', dx=T.x-p.x,dy=T.y-p.y,d=Math.hypot(dx,dy), on=Math.abs(dx)<VW/2-40&&Math.abs(dy)<VH/2-40, big=(PADARR&&(T===ex.pad||T===ex.pre))?1.7+.12*Math.sin(performance.now()/160):ex.ph>=4?1.25:1, lab=sg?(ex.sig.kind==='mirror'?'MIRROR':ex.sig.kind==='flare'?'FLARE':'SMOKE'):ex.ph===5?'BIRD':'PAD';
+    if(!on){ const a=Math.atan2(dy,dx), [ax,ay]=edgeArrow(a,U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); const tp=T===ex.pad||T===ex.pre; if(PADARR&&tp)ctx.translate(-8*U,0); ctx.fillStyle=(PADARR&&tp&&!sg)?'#fff6a0':c; ctx.strokeStyle='#000'; ctx.lineWidth=PADARR&&tp?5:4; ctx.beginPath(); ctx.moveTo(22*U*big,0); ctx.lineTo(-10*U*big,-14*U*big); ctx.lineTo(-10*U*big,14*U*big); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
       txt(lab+' '+Math.round(d/10)+'m',ax,ay+(ay>H/2?-22*U:30*U),13*U,c,'center') } }
   // Gunny radio box (colonel's style: black frame, silver bevel, navy panel, gold name)
   const m=state==='sig'?null:exMsg; if(m){ const k=Math.min(1,m.t/.18,(m.dur-m.t)/.25);   /* hidden while the confirm prompt is up (it peeked out behind it) */ const fs=12*U, pw=34*U, ph=38*U; ctx.font=`bold ${fs}px "Courier New",monospace`;
