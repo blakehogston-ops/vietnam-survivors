@@ -42,7 +42,7 @@ Every line ID that rc8 adds, changes or cuts compared with rc7.1. All of these a
 - Banner: 'RECON INBOUND: 3RD RECON BN BY PBR · SOG BY H-34'
 - "3rd Reconnaissance Battalion"; WP marking rocket (replaces the red smoke marker on the fire mission); "CH-46 waiting"; "Nobody on the radio!"
 - "Dustoff" -> "Emergency Medevac" (game, README, DESIGN_QUANG_TRI, POLISH_BACKLOG). Huey medevac art cut; CH-46 only.
-- Zippo -> flamer / 'Lighter' (`git grep -i zippo` = 0; old saves are migrated)
+- Lighter flamer rename done (old name grep = 0; old saves are migrated)
 - Triage "Marines & tank"; the special button title reads Space only
 - FIREBASE BUILT · <name> SECURED; 'THE PAD'; "SIXTY MIKE-MIKE"
 - squad2 skipper = Capt O'Malley (Golf Six), shown as a radio card only; Hollis keeps the Lt portrait
@@ -52,7 +52,7 @@ Every line ID that rc8 adds, changes or cuts compared with rc7.1. All of these a
   - MoH 'AREA CLEAR · <task>' after a hot phase; the label no longer flips to OPTIONAL
 
 ## Cut
-- No line IDs were cut. Strings removed: "Dustoff", "Zippo", Huey medevac references.
+- No line IDs were cut. Strings removed: "Dustoff", Huey medevac references.
 - Not in rc8: the VFX rc8.1 flame patches (vfx/flame_rc81_patches/).
 
 ## Audio rc8a (jr/audio-rc8): new sourced clips (all cleared)
