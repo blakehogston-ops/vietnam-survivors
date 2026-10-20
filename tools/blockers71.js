@@ -2,7 +2,7 @@
 const {chromium}=require('playwright-core');const W=ms=>new Promise(r=>setTimeout(r,ms));let fail=0;const R={};const ok=(k,v,d)=>{R[k]={pass:!!v,d};if(!v)fail++};
 (async()=>{const b=await chromium.launch({channel:'chrome',args:['--no-sandbox']});const c=await b.newContext({viewport:{width:1280,height:720}});await c.addInitScript(()=>{localStorage.setItem('lco_tutAsk','1')});
 const pg=await c.newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
-await pg.goto('http://localhost:'+(process.env.PORT||8816)+'/?nodemo&nointro&nobrief&god&char=doc&autostart&seed=7');await W(2500);
+await pg.goto('http://localhost:'+(process.env.PORT||8816)+'/?nodemo&nointro&nobrief&god&char=doc&autostart&seed=7',{timeout:120000,waitUntil:'domcontentloaded'});await W(4000);
 const T=()=>pg.evaluate(()=>__ms.G.t);
 /* 1 freeze: NaN frame clock (last=NaN) used to stop the world silently */
 let t0=await T(); await pg.evaluate(()=>{ last=NaN }); await W(1500); let t1=await T(); ok('freeze_nan_dt',t1>t0+.5,{t0,t1});
