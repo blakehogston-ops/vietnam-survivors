@@ -3361,7 +3361,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
     if(Math.hypot(p.x-x,p.y-y)<70)hurtPlayer(22,'satchel charge'); for(const m of coy)if(m.hp>0&&m.state==='ok'&&Math.hypot(m.x-x,m.y-y)<70)hurtMember(m,55) },
   /* (a) player-chosen extraction: from XMIN Doc decides when to pop smoke and call the bird; it is XIN s out */
   canCall(g){ const ex=g.ex; return this.XC&&ex&&ex.ph===0&&!ex.padPlan&&g.t>=this.XMIN&&state==='play' },
-  call(auto){ const g=G,ex=g.ex; if(!this.canCall(g))return false; planPad(); ex.landT=g.t+this.XIN-Math.min(15,g.pullEx||0); this.log.call=+g.t.toFixed(1);
+  call(auto){ const g=G,ex=g.ex; if(!this.canCall(g))return false; try{ if(MOH.cur){ MOH.end('extract'); MOH.card=0 } }catch(e){} planPad(); ex.landT=g.t+this.XIN-Math.min(15,g.pullEx||0); this.log.call=+g.t.toFixed(1);
     g.banner={text:'SMOKE OUT · CH-46 INBOUND · '+fmt(this.XIN),t:3.2,col:'#9be37a'};
     gunny(auto?"Doc, the bird's coming for you now whether you're ready or not. Minute fifteen. Hold that pad.":"Bird's on the way, minute fifteen out. Hold that pad, Doc. When he calls for smoke, get on the circle.",4.6,1); return true },
   /* (d) wave-off: the pad overrun on short final -> the bird breaks off, orbits ~20 s and comes back (max twice, then he lands anyway) */
@@ -3389,7 +3389,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
   SMB:N2F('smokebtn'),
   smokeWait(){ const g=G,ex=g&&g.ex,c=ex&&ex.call; if(!this.SMB||!c||c.st!=='wait'||ex.ph!==4||ex.divert||state!=='play')return null; return onPad(g.p.x,g.p.y)&&g.p.hp>0?'on':'off' },
   press(){ const w=this.smokeWait(); if(w==='on'){ popSmoke(); return true } if(w==='off'){ G.banner={text:'GET TO THE PAD FIRST',t:1.4,col:'#ffcf5a'}; return false } if(this.SMB&&!this.atPad(G)){ G.banner={text:'GET TO THE PAD FIRST',t:1.4,col:'#ffcf5a'}; return false } return this.call(false) },
-  atPad(g){ if(!g||g.p.hp<=0)return false; const ex=g.ex; if(ex&&ex.ph===0&&ex.pre)return Math.hypot(g.p.x-ex.pre.x,g.p.y-ex.pre.y)<=EX.PAD_R; return onPad(g.p.x,g.p.y) },   /* rc6b blocker 1: the FIRST call (pop smoke + call bird) also needs Doc inside the pad circle */
+  atPad(g){ if(!g||g.p.hp<=0)return false; const ex=g.ex; if(ex&&ex.ph===0&&ex.pre)return Math.hypot(g.p.x-ex.pre.x,g.p.y-ex.pre.y)<=EX.PAD_R*1.35;   /* EP: bigger snap onto the pad */ return onPad(g.p.x,g.p.y) },   /* rc6b blocker 1: the FIRST call (pop smoke + call bird) also needs Doc inside the pad circle */
   hud(U){ if(!this.shells.some(q=>q.t>=(q.w||0))||G.demo)return; const a=.75+.25*Math.sin(performance.now()/90); ctx.globalAlpha=a; txt('INCOMING!',W/2,Math.max(H*.34,170*U),Math.round(30*U),'#ff5a3a','center'); ctx.globalAlpha=1 },
   qaSpawn(t,x,y){ return spawnEnemy(t,x,y) },
   btn(){ let b=document.getElementById('n2x'); if(!b&&this.XC&&document.body){ b=document.createElement('button'); b.id='n2x'; b.textContent='POP SMOKE · CALL BIRD (X)';
@@ -3891,7 +3891,7 @@ function update(dt){
   /* QA Oct 14: level-up cards kept Doc off the pad. Smoke, confirm, inbound and boarding (ph 1,2,4,5) queue them (shown after lift-off / next level);
      during the pad hold (ph 3) at most one card per LU_GAP s. The boarding clock and pilot prompt never sit under a card. */
   const exPh=g.ex?g.ex.ph:0, luHold=exPh===1||exPh===2||exPh>=4||(exPh===3&&g.t-(g.luAt||-99)<LU_GAP);
-  if(g.pending>0&&state==='play'&&!g.demo&&p.hp>0&&!luHold&&!fbHoldBusy()){ g.luAt=g.t; openLevelUp() }   /* rc7.1 LPT#1: level-up waits until a HOLD F call finishes */
+  if(g.pending>0&&state==='play'&&!g.demo&&p.hp>0&&!luHold&&!fbHoldBusy()&&!(MOH.cur&&MOH.cur.ph==='go')){ g.luAt=g.t; openLevelUp() }   /* rc7.1 LPT#1: level-up waits until a HOLD F call finishes */
   else if(g.pending>0&&g.demo){g.pending=0}
 }
 const KCIDS={arclight:1,boxmission:1,strafe:1,napalm:1};
@@ -4169,7 +4169,7 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
         for(let k=1;k<=Math.ceil(D/24)&&okP;k++){ const u=k*24/D, sx=fbS.x+(x-fbS.x)*u, sy=fbS.y+(y-fbS.y)*u; if(riverAt(sx,sy)||!canWade(sx,sy,'p'))okP=false } }   /* objective must be reachable on foot in a straight line from the base */
       if(!okP){ this.next=g.t+20; this.q.unshift(k); return }
       for(let j=0;j<this.P.E;j++){ const a=rnd()*TAU, r=60+rnd()*90; try{ const n0=enemies.length; spawnEnemy(rnd()<.5?'vc':'nva',x+Math.cos(a)*r,y+Math.sin(a)*r); for(let q=n0;q<enemies.length;q++)enemies[q].mohA=1 }catch(e){} }   /* the pinned-down men are under fire: a small enemy group at the objective */
-      const dist=Math.hypot(x-fbS.x,y-fbS.y); this.cur={k,x,y,t:0,h:0,ph:'go',life:Math.max(this.P.T,dist/150+this.C[k].hold+10)+4,dist};   /* go timer scales with distance: walk + hold + ~10 s to clear the ambush (fixed 11 s was unwinnable for players) */ this.card=6; try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
+      const dist=Math.hypot(x-fbS.x,y-fbS.y); this.cur={k,x,y,t:0,h:0,ph:'go',life:(+params.get('moht'))||Math.max(this.P.T,dist/150+this.C[k].hold+10,k==='taylor'?Math.max(30,dist/8/3.5):0)+4,dist};   /* go timer scales with distance: walk + hold + ~10 s to clear the ambush (fixed 11 s was unwinnable for players) */ this.card=6; try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
     const c=this.cur; if(!c)return; if(!this.cardWait())this.card=Math.max(0,(this.card||0)-dt); if(!(c.ph==='go'&&this.card>0))c.t+=dt; this.alertT=Math.max(0,this.alertT-dt);
     if(!fbS){ this.end('baseLost'); return }
     if(this.away()&&this.integ()<.6&&!(this.alertT>0)){ this.alertT=6; g.banner={text:'FIREBASE '+(fbS.name||'')+' IS FALLING · GET BACK',t:2.6,col:'#ff6a4a'}; try{ Snd.play('radio') }catch(e){} }
@@ -6375,7 +6375,7 @@ function lzOk(x,y){ if(onRiver(x,y,86))return false; if(PADLANE&&G&&G.p&&!G.demo
 function pickLz(x,y){ if(lzOk(x,y))return {x,y,moved:false}; const rOn=Math.max(40,Math.min(VW,VH)/2-70); for(let r=40;r<=rOn;r+=20)for(let k=0;k<12;k++){ const a=k/12*TAU+r; const nx=x+Math.cos(a)*r, ny=y+Math.sin(a)*r; if(lzOk(nx,ny))return {x:nx,y:ny,moved:true} } for(let r=Math.ceil(rOn/40)*40;r<=440;r+=40)for(let k=0;k<12;k++){ const a=k/12*TAU+r; const nx=x+Math.cos(a)*r, ny=y+Math.sin(a)*r; if(lzOk(nx,ny))return {x:nx,y:ny,moved:true} } return {x,y,moved:true,forced:true} }
 const exBlocked=(x,y)=>{ const ex=G&&G.ex; return !!(ex&&ex.pad&&ex.ph>=3&&ex.ph<=5&&Math.hypot(ex.pad.x-x,ex.pad.y-y)<EX.PAD_R+40) };
 const onPad=(x,y)=>{ const ex=G.ex; return !!(ex.pad&&Math.hypot(x-ex.pad.x,y-ex.pad.y)<=EX.PAD_R) };
-function popSignal(){ try{ return N2.press() }catch(e){ return false } }   /* rc7.1 key fix: G was dead; it now does what X does (pop smoke on the pad / call the bird) */   /* no pop key any more: the smoke column is already burning where it fell */
+function popSignal(){ try{ const ex=G&&G.ex; if(!ex||ex.ph<3){ if(state==='play'&&N2.canCall&&N2.canCall(G))G.banner={text:'PRESS X TO CALL THE BIRD',t:1.8,col:'#9be37a'}; return false } return N2.press() }catch(e){ return false } }   /* EP: G pops smoke only, never calls the bird (X calls) */   /* rc7.1 key fix: G was dead; it now does what X does (pop smoke on the pad / call the bird) */   /* no pop key any more: the smoke column is already burning where it fell */
 /* ---- confirm (one tap, no timer) ---- */
 function openConfirm(at){ const g=G,ex=g.ex; ex.ph=2; ex.at=at; ex.sayAgain=false; const kd=at==='charlie'?'smoke':ex.sig.kind; gunny(kd==='mirror'?'Bird, Doc. Mirror flashing. Over.':kd==='flare'?'Bird, Doc. Flare up. Over.':'Bird, Doc. Smoke out. Over.',2.4,1,'DOC');
   if(at==='charlie')ex.idCol=ex.charlie.col;
