@@ -1204,6 +1204,19 @@ const BUILD={id:'0e827f9',date:'2026-10-20 03:21 ET',tag:'lco-rc5'}, AV='?v='+BU
 const cv=document.getElementById('c'), ctx=cv.getContext('2d');
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
+/* ===== ITEM 5: DEMO mode for the public web build (Steam demo). =====
+   On: ?demo=1, or the public build sets DEMO_BUILD=true (never applies on /next/ or in Electron; ?demo=0 forces off).
+   Limits: Doc only + base kit, achievements local only (never synced), separate DEMO save keys + DEMO-labelled leaderboard, bird auto-called at 10:00 (natural end ~12 min), end card.
+   STEAM_URL is a placeholder: empty = no link is shown. Never fill it with a guessed URL. */
+const DEMO_BUILD=false;
+const STEAM_URL='';
+const IS_ELECTRON=!!(window.process&&window.process.versions&&window.process.versions.electron)||/\belectron\//i.test(navigator.userAgent);
+const IS_NEXT=/\/next\//.test(location.pathname);
+const DEMO=!IS_ELECTRON&&params.get('demo')!=='0'&&(params.get('demo')==='1'||(DEMO_BUILD&&!IS_NEXT));
+const PUBLIC_BUILD=params.get('public')==='1'||(!IS_NEXT&&!IS_ELECTRON&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname));
+const LEGAL_SAFE=DEMO&&PUBLIC_BUILD;   /* demo on a public host: no tier-5 combat track, no extraction track (Legal) */
+try{ if(DEMO)document.documentElement.classList.add('demo') }catch(e){}
+
 const BOTF={move:null,pick:null}; window.BOTF=BOTF;
 const DBG={dbgAirCd:()=>window.dbgAirCd&&window.dbgAirCd(), t:+params.get('t')||0, god:params.has('god'), bot:params.has('bot'), nodemo:params.has('nodemo'), nointro:params.has('nointro'), nobrief:params.has('nobrief'), fps:params.has('fps')};
 window.DBG=DBG;   /* QA/debug switches from the console: DBG.bot=true, DBG.god=true, DBG.fps=true (see README 'Debug & QA switches') */
@@ -5003,18 +5016,6 @@ if(params.get('char'))SEL=params.get('char'); if(!CHD[SEL])SEL='doc';
 /* Stage 1: on a fresh save Doc is the only open record; every other record opens the first time Doc comes home (lbo2_open). */
 function chOpenSave(id){ if(id==='doc')return true; try{ return localStorage.getItem('lbo2_open')==='1' }catch(e){ return false } }
 /* ?all (tester build): every Marine selectable for this session only; nothing is written to the lbo2_ save and the run is a debug run */
-/* ===== ITEM 5: DEMO mode for the public web build (Steam demo). =====
-   On: ?demo=1, or the public build sets DEMO_BUILD=true (never applies on /next/ or in Electron; ?demo=0 forces off).
-   Limits: Doc only + base kit, achievements local only (never synced), separate DEMO save keys + DEMO-labelled leaderboard, bird auto-called at 10:00 (natural end ~12 min), end card.
-   STEAM_URL is a placeholder: empty = no link is shown. Never fill it with a guessed URL. */
-const DEMO_BUILD=false;
-const STEAM_URL='';
-const IS_ELECTRON=!!(window.process&&window.process.versions&&window.process.versions.electron)||/\belectron\//i.test(navigator.userAgent);
-const IS_NEXT=/\/next\//.test(location.pathname);
-const DEMO=!IS_ELECTRON&&params.get('demo')!=='0'&&(params.get('demo')==='1'||(DEMO_BUILD&&!IS_NEXT));
-const PUBLIC_BUILD=params.get('public')==='1'||(!IS_NEXT&&!IS_ELECTRON&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname));
-const LEGAL_SAFE=DEMO&&PUBLIC_BUILD;   /* demo on a public host: no tier-5 combat track, no extraction track (Legal) */
-try{ if(DEMO)document.documentElement.classList.add('demo') }catch(e){}
 const ALLU=params.has('all')&&!DEMO;
 /* Blake Oct 15: every character unlocked on /next/ (investor build). Unlock code untouched: set UNLOCK_ALL=false (or ?unlockall=0) to re-enable the gates. Not a debug run (no g.dbg). */
 const UNLOCK_ALL=params.get('unlockall')==='0'?false:(/\/next\//.test(location.pathname)||params.get('unlockall')==='1'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname));
