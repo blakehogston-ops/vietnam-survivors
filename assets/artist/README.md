@@ -62,7 +62,7 @@ Portraits, character-select art, medal-pin icons, corpse/crater decals, and the 
 - `allied_armband.js`: armband variants (yellow band on both upper arms) of the squad Marine and the three skin-tone Marines for Company Reinforcement allies.
 
 ## Medevac Huey + heal effects (added for the Medevac perk)
-- `medevac_huey.js`: `drawMedevacHuey(ctx,x,y,scale,rotorPhase[,heading])` — procedural, top-down, same shapes/scale as `drawHuey()` in index.html (nose +x, scale 1 = game px, x,y = aircraft centre). `rotorPhase` 0/1 (use `Math.floor(t*N)`), `heading` = `h.hd`. Olive-drab, white square + red cross on roof AND tail boom, open side doors (dark opening + tan litter), rotor blur disc. It draws no shadow/HP bar (keep the game's). Fallback: `MEDEVAC_HUEY.frames[0|1]` (48x48 letter grids + `legend`, 1 grid px = 2 game px) drawn by `drawMedevacHueyGrid(ctx,x,y,scale,phase,heading)`. In the game, `drawMedevac()` can simply call this instead of `drawHuey(h)` + its 10x10 cross.
+- `medevac_huey.js`: REMOVED in rc8 (Blake: no Hueys except the VMO-6 UH-1E escort; red-cross art). Medevac uses the CH-46 (`drawCH46`, ch46_v2.js).
 - `heal_pulse.js`: `drawHealPulse(ctx,x,y,t[,scale])`, t 0..1 — soft green-white expanding ring, draw under the unit's sprite. Grid version `HEAL_PULSE.frames[0..4]` (25x25, frame = min(4,floor(t*5)), draw at 2x). `HEAL_PLUS.frames[0|1]` 5x5 rising plus particle; `drawHealPlus(ctx,x,y,t[,scale])` rises ~18 px and switches to the dim frame at t>.55 (spawn 2-4 per healed unit with small x jitter).
 - Both export via `module.exports` for node and are shown at the bottom of `preview.html` / `preview.png` (regenerated with headless Chrome).
 
