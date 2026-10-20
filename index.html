@@ -2615,24 +2615,28 @@ function updateIns(dt){
 }
 const TALLM=m=>{ const S=window.SHEET1; if(!S||!S.marinesTall||!S.drawMarine)return null; const nm=m.coy?S.MARINE_COY[(m.cv|0)%S.MARINE_COY.length]:(S.MARINE_ROLE[m.role]||'marineRifle'), sp=S.sprites[nm]; return sp?{h:sp.h,grip:sp.gripY||16}:null };   /* labels/HP bars use the sprite's .h */
 /* rc7 #1: unit contrast. A soft 1 px dark outline (cached per sprite frame / per sprite canvas) behind Marines + enemies so they separate from the ground; at night a faint cool rim instead. ?unitrim=0 off, ?rimA=X alpha */
-window.RIMX=null; const RIM={ON:!/[?&]unitrim=0\b/.test(location.search),A:+params.get('rimA')||.9,on:false,M:new Map(),
-  col(){ const n=typeof ATM!=='undefined'&&ATM.ON&&G&&ATM.hourAt(G.t)>=19; return n?'#b9c4b0':'#0b0d08' },
-  dil(src,col){ const w=src.width+4,h=src.height+4,t=mk(w,h),x=t.getContext('2d'); x.imageSmoothingEnabled=false; for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,1],[-1,1],[1,-1]])x.drawImage(src,2+dx,2+dy); x.globalCompositeOperation='source-in'; x.fillStyle=col; x.fillRect(0,0,w,h); return t },
+window.RIMX=null; const RIM={ON:!/[?&]unitrim=0\b/.test(location.search),A:+params.get('rimA')||.55,AN:+params.get('rimN')||.4,on:false,M:new Map(),LT:[],   /* v2 (Artist Helper): day #1a1c12 @.55 on the side away from the light (down-right); night: dark rim @.4 ONLY inside flare/fire light, none outside; Doc never */
+  night(){ return typeof ATM!=='undefined'&&ATM.ON&&!!G&&ATM.hourAt(G.t)>=19 },
+  lit(x,y){ try{ if(window.VFX_ATMO&&VFX_ATMO.flareShadow(x,y))return true }catch(e){} const t=G?G.t:0; for(const l of this.LT)if(t-l.t<.3&&(l.x-x)*(l.x-x)+(l.y-y)*(l.y-y)<l.r*l.r*.5)return true; return false },
+  ua(x,y){ return this.night()?(this.lit(x,y)?this.AN:0):this.A },
+  hook(){ const V=window.VFX_ATMO; if(!V||V._rimH)return; V._rimH=1; const o=V.addLight, R=this; V.addLight=function(x,y,rad,col,i,ttl){ if(typeof rad==='string'&&rad!=='muzzle'){ const P=V.PRESET[rad]; if(P){ R.LT.push({x,y,r:P[1]*(typeof col==='number'?col:1),t:G?G.t:0}); if(R.LT.length>64)R.LT.shift() } } return o.apply(this,arguments) } },
+  col(){ return '#1a1c12' },
+  dil(src,col){ const w=src.width+4,h=src.height+4,t=mk(w,h),x=t.getContext('2d'); x.imageSmoothingEnabled=false; for(const [dx,dy] of [[1,0],[0,1],[1,1]])x.drawImage(src,2+dx,2+dy); x.globalCompositeOperation='source-in'; x.fillStyle=col; x.fillRect(0,0,w,h); return t },
   can(c){ const k=this.col(); if(!c._rim||c._rimK!==k){ c._rim=this.dil(c,k); c._rimK=k } return c._rim },   /* enemy sprite canvases */
-  draw(c,x,y,w,h){ if(!this.ON)return; const o=this.can(c), sx=w/c.width, sy=h/c.height; ctx.save(); ctx.globalAlpha*=this.alpha(); ctx.drawImage(o,x-2*sx,y-2*sy,o.width*sx,o.height*sy); ctx.restore() },
-  alpha(){ return this.col()==='#0b0d08'?this.A:this.A*.8 },
+  draw(c,x,y,w,h){ if(!this.ON)return; const a=this.ua(x+w/2,y+h); if(a<=0)return; const o=this.can(c), sx=w/c.width, sy=h/c.height; ctx.save(); ctx.globalAlpha*=a; ctx.drawImage(o,x-2*sx,y-2*sy,o.width*sx,o.height*sy); ctx.restore() },
+  alpha(){ return this.night()?this.AN:this.A },
   _c:null, ctxRef(x){ if(x===undefined)return this._c; this._c=x },   /* QA (tools/contrast.js): draw target for the rim, defaults to the game canvas */
   wrap(){ const S=window.SHEET1; if(!this.ON||!S||!S.draw||S._rimW)return; const orig=S.draw, R=this; S._rimW=1;
-    S.draw=function(c,name,frame,x,y,sc,flip,white){ if(R.on&&c===(R._c||ctx)&&!white){ const cx=R._c||ctx; const k=name+'|'+frame+'|'+(sc||1)+'|'+(flip?1:0)+'|'+R.col(); let o=R.M.get(k);
+    S.draw=function(c,name,frame,x,y,sc,flip,white){ const ua=R.on&&c===(R._c||ctx)&&!white?(R._c?R.alpha():R.ua(x,y)):0; if(ua>0){ const cx=R._c||ctx; const k=name+'|'+frame+'|'+(sc||1)+'|'+(flip?1:0)+'|'+R.col(); let o=R.M.get(k);
         if(!o){ const W=160,H=160,t=mk(W,H),tx=t.getContext('2d'); tx.imageSmoothingEnabled=false; try{ orig.call(this,tx,name,frame,W/2,H-24,sc,flip,false) }catch(e){} o=R.dil(t,R.col()); if(R.M.size>1500)R.M.clear(); R.M.set(k,o) }
-        cx.save(); cx.globalAlpha*=R.alpha(); cx.drawImage(o,Math.round(x-80-2),Math.round(y-(160-24)-2)); cx.restore() }
+        cx.save(); cx.globalAlpha*=ua; cx.drawImage(o,Math.round(x-80-2),Math.round(y-(160-24)-2)); cx.restore() }
       return orig.apply(this,arguments) } } };
 window.RIMX=RIM;
 function drawSquad(camX,camY){
   const x0=camX-50,x1=camX+VW+50,y0=camY-50,y1=camY+VH+50;
   for(const h of coyH){ if(h.t>=0&&h.ph===1&&h.di<=h.left){ ctx.strokeStyle='#c8b890'; ctx.lineWidth=1.5; for(const sd of [-9,9]){ ctx.beginPath(); ctx.moveTo(h.x+sd,h.y-34); ctx.lineTo(h.x+sd,h.y+6); ctx.stroke() } } }
   for(const h of ins){ if(h.ph===1&&h.di<=h.need.length){ ctx.strokeStyle='#c8b890'; ctx.lineWidth=1.5; for(const sd of [-9,9]){ ctx.beginPath(); ctx.moveTo(h.x+sd,h.y-34); ctx.lineTo(h.x+sd,h.y+6); ctx.stroke() } } }
-  RIM.wrap(); RIM.on=RIM.ON; try{ drawSquadInner(x0,x1,y0,y1) }finally{ RIM.on=false } }
+  RIM.wrap(); RIM.hook(); RIM.on=RIM.ON; try{ drawSquadInner(x0,x1,y0,y1) }finally{ RIM.on=false } }
 function drawSquadInner(x0,x1,y0,y1){
   for(const m of squad.concat(pat,coy)){ if(m.hid||m.x<x0||m.x>x1||m.y<y0||m.y>y1)continue;
     const R=SQR[m.role], ps=m.coy?COYSPR[m.cv]:SQSPR[m.role], fr=m.mv?(Math.floor(m.anim)&1):0, flip=m.face>0?0:1, spr=ps[fr][flip][m.hf>0?1:0], z=m.rz||0;
