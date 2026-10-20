@@ -141,6 +141,6 @@ Walls (336 x 336 px, half-side `FBS` = 168), the wire (half-side 237), turret sl
 
 ## Oct 20 (Blake notes)
 - **RTO calls the air strikes:** once Doc owns any air strike (napalm, strafe, Ranch Hand, Spooky, Arc Light, Box Mission) one of the fifteen takes the PRC-25 (antenna + "ON THE HORN" tag). He holds a ready strike until the enemy count on the map justifies it (bigger strikes need more targets; after ~25 s held he settles for half), then puts it on the densest concentration within ~1100 px (never closer than 90 px to Doc). 30+/60+ enemies add extra napalm canisters / B-52 bombs. He stays at Doc's shoulder. If he dies, air support is gone for the run.
-- **Med packs go in the pouch** (max 5): **H** = use on yourself (+35% HP), **Q** = patch the most hurt Marine within 110 px (+60%, RTO gets priority). On-screen buttons bottom-left for touch.
+- **Med packs go in the pouch** (max 5): **H** = use on yourself (+35% HP), **Q** = patch the most hurt Marine within 110 px (+60%, RTO gets priority). On-screen buttons bottom-left for touch; gamepad B (self) / RB (Marine). Ground packs now last 40 s (was 25).
 - **No auto-aim:** M16, M60, shotgun, grease gun, M1903, knives, flamethrower, claymores and M79 fire along Doc's movement / last facing. They hold fire when no enemy is in range. `?aim=auto` restores the old nearest-enemy aim. Squad Marines still pick their own targets.
 - QA: `node tools/rtotest.js` (RTO assignment, follow distance, strike calls, loss on death, med pack self/mate heals).

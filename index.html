@@ -268,7 +268,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <div id="padHint" aria-live="polite"></div>
 <div id="newBuild" role="button">A newer version of the game is available · click to reload</div>
 <div id="sup" aria-live="off"></div>
-<div id="medHud"><button id="medBtn" title="Use a med pack on yourself (H)">✚ <b id="medN">0</b><span>H</span></button><button id="medMate" title="Patch the most hurt Marine in reach (Q)">✚ MARINE<span>Q</span></button></div>
+<div id="medHud"><button id="medBtn" title="Use a med pack on yourself (H / pad B)">✚ <b id="medN">0</b><span>H</span></button><button id="medMate" title="Patch the most hurt Marine in reach (Q / pad RB)">✚ MARINE<span>Q</span></button></div>
 <div id="tkr" aria-live="off"><i id="tkrRing"></i><span id="tkrTx"></span></div>
 <button id="abil" title="Special ability (Space / E)"><i id="abilCd"></i><span id="abilKey">SPACE</span><b id="abilNm"></b></button>
 <div id="levelup" class="overlay">
@@ -3097,7 +3097,7 @@ function hurtEnemy(e,d,kx,ky){ if(e.dead)return; if(e.tank&&VHX.ON){ VHX.hit(VHX
 function dropGem(x,y,v,type){ if(gems.length>220){addXp(v);return} gems.push({x:x+(rnd()-.5)*10,y:y+(rnd()-.5)*10,v,t:type,pull:false,sp:0}) }
 /* NVA medic packs: ~3.5% of NVA Regular kills (pity: guaranteed after 60 NVA kills without one), at least 20 s apart, max 3 on the ground,
    25 s lifetime (blinks in the last 6 s), heals 17% max HP (halved if you picked one up in the last 10 s). VC do not drop them (the NVA rate is plenty). */
-const MED={chance:.035,pity:60,gap:20,cap:3,life:25,blink:6,heal:.17,inv:5,self:.35,mate:.6,reach:110};
+const MED={chance:.035,pity:60,gap:20,cap:3,life:40,blink:6,heal:.17,inv:5,self:.35,mate:.6,reach:110};
 /* Blake Oct 20: med packs go in Doc's pouch (max 5). H = use on yourself, Q = patch the most hurt Marine within reach (RTO first) */
 function useMed(mate){ const g=G; if(!g||g.demo||state!=='play'||!(g.medInv>0))return false; const p=g.p;
   if(!mate){ if(p.hp>=p.maxHp){ ftexts.push({x:p.x,y:p.y-18,t:0,s:'FULL HEALTH',c:'#cfcfb0'}); return false } const amt=Math.round(p.maxHp*MED.self), got=Math.min(amt,p.maxHp-p.hp); p.hp+=got; g.med.healed+=got; g.medInv--;
@@ -4230,7 +4230,7 @@ function addCloud(x,y,r,life,dmg,slow){ if(clouds.length>=48)clouds.shift(); clo
 let RTO_T=null;
 const RTO={MIN:{napalm:5,strafe:4,ranch:6,spooky:10,arclight:14,boxmission:22},GAP:2.5,
   on(g){ if(g.demo||!g.char)return false; if(g.rtoLost)return true; return !!this.get(g) },
-  get(g){ if(g.rtoLost)return null; let m=coy.find(q=>q.rto&&q.hp>0); if(m)return m;
+  get(g){ if(g.rtoLost)return null; let m=coy.find(q=>q.rto); if(m)return m.hp>0?m:null;   /* one RTO per run: a man at 0 HP this frame is not replaced */
     if(!Object.keys(g.w).some(k=>AIRCALL[k]))return null;
     const c=coy.filter(q=>q.hp>0&&q.state==='ok'&&!q.hid&&q.role!=='corps'); if(!c.length)return null;
     c.sort((a,b)=>(a.role==='rifle'?0:1)-(b.role==='rifle'?0:1)||Math.hypot(a.x-g.p.x,a.y-g.p.y)-Math.hypot(b.x-g.p.x,b.y-g.p.y)); m=c[0]; m.rto=1; m.role0='rto'; m.mhp*=1.25; m.hp=Math.min(m.mhp,m.hp*1.25);
@@ -6594,7 +6594,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
     if(k==='SE'){ document.dispatchEvent(new KeyboardEvent('keydown',{code:'KeyF',key:'f'})); document.body.classList.add('padmode'); return }   /* same handler as the F key (also the Steam host) */
     if(st==='intro'){ if(k)skipIntro(); return }
     if(st==='brief'){ if(k==='A')briefNext(); else if(k==='ST'||k==='B')endBrief(); return }
-    if(st==='play'){ if(k==='A'||k==='LT'||k==='RT')useAbility(); else if(k==='X')popSignal(); else if(k==='Y')PB.toggle(); else if(k==='LB'||k==='R3'){ Snd.init(); Snd.resume(); Snd.setMuted(!Snd.muted) } else if(k==='ST')pauseGame(); return }
+    if(st==='play'){ if(k==='A'||k==='LT'||k==='RT')useAbility(); else if(k==='X')popSignal(); else if(k==='Y')PB.toggle(); else if(k==='B')useMed(false); else if(k==='RB')useMed(true); else if(k==='LB'||k==='R3'){ Snd.init(); Snd.resume(); Snd.setMuted(!Snd.muted) } else if(k==='ST')pauseGame(); return }
     if(st==='sig'){ if(!sigAskReady())return;   /* a pad press edge after the dialog opened is always a fresh press */ if(k==='A')answerSignal(true); else if(k==='B')answerSignal(false); return }
     if(st==='levelup'){ const n=choices.length; if(!k){ if(dx||dy)this.luI=Math.max(0,Math.min(n-1,this.luI+(dx||dy))) } else if(k==='LB')this.luI=Math.max(0,this.luI-1); else if(k==='RB')this.luI=Math.min(n-1,this.luI+1);
       else if(k==='A')pickChoice(Math.min(this.luI,n-1)); else if(k==='X')doReroll(); else if(k==='Y')toggleBan(); else if(k==='B'&&banMode)toggleBan(); return }
