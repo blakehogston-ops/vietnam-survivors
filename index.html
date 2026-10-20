@@ -216,7 +216,7 @@ Pause .......... Esc / P     Mute ... M</pre></div>
   <div class="help padhelp"><b>Controller</b> (Xbox / PlayStation / Steam Deck, plug in and press any button): <span class="padKeys"></span><span class="padNone">not connected</span></div>
   <div class="foot" id="best"></div>
   <div class="tribute">✦ In memory of the USAF KC-135 crew chiefs: they kept them flying. ✦</div>
-  <div class="foot">A stylized arcade tribute to the Marines who served in Vietnam.<br><b style="color:#d65a4a">Mature: stylized violence</b> — cartoon pixel blood &amp; gore.</div>
+  <div class="foot">A stylized arcade tribute to the Marines who served in Vietnam.<br><b style="color:#d65a4a">Mature: stylized violence</b> — stylized pixel blood &amp; gore.</div>
 <details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">
 <p class="crh"><b>PHOTOGRAPHS (public domain, US government)</b></p>
 <p>Marines offload from a CH-46, Operation Auburn, Quang Nam, c. January 1968. U.S. Marine Corps photo, National Archives at College Park (via DPLA / Wikimedia Commons). Public domain.</p>
@@ -5888,7 +5888,7 @@ function spawnLz(){ const g=G,p=g.p; let best=null,bs=-1e9;
   if(!best){ const a=rnd()*TAU,d=430+rnd()*140; best={x:p.x+Math.cos(a)*d,y:p.y+Math.sin(a)*d} }
   linkRivers(p.x,p.y,best.x,best.y);
   lzS={x:best.x,y:best.y,hold:0,name:FBNAMES[(g.lzN++)%8],age:0};
-  if(!g.mck){ g.banner={text:'RADIO POINT SPOTTED: FIREBASE SITE',t:3,col:'#9be37a'}; Snd.play('radio') } }
+  if(!g.mck){ g.banner={text:'RADIO POINT SPOTTED: FIREBASE SITE',t:3,col:'#9be37a'}; Snd.play('radio'); if(!g.fbSay){ g.fbSay=1; try{ gunny("Doc, Gunny. Firebase site is marked, follow the yellow arrow. Stand in the ring and hold F to call the engineers.".replace('hold F',PAD.on?'hold X':COARSE.matches?'stand still':'hold F'),4.6,1) }catch(e){} } } }   /* rc7.1 JPT#3 */
 function mkStr(type,x,y,ang,at){ const d=SD[type], m=(1+(G.fbN||0)*.15)*1.35; return {stg:3,type,x,y,ang:ang||0,at,hp:d.hp*m,mhp:d.hp*m,r:d.r,b:0,dead:false,cd:rnd()*.5,flash:0,mf:0,tg:null,tgT:0,burst:0,wob:rnd()*TAU,needed:true} }
 /* Firebase footprint: a SQUARE perimeter. Sandbag walls on the four sides (half-side FBS = 168 px, i.e. a 336 x 336 px site, 1.5x the old 112 px ring radius),
    a gate gap in the middle of each side, turrets at the four corners and the four gate midpoints, bunker / medic tent / helipad / heavy gun inside,
@@ -5912,8 +5912,7 @@ function beginFirebase(){ const g=G; fbS={x:lzS.x,y:lzS.y,name:lzS.name,state:'i
   fbS.lay=fbLayout(fbS); fbS.lay.forEach((L,i)=>{ if(L[5]<3)fbS.stLast[L[5]]=i }); try{ fbS.map=mapForBase(fbS.x,fbS.y); fbS.land=fbLanding(fbS); fbS.props=fbProps(fbS); TERR.inval() }catch(e){} g.fbLog.push(fbS.log); lzS=null; strs=[]; engs=[]; chgs=[];
   // thin out the crowd that is already out there so the call-in starts calm (bosses and tanks stay)
   for(const e of enemies){ if(e.dead||e.boss||e.tank)continue; const dd=Math.hypot(e.x-g.p.x,e.y-g.p.y); if(dd>110&&rnd()<.75){ e.dead=true; if(dd<Math.max(VW,VH)/2+40&&parts.length<(LOWFX?200:500))burst(e.x,e.y-4,4,40,.35,2.5,['#8a7a52','#6d675a'],false) } }
-  g.banner={text:'RADIO: SUPPLY DROP & ENGINEERS INBOUND. HOLD THE LZ!',t:3.2,col:'#9be37a'}; Snd.play('radio'); Amb.support(12);
-  callFbHeli('build',fbS.x,fbS.y) }
+  callFbHeli('build',fbS.x,fbS.y); const eta=fbH?Math.ceil(Math.hypot(fbH.x-fbS.x,fbH.y-fbS.y)/300)+6:12; g.banner={text:'ENGINEERS INBOUND · ETA 0:'+String(eta).padStart(2,'0')+' · HOLD THE SITE',t:3.2,col:'#9be37a'}; Snd.play('radio'); Amb.support(12) }   /* rc7.1 JPT#5 */
 function callFbHeli(job,tx,ty){ if(fbH)return false; const p=G.p, a=rnd()*TAU, R=Math.hypot(VW,VH)/2+300;
   fbH={sk46:1,x:tx+Math.cos(a)*R,y:ty+Math.sin(a)*R,z:80,hd:a+Math.PI,rot:0,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,lt:0,out:0,job,tx,ty,dropped:false}; return true }
 function mkEng(x,y){ return {x,y,hp:170,mhp:170,face:1,anim:rnd()*4,mv:false,hf:0,inv:0,danger:0,job:null,tgS:null,ph:rnd()*TAU,sp:0,work:0} }
@@ -6053,7 +6052,7 @@ function fbRing(x,y,hold,tt){ ctx.save(); ctx.translate(x,y+4); ctx.scale(1,.62)
 /* announcements (Stage 1): Gunny, bosses and the signal always get text; every other support call announces once per run with text, then only its icon */
 /* timed radio lines (call-for-fire phrasing): [[delay s, text], ...] shown as short banners on the sim clock */
 function radioSeq(list){ const g=G; if(!g||g.demo)return; const q=g.rq||(g.rq=[]); for(const [d,t] of list)q.push({at:g.t+d,text:t}); }
-function radioTick(){ const g=G, q=g&&g.rq; if(!q||!q.length)return; for(let i=q.length-1;i>=0;i--){ if(g.t>=q[i].at){ const it=q.splice(i,1)[0]; if(!g.banner||g.banner.t<.6||/^"|Two-One|RTO:/.test(g.banner.text)){ g.banner={text:it.text.toUpperCase(),t:1.6,col:'#e8e2c0'}; radioKey() } } } }
+function radioTick(){ const g=G, q=g&&g.rq; if(!q||!q.length)return; for(let i=q.length-1;i>=0;i--){ if(g.t>=q[i].at){ const it=q.splice(i,1)[0]; if(!g.banner||g.banner.t<.6||/^"|Two-One|RTO:/.test(g.banner.text)){ g.banner={text:it.text.toUpperCase(),t:1.6,col:'#e8e2c0',top:1}; radioKey() } } } }
 /* PTT key-up / squelch tail around a radio line (Sound Helper radio_key_in / radio_key_out, cleared sources; SFX only). Falls back to the synth squelch */
 function radioKey(){ try{ if(SAMP.ready()&&SamplePlayer.hasSample('radio_key_in')&&SamplePlayer.hasSample('radio_key_out')){ MIX.as('special',()=>SamplePlayer.play('radio_key_in',{vol:.55})); setTimeout(()=>{ try{ MIX.as('special',()=>SamplePlayer.play('radio_key_out',{vol:.5})) }catch(e){} },1250); return } }catch(e){} Snd.play('radio') }
 function annc(key,icon,b){ const g=G; if(!g)return; const a=g.anc||(g.anc={}); if(!a[key]){ a[key]=1; g.banner=b; return } const q=g.icons||(g.icons=[]); q.push({id:icon,until:g.t+2.2}); if(q.length>5)q.shift() }
@@ -7302,7 +7301,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   // banner
   if(HUDM.on){ const tw=document.getElementById('p3toast'); if(tw){ const top=Math.round((exTop(U)+(exStack||0)+(g.pullT>0?40:18)*U+(g.banner?16*U:0)+44*U)/DPR+6)+"px"; if(tw.style.top!==top)tw.style.top=top } }   /* rc7 hudmobile fix: toast lane sits BELOW the banner (no overlap) */
   if(g.banner){ const b=g.banner,k=Math.min(1,(3.2-b.t)*5,b.t*2); if(HUDM.on){ const cr=HUDM.crit(b), fs=Math.min((cr?22:15)*U,(W-20)/Math.max(8,b.text.length)*1.6), k2=cr?k:Math.min(k,b.t*1.4,(b.t>1.6?1:b.t/1.6)); ctx.globalAlpha=Math.max(0,Math.min(1,k2)); txt(HUDM.short(b.text),W/2,exTop(U)+(exStack||0)+(g.pullT>0?40:18)*U,fs,b.col,'center'); ctx.globalAlpha=1 }   /* hudmobile: in the top lane under the signal line, smaller; non-critical ones fade faster */
-    else { ctx.globalAlpha=Math.max(0,Math.min(1,k)); txt(b.text,W/2,g.pullT>0?Math.max(H*.25,150*U)+34*U:H*.27,Math.min((30+6*(1-Math.min(1,k)))*U,(W-40*U)/Math.max(8,b.text.length*.62)),b.col,'center');   /* rc7.1: long banners shrink to fit (SUPPLY DROP clipped at ~910 px) */ ctx.globalAlpha=1 } }
+    else { ctx.globalAlpha=Math.max(0,Math.min(1,k)); txt(b.text,W/2,b.top?Math.max(H*.12,96*U):g.pullT>0?Math.max(H*.25,150*U)+34*U:H*.27,Math.min((30+6*(1-Math.min(1,k)))*U,(W-40*U)/Math.max(8,b.text.length*.62)),b.col,'center');   /* rc7.1: long banners shrink to fit (SUPPLY DROP clipped at ~910 px) */ ctx.globalAlpha=1 } }
   N2.hud(U); PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); try{ PB.hud(U) }catch(e){} FIELD.hud(U); KIA.hud(U); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
   // joystick
   if(joy.on){ ctx.globalAlpha=.45; ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(joy.ox*(W/innerWidth),joy.oy*(H/innerHeight),55*(W/innerWidth),0,TAU); ctx.stroke(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc((joy.ox+joy.x*55)*(W/innerWidth),(joy.oy+joy.y*55)*(H/innerHeight),22*(W/innerWidth),0,TAU); ctx.fill(); ctx.globalAlpha=1 }
