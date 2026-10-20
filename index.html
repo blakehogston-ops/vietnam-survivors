@@ -6420,6 +6420,7 @@ function edgeArrow(a,U){ const c=Math.cos(a), s=Math.sin(a), r=Math.min((W/2-34*
 const DIR8=['EAST','SOUTHEAST','SOUTH','SOUTHWEST','WEST','NORTHWEST','NORTH','NORTHEAST'];
 const dirWord=(dx,dy)=>DIR8[((Math.round(Math.atan2(dy,dx)/(Math.PI/4))%8)+8)%8];
 /* the permanent line under the timer: what Doc is doing right now (+ live distance/arrow), and the count of the fifteen */
+const PADARR=!/[?&]padarrow=0\b/.test(location.search);   /* Gamer rc6 #3: the pad gets rc5's big pale-yellow pulsing pointer whenever it is off-screen */
 function exTarget(){ const g=G,ex=g.ex; if(!ex)return null;
   if(ex.ph===4&&ex.divert&&ex.huey)return ex.huey; if(ex.ph===0&&ex.padPlan&&ex.pad)return ex.pad; if(ex.ph>=3&&ex.ph<=5&&ex.pad&&(ex.padShown||ex.ph>=4))return (ex.ph===5&&ex.huey)?ex.huey:ex.pad; return null }
 function sigLine(){ const g=G,ex=g.ex,p=g.p; if(!ex)return {t:'',c:'#fff'};
@@ -6448,8 +6449,8 @@ function drawSigLine(U,oy){ const g=G,p=g.p,ex=g.ex; if(!ex||g.demo)return; cons
 function drawExHud(U,camX,camY,tt){ const g=G,p=g.p,ex=g.ex; exStack=0; if(!ex||g.demo)return; ctx.setTransform(1,0,0,1,0,0);
   const bw=Math.min(W-16*U-(SA.l+SA.r)*DPR,430*U), bx=W/2-bw/2; let y=exTop(U);
   // edge arrow to the smoke / pad / bird when it is off screen
-  const T=exTarget(); if(T){ const sg=ex.ph>=1&&ex.ph<=2&&ex.sig, c=sg?SIGC[ex.sig.col==='white'?'yellow':ex.sig.col]:'#9be37a', dx=T.x-p.x,dy=T.y-p.y,d=Math.hypot(dx,dy), on=Math.abs(dx)<VW/2-40&&Math.abs(dy)<VH/2-40, big=ex.ph>=4?1.25:1, lab=sg?(ex.sig.kind==='mirror'?'MIRROR':ex.sig.kind==='flare'?'FLARE':'SMOKE'):ex.ph===5?'BIRD':'PAD';
-    if(!on){ const a=Math.atan2(dy,dx), [ax,ay]=edgeArrow(a,U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle=c; ctx.strokeStyle='#000'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(22*U*big,0); ctx.lineTo(-10*U*big,-14*U*big); ctx.lineTo(-10*U*big,14*U*big); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
+  const T=exTarget(); if(T){ const sg=ex.ph>=1&&ex.ph<=2&&ex.sig, c=sg?SIGC[ex.sig.col==='white'?'yellow':ex.sig.col]:'#9be37a', dx=T.x-p.x,dy=T.y-p.y,d=Math.hypot(dx,dy), on=Math.abs(dx)<VW/2-40&&Math.abs(dy)<VH/2-40, big=(PADARR&&T===ex.pad)?1.7+.12*Math.sin(performance.now()/160):ex.ph>=4?1.25:1, lab=sg?(ex.sig.kind==='mirror'?'MIRROR':ex.sig.kind==='flare'?'FLARE':'SMOKE'):ex.ph===5?'BIRD':'PAD';
+    if(!on){ const a=Math.atan2(dy,dx), [ax,ay]=edgeArrow(a,U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); if(PADARR&&T===ex.pad)ctx.translate(-8*U,0); ctx.fillStyle=(PADARR&&T===ex.pad&&!sg)?'#fff6a0':c; ctx.strokeStyle='#000'; ctx.lineWidth=PADARR&&T===ex.pad?5:4; ctx.beginPath(); ctx.moveTo(22*U*big,0); ctx.lineTo(-10*U*big,-14*U*big); ctx.lineTo(-10*U*big,14*U*big); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
       txt(lab+' '+Math.round(d/10)+'m',ax,ay+(ay>H/2?-22*U:30*U),13*U,c,'center') } }
   // Gunny radio box (colonel's style: black frame, silver bevel, navy panel, gold name)
   const m=state==='sig'?null:exMsg; if(m){ const k=Math.min(1,m.t/.18,(m.dur-m.t)/.25);   /* hidden while the confirm prompt is up (it peeked out behind it) */ const fs=12*U, pw=34*U, ph=38*U; ctx.font=`bold ${fs}px "Courier New",monospace`;
