@@ -3362,7 +3362,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
     if(Math.hypot(p.x-x,p.y-y)<70)hurtPlayer(22,'satchel charge'); for(const m of coy)if(m.hp>0&&m.state==='ok'&&Math.hypot(m.x-x,m.y-y)<70)hurtMember(m,55) },
   /* (a) player-chosen extraction: from XMIN Doc decides when to pop smoke and call the bird; it is XIN s out */
   canCall(g){ const ex=g.ex; return this.XC&&ex&&ex.ph===0&&!ex.padPlan&&g.t>=this.XMIN&&state==='play' },
-  call(auto){ const g=G,ex=g.ex; if(!this.canCall(g))return false; try{ if(MOH.cur){ MOH.end('extract'); MOH.card=0 } }catch(e){} planPad(); ex.landT=g.t+this.XIN-Math.min(15,g.pullEx||0); this.log.call=+g.t.toFixed(1);
+  call(auto){ const g=G,ex=g.ex; if(!this.canCall(g))return false; try{ MOH.card=0 }catch(e){}   /* Blake: the pad call clears the MoH card from the screen but never cancels a pending MoH call */ planPad(); ex.landT=g.t+this.XIN-Math.min(15,g.pullEx||0); this.log.call=+g.t.toFixed(1);
     g.banner={text:'SMOKE OUT · CH-46 INBOUND · '+fmt(this.XIN),t:3.2,col:'#9be37a'};
     gunny(auto?"Doc, the bird's coming for you now whether you're ready or not. Minute fifteen. Hold that pad.":"Bird's on the way, minute fifteen out. Hold that pad, Doc. When he calls for smoke, get on the circle.",4.6,1); return true },
   /* (d) wave-off: the pad overrun on short final -> the bird breaks off, orbits ~20 s and comes back (max twice, then he lands anyway) */
