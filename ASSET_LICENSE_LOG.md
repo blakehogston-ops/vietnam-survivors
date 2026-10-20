@@ -44,4 +44,5 @@
 
 | o1_birddog_flyby_1.ogg/.m4a | Commons "Propeller_plane_and_birds_singing.ogg" (pdsounds #127) | ezwa | Public domain dedication | No | PASS (Legal 2026-10-20), courtesy credit; stand-in aircraft |
 | lvtp5_engine_loop_1.ogg/.m4a | Commons "Amphibious_Assault_Vehicles.ogv" = DVIDS 469793 (B-roll) | Sgt. David J. Adams, USMC | Public domain (US gov work, 17 USC 105) | No | PASS (Legal 2026-10-20), courtesy credit; ear check voices; no endorsement implied |
-| firebase_amb_loop_1.ogg/.m4a | archive.org RainforestNight | Anon6116 | CC0 1.0 | No | PASS (Legal 2026-10-20), optional credit; thin provenance, evidence kept |
+| firebase_amb_loop_1.ogg/.m4a | archive.org RainforestNight | Anon6116 | CC0 1.0 | No | PASS (Legal 2026-10-20), optional credit; thin provenance, evidence kept; rev 2 cut 264-306 s re-verified (sha256 ogg 96da626e…, m4a afa93913…; source FLAC md5 matches archive.org) |
+| tokay_gecko_1/2/3.ogg/.m4a | Commons "Mating call of a male Tokay gecko (Gekko gecko).ogg" | Richard Ling | Public domain (PD-self) | No | PASS (Legal 2026-10-20), courtesy credit; save the source and check its sha1 before publish |
