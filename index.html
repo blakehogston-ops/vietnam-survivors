@@ -3623,14 +3623,15 @@ const BNK={WARN:2,IN:30,DMG:.5,LIFE:75,PER:2,raw:0,
     return [s.x+((m.slot&1)?-9:9),s.y+6] },
   lockable(e){ if(rnd()>.35)return null; for(const s of strs){ if(s.type!=='bunker'||s.dead||s.warnT>0)continue; if(Math.hypot(s.x-e.x,s.y-e.y)>300)continue; for(const q of coy)if(q.bk===s&&q.hp>0)return s } return null },
   tick(dt){ for(const s of strs){ if(s.warnT>0){ s.warnT-=dt; if(s.warnT<=0){ for(const q of coy)if(q.bk===s)q.bk=null } } } } };
+const SURGEPAD=+params.get('surgepad')||.55;   /* rc8 EP balance: the 4:30 / 5:30 surges land on the pad call + wait -> trimmed (melee mass), ?surgepad= to tune */
 function surge(){
   const t=G.t,p=G.p; const ambush=(G.surgeN++%2)===0;
   if(ambush){ // VC ambush: guerrillas spring up all around
-    const n=Math.round(Math.min(110,30+Math.floor(t/4))*fbDens()*(t>=120&&t<180?.6:1)); const R=Math.hypot(VW,VH)/2+80;   /* rc8 EP: 2:00-3:00 melee mass trimmed */
+    const n=Math.round(Math.min(110,30+Math.floor(t/4))*fbDens()*(t>=120&&t<180?.6:t>=270&&t<420?SURGEPAD:1)); const R=Math.hypot(VW,VH)/2+80;   /* rc8 EP: 2:00-3:00 melee mass trimmed */
     for(let i=0;i<n;i++){ const a=rnd()*TAU,d=R+rnd()*70; spawnEnemy(rnd()<.18&&t>60&&!fbGrace()?'nva':'vc',p.x+Math.cos(a)*d,p.y+Math.sin(a)*d,true) }
     G.banner={text:'VC AMBUSH!',t:2.6,col:'#ffcf5a'};
   } else { // NVA mass assault from one side
-    const n=Math.round(Math.min(90,22+Math.floor(t/5))*fbDens()*(t>=120&&t<180?.6:1)); const side=(rnd()*4)|0; const hw=VW/2+70,hh=VH/2+70; const span=side<2?VH*.9:VW*.9;
+    const n=Math.round(Math.min(90,22+Math.floor(t/5))*fbDens()*(t>=120&&t<180?.6:t>=270&&t<420?SURGEPAD:1)); const side=(rnd()*4)|0; const hw=VW/2+70,hh=VH/2+70; const span=side<2?VH*.9:VW*.9;
     for(let i=0;i<n;i++){ const along=(rnd()-.5)*span, depth=rnd()*90; let x,y;
       if(side===0){x=p.x+hw+depth;y=p.y+along}else if(side===1){x=p.x-hw-depth;y=p.y+along}else if(side===2){y=p.y+hh+depth;x=p.x+along}else{y=p.y-hh-depth;x=p.x+along}
       const r=rnd(); spawnEnemy(fbGrace()?'vc':r<.12&&t>100?'officer':r<.35?'vc':'nva',x,y,true) }
