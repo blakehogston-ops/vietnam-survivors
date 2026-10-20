@@ -3271,7 +3271,7 @@ const ZIS={ON:!/[?&]zis=0\b/.test(location.search),T0:240,g:null,next:0,log:{n:0
     const hd=Math.atan2(p.y-y,p.x-x); let pts=null; try{ const c=document.createElement('canvas'); c.width=c.height=2; pts=SHEET1.drawZiS3(c.getContext('2d'),{x:0,y:0,heading:hd,t:0,scale:1}).crew }catch(e){}
     if(!pts||pts.length<5)pts=[[-18,6],[-8,12],[8,12],[18,6],[-28,-6]];
     const z={x,y,hd,fire:9,cd:4+rnd()*2,crew:[],dead:false}; for(const q of pts.slice(0,5)){ const e=spawnEnemy('nva',x+q[0],y+q[1]); if(!e)continue; e.zc=z; e.zox=q[0]; e.zoy=q[1]; e.spd=0; z.crew.push(e) }
-    if(!z.crew.length)return; this.g=z; this.log.n++; g.banner={text:'76MM FIELD GUN! TAKE OUT THE CREW',t:2.4,col:'#ff6a4a'}; try{ gunny("Gun on the treeline! Take out that crew!",2.4,1) }catch(e){} },
+    if(!z.crew.length)return; this.g=z; this.log.n++; g.banner={text:'76MM FIELD GUN! TAKE OUT THE CREW',t:2.4,col:'#ff6a4a'}; try{ gunny("Gun in the treeline! Take out that crew!",2.4,1) }catch(e){} },
   tick(g,dt){ if(!this.ok(g))return; const z=this.g;
     if(!z){ if(g.t<this.T0||this.hold(g))return; if(!this.next)this.next=g.t+rnd()*30; if(g.t>=this.next)this.spawn(g); return }
     z.fire+=dt; const live=z.crew.filter(e=>!e.dead).length; z.live=live;
@@ -3401,7 +3401,7 @@ const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_
   tick(g,dt){ const P=g.pc||(g.pc={st:'lull',t:16,teams:[],n:0,log:[]}); P.teams=P.teams.filter(T=>FT.alive(T)>0&&!T.gone);
     const hold=this.hold(g), maxT=N2.maxT(g,hold?this.HOLD_TEAMS:this.MAX_TEAMS+((g.p.lvl|0)>=8?1:0));
     if(P.st==='lull'){ P.t-=dt; if(!P.bq&&P.t<=3.2&&g.t>50&&!hold){ P.bq=1; N2.barrage(g) } if(P.t<=0){ P.st='contact'; P.ct=0; P.bq=0; this.spawnTeam(g,hold); N2.wave(g) } }
-    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=N2.lull(g,hold?this.HOLD_LULL:this.LULL); P.t=L[0]+rnd()*(L[1]-L[0]); if(EARLY&&!hold&&g.t<330)P.t=Math.max(P.t,15+rnd()*5);   /* Gamer rc6 #5: a real 15-20 s breather after every surge */ P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)}); if(LULLCUE&&!hold&&!g.demo&&g.t>45&&P.t>=9&&g.t>=(P.lcT||0)){ P.lcT=g.t+40; P.lcN=(P.lcN|0)+1; const L=['Cease fire! They\'re pulling back.','Lull. Reload, redistribute ammo.','Quiet for now. Wounded to Doc!','They\'re regrouping. Check your ammo.']; if(!g.banner||g.banner.t<=0)g.banner={text:'LULL · REARM · TREAT WOUNDED',t:2.4,col:'#9fe07a'}; try{ gunny(L[(P.lcN-1)%L.length],2.6,1) }catch(e){} } }   /* rc7 #7: the lull is visible - Gunny line + green HUD cue, max once per 40 s, not in the pad hold (?lullcue=0) */
+    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=N2.lull(g,hold?this.HOLD_LULL:this.LULL); P.t=L[0]+rnd()*(L[1]-L[0]); if(EARLY&&!hold&&g.t<330)P.t=Math.max(P.t,15+rnd()*5);   /* Gamer rc6 #5: a real 15-20 s breather after every surge */ P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)}); if(LULLCUE&&!hold&&!g.demo&&g.t>45&&P.t>=9&&g.t>=(P.lcT||0)){ P.lcT=g.t+40; P.lcN=(P.lcN|0)+1; const L=['Cease fire! They\'re pulling back.','Redistribute ammo, reload, check your weapons!','Wounded to Doc! Move \'em now!','They\'re regrouping. Check your ammo.']; if(!g.banner||g.banner.t<=0)g.banner={text:'LULL · REARM · TREAT WOUNDED',t:2.4,col:'#9fe07a'}; try{ gunny(L[(P.lcN-1)%L.length],2.6,1) }catch(e){} } }   /* rc7 #7: the lull is visible - Gunny line + green HUD cue, max once per 40 s, not in the pad hold (?lullcue=0) */
       else if(P.teams.length<maxT&&P.ct>(hold?6:18)&&P.ct-(P.lastSp||0)>N2.gap(g,hold)){ this.spawnTeam(g,hold) } }
     for(const T of P.teams)FT.tick(T,g,dt) },
   spawnTeamAt(g,x,y,a){ for(let k=0;k<8&&riverAt(x,y);k++){ x+=(rnd()-.5)*160; y+=(rnd()-.5)*160 } return this.spawnTeam(g,this.hold(g),[x,y,a]) },
@@ -3658,7 +3658,7 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     /* recon RTO: PRC-25 call for fire, once, 6 s after touchdown; 6 rounds, 4 s time of flight; never within 220 px of Doc or a friendly */
     const rto=men.find(m=>m.role==='rto'&&!m.wia);
     if(rto&&!S.cff&&T>6&&!(G.pullT>0)&&enemyInView()&&((S.cfT=(S.cfT||0)-dt)<=0)){ S.cfT=.5; let best=null,bn=0; for(let i0=0;i0<40&&enemies.length;i0++){ const e=enemies[(rnd()*enemies.length)|0]; if(!e||e.dead)continue; if(Math.hypot(e.x-p.x,e.y-p.y)<300)continue; let n=0; for(const q of nearestK(e.x,e.y,10,110))n++; if(n>bn){bn=n;best=e} }
-      if(best&&bn>=4){ S.cff={x:best.x,y:best.y,t:4,n:0}; g.banner={text:'RECON RTO: "FIRE MISSION, OVER" · SIX ROUNDS',t:2.2,col:'#ffe58a'}; if(!this.sfx('radioCff',null,'radio_cff','special'))Snd.play('radio'); g.specLog.push({ev:'cff',t:+g.t.toFixed(1),n:bn}) } else if(T>20)S.cff={done:1} }
+      if(best&&bn>=4){ S.cff={x:best.x,y:best.y,t:4,n:0}; g.banner={text:'RTO: "KILO SIX, THIS IS BRAVO TWO-ONE. FIRE MISSION, OVER" · SIX ROUNDS',t:2.2,col:'#ffe58a'}; if(!this.sfx('radioCff',null,'radio_cff','special'))Snd.play('radio'); g.specLog.push({ev:'cff',t:+g.t.toFixed(1),n:bn}) } else if(T>20)S.cff={done:1} }
     if(S.cff&&!S.cff.done){ const c=S.cff; c.t-=dt; if(c.t<=0){ c.t=.38; c.n++; const x=c.x+(rnd()-.5)*120, y=c.y+(rnd()-.5)*120; let safe=Math.hypot(x-p.x,y-p.y)>220; for(const m of men)if(Math.hypot(x-m.x,y-m.y)<160)safe=false; for(const m of coy)if(Math.hypot(x-m.x,y-m.y)<140)safe=false;
         if(safe){ CURW='spec'; explode(x,y,70,40,220,.8); CURW='' } if(c.n>=6)c.done=1 } }
     /* SOG one-zero: claymore ambush, once, 3 s after touchdown: 2 mines facing the nearest threat */
@@ -4511,7 +4511,7 @@ const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,spooky:10,arclight:14,boxmission:22},
     if(id==='napalm')o.n=ITEMS.napalm.stats(w.lvl).n+big; if((id==='arclight'||id==='boxmission')&&big)o.n=ITEMS[id].stats(w.lvl).n+4*big;
     for(const k in o)if(o[k]===undefined)delete o[k];
     ftexts.push({x:m.x+(m.x<g.p.x?-34:34),y:m.y-6,t:0,s:'FIRE MISSION · '+t.n,c:'#ffe58a'}); m.callT=1.6;
-    if(AIRIDS[id]&&id!=='howitzer'&&id!=='mortar'&&id!=='gunboat'){ const cs=id==='arclight'||id==='boxmission'?'Stratus':id==='spooky'?'Spooky':'Hellborne'; radioSeq([[.1,cs+' Two-One: "In hot"'],[1.0,'RTO: "Cleared hot"'],[id==='spooky'?14:7,cs+' Two-One: "Winchester, RTB"']]) }
+    if(AIRIDS[id]&&id!=='howitzer'&&id!=='mortar'&&id!=='gunboat'){ const arc=id==='arclight'||id==='boxmission', cs=id==='spooky'?'Spooky':'Hellborne'; if(arc)radioSeq([[.1,'RTO: "Arc Light inbound, everybody get down!"']]); else radioSeq([[.1,cs+' Two-One: "In hot"'],[1.0,'RTO: "Cleared hot"'],[id==='spooky'?14:7,cs+' Two-One: "Winchester, RTB"']]) }   /* Vet rc7.1: B-52s at altitude do not call in hot/Winchester; Arc Light gets one RTO warning */
     return o },
   move(m,sx,sy,d,dt){ m.mv=d>6; if(!m.mv)return; if(d>320&&!riverAt(sx,sy)){ m.x=sx; m.y=sy; return }   /* fell way behind (river, bunker exit): back at Doc's shoulder */
     const sp=Math.min(d*7,430*Math.max(1,speedMul())), k=sp*dt/d; rvMove(m,(sx-m.x)*k,(sy-m.y)*k,'m'); m.anim+=dt*9; if(!m.tg)m.face=sx>=m.x?1:-1 },
@@ -6426,7 +6426,7 @@ function updateExtraction(dt){ const g=G,p=g.p,ex=g.ex; if(g.demo||!ex||state===
       for(let i=0;i<n;i++){ const a=a0+(rnd()-.5)*2.4; spawnEnemy(pickType(),lz.x+Math.cos(a)*(R+rnd()*70),lz.y+Math.sin(a)*(R+rnd()*70),true) } }
     if(ex.t>=EX.INBOUND){ hu.landed=true; hu.z=0; ex.ph=5; ex.t=0; ex.landAt=g.t; ex.nagB=0;
       { const cap=holdCap(g), n=Math.min(Math.max(0,cap-enemies.length),Math.round((EX.TOUCH_N+holdT(g)/30)*holdMul(g))), R=Math.hypot(VW,VH)/2+100; for(let i=0;i<n;i++){ const a=rnd()*TAU; spawnEnemy(rnd()<.62?'nva':'vc',lz.x+Math.cos(a)*(R+rnd()*90),lz.y+Math.sin(a)*(R+rnd()*90),true) } }
-      gunny("Bird's on the deck! Everybody on the ramp!",3.6,1); Snd.play('chime'); g.shake=Math.max(g.shake,4); burst(hu.x,hu.y,26,110,.9,5,['#a8946a','#8a7a52','#c9b88a'],false) } }
+      gunny("Bird's on the deck! Move, move, get on the ramp!",3.6,1); Snd.play('chime'); g.shake=Math.max(g.shake,4); burst(hu.x,hu.y,26,110,.9,5,['#a8946a','#8a7a52','#c9b88a'],false) } }
   else if(ex.ph===5){ ex.t+=dt; const lz=ex.pad; hu.rot+=dt*(30-8*Math.min(1,ex.t/EX.GROUND)); hu.x+=(lz.x-hu.x)*Math.min(1,dt*3); hu.y+=(lz.y-hu.y)*Math.min(1,dt*3); hu.z=0;
     if(rnd()<dt*40)addPart(hu.x+(rnd()-.5)*90,hu.y+(rnd()-.5)*50,(rnd()-.5)*140,(rnd()-.5)*90,.45,3,'#b8a678',false,2);
     let ramp=0; for(const m of coy)if(m.hp>0&&m.state==='ok'&&onPad(m.x,m.y))ramp++; ex.solo=!coy.some(m=>m.hp>0&&m.state==='ok'); if(ex.solo)ramp=Math.max(ramp,1); ex.ramp=ramp;   /* Blake soft-lock fix: no Marine left standing -> Doc boards alone */
