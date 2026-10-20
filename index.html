@@ -99,6 +99,8 @@ button.btn.alt{background:#6b5a2f;font-size:clamp(14px,3vw,20px);padding:8px 22p
 #newBuild{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:40;display:none;max-width:92vw;padding:8px 14px;background:#2c4423;border:2px solid #ffd54a;border-radius:6px;color:#f1ecd0;font:bold 13px 'Courier New',monospace;cursor:pointer;text-align:center}#newBuild.show{display:block}
 .bstamp{position:fixed;left:calc(8px + env(safe-area-inset-left,0px));bottom:calc(6px + env(safe-area-inset-bottom,0px));font:12px 'Courier New',monospace;letter-spacing:.06em;color:#8fa070;opacity:.7;pointer-events:none;text-align:left}
 #padHint{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;max-width:92vw;padding:8px 14px;background:rgba(10,14,10,.94);border:2px solid #9be37a;border-radius:6px;color:#f1ecd0;font:bold 14px 'Courier New',monospace;letter-spacing:.04em;pointer-events:none;opacity:0;transition:opacity .25s;text-align:center}#padHint.show{opacity:1}
+#tipBar{position:fixed;left:50%;bottom:calc(64px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:31;max-width:min(92vw,760px);padding:9px 16px;background:rgba(10,14,10,.92);border:2px solid #c8bf8a;border-radius:6px;color:#f1ecd0;font:bold 16px 'Courier New',monospace;letter-spacing:.02em;pointer-events:none;opacity:0;transition:opacity .3s;text-align:center;line-height:1.35}#tipBar.show{opacity:1}#tipBar b{color:#ffe58a}#tipBar img{width:16px;height:16px;vertical-align:-3px}
+#n2x img.sw{width:16px;height:16px;vertical-align:-3px;margin-right:6px}
 .pf{outline:3px solid #ffd54a!important;outline-offset:3px;box-shadow:0 0 16px #ffd54acc!important}
 body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 .padNone{color:#9a9a80}body.padon .padNone{display:none}
@@ -230,6 +232,7 @@ body.nohud>*:not(canvas#c):not(.overlay):not(script):not(#tut),body.nohud .bstam
   <button class="btn alt" id="btnTut">Quick Tutorial</button>
   <label class="goresw" id="goreSw" title="Blood, gibs and corpses. OFF = enemies just poof into dust."><span>GORE</span><input type="checkbox" id="goreChk" checked><i></i><b id="goreTxt">ON</b></label>
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label>
+  <label class="goresw rfSw" title="Fewer and slower flashes: no white flash in the intro, steady low-HP border, steady flares and strobes. Follows your system Reduce motion setting until you change it."><span>REDUCE FLASHING</span><input type="checkbox" class="rfChk"><i></i><b class="rfTxt">OFF</b></label>
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
   <div class="help howto"><pre class="htBody" style="text-align:left;display:inline-block;margin:0;font:inherit;white-space:pre;max-width:100%;overflow-x:auto">HOW TO PLAY
 Move ........... WASD / Arrow keys (stick or drag on touch)
@@ -341,6 +344,7 @@ Pause .......... Esc / P     Mute ... M</pre></div>
   <button class="btn alt" id="btnQuit">Quit to menu</button>
   <div class="padKeys padPause"></div>
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label>
+  <label class="goresw rfSw" title="Fewer and slower flashes: no white flash in the intro, steady low-HP border, steady flares and strobes. Follows your system Reduce motion setting until you change it."><span>REDUCE FLASHING</span><input type="checkbox" class="rfChk"><i></i><b class="rfTxt">OFF</b></label>
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
   <details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">
 <p class="crh"><b>PHOTOGRAPHS (public domain, US government)</b></p>
@@ -2728,6 +2732,7 @@ function drawSquadInner(x0,x1,y0,y1){
       if(nm&&SHEET1.sprites[nm]){ try{ r=SHEET1.drawCover(ctx,nm,m.tg?'coverFire':'cover',Math.round(m.x),fy,SHEET_SCALE_MEN,!!flip,false) }catch(e){ r=null } }
       m._cv=!!r; if(r){ gx0=r.x; gy0=r.y } } else m._cv=false;
     const behind=!m._cv&&gy<-.3&&!z; if(behind)gun();
+    if(OB.chev&&!m._cv&&m.hp>0&&!(G&&G.demo))obChevron(Math.round(m.x),topY-5);
     if(m._cv){} else if(TM)SHEET1.drawMarine(ctx,m.role,m.mv?1+fr:0,Math.round(m.x),fy,SHEET_SCALE_MEN,!!flip,m.hf>0,m.coy?(m.cv|0):undefined); else { RIM.draw(spr,Math.round(m.x-spr.width/2),sy,spr.width,spr.height); ctx.drawImage(spr,Math.round(m.x-spr.width/2),sy) }
     if(!behind)gun();
     if(m.mf>0){ const mx=gx0+gx*(R.len+4), my=gy0+gy*(R.len+4); if(!MZ(m,'mf',R.snd==='bolt'?'m40':R.snd,mx,my,m.aim)){ ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(mx,my,3.6+rnd()*1.5,0,TAU); ctx.fill() } }
@@ -3424,7 +3429,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
       if(ex.xr&&(g.t>=this.XAUTO||(DBG.bot&&g.t>=(+params.get('botcall')||this.XMIN+15))))this.call(g.t>=this.XAUTO) }
     const b=this.btn(); if(b){ const sw=this.smokeWait(); let on=state==='play'&&((this.canCall(g)&&ex.xr)||!!sw), mode=sw?(sw==='on'?'pop':'off'):(this.SMB&&!this.atPad(g)?'off':'call');
       if(HUDM.on&&mode==='off'){ if(on&&b._offT!==1){ b._offT=1; if(!g.banner||g.banner.t<=0)g.banner={text:'GET TO THE PAD FIRST',t:1.8,col:'#ffcf5a'} } on=false } else b._offT=0;   /* rc7.1 mobile: the greyed button covered medic/TRIAGE; it becomes one top-lane message */
-      if(b._on!==on){ b._on=on; b.style.display=on?'block':'none' } if(b._m!==mode){ b._m=mode; b.textContent=mode==='call'?(COARSE.matches?'CALL THE BIRD':'CALL THE BIRD (X)'):mode==='pop'?(COARSE.matches?'POP SMOKE ON THE PAD':'POP SMOKE ON THE PAD (G)'):'GET TO THE PAD FIRST'; b.style.filter=mode==='off'?'grayscale(1) brightness(.75)':''; b.style.opacity=mode==='off'?'.75':'1'; b.style.cursor=mode==='off'?'not-allowed':'pointer'; b.disabled=mode==='off'; b.setAttribute('aria-disabled',mode==='off'?'true':'false') } } },
+      if(b._on!==on){ b._on=on; b.style.display=on?'block':'none' } if(b._m!==mode){ b._m=mode; { const lab=mode==='call'?(COARSE.matches?'CALL THE BIRD':'CALL THE BIRD (X)'):mode==='pop'?(COARSE.matches?'POP SMOKE ON THE PAD':'POP SMOKE ON THE PAD (G)'):'GET TO THE PAD FIRST', sc=ex&&ex.smokeCol; if(OB.pat&&sc&&SMK_NAME[sc]&&mode!=='off'){ b.innerHTML='<img class="sw" alt="" src="'+smokeIconURL(sc)+'">'+SMK_NAME[sc]+' · '+lab } else b.textContent=lab }   /* rc8 a11y #12 swatch + colour name (onboard-rc8); keys per EP: X calls, G pops smoke */ b.style.filter=mode==='off'?'grayscale(1) brightness(.75)':''; b.style.opacity=mode==='off'?'.75':'1'; b.style.cursor=mode==='off'?'not-allowed':'pointer'; b.disabled=mode==='off'; b.setAttribute('aria-disabled',mode==='off'?'true':'false') } } },
   /* Gamer rc6 #2 (?smokebtn=0 off): while the bird wants smoke the same button pops it - greyed 'GET TO THE PAD FIRST' until Doc is inside the pad circle */
   SMB:N2F('smokebtn'),
   smokeWait(){ const g=G,ex=g&&g.ex,c=ex&&ex.call; if(!this.SMB||!c||c.st!=='wait'||ex.ph!==4||ex.divert||state!=='play')return null; return onPad(g.p.x,g.p.y)&&g.p.hp>0?'on':'off' },
@@ -3438,7 +3443,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
       b.addEventListener('pointerdown',ev=>{ ev.stopPropagation(); ev.preventDefault(); N2.press() }); document.body.appendChild(b) } return b },
   draw(){ const tt=performance.now()/1000;
     for(const d of this.dead){ ctx.globalAlpha=Math.max(0,Math.min(1,(14-d.t)/3)); if(ctx.globalAlpha>0)try{ SHEET1.drawSapper(ctx,d.a,d.t,Math.round(d.x),Math.round(d.y+12*d.sc),d.f,{scale:d.sc,unarmed:true,gore:!!GORE}) }catch(er){} } ctx.globalAlpha=1;
-    for(const q of this.thrown){ const k=Math.min(1,q.t/q.d), x=q.sx+(q.tx-q.sx)*k, y=q.sy+(q.ty-q.sy)*k-Math.sin(k*Math.PI)*28; ctx.fillStyle='#2c2a1c'; ctx.fillRect(Math.round(x-2),Math.round(y-2),5,4); if(Math.sin(tt*40)>0){ ctx.fillStyle='#ffd060'; ctx.fillRect(Math.round(x+2),Math.round(y-3),1,1) } }
+    for(const q of this.thrown){ const k=Math.min(1,q.t/q.d), x=q.sx+(q.tx-q.sx)*k, y=q.sy+(q.ty-q.sy)*k-Math.sin(k*Math.PI)*28; ctx.fillStyle='#2c2a1c'; ctx.fillRect(Math.round(x-2),Math.round(y-2),5,4); if(RFX?Math.sin(tt*6)>0:Math.sin(tt*40)>0){ ctx.fillStyle='#ffd060'; ctx.fillRect(Math.round(x+2),Math.round(y-3),1,1) } }
     for(const q of this.shells){ const w=q.w||0; if(q.t<w)continue; const k=Math.min(1,(q.t-w)/(q.d-w)); if(k<.15)continue; ctx.globalAlpha=.35+.45*k; ctx.strokeStyle='#ff3a2a'; ctx.lineWidth=2+k*2;
       ctx.beginPath(); ctx.arc(q.x,q.y,this.BR*(q.cal===60?.8:1)*(1.25-.25*k),0,TAU); ctx.stroke(); ctx.globalAlpha=.12+.18*k*(.6+.4*Math.sin(tt*16)); ctx.fillStyle='#ff3a2a'; ctx.beginPath(); ctx.arc(q.x,q.y,this.BR*(q.cal===60?.8:1)*k,0,TAU); ctx.fill();
       ctx.globalAlpha=.8; ctx.fillRect(q.x-6,q.y-1,12,2); ctx.fillRect(q.x-1,q.y-6,2,12) } ctx.globalAlpha=1 } };
@@ -5723,9 +5728,9 @@ function drawIntroOverlay1(){ const I=INTRO, t=I.t; ctx.setTransform(1,0,0,1,0,0
   if(I.ph===1&&t>5.4&&t<8.1){ const s2=Math.min(W/320,H/180), dh2=180*s2, a=Math.min(1,(t-5.4)*2.5,(8.1-t)*3); ctx.globalAlpha=a; ctx.textAlign='center'; ctx.lineJoin='round'; ctx.strokeStyle='#000';   /* game title card */
     const f1=Math.max(22,dh2/6); ctx.font=`bold ${f1}px Impact,"Arial Black",sans-serif`; ctx.lineWidth=f1/7; ctx.strokeText('LAST CHOPPER OUT',W/2,H*.4); ctx.fillStyle='#f0e6a8'; ctx.fillText('LAST CHOPPER OUT',W/2,H*.4);
     const f2=Math.max(12,dh2/22); ctx.font=`bold ${f2}px "Courier New",monospace`; ctx.lineWidth=f2/4; ctx.strokeText('QUANG TRI, 1968',W/2,H*.4+f1*.7); ctx.fillStyle='#e8c860'; ctx.fillText('QUANG TRI, 1968',W/2,H*.4+f1*.7); ctx.globalAlpha=1 }
-  if(I.flash>0&&I.ph===2){ ctx.fillStyle=`rgba(255,255,255,${Math.min(1,I.flash)})`; ctx.fillRect(0,0,W,H) }
-  if(I.ph===1&&t>8.2){ ctx.fillStyle=`rgba(255,255,255,${Math.min(1,(t-8.2)/.4)})`; ctx.fillRect(0,0,W,H) }
-  if(Math.floor(performance.now()/500)%2===0||I.t<1){ ctx.font=`bold ${Math.max(11,H/40)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.85)'; ctx.strokeStyle='#000'; ctx.lineWidth=3; const m='PRESS ANY KEY / TAP TO SKIP ▶'; ctx.strokeText(m,W-14,H-14); ctx.fillText(m,W-14,H-14) } }
+  if(I.flash>0&&I.ph===2){ ctx.fillStyle=`rgba(255,255,255,${RFX?Math.min(.4,I.flash*.4):Math.min(1,I.flash)})`; ctx.fillRect(0,0,W,H) }   /* reduce flashing: capped .4 */
+  if(I.ph===1&&t>8.2){ ctx.fillStyle=RFX?`rgba(0,0,0,${Math.min(1,(t-8.2)/.4)})`:`rgba(255,255,255,${Math.min(1,(t-8.2)/.4)})`; ctx.fillRect(0,0,W,H) }   /* reduce flashing: slow fade to black instead of white */
+  if(Math.floor(performance.now()/500)%2===0||I.t<1){ ctx.font=`bold ${Math.max(12*DPR,H/40)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.85)'; ctx.strokeStyle='#000'; ctx.lineWidth=3; const m='PRESS ANY KEY / TAP TO SKIP ▶'; ctx.strokeText(m,W-14,H-14); ctx.fillText(m,W-14,H-14) } }
 ['keydown','pointerdown','touchstart'].forEach(ev=>window.addEventListener(ev,e=>{ if(state==='intro'&&INTRO&&INTRO.t>.35&&!(ev==='keydown'&&e.repeat)){ if(ev==='keydown'&&(e.code==='KeyM'||e.metaKey))return; skipIntro() } },{passive:true}));
 
 /* ====================== LAUNCH BRIEFING: Col Harold "Hal" Mercer (fictional), early-90s chunky low-res cutscene ====================== */
@@ -5878,12 +5883,13 @@ function drawBrief(){ const B=BR; ctx.setTransform(1,0,0,1,0,0); ctx.imageSmooth
   ctx.fillStyle='#f6f6e6'; const shown=L.t.slice(0,Math.floor(B.typed)); let y=by+fs*2.25;
   let idx=0; for(const ln of lines){ const part=shown.slice(idx,idx+ln.length+1).slice(0,Math.max(0,Math.min(ln.length,shown.length-idx))); ctx.fillText(part,bx+s*3,y); idx+=ln.length+1; y+=fs*1.25 }
   if(B.typed>=L.t.length&&Math.floor(performance.now()/350)%2===0){ ctx.fillStyle='#e8c030'; ctx.fillText('▼',bx+bw-s*6-fs*.5,by+bh-s*2-fs*.2) }
-  ctx.font=`${Math.max(9,fs*.6)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='#9aa0b0'; ctx.fillText('TAP / CLICK / SPACE: NEXT   ·   '+(B.page+1)+'/'+BRIEF_LINES.length,bx+bw-s*2,by+bh-s*1.2);
+  { const ff=Math.max(12*DPR,fs*.6); ctx.font=`${ff}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='#9aa0b0'; const a='TAP / CLICK / SPACE: NEXT', b2=(B.page+1)+'/'+BRIEF_LINES.length, one=a+'   ·   '+b2;   /* rc8 a11y #7: 12px floor; wraps to two lines instead of shrinking */
+    if(ctx.measureText(one).width<=bw-s*4)ctx.fillText(one,bx+bw-s*2,by+bh-s*1.2); else { ctx.fillText(b2,bx+bw-s*2,by+bh-s*1.2); ctx.fillText(a,bx+bw-s*2,by+bh-s*1.2-ff*1.15) } }
   { /* skip hint: a pill that always fits inside the safe area (font shrinks to fit narrow screens); its rect is also the tap target */
     const m='TAP HERE / ESC: SKIP ▶', mg=Math.max(14*DPR,Math.round(Math.min(W,H)*.03)), sx=Math.max(mg,SA.r*DPR+mg*.6), sb=Math.max(mg,SA.b*DPR+mg*.6); let sf=Math.max(11*DPR,Math.min(18*DPR,H/32));
-    ctx.font=`bold ${sf}px "Courier New",monospace`; let tw=ctx.measureText(m).width; const maxw=W-sx*2-sf*1.6; if(tw>maxw){ sf=Math.max(8,sf*maxw/tw); ctx.font=`bold ${sf}px "Courier New",monospace`; tw=ctx.measureText(m).width }
-    const pw=tw+sf*1.2, ph=sf*1.9, px=W-sx-pw, py=H-sb-ph; ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(px,py,pw,ph); ctx.strokeStyle='#e8c860'; ctx.lineWidth=Math.max(1,DPR); ctx.strokeRect(px+.5,py+.5,pw-1,ph-1);
-    ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillStyle='#e8c860'; ctx.fillText(m,px+pw-sf*.6,py+ph/2+sf*.05); ctx.textBaseline='alphabetic'; B.skipR=[px/DPR,py/DPR,(px+pw)/DPR,(py+ph)/DPR] } }
+    ctx.font=`bold ${sf}px "Courier New",monospace`; let tw=ctx.measureText(m).width; const maxw=W-sx*2-sf*1.6; let L2=null; if(tw>maxw){ sf=Math.max(12*DPR,sf*maxw/tw); ctx.font=`bold ${sf}px "Courier New",monospace`; tw=ctx.measureText(m).width; if(tw>maxw){ L2=['TAP HERE / ESC:','SKIP ▶']; tw=Math.max(...L2.map(q=>ctx.measureText(q).width)) } }   /* rc8 a11y #7: 12px floor, wraps to two lines */
+    const pw=tw+sf*1.2, ph=sf*(L2?3.1:1.9), px=W-sx-pw, py=H-sb-ph; ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(px,py,pw,ph); ctx.strokeStyle='#e8c860'; ctx.lineWidth=Math.max(1,DPR); ctx.strokeRect(px+.5,py+.5,pw-1,ph-1);
+    ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillStyle='#e8c860'; if(L2){ ctx.fillText(L2[0],px+pw-sf*.6,py+sf*1.0); ctx.fillText(L2[1],px+pw-sf*.6,py+sf*2.15) } else ctx.fillText(m,px+pw-sf*.6,py+ph/2+sf*.05); ctx.textBaseline='alphabetic'; B.skipR=[px/DPR,py/DPR,(px+pw)/DPR,(py+ph)/DPR] } }
 window.addEventListener('keydown',e=>{ if(state!=='brief'||!BR||e.repeat)return; if(e.code==='Escape'||e.code==='Backspace'){ endBrief(); return } if(e.code==='KeyM')return; briefNext() });
 window.addEventListener('pointerdown',e=>{ if(state!=='brief'||!BR)return; { const r=BR.skipR, pad=10; if(BR.ph===1&&r&&e.clientX>=r[0]-pad&&e.clientX<=r[2]+pad&&e.clientY>=r[1]-pad&&e.clientY<=r[3]+pad){ endBrief(); return } } briefNext() });
 $('btnBrief').onclick=()=>startBrief();
@@ -5989,23 +5995,25 @@ function intro2Contact(){ /* the insert goes bad: fire from the treeline right a
 
 /* quick tutorial (Blake Oct 14 night): click-through cards, each one short line + a real screenshot from this build. Next/Back, Esc closes, touch + pad work.
    Offered once on first launch ('Quick tutorial? Yes / Skip'), then always on the menu. */
-const TUT={i:0,on:false,ask:false,IMG:{move:1,squad:1,smoke:1,hold:1,gems:1,confirm:1,board:1,fb:1,bunker:1},C:[
+const TUT={i:0,on:false,ask:false,IMG:{intro:1,move:1,squad:1,smoke:1,hold:1,gems:1,confirm:1,board:1,fb:1,bunker:1},C:[
   ['move','Move with WASD, the arrows, a stick, or drag on touch. Your weapons fire on their own.'],
-  ['gems','Grab the green gems to level up, then pick one upgrade.'],
+  ['gems','Walk over the gems (small diamond shapes) to level up, then pick one upgrade.'],
   ['squad','Your Marines fight beside you. The corpsman patches up anyone hit; keep them alive.'],
-  ['smoke','When the Gunny calls the pad, throw smoke ON the pad marker.'],
-  ['confirm','"Is that smoke ON your pad?" Answer YES only if it is. A wrong call costs you.'],
+  ['smoke','At the PICKUP PAD (a dashed ring) press G (or POP SMOKE) to pop smoke. The ring goes solid with a check when you are on it.'],
+  ['confirm','"Is that YOUR smoke?" Y / Enter = yes, N / Esc = no. Every smoke, flare and mirror carries a chip with a pattern swatch and tag (GRN, YEL, VIO, RED). A wrong call costs you.'],
   ['hold','Hold the LZ while the countdown runs. Stay close, the bird is inbound.'],
   ['board','When it lands, get everyone aboard. Nobody gets left behind.'],
   ['fb','At a firebase, use the pull-back lull to regroup before the next wave steps off.'],
-  ['bunker','Step into a bunker (E / Y / the button) for cover. You can still shoot.']],
-  open(ask){ this.on=true; this.ask=!!ask; this.i=0; $('tut').classList.add('show'); this.r(); try{localStorage.setItem('lco_tutAsk','1')}catch(e){} },
+  ['bunker','Step into a bunker (E or the button) for cover. You can still shoot.'],
+  ...(/[?&]officer\b/.test(location.search)?[['officer','Press T to mark a target for the Lt: the nearest enemy group gets a MARKED chip and becomes his next order. Your smoke and radio calls always go first.']]:[]),   /* ?officer only; T is bound by feature/officer-rc8 */
+  ['intro','Move with WASD or the arrow keys (a stick, or drag on touch). Your weapons fire on their own. Everything else is explained the first time it comes up.']],
+  open(ask){ this.one=!!ask&&OB.tut; this.on=true; this.ask=!!ask&&!this.one; this.i=this.one?this.C.length-1:0;   /* rc8: first launch = 1 intro card, the rest is taught in play (TIP); the menu button still opens the full deck */ $('tut').classList.add('show'); this.r(); try{localStorage.setItem('lco_tutAsk','1')}catch(e){} },
   close(){ this.on=false; $('tut').classList.remove('show') },
-  go(d){ if(this.ask){ if(d>0){ this.ask=false; this.r() } else this.close(); return } const n=this.i+d; if(n<0)return; if(n>=this.C.length){ this.close(); return } this.i=n; this.r() },
+  go(d){ if(this.ask){ if(d>0){ this.ask=false; this.r() } else this.close(); return } if(this.one){ if(d>0)this.close(); return } const n=this.i+d; if(n<0)return; if(n>=this.C.length-1){ this.close(); return } this.i=n; this.r() },
   r(){ const q=$('tut').querySelector('.tq');
     if(this.ask){ q.innerHTML='<div class="ask">Quick tutorial?</div><div class="tbr"><button class="btn" id="tutY">Yes</button><button class="btn alt" id="tutN">Skip</button></div>'; $('tutY').onclick=()=>this.go(1); $('tutN').onclick=()=>this.close(); return }
-    const [k,t]=this.C[this.i], last=this.i===this.C.length-1;
-    q.innerHTML=(TUT.IMG[k]?'<img alt="" src="assets/tut/'+k+'.webp">':'')+'<div class="tl"></div><div class="tn">'+(this.i+1)+' / '+this.C.length+'</div><div class="tbr"><button class="btn alt" id="tutB"'+(this.i?'':' disabled')+'>Back</button><button class="btn" id="tutX">'+(last?'Done':'Next')+'</button><button class="btn alt" id="tutS">Skip</button></div>';
+    const [k,t]=this.C[this.i], N=this.one?1:this.C.length-1, last=this.one||this.i===N-1;
+    q.innerHTML=(TUT.IMG[k]?'<img alt="" src="assets/tut/'+(k==='intro'?'move':k)+'.webp">':'')+'<div class="tl"></div><div class="tn">'+(this.one?1:this.i+1)+' / '+N+'</div><div class="tbr"><button class="btn alt" id="tutB"'+(this.i&&!this.one?'':' disabled')+'>Back</button><button class="btn" id="tutX">'+(last?'Done':'Next')+'</button><button class="btn alt" id="tutS">Skip</button></div>';
     q.querySelector('.tl').textContent=t; $('tutB').onclick=()=>this.go(-1); $('tutX').onclick=()=>this.go(1); $('tutS').onclick=()=>this.close() },
   key(e){ if(!this.on)return false; if(e.code==='Escape'){ this.close() } else if(e.code==='ArrowRight'||e.code==='Enter'||e.code==='Space'||e.code==='KeyD'){ this.go(1) } else if(e.code==='ArrowLeft'||e.code==='KeyA'||e.code==='Backspace'){ this.go(-1) } e.preventDefault(); e.stopPropagation(); return true },
   pad(k,dx){ if(!this.on)return false; if(k==='A')this.go(1); else if(k==='B'||k==='ST')this.close(); else if(!k&&dx)this.go(dx>0?1:-1); return true } };
@@ -6506,7 +6514,76 @@ const BELTC={};
 function beltSprite(col,kind){ const base=kind==='held'?'smokeCanHeld':'docSmokeBelt', S=window.SHEET1, sp=S&&S.sprites&&S.sprites[base]; if(!sp)return null; if(col==='violet')return base;
   const k=base+'_'+col; if(!BELTC[k]){ const c=SIGC[col]||'#a455e0', dk='#'+[1,3,5].map(i=>Math.round(parseInt(c.substr(i,2),16)*.62).toString(16).padStart(2,'0')).join('');
     S.add({[k]:Object.assign({},sp,{legend:Object.assign({},sp.legend,{V:c,v:dk})})}); BELTC[k]=1 } return k }
-const SIGC={red:'#e8322a',yellow:'#f5d62a',green:'#36c44a',violet:'#a455e0',white:'#e8f4ff'};
+/* ====================== rc8 onboarding + accessibility (jr/onboard-rc8) ======================
+   All ON by default; each has a kill switch: ?tut2=0 (old 9-card first-launch deck, no contextual tips), ?cbpat=0 (smoke patterns + labels),
+   ?padshape=0 (pad ring colour-only), ?chev=0 (friendly chevrons), ?lowhptag=0. Reduce flashing: settings toggle (lco_rflash), defaults to
+   prefers-reduced-motion; ?rflash=1/0 forces it. */
+const OB={tut:!/[?&]tut2=0\b/.test(location.search),pat:!/[?&]cbpat=0\b/.test(location.search),pad:!/[?&]padshape=0\b/.test(location.search),
+  chev:!/[?&]chev=0\b/.test(location.search),lowhp:!/[?&]lowhptag=0\b/.test(location.search)};
+let RFX=false;
+(function(){ const q=location.search.match(/[?&]rflash=([01])\b/); let v=null; try{v=localStorage.getItem('lco_rflash')}catch(e){}
+  RFX=q?q[1]==='1':v!==null?v==='1':!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches) })();
+try{ const mq=matchMedia('(prefers-reduced-motion: reduce)'), f=e=>{ let v=null; try{v=localStorage.getItem('lco_rflash')}catch(_){} if(v===null&&!/[?&]rflash=[01]\b/.test(location.search))setRFX(e.matches,true) }; mq.addEventListener?mq.addEventListener('change',f):mq.addListener(f) }catch(e){}   /* A11Y #8: follow OS changes until the player picks */
+function setRFX(v,silent){ RFX=!!v; if(!silent){ try{localStorage.setItem('lco_rflash',RFX?'1':'0')}catch(e){} }
+  document.querySelectorAll('.rfChk').forEach(c=>{ c.checked=RFX }); document.querySelectorAll('.rfTxt').forEach(t=>{ t.textContent=RFX?'ON':'OFF' }); document.querySelectorAll('.rfSw').forEach(w=>w.classList.toggle('off',!RFX)) }
+window.setRFX=setRFX;
+/* smoke: a pattern AND a text tag for every colour (colour is never the only cue) */
+const SMK_TAG={red:'RED',yellow:'YEL',green:'GRN',violet:'VIO',white:'WHT'}, SMK_NAME={red:'RED',yellow:'YELLOW',green:'GREEN',violet:'VIOLET',white:'WHITE'},
+  SMK_PAT={red:'cross-hatch',yellow:'bright core',green:'vertical streaks',violet:'diagonal hatching',white:'plain white'};
+/* rc8 a11y (AD+A11Y review): the colour-blind cue lives ONLY in this chip, anchored to each plume/flare/mirror (real, Charlie decoy, pad).
+   Drawn in screen space: 13px letters (never under 12 screen px), 14px pattern swatch, dark outline so it reads on jungle and sky. ?cbpat=0 hides it. */
+function obDlgOpen(){ return !!exMsg||!!document.querySelector('#sigask.show,#levelup.show,#pause.show,#over.show,#tut.show,#charsel.show') }   /* AD: no ghost banner behind a dialogue */
+function scrSpace(x,y){ ctx.translate(x,y); const a=ctx.getTransform().a||1, k=(DPR||1)/a; ctx.scale(k,k); return k }
+function smokeTag(col,x,y,fade,kind){ if(!OB.pat||!SMK_TAG[col])return; if(state==='sig'&&window.SIGASK&&SIGASK.hideCol)return;
+  const t=kind==='mirror'?'MIRROR':kind==='flare'?SMK_TAG[col]+' FLARE':SMK_TAG[col]; ctx.save(); ctx.globalAlpha=Math.max(.6,fade); scrSpace(x,y+18);
+  ctx.font='bold 13px "Courier New",monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; const w=ctx.measureText(t).width+30;
+  ctx.fillStyle='rgba(8,10,8,.85)'; ctx.fillRect(-w/2,-11,w,22); ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.strokeRect(-w/2,-11,w,22); ctx.strokeStyle='#e8e2c4'; ctx.lineWidth=1.2; ctx.strokeRect(-w/2+1.5,-9.5,w-3,19);
+  smokeIcon(ctx,col,-w/2+11,0,7); ctx.fillStyle='#f4f0dc'; ctx.fillText(t,-w/2+22,1); ctx.restore() }
+/* tiny pattern icon (also used in the pop-smoke button and tips) */
+function smokeIcon(c,col,x,y,r){ c.save(); c.beginPath(); c.arc(x,y,r,0,TAU); c.fillStyle=SIGC[col]||'#888'; c.fill(); c.clip(); c.strokeStyle='rgba(10,10,10,.85)'; c.lineWidth=1.2; c.beginPath();
+  if(col==='green'){ for(let k=-r;k<=r;k+=3){ c.moveTo(x+k,y-r); c.lineTo(x+k,y+r) } } else if(col==='violet'){ for(let k=-2*r;k<=2*r;k+=3){ c.moveTo(x+k,y+r); c.lineTo(x+k+2*r,y-r) } }
+  else if(col==='red'){ for(let k=-2*r;k<=2*r;k+=4){ c.moveTo(x+k,y+r); c.lineTo(x+k+2*r,y-r); c.moveTo(x+k,y-r); c.lineTo(x+k+2*r,y+r) } } c.stroke();
+  if(col==='yellow'){ c.fillStyle='#fffbe6'; c.beginPath(); c.arc(x,y,r*.45,0,TAU); c.fill() } c.restore(); c.strokeStyle='#000'; c.lineWidth=1; c.beginPath(); c.arc(x,y,r,0,TAU); c.stroke() }
+function smokeIconURL(col){ const k='_u_'+col; if(smokeIconURL[k])return smokeIconURL[k]; const cv=document.createElement('canvas'); cv.width=cv.height=20; smokeIcon(cv.getContext('2d'),col,10,10,8); return smokeIconURL[k]=cv.toDataURL() }
+/* friendly chevron under a Marine's feet (enemies get none) */
+function obChevron(x,y){ ctx.save(); ctx.globalAlpha=.8; ctx.lineCap='round'; ctx.lineJoin='round'; const P=()=>{ ctx.beginPath(); ctx.moveTo(x-4,y-4); ctx.lineTo(x,y); ctx.lineTo(x+4,y-4); ctx.stroke() };   /* rc8 AD: small pale-green chevron ~5px above each Marine's head (Doc has none) */
+  ctx.strokeStyle='#1a1c12'; ctx.lineWidth=4.2; P(); ctx.strokeStyle='#cdeea8'; ctx.lineWidth=2.2; P(); ctx.restore() }
+/* pad ring: dashed while Doc is off, solid + check + ON PAD when he is on (shape, not colour) */
+function obPadCheck(x,y,R){ ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round'; scrSpace(x,y-R*.78-14); x=0; const cy=0; ctx.fillStyle='rgba(8,10,8,.85)'; ctx.fillRect(x-38,cy-11,76,22); ctx.strokeStyle='#f2e8c0'; ctx.lineWidth=1.5; ctx.strokeRect(x-37.5,cy-10.5,75,21);
+  ctx.strokeStyle='#f2e8c0'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x-30,cy); ctx.lineTo(x-26,cy+5); ctx.lineTo(x-18,cy-5); ctx.stroke();
+  ctx.font='bold 13px "Courier New",monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillStyle='#f2e8c0'; ctx.fillText('ON PAD',x-12,cy+1); ctx.restore() }
+/* LOW HP tag next to the HP bar (steady, never only the red edge) */
+function obLowTag(bx,by,bh,U){ ctx.save(); const fs=Math.max(12,13*U); ctx.font=`bold ${fs}px "Courier New",monospace`; const t='LOW HP', w=ctx.measureText(t).width+fs*1.8, h=bh; ctx.fillStyle='rgba(20,4,4,.9)'; ctx.fillRect(bx,by,w,h); ctx.strokeStyle='#ff5a48'; ctx.lineWidth=2; ctx.strokeRect(bx+1,by+1,w-2,h-2);
+  const cx=bx+fs*.75, cy=by+h/2, a=fs*.32; ctx.fillStyle='#fff'; ctx.fillRect(cx-a*.35,cy-a,a*.7,a*2); ctx.fillRect(cx-a,cy-a*.35,a*2,a*.7);
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillStyle='#fff'; ctx.fillText(t,bx+fs*1.4,cy+1); ctx.restore() }
+/* contextual first-time tips: one line each, shown once per profile (lco_tips), queued, real rc7.1 keys */
+const TIP={seen:{},q:[],cur:null,until:0,gap:0,
+  init(){ try{ this.seen=JSON.parse(localStorage.getItem('lco_tips')||'{}')||{} }catch(e){ this.seen={} } },
+  touch(){ return typeof COARSE!=='undefined'&&COARSE.matches },
+  show(id,text){ if(!OB.tut||this.seen[id]||this.q.some(o=>o.id===id)||(this.cur&&this.cur.id===id))return; this.q.push({id,text}) },
+  done(id){ this.seen[id]=1; try{localStorage.setItem('lco_tips',JSON.stringify(this.seen))}catch(e){} },
+  el(){ let e=document.getElementById('tipBar'); if(!e){ e=document.createElement('div'); e.id='tipBar'; e.setAttribute('role','status'); e.setAttribute('aria-live','polite'); document.body.appendChild(e) } return e },
+  poll(){ if(!OB.tut||!G||G.demo||DBG.bot||/[?&]notips\b/.test(location.search))return; const now=performance.now(), live=state==='play'||state==='sig'||state==='levelup';
+    if(this.cur&&(now>this.until||!live)){ this.el().classList.remove('show'); this.cur=null; this.gap=now+1200 }
+    if(!this.cur&&live&&now>this.gap&&this.q.length){ const o=this.q.shift(); this.cur=o; this.done(o.id); const e=this.el(); e.innerHTML=o.text; e.classList.add('show'); this.until=now+6000 }
+    if(this.cur&&this.cur.id==='move'&&G.p&&(this._mx===undefined?(this._mx=G.p.x,this._my=G.p.y,0):Math.hypot(G.p.x-this._mx,G.p.y-this._my)>12))this.until=Math.min(this.until,now);   /* AD: tips end ~6 s or on the related action */
+    if(this.cur&&((this.cur.id==='confirm'&&state!=='sig')||(this.cur.id==='lvl'&&state!=='levelup')||(this.cur.id==='pad'&&G.ex&&G.ex.popped)||(this.cur.id==='officerT'&&G.ex&&G.ex.mark)))this.until=Math.min(this.until,now);
+    if(state==='sig')this.show('confirm','Is that YOUR smoke? <b>Y</b> / <b>Enter</b> = yes · <b>N</b> / <b>Esc</b> = no');
+    if(state==='levelup')this.show('lvl',this.touch()?'Pick one upgrade: tap a card.':'Pick one upgrade: <b>1</b> / <b>2</b> / <b>3</b> or click a card.');
+    if(state!=='play')return; const g=G,p=g.p,ex=g.ex;
+    if(g.t>.5)this.show('move',this.touch()?'Drag anywhere to move. Your weapons fire on their own.':'Move with <b>WASD</b> or the <b>arrow keys</b>. Your weapons fire on their own.');
+    if(g.t>4&&gems.some(q=>Math.abs(q.x-p.x)<260&&Math.abs(q.y-p.y)<200))this.show('gems','Walk over the gems (small diamond shapes) to level up.');
+    if(squad.concat(pat,coy).some(m=>m&&!m.hid&&m.hp>0&&m.mhp&&m.hp<m.mhp*.8))this.show('med',this.touch()?'A Marine is hit. Tap MED to patch him (or yourself).':'A Marine is hit. <b>Q</b> = patch a Marine · <b>H</b> = patch Doc.');
+    if(g.t>6&&g.abMax>0&&g.abCd<=0)this.show('abil',this.touch()?'Special ready: tap the ability button.':'Special ready: <b>SPACE</b>.');
+    if(ex&&ex.smokeCol&&g.t>20){ const c=ex.smokeCol; this.show('smoke','Your smoke is <img alt="" src="'+smokeIconURL(c)+'"> <b>'+SMK_NAME[c]+'</b> (chip '+SMK_TAG[c]+', '+SMK_PAT[c]+' swatch). Remember it.') }
+    if(ex&&((ex.ph===0&&ex.pre&&N2.XC&&g.t>=N2.XMIN)||(ex.ph===4&&ex.call&&ex.call.st==='wait')))this.show('pad',this.touch()?'Get inside the PICKUP PAD ring, then tap POP SMOKE. The ring goes solid with a check when you are on it.':'Get inside the PICKUP PAD ring, then press <b>G</b> to pop smoke. The ring goes solid with a check when you are on it.');
+    if(/[?&]officer\b/.test(location.search)&&g.t>8&&enemies.some(e=>e&&e.hp>0&&Math.abs(e.x-p.x)<450&&Math.abs(e.y-p.y)<300))this.show('officerT',this.touch()?'Tap MARK to mark a target for the Lt. It becomes his next order.':'<b>T</b> = mark a target for the Lt. It becomes his next order.');   /* ?officer only; key bound by feature/officer-rc8 */
+    if(ex&&ex.ph===5)this.show('board','Bird is down. Stay inside the ring until everyone is aboard.');
+    try{ if(PB.near())this.show('bunker',this.touch()?'Bunker: tap the bunker button for cover. You can still shoot.':'Bunker: <b>E</b> to step in for cover. You can still shoot.') }catch(e){}
+    if(lzS&&Math.max(Math.abs(p.x-lzS.x),Math.abs(p.y-lzS.y))<140)this.show('fb',this.touch()?'Stand still at the radio point to call the engineers.':'Hold <b>F</b> at the radio point to call the engineers.') } };
+TIP.init(); setInterval(()=>{ try{TIP.poll()}catch(e){} },250); window.TIP=TIP;
+
+const SIGC={red:'#e0262e',yellow:'#f7d728',green:'#3cc04a',violet:'#8e4fe6',white:'#e8f4ff'};   /* rc8 A11Y: hues spread as far as M18 realism allows (red 357, yellow 51, green 126, violet 266) */
 const SIGN=['violet','yellow','green'];   /* Blake / QA Oct 14: no red (red = enemy contact / hot LZ) */
 const sigName=(kind,col)=>kind==='mirror'?'SIGNAL MIRROR':kind==='flare'?col.toUpperCase()+' FLARE':col.toUpperCase()+' SMOKE';
 const SIGNOTE={smoke:'Smoke out. The pilot names the color he sees - check it against your line. Charlie pops his own smoke. No timer.',
@@ -6721,42 +6798,47 @@ function drawSigIcon(c,x,y,r,it,tt){ c.fillStyle='#1b1b18'; c.fillRect(x-r*.5,y-
 function drawExGround(tt){ const g=G,ex=g.ex; if(!ex)return;
   const can=(s)=>{ ctx.fillStyle='rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(s.x,s.y+2,10,4,0,0,TAU); ctx.fill() };
   if(ex.sig&&ex.popped)can(ex.sig); if(ex.charlie)can(ex.charlie);
-  if(ex.ph===0&&ex.pre&&N2.XC&&G.t>=N2.XMIN){ const lz=ex.pre, R=EX.PAD_R, on=N2.atPad(G); ctx.save(); ctx.translate(lz.x,lz.y+2); ctx.scale(1,.78); ctx.lineWidth=7; ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.beginPath(); ctx.arc(0,0,R+2,0,TAU); ctx.stroke(); ctx.setLineDash([14,10]); ctx.lineDashOffset=-tt*20; ctx.strokeStyle=on?'#9be37a':'#fff6a0'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(0,0,R,0,TAU); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); ctx.save(); ctx.font='bold 12px "Courier New",monospace'; ctx.textAlign='center'; ctx.fillStyle='#000'; ctx.fillText('PICKUP PAD',lz.x+1,lz.y+5); ctx.fillStyle='#fff6a0'; ctx.fillText('PICKUP PAD',lz.x,lz.y+4); ctx.restore() }   /* rc6b: pre-marked pad for the first call */
+  if(ex.ph===0&&ex.pre&&N2.XC&&G.t>=N2.XMIN){ const lz=ex.pre, R=EX.PAD_R, on=N2.atPad(G); ctx.save(); ctx.translate(lz.x,lz.y+2); ctx.scale(1,.78); ctx.lineWidth=7; ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.beginPath(); ctx.arc(0,0,R+2,0,TAU); ctx.stroke(); if(!(OB.pad&&on)){ ctx.setLineDash([14,10]); ctx.lineDashOffset=-tt*20 } ctx.strokeStyle=on?'#9be37a':'#fff6a0'; ctx.lineWidth=on&&OB.pad?5:4; ctx.beginPath(); ctx.arc(0,0,R,0,TAU); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); if(OB.pad&&on)obPadCheck(lz.x,lz.y,R); ctx.save(); ctx.font='bold 12px "Courier New",monospace'; ctx.textAlign='center'; ctx.fillStyle='#000'; ctx.fillText('PICKUP PAD',lz.x+1,lz.y+5); ctx.fillStyle='#fff6a0'; ctx.fillText('PICKUP PAD',lz.x,lz.y+4); ctx.restore() }   /* rc6b: pre-marked pad for the first call */
   if(ex.pad&&ex.padShown&&(ex.ph>=3||ex.padPlan)&&ex.ph<=7){ const lz=ex.pad, R=EX.PAD_R, c=SIGC[ex.padCol==='white'?'yellow':ex.padCol];
     ctx.save(); ctx.globalAlpha=.4; ctx.fillStyle='#8f7a4e'; ctx.beginPath(); ctx.ellipse(lz.x,lz.y+4,R+20,(R+20)*.7,0,0,TAU); ctx.fill(); ctx.restore();
     const pulse=1+.05*Math.sin(tt*5); ctx.save(); ctx.translate(lz.x,lz.y+2); ctx.scale(1,.78); ctx.lineWidth=6; ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.beginPath(); ctx.arc(0,0,R*pulse+2,0,TAU); ctx.stroke();
-    ctx.setLineDash([14,10]); ctx.lineDashOffset=-tt*20; ctx.strokeStyle=ex.ph===3&&!ex.padShown?'#fff':'#f2e8c0'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(0,0,R*pulse,0,TAU); ctx.stroke(); ctx.setLineDash([]);
+    const onP=OB.pad&&onPad(g.p.x,g.p.y)&&g.p.hp>0; if(!onP){ ctx.setLineDash([14,10]); ctx.lineDashOffset=-tt*20 } ctx.strokeStyle=ex.ph===3&&!ex.padShown?'#fff':'#f2e8c0'; ctx.lineWidth=onP?5:4; ctx.beginPath(); ctx.arc(0,0,R*pulse,0,TAU); ctx.stroke(); ctx.setLineDash([]);   /* rc8: dashed off the pad, solid + check on it */
     if(ex.board>0){ ctx.strokeStyle='#9be37a'; ctx.lineWidth=8; ctx.beginPath(); ctx.arc(0,0,R*pulse-9,-Math.PI/2,-Math.PI/2+TAU*Math.min(1,ex.board/EX.BOARD_T)); ctx.stroke() }
-    ctx.fillStyle='rgba(255,255,255,.6)'; ctx.fillRect(-14,-14,5,28); ctx.fillRect(9,-14,5,28); ctx.fillRect(-14,-3,28,6); ctx.restore();
+    ctx.fillStyle='rgba(255,255,255,.6)'; ctx.fillRect(-14,-14,5,28); ctx.fillRect(9,-14,5,28); ctx.fillRect(-14,-3,28,6); ctx.restore(); if(onP)obPadCheck(lz.x,lz.y,R);
     if(ex.ph===3)txt('PICKUP PAD · BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+Math.min(15,G.pullEx||0)-G.t))),lz.x,lz.y+R*.78+18,Math.round(12*PADL()),'#f2e8c0','center'); else if(ex.ph===4&&ex.call&&ex.call.st==='wait')txt('STAND HERE: POP SMOKE',lz.x,lz.y+R*.78+18,Math.round(13*PADL()),'#ffe58a','center') } }
 /* smoke columns + the bird: drawn above the men so the column reads */
 function drawExAir(tt){ const g=G,ex=g.ex; if(!ex)return;
-  if(DBG.smokeTest){ const p=g.p; SIGN.forEach((c,i)=>drawSigFx(p.x-240+i*160,p.y-70,'smoke',c,tt,1)) }   /* QA only (console: DBG.smokeTest=true) - all four smoke columns side by side */
+  if(DBG.smokeTest){ const p=g.p; (DBG.smokeTest===2?SIGN.concat('red'):SIGN).forEach((c,i)=>drawSigFx(p.x-240+i*160,p.y-70,'smoke',c,tt,1)); if(DBG.smokeTest===2){ drawSigFx(p.x-160,p.y+120,'flare','yellow',tt,1); drawSigFx(p.x+160,p.y+120,'mirror','white',tt,1) } }   /* QA only (console: DBG.smokeTest=true) - all four smoke columns side by side */
   const fade=ex.ph>=6?Math.max(0,1-ex.t/(EX.LIFT+1)):1;
   const s=ex.sig; if(s&&ex.popped){ drawSigFx(s.x,s.y,'smoke',s.col,tt,fade) } else if(false&&s&&!(ex.ph>=3&&!ex.wrong)){ if(!s.land){ ctx.fillStyle='#2b2f2a'; ctx.fillRect(Math.round(s.x-3),Math.round(s.y-s.z-6),6,9) } else drawSigFx(s.x,s.y,s.kind,s.col,tt,1) }
   if(ex.charlie)drawSigFx(ex.charlie.x,ex.charlie.y,'smoke',ex.charlie.col,tt+.37,1);
   if(ex.call&&ex.call.st==='ask'&&state==='sig'){ const T=callTarget(); if(T){ const by=T.y+16+Math.abs(Math.sin(tt*5))*10; ctx.save(); ctx.fillStyle='#fff6a0'; ctx.strokeStyle='#000'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(T.x,by); ctx.lineTo(T.x-24,by+44); ctx.lineTo(T.x+24,by+44); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.font='bold 17px monospace'; const lw=ctx.measureText('BIRD SEES THIS ONE').width+14; ctx.fillStyle='rgba(0,0,0,.8)'; ctx.fillRect(T.x-lw/2,by+50,lw,24); ctx.restore(); txt('BIRD SEES THIS ONE',T.x,by+68,17,'#fff6a0','center')   /* RC5 (Gamer): bigger and brighter, pointing UP at the canister from below so the top-anchored dialog never covers it; overlay dim 50% */ } }
   if(ex.huey&&ex.ph>=4)drawExHuey(ex.huey,tt) }
 /* RC3 (QA colour-blind): smoke colours also differ in brightness + pattern (protanopia / greyscale): yellow = bright core, violet = dark hatching, green = plain */
-function cbMark(col,x,y,tt,fade){ if(col!=='yellow'&&col!=='violet')return; ctx.save(); ctx.beginPath(); ctx.ellipse(x,y-70,26,62,0,0,TAU); ctx.clip();
+function cbMark(col,x,y,tt,fade){ return;   /* rc8 AD: no patterns painted on the smoke itself; the pattern is in the chip (smokeTag) */
+  if(OB.pat&&(col==='green'||col==='red')){ ctx.save(); ctx.beginPath(); ctx.ellipse(x,y-70,26,62,0,0,TAU); ctx.clip(); ctx.globalAlpha=.42*fade; ctx.strokeStyle=col==='green'?'#0c2a10':'#2a0806'; ctx.lineWidth=3; const o=(tt*14)%12; ctx.beginPath();
+    if(col==='green'){ for(let k=-30;k<=30;k+=10){ ctx.moveTo(x+k,y+10); ctx.lineTo(x+k+Math.sin(tt+k)*3,y-150) } } else { for(let k=-160;k<80;k+=14){ ctx.moveTo(x-30,y+k+o); ctx.lineTo(x+30,y+k+o-30); ctx.moveTo(x-30,y+k+o-30); ctx.lineTo(x+30,y+k+o) } } ctx.stroke(); ctx.restore(); return }   /* rc8 a11y: green = vertical streaks, red = cross-hatch */
+  if(col!=='yellow'&&col!=='violet')return; ctx.save(); ctx.beginPath(); ctx.ellipse(x,y-70,26,62,0,0,TAU); ctx.clip();
   if(col==='yellow'){ ctx.globalAlpha=.42*fade; ctx.fillStyle='#fffbe6'; for(let i=0;i<5;i++){ const u=(tt*.35+i/5)%1; ctx.beginPath(); ctx.arc(x+Math.sin(tt+i)*8,y-12-u*120,7+u*10,0,TAU); ctx.fill() } }
   else { ctx.globalAlpha=.5*fade; ctx.strokeStyle='#1a0f2a'; ctx.lineWidth=3; const o=(tt*14)%12; ctx.beginPath(); for(let k=-160;k<80;k+=12){ ctx.moveTo(x-30,y+k+o); ctx.lineTo(x+30,y+k+o-30) } ctx.stroke() }
   ctx.restore() }
 function drawSigFx(x,y,kind,col,tt,fade){ if(window.DBG_NOSMOKE)return; const c=SIGC[col]; ctx.save();
-  if(kind==='smoke'&&drawSheetSmoke(col,x,y,tt,fade)){ cbMark(col,x,y,tt,fade) }
-  else if(kind==='smoke'){ const N=18; for(let i=0;i<N;i++){ const u=(tt*.4+i/N)%1, h=u*170, r=9+u*30, sway=Math.sin(tt*1.1+i*1.9)*u*18+u*u*26; ctx.globalAlpha=Math.min(1,u*9)*(1-u*u)*.82*fade; ctx.fillStyle=c; ctx.beginPath(); ctx.arc(x+sway,y-6-h,r,0,TAU); ctx.fill();
-      ctx.globalAlpha*=.35; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x+sway-r*.3,y-6-h-r*.3,r*.55,0,TAU); ctx.fill() }
-    ctx.globalAlpha=.7*fade; ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(x,y,26,10,0,0,TAU); ctx.fill() }
-  else if(kind==='flare'){ const fy=y-70-Math.sin(tt*2)*5, fl=.85+.15*Math.sin(tt*31)+.1*Math.sin(tt*17); ctx.globalCompositeOperation='lighter';
+  if(kind==='smoke'&&/[?&]smksheet=1\b/.test(location.search)&&drawSheetSmoke(col,x,y,tt,fade)){   /* rc8 AD: sprite-sheet columns read cartoony; soft M18 puffs are the default (?smksheet=1 = old sheet) */ cbMark(col,x,y,tt,fade); smokeTag(col,x,y,fade) }
+  else if(kind==='smoke'){ const N=26; for(let i=0;i<N;i++){ const u=(tt*.32+i/N)%1, h=u*150, r=7+u*34+Math.sin(i*2.3)*3, sway=Math.sin(tt*.9+i*1.9)*u*10+u*u*48;   /* soft billowing M18 column, leaning down-wind */
+      const px=x+sway, py=y-6-h, a0=Math.min(1,u*7)*(1-u)*(1-u*.4)*.6*fade, gr=ctx.createRadialGradient(px,py,r*.15,px,py,r); gr.addColorStop(0,c); gr.addColorStop(.6,c); gr.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.globalAlpha=a0; ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(px,py,r,0,TAU); ctx.fill();
+      ctx.globalAlpha=a0*.22; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(px-r*.3,py-r*.3,r*.5,0,TAU); ctx.fill() }
+    ctx.globalAlpha=.7*fade; ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(x,y,26,10,0,0,TAU); ctx.fill(); ctx.globalAlpha=1; cbMark(col,x,y,tt,fade); smokeTag(col,x,y,fade) }
+  else if(kind==='flare'){ const fy=y-70-Math.sin(tt*2)*5, fl=RFX?.92:.85+.15*Math.sin(tt*31)+.1*Math.sin(tt*17); ctx.globalCompositeOperation='lighter';
     const gr=ctx.createRadialGradient(x,fy,2,x,fy,110*fl); gr.addColorStop(0,'rgba(255,255,255,.95)'); gr.addColorStop(.2,c); gr.addColorStop(1,'rgba(0,0,0,0)'); ctx.globalAlpha=.85*fade; ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(x,fy,110*fl,0,TAU); ctx.fill();
     ctx.globalAlpha=.5*fade; ctx.strokeStyle=c; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x,fy+6); ctx.lineTo(x+Math.sin(tt*3)*4,y); ctx.stroke();
     for(let i=0;i<8;i++){ const u=(tt*1.7+i/8)%1; ctx.globalAlpha=(1-u)*.8*fade; ctx.fillStyle='#fff'; ctx.fillRect(x+Math.sin(i*5+tt*4)*u*26-1,fy+u*60,3,3) }
-    ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=.45*fade; ctx.fillStyle='rgba(60,50,40,1)'; ctx.beginPath(); ctx.ellipse(x,y,14,6,0,0,TAU); ctx.fill() }
-  else if(kind==='mirror'){ const on=Math.floor(tt*5)%3!==2, my=y-34; ctx.globalCompositeOperation='lighter';
-    if(on){ const r=44+8*Math.sin(tt*40); ctx.globalAlpha=.95*fade; ctx.fillStyle='#fff'; ctx.save(); ctx.translate(x,my); ctx.rotate(tt*1.5); for(let k=0;k<4;k++){ ctx.rotate(Math.PI/2); ctx.beginPath(); ctx.moveTo(0,-3); ctx.lineTo(r,0); ctx.lineTo(0,3); ctx.closePath(); ctx.fill() } ctx.restore();
+    ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=.45*fade; ctx.fillStyle='rgba(60,50,40,1)'; ctx.beginPath(); ctx.ellipse(x,y,14,6,0,0,TAU); ctx.fill(); ctx.globalAlpha=1; smokeTag(col,x,y,fade,'flare') }
+  else if(kind==='mirror'){ const on=RFX||Math.floor(tt*5)%3!==2, my=y-34; ctx.globalCompositeOperation='lighter';
+    if(on){ const r=RFX?44:44+8*Math.sin(tt*40); ctx.globalAlpha=.95*fade; ctx.fillStyle='#fff'; ctx.save(); ctx.translate(x,my); ctx.rotate(tt*1.5); for(let k=0;k<4;k++){ ctx.rotate(Math.PI/2); ctx.beginPath(); ctx.moveTo(0,-3); ctx.lineTo(r,0); ctx.lineTo(0,3); ctx.closePath(); ctx.fill() } ctx.restore();
       const gr=ctx.createRadialGradient(x,my,1,x,my,40); gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(1,'rgba(160,210,255,0)'); ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(x,my,40,0,TAU); ctx.fill() }
-    ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=fade; ctx.fillStyle='#e8f4ff'; ctx.fillRect(x-8,my+2,16,12); ctx.fillStyle='#7f98b4'; ctx.fillRect(x-8,my+12,16,2); ctx.fillStyle='#fff'; ctx.fillRect(x-6,my+4,5,3) }
-  else { const on=Math.floor(tt*5)%2===0, sy=y-18; ctx.globalCompositeOperation='lighter';
+    ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=fade; ctx.fillStyle='#e8f4ff'; ctx.fillRect(x-8,my+2,16,12); ctx.fillStyle='#7f98b4'; ctx.fillRect(x-8,my+12,16,2); ctx.fillStyle='#fff'; ctx.fillRect(x-6,my+4,5,3); ctx.globalAlpha=1; smokeTag('white',x,y,fade,'mirror') }
+  else { const on=RFX?true:Math.floor(tt*5)%2===0, sy=y-18; ctx.globalCompositeOperation='lighter';
     if(on){ const gr=ctx.createRadialGradient(x,sy,2,x,sy,95); gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(.25,c); gr.addColorStop(1,'rgba(0,0,0,0)'); ctx.globalAlpha=.95*fade; ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(x,sy,95,0,TAU); ctx.fill() }
     ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=fade; ctx.fillStyle='#222'; ctx.fillRect(x-5,sy-2,10,12); ctx.fillStyle=on?'#fff':c; ctx.fillRect(x-3,sy-6,6,5) }
   ctx.restore() }
@@ -6784,8 +6866,8 @@ function sigLine(){ const g=G,ex=g.ex,p=g.p; if(!ex)return {t:'',c:'#fff'};
   if(ex.ph===4&&ex.call&&ex.call.st!=='ok')return {t:'SMOKE OUT · THE BIRD IS LOOKING · BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t))),c:SIGC[ex.col],T:null};
   if(ex.ph===1||ex.ph===2)return {t:sigName(ex.sig.kind,ex.sig.col)+' — '+dm+'m'+(ex.padPlan?'  ·  PAD MARKED':''),c:SIGC[ex.sig.col==='white'?'yellow':ex.sig.col],T};
   if(ex.ph===3&&ex.wrong&&ex.padShown&&!onPad(p.x,p.y))return {t:'WRONG SMOKE · BIRD SETTING DOWN ELSEWHERE · NEW PAD '+dm+'m',c:'#ffcf5a',T};
-  if(ex.ph===3)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+Math.min(15,G.pullEx||0)-G.t)))+(ex.padShown?(onPad(p.x,p.y)?'  ·  ON THE PAD':'  ·  PAD '+dm+'m'):''),c:'#9be37a',T:ex.padShown&&!onPad(p.x,p.y)?T:null};
-  if(ex.ph===4)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t)))+(onPad(p.x,p.y)?'  ·  ON THE PAD':'  ·  PAD '+dm+'m'),c:onPad(p.x,p.y)?'#9be37a':'#ffcf5a',T:onPad(p.x,p.y)?null:T};
+  if(ex.ph===3)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+Math.min(15,G.pullEx||0)-G.t)))+(ex.padShown?(onPad(p.x,p.y)?'  ·  ✓ ON THE PAD':'  ·  PAD '+dm+'m'):''),c:'#9be37a',T:ex.padShown&&!onPad(p.x,p.y)?T:null};
+  if(ex.ph===4)return {t:'HOLD FOR LZ — BIRD IN '+fmt(Math.ceil(Math.max(0,EX.INBOUND-ex.t)))+(onPad(p.x,p.y)?'  ·  ✓ ON THE PAD':'  ·  PAD '+dm+'m'),c:onPad(p.x,p.y)?'#9be37a':'#ffcf5a',T:onPad(p.x,p.y)?null:T};
   if(ex.ph===5){ const left=Math.max(0,EX.GROUND-ex.t), inR=onPad(p.x,p.y); const ow=!inR&&ex.offWarn; return {t:'BIRD LIFTS — '+fmt(Math.ceil(left))+'  ·  '+(ow?'GET ON THE PAD '+dm+'m':!inR?'PAD '+dm+'m':ex.ramp?'BOARDING':'NEED ONE MORE MARINE ON THE RAMP'),c:(left<10||ow)?'#ff6a4a':'#9be37a',T:inR?null:T} }
   if(ex.ph===6)return {t:'EXTRACTED',c:'#9be37a'}; return {t:'THE BIRD IS GONE',c:'#ff6a4a'} }
 const q15Alive=()=>{ const g=G; let n=0; for(const m of coy)if(m.hp>0&&(!m.comp||m.comp.q15))n++; let k=0; for(const h of coyH)if((h.ph<2||(h.ch46&&h.ph<4))&&h.comp&&h.comp.q15)k+=Math.max(0,h.left-h.di); const v=(g.p.hp>0?1:0)+n+k; if(state==='over'){ g.mlOver=Math.min(v,g.mlOver==null?v:g.mlOver); return g.mlOver } return v };   /* RC5.2 (QA m0): frozen once the run is over (the world kept ticking after Doc fell and his hp flickered back);: the HUD 'MARINES' count is the fifteen only; late company reinforcements landing no longer bump it back up */
@@ -6967,7 +7049,7 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
     '.p3sc{margin:8px auto;max-width:520px;text-align:left;font:13px "Courier New",monospace;color:#e8e2c0;background:rgba(10,18,10,.7);border:1px solid #5a6a3a;padding:8px 12px}'+
     '.p3sc b{color:#ffe58a}.p3sc .row{display:flex;justify-content:space-between}.p3sc .tot{border-top:1px solid #5a6a3a;margin-top:4px;padding-top:4px;font-size:16px;color:#ffe58a}'+
     '.p3lb{margin:6px auto;border-collapse:collapse;font:12px "Courier New",monospace;color:#e8e2c0}.p3lb td,.p3lb th{padding:2px 8px;border-bottom:1px solid #2c3a1e}.p3lb th{color:#b9c88a}.p3lb tr.hi td{color:#10180c;background:#ffe58a}'+
-    '#p3toast{position:fixed;right:14px;top:64px;z-index:60;display:flex;flex-direction:column;gap:6px;pointer-events:none}'+
+    '#p3toast{position:fixed;right:14px;top:150px;z-index:60;display:flex;flex-direction:column;gap:6px;pointer-events:none}'+
     '.p3t{min-width:240px;max-width:320px;background:#16200f;border:2px solid #b9a050;color:#f0e6c0;font:12px "Courier New",monospace;padding:8px 10px;box-shadow:0 4px 0 #0008;transform:translateX(120%);transition:transform .35s}.p3t.on{transform:none}.p3t b{display:block;color:#ffe58a;font-size:13px}.p3t i{color:#b9c88a;font-style:normal;font-size:12px}'+
     '#p3unl{margin:8px auto 0;max-width:640px;font:12px "Courier New",monospace;color:#e8e2c0;text-align:left}#p3unl .lo{display:inline-block;margin:3px;padding:5px 8px;border:1px solid #5a6a3a;background:#1a2412;cursor:pointer}#p3unl .lo.sel{background:#b9e08a;color:#10180c}#p3unl .lo.lk{opacity:.55;cursor:default}#p3unl small{color:#b9c88a}'+
     '.p3demo{margin:0 0 6px;padding:5px 8px;border:1px solid #b9a050;color:#ffe58a;background:rgba(40,34,10,.6)}.p3lbh{text-align:center;color:#ffe58a;font:bold 12px "Courier New",monospace;letter-spacing:1px;margin-top:6px}'+
@@ -6986,7 +7068,7 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
   unlock(a){ const m=this.got(); if(m[a.id])return false; m[a.id]=Date.now(); this.ss('lco_ach',m); (this.runAch||(this.runAch=[])).push(a); this.toast(a); this.steam(a.id); return true },
   steam(id){ if(DEMO)return; try{ const sw=window.steamworks; if(sw){ if(sw.achievement&&sw.achievement.activate)sw.achievement.activate(id); else if(sw.activateAchievement)sw.activateAchievement(id); return } const gw=window.greenworks; if(gw&&gw.activateAchievement)gw.activateAchievement(id,()=>{},()=>{}) }catch(e){} },
   toast(a){ if(NOHUD)return; (this.tq||(this.tq=[])).push(a); this.pump() },
-  pump(){ const w=$('p3toast'); if(this.tq.length&&toastBlocked()){ clearTimeout(this._pt); this._pt=setTimeout(()=>this.pump(),500); return } if(!this.tq.length||(w&&w.children.length>=(innerWidth<700?1:3)))return; this.show(this.tq.shift()); setTimeout(()=>this.pump(),900) },
+  pump(){ const w=$('p3toast'); if(this.tq.length&&toastBlocked()){ clearTimeout(this._pt); this._pt=setTimeout(()=>this.pump(),500); return } if(!this.tq.length||(w&&w.children.length>=1))return; this.show(this.tq.shift()); setTimeout(()=>this.pump(),900) },
   show(a){ this.css(); let w=$('p3toast'); if(!w){ w=document.createElement('div'); w.id='p3toast'; document.body.appendChild(w) } const d=document.createElement('div'); d.className='p3t';
     d.innerHTML=`<i>ACHIEVEMENT UNLOCKED${DEMO?' · DEMO':''}</i><b>${a.name}</b>${a.desc}`; w.appendChild(d); requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('on'))); try{ Snd.play('chime') }catch(e){}
     setTimeout(()=>{ d.classList.remove('on'); setTimeout(()=>{ d.remove(); this.pump() },400) },HUDM.on?2600:4200) },
@@ -7093,7 +7175,7 @@ function showBest(){ let b=0; try{b=+localStorage.getItem('lco_best')||0}catch(e
 $('btnStart').onclick=openCharSel; $('btnRestart').onclick=startGame; $('btnMenu').onclick=toMenu; $('btnResume').onclick=resumeGame; $('btnQuit').onclick=toMenu; $('btnPause').onclick=()=>{state==='play'?pauseGame():resumeGame()};
 document.querySelectorAll('.volM,.volS').forEach(el=>{ const k=el.classList.contains('volM')?'mus':'sfx'; el.value=Math.round(Snd.vol[k]*100); el.addEventListener('input',e=>{ Snd.setVol(k,e.target.value/100) }); el.addEventListener('keydown',e=>e.stopPropagation()); el.addEventListener('pointerdown',e=>e.stopPropagation()) });
 $('btnMute').onclick=()=>{Snd.init();Snd.resume();Snd.setMuted(!Snd.muted)};
-document.querySelectorAll('.lowChk').forEach(c=>{ c.addEventListener('change',e=>{ setLowFx(e.target.checked); e.target.blur() }); c.addEventListener('keydown',e=>{ e.stopPropagation() }) }); setLowFx(LOWFX,true);
+document.querySelectorAll('.lowChk').forEach(c=>{ c.addEventListener('change',e=>{ setLowFx(e.target.checked); e.target.blur() }); c.addEventListener('keydown',e=>{ e.stopPropagation() }) }); setLowFx(LOWFX,true); document.querySelectorAll('.rfChk').forEach(c=>{ c.addEventListener('change',e=>{ setRFX(e.target.checked); e.target.blur() }); c.addEventListener('keydown',e=>{ e.stopPropagation() }) }); setRFX(RFX,true);
 { const gc=document.getElementById('goreChk'); setGore(GORE,true); gc.addEventListener('change',e=>{ setGore(e.target.checked); e.target.blur() }); gc.addEventListener('keydown',e=>{ e.stopPropagation() }); }
 
 /* ---- fullscreen toggle (button + F key); Fullscreen API with webkit fallback; iOS Safari hint ---- */
@@ -7349,7 +7431,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   for(const q of gems){ if(q.t!==3)continue; ctx.fillStyle='#56603a'; ctx.fillRect(q.x-7,q.y-6,14,12); ctx.fillStyle='#f4f4ea'; ctx.fillRect(q.x-1.5,q.y-5,3,10); ctx.fillRect(q.x-5,q.y-1.5,10,3);   /* rc7.1 legal: OD kit, white + (no red cross emblem) */ ctx.strokeStyle='#17110a';ctx.lineWidth=1;ctx.strokeRect(q.x-7,q.y-6,14,12) }
   // grenades shadow/body
   for(const q of grenades){ if(q.t<0)continue; const k=Math.min(1,q.t/q.d), z=Math.sin(Math.PI*k)*46; if(window.VFX_ROCKETS){ try{ VFX_ROCKETS.drawProjectile(ctx,'m79',q.x,q.y,Math.atan2(q.ty-q.sy,q.tx-q.sx),q.t,1,z) }catch(e){} continue } ctx.fillStyle='rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(q.x,q.y,5,2.5,0,0,TAU); ctx.fill(); ctx.fillStyle='#4f6b2a'; ctx.fillRect(q.x-3,q.y-z-5,6,7); ctx.fillStyle='#17110a'; ctx.fillRect(q.x-1,q.y-z-7,3,2);
-    if(k>.7){ctx.strokeStyle='rgba(255,90,40,'+(.3+.3*Math.sin(tt*40))+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(q.tx,q.ty,q.rad*(1-(k-.7)/.3*.3),0,TAU);ctx.stroke()} }
+    if(k>.7){ctx.strokeStyle='rgba(255,90,40,'+(.3+.3*Math.sin(tt*(RFX?6:40)))+')';ctx.lineWidth=2;ctx.beginPath();ctx.arc(q.tx,q.ty,q.rad*(1-(k-.7)/.3*.3),0,TAU);ctx.stroke()} }
   // friendly armor
   for(let i=0;i<tanks.length;i++){ const t=tanks[i]; if(t.x<camX-70||t.x>camX+VW+70||t.y<camY-70||t.y>camY+VH+70)continue; drawTank(t) }
   // river gunboat
@@ -7450,8 +7532,8 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   ctx.setTransform(1,0,0,1,0,0);
   if(window.VFX_ATMO&&!g.demo){ try{ const now=performance.now(), adt=Math.min(.1,(now-(render.aT||now))/1000); render.aT=now; if(!render.aI){ render.aI=1; VFX_ATMO.init(W,H); VFX_ATMO.hookLowToggle&&VFX_ATMO.hookLowToggle(); VFX_ATMO.setLow&&VFX_ATMO.setLow(!!LOWFX) } if(render.aW!==W||render.aH!==H){ render.aW=W; render.aH=H; VFX_ATMO.init(W,H) } if(ATM.ON)ATM.frame(g,p,adt,camX,camY); else { VFX_ATMO.update(adt); VFX_ATMO.drawWorldOverlay(ctx,camX,camY,zoom); VFX_ATMO.drawScreen(ctx) } }catch(e){ if(!render.aErr){ render.aErr=1; console.warn('atmo',e) } } }   /* Artist Helper atmosphere (day grade, haze, lights) */
   WX.draw(W,H);   /* weather sits under the HUD: never hides prompts, timers or the pad arrow */
-  { const low=(!g.demo&&p.hp>0&&p.hp/p.maxHp<.3)?(.45+(g.hbPulse>0?(g.hbPulse/.38)*(g.hbAmp||.3)*.55:0)+(g.hbT===undefined||g.hbT===0?.06*Math.sin(tt*5):0))*(1-p.hp/p.maxHp/.3*.5):0;   /* pulses on each heartbeat cue (dangerTick) */ const a=Math.max(Math.min(.8,Math.max(g.hurt>0?g.hurt*1.5:0,low))*(GORE?1:.35),low)*VSOFT(); 
-    if(a>.01){ const gr=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.18,W/2,H/2,Math.max(W,H)*.68); gr.addColorStop(0,'rgba(120,0,0,0)'); gr.addColorStop(.6,`rgba(140,6,6,${a*.45})`); gr.addColorStop(1,`rgba(110,0,0,${a})`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H) } if(low>0){ const pu=.55+.45*(g.hbPulse>0?g.hbPulse/.38:0), lw=Math.max(6,Math.min(W,H)*.018); ctx.strokeStyle=`rgba(200,20,16,${.7*pu*(1-.3*VDK())})`; ctx.lineWidth=lw; ctx.strokeRect(lw/2,lw/2,W-lw,H-lw) } }   /* RC2: hard red screen edge under 30% HP, pulsing with the heartbeat */
+  { const low=(!g.demo&&p.hp>0&&p.hp/p.maxHp<.3)?(RFX?.5:.45+(g.hbPulse>0?(g.hbPulse/.38)*(g.hbAmp||.3)*.55:0)+(g.hbT===undefined||g.hbT===0?.06*Math.sin(tt*5):0))*(1-p.hp/p.maxHp/.3*.5):0;   /* pulses on each heartbeat cue (dangerTick) */ const a=Math.max(Math.min(.8,Math.max(g.hurt>0?g.hurt*1.5:0,low))*(GORE?1:.35),low)*VSOFT(); 
+    if(a>.01){ const gr=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.18,W/2,H/2,Math.max(W,H)*.68); gr.addColorStop(0,'rgba(120,0,0,0)'); gr.addColorStop(.6,`rgba(140,6,6,${a*.45})`); gr.addColorStop(1,`rgba(110,0,0,${a})`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H) } if(low>0){ const pu=RFX?.8:.55+.45*(g.hbPulse>0?g.hbPulse/.38:0), lw=Math.max(6,Math.min(W,H)*.018); ctx.strokeStyle=`rgba(200,20,16,${.7*pu*(1-.3*VDK())})`; ctx.lineWidth=lw; ctx.strokeRect(lw/2,lw/2,W-lw,H-lw) } }   /* RC2: hard red screen edge under 30% HP, pulsing with the heartbeat */
   if(state==='menu'&&MART()){ try{ ctx.setTransform(1,0,0,1,0,0); MENU_ART.drawBackground(ctx,W,H,performance.now()/1000); if(window.KB&&window.KB.cap&&MENU_ART.drawCaption&&innerWidth>=1100&&innerHeight>=600){ const fs=Math.round(10*DPR), cw=window.KB.cap.length*fs*.62+fs*2; MENU_ART.drawCaption(ctx,window.KB.cap,Math.round(W-cw-12*DPR),Math.round(H-12*DPR),fs,'bl') } }catch(e){} }   /* caption bottom-right on wide screens only (never under the title or the How to Play board; the credits carry every caption) */   /* art hook: Artist Helper's ui/main_menu_art.js draws over the attract demo, under the HTML menu */
   if(state==='menu'||state==='intro'||g.demo||NOHUD)return;   /* rc8 ?nohud */
   const U=UI;
@@ -7467,6 +7549,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   txt(fmt(g.t),W/2,56*U+oy,28*U,'#f6f0cc','center');
   txt('BODY COUNT '+g.kills,bx,by+bh+17*U,15*U,'#f0e6a8','left');
   LANE.y=exTop(U)+(exStack||0)+6*U; LANE.U=U;   /* rc8 one top lane: everything below the timer / commander bar / firebase lines / Gunny card stacks, nothing overlaps */
+  if(OB.lowhp&&p.hp>0&&p.hp/p.maxHp<.3)obLowTag(bx+bw+8*U,by,bh,U);
   drawSigLine(U,oy);   /* permanent line under the timer + MARINES count */
   // boss bar
   if(g.boss&&!g.boss.dead){ const bw2=Math.min(460*U,W*.6),bx2=W/2-bw2/2,by2=PY; ctx.fillStyle='#0b140c'; ctx.fillRect(bx2-3,by2-3,bw2+6,16*U+6); ctx.fillStyle='#3a1210'; ctx.fillRect(bx2,by2,bw2,16*U); ctx.fillStyle='#d83a2a'; ctx.fillRect(bx2,by2,bw2*Math.max(0,g.boss.hp/g.boss.mhp),16*U); txt(g.boss.name.toUpperCase(),W/2,by2+13*U,12*U,'#fff','center') }
@@ -7476,7 +7559,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   for(const id in g.w)row(id,g.w[id].lvl); for(const id in g.ps)if(g.ps[id]>0)row(id,g.ps[id]);
   // banner
   if(HUDM.on){ const tw=document.getElementById('p3toast'); if(tw){ const top=Math.round((exTop(U)+(exStack||0)+(g.pullT>0?40:18)*U+(g.banner?16*U:0)+44*U)/DPR+6)+"px"; if(tw.style.top!==top)tw.style.top=top } }   /* rc7 hudmobile fix: toast lane sits BELOW the banner (no overlap) */
-  if(g.banner){ const b=g.banner,k=Math.min(1,(3.2-b.t)*5,b.t*2); if(HUDM.on){ const cr=HUDM.crit(b), fs=Math.min((cr?22:15)*U,(W-20)/Math.max(8,b.text.length)*1.6), k2=cr?k:Math.min(k,b.t*1.4,(b.t>1.6?1:b.t/1.6)); ctx.globalAlpha=Math.max(0,Math.min(1,k2)); txt(HUDM.short(b.text),W/2,exTop(U)+(exStack||0)+(g.pullT>0?40:18)*U,fs,b.col,'center'); ctx.globalAlpha=1 }   /* hudmobile: in the top lane under the signal line, smaller; non-critical ones fade faster */
+  if(g.banner&&!obDlgOpen()){ const b=g.banner,k=Math.min(1,(3.2-b.t)*5,b.t*2); if(HUDM.on){ const cr=HUDM.crit(b), fs=Math.min((cr?22:15)*U,(W-20)/Math.max(8,b.text.length)*1.6), k2=cr?k:Math.min(k,b.t*1.4,(b.t>1.6?1:b.t/1.6)); ctx.globalAlpha=Math.max(0,Math.min(1,k2)); txt(HUDM.short(b.text),W/2,exTop(U)+(exStack||0)+(g.pullT>0?40:18)*U,fs,b.col,'center'); ctx.globalAlpha=1 }   /* hudmobile: in the top lane under the signal line, smaller; non-critical ones fade faster */
     else { ctx.globalAlpha=Math.max(0,Math.min(1,k)); txt(b.text,W/2,laneT(30*U,b.top?Math.max(H*.12,96*U):H*.27),Math.min((30+6*(1-Math.min(1,k)))*U,(W-40*U)/Math.max(8,b.text.length*.62)),b.col,'center');   /* rc7.1: long banners shrink to fit (SUPPLY DROP clipped at ~910 px) */ ctx.globalAlpha=1 } }
   N2.hud(U); PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); try{ PB.hud(U); drawTrib(U) }catch(e){} FIELD.hud(U); KIA.hud(U); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
   // joystick
