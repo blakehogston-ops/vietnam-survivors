@@ -2377,6 +2377,9 @@ function updateSupport(dt){
 }
 /* vehicles.js (Artist Helper, Oct 14): all aircraft / vehicles; the old canvas drawings stay as fallbacks. Hitboxes unchanged (art is ~20% bigger). */
 const VEH=()=>!!(window.SHEET1&&SHEET1.vehiclesBig);
+/* jr Oct 20: optional VFX_IMPACT hooks, each OFF unless its flag is set. ?impnapalm=1 canister+rolling fireball+teardrop scorch on each napalm drop (replaces the old G.shake there),
+   ?implat=1 red laterite soil eruption column on big blasts (rad>=40, mud on paddy), ?impm40=1 M40 sniper uses SHAKE.m40 + KICK.m40 recoil instead of the flat G.shake 2.2. arcLight deliberately NOT wired (doubles the booms). */
+const IMPNP=/[?&]impnapalm=1\b/.test(location.search), IMPLAT=/[?&]implat=1\b/.test(location.search), IMPM40=/[?&]impm40=1\b/.test(location.search);
 const IMPDEC=/[?&]jungle=1\b/.test(location.search)&&!/[?&]impdec=0\b/.test(location.search), IGR=(x,y)=>{ const j=JG.ground(x,y); if(j)return j; try{ const m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); return m==='P'?'paddy':'dirt' }catch(e){ return 'dirt' } };
 const MOPEN=!/[?&]mopen=0\b/.test(location.search), MLEAD=2.0;
 const RTOP=/[?&]rtop=0\b/.test(location.search)?0:(+(location.search.match(/[?&]rtop=(\d+)/)||[])[1]||300);
@@ -3246,7 +3249,7 @@ function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return;
   spawnDrops(p.x,p.y-6,0,0,12,130); if(rnd()<.6)addDecal(p.x+(rnd()-.5)*16,p.y+8,SPLAT[(rnd()*5)|0],30,.8);
   if(p.hp<=0){ if((G.ps.dustoff|0)&&!G.dustUsed)dustoffRevive(); else { p.hp=0; gameOver() } } }
 let EXIMP=0;   /* set while a real impact clip already covers this explosion (M79 / mortar / 105) */
-function explode(x,y,rad,dmg,kb,vol){ rad*=1+.08*(G.ps.demo|0); if(window.VFX_ATMO)try{ VFX_ATMO.addLight(x,y,'explosion') }catch(e){} if(window.VFX_EXPLOSIONS&&XFX.length<24&&!(G&&G.demo&&XFX.length>8)){ try{ XFX.push({ty:VFX_EXPLOSIONS.forRadius(rad),x,y,t0:G.t}) }catch(e){} } WFX.hit(x,y,rad>=40?'big':'heavy'); if(rad>=40)addCrater(x,y,rad); if(window.VFX_IMPACT&&!(G&&G.demo)){ try{ const n=rad>=90?10:rad>=40?6:3; VFX_IMPACT.debris('dirt',x,y,n,Math.min(1.6,.5+rad/80)); if(rad>=40)VFX_IMPACT.debris('clod',x,y,n>>1,Math.min(1.4,.4+rad/90)); VFX_IMPACT.kick(Math.atan2(G.p.y-y,G.p.x-x),rad>=90?'mortar':'m79',{intensity:Math.max(0,1-Math.hypot(G.p.x-x,G.p.y-y)/500)}) }catch(e){} }
+function explode(x,y,rad,dmg,kb,vol){ rad*=1+.08*(G.ps.demo|0); if(window.VFX_ATMO)try{ VFX_ATMO.addLight(x,y,'explosion') }catch(e){} if(window.VFX_EXPLOSIONS&&XFX.length<24&&!(G&&G.demo&&XFX.length>8)){ try{ XFX.push({ty:VFX_EXPLOSIONS.forRadius(rad),x,y,t0:G.t}) }catch(e){} } WFX.hit(x,y,rad>=40?'big':'heavy'); if(rad>=40)addCrater(x,y,rad); if(window.VFX_IMPACT&&!(G&&G.demo)){ try{ const n=rad>=90?10:rad>=40?6:3; VFX_IMPACT.debris('dirt',x,y,n,Math.min(1.6,.5+rad/80)); if(rad>=40)VFX_IMPACT.debris('clod',x,y,n>>1,Math.min(1.4,.4+rad/90)); if(IMPLAT&&rad>=40&&VFX_IMPACT.eruption)VFX_IMPACT.eruption(x,y,Math.min(1.6,rad/70),{ground:IGR(x,y)}); VFX_IMPACT.kick(Math.atan2(G.p.y-y,G.p.x-x),rad>=90?'mortar':'m79',{intensity:Math.max(0,1-Math.hypot(G.p.x-x,G.p.y-y)/500)}) }catch(e){} }
   dmgSrc=2;
   for(let i=0;i<enemies.length;i++){const e=enemies[i]; if(e.dead)continue; const dx=e.x-x,dy=e.y-y,d=Math.hypot(dx,dy); if(d<rad+e.r){const n=d||1; hurtEnemy(e,dmg,dx/n*kb,dy/n*kb)}}
   dmgSrc=0;
@@ -3976,7 +3979,7 @@ function updateWeapons(dt){
       for(let i=0;i<s.pel&&bullets.length<540;i++){ const a=base+(rnd()-.5)*s.spread; addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,560+rnd()*80,s.dmg,1,.3,3,'#ffd9a0') } Snd.play('ithaca'); g.muzzle=.07; w.cd+=s.cd; }
     else if(id==='m1903'){ const t=faceK(p,1,s.range)[0]; if(!t){w.cd=.05;continue} const a=Math.atan2(t.y-p.y,t.x-p.x);
       const b=addBullet(p.x+Math.cos(a)*22,p.y-3+Math.sin(a)*22,a,1150,s.dmg,s.pierce,s.range/1150+.05,2.4,'#ffe9a0'); b.ohk=1; b.tr=.075;
-      Snd.play('m1903'); Snd.boltCycleLater(); g.muzzle=.11; g.mzW='m40'; g.bolt=.62; g.shake=Math.max(g.shake,2.2); w.cd+=s.cd; }
+      Snd.play('m1903'); Snd.boltCycleLater(); g.muzzle=.11; g.mzW='m40'; g.bolt=.62; if(IMPM40&&window.VFX_IMPACT){ try{ VFX_IMPACT.shake('m40',{angle:a}); VFX_IMPACT.kick(a+Math.PI,'m40') }catch(e){} } else g.shake=Math.max(g.shake,2.2); w.cd+=s.cd; }
     else if(id==='m16'){ const ts=faceK(p,s.shots,540); if(!ts.length){w.cd=.05;continue}
       for(let i=0;i<s.shots;i++){const t=ts[i%ts.length]; const a=Math.atan2(t.y-p.y,t.x-p.x)+(i>=ts.length?(rnd()-.5)*.25:0); addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,700,s.dmg,s.pierce,.85,3.2,'#fff3a0')}
       Snd.play('m16'); MAGS.shot(p,'m16',p.x,p.y); g.muzzle=.07; g.mzW='m16'; w.cd+=s.cd; }
@@ -4664,7 +4667,8 @@ function napalmDrop(x,y,q){
   blasts.push({x,y,r:q.rad*1.3,t:0,d:.5});
   burst(x,y,10,q.rad*2.4,.7,5,['#fff0a0','#ffd54a','#ff9b21','#ff5a1a'],true);
   burst(x,y,4,q.rad*.9,1.1,6,['#3a342c','#555048'],false);
-  G.shake=Math.max(G.shake,3); (SAMP.ready()&&SamplePlayer.hasSample('napalm_ignite')?SAMP.FN.napalm():Snd.play('boom')); }
+  if(IMPNP&&window.VFX_IMPACT&&!G.demo){ try{ VFX_IMPACT.napalmDrop(x,y,q.a||0,{fall:.12,cx:G.p.x,cy:G.p.y}) }catch(e){ G.shake=Math.max(G.shake,3) } } else G.shake=Math.max(G.shake,3);
+  (SAMP.ready()&&SamplePlayer.hasSample('napalm_ignite')?SAMP.FN.napalm():Snd.play('boom')); }
 function updateHazards(dt){
   const p=G.p;
   // enemy rockets (RPG)
