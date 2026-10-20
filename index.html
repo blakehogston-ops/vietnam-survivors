@@ -3174,7 +3174,7 @@ function newGame(demo){ N2.reset(); try{ ATM.reset() }catch(e){}
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
   WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FIELD.reset(); GUNS.reset(); MEDV.reset(); CREWX.reset(); BARK.reset(); VHX.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); MAGS.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
-    spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(180,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
+    spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(240,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:130,maxHp:130,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,medInv:3,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
     tankRot:0,nextRpgT:EX.PAD_T+75,rpgSeen:false,sqT:.8,sqS:null,sqL:0,fdx:0,fdy:1,nextTunnel:t0+2,nextVc:0,mortarT:0,hueyUnlocked:false,nextPit:t0+1.5,nextShout:t0+3,han:null,nextHan:(DBG.t>0?t0+6:t0+250+rnd()*120),cryQ:0,lastShout:-1,aim:0,hasTarget:false,flameAng:0,pending:0,boss:null,levelTimer:0,botTimer:0};
@@ -3555,11 +3555,11 @@ const BNK={WARN:2,IN:30,DMG:.5,LIFE:75,PER:2,raw:0,
 function surge(){
   const t=G.t,p=G.p; const ambush=(G.surgeN++%2)===0;
   if(ambush){ // VC ambush: guerrillas spring up all around
-    const n=Math.round(Math.min(110,30+Math.floor(t/4))*fbDens()); const R=Math.hypot(VW,VH)/2+80;
+    const n=Math.round(Math.min(110,30+Math.floor(t/4))*fbDens()*(t>=120&&t<180?.6:1)); const R=Math.hypot(VW,VH)/2+80;   /* rc8 EP: 2:00-3:00 melee mass trimmed */
     for(let i=0;i<n;i++){ const a=rnd()*TAU,d=R+rnd()*70; spawnEnemy(rnd()<.18&&t>60&&!fbGrace()?'nva':'vc',p.x+Math.cos(a)*d,p.y+Math.sin(a)*d,true) }
     G.banner={text:'VC AMBUSH!',t:2.6,col:'#ffcf5a'};
   } else { // NVA mass assault from one side
-    const n=Math.round(Math.min(90,22+Math.floor(t/5))*fbDens()); const side=(rnd()*4)|0; const hw=VW/2+70,hh=VH/2+70; const span=side<2?VH*.9:VW*.9;
+    const n=Math.round(Math.min(90,22+Math.floor(t/5))*fbDens()*(t>=120&&t<180?.6:1)); const side=(rnd()*4)|0; const hw=VW/2+70,hh=VH/2+70; const span=side<2?VH*.9:VW*.9;
     for(let i=0;i<n;i++){ const along=(rnd()-.5)*span, depth=rnd()*90; let x,y;
       if(side===0){x=p.x+hw+depth;y=p.y+along}else if(side===1){x=p.x-hw-depth;y=p.y+along}else if(side===2){y=p.y+hh+depth;x=p.x+along}else{y=p.y-hh-depth;x=p.x+along}
       const r=rnd(); spawnEnemy(fbGrace()?'vc':r<.12&&t>100?'officer':r<.35?'vc':'nva',x,y,true) }
@@ -4728,12 +4728,13 @@ function renderCards(){ const box=$('cards'); box.innerHTML='';
   luTools(); $('luTools').style.display=luForced?'none':''; $('levelup').querySelector('.sub').textContent=luForced?'Your first upgrade':'Choose an upgrade' }
 let luForced=false;
 const LU_GAP=20;
-function openLevelUp(){ if(G&&(G.ex&&G.ex.ph>=4||G.ex&&G.ex.result)||state==='over'||state==='end'){ return }   /* Gamer seed 134331: never after the bird is inbound, lift-off or EXTRACTED (pending XP just stays banked) */
+function luBlocked(){ try{ return fbHoldBusy()||state==='mohcard'||!!(MOH.cur&&MOH.cur.ph==='go') }catch(e){ return false } }   /* rc8 EP P0: no level-up during HOLD F or a MoH call (main and chained paths) */
+function openLevelUp(){ if(G&&(G.ex&&G.ex.ph>=4||G.ex&&G.ex.result)||state==='over'||state==='end'||luBlocked()){ return }   /* Gamer seed 134331: never after the bird is inbound, lift-off or EXTRACTED (pending XP just stays banked) */
   MUSI.set(false,true);
   Snd.play('lvlRadio'); banMode=false; luForced=!!(G.q15&&!G.luN&&curLvl('magnet')<ITEMS.magnet.max); G.luN=(G.luN||0)+1;   /* Stage 1: the first level-up is forced, one card: Magnet */
   choices=luForced?['magnet']:genChoices(); airCard(choices); (G.luLog||(G.luLog=[])).push(choices.slice());
   if(DBG.bot){pickChoice(BOTF.pick?BOTF.pick(choices):((rnd()*choices.length)|0));return}
-  state='levelup'; LUOPEN=performance.now(); renderCards(); $('levelup').classList.add('show'); }
+  state='levelup'; LUOPEN=performance.now(); renderCards(); if(G.pending>1&&!luForced)try{ $('levelup').querySelector('.sub').textContent='Choose an upgrade · '+G.pending+' to pick' }catch(e){} $('levelup').classList.add('show'); }
 function airCard(ch){ const g=G; if(!g||luForced||g.luN<2||g.luN>4||Object.keys(g.w).some(k=>AIRCALL[k])||ch.some(k=>AIRCALL[k]))return;   /* RC3 (Gamer): an air-strike card shows up by the 2nd-4th level-up (the RTO needs one) */
   const ok=['napalm','strafe'].filter(k=>ITEMS[k]&&!g.banned[k]&&(!ITEMS[k].ok||ITEMS[k].ok(g))); if(!ok.length||!ch.length)return; ch[ch.length-1]=ok[(rnd()*ok.length)|0] }
 function doReroll(){ if(state!=='levelup'||G.rerolls<=0||luForced)return; G.rerolls--; banMode=false; Snd.play('radio'); choices=genChoices(); renderCards() }
@@ -4746,7 +4747,9 @@ function pickChoice(i){
   if(it.evo){ const e=EVOS[id]; delete G.w[e.base]; G.w[id]={lvl:1,cd:.2,tick:0}; G.banner={text:'EVOLUTION: '+e.nm.toUpperCase()+'!',t:3,col:'#ffd54a'}; G.shake=Math.max(G.shake,8) }
   else if(it.kind==='w'){ if(G.w[id])G.w[id].lvl++; else G.w[id]={lvl:1,cd:.2,tick:0} }
   else if(it.kind==='p'){ G.ps[id]++; if(id==='flak'){applyPassives();G.p.hp=Math.min(G.p.maxHp,G.p.hp+20)} } else { G.p.hp=Math.min(G.p.maxHp,G.p.hp+G.p.maxHp*.5) }
-  Snd.play('pick'); if(id==='kc135')G.banner={text:'KC-135A TANKER ON STATION',t:2.2,col:'#cfe3f0'}; if(id==='dustoff')G.banner={text:'MEDEVAC ON CALL',t:2.2,col:'#9be37a'}; G.pending--; $('levelup').classList.remove('show'); state='play';
+  Snd.play('pick'); if(id==='kc135')G.banner={text:'KC-135A TANKER ON STATION',t:2.2,col:'#cfe3f0'}; if(id==='dustoff')G.banner={text:'MEDEVAC ON CALL',t:2.2,col:'#9be37a'}; G.pending--;
+  if(!DBG.bot&&G.pending>0&&!luBlocked()&&!(G.ex&&(G.ex.ph>=1&&G.ex.ph!==3||G.ex.ph>=4))){ banMode=false; luForced=false; G.luN=(G.luN||0)+1; choices=genChoices(); airCard(choices); (G.luLog||(G.luLog=[])).push(choices.slice()); LUOPEN=performance.now(); renderCards(); luTools(); try{ $('levelup').querySelector('.sub').textContent='Choose an upgrade · '+(G.pending)+' more to pick' }catch(e){} return }   /* rc8 EP: batched picks on ONE card, never a chain of popups */
+  $('levelup').classList.remove('show'); state='play';
   /* further pending levels wait for the per-frame gate above (no card chains during extraction) */
   if(G.pending>0&&!(G.ex&&(G.ex.ph>=1&&G.ex.ph!==3||G.ex.ph>=4))){ if(!DBG.bot)setTimeout(()=>{ if(state==='play')openLevelUp() },150); else openLevelUp() }
 }
@@ -5891,7 +5894,7 @@ function linkRivers(ax,ay,bx,by){ const g=G; if(!g.mapX)g.mapX=new Map();
 function spawnLz(){ const g=G,p=g.p; let best=null,bs=-1e9;
   /* Blake (Oct 14): a firebase is ALWAYS on a river bank (beach / landing within PBR reach): candidates must sit FBW+40..FBW+300 px from the channel */
   for(let k=0;k<400;k++){ if(k>=40&&best&&(!best.nc||k>=200))break; const a=rnd()*TAU,d=430+rnd()*(k<20?140:k<40?520:k<120?1100:2600), x=p.x+Math.cos(a)*d, y=p.y+Math.sin(a)*d; if(!fbSiteOk(x,y,k>=200))continue; const r=nearestRiver(x,y), rd=r?r.d:9999; if(rd<FBW+40||rd>FBW+300)continue;
-    const nc=needCross(p.x,p.y,x,y); const sc=-Math.abs(rd-(FBW+150))-(d-430)*.2-(nc?900:0); if(sc>bs){bs=sc;best={x,y,rd,nc}} }   /* on the higher ground beside a river (Dong Ha / Cua Viet), never over water */
+    const nc=needCross(p.x,p.y,x,y); const sc=-Math.abs(rd-(FBW+150))*.5-(d-430)*.8-(nc?900:0);   /* rc8 EP: prefer the NEAREST bank site */ if(sc>bs){bs=sc;best={x,y,rd,nc}} }   /* on the higher ground beside a river (Dong Ha / Cua Viet), never over water */
   for(let k=0;k<300&&!best;k++){ const a=rnd()*TAU,d=600+rnd()*2400, x=p.x+Math.cos(a)*d, y=p.y+Math.sin(a)*d; if(fbSiteOk(x,y,k>=100))best={x,y} }   /* Doc boxed in by close rivers: the base may sit across a bridge */
   if(!best){ const a=rnd()*TAU,d=430+rnd()*140; best={x:p.x+Math.cos(a)*d,y:p.y+Math.sin(a)*d} }
   linkRivers(p.x,p.y,best.x,best.y);
@@ -6071,6 +6074,7 @@ function drawAnncIcons(U){ const g=G, q=g.icons; if(!q||!q.length)return; const 
   for(const it of q){ ctx.globalAlpha=Math.min(1,(it.until-g.t)*2); ctx.fillStyle='rgba(10,20,12,.75)'; ctx.fillRect(x-2,y-2,sz+4,sz+4); ctx.save(); ctx.translate(x,y); drawIcon(ctx,ITEMS[it.id]?it.id:'huey',sz); ctx.restore(); ctx.globalAlpha=1; x+=sz+6*U } }
 function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
   // LZ marker + radio hold
+  if(lzS&&!fbS&&!(lzS.hold>0)&&(lzS.age||0)>30&&g.ex.ph<3&&Math.hypot(lzS.x-g.p.x,lzS.y-g.p.y)>1500){ const o=lzS; lzS=null; g.mck=1; spawnLz(); g.mck=0; if(lzS&&Math.hypot(lzS.x-g.p.x,lzS.y-g.p.y)>=Math.hypot(o.x-g.p.x,o.y-g.p.y)){ lzS=o; o.age=0 } else if(lzS)lzS.name=o.name }   /* rc8 EP: arrow always to the NEAREST firebase site (re-site when Doc wanders off) */
   if(!lzS&&!fbS&&g.t>=g.nextLz&&g.ex.ph<3)spawnLz();
   const site=lzS||(fbS&&fbS.state==='stalled'&&!fbH?fbS:null);
   if(lzS)lzS.age+=dt;
@@ -6956,7 +6960,7 @@ document.addEventListener('keydown',e=>{
   if(state==='play'&&e.code==='KeyG'&&!e.repeat)popSignal();
   if(state==='play'&&e.code==='KeyE'&&!e.repeat)PB.toggle();
   if(state==='sig'){ const k=e.code, held=SIGASK.held.has(k); if(k==='Enter'||k==='NumpadEnter'||k==='Escape'||k==='KeyN'||k==='KeyY'){ e.preventDefault(); if(!e.repeat&&!held&&sigAskReady())answerSignal(k==='Enter'||k==='NumpadEnter'||k==='KeyY') } }
-  if(state==='levelup'){ const i={Digit1:0,Digit2:1,Digit3:2,Numpad1:0,Numpad2:1,Numpad3:2}[e.code]; if(i!==undefined&&i<choices.length)pickChoice(i); if(e.code==='KeyR')doReroll(); if(e.code==='KeyB')toggleBan() }
+  if(state==='levelup'){ if(e.repeat||performance.now()-LUOPEN<300)return; const i={Digit1:0,Digit2:1,Digit3:2,Numpad1:0,Numpad2:1,Numpad3:2}[e.code]; if(i!==undefined&&i<choices.length)pickChoice(i); if(e.code==='KeyR')doReroll(); if(e.code==='KeyB')toggleBan() }
   if(state==='menu'&&(e.code==='Enter'||e.code==='Space')){ if($('charsel').classList.contains('show'))startGame(); else openCharSel() }
   if(state==='over'&&performance.now()-overAt>900&&(e.code==='Enter'||e.code==='KeyR'))startGame();
 });
