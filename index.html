@@ -2606,7 +2606,7 @@ function drawSquad(camX,camY){
     if(!z&&!(m.coy&&m.hp>=m.mhp)){ const r=Math.max(0,m.hp/m.mhp), w=22, bx=Math.round(m.x-w/2), by=Math.round((TM?fy-bob-TM.h*SHEET_SCALE_MEN:m.y-spr.height*.56)-8); ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,5); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,3);
       ctx.fillStyle=r>.55?'#6fd04a':r>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,Math.round(w*r),3) }
     if(m.rto&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56), bx=Math.round(m.x)+(m.face>0?-7:3); ctx.fillStyle='#2f3522'; ctx.fillRect(bx,cy+9,5,9); ctx.fillStyle='#454d33'; ctx.fillRect(bx,cy+9,5,2); ctx.strokeStyle='rgba(20,18,12,.85)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(bx+2,cy+9); ctx.quadraticCurveTo(bx+2+(m.face>0?-3:3)+Math.sin(G.t*3)*1.2,cy-4,bx+2+(m.face>0?-5:5),cy-14); ctx.stroke();   /* PRC-25 + flexing whip antenna */
-      if(m.callT>0){ m.callT-=1/60; ctx.fillStyle='rgba(255,229,138,'+Math.min(1,m.callT)*.9+')'; ctx.font='bold 9px monospace'; ctx.textAlign='center'; ctx.fillText('ON THE HORN',m.x,cy-18); ctx.textAlign='left' }
+      if(m.callT>0){ m.callT-=1/60; ctx.fillStyle='rgba(255,229,138,'+Math.min(1,m.callT)*.9+')'; ctx.font='bold 9px monospace'; const sd=m.x<G.p.x?-1:1; ctx.textAlign=sd<0?'right':'left'; ctx.fillStyle='rgba(0,0,0,'+Math.min(1,m.callT)*.6+')'; ctx.fillText('ON THE HORN',m.x+sd*12+1,cy+3); ctx.fillStyle='rgba(255,229,138,'+Math.min(1,m.callT)*.9+')'; ctx.fillText('ON THE HORN',m.x+sd*12,cy+2); ctx.textAlign='left' }   /* beside the RTO, on the side away from Doc's marker */
       if(!(m.coy&&m.hp<m.mhp)){ const r=Math.max(0,m.hp/m.mhp), w=22, bx2=Math.round(m.x-w/2), by=cy-8; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx2-1,by-1,w+2,5); ctx.fillStyle='#6fd04a'; ctx.fillRect(bx2,by,Math.round(w*r),3) } }
     if(m.role==='corps'&&!z){ const cy=TM?fy-TM.h*SHEET_SCALE_MEN:Math.round(m.y-spr.height*.56); ctx.fillStyle='#fff'; ctx.fillRect(Math.round(m.x)-3,cy-17,7,7); ctx.fillStyle='#d02020'; ctx.fillRect(Math.round(m.x)-2,cy-14,5,1); ctx.fillRect(Math.round(m.x),cy-16,1,5) }   /* Gamer: squad medic marker readable (was 3 px) */
   }
@@ -4253,7 +4253,7 @@ const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,ranch:6,spooky:10,arclight:14,boxmiss
     const big=N>=60?2:N>=30?1:0, o={};
     if(id==='napalm')o.n=ITEMS.napalm.stats(w.lvl).n+big; if(id==='strafe'||id==='ranch')o.passes=undefined; if((id==='arclight'||id==='boxmission')&&big)o.n=ITEMS[id].stats(w.lvl).n+4*big;
     for(const k in o)if(o[k]===undefined)delete o[k];
-    ftexts.push({x:m.x,y:m.y-30,t:0,s:'FIRE MISSION · '+t.n+' TGTS',c:'#ffe58a'}); m.callT=1.6;
+    ftexts.push({x:m.x+(m.x<g.p.x?-34:34),y:m.y-6,t:0,s:'FIRE MISSION · '+t.n,c:'#ffe58a'}); m.callT=1.6;
     return o },
   move(m,sx,sy,d,dt){ m.mv=d>6; if(!m.mv)return; if(d>320&&!riverAt(sx,sy)){ m.x=sx; m.y=sy; return }   /* fell way behind (river, bunker exit): back at Doc's shoulder */
     const sp=Math.min(d*7,430*Math.max(1,speedMul())), k=sp*dt/d; rvMove(m,(sx-m.x)*k,(sy-m.y)*k,'m'); m.anim+=dt*9; if(!m.tg)m.face=sx>=m.x?1:-1 },
