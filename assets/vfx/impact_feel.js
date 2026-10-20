@@ -309,13 +309,13 @@
     size = size || 1; opts = opts || {}; var mud = opts.ground === 'paddy', sq = Math.sqrt(size);
     // vertical column t = 0..0.2 s: dark wet soil at the root, lighter dust as it climbs
     var nc = Math.round(16 * size); for (var i = 0; i < nc; i++) { var dl = rnd() * 0.2;
-      puff(x + (rnd() - 0.5) * 6 * sq, y + (rnd() - 0.5) * 4 * sq, 0, (rnd() - 0.5) * 30 * sq, (rnd() - 0.5) * 20 * sq, (300 + rnd() * 320) * sq * (1 - dl * 2.5), dl, 0.9 + rnd() * 0.9, (7 + rnd() * 5) * sq, (10 + rnd() * 12) * sq, mud ? 0 : dl < 0.1 ? 0 : rnd() < 0.45 ? 8 : 1, 1); }
+      puff(x + (rnd() - 0.5) * 6 * sq, y + (rnd() - 0.5) * 4 * sq, 0, (rnd() - 0.5) * 30 * sq, (rnd() - 0.5) * 20 * sq, (300 + rnd() * 320) * sq * (1 - dl * 2.5), dl, 0.9 + rnd() * 0.9, (7 + rnd() * 5) * sq, (10 + rnd() * 12) * sq, mud ? 0 : dl < 0.1 ? 0 : rnd() < 0.7 ? 8 : 1, 0.9); }
     // column base: wide, dense, dark soil puffs that dominate the first 0.15 s, then thin out fast
     for (var bp = 0; bp < Math.round(9 * size); bp++) { var ba = rnd() * TAU, bd = rnd() * 7 * sq;
       puff(x + Math.cos(ba) * bd, y + Math.sin(ba) * bd * 0.7, 0, Math.cos(ba) * 40 * sq, Math.sin(ba) * 28 * sq, (40 + rnd() * 140) * sq, rnd() * 0.06, 0.45 + rnd() * 0.45, (10 + rnd() * 6) * sq, (16 + rnd() * 10) * sq, mud ? 0 : rnd() < 0.7 ? 0 : 1, 1); }
     // grey-brown smoke/dust cap that lingers
     var ncap = Math.round((4 + rnd() * 5) * size); for (var c = 0; c < ncap; c++) { var cr = (2.5 + Math.pow(rnd(), 1.6) * 8) * sq, lobe = rnd() < 0.35;   // clustered lobes, uneven sizes and launch times
-      puff(x + (rnd() - 0.5) * (lobe ? 28 : 12) * sq, y + (rnd() - 0.5) * 8 * sq, (4 + rnd() * 14) * sq, (rnd() - 0.5) * 30, (rnd() - 0.5) * 14, (40 + rnd() * 190) * sq, 0.03 + Math.pow(rnd(), 1.5) * 0.4, 1.6 + rnd() * 2.6, cr, (4 + rnd() * 12) * sq, mud ? 0 : rnd() < 0.45 ? 3 : rnd() < 0.6 ? 2 : 0, 0.45 + rnd() * 0.4); }
+      puff(x + (rnd() - 0.5) * (lobe ? 28 : 12) * sq, y + (rnd() - 0.5) * 8 * sq, (4 + rnd() * 14) * sq, (rnd() - 0.5) * 30, (rnd() - 0.5) * 14, (40 + rnd() * 190) * sq, 0.03 + Math.pow(rnd(), 1.5) * 0.4, 1.6 + rnd() * 2.6, cr, (4 + rnd() * 12) * sq, mud ? 0 : rnd() < 0.6 ? 8 : rnd() < 0.5 ? 2 : 0, 0.45 + rnd() * 0.4); }
     // ground-hugging dust skirt
     for (var k = 0; k < Math.round(12 * size); k++) { var a = rnd() * TAU, sp = (60 + rnd() * 90) * sq; puff(x, y, 0, Math.cos(a) * sp, Math.sin(a) * sp * 0.75, 4 + rnd() * 10, 0.03 + rnd() * 0.12, 1.4 + rnd() * 1.2, 3 * sq, 8 * sq, mud ? 1 : 2, 0.6); }
     // fine particulate
@@ -338,6 +338,7 @@
       blob(x, lx, ly, W * (0.1 + r() * 0.14), H * (0.12 + r() * 0.16), [[0, 'rgba(232,110,28,0.95)'], [0.6, 'rgba(200,78,20,0.8)'], [1, 'rgba(160,50,14,0)']]); }
     if (kind) for (var t = 0; t < 7; t++) { var ty = cy0 + (r() - 0.5) * H * 0.75, tl = W * (0.2 + r() * 0.25), tx = W * 0.6;   // forward tongues
       for (var k = 0; k < 6; k++) { var u = k / 5; blob(x, tx + u * tl, ty + Math.sin(u * 4 + t) * H * 0.05, W * 0.06 * (1 - u * 0.6), H * 0.07 * (1 - u * 0.6), [[0, 'rgba(240,124,34,0.9)'], [1, 'rgba(200,70,16,0)']]); } }
+    x.globalCompositeOperation = 'destination-in'; blob(x, cx0 + (kind ? W * 0.06 : 0), cy0, W * 0.5, H * 0.5, [[0, 'rgba(0,0,0,1)'], [0.65, 'rgba(0,0,0,0.9)'], [1, 'rgba(0,0,0,0)']]); x.globalCompositeOperation = 'source-over';
     // dark red-brown cores / soot streaks inside the flame
     for (var c = 0; c < 6; c++) blob(x, cx0 + (r() - 0.5) * W * 0.4, cy0 + (r() - 0.5) * H * 0.35, W * (0.06 + r() * 0.07), H * (0.07 + r() * 0.08), [[0, 'rgba(96,30,12,0.85)'], [0.7, 'rgba(120,40,14,0.4)'], [1, 'rgba(120,40,14,0)']]);
     // a few small hot flecks
@@ -346,14 +347,14 @@
   function flameSheet(x, y, a, L, W) { var e = slotOf(SHT, SM, 0); e.on = true; e.x = x; e.y = y; e.a = a || 0; e.L = L || 150; e.W = W || 60; e.t = 0; e.seed = (rnd() * 1000) | 0; return e; }
   var SHEET_T = 0.5, SHEET_LIFE = 2.4;
   function drawSheet(ctx, e, SX, SY, sc) {
-    var t = e.t, front = Math.min(1, t / SHEET_T), fe = 1 - Math.pow(1 - front, 2), N = 16, ca = Math.cos(e.a), sa = Math.sin(e.a);
+    var t = e.t, front = Math.min(1, t / SHEET_T), fe = 1 - Math.pow(1 - front, 2), N = 11, ca = Math.cos(e.a), sa = Math.sin(e.a);
     ctx.save(); ctx.imageSmoothingEnabled = true;
     for (var i = 0; i < N; i++) { var f = i / (N - 1); if (f > fe + 0.02) break;
       var age = t - f * SHEET_T * 0.8, die = Math.max(0, Math.min(1, (SHEET_LIFE - age - f * 0.4) / 0.8)); if (die <= 0) continue;
-      var lead = f > fe - 0.14, wv = 0.45 + 0.55 * Math.sin(Math.PI * Math.min(1, f * 0.8 + 0.15)), ww = e.W * wv * (0.9 + 0.12 * Math.sin(t * 9 + i * 1.7)), ll = e.L / N * 2.6;
+      var lead = f > fe - 0.14, wv = 0.45 + 0.55 * Math.sin(Math.PI * Math.min(1, f * 0.8 + 0.15)), ww = e.W * wv * (0.9 + 0.12 * Math.sin(t * 9 + i * 1.7)), ll = e.L / N * 5.2;
       var v = ((e.seed + i * 7 + Math.floor(t * 8 + i * 0.37)) % 4 + 4) % 4, im = sheetImg(lead ? 1 : 0, v, sc), wx = e.x + ca * f * e.L, wy = e.y + sa * f * e.L, rise = Math.min(6, age * 4);
       ctx.globalAlpha = die * (lead ? 1 : 0.95); ctx.save(); ctx.translate(SX(wx), SY(wy - rise)); ctx.rotate(e.a + Math.sin(t * 5 + i) * 0.06);
-      var sw = ll * sc * (lead ? 1.25 : 1), sh = ww * sc; ctx.drawImage(im, -sw * 0.45, -sh / 2, sw, sh); ctx.restore(); }
+      var sw = ll * sc * (lead ? 1.15 : 1), sh = ww * sc * 1.25; ctx.drawImage(im, -sw * 0.45, -sh / 2, sw, sh); ctx.restore(); }
     ctx.restore(); }
   var BX = 0, BY = 0;   // base transform offset captured per drawAll
   var CM = 8, CN = []; for (var ic = 0; ic < CM; ic++) CN.push({ on: false, x: 0, y: 0, z: 0, a: 0, sp: 0, t: 0, T: 0, tx: 0, ty: 0, o: null });
@@ -375,7 +376,7 @@
   }
   // napalm: canister tumbles in along `angle`, bursts at (x,y); fireball rolls forward along the flight path
   function napalmDrop(x, y, angle, opts) {
-    opts = opts || {}; var a = angle || 0, e = slotOf(CN, CM, 0), T = opts.fall || 0.45, sp = opts.speed || 240;
+    opts = opts || {}; var a = angle || 0, e = slotOf(CN, CM, 0), T = opts.fall || 0.35, sp = opts.speed || 240;
     e.on = true; e.a = a; e.sp = sp; e.T = T; e.t = 0; e.tx = x; e.ty = y; e.x = x - Math.cos(a) * sp * T; e.y = y - Math.sin(a) * sp * T; e.z = opts.z || 40; e.o = opts; return e;
   }
   function napalmBurst(x, y, a, o) {
