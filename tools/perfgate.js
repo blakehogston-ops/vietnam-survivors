@@ -13,7 +13,7 @@ const root=process.env.ROOT||path.resolve(__dirname,'..'), N=+(V('frames')||360)
 const srv=http.createServer((q,r)=>{let p=decodeURIComponent(q.url.split('?')[0]);if(p==='/')p='/index.html';const f=path.join(root,p);if(!fs.existsSync(f)||fs.statSync(f).isDirectory()){r.statusCode=404;r.end();return}r.end(fs.readFileSync(f))});
 const PROF={deck:{ctx:{viewport:{width:1280,height:800}},q:'',cpu:3,budget:16.7},desktop:{ctx:{viewport:{width:1280,height:720}},q:'',cpu:1,budget:16.7},
  mobile:{ctx:{viewport:{width:844,height:390},isMobile:true,hasTouch:true,deviceScaleFactor:2},q:'&lowfx=1',cpu:4,budget:33.3}};
-const SCEN={day:{q:'&tod=12',strike:0},night:{q:'&tod=21',strike:0},strike:{q:'&tod=21',strike:1}};
+const SCEN={day:{q:'&tod=12',strike:0},night:{q:'&tod=21',strike:0},strike:{q:'&tod=21&napsafe=0',strike:1}};
 const outDir=V('out')||'/workspace/perf/out'; fs.mkdirSync(outDir,{recursive:true});
 (async()=>{await new Promise(r=>srv.listen(0,r));const B='http://localhost:'+srv.address().port+'/';
  const br=await chromium.launch({executablePath:process.env.CH||'/usr/bin/google-chrome',args:['--no-sandbox','--enable-gpu-rasterization','--ignore-gpu-blocklist']});
@@ -33,7 +33,7 @@ const outDir=V('out')||'/workspace/perf/out'; fs.mkdirSync(outDir,{recursive:tru
    await cdp.send('HeapProfiler.collectGarbage');
    const m0=(await cdp.send('Performance.enable'),await cdp.send('Performance.getMetrics')).metrics;
    const r=await pg.evaluate(([N,strike,SH])=>{const M=__ms,X=__perf,T=[],U=[],R=[],cc=window.__cc,ccs={},cv=document.querySelector('canvas'),c2=cv.getContext('2d');let pk=0,fk=0,h0=performance.memory?performance.memory.usedJSHeapSize:0,hmax=0,gcs=0,last=h0;
-     if(/[?&]pgamt=1\b/.test(location.search)&&X.AMT&&X.AMT.ok&&X.AMT.ok()&&!X.AMT.V.length)X.AMT.mk({x:X.G.p.x-40,y:X.G.p.y-120});   /* full stack: park the 3 amtracs (2 LVTP-5 + LVTH-6) by the player */
+     if(/[?&]pgamt=1\b/.test(location.search)&&X.AMT&&X.fbBuild){ window.__pgFb=X.fbBuild(); for(let k=0;k<90;k++){if(M.stateX==='levelup')M.pick(0);M.step(1/60)} window.__pgAmt=X.AMT.V.length }   /* full stack: firebase marked built, Doc moved to it -> fb2 base + 3 amtracs (2 LVTP-5 + LVTH-6) on screen */
      { const m=location.search.match(/[?&]pgsmix=([\d.]+)/); if(m)window.__smixForce=+m[1] }
      const SHF=+((location.search.match(/[?&]pgshotf=(\d+)/)||[])[1]||100);
      const strikeRun=()=>{const p=X.G.p;const a=0.6,nx=-Math.sin(a),ny=Math.cos(a);for(let i=0;i<3;i++){const off=(i-1)*80;X.strikes.push({wid:X.CURW,cx:p.x+120+nx*off,cy:p.y+ny*off,a,len:360,t:-i*.25,delay:.3,drops:0,dropN:9,dmg:40,rad:70,fdmg:12,flife:6,sfx:true,jx:0,jy:0,show:false})}};
@@ -44,7 +44,7 @@ const outDir=V('out')||'/workspace/perf/out'; fs.mkdirSync(outDir,{recursive:tru
        if(performance.memory){const h=performance.memory.usedJSHeapSize;if(h<last-2e5)gcs++;last=h;hmax=Math.max(hmax,h)}}
      if(cc)Object.assign(ccs,cc);
      const st=A=>{const s=A.slice().sort((x,y)=>x-y),q=f=>+s[Math.min(s.length-1,Math.floor(s.length*f))].toFixed(2);return{avg:+(A.reduce((x,y)=>x+y,0)/A.length).toFixed(2),p50:q(.5),p95:q(.95),p99:q(.99),max:q(1)}};
-     return{frame:st(T),update:st(U),render:st(R),flush:st(T.map((t,i)=>t-U[i]-R[i])),peakParts:pk,peakFires:fk,enemies:M.units?M.units().e.length:null,heapMB:+(hmax/1e6).toFixed(1),heapDrops:gcs,night:X.ATM.night(),tier:window.LCO_QUALITY?LCO_QUALITY.t:null,jlod:window.JUNGLE3?JUNGLE3.lod:null,jungle:!!(M.JG&&M.JG.ok&&M.JG.ok()),lowfx:M.LOWFX,canvas:cv.width+'x'+cv.height,calls1f:ccs}},[N,S.strike,!!V('shot')]);
+     return{frame:st(T),update:st(U),render:st(R),flush:st(T.map((t,i)=>t-U[i]-R[i])),peakParts:pk,peakFires:fk,enemies:M.units?M.units().e.length:null,heapMB:+(hmax/1e6).toFixed(1),heapDrops:gcs,amt:window.__pgAmt||0,fb:window.__pgFb||0,amtLive:(X.AMT?X.AMT.V.filter(v=>!v.dead).length:null),night:X.ATM.night(),tier:window.LCO_QUALITY?LCO_QUALITY.t:null,jlod:window.JUNGLE3?JUNGLE3.lod:null,jungle:!!(M.JG&&M.JG.ok&&M.JG.ok()),lowfx:M.LOWFX,canvas:cv.width+'x'+cv.height,calls1f:ccs}},[N,S.strike,!!V('shot')]);
    const m1=(await cdp.send('Performance.getMetrics')).metrics, mm=(a,k)=>(a.find(x=>x.name===k)||{}).value;
    r.gcTaskS=+((mm(m1,'TaskDuration')-mm(m0,'TaskDuration'))||0).toFixed(2);
    if(F('trace')&&sk==='strike'){await br.stopTracing();const tr=JSON.parse(fs.readFileSync(`${outDir}/trace-${pk}-${sk}.json`));const ev=(tr.traceEvents||tr).filter(e=>/^(MinorGC|MajorGC|V8.GC_SCAVENGER|V8.GC_MARK_COMPACTOR|ScavengeTask|V8.GCScavenger|V8.GCFinalizeMC)$/.test(e.name)&&e.dur);
