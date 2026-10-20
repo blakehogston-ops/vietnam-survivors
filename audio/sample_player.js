@@ -19,7 +19,7 @@
  *    the call stays silent and logs ONE console.info per slot. Non-weapons may fall back to a Cues.* cue.
  *  - At most 12 sample voices at once (oldest, lowest-priority voice is stolen), at most 6 gunshots at once.
  *  - Rifles are short and their gain sits below the Huey rotor, the distant bomb and the voice (Gunny) reference.
- *  - winchester(): music ducks ~-12 dB in ~0.3 s, the rotor stays. smokeDropMoment(): one quiet second,
+ *  - winchester(): music ducks ~-10 dB (rc8a clamp) in ~0.3 s, the rotor stays. smokeDropMoment(): one quiet second,
  *    hit-stop callback, canister hit, then the fight returns.
  *  - Everything routes into the game's own buses, so the game's mute / volume / pause keep working.
  */
@@ -168,8 +168,8 @@
     var loggedSilent = {};     // weapon slot -> true once logged
     var lastStep = -1, lastVariant = {};
     var cfg = { maxVoices: 12, maxGun: 6, maxStep: 2, stepMinGap: 0.1, voiceRefGain: 1.5,
-      winchesterDb: -12, winchesterAttack: 0.3, winchesterRelease: 0.8,
-      smokeQuiet: 1.0, smokeMusicDb: -18, smokeSfxDb: -15, smokeAttack: 0.06, smokeResume: 0.6,
+      winchesterDb: -10, winchesterAttack: 0.3, winchesterRelease: 0.8,
+      smokeQuiet: 1.0, smokeMusicDb: -10, smokeSfxDb: -10, smokeAttack: 0.06, smokeResume: 0.6,
       // warning cues (manifest.cues overrides the lead times once load() has seen it)
       b40LeadMs: 1000, chargeLeadMs: 2000, enableBigNightAssault: false, bigNightLeadMs: 0,
       jetLeadMs: 3000,      // flyby('jet', { bombAt }) starts the pass this long before the bomb (manifest cues.jetFlyby overrides)
@@ -427,9 +427,9 @@
       var db = 0, rt = 0, u = d.until || {};
       for (var k in d.holders) if (!(u[k] != null && u[k] <= t)) { if (d === duckTargets.music && /^(voice@|v@|ext:|gunship$)/.test(k)) rt = Math.min(rt, d.holders[k]); else db = Math.min(db, d.holders[k]); }
       // routine ducks (voice / radio / gunship / per-voice / game-requested) never go below the floor together with the game's own
-      // MIX special duck; designed moments (winchester -12, smoke -18) keep their full depth on purpose
+      // MIX special duck; rc8a: winchester and smoke are clamped to -10 dB as well (below)
       if (rt < 0) rt = Math.max(rt, Math.min(0, cfg.musicDuckFloorDb - (music.extDuck || 0)));
-      return Math.min(db, rt);
+      return Math.max(-10, Math.min(db, rt));   // rc8a (AD): every duck clamped at -10 dB (winchester, smoke music, smoke sfx included)
     }
     function purge(d, t) { var u = d.until || {}; for (var k in u) if (u[k] <= t) { delete d.holders[k]; delete u[k]; if (d.rel) delete d.rel[k]; } }
     function applyDuck(d, t, dur) {

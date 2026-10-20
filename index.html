@@ -1380,7 +1380,7 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
     if(nm==='lastBirdOut'){ const c=this.ctx; if(c){ const r=SAMP.fly('huey',{when:c.currentTime+.25}); if(r)RotorS.fbUntil=c.currentTime+12.5; this.lboFly=(this.lboFly||0)+1 } return }   /* Last Bird Out: pin, then the real Huey fly-by ~0.25 s later; no bugle */
     this.cue('ribbonBugle',{when:this.ctx?this.ctx.currentTime+.25:0},nm) },
   /* per frame: duck the cue bus under the Colonel's recorded voice; optional peak meter (?meter) for QA */
-  duckTick(){ const c=this.ctx; if(!c||!this.cbus)return; const qd=!!(typeof G!=='undefined'&&G&&G.quiet>0); if(this.mbus&&qd!==this._qd&&!SAMP.on){ this._qd=qd; try{ this.mbus.gain.setTargetAtTime(qd?this.vol.mus*.12:this.vol.mus,c.currentTime,qd?.04:.4) }catch(e){} }
+  duckTick(){ const c=this.ctx; if(!c||!this.cbus)return; const qd=false;   /* rc8a (AD): the game's own smoke-drop duck (cbus x0.3 / music x0.12 during G.quiet) is removed; SamplePlayer.smokeDropMoment (clamped -10 dB) is the only smoke duck */
     const want=qd?.3:(BVOX.src||BriefSnd.on)?.5:.9; if(want!==this._dk){ this._dk=want; try{ this.cbus.gainNode.gain.setTargetAtTime(want,c.currentTime,.12) }catch(e){} }
     if(this.an){ this.an.getFloatTimeDomainData(this.anB); let m=0; for(let i=0;i<1024;i++){ const v=Math.abs(this.anB[i]); if(v>m)m=v } this.peak=m; if(m>(this.peakMax||0))this.peakMax=m; if(m>=.999)this.clipN=(this.clipN||0)+1 } },
   play(n){ if(!this.ctx||this.muted||this.ctx.state!=='running')return; if(MENUQ())return;   /* Blake: no gunfire / combat SFX under the menu (attract-mode demo) */ const now=performance.now()/1000; const g=this.gap[n]||0; if(now-(this.last[n]||0)<g)return; this.last[n]=now;
@@ -8118,7 +8118,8 @@ const EXW={B40:1.0,CHARGE:2.0};   /* manifest lead times (s); read from SAMPLE_M
    player 0 dB (never culled, prio 9) > special -1 dB (briefly ducks the rest) > squad -7 dB > enemy -11 dB (+ distance falloff, per-slot voice caps) > ambience -14 dB; music -9 dB vs player.
    Specials duck squad/enemy/ambience -6 dB, music -4 dB, player -1.5 dB for ~1.4 s. Callers tag squad / enemy sounds with MIX.as('squad'|'enemy', fn, dist). ===== */
 const MIX={DB:{player:0,special:-7,squad:-4,enemy:3,amb:-10,rot:-8,mus:-14},   /* Sound Helper mix pass, Oct 14 night */
-  DUCK:{player:-1.5,squad:-6,enemy:-6,amb:-6,rot:-6,mus:-4},DUCK_T:1.4,
+  DUCK:{player:-1.5,squad:-6,enemy:-6,amb:-6,rot:-6,mus:-7},   /* rc8a (AD): music -7 under specials */
+ DUCK_T:1.4,
   CAP:{enemy:{ak47:3,ak47_burst:2,sks:2,rpd_burst:2,b40_launch:2,mortar_launch:2,cannon:2},squad:{m16_single:3,m16_burst:2,m60_burst:2,shotgun_shot:1,bolt_rifle_shot:1,m79_launch:2,pbr_50cal_burst:2},_:4},
   SPECIAL:new Set(['bomb_distant','napalm_ignite','mortar_incoming','minigun_burst','strafe_20mm','tandem_rotor_flyby','huey_flyby','jet_flyby','radio_squelch','explosion_far','bugle','hymn']),
   AMB:new Set(['river_ambience_loop','pbr_engine_loop','fire_loop','huey_rotor_loop','tandem_rotor_loop','jungle_loop','rain_loop']),
@@ -8131,7 +8132,7 @@ const MIX={DB:{player:0,special:-7,squad:-4,enemy:3,amb:-10,rot:-8,mus:-14},   /
   /* Sound Helper's per-slot "group" (manifest) decides the bus; lead's call: B-40 launch, the charge / satchel warning and the PT-76 cannon are threat cues -> specials.
      MIX.as('squad'|'enemy') tags the shooter for shared clips (an M16 fired by a Marine is squad, not player). */
   FORCE_SPECIAL:new Set(['b40_launch','whistle','cannon_76mm']), GROUPED:new Set(['m1911_shot']),
-  DUCKERS:new Set(['bomb_distant','napalm_ignite','minigun_burst','strafe_20mm','huey_flyby','jet_flyby','skyraider_flyby','ranch_hand_flyover','tandem_rotor_flyby','radio_squelch','mortar_incoming','whistle','b40_launch']),
+  DUCKERS:new Set(['bomb_distant','minigun_burst','strafe_20mm','huey_flyby','jet_flyby','skyraider_flyby','ranch_hand_flyover','tandem_rotor_flyby','mortar_incoming','whistle','b40_launch']),   /* rc8a (AD): napalm_ignite and radio_squelch no longer duck */
   busOf(sl){ if(this.FORCE_SPECIAL.has(sl))return 'special'; if(this.AMB.has(sl))return 'amb'; const M=window.SAMPLE_MANIFEST&&SAMPLE_MANIFEST.slots[sl], gr=M&&M.group;
     if(gr==='specials'||gr==='radio'||gr==='sting')return 'special'; if(gr==='ambience')return 'amb'; if(gr==='foley')return 'player'; if(gr==='enemy')return 'enemy'; if(this.src)return this.src; if(this.GROUPED.has(sl))return gr;   /* RC3 (QA): enemy clips always on the enemy bus; m1911 keeps Sound Helper's squad group */ if(gr)return 'player';   /* untagged squad-group clips are the player's own (M60, cannon...) - Marines, PBR and the friendly tank are tagged squad */
     if(this.SPECIAL.has(sl)||/^bomb|^radio|flyby/.test(sl))return 'special'; if(this.ENEMYSL.has(sl))return 'enemy'; return 'player' },
@@ -8202,7 +8203,7 @@ const SAMP={on:false,real:{},st:{b40:0,b40Late:0,b40Silent:0,charge:0,chargeLate
   charge(){ if(!this.on||this.real.whistle!=='sample'||!SamplePlayer.hasSample('whistle'))return false; const c=Snd.ctx; if(Snd.muted||c.state!=='running')return true; const r=SamplePlayer.chargeWarning({chargeAt:c.currentTime+EXW.CHARGE+.02}); this.st.charge++; if(r&&r.late)this.st.chargeLate++; if(!r||!r.played)this.st.chargeSilent++; return true },
   smokeDrop(){ if(this.on&&!Snd.muted)try{ SamplePlayer.smokeDropMoment({}) }catch(e){} },
   /* Winchester (Sound Helper's design note: 'sky magazine hit Winchester: music ducks under the rotor'). The game has no player ammo, so the
-     sky magazine is the door-gun Huey: when its time on station is up it is out of ammo and breaks off. Music ducks -12 dB, the rotor stays; release is
+     sky magazine is the door-gun Huey: when its time on station is up it is out of ammo and breaks off. Music ducks -10 dB (rc8a clamp), the rotor stays; release is
      scheduled at once (the bird is gone ~2.4 s later), so a run ending mid-duck can never leave the music ducked. */
   winchester(hold){ if(!this.on||Snd.muted||!Snd.ctx||Snd.ctx.state!=='running')return; try{ SamplePlayer.winchester(); SamplePlayer.winchesterRelease({when:Snd.ctx.currentTime+(hold||2.4)}); this.st.winch=(this.st.winch||0)+1 }catch(e){} } };
 window.SAMP=SAMP;
