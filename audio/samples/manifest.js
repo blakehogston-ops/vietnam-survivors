@@ -72,7 +72,7 @@
       //      no synth fallback. All guns share the 6-gunshot cap. NOT CLEARED yet (auditor + ear check).
       // bolt rifle (Country's M40 / Springfield): gezortenplotz Remington 700 .308 (CC BY 3.0, credit); alt bolt AugustSandberg Mauser (CC0)
       bolt_rifle_shot:    { group: 'player', batch: 1, files: ['bolt_rifle_shot_1', 'bolt_rifle_shot_2'] },
-      bolt_rifle_bolt:    { group: 'player', batch: 1, files: ['bolt_rifle_bolt_1'], alt: ['bolt_rifle_bolt_alt_mauser'] },
+      bolt_rifle_bolt:    { group: 'foley', batch: 1, files: ['bolt_rifle_bolt_1'], alt: ['bolt_rifle_bolt_alt_mauser'] },
       // shotgun (Ithaca 37 STAND-IN): AnthonyChan0 Mossberg 500 shot + pump (CC0)
       shotgun_shot:       { group: 'player', batch: 1, files: ['shotgun_shot_1', 'shotgun_shot_2'] },
       shotgun_rack:       { group: 'player', batch: 1, files: ['shotgun_rack_1'] },
