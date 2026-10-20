@@ -3180,19 +3180,21 @@ function pickType(){ const t=rampT(G.t), r=rnd(); if(fbGrace())return 'vc';
 /* ===== N2 (feature/next item 2): surges + lulls that escalate, player-chosen extraction, pre-wave mortar barrage, satchel sappers, hot-LZ wave-off.
    Flags (all default on): ?surge=0 ?xchoose=0 ?barrage=0 ?sappers=0 ?waveoff=0. Sounds: existing pack only (mortar_incoming / mortar impact / chargeWarning). ===== */
 const N2F=k=>!new RegExp('[?&]'+k+'=0\\b').test(location.search);
+const HOLDSURGE=!/[?&]holdsurge=0\b/.test(location.search);
 const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappers'),WO:N2F('waveoff'),
   TH:N2F('thunk'),CAL:N2F('mcal'),SAPT:N2F('saptime'),SV4:N2F('sapv4'),SMH:N2F('smokehud'),thrown:[],dead:[],whT:0,sapAt:0,   /* Vet item 2 fixes: tube thunk before impacts (?thunk=0), 82mm/60mm labels (?mcal=0), sappers after barrages/at night (?saptime=0), low-crawl + throw sprites (?sapv4=0), smoke colour on the HUD ~10 s (?smokehud=0) */
   V4(){ return this.SV4&&!!(window.SHEET1&&SHEET1.drawSapper) },
   night(){ return typeof ATM!=='undefined'&&ATM.night() },   /* item 4: the atmosphere's hour (night from ~7:00 on the run clock) */
-  XMIN:210,XIN:120,XAUTO:DEMO?600:900,BR:58,WO_N:4,WO_MAX:2,WO_T:20,shells:[],log:{bar:0,shells:0,sap:0,satch:0,wo:0,call:null},
+  XMIN:+params.get('xmin')||165,XIN:+params.get('xin')||120,XAUTO:DEMO?600:900,BR:58,WO_N:4,WO_MAX:2,WO_T:20,shells:[],log:{bar:0,shells:0,sap:0,satch:0,wo:0,call:null},
+  holdX(g){ const ex=g.ex; return HOLDSURGE&&!!(ex&&ex.ph>=3&&ex.ph<=5) },   /* rc6 QA fix: the pad hold has its own tuned pressure (HOLD_TEAMS/HOLD_LULL); surge escalation no longer stacks on it (?holdsurge=0 = old) */
   esc(g){ return Math.min(1,Math.max(0,(g.t-60)/600)) },   /* 0 at 1:00 -> 1 at 10:00 */
   reset(){ this.shells.length=0; this.thrown.length=0; this.dead.length=0; this.whT=0; this.sapAt=0; this.log={bar:0,shells:0,sap:0,satch:0,wo:0,call:null}; const b=document.getElementById('n2x'); if(b)b.style.display='none' },
   /* (a) surge tuning read by PACE */
-  maxT(g,base){ return this.SURGE?base+Math.floor(this.esc(g)*3):base },
-  gap(g,hold){ const b=hold?8:16; return this.SURGE?Math.max(hold?6:7,b-9*this.esc(g)):b },
-  lull(g,L){ if(!this.SURGE)return L; const e=this.esc(g); return [Math.max(5,L[0]-3*e),Math.max(8,L[1]-6*e)] },
-  teamN(g){ return this.SURGE?Math.floor(this.esc(g)*3):0 },
-  wave(g){ const e=this.esc(g), p=g.p; if(this.SURGE&&e>.45&&!PACE.hold(g)){ const n=Math.min(Math.max(0,enemyCap(g)-enemies.length),Math.round(4+10*(e-.45)/.55)), a0=rnd()*TAU, R=Math.hypot(VW,VH)/2+90;   /* late surge: a rush on top of the fire teams */
+  maxT(g,base){ return this.SURGE&&!this.holdX(g)?base+Math.floor(this.esc(g)*3):base },
+  gap(g,hold){ const b=hold?8:16; return this.SURGE&&!this.holdX(g)?Math.max(hold?6:7,b-9*this.esc(g)):b },
+  lull(g,L){ if(!this.SURGE||this.holdX(g))return L; const e=this.esc(g); return [Math.max(5,L[0]-3*e),Math.max(8,L[1]-6*e)] },
+  teamN(g){ return this.SURGE&&!this.holdX(g)?Math.floor(this.esc(g)*3):0 },
+  wave(g){ const e=this.esc(g), p=g.p; if(this.SURGE&&e>.45&&!PACE.hold(g)&&!this.holdX(g)){ const n=Math.min(Math.max(0,enemyCap(g)-enemies.length),Math.round(4+10*(e-.45)/.55)), a0=rnd()*TAU, R=Math.hypot(VW,VH)/2+90;   /* late surge: a rush on top of the fire teams */
       for(let i=0;i<n;i++){ const a=a0+(rnd()-.5)*1.6; spawnEnemy(rnd()<.5?'vc':'nva',p.x+Math.cos(a)*(R+rnd()*80),p.y+Math.sin(a)*(R+rnd()*80),true) } }
     if(this.SAP&&g.t>90&&(!this.SAPT||rnd()<(this.night()?.45:.15)))this.sappers(g) },
   /* (b) barrage: 'INCOMING!' + whistle, red rings on the impact spots ~2 s before each round lands */
