@@ -1239,7 +1239,8 @@ Pause .......... Esc / P     Mute ... M</pre></div>
 <script src="assets/art/map_wrecks.js?v=e913c2f"></script>
 <script>if(/[?&]jungle=1\b/.test(location.search))document.write('<script src="assets/art/jungle_v3_lite.js?v=e913c2f"><\/script>')</script>
 <script>if(/[?&]terrain=1\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=e913c2f"><\/script>')</script>
-<script src="assets/art/vehicles.js?v=e913c2f"></script><script src="assets/art/ch46_v2.js?v=e913c2f"></script><script src="assets/art/dressing_pickups.js?v=e913c2f"></script><script src="assets/art/tanks_v2.js?v=e913c2f"></script><script src="assets/art/vehicles_v3.js?v=e913c2f"></script><script src="assets/vfx/muzzle_flash.js"></script>
+<script>if(!/[?&]fb2=0\b/.test(location.search))document.write('<script src="assets/art/fb2_rc8.js?v=e913c2f"><\/script>')</script>
+<script src="assets/art/vehicles.js?v=e913c2f"></script><script src="assets/art/ch46_v2.js?v=e913c2f"></script><script src="assets/art/dressing_pickups.js?v=e913c2f"></script><script src="assets/art/tanks_v2.js?v=e913c2f"></script><script src="assets/art/amtrac_support.js?v=e913c2f"></script><script src="assets/art/vehicles_v3.js?v=e913c2f"></script><script src="assets/vfx/muzzle_flash.js"></script>
 <script src="assets/vfx/rockets.js"></script>
 <script src="assets/vfx/vehicle_hits.js"></script>
 <script src="assets/ui/settings_art.js"></script>
@@ -2752,7 +2753,8 @@ function drawSquadInner(x0,x1,y0,y1){
 function trooperTarget(e){
   const R=580, tk=tanks[0], p=G.p;
   { let bb=null,bd=R*R; for(const b of boats){ if(b.dead)continue; const dx=b.x-e.x,dy=b.y-e.y,d2=dx*dx+dy*dy; if(d2<bd){bd=d2;bb=b} } if(bb)return {trk:bb,tx:bb.x,ty:bb.y,off:0} }   /* Gamer: B-40 pairs go for the PBR first */
-  if(fbS&&strs.length&&rnd()<.55){ let b=null,bd=R*R; for(const s of strs){ if(s.dead||s.b<1||s.type==='wire')continue; const dx=s.x-e.x,dy=s.y-e.y,d2=dx*dx+dy*dy; if(d2<bd){bd=d2;b=s} } if(b)return {trk:b,tx:b.x,ty:b.y,off:0} }
+  if(AMT.ON&&rnd()<.5){ const av=AMT.target(e,R); if(av)return {trk:av,tx:av.x,ty:av.y,off:0} }   /* rc8: B-40 teams hunt the amtracs */
+  if(fbS&&strs.length&&rnd()<.55){ let b=null,bd=R*R; for(const s of strs){ if(s.dead||s.b<1||FBWIREISH[s.type])continue; const dx=s.x-e.x,dy=s.y-e.y,d2=dx*dx+dy*dy; if(d2<bd){bd=d2;b=s} } if(b)return {trk:b,tx:b.x,ty:b.y,off:0} }
   if(tk&&!tk.dead&&Math.hypot(tk.x-e.x,tk.y-e.y)<R)return {trk:tk,tx:tk.x,ty:tk.y,off:0};
   let best=null,bd=R; for(const arr of [hueys,ins]){ for(const h of arr){ if(h.crash||h.hp<=0)continue; const d=Math.hypot(h.x-e.x,h.y-34-e.y); if(d<bd){bd=d;best=h} } }
   if(best)return {trk:best,tx:best.x,ty:best.y-34,off:-34};
@@ -2886,7 +2888,7 @@ let TILE_J,TILE_P,TILE_RH,TILE_RV,DECOR=[];
 const JG={ON:/[?&]jungle=1\b/.test(location.search),C:8,F:new Map(),q:[],ms:[],t:0,
   ok(){ return this.ON&&!!window.JUNGLE3&&!G.demo&&TERR.ready() },
   type(tx,ty){ const x=tx*48+24, y=ty*48+24, m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); if(m==='W'||m==='C'||m==='K')return 'other';
-    if(fbS&&Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y))<FBW+140)return 'other'; const ex=G.ex, P=ex&&(ex.pad||ex.pre); if(P&&Math.hypot(x-P.x,y-P.y)<EX.PAD_R+60)return 'other';
+    if(fbS&&Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y))<(fbS.cl?Math.max(FBW+140,FB_CLEAR+24):FBW+140))return 'other'; const ex=G.ex, P=ex&&(ex.pad||ex.pre); if(P&&Math.hypot(x-P.x,y-P.y)<EX.PAD_R+60)return 'other';
     const far=Math.hypot(x,y)>2600||x<-1800, h=hash2(tx*3+17,ty*5-11);
     if(m==='P')return 'paddy'; if(m==='E')return far&&h<.3?'jungle':'grass';
     if(m==='J')return far?(h<.45?'jungle':h<.75?'rubber':'teak'):(h<.6?'scrub':'hedgerow'); return h<.08?'scrub':'other' },
@@ -2910,7 +2912,7 @@ const TERR=(()=>{ let B=null, ok=false; const cache=new Map(); let gen=0, bakesL
   const fr=(n,f)=>{ const sp=SHEET1.sprites[n]; let i=typeof f==='number'?f:sp.names.indexOf(f); if(i<0)i=0; const o=B[n]&&B[n][i]; return o&&o.n };
   /* material of a 32 px tile: W water, C clay (inside the wire), K kill zone, P paddy, E elephant grass, J jungle/treeline, G grass */
   function mat(tx,ty){ const x=tx*32+16, y=ty*32+16; if(riverAt(x,y))return 'W';
-    if(fbS){ const m=Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y)); if(m<FBS+28)return 'C'; if(m<FBW+64)return 'K' }
+    if(fbS){ const m=Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y)); if(m<FBS+28)return 'C'; if(m<FBW+64||(fbS.cl&&m<FB_CLEAR))return 'K' }
     if(paddyCell(Math.floor(x/RT),Math.floor(y/RT)))return 'P';
     const h=hash2(Math.floor(tx/3)+311,Math.floor(ty/3)-77); return h<.30?'E':h<.47?'J':'G' }
   function code(f){ const N=f(0,-1),S=f(0,1),E=f(1,0),W=f(-1,0);
@@ -2940,7 +2942,7 @@ const TERR=(()=>{ let B=null, ok=false; const cache=new Map(); let gen=0, bakesL
      real bank; that is why it stays opt-in for this build. */
   const V2=/[?&]terrain=1\b/.test(location.search);
   function t2(tx,ty){ const x=tx*48+24, y=ty*48+24, r=riverAt(x,y); if(r)return r.h?'gRiver':'gRiverS';
-    if(fbS){ const m=Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y)); if(m<FBS+28)return 'gDirt'; if(m<FBW+64)return 'gKill' }
+    if(fbS){ const m=Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y)); if(m<FBS+28)return 'gDirt'; if(m<FBW+64||(fbS.cl&&m<FB_CLEAR))return 'gKill' }
     if(paddyCell(Math.floor(x/RT),Math.floor(y/RT))){ if(JG.ON)return 'gGrass'; const h=hash2(tx+9,ty-4); return h<.1?'gPaddyDry':h<.5?'gPaddy':'gPaddyMature' }   /* rc7 #4: under jungle_v3 the paddies are its own (curved dikes) - gGrass underneath per the API */
     const h=hash2(Math.floor(tx*32/48/3)+311,Math.floor(ty*32/48/3)-77); return h<.30?'gGrassDry':h<.47?'gJungle':'gGrass' }
   function bake2(cx,cy,nf){ const out=[], x0=cx*RT, y0=cy*RT, tx0=Math.floor(x0/48)-1, ty0=Math.floor(y0/48)-1, tx1=Math.ceil((x0+RT)/48)+1, ty1=Math.ceil((y0+RT)/48)+1;
@@ -2981,12 +2983,18 @@ function drawCrossings(x0,y0,x1,y1,t){ const fr=TERR.frame;
   for(let wx=Math.floor(x0/RT)-1;wx<=Math.floor(x1/RT)+1;wx++)if(riverCol(wx))for(let c=Math.floor(y0/RT)-1;c<=Math.floor(y1/RT)+1;c++){ const by=crossU(c); one(false,wx,c,colCx(wx,by),by) } }
 /* firebase extras: boat landing (pier) on the river side, ammo crates / drums near bunkers */
 function fbLanding(f){ const r=nearestRiver(f.x,f.y); if(!r)return null; if(r.h){ const cy=rowCy(r.wy,f.x), s=Math.sign(f.y-cy); return {h:true,x:f.x,y:cy+s*(MAPB.HW-4),s,u:f.x,r} } const cx=colCx(r.wx,f.y), s=Math.sign(f.x-cx); return {h:false,x:cx+s*(MAPB.HW-4),y:f.y,s,u:f.y,r} }
-function fbProps(f){ const out=[]; let k=0; for(const L of (f.lay||[])){ if(L[0]!=='bunker'&&L[0]!=='tent'&&L[0]!=='m2')continue; const x=f.x+L[1], y=f.y+L[2], h=hash2(k*7+3,9); k++;
+function fbProps(f){ const out=[]; let k=0;
+  if(FB2){ for(const L of (f.lay||[])){ if(L[0]!=='bunker'&&L[0]!=='cp')continue; const h=hash2(k*7+3,9); k++; out.push([h>.6?'fbDrums':'fbDrum',h>.6?'group':'od',L[1]+(L[0]==='cp'?-34:-36),L[2]+18]) }
+    const X=f.x, Y=f.y; out.push(['fbAmmo','crate',X-92,Y+44],['fbAmmo','stack',X-34,Y+136],['fbAmmo','open',X+112,Y+150],['fbAmmo','crate',X+6,Y-92],['fbAmmo','stack',X+96,Y+58]);   /* crates beside the pits and CP */
+    out.push(['fb2WaterBuffalo','v0',X+30,Y+50,.5]);   /* water trailer in the open by the mess */
+    for(const [fx,fy,fc] of [[-100,165,'S'],[90,-165,'N'],[165,90,'E'],[-165,-100,'W']])out.push(['fb2FightPos',fc,X+fx,Y+fy,.625,1]);   /* sandbagged foxholes along the inside of the wall */
+    return out }   /* rc8 C8: ammo lives in the 3 revetted pits; fuel drums only beside bunker/CP */
+  for(const L of (f.lay||[])){ if(L[0]!=='bunker'&&L[0]!=='tent'&&L[0]!=='m2')continue; const x=L[1], y=L[2], h=hash2(k*7+3,9); k++;   /* rc8 C8: L[1],L[2] are already absolute (was f.x+L[1] -> props landed at 2*f.x) */
     out.push(['fbAmmo',h<.4?'stack':h<.7?'crate':'open',x+28,y+18]); if(h>.35)out.push([h>.7?'fbDrums':'fbDrum',h>.7?'group':(h<.5?'fuel':'od'),x-30,y+16]) } return out }
-function drawFbExtras(){ if(!fbS||!TERR.ready())return; const fr=TERR.frame; const L=fbS.land;
+function drawFbExtras(){ if(!fbS||!TERR.ready())return; const fr=TERR.frame; const L=fbS.land; if(FB2&&fbS.state!=='inbound')fbGround2(fbS);   /* rc8 compound floor under props, vehicles and men */
   if(L){ ctx.fillStyle='#6a4a2a'; if(L.h){ const y0=Math.min(L.y,L.y-L.s*MAPB.HW*.9); ctx.fillRect(L.x-10,y0-(L.s<0?0:0),20,MAPB.HW*.9+8); ctx.fillStyle='#8a6438'; for(let v=0;v<MAPB.HW*.9;v+=5)ctx.fillRect(L.x-10,y0+v,20,2) }
     else { const x0=Math.min(L.x,L.x-L.s*MAPB.HW*.9); ctx.fillRect(x0,L.y-10,MAPB.HW*.9+8,20); ctx.fillStyle='#8a6438'; for(let v=0;v<MAPB.HW*.9;v+=5)ctx.fillRect(x0+v,L.y-10,2,20) } }
-  for(const q of (fbS.props||[])){ const im=fr(q[0],q[1]); if(!im)continue; const sp=SHEET1.sprites[q[0]]; ctx.drawImage(im,Math.round(q[2]-sp.w/2),Math.round(q[3]-sp.h)) } }
+  for(const q of (fbS.props||[])){ if(q[0].startsWith('fb2')){ if(window.SHEET1&&SHEET1.frameCount(q[0])){ const sc=q[4]||.625; if(q[5])SHEET1.draw(ctx,q[0],q[1],Math.round(q[2]-24*sc),Math.round(q[3]-24*sc),sc); else SHEET1.draw(ctx,q[0],q[1],q[2],q[3],sc) } continue } const im=fr(q[0],q[1]); if(!im)continue; const sp=SHEET1.sprites[q[0]]; ctx.drawImage(im,Math.round(q[2]-sp.w/2),Math.round(q[3]-sp.h)) } }
 let craters=[];
 const g_now=()=>G?G.t:0;
 /* bridges: sappers blow them, Seabees rebuild after MAPB.REPAIR s */
@@ -3143,7 +3151,7 @@ const ITEMS={
     stats:l=>({hp:80+30*(l-1),dm:1+.2*(l-1),cd:120-15*(l-1)}),
     desc:s=>`2 CH-46s x 10 Marines · HP ${Math.round(s.hp)} each · dmg x${s.dm.toFixed(2)} · call-in cooldown ${s.cd.toFixed(0)}s (needs <=5 survivors)`},
   medevac:{kind:'w',name:'Medevac (CH-46)',max:3,req:()=>!!G&&!G.demo&&G.p.lvl>=5,
-    blurb:'Radio for a Marine CH-46 Sea Knight medevac ("Medevac inbound, urgent"). It hovers over you for a few seconds and heals EVERYONE nearby: you, your squad and patrol Marines, Company Reinforcement Marines, the tank and the firebase engineers. Only comes when someone is hurt. Separate from the one-time Emergency Medevac revive. Higher levels: bigger heal, shorter cooldown.',
+    blurb:'Radio for a Marine CH-46 Sea Knight medevac ("Medevac inbound, emergency"). It hovers over you for a few seconds and heals EVERYONE nearby: you, your squad and patrol Marines, Company Reinforcement Marines, the tank and the firebase engineers. Only comes when someone is hurt. Separate from the one-time Emergency Medevac revive. Higher levels: bigger heal, shorter cooldown.',
     stats:l=>({frac:.2+.2*l,cd:90-12*(l-1)}),
     desc:s=>`Heals everyone ${Math.round(s.frac*100)}% max HP over ~3.5s · cooldown ${s.cd.toFixed(0)}s`},
   grease:{kind:'w',name:'M3A1 "Grease Gun"',max:8,req:()=>!!G&&G.char==='chef',
@@ -3819,7 +3827,7 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){ if(!isFini
 function update(dt){
   if(window.VFX_IMPACT)try{ VFX_IMPACT.update(dt) }catch(e){}
   N2.tick(dt); EFIGHT.tick(); P3.tick(dt); if(QAHP&&G.p.hp>G.p.maxHp*QAHP/100)G.p.hp=G.p.maxHp*QAHP/100;   /* QA only: ?qahp=N holds Doc at N% HP (screenshots of the low-HP vignette) */
-  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt); FIELD.tick(dt); GUNS.tick(dt); MEDV.tick(dt); CREWX.tick(dt); PADRUSH(dt); IMP.tick(dt); BARK.tick(dt); if(window.VFX_MUZZLE)try{ VFX_MUZZLE.update(dt) }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.update(dt) }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.update(dt) }catch(e){}
+  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt); FIELD.tick(dt); GUNS.tick(dt); MEDV.tick(dt); AMT.tick(dt); CREWX.tick(dt); PADRUSH(dt); IMP.tick(dt); BARK.tick(dt); if(window.VFX_MUZZLE)try{ VFX_MUZZLE.update(dt) }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.update(dt) }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.update(dt) }catch(e){}
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
   const g=G,p=g.p; g.t+=dt; g.dthF=0;
@@ -3847,7 +3855,7 @@ function update(dt){
   if(massOn&&g.t>=g.nextSurge){surge();g.nextSurge=Math.max(g.nextSurge+60,g.t+30)}
   if(g.t>=g.nextBoss&&!g.exHold&&!(g.q15&&g.ex&&g.t>=EX.PAD_T-30)&&!(fbS&&fbS.age<90)){   /* Stage 1: no boss once the pad is about to be marked - the hold is the siege */spawnBoss();g.nextBoss=Math.max(g.nextBoss+180,g.t+60)}
   if(g.t>=g.nextRpgT&&!g.demo&&!(fbS&&fbS.age<90)){ let n=0; for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(e.type==='rpgt'&&!e.dead)n++ }
-    const cap=PACE.mass(g)?Math.min(4,2+Math.floor((g.t-240)/240)):Math.min(2,1+Math.floor((g.t-EX.PAD_T)/120));   /* early levels: at most 1-2 B-40 teams, from ~75 s into the pad hold */ if(n<cap){ const e0=spawnEnemy('rpgt'); if(e0){ e0.cdash=2.5+rnd()*2; if(g.t>=720&&rnd()<.5){ e0.rpg7=true; if(!g.rpg7Seen){ g.rpg7Seen=true; g.banner={text:'RPG-7 ISSUED! FASTER ROCKETS',t:3,col:'#ff8a4a'} } } g.nextRpgT=g.t+14+rnd()*8; if(!g.rpgSeen){ g.rpgSeen=true; g.banner={text:'B-40 ROCKET TROOPERS! WATCH YOUR ARMOR & HUEYS',t:3,col:'#ff9a5a'} } } } else g.nextRpgT=g.t+5 }
+    const cap=PACE.mass(g)?Math.min(4,2+Math.floor((g.t-240)/240)):Math.min(2,1+Math.floor((g.t-EX.PAD_T)/120));   /* early levels: at most 1-2 B-40 teams, from ~75 s into the pad hold */ if(n<cap){ const e0=spawnEnemy('rpgt'); if(e0){ e0.cdash=2.5+rnd()*2; if(g.t>=720&&rnd()<.5){ e0.rpg7=true; if(!g.rpg7Seen){ g.rpg7Seen=true; g.banner={text:'RPG-7 ISSUED! FASTER ROCKETS',t:3,col:'#ff8a4a'} } } g.nextRpgT=g.t+14+rnd()*8; if(!g.rpgSeen){ g.rpgSeen=true; g.banner={text:'B-40 ROCKET TROOPERS! WATCH YOUR ARMOR & BIRDS',t:3,col:'#ff9a5a'} } } } else g.nextRpgT=g.t+5 }
   CURW=''; updateWeapons(dt); CURW='';
   // enemies
   const far=Math.hypot(VW,VH)/2+260;
@@ -3872,7 +3880,7 @@ function update(dt){
       if(e.cdash<=0&&d>Math.min(460,Math.hypot(VW,VH)/2))e.cdash=.3;
       if(e.cdash<=0){ e.cdash=2.6; const nR=1+(G.bossN>2?1:0)+(G.bossN>4?1:0);
         for(let k=0;k<nR;k++){ const lead=p.mv?.55:0; let tx=p.x+(p.mv?p.fx*150*speedMul()*lead:0)+(k?(rnd()-.5)*140:0), ty=p.y+(p.mv?p.fy*150*speedMul()*lead:0)+(k?(rnd()-.5)*140:0);
-          if(!k){ const tk=tanks[0]; if(tk&&!tk.dead&&rnd()<.4&&Math.hypot(tk.x-e.x,tk.y-e.y)<520){ tx=tk.x; ty=tk.y } }
+          if(!k){ const tk=tanks[0]; if(tk&&!tk.dead&&rnd()<.4&&Math.hypot(tk.x-e.x,tk.y-e.y)<520){ tx=tk.x; ty=tk.y } else if(AMT.ON&&rnd()<.4){ const av=AMT.target(e,520); if(av){ tx=av.x; ty=av.y } } }
           eprojs.push({sx:e.x,sy:e.y-18,x:e.x,y:e.y-18,tx,ty,t:-k*.25,d:1.25,rad:58,dmg:20+G.bossN*3}) }
         if(!SAMP.b40(1.25))Snd.play('rpg'); } }
     else if(e.type==='sapper'&&e.n2s&&!(e.flee>0)&&(e._n2=N2.sapSteer(e,dt))){ dx=e._n2[0]; dy=e._n2[1]; d=Math.hypot(dx,dy)||1; ftT=null; if(e.crawl)spd*=.5; if(e.arm>0){ spd=0; dx=dy=0 } }
@@ -4213,7 +4221,7 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   reset(){ this.cur=null; this.q=null; this.fb=null; this.done={}; this.alertT=0 },
   away(){ const c=this.cur; return !!(c&&fbS&&G&&Math.hypot(G.p.x-fbS.x,G.p.y-fbS.y)>260) },
   press(){ return this.away()?this.P.P:1 },
-  integ(){ let n=0,l=0; for(const s of strs){ if(s.type==='wire')continue; n++; if(!s.dead)l++ } return n?l/n:1 },
+  integ(){ let n=0,l=0; for(const s of strs){ if(FBWIREISH[s.type])continue; n++; if(!s.dead)l++ } return n?l/n:1 },
   botPull(){ const c=this.cur; if(!c||!G)return null; const p=G.p, tx=c.ph==='go'?c.x:(fbS?fbS.x:p.x), ty=c.ph==='go'?c.y:(fbS?fbS.y:p.y), dx=tx-p.x, dy=ty-p.y, d=Math.hypot(dx,dy)||1; return (c.ph==='go'&&d<20)?[0,0]:(c.ph==='ret'&&d<150?null:[dx/d,dy/d]) },
   end(ev){ const g=G, c=this.cur; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev,d:Math.round(c.dist)}); this.cur=null; this.next=g.t+(ev==='done'?40:25) },   /* rc7.1: a failed/expired call queues the next one sooner (25 s) */
   melt(){ const p=G.p; for(const e of enemies){ if(e.mohA&&!e.dead&&(Math.abs(e.x-p.x)>VW/2+30||Math.abs(e.y-p.y)>VH/2+30))e.dead=true } },   /* after the mission the ambush group melts back into the jungle once out of sight (no reward, no chase to the base) */
@@ -4287,14 +4295,14 @@ const URG={ON:!/[?&]urg=0\b/.test(location.search), P:.3, CD:75, MAX:2, h:null, 
     let m=null; for(const q of coy){ if(q.hp>0&&q.state==='ok'&&!q.hid&&q.hp<q.mhp*.6&&(!m||q.hp/q.mhp<m.hp/m.mhp))m=q } if(!m)return;
     this.n++; this.at=g.t; m.urg=true; const a=rnd()*TAU, R0=Math.hypot(VW,VH)/2+380;
     this.h={m,x:m.x+Math.cos(a)*R0,y:m.y+Math.sin(a)*R0,z:110,hd:a+Math.PI,rot:0,ch46:true,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,lt:0,out:0};
-    g.banner={text:'RADIO: URGENT MEDEVAC INBOUND FOR '+(m.nm||'A MARINE').toUpperCase(),t:2.8,col:'#9be37a'}; Snd.play('radio');
+    g.banner={text:'RADIO: EMERGENCY MEDEVAC INBOUND FOR '+(m.nm||'A MARINE').toUpperCase(),t:2.8,col:'#9be37a'}; Snd.play('radio');
     (g.urgLog||(g.urgLog=[])).push({t:+g.t.toFixed(1),ev:'call',nm:m.nm}) },
   tick(dt){ const h=this.h; if(!h)return; const g=G, m=h.m; h.t+=dt; h.rot+=dt*20;
     if(h.ph===0){ if(m.hp<=0){ h.ph=2; h.ex=h.hd; return } const dx=m.x-h.x, dy=m.y-4-h.y, d=Math.hypot(dx,dy)||1, sp=Math.min(260,50+d*1.1); try{ if(d<330)SeaKnightS.cue(h,'in') }catch(e){}
       h.x+=dx/d*sp*dt; h.y+=dy/d*sp*dt; h.hd=turnTo(h.hd,Math.atan2(dy,dx),1.8*dt); if(d<300)h.z+=(30-h.z)*Math.min(1,dt*1.5); if(d<16){ h.ph=1; h.lt=0 } }
     else if(h.ph===1){ h.lt+=dt; h.z+=(14-h.z)*Math.min(1,dt*3); h.x+=(m.x-h.x)*Math.min(1,dt*3); h.y+=(m.y-4-h.y)*Math.min(1,dt*3); try{ SeaKnightS.cue(h,'hover') }catch(e){}
       if(h.lt>2.4){ const i=coy.indexOf(m); if(i>=0&&m.hp>0){ coy.splice(i,1); for(const q of coy){ if(q.cov===m)q.cov=null; if(q.htg===m)q.htg=null } (g.urgL||(g.urgL=[])).push(m.nm||'Marine'); g.urgLog.push({t:+g.t.toFixed(1),ev:'out',nm:m.nm});
-          g.banner={text:'URGENT MEDEVAC: '+(m.nm||'MARINE').toUpperCase()+' IS OUT',t:2.4,col:'#9be37a'}; Snd.play('radio') } h.ph=2; h.ex=h.hd+(rnd()-.5)*.8 } }
+          g.banner={text:'EMERGENCY MEDEVAC: '+(m.nm||'MARINE').toUpperCase()+' IS OUT',t:2.4,col:'#9be37a'}; Snd.play('radio') } h.ph=2; h.ex=h.hd+(rnd()-.5)*.8 } }
     else { try{ SeaKnightS.cue(h,'out') }catch(e){} h.out+=dt; h.z+=(40*h.out+8)*dt; h.hd=turnTo(h.hd,h.ex,1.2*dt); h.x+=Math.cos(h.hd)*(40+200*h.out)*dt; h.y+=Math.sin(h.hd)*(40+200*h.out)*dt; if(h.out>7)this.h=null } },
   draw(){ if(this.h)drawHuey(this.h) } };
 /* KIA (Blake): a short, dignified notice when a Marine falls ("KIA: LCpl Ortiz"), muted typewriter style, queued, soft radio tone.
@@ -4479,12 +4487,14 @@ function PADRUSH(dt){ const g=G; if(!PADRUSH_ON||!g||g.demo||state!=='play'||!g.
 const MEDV={ON:!/[?&]medv=0\b/.test(location.search)&&!!(window.AID_JEEP&&window.SHEET1&&SHEET1.drawLVTP5&&SHEET1.sprites.fb2AidStation), on:0, J:null, A:[], st:null, nJ:0, nA:0,
   reset(){ this.on=0; this.J=null; this.A=[]; this.st=null; this.nJ=0; this.nA=0 },
   hd(dx,dy){ return ((Math.round(Math.atan2(dy,dx)/(Math.PI/4))%8)+8)%8 },
-  mk(f){ this.on=1; this.st={x:f.x-320,y:f.y}; this.J={x:f.x-320,y:f.y+62,hx:f.x-320,hy:f.y+62,h:0,s:'park',m:null,cd:20,load:0,mv:0};
+  mk(f){ this.on=1; if(FB2){ const a=fbAidPos()||{x:f.x+70,y:f.y-30}; this.st={x:a.x,y:a.y,own:1}; this.J={x:f.x+40,y:f.y+10,hx:f.x+40,hy:f.y+10,h:4,s:'park',m:null,cd:20,load:0,mv:0};
+      this.A=[{v:'troop',x:f.x-40,y:f.y+25,h:2,ramp:0,cd:0,off:AMT.ON},{v:'medic',x:f.x-40,y:f.y+25,h:2,ramp:0,cd:0,m:null}]; if(!AMT.ON)this.A[0].off=1; return }   /* rc8: aid = the rc8 tent; medic amtrac parked centre-west; the troop amtrac is AMT's */
+    this.st={x:f.x-320,y:f.y}; this.J={x:f.x-320,y:f.y+62,hx:f.x-320,hy:f.y+62,h:0,s:'park',m:null,cd:20,load:0,mv:0};
     this.A=[{v:'troop',x:f.x-205,y:f.y-70,h:2,ramp:0,cd:0},{v:'medic',x:f.x-205,y:f.y+70,h:2,ramp:0,cd:0,m:null}] },
   tick(dt){ const g=G, f=fbS; if(!this.ON||!g||g.demo||!f||f.state!=='done')return; if(!this.on)this.mk(f); const late=g.ex&&g.ex.ph>=4;   /* runs through the hold; stops once the bird is inbound */
     const J=this.J; J.cd-=dt; const go=(tx,ty,sp)=>{ const dx=tx-J.x,dy=ty-J.y,d=Math.hypot(dx,dy); if(d<4)return true; J.h=this.hd(dx,dy); J.x+=dx/d*Math.min(d,sp*dt); J.y+=dy/d*Math.min(d,sp*dt); J.mv=1; return false };
     J.mv=0;
-    if(J.s==='park'){ if(!late&&J.cd<=0&&this.nJ<6){ let b=null,bd=1e9; for(const m of coy){ if(m.hp<=0||m.on||m.state&&m.state!=='ok'&&m.state!=='fight'||m.hp>m.mhp*.6||m.medv)continue; const d=Math.hypot(m.x-f.x,m.y-f.y); if(d<520&&d<bd){bd=d;b=m} } if(b){ b.medv=1; J.m=b; J.s='out' } } }
+    if(J.s==='park'){ if(!late&&J.cd<=0&&this.nJ<6){ let b=null,bd=1e9; for(const m of coy){ if(m.hp<=0||m.on||m.state&&m.state!=='ok'&&m.state!=='fight'||m.hp>m.mhp*.6||m.medv||m.amt||(m.hp<=m.mhp*.25&&AMT.ok()&&AMT.V.some(v=>!v.dead)))continue; const d=Math.hypot(m.x-f.x,m.y-f.y); if(d<520&&d<bd){bd=d;b=m} }   /* rc8: the badly hurt go by amtrac */ if(b){ b.medv=1; J.m=b; J.s='out' } } }
     else if(J.s==='out'){ const m=J.m; if(!m||m.hp<=0||!coy.includes(m)){ if(m)m.medv=0; J.m=null; J.s='back' } else if(go(m.x,m.y+16,95)){ J.s='back'; J.load=1; m.hid=1; m.medvT=1 } }
     else if(J.s==='back'){ if(go(J.hx,J.hy,95)){ const m=J.m; if(m&&J.load){ m.hp=Math.max(m.hp,m.mhp*.7); m.hid=0; m.medv=0; m.x=this.st.x-20; m.y=this.st.y+10; this.nJ++; try{ Snd.play('heal') }catch(e){} (g.medvLog||(g.medvLog=[])).push([+g.t.toFixed(1),'jeep']) } J.m=null; J.load=0; J.s='park'; J.cd=35 } }
     if(J.m&&J.load){ J.m.x=J.x; J.m.y=J.y }
@@ -4493,9 +4503,80 @@ const MEDV={ON:!/[?&]medv=0\b/.test(location.search)&&!!(window.AID_JEEP&&window
     else if(A.cd<=0&&this.nA<8&&!late){ for(const m of coy){ if(m.hp<=0||m.on||m.state&&m.state!=='ok'&&m.state!=='fight'||m.hp>m.mhp*.65||m.medv)continue; if(Math.hypot(m.x-A.x,m.y-A.y)<150){ A.m=m; m.medv=1; m.hid=1; break } } }
     A.ramp=Math.max(0,Math.min(1,A.ramp+(A.m?2:-2)*dt)) },
   draw(){ if(!this.on||!fbS||fbS.state!=='done')return; const S=SHEET1, t=performance.now()/1000;
-    S.draw(ctx,'fb2AidStation','v0',this.st.x,this.st.y,1,false);
-    for(const a of this.A)S.drawLVTP5(ctx,{x:a.x,y:a.y,heading:a.h,t,variant:a.v,ramp:a.ramp,moving:false,scale:1,healing:a.v==='medic'&&!!a.m,corpsman:a.v==='medic'});
+    if(!this.st.own)S.draw(ctx,'fb2AidStation','v0',this.st.x,this.st.y,1,false);
+    for(const a of this.A)if(!a.off)S.drawLVTP5(ctx,{x:a.x,y:a.y,heading:a.h,t,variant:a.v,ramp:a.ramp,moving:false,scale:1,healing:a.v==='medic'&&!!a.m,corpsman:a.v==='medic'});
     const J=this.J; AID_JEEP.drawAidJeep(ctx,{x:Math.round(J.x),y:Math.round(J.y),heading:J.h,t,scale:1,variant:'m151',load:J.load,moving:!!J.mv}) } };
+/* AMT (Blake approved Oct 20, Vet rules): firebase amtracs (LVTP-5A1, tanks_v2 art). ?amtrac=0 off. Only with the rc8 base (FB2).
+   Strongpoint: 2 hull-down in berm revetments on the west wall, nose out, M1919 .30 cal from the cupola in short bursts with pauses.
+   Patrol: by day, when quiet, the pair rolls slowly round the cleared field outside the wire (~2.5 hull lengths apart), stopping to fire;
+   never at night, never alone, never through jungle/water (route checked once per base), back home if an RPG team is near.
+   Breach: nearest idle amtrac blocks the breached wall from inside, .30 cal firing, riders dismount off the bow ramp and fire.
+   Shuttle: a Marine at <=25% outside the wall (520 px, clear ground) -> drives out via the west gate, loads him, drops him at the aid tent
+   (medevac/carrier flow). 4-8 riders on the roof while moving. 3 RPG hits disable one: burns (vehicle_hits cook-off), crew of 3 bails out.
+   Speed: road 195 px/s (a running Marine is 178), half in paddy/mud; patrol 90. Dust trail + track marks in the laterite. */
+const AMT={ON:!/[?&]amtrac=0\b/.test(location.search), V:[], f:null, trk:[], crew:[], log:[],
+  segOk(a,b){ for(let u=0;u<=1;u+=.04){ const x=a[0]+(b[0]-a[0])*u, y=a[1]+(b[1]-a[1])*u; if(riverAt(x,y))return false; const k=TERR.mat(Math.floor(x/32),Math.floor(y/32)); if(k==='J'||k==='E'||k==='W')return false } return true },   /* no jungle/water on the shuttle out-leg */
+  ok(){ return this.ON&&FB2&&!!(window.SHEET1&&SHEET1.drawLVTP5) },
+  slots(f){ return [{x:f.x-180,y:f.y-50},{x:f.x-180,y:f.y+100},{x:f.x+195,y:f.y+55,lvth:1}] },
+  reset(){ this.V=[]; this.f=null; this.trk=[]; this.crew=[]; this.log=[] },
+  mk(f){ this.f=f; this.trk=[]; this.crew=[]; this.V=this.slots(f).map((s,i)=>({i,lvth:!!s.lvth,x:s.x,y:s.y,hx:s.x,hy:s.y,h:s.lvth?0:Math.PI,tur:s.lvth?0:Math.PI,rl:12,hits:0,dead:false,mode:'hold',path:null,pi:0,sp:0,cd:rnd(),burst:0,fire:0,tg:null,riders:0,dis:0,m:null,mv:0,odo:0,t0:0}));
+    const ok=pt=>{ if(riverAt(pt[0],pt[1]))return false; const k=TERR.mat(Math.floor(pt[0]/32),Math.floor(pt[1]/32)); return k!=='J'&&k!=='E'&&k!=='W' };
+    const H=345, loop=[[-H,-30],[-H,-H],[H,-H],[H,H],[-H,H],[-H,30]]; let good=true; for(let k=0;k<loop.length;k++){ const a=loop[k], b=loop[(k+1)%loop.length]; for(let u=0;u<=1;u+=.05)if(!ok([f.x+a[0]+(b[0]-a[0])*u,f.y+a[1]+(b[1]-a[1])*u]))good=false }
+    this.loopOk=good; this.log.push([+G.t.toFixed(1),'mk',good?'patrolOK':'patrolOff']) },
+  /* LVTH-6 (max 1, Vet): stays in its revetment; 105 mm indirect on call (needs the RTO or a Marine at the CP), slow reload 18 s, at the biggest enemy group 250-700 px out, never near friendlies */
+  lvth(v,dt){ const f=this.f; v.rl-=dt; if(v.fire<9)v.fire+=dt; if(v.rl>0||!fbCaller())return; let best=null,bn=4; for(let k=0;k<30&&enemies.length;k++){ const e=enemies[(rnd()*enemies.length)|0]; if(!e||e.dead)continue; const d=Math.hypot(e.x-f.x,e.y-f.y); if(d<250||d>700)continue; if(Math.hypot(e.x-G.p.x,e.y-G.p.y)<160||coy.some(q=>q.hp>0&&Math.hypot(q.x-e.x,q.y-e.y)<140))continue; let n=0; for(const q of nearestK(e.x,e.y,12,90))n++; if(n>bn){bn=n;best=e} }
+    if(!best){ v.rl=1; return } v.rl=18; v.fire=0; v.tur=Math.atan2(best.y-v.y,best.x-v.x); const tx=best.x, ty=best.y; this.log.push([+G.t.toFixed(1),'105',bn]); try{ (SAMP.boom('howitzer')||Snd.play('boom')) }catch(e){}
+    setTimeout(()=>{ try{ if(fbS===f&&state==='play')explode(tx,ty,80,60,1,.8) }catch(e){} },1400) },
+  gateOut(v){ const f=this.f; return [[f.x-120,f.y-30],[f.x-262,f.y-30]] },
+  path(v,pts,mode,sp){ v.path=[[v.x,v.y],...pts]; v.pi=1; v.mode=mode; v.vs=sp },
+  home(v){ const f=this.f, g=this.gateOut(v), out=Math.max(Math.abs(v.x-f.x),Math.abs(v.y-f.y))>FBS; this.path(v,(out?[[f.x-262,f.y-30],g[0]]:[g[0]]).concat([[v.hx+40,v.hy],[v.hx,v.hy]]),'home',195) },
+  near(x,y,R){ let b=null,bd=R; for(const e of enemies){ if(e.dead)continue; const d=Math.hypot(e.x-x,e.y-y); if(d<bd){bd=d;b=e} } return b },
+  rpgNear(v,R){ for(const e of enemies){ if(!e.dead&&(e.type==='rpg'||e.type==='rpgt'||e.rpgT!==undefined)&&Math.hypot(e.x-v.x,e.y-v.y)<R)return true } return false },
+  mud(x,y){ try{ return riverAt(x,y)||TERR.mat(Math.floor(x/32),Math.floor(y/32))==='P' }catch(e){ return false } },
+  drive(v,dt){ const P=v.path; if(!P||v.pi>=P.length){ v.path=null; return true } const T=P[v.pi], dx=T[0]-v.x, dy=T[1]-v.y, d=Math.hypot(dx,dy);
+    if(d<6){ v.pi++; return v.pi>=P.length&&(v.path=null,true) } const sp=v.vs*(this.mud(v.x,v.y)?.5:1), st=Math.min(d,sp*dt); v.h=turnTo(v.h,Math.atan2(dy,dx),2.4*dt); v.x+=dx/d*st; v.y+=dy/d*st; v.mv=1; v.odo+=st;
+    if(v.odo>8){ v.odo=0; v.stamp=1 } v.spd=sp;     return false },
+  gun(v,dt,R){ v.cd-=dt; if(v.fire>0)v.fire-=dt; if(v.cd>0)return; const e=this.near(v.x,v.y,R||300); if(!e){ v.cd=.4; v.burst=0; return }
+    if(v.burst<=0)v.burst=4+((rnd()*3)|0); v.burst--; v.cd=v.burst>0?.1:1.3+rnd()*1.2; v.fire=.06; v.shots=(v.shots|0)+1; v.tg=[e.x,e.y-8]; dmgSrc=1; hurtEnemy(e,10); dmgSrc=0; if(rnd()<.35)MIX.as('squad',()=>Snd.play('m60'),Math.hypot(v.x-G.p.x,v.y-G.p.y)) },   /* M1919: 4-6 round bursts, 1.3-2.5 s pauses */
+  kill(v){ v.dead=true; v.mode='dead'; v.path=null; v.bt=G.t; if(VHX.ok())try{ const o=v._hit||[0,-6]; VFX_VEHICLE_HIT.attachToVehicle(VHX.id(v),3,{follow:v,ex:o[0],ey:o[1]}); setTimeout(()=>{ try{ VFX_VEHICLE_HIT.attachToVehicle(VHX.id(v),4,{follow:v,ex:o[0],ey:o[1]}) }catch(e){} },1500) }catch(e){} this.log.push([+G.t.toFixed(1),'lost',v.i]); G.banner={text:'AMTRAC HIT · CREW BAILING OUT',t:2.4,col:'#ff9a5a'}; try{ (SAMP.boom('satchel')||Snd.play('boom')) }catch(e){}
+    const a=fbAidPos()||this.f; for(let k=0;k<3;k++)this.crew.push({x:v.x+(k-1)*12,y:v.y+16,tx:a.x+(k-1)*10,ty:a.y+20,t:0}); if(v.m){ v.m.hid=0; v.m.x=v.x; v.m.y=v.y+24; v.m.amt=0; v.m=null } },
+  hit(x,y,r){ for(const v of this.V){ if(v.dead||Math.hypot(v.x-x,v.y-y)>r+30)continue; v.hits++; v.hf=.12; VHX.A=Math.atan2(v.y-y,v.x-x); VHX.hit('heat',v,v.x+(rnd()-.5)*20,v.y-6,{}); if(v.hits===2)try{ VFX_VEHICLE_HIT.attachToVehicle(VHX.id(v),1,{follow:v}) }catch(e){} if(v.hits>=3)this.kill(v) } },
+  target(e,R){ let b=null,bd=R; for(const v of this.V){ if(v.dead||(v.mode==='hold'&&rnd()<.5))continue; const d=Math.hypot(v.x-e.x,v.y-e.y); if(d<bd){bd=d;b=v} } return b },
+  breach(s){ if(!this.ok()||!this.f||this.f!==fbS)return; const idle=this.V.filter(v=>!v.dead&&!v.lvth&&v.mode==='hold'); if(!idle.length)return; idle.sort((a,b)=>Math.hypot(a.x-s.x,a.y-s.y)-Math.hypot(b.x-s.x,b.y-s.y)); const v=idle[0], f=this.f;
+    const ix=s.x+Math.sign(f.x-s.x)*(Math.abs(s.x-f.x)>Math.abs(s.y-f.y)?55:0), iy=s.y+Math.sign(f.y-s.y)*(Math.abs(s.y-f.y)>=Math.abs(s.x-f.x)?55:0);
+    let bx=ix, by=iy; for(let k=0;k<6;k++){ const tq=strs.find(q=>(q.type==='m2'||q.type==='m60')&&!q.dead&&Math.hypot(q.x-bx,q.y-by)<70); if(!tq)break; if(Math.abs(s.x-f.x)>Math.abs(s.y-f.y))by+=(by>f.y?-1:1)*30; else bx+=(bx>f.x?-1:1)*30 }   /* never park on a gun pit */
+    this.path(v,[[v.hx+40,v.hy],[bx,by]],'breach',195); v.gap=[s.x,s.y]; v.bt=G.t; this.log.push([+G.t.toFixed(1),'breach',v.i]); G.banner={text:'AMTRACS TO THE BREACH',t:2,col:'#ffe58a'} },
+  tick(dt){ const g=G, f=fbS; if(!this.ok()||!g||g.demo)return; if(!f||f.state!=='done'){ if(this.f&&this.f!==f)this.reset(); return } if(this.f!==f)this.mk(f);
+    const late=g.ex&&g.ex.ph>=4, night=ATM.night&&ATM.night(), live=this.V.filter(v=>!v.dead&&!v.lvth), quiet=!this.near(f.x,f.y,520);
+    this.qt=quiet?(this.qt||0)+dt:0;
+    for(const v of this.V){ v.mv=0; v.spd=0; if(v.hf>0)v.hf-=dt; if(v.dead)continue; if(v.lvth){ this.lvth(v,dt); continue }
+      if(v.mode==='hold'){ v.h=turnTo(v.h,Math.PI,2*dt); this.gun(v,dt,320);
+        if(!late&&!v.m&&!v.lvth){ let b=null; for(const m of coy){ if(!(m.hp>0)||m.hid||m.amt||m.medv||m.hp>m.mhp*.25)continue; const c=Math.max(Math.abs(m.x-f.x),Math.abs(m.y-f.y)); if(c>FBS&&Math.hypot(m.x-f.x,m.y-f.y)<520&&!this.near(m.x,m.y,140)){ b=m; break } }
+          if(b&&!this.rpgNear(b,300)&&this.segOk([v.hx-60,v.hy],[b.x,b.y])){ b.amt=1; v.m=b; v.load=0; this.path(v,[[v.hx+40,v.hy]].concat(this.gateOut(v)).concat([[b.x,b.y]]),'shuttle',195); this.log.push([+g.t.toFixed(1),'shuttle',v.i,b.nm]); continue } }
+        if(!v.lvth&&this.loopOk&&!night&&!late&&live.length===2&&this.qt>20&&v.i===0&&live.every(q=>q.mode==='hold')){ const H=345, L=[[f.x-H,f.y-30],[f.x-H,f.y-H],[f.x+H,f.y-H],[f.x+H,f.y+H],[f.x-H,f.y+H],[f.x-H,f.y+30],[f.x-262,f.y+30],[f.x-120,f.y+30]];
+          for(const q of live){ this.path(q,[[q.hx+40,q.hy]].concat(this.gateOut(q)).concat(L).concat([[q.hx+40,q.hy],[q.hx,q.hy]]),'patrol',90); q.dl=q.i?3.2:0 } this.log.push([+g.t.toFixed(1),'patrol']); this.qt=-60 } }
+      else if(v.mode==='patrol'){ if(v.dl>0){ v.dl-=dt; continue } const e=this.near(v.x,v.y,260); if(this.rpgNear(v,350)||night){ this.home(v); continue }
+        if(e){ this.gun(v,dt,260); continue }   /* stop to fire */ if(this.drive(v,dt)){ v.mode='hold'; v.x=v.hx; v.y=v.hy } }
+      else if(v.mode==='breach'){ if(v.path){ this.drive(v,dt); continue } if(v.gap)v.h=turnTo(v.h,Math.atan2(v.gap[1]-v.y,v.gap[0]-v.x),2*dt); this.gun(v,dt,280); v.dis=Math.min(1,v.dis+dt); if(v.dis>=1){ const e=this.near(v.x,v.y,200); if(e&&rnd()<dt*3){ dmgSrc=1; hurtEnemy(e,6); dmgSrc=0 } }   /* riders off the bow ramp, firing */
+        if(!this.near(v.x,v.y,180)&&g.t-v.bt>25){ v.dis=0; this.home(v) } }
+      else if(v.mode==='shuttle'){ const m=v.m; if(!m||m.hp<=0||!coy.includes(m)){ if(m)m.amt=0; v.m=null; this.home(v); continue } if(this.rpgNear(v,300)){ m.amt=0; v.m=null; this.home(v); continue }
+        if(v.path&&!v.load)v.path[v.path.length-1]=[m.x,m.y]; if(v.load){ m.x=v.x; m.y=v.y }
+        if(this.drive(v,dt)){ if(!v.load){ v.load=1; m.hid=1; this.path(v,[[f.x-262,f.y-30],[f.x-120,f.y-30],[f.x+20,f.y-30]],'shuttle',195) } else { const a=fbAidPos()||f; m.hid=0; m.amt=0; m.x=a.x-20; m.y=a.y+20; this.log.push([+g.t.toFixed(1),'aid',v.i,m.nm]); v.m=null; v.load=0; this.path(v,[[f.x-120,f.y-30],[v.hx+40,v.hy],[v.hx,v.hy]],'home',195) } } }
+      else if(v.mode==='home'){ if(this.drive(v,dt)){ v.mode='hold'; v.x=v.hx; v.y=v.hy } if(!v.mv)this.gun(v,dt,200) }   /* .30 only when stopped */
+      v.riders=(v.mv&&(v.mode==='patrol'||v.mode==='breach'||v.mode==='home'||v.mode==='shuttle'))?4+(v.i*3+((v.hx|0)&1))%5:0; v.aim=v.tg?Math.atan2(v.tg[1]-v.y,v.tg[0]-v.x):v.h }
+    for(let i=this.crew.length-1;i>=0;i--){ const c=this.crew[i]; c.t+=dt; const dx=c.tx-c.x,dy=c.ty-c.y,d=Math.hypot(dx,dy); if(d>4){ c.x+=dx/d*150*dt; c.y+=dy/d*150*dt } if(c.t>8)this.crew.splice(i,1) } },
+  /* burning look in ONE place (art now; VFX shared flame renderer later): returns the drawLVTP5 burning flag */
+  burnFx(v){ return v.dead?1:0 },
+  drawGround(){ if(!this.ok()||!this.f||this.f!==fbS)return; const now=G.t, S=SHEET1;
+    for(const q of this.trk){ const a=1-(now-q[3])/60; if(a>0)S.drawTrackMark(ctx,{x:q[0],y:q[1],heading:q[2],alpha:.55*a,scale:1}) } },
+  draw(){ if(!this.ok()||!this.f||this.f!==fbS)return; const t=g_now(), S=SHEET1, sl=this.slots(this.f);
+    for(const s of sl)S.drawRevetment(ctx,{x:s.x,y:s.y,heading:s.lvth?0:Math.PI,scale:1,layer:'back'});
+    for(const v of this.V){ const br=this.burnFx(v), dis=v.mode==='breach'&&!v.path&&!v.dead;
+      const R=S.drawLVTP5(ctx,{x:Math.round(v.x),y:Math.round(v.y),heading:v.h,t,variant:v.lvth?'howitzer':'troop',turret:v.tur,fire:v.lvth?v.fire:undefined,ramp:dis?Math.min(1,v.dis):0,speed:v.spd||0,riders:v.riders||0,seed:v.i,firing:!v.dead&&v.fire>0&&!v.lvth,aim:v.aim,burning:br,dead:v.dead,hit:v.hf>0,scale:1});
+      if(R){ v._hit=R.hitOffset; if(v.stamp&&R.rear){ v.stamp=0; if(this.trk.length>420)this.trk.shift(); this.trk.push([R.rear[0],R.rear[1],v.h,G.t]) }
+        if(dis&&R.rampOpen)S.drawDismount(ctx,R,{n:4,phase:Math.min(1,v.dis),t,scale:1}) } }   /* bow ramp: riders file out the front toward the breach */
+    for(const s of sl)S.drawRevetment(ctx,{x:s.x,y:s.y,heading:s.lvth?0:Math.PI,scale:1,layer:'front'});
+    for(const c of this.crew)S.draw(ctx,'marineRifle',(Math.floor(c.t*8)%2)?'walk1':'walk2',Math.round(c.x),Math.round(c.y),1,c.tx<c.x) } };
 /* CREWX (Blake-confirmed): base support men once the firebase is DONE. M60 assistant gunner beside every M60 post (agFeed under fire, agSpot
    otherwise); 2 ammo runners carrying cans bunker -> a random post -> hand-off -> back (visual only); a sharpshooter on the bunker roof
    (tower poses) with an M40: one aimed round every 2.6 s at the nearest enemy 120-460 px out, 16 dmg. ?crewx=0 = off */
@@ -4726,9 +4807,9 @@ function updateHazards(dt){
     if(q.rk&&window.VFX_ROCKETS){ if(q.t>0){ const a=Math.atan2(q.ty-q.sy,q.tx-q.sx); if(!q.lf){ q.lf=1; try{ window.VFX_MUZZLE&&VFX_MUZZLE.spawn('b40',q.sx,q.sy,a,{brass:false}) }catch(e){} } if(Math.abs(q.x-p.x)<760&&Math.abs(q.y-p.y)<520)try{ VFX_ROCKETS.emit(q.rk,q.x,q.y,a,dt,Math.sin(Math.PI*k)*30,q.t,q.key) }catch(e){} } }
     else addPart(q.x,q.y,(rnd()-.5)*18,(rnd()-.5)*18,.35,3.5,rnd()<.5?'#cfcab8':'#ff9b21',false,2);
     if(k>=1){ if(q.key&&window.VFX_ROCKETS&&VFX_ROCKETS.release)try{ VFX_ROCKETS.release(q.key) }catch(e){} WFX.hit(q.tx,q.ty,'big'); blasts.push({x:q.tx,y:q.ty,r:q.rad,t:0,d:.4}); burst(q.tx,q.ty,18,q.rad*2,.5,4,['#ffd54a','#ff9b21','#555'],true); (SAMP.boom('satchel')||Snd.play('boom')); G.shake=Math.max(G.shake,6);
-      if(Math.hypot(p.x-q.tx,p.y-q.ty)<q.rad+10)hurtPlayer(q.dmg,q.src||(q.tdm?'RPG/B-40 rocket':'enemy shell/blast')); const tk=tanks[0]; if(tk&&!tk.dead&&Math.hypot(tk.x-q.tx,tk.y-q.ty)<q.rad+26)(VHX.heat=q.tdm?1:0,VHX.A=Math.atan2(q.ty-q.sy,q.tx-q.sx),hurtTank(tk,q.tdm||q.dmg*1.2)); for(const b of boats){ if(!b.dead&&Math.hypot(b.x-q.tx,b.y-q.ty)<q.rad+28)hurtBoat(b,q.tdm||q.dmg) } if(q.tr){ for(const arr of [hueys,ins]){ for(let j=arr.length-1;j>=0;j--){ const h=arr[j]; if(Math.hypot(h.x-q.tx,h.y-34-q.ty)<q.rad+30)hurtHuey(h,q.hdm||(55+G.t/25)) } } } for(let j=0;j<squad.length;j++){ const m=squad[j]; if(Math.hypot(m.x-q.tx,m.y-q.ty)<q.rad+8)hurtMember(m,q.dmg*.9*(1+G.t/900)) } if(fbS||engs.length){ fbBlast(q.tx,q.ty,q.rad,q.sdm||0,q.dmg*3) } eprojs[i]=eprojs[eprojs.length-1]; eprojs.pop() } }
+      if(Math.hypot(p.x-q.tx,p.y-q.ty)<q.rad+10)hurtPlayer(q.dmg,q.src||(q.tdm?'RPG/B-40 rocket':'enemy shell/blast')); const tk=tanks[0]; if(tk&&!tk.dead&&Math.hypot(tk.x-q.tx,tk.y-q.ty)<q.rad+26)(VHX.heat=q.tdm?1:0,VHX.A=Math.atan2(q.ty-q.sy,q.tx-q.sx),hurtTank(tk,q.tdm||q.dmg*1.2)); for(const b of boats){ if(!b.dead&&Math.hypot(b.x-q.tx,b.y-q.ty)<q.rad+28)hurtBoat(b,q.tdm||q.dmg) } if(AMT.ON&&AMT.V.length)AMT.hit(q.tx,q.ty,q.rad*.4); if(q.tr){ for(const arr of [hueys,ins]){ for(let j=arr.length-1;j>=0;j--){ const h=arr[j]; if(Math.hypot(h.x-q.tx,h.y-34-q.ty)<q.rad+30)hurtHuey(h,q.hdm||(55+G.t/25)) } } } for(let j=0;j<squad.length;j++){ const m=squad[j]; if(Math.hypot(m.x-q.tx,m.y-q.ty)<q.rad+8)hurtMember(m,q.dmg*.9*(1+G.t/900)) } if(fbS||engs.length){ fbBlast(q.tx,q.ty,q.rad,q.sdm||0,q.dmg*3) } eprojs[i]=eprojs[eprojs.length-1]; eprojs.pop() } }
   // claymore mines
-  for(let i=mines.length-1;i>=0;i--){const m=mines[i]; CURW=m.wid||''; m.life-=dt; m.arm-=dt; let boom=false;
+  for(let i=mines.length-1;i>=0;i--){const m=mines[i]; CURW=m.wid||''; m.life-=dt; m.arm-=dt; let boom=false; if(m.fbs&&(m.fbs.dead||!strs.includes(m.fbs))){ mines[i]=mines[mines.length-1]; mines.pop(); continue }
     if(m.arm<=0){ for(let j=0;j<enemies.length;j++){const e=enemies[j]; if(e.dead)continue; const dx=e.x-m.x,dy=e.y-m.y,d=Math.hypot(dx,dy); if(d>m.range*.6)continue;
         let ad=Math.atan2(dy,dx)-m.a; ad=Math.abs(Math.atan2(Math.sin(ad),Math.cos(ad))); if(ad<m.half||d<26){boom=true;break} } }
     if(boom){
@@ -4738,7 +4819,7 @@ function updateHazards(dt){
       dmgSrc=0; DTAG='';
       cones.push({x:m.x,y:m.y,a:m.a,half:m.half,r:m.range,t:0,d:.3});
       for(let k=0;k<16;k++){const a=m.a+(rnd()-.5)*m.half*2,v=m.range*(3+rnd()*3); addPart(m.x,m.y,Math.cos(a)*v,Math.sin(a)*v,.18+rnd()*.1,2.5,'#ffe08a',true,5)}
-      burst(m.x,m.y,3,40,.4,4,['#8a8574','#6d675a'],false); G.shake=Math.max(G.shake,2); Snd.play('claymore');
+      burst(m.x,m.y,3,40,.4,4,['#8a8574','#6d675a'],false); G.shake=Math.max(G.shake,2); Snd.play('claymore'); if(m.fbs){ m.fbs.fired=true; if(fbS)(fbS.log.clays||(fbS.log.clays=[])).push(+G.t.toFixed(1)); destroyStruct(m.fbs) }
       mines[i]=mines[mines.length-1]; mines.pop(); }
     else if(m.life<=0){mines[i]=mines[mines.length-1];mines.pop()} }
   // napalm strikes
@@ -5236,7 +5317,7 @@ function medevacUnits(){ const g=G,out=[g.p]; for(const arr of [squad,pat,coy])f
 function medevacNeeded(){ const p=G.p; if(p.hp<p.maxHp*.8)return true; let n=0; for(const u of medevacUnits()){ if(u!==p&&u.hp<u.mhp*.6)n++ } return n>=3 }
 function callMedevac(s){ const g=G,p=g.p, a=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+170;
   medevac={x:p.x+Math.cos(a)*Rf,y:p.y+Math.sin(a)*Rf,a,ph:0,t:0,hold:0,tk:0,hd:a+Math.PI,rot:0,hp:1,mhp:0,hf:0,mf:[0,0],z:34,s,vs:60,medic:true};
-  g.ms.calls++; g.banner={text:'MEDEVAC INBOUND, URGENT',t:2.4,col:'#ff9a8a'}; Snd.cue('medevacCall'); Amb.support(8) }
+  g.ms.calls++; g.banner={text:'MEDEVAC INBOUND, EMERGENCY',t:2.4,col:'#ff9a8a'}; Snd.cue('medevacCall'); Amb.support(8) }
 function medevacHeal(u,frac,scale){ if(u.hp<=0)return; const mx=u.maxHp||u.mhp, add=Math.min(mx-u.hp,mx*frac*scale); if(add<=0)return; u.hp+=add; u._mh=(u._mh||0)+add; G.ms.healed+=add }
 function updateMedevac(dt){ const g=G,p=g.p,h=medevac; updateHealFx(dt); if(g.demo||!g.char||!g.ms)return; if(!h)return; h.t+=dt; h.rot+=dt*34; if(!h.sa&&h.t>=.6){ h.sa=1; (RotorS.ok()||Snd.cue('medevacHuey')) }
   const hx=p.x, hy=p.y-6;
@@ -6147,8 +6228,9 @@ window.addEventListener('keydown',e=>TUT.key(e),true);
 let lzS=null, fbS=null, engs=[], strs=[], chgs=[], fbH=null, fbC=null;
 const FBNAMES=['ALPHA','BRAVO','CHARLIE','DELTA','ECHO','FOXTROT','GOLF','HOTEL'];
 const FBPH=['SANDBAG RING','BUNKER & TURRETS','BARBED WIRE','MEDIC TENT & HELIPAD','MORTAR PIT / HEAVY GUN'], FBSTG=['SANDBAG RING','BUNKER','TURRET'];
-const FBBUILD=50, FBSOLID={sandbag:1,bunker:1,m2:1,m60:1,tent:1,pad:1,rr106:1,quad50:1};
-const SD={bunker:{hp:320,r:22},sandbag:{hp:140,r:17},wire:{hp:60,r:20},m2:{hp:170,r:14},m60:{hp:160,r:14},tent:{hp:160,r:24},pad:{hp:210,r:30},rr106:{hp:190,r:17},quad50:{hp:230,r:18}};
+const FBBUILD=50, FBSOLID={sandbag:1,bunker:1,m2:1,m60:1,tent:1,pad:1,rr106:1,quad50:1,cp:1,hootch:1};   /* rc8 C11: CP + hootch block like the bunker */
+const SD={bunker:{hp:320,r:22},sandbag:{hp:140,r:17},wire:{hp:60,r:20},m2:{hp:170,r:14},m60:{hp:160,r:14},tent:{hp:160,r:24},pad:{hp:210,r:30},rr106:{hp:190,r:17},quad50:{hp:230,r:18},cp:{hp:320,r:22},hootch:{hp:200,r:34},ammo:{hp:150,r:14},flare:{hp:20,r:6},claymore:{hp:20,r:8}};   /* rc8 C7 */
+const FBWIREISH={wire:1,flare:1,claymore:1};   /* rc8: wire-line items (not counted as base integrity, restrung with the wire) */
 let apHit=false;
 const fbIn=()=>!!(G&&G.inFb);
 function nearCount(x,y,r){ const r2=r*r, cx=Math.floor(x/CS), cy=Math.floor(y/CS), R=Math.ceil(r/CS); let n=0;
@@ -6173,19 +6255,35 @@ function mkStr(type,x,y,ang,at){ const d=SD[type], m=(1+(G.fbN||0)*.15)*1.35; re
    a gate gap in the middle of each side, turrets at the four corners and the four gate midpoints, bunker / medic tent / helipad / heavy gun inside,
    and a barbed-wire square (half-side ~1.41 x FBS = 237 px, 1.5x the old 158 px) outside it. */
 const LINES={FB_BUILT_1:"Golf Six, Two-Six. Position is dug in and wired, over."};   /* rc8: radio caption text by line ID (VO pending) */
-const FBS=168, FBW=237;
+/* rc8 firebase rebuild (Level Designer spec firebase_layout_fix_rc8.md, Vet approved). ?fb2=0 = the rc7 layout. ?fbs=196 = pacing-gate fallback wall. */
+const FB2=!/[?&]fb2=0\b/.test(location.search), FBS2=+((location.search.match(/[?&]fbs=(\d+)/)||[])[1])||210;
+const FBS=FB2?FBS2:168, FBW=FB2?300:237, FBW_BANDS=[[240,16,'wire','concertina'],[270,18,'wire','apron'],[300,20,'wire','tangle']], FB_CLEAR=460;   /* rc8 C1 */
 function fbLayout(f){ const L=[], C=f;
   /* walk a square clockwise from its top-left corner; n posts per side at spacing 2h/n, skipping `gate` px either side of each side's midpoint */
   const wall=(h,n,gate,type,at0,at1,stg)=>{ const pts=[]; for(let sd=0;sd<4;sd++)for(let k=0;k<n;k++){ const u=(k+.5)*2*h/n-h; if(Math.abs(u)<gate)continue;
       let x,y; if(sd===0){x=u;y=-h} else if(sd===1){x=h;y=u} else if(sd===2){x=-u;y=h} else {x=-h;y=-u}
       pts.push([type,C.x+x,C.y+y,(sd&1)?Math.PI/2:0,0,stg]) }
     pts.forEach((q,i)=>{ q[4]=at0+(at1-at0)*i/pts.length; L.push(q) }) };
+  if(FB2)return fbLayout2(f,L,wall);
   wall(FBS,12,40,'sandbag',.02,.28,0);                                                  // stage 1: sandbag square (4 walls, 56-px gates)
   L.push(['bunker',C.x-72,C.y-62,0,.33,1]);                                            // stage 2: bunker inside
   const T=[['m2',-1,-1,.40],['m60',1,-1,.44],['m2',1,1,.48],['m60',-1,1,.52],['m60',0,-1,.55],['m2',1,0,.58],['m60',0,1,.61],['m2',-1,0,.64]];   // stage 3: corner + midpoint turrets
   for(const [ty,sx,sy,at] of T){ const inset=sx&&sy?26:30, x=sx*(FBS-inset), y=sy*(FBS-inset); L.push([ty,C.x+x,C.y+y,Math.atan2(sy||0,sx||0),at,2]) }
   wall(FBW,13,44,'wire',.66,.76,3);                                                    // then wire, tent, pad, and the heavy gun (needs the Sea Knight crate)
   L.push(['tent',C.x-96,C.y+76,0,.80,3]); L.push(['pad',C.x+92,C.y-80,0,.85,3]); L.push(['rr106',C.x,C.y+84,Math.PI/2,.92,3]); return L }
+/* rc8 layout: wall 210 (15 posts/side), CP + 3 revetted ammo pits, turrets inset 56, aid tent by the pad, hootch, 3 wire bands, trip flares + claymores (C2-C6, C12) */
+function fbLayout2(f,L,wall){ const C=f, n0=()=>L.length;
+  wall(FBS,15,40,'sandbag',.02,.28,0); if(AMT.ON)for(let i=L.length-1;i>=0;i--){ const q=L[i]; if(q[0]==='sandbag'&&Math.abs(q[1]-(C.x-FBS))<1&&(Math.abs(q[2]-(C.y-50))<40||Math.abs(q[2]-(C.y+100))<40))L.splice(i,1) } if(AMT.ON)for(let i=L.length-1;i>=0;i--){ const q=L[i]; if(q[0]==='sandbag'&&Math.abs(q[1]-(C.x+FBS))<1&&Math.abs(q[2]-(C.y+55))<40)L.splice(i,1) }   /* amtrac revetments sit in the west wall line */
+  L.push(['bunker',C.x-90,C.y-78,0,.33,1]); L.push(['cp',C.x-20,C.y-100,0,.35,1]);
+  L.push(['ammo',C.x-120,C.y+40,0,.36,1]); L.push(['ammo',C.x-60,C.y+130,0,.37,1]); L.push(['ammo',C.x+140,C.y+165,0,.38,1]);
+  const T=[['m2',-1,-1,.40],['m60',1,-1,.44],['m2',1,1,.48],['m60',-1,1,.52],['m60',0,-1,.55],['m2',1,0,.58],['m60',0,1,.61],['m2',-1,0,.64]];
+  for(const [ty,sx,sy,at] of T){ const x=sx*(FBS-56), y=sy*(FBS-56); L.push([ty,C.x+x,C.y+y,Math.atan2(sy||0,sx||0),at,2]) }
+  for(const [h,n,t,k] of FBW_BANDS){ const i0=n0(); wall(h,n,44,t,.66,.76,3); for(let i=i0;i<L.length;i++)L[i][6]=k }
+  /* C12: trip flares on the tanglefoot (u=+-90,+-150 per side) and claymores at h=255 (u=+-120) facing out; |u|<44 is the gate lane */
+  const perSide=(h,us,type,at)=>{ for(let sd=0;sd<4;sd++)for(const u of us){ if(Math.abs(u)<44)continue; let x,y; if(sd===0){x=u;y=-h} else if(sd===1){x=h;y=u} else if(sd===2){x=-u;y=h} else {x=-h;y=-u}
+      L.push([type,C.x+x,C.y+y,[-Math.PI/2,0,Math.PI/2,Math.PI][sd],at,3]) } };
+  for(let sd=0;sd<4;sd++){ const us=[[-171,-118,-63,97],[-152,-88,71,139],[-130,-58,112,168],[-176,-101,66,124]][sd]; for(const u0 of us){ const u=u0, hh=300+Math.round((hash2(sd*31+u0,77)-.5)*6); let x,y; if(sd===0){x=u;y=-hh} else if(sd===1){x=hh;y=u} else if(sd===2){x=-u;y=hh} else {x=-hh;y=-u} L.push(['flare',C.x+x,C.y+y,[-Math.PI/2,0,Math.PI/2,Math.PI][sd],.77,3]) } }   /* rc8 AD: irregular, outer (tanglefoot) wire only */ perSide(255,[-120,120],'claymore',.78);
+  L.push(['tent',C.x+70,C.y-30,0,.80,3]); L.push(['pad',C.x+115,C.y-100,0,.85,3]); L.push(['hootch',C.x+100,C.y+95,0,.88,3]); L.push(['rr106',C.x,C.y+105,Math.PI/2,.92,3]); return L }
 function beginFirebase(){ const g=G; fbS={x:lzS.x,y:lzS.y,name:lzS.name,state:'inbound',prog:0,phase:-1,waveN:0,waveT:14,bigT:35,sapT:30,holdT:0,tier:1,supT:35,tankT:70,rb:[],rbT:0,lay:null,idx:0,hold:0,n:g.fbN+1,
     age:0,t0:g.t,sapAt:60+rnd()*15,st:[null,null,null],stLast:[0,0,0],repaired:false,crateOk:false,chCalled:false,crate:null,
     log:{n:g.fbN+1,t0:g.t,sandbagsAt:null,bunkerAt:null,turretAt:null,turretsAt:null,doneAt:null,bigAt:null,lostAt:null,repairAt:null,sapAt:null,tankAt:null,crateAt:null,builtAt:null}};
@@ -6193,10 +6291,99 @@ function beginFirebase(){ const g=G; fbS={x:lzS.x,y:lzS.y,name:lzS.name,state:'i
   // thin out the crowd that is already out there so the call-in starts calm (bosses and tanks stay)
   for(const e of enemies){ if(e.dead||e.boss||e.tank)continue; const dd=Math.hypot(e.x-g.p.x,e.y-g.p.y); if(dd>110&&rnd()<.75){ e.dead=true; if(dd<Math.max(VW,VH)/2+40&&parts.length<(LOWFX?200:500))burst(e.x,e.y-4,4,40,.35,2.5,['#8a7a52','#6d675a'],false) } }
   callFbHeli('build',fbS.x,fbS.y); const eta=fbH?Math.ceil(Math.hypot(fbH.x-fbS.x,fbH.y-fbS.y)/300)+6:12; g.banner={text:'ENGINEERS INBOUND · ETA 0:'+String(eta).padStart(2,'0')+' · HOLD THE SITE',t:3.2,col:'#9be37a'}; Snd.play('radio'); Amb.support(12) }   /* rc7.1 JPT#5 */
+/* ===== rc8 firebase hooks (Junior Coder: carriers + hootch downtime; spec fb_rc8_hooks.md) + medevac ===== */
+const fbBanterSlots0={DT_MAIL_A:{grp:"downtime",max:60,text:"Mail call came in. My girl sent cookies. Well, crumbs."},DT_MAIL_B:{grp:"downtime",max:60,text:"Crumbs still count. Pass 'em over."},DT_FOOD_A:{grp:"downtime",max:60,text:"Who's got peaches? I'll trade you ham and lima beans."},DT_FOOD_B:{grp:"downtime",max:60,text:"Nobody wants ham and limas. Nobody, ever."},DT_CARDS_A:{grp:"downtime",max:60,text:"Deal me in. I'm good for it come payday."},DT_CARDS_B:{grp:"downtime",max:60,text:"You owe half the platoon already."},DT_WEATHER_1:{grp:"downtime",max:60,text:"Mud in my boots, mud in my socks, mud in my coffee."},DT_HEAT_1:{grp:"downtime",max:60,text:"It's so hot the sandbags are sweating."},DT_SLEEP_1:{grp:"downtime",max:60,text:"I'd give a month's pay for one night of real sleep."},DT_SHORT_1:{grp:"downtime",max:60,text:"Forty-one days and a wake-up. I'm getting short."},DT_MUSIC_1:{grp:"downtime",max:60,text:"Somebody get that radio off static. Find some music."},DT_HOME_1:{grp:"downtime",max:60,text:"Back home they're shoveling snow. I'd trade."},DT_HOME_2:{grp:"downtime",max:60,text:"First thing I do back in the World? Cold milk."},DT_DOC_1:{grp:"downtime",max:60,text:"Hey Doc. Thanks for back there. I mean it."},DT_LOST_1:{grp:"downtime",max:60,text:"He was a good Marine. That's all I got."},DT_ALERT_1:{grp:"downtime",max:40,text:"Movement! Back on the line, now!"},CR_PICKUP_1:{grp:"carry",max:40,text:"I got you. Up you come."},CR_PICKUP_2:{grp:"carry",max:40,text:"Hang on, we're going to the aid station."},CR_ARRIVE_1:{grp:"carry",max:40,text:"Corpsman! Got one for you here!"},CR_WOUNDED_1:{grp:"carry",max:40,text:"Easy... easy on the leg."},CR_WOUNDED_2:{grp:"carry",max:40,text:"I'm okay. Just get me to Doc."},MV_CALL_1:{grp:"medevac",max:60,text:"Golf Six, Two-Six. Emergency medevac, two Marines, over."},MV_INBOUND_1:{grp:"medevac",max:40,text:"Medevac's inbound. Get 'em to the pad."},MV_LOAD_1:{grp:"medevac",max:40,text:"Easy with him. Get him aboard."},MV_LIFT_1:{grp:"medevac",max:40,text:"Bird's up. They're on their way."}};   /* final text: design/maps/specs/firebase_banter_rc8.md (Narrative Writer, advisor approved) */
+const fbBanterSlots=Object.assign(fbBanterSlots0,{MV_CALL_1a:{grp:'medevac',max:60,text:"Golf Six, Two-Six. Emergency medevac, one Marine, over."},MV_CALL_1b:{grp:'medevac',max:60,text:"Golf Six, Two-Six. Emergency medevac, two Marines, over."},MV_CALL_1c:{grp:'medevac',max:60,text:"Golf Six, Two-Six. Emergency medevac, three Marines, over."}});   /* EP Oct 20: call line by critical count at the aid tent (1/2/3+) */
+const FBHOOK={wounded:[], onWounded(fn){ this.wounded.push(fn) }};
+function fbStructPos(ty){ const f=fbS; if(!f)return null; const t=strs.find(q=>q.type===ty&&!q.dead); if(t)return {x:t.x,y:t.y,built:t.b>=1}; const L=(f.lay||[]).find(q=>q[0]===ty); return L?{x:L[1],y:L[2],built:false}:null }
+function fbAidPos(){ return fbStructPos('tent') }
+function fbHootchPos(){ return fbStructPos('hootch') }
+function fbPadPos(){ return fbStructPos('pad') }
+function fbOnWounded(m){ for(const fn of FBHOOK.wounded){ try{ fn(m) }catch(e){} } }
+function fbRto(){ try{ const r=RTO.get(G); return r&&r.hp>0?r:null }catch(e){ return null } }   /* the run's RTO (same man who calls air); none / KIA = no medevac bird */
+function fbCpMan(){ const c=fbStructPos('cp'); if(!c)return null; let b=null,bd=60; for(const L of [coy,squad])for(const q of L){ if(!(q.hp>0)||q.state!=='ok'||q.hid||q.hp<=q.mhp*.15)continue; const d=Math.hypot(q.x-c.x,q.y-c.y); if(d<bd){ bd=d; b=q } } return b }
+function fbCaller(){ const r=fbRto(); if(r)return {m:r,who:'RTO',k:'rto'}; const c=fbCpMan(); return c?{m:c,who:'CP',k:'cp'}:null }   /* EP Oct 20: RTO if alive, else any living Marine at the CP radio; neither = "Nobody on the radio!" */
+function fbCrit(){ const a=fbAidPos(), pd=fbPadPos(), near=(q,P)=>P&&Math.hypot(q.x-P.x,q.y-P.y)<70; return coy.filter(q=>q.hp>0&&q.state==='ok'&&!q.hid&&!q.rto&&q.hp<=q.mhp*.15&&(near(q,a)||near(q,pd))) }
+function fbLine(id,who,dur){ const L=fbBanterSlots[id]; if(!L)return; try{ gunny(L.text,dur||Math.min(3.4,1.6+L.text.length*.035),1,who||'RTO') }catch(e){} const f=fbS; if(f)(f.log.lines||(f.log.lines=[])).push([+G.t.toFixed(1),id]) }
+/* ===== rc8 jr/fb-wounded (on by default; ?fbwounded=0 off): engineers carry wounded Marines to the aid tent; when the medevac is called they carry the critical men to the pad ===== */
+const FBWD={on:!/[?&]fbwounded=0\b/.test(location.search), SPD:58, IN:193-12, q:[], lineT:-99,
+  clampIn(x,y){ const f=fbS, L=this.IN; return {x:Math.max(f.x-L,Math.min(f.x+L,x)), y:Math.max(f.y-L,Math.min(f.y+L,y))} },
+  say(id,who){ const g=G; if(g.t-this.lineT<6)return; this.lineT=g.t; fbLine(id,who) },
+  free(){ let b=null,bd=1e9; return (x,y)=>{ b=null; bd=1e9; for(const e of engs){ if(e.hp<=0||e.job||e.cr||e.danger>=7)continue; const d=Math.hypot(e.x-x,e.y-y); if(d<bd){bd=d;b=e} } return b } },
+  slot(P,i,r){ const a=-Math.PI/2+i*1.15; return {x:P.x+Math.cos(a)*r, y:P.y+Math.sin(a)*r+8} },
+  want(m,to){ if(!fbS||!(m.hp>0)||coy.indexOf(m)<0||m.cr||m._fbTo===to||(m._fbAt&&m._fbAt.to===to)||(m._fbAt&&m._fbAt.to==='pad'))return; m._fbTo=to; if(!m._fbAt)m._fbDn={x:m.x,y:m.y}; if(this.q.indexOf(m)<0)this.q.push(m) },
+  onWounded(m){ if(!FBWD.on||!fbS||fbS.state!=='done'||m.rto||coy.indexOf(m)<0)return; const a=fbAidPos(); if(!a||Math.hypot(m.x-a.x,m.y-a.y)<40)return; FBWD.want(m,'aid') },
+  assign(){ const pick=this.free(); for(let i=this.q.length-1;i>=0;i--){ const m=this.q[i]; if(!(m.hp>0)||coy.indexOf(m)<0||m.hid){ this.q.splice(i,1); m._fbTo=null; continue } if(m.cr)continue;
+      const e=pick(m.x,m.y); if(!e)return; e.cr={m,ph:0,to:m._fbTo,t:0}; m.cr=e; this.q.splice(i,1) } },
+  steer(e,dt){ const c=e.cr; if(!c)return false; const m=c.m, f=fbS; c.t+=dt;
+    if(!f||!(m.hp>0)||coy.indexOf(m)<0||m.hid||c.t>40){ this.drop(e,false); return false }
+    let T; if(c.ph===0){ const D=m._fbDn||m._fbAt||m; T=this.clampIn(D.x,D.y); if(Math.hypot(e.x-T.x,e.y-T.y)<12&&Math.hypot(D.x-T.x,D.y-T.y)<4){ c.ph=1; m._fbAt=null; m._fbDn=null; this.say(c.to==='aid'&&rnd()<.5?'CR_PICKUP_2':'CR_PICKUP_1','MARINE'); f.log.fbwPick=(f.log.fbwPick|0)+1 } }
+    if(c.ph===1){ const P=c.to==='pad'?fbPadPos():fbAidPos(); if(!P){ this.drop(e,false); return false } const k=this.carried(P,c.to); T=this.slot(P,k,c.to==='pad'?22:30); if(Math.hypot(e.x-T.x,e.y-T.y)<9){ this.drop(e,true); return true } }
+    const dx=T.x-e.x, dy=T.y-e.y, d=Math.hypot(dx,dy), sp=(c.ph===1?this.SPD:95)*(e.danger>=3?.8:1); e.mode=c.ph?'carry':'fetch';
+    if(d>2){ e.x+=dx/d*Math.min(sp,d*5)*dt; e.y+=dy/d*Math.min(sp,d*5)*dt; e.mv=true; e.anim+=dt*(c.ph?6:9); e.face=dx>=0?1:-1 } else e.mv=false;
+    if(c.ph===1){ m.x=e.x-e.face*5; m.y=e.y-3; m.mv=false } return true },
+  carried(P,to){ let n=0; for(const q of coy)if(q._fbAt&&q._fbAt.to===to)n++; return n },
+  drop(e,arrived){ const c=e.cr; e.cr=null; if(!c)return; const m=c.m; m.cr=null; m._fbTo=null; m._fbDn=null; if(!arrived||!(m.hp>0))return; const f=fbS;
+    m._fbAt={to:c.to,x:m.x=e.x+e.face*6,y:m.y=e.y+4};
+    if(c.to==='aid'){ f.log.fbwAid=(f.log.fbwAid|0)+1; this.say('CR_ARRIVE_1','MARINE'); m._fbSay=G.t+2.6 }
+    else f.log.fbwPad=(f.log.fbwPad|0)+1 },
+  tick(dt){ if(!this.on)return; if(!fbS){ this.q.length=0; return } const f=fbS;
+    for(const m of coy){ if(m._fbSay&&G.t>=m._fbSay){ m._fbSay=0; if(m.hp>0){ this.say(rnd()<.5?'CR_WOUNDED_1':'CR_WOUNDED_2',(m.nm||'MARINE').toUpperCase()) } } const dn=m._fbDn; if(dn){ if(!(m.hp>0)||m.hp>m.mhp*.6||m.medv||m.hid){ m._fbDn=null; m._fbTo=null; const i=this.q.indexOf(m); if(i>=0)this.q.splice(i,1); if(m.cr)this.drop(m.cr,false); continue } const T=this.clampIn(dn.x,dn.y), dx=T.x-dn.x, dy=T.y-dn.y, d=Math.hypot(dx,dy); if(d>1){ const st=Math.min(d,22*dt); dn.x+=dx/d*st; dn.y+=dy/d*st } m.x=dn.x; m.y=dn.y; m.mv=false; continue }   /* down: stays put (or drags himself inside the wire) until a carrier gets to him */
+      const a=m._fbAt; if(!a)continue; if(!(m.hp>0)||(a.to==='aid'&&m.hp>m.mhp*.6)||m.medv||m.hid){ m._fbAt=null; continue }   /* corpsman took him inside (MEDV) */ if(!m.cr){ m.x=a.x; m.y=a.y; m.mv=false } }
+    const mv=f.mv; if(mv&&(mv.st===1||mv.st===2)){ const pd=fbPadPos(); if(pd)for(const m of fbCrit()){ if(m._fbAt&&m._fbAt.to==='pad')continue; if(Math.hypot(m.x-pd.x,m.y-pd.y)<30)continue; this.want(m,'pad') } }
+    this.assign() },
+  load(pd){ /* men the carriers set down at the pad, closest first (max 3) */ return coy.filter(q=>q.hp>0&&q._fbAt&&q._fbAt.to==='pad'&&!q.cr).sort((a,b)=>Math.hypot(a.x-pd.x,a.y-pd.y)-Math.hypot(b.x-pd.x,b.y-pd.y)).slice(0,3) } };
+FBHOOK.onWounded(m=>FBWD.onWounded(m));
+/* ===== rc8 jr/fb-banter (on by default; ?fbbanter=0 off): downtime chatter at the hootch / inside the wire, lines from fbBanterSlots via fbLine ===== */
+const FBBT={on:!/[?&]fbbanter=0\b/.test(location.search),
+  PAIRS:[['DT_MAIL_A','DT_MAIL_B'],['DT_FOOD_A','DT_FOOD_B'],['DT_CARDS_A','DT_CARDS_B']],
+  SOLO:['DT_WEATHER_1','DT_HEAT_1','DT_SLEEP_1','DT_SHORT_1','DT_HOME_1','DT_HOME_2'],
+  GAP0:14, GAP:[28,42], QUIET:12, R:340,
+  reset(){ const g=G; g.fbbt={used:{},quiet:0,next:g.t+this.GAP0,pend:null,alertT:-99,wasQ:false,kia:(g.kiaL||[]).length,kiaT:-1,docN:0} },
+  durOf(id){ const L=fbBanterSlots[id]; return Math.min(3.6,1.6+L.text.length*.035) },
+  men(P,r){ const out=[]; for(const q of coy){ if(q.hp>0&&q.state==='ok'&&!q.hid&&!q.rto&&!q.cr&&Math.hypot(q.x-P.x,q.y-P.y)<r)out.push(q) } return out },
+  nm(q){ return (q&&q.nm?q.nm:'Marine').toUpperCase() },
+  say(id,q){ const B=G.fbbt; B.used[id]=1; fbLine(id,this.nm(q),this.durOf(id)) },
+  pick(arr){ const B=G.fbbt, c=arr.filter(x=>!B.used[x]); return c.length?c[(rnd()*c.length)|0]:null },
+  tick(dt){ if(!this.on)return; const g=G, f=fbS; if(!g||g.demo||state!=='play')return; if(!g.fbbt||g.fbbt.f!==f){ this.reset(); g.fbbt.f=f } const B=g.fbbt;
+    const k=(g.kiaL||[]).length; if(k>B.kia){ B.kia=k; B.kiaT=g.t } for(const q of coy)if(q.hp>0&&q.hp<=q.mhp*.4)q._bbW=1;   /* for DT_DOC_1: he was hit badly and is back up */
+    if(!f||f.state!=='done')return;
+    const hostile=nearCount(f.x,f.y,FBS+this.R)>0, inside=Math.max(Math.abs(g.p.x-f.x),Math.abs(g.p.y-f.y))<FBS+20;
+    if(hostile){ if(B.wasQ&&B.quiet>this.QUIET+8&&g.t-B.alertT>60){ const q=this.men(f,FBS)[0]; if(q){ B.alertT=g.t; B.pend=null; this.say('DT_ALERT_1',q) } } B.quiet=0; B.wasQ=false; B.pend=null; return }   /* contact ends the downtime */
+    B.quiet+=dt; if(B.quiet>this.QUIET)B.wasQ=true;
+    if(B.pend){ if(g.t>=B.pend.at){ const p=B.pend; B.pend=null; if(p.q.hp>0&&!exMsg)this.say(p.id,p.q) } return }
+    if(!inside||B.quiet<this.QUIET||g.t<B.next||exMsg||exQ.length)return;
+    const H=fbHootchPos(), atH=H&&H.built&&Math.hypot(g.p.x-H.x,g.p.y-H.y)<110, hm=H?this.men(H,90):[], all=this.men(f,FBS-10);
+    let done=false;
+    // DT_LOST_1: after a KIA, once the base has been quiet a while (D4 quiet window)
+    if(!done&&B.kiaT>0&&!B.used.DT_LOST_1&&g.t-B.kiaT>20&&B.quiet>25&&all.length){ this.say('DT_LOST_1',all[(rnd()*all.length)|0]); done=true }
+    // DT_DOC_1: a Marine Doc patched up, standing near Doc
+    if(!done&&!B.used.DT_DOC_1){ const q=all.find(q=>q._bbW&&q.hp>q.mhp*.6&&Math.hypot(q.x-g.p.x,q.y-g.p.y)<70); if(q){ this.say('DT_DOC_1',q); done=true } }
+    // DT_MUSIC_1: someone near the RTO
+    if(!done&&!B.used.DT_MUSIC_1){ const r=fbRto(); if(r&&Math.hypot(r.x-f.x,r.y-f.y)<FBS){ const q=this.men(r,90)[0]; if(q&&rnd()<.4){ this.say('DT_MUSIC_1',q); done=true } } }
+    // hootch pairs (two men at the mess), else a solo gripe from whoever's near Doc inside the wire
+    if(!done){ const pool=atH&&hm.length>=2?this.PAIRS.filter(p=>!B.used[p[0]]):[]; if(pool.length){ const pr=pool[(rnd()*pool.length)|0], a=hm[0], b=hm[1]; this.say(pr[0],a); B.used[pr[1]]=1; B.pend={id:pr[1],q:b,at:g.t+this.durOf(pr[0])+.5}; done=true }
+      else { const id=this.pick(this.SOLO); const src=(atH&&hm.length?hm:this.men(g.p,140)); if(id&&src.length){ this.say(id,src[(rnd()*src.length)|0]); done=true } } }
+    B.next=g.t+(done?this.GAP[0]+rnd()*(this.GAP[1]-this.GAP[0]):4) } };
+function fbMedevac(dt){ const g=G, f=fbS; if(!g||g.demo)return;
+  if(f.state!=='inbound'){ const W=FBW+120; for(const L of [coy,squad])for(const m of L){ if(!(m.hp>0)||!m.mhp)continue; const r=m.hp/m.mhp; if(m._fbW&&r>.6)m._fbW=0; if(!m._fbW&&r<=.25&&Math.max(Math.abs(m.x-f.x),Math.abs(m.y-f.y))<W){ m._fbW=1; fbOnWounded(m) } } }   /* fbOnWounded: once per wound, re-arms above 60% */
+  const mv=f.mv||(f.mv={st:0,t:0}); mv.t+=dt;
+  if(mv.st>=3&&!fbH){ mv.st=0; mv.ib=0; mv.out=0 }   /* EP: no per-run cap - re-offer once this bird is gone */
+  if(mv.st===0){ if(f.state!=='done'||fbH)return; const c=fbCrit(); if(!c.length)return;   /* one medevac CH-46 in the air at a time; the rest wait */
+    if(!fbCaller()){ if(!mv.out){ mv.out=1; try{ gunny("Nobody on the radio!",2.2,1,'MARINE') }catch(e){} f.log.mvNoRto=+g.t.toFixed(1) } return }   /* no RTO and nobody at the CP radio = no bird */
+    mv.st=1; mv.t=0; mv.n=c.length; if(!f.log.mvOffer)f.log.mvOffer=+g.t.toFixed(1); (f.log.mvOffers||(f.log.mvOffers=[])).push(+g.t.toFixed(1)); g.banner={text:'MEDEVAC AVAILABLE · '+c.length+' AT THE AID STATION',t:3,col:'#9be37a'}; Snd.play('radio'); return }
+  if(mv.st===1){ if(mv.t<2.5)return; const r=fbCaller(), pd=fbPadPos(); if(!r){ if(!mv.out){ mv.out=1; try{ gunny("Nobody on the radio!",2.2,1,'MARINE') }catch(e){} f.log.mvNoRto=+g.t.toFixed(1) } return }
+    if(!pd||!pd.built||fbH)return; if(callFbHeli('medevac',pd.x,pd.y)){ mv.st=2; mv.t=0; mv.who=r.who; if(!f.log.mvCall)f.log.mvCall=+g.t.toFixed(1); (f.log.mvCalls||(f.log.mvCalls=[])).push(+g.t.toFixed(1)); f.log.mvCaller=r.k; const nC=Math.max(1,Math.min(3,fbCrit().length)); f.log.mvCallN=nC; fbLine('MV_CALL_1'+'abc'[nC-1],r.who,3.4) } return }
+  if(mv.st===2&&mv.t>4&&!mv.ib){ mv.ib=1; fbLine('MV_INBOUND_1',mv.who||'RTO') } }
+function fbMedevacLoad(h){ const g=G, f=fbS; if(!f)return; const pd=fbPadPos()||h, c=(FBWD.on&&engs.some(e=>e.hp>0))?FBWD.load(pd):coy.filter(q=>q.hp>0&&q.state==='ok'&&!q.hid&&!q.rto&&q.hp<=q.mhp*.15&&Math.max(Math.abs(q.x-f.x),Math.abs(q.y-f.y))<FBS).sort((a,b)=>Math.hypot(a.x-pd.x,a.y-pd.y)-Math.hypot(b.x-pd.x,b.y-pd.y)).slice(0,3), out=[];   /* litter teams bring the critical men inside the wire to the pad */
+  for(const m of c){ const i=coy.indexOf(m); if(i<0)continue; coy.splice(i,1); for(const q of coy){ if(q.cov===m)q.cov=null; if(q.htg===m)q.htg=null } out.push(m.nm||'Marine') }
+  (g.urgL||(g.urgL=[])).push(...out); f.log.mvLoaded=out.slice(); f.log.mvLand=+g.t.toFixed(1); if(f.mv)f.mv.st=3;
+  g.banner={text:out.length?'MEDEVAC: '+out.length+' ABOARD THE CH-46':'MEDEVAC ON THE PAD',t:2.4,col:'#9be37a'}; if(out.length)fbLine('MV_LOAD_1','MARINE') }
 function callFbHeli(job,tx,ty){ if(fbH)return false; const p=G.p, a=rnd()*TAU, R=Math.hypot(VW,VH)/2+300;
   fbH={sk46:1,x:tx+Math.cos(a)*R,y:ty+Math.sin(a)*R,z:80,hd:a+Math.PI,rot:0,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,lt:0,out:0,job,tx,ty,dropped:false}; return true }
 function mkEng(x,y){ return {x,y,hp:170,mhp:170,face:1,anim:rnd()*4,mv:false,hf:0,inv:0,danger:0,job:null,tgS:null,ph:rnd()*TAU,sp:0,work:0} }
 function heliDrop(h){ const f=fbS; if(!f)return;
+  if(h.job==='medevac'){ fbMedevacLoad(h); return }
   if(h.job==='build'||h.job==='reinf'){ const n=h.job==='build'?4+((G.fbN>=1)?1:0):2; for(let i=0;i<n;i++){ if(engs.length<6)engs.push(mkEng(h.x+(i-1)*12,h.y+(i&1?16:-16))) }
     burst(h.x,h.y+8,14,80,.6,3,['#a8946a','#8a7a52'],false); Snd.play('thud'); if(f.state==='inbound'||f.state==='stalled')f.state='building'; G.banner={text:h.job==='build'?'ENGINEERS ON THE GROUND: BUILD STARTED':'ENGINEER REINFORCEMENTS LANDED',t:2.4,col:'#ffe58a'} }
   else { // helipad resupply
@@ -6204,15 +6391,16 @@ function heliDrop(h){ const f=fbS; if(!f)return;
     G.banner={text:'CH-46 RESUPPLY INBOUND',t:2.4,col:'#9be37a'}; ringBurst(h.x,h.y,40,['#7be37a','#fff'],20); Snd.play('heal') } }
 function updateFbH(dt){ const h=fbH; if(!h)return; const p=G.p; h.t+=dt; h.rot+=dt*34;
   if(h.ph===0){ const dx=h.tx-h.x,dy=h.ty-h.y,d=Math.hypot(dx,dy)||1, sp=Math.min(340,50+d*1.15); h.x+=dx/d*sp*dt; h.y+=dy/d*sp*dt; h.hd=turnTo(h.hd,Math.atan2(dy,dx),3.5*dt); if(d<300)h.z+=(16-h.z)*Math.min(1,dt*1.6); if(d<16){ h.ph=1; h.lt=0 } }
-  else if(h.ph===1){ h.lt+=dt; h.z+=(14-h.z)*Math.min(1,dt*3); if(!h.dropped&&h.lt>1.1){ h.dropped=true; heliDrop(h) } if(h.lt>(h.job==='build'?3.8:2.8)){ h.ph=2; h.ex=h.hd+(rnd()-.5)*1.2 } }
+  else if(h.ph===1){ h.lt+=dt; h.z+=(14-h.z)*Math.min(1,dt*3); if(!h.dropped&&h.lt>1.1){ h.dropped=true; heliDrop(h) } if(h.lt>(h.job==='build'?3.8:h.job==='medevac'?6:2.8)){ h.ph=2; h.ex=h.hd+(rnd()-.5)*1.2; if(h.job==='medevac'){ fbLine('MV_LIFT_1',(fbS&&fbS.mv&&fbS.mv.who)||'RTO'); if(fbS)fbS.log.mvLift=+G.t.toFixed(1) } } }
   else { h.out+=dt; h.z+=(55*h.out+10)*dt; h.hd=turnTo(h.hd,h.ex,2*dt); h.x+=Math.cos(h.hd)*(70+230*h.out)*dt; h.y+=Math.sin(h.hd)*(70+230*h.out)*dt; if(h.out>7||Math.hypot(h.x-p.x,h.y-p.y)>1500)fbH=null }
   if(fbH&&h.z<46&&rnd()<dt*70*FXK()){ const a=rnd()*TAU, v=70+rnd()*90; addPart(h.x+Math.cos(a)*12,h.y+8+Math.sin(a)*6,Math.cos(a)*v,Math.sin(a)*v*.7,.7,3+rnd()*3,['#a8946a','#8a7a52','#4f7a3a','#6f9a4a'][(rnd()*4)|0],false,1.6) } }
 function hurtStruct(s,d){ if(s.dead)return; if((s.type==='bunker'||s.type==='sandbag')&&rnd()<.04)try{ BARK.ev('shift',{x:s.x,y:s.y}) }catch(e){} d*=MOH.press(); if(s.type==='bunker'&&!BNK.raw)d=BNK.cap(s,d); s.hp-=d; s.flash=.1; if(parts.length<(LOWFX?160:400))addPart(s.x+(rnd()-.5)*10,s.y-4,(rnd()-.5)*60,-30-rnd()*30,.3,2.5,'#c8b070',false,3); if(s.hp<=0)destroyStruct(s) }
 function destroyStruct(s){ s.dead=true; const big=!!FBSOLID[s.type]&&s.type!=='sandbag';
   burst(s.x,s.y-4,big?22:10,big?140:80,.7,big?5:3.5,['#8a7a52','#6d675a','#c8b070','#555'],false); if(big){ burst(s.x,s.y-4,12,110,.5,5,['#ffd54a','#ff9b21','#ff5a1a'],true); (SAMP.boom('satchel')||Snd.play('boom')); G.shake=Math.max(G.shake,5) } else Snd.play('thud');
   if(s.type==='sandbag'||s.type==='wire'){ if(decals.length<DECAL_CAP&&GORE)addDecal(s.x,s.y+4,SPLAT[8+((rnd()*2)|0)],40,.8) }
-  for(let i=chgs.length-1;i>=0;i--)if(chgs[i].s===s)chgs.splice(i,1);
-  if(fbS&&(s.type!=='wire'))fbS.rb.push([s.type,s.x,s.y,s.ang,s.stg]) }
+  for(let i=chgs.length-1;i>=0;i--)if(chgs[i].s===s)chgs.splice(i,1); if(s.type==='sandbag'&&AMT.ON)try{ AMT.breach(s) }catch(e){}
+  if(fbS&&FB2){ const e=[s.type,s.x,s.y,s.ang,s.stg,s.kind]; if(FBWIREISH[s.type])fbS.rb.push(e); else { let i=fbS.rb.findIndex(q=>FBWIREISH[q[0]]); if(i<0)i=fbS.rb.length; fbS.rb.splice(i,0,e) } }   /* rc8 C10: engineers restring wire too, after the structures */
+  else if(fbS&&(s.type!=='wire'))fbS.rb.push([s.type,s.x,s.y,s.ang,s.stg]) }
 function hurtEng(e,d){ if(e.hp<=0||e.inv>0)return; const pr=fbProt(); if(pr>0)d*=1-.85*pr; e.hp-=d; if(fbS&&fbS.age<40&&e.hp<1)e.hp=1; e.hf=.12; e.inv=.4; if(drops.length<(LOWFX?110:300))spawnDrops(e.x,e.y-6,0,0,4,90); if(e.hp<=0)killEng(e) }
 function killEng(e){ e.hp=0; const x=e.x,y=e.y; spawnDrops(x,y-6,0,0,20,170); addDecal(x,y+5,SPLAT[(rnd()*6)|0],45,1); if(CORPSE.marine)addDecal(x,y+6,CORPSE.marine[(rnd()*2)|0],38,1);
   const ks=[11,3,4,(rnd()*3)|0,5]; for(let i=0;i<ks.length;i++){ const a=rnd()*TAU,v=60+rnd()*120; spawnGib(x,y,Math.cos(a)*v,Math.sin(a)*v,ks[i],1) } if(!GORE)burst(x,y,7,80,.45,3,['#d8d0b0','#9a9a8a'],false); Snd.play('thud');
@@ -6240,6 +6428,7 @@ function updateEngineers(dt){ const g=G,p=g.p,f=fbS; let work=0;
     if(e.danger>=1&&e.inv<=0){ const near=nearCount(e.x,e.y,14); if(near>0)hurtEng(e,6*(1+g.t/900)); if(e.hp<=0)continue }
     const fire=e.danger>=3, panic=e.danger>=7; let spd=95*(fire?.45:1), tx=null,ty=null,mode='idle';
     if(e.job&&(chgs.indexOf(e.job)<0||e.job.s.dead)){ e.job=null }
+    if(e.cr&&FBWD.steer(e,dt))continue;   /* ?fbwounded carrier */
     if(panic){ tx=p.x; ty=p.y; spd*=1.5; mode='flee'; if(e.job){ e.job.eng=null; e.job=null } }
     else if(e.job){ const c=e.job; tx=c.x; ty=c.y; mode='defuse'; spd*=1.3; if(Math.hypot(e.x-c.x,e.y-c.y)<14){ tx=null; if(nearCount(e.x,e.y,36)===0){ c.df+=dt/1.6; if(rnd()<dt*14)addPart(c.x,c.y-6,(rnd()-.5)*30,-26,.3,2,'#9be37a',true,3) } } }
     else if(f){ const bt=cur||((f.state==='building'&&f.idx<f.lay.length)?{x:f.lay[f.idx][1],y:f.lay[f.idx][2]}:(f.state==='building'?{x:f.x,y:f.y-16}:null)); if(bt){ tx=bt.x+(i-1)*9; ty=bt.y+16; mode='build' }
@@ -6254,7 +6443,7 @@ function updateEngineers(dt){ const g=G,p=g.p,f=fbS; let work=0;
   if(f&&f.state==='building'){ f.prog=Math.min(f.crateOk?1:.86,f.prog+dt*(work/3)/FBBUILD); }
   return work }
 function updateStructures(dt){ const g=G,p=g.p,f=fbS; let live=0,padOk=false;
-  for(let i=strs.length-1;i>=0;i--){ const s=strs[i]; if(s.dead){ strs.splice(i,1); continue } const b0=s.b; s.b=Math.min(1,s.b+dt/2.2); if(b0<1&&s.b>=1&&f&&f.log&&!f.log.turretAt&&(s.type==='m2'||s.type==='m60'))f.log.turretAt=+(G.t-f.t0).toFixed(1); if(s.flash>0)s.flash-=dt; if(s.mf>0)s.mf-=dt; if(FBSOLID[s.type]||s.type==='wire')live++;
+  for(let i=strs.length-1;i>=0;i--){ const s=strs[i]; if(s.dead){ strs.splice(i,1); continue } const b0=s.b; s.b=Math.min(1,s.b+dt/2.2); if(b0<1&&s.b>=1&&f&&f.log&&!f.log.turretAt&&(s.type==='m2'||s.type==='m60'))f.log.turretAt=+(G.t-f.t0).toFixed(1); if(s.flash>0)s.flash-=dt; if(s.mf>0)s.mf-=dt; if(FBSOLID[s.type]||s.type==='wire')live++; if(s.type==='claymore'&&s.b>=1&&!s.mine){ s.mine={wid:'fb',x:s.x,y:s.y,a:s.ang,life:1e9,arm:1,dmg:60,range:130,half:.52,fbs:s,hide:1}; mines.push(s.mine) }   /* rc8 C12: wire-line M18A1, uses the game's claymore */
     if(s.b<1)continue;
     if(s.type==='tent'){ const R=130; if(p.hp<p.maxHp&&Math.hypot(p.x-s.x,p.y-s.y)<R){ p.hp=Math.min(p.maxHp,p.hp+4*dt); if(rnd()<dt*5)addPart(p.x+(rnd()-.5)*16,p.y-8,0,-24,.6,3,'#7be37a',true,2) }
       for(const arr of [squad,pat,coy])for(const m of arr)if(m.hp>0&&m.state==='ok'&&m.hp<m.mhp&&Math.hypot(m.x-s.x,m.y-s.y)<R)m.hp=Math.min(m.mhp,m.hp+4*dt);
@@ -6349,22 +6538,24 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
   if(lzS)lzS.age+=dt;
   if(site){ const d=Math.max(Math.abs(p.x-site.x),Math.abs(p.y-site.y)); if(d<52&&fbHeld()){ site.hold=Math.min(1,(site.hold||0)+dt/4); if(((site.hold*4)|0)!==((site.hold*4-dt)|0))Snd.play('radio') } else site.hold=Math.max(0,(site.hold||0)-dt*(d<52?.4:1.2));
     if(site.hold>=1){ site.hold=0; if(lzS)beginFirebase(); else { callFbHeli('reinf',site.x,site.y); g.banner={text:'RADIO: ENGINEER REINFORCEMENTS INBOUND',t:2.4,col:'#9be37a'}; Snd.play('radio') } } }
+  if(FB2&&fbS&&fbS.state==='done'&&!fbS.cl){ fbS.cl=1; try{ TERR.inval(); if(window.JUNGLE3&&JUNGLE3.inval)JUNGLE3.inval() }catch(e){} }   /* rc8 C9: field of fire cleared to square 460 once the base is up */
+  if(FB2&&fbS)fbMedevac(dt); try{ FBBT.tick(dt) }catch(e){ if(!window.__fbbE){ window.__fbbE=1; console.warn('fbbt',e) } }
   const f=fbS; g.inFb=!!(f&&f.state==='done'&&Math.max(Math.abs(p.x-f.x),Math.abs(p.y-f.y))<FBS+20);
   updateFbH(dt);
   if(!f){ engs.length=0; fbC=null; return }
   f.age+=dt;
   // place structures as build progress reaches each threshold
-  while(f.idx<f.lay.length&&f.prog>=f.lay[f.idx][4]){ const L=f.lay[f.idx++]; const s=mkStr(L[0],L[1],L[2],L[3],L[4]); s.stg=L[5]; strs.push(s); if(L[0]==='m2'||L[0]==='quad50')SAMP.build('corner'); else if(L[0]==='m60')SAMP.build('mid'); if(L[0]==='rr106'){ if(f.crate)f.crate.used=true; g.banner={text:'MORTAR PIT / HEAVY GUN EMPLACED',t:2.4,col:'#ffe58a'}; Snd.play('stage') } }
+  while(f.idx<f.lay.length&&f.prog>=f.lay[f.idx][4]){ const L=f.lay[f.idx++]; const s=mkStr(L[0],L[1],L[2],L[3],L[4]); s.stg=L[5]; if(L[6])s.kind=L[6]; strs.push(s); if(L[0]==='m2'||L[0]==='quad50')SAMP.build('corner'); else if(L[0]==='m60')SAMP.build('mid'); if(L[0]==='rr106'){ if(f.crate)f.crate.used=true; g.banner={text:'MORTAR PIT / HEAVY GUN EMPLACED',t:2.4,col:'#ffe58a'}; Snd.play('stage') } }
   const ph=Math.min(4,Math.floor(f.prog/.2)); if(f.state==='building'&&ph>f.phase){ if(ph>=2){ g.banner={text:'FIREBASE '+f.name+' · PHASE '+(ph+1)+': '+FBPH[ph],t:2.4,col:'#ffe58a'}; Snd.play('radio') } f.phase=ph }
   if(f.phase<0)f.phase=0;
-  if(f.state==='building'&&f.prog>=1&&f.crateOk){ f.state='done'; f.doneAt=g.t; f.log.doneAt=+(g.t-f.t0).toFixed(1); g.fbN++; g.banner={text:'FIREBASE BUILT · '+f.name+' SECURED',t:3.4,col:'#9be37a'}; try{ const r=coy.find(q=>q.rto&&q.hp>0&&q.state==='ok')||squad.find(q=>q.rto&&q.hp>0&&q.state==='ok'); radioSeq([[3.6,(r?'RTO':'CP')+': "'+LINES.FB_BUILT_1+'"']]) }catch(e){}   /* rc8 EP P0: FIREBASE BUILT + FB_BUILT_1 (RTO, else a Marine at the CP radio) */ PULL.start(g,f); Snd.play('radio'); G.shake=Math.max(G.shake,4); ringBurst(f.x,f.y,60,['#ffe58a','#fff'],30) }
-  updateEngineers(dt); updateStructures(dt); BNK.tick(dt); updateCharges(dt); fbStages(f); updateSeaKnight(dt);
+  if(f.state==='building'&&f.prog>=1&&f.crateOk){ f.state='done'; f.doneAt=g.t; f.log.doneAt=+(g.t-f.t0).toFixed(1); g.fbN++; g.banner={text:'FIREBASE '+f.name+' SECURED! HOLD IT, MARINE!',t:3.4,col:'#9be37a'}; PULL.start(g,f); Snd.play('radio'); G.shake=Math.max(G.shake,4); ringBurst(f.x,f.y,60,['#ffe58a','#fff'],30) }
+  updateEngineers(dt); try{ FBWD.tick(dt) }catch(e){ if(!window.__fbwE){ window.__fbwE=1; console.warn('fbw',e) } } updateStructures(dt); BNK.tick(dt); updateCharges(dt); fbStages(f); updateSeaKnight(dt);
   { // one free emergency repair when the site is nearly gone
-    if(!f.repaired&&f.state!=='inbound'){ let sh=0,sm=0,cnt=0; for(const s of strs){ if(s.dead||s.b<1||s.type==='wire')continue; sh+=s.hp; sm+=s.mhp; cnt++ } sm+=f.rb.length*150; if(cnt>=3&&sh/Math.max(1,sm)<.25)fbRepair(f) } }
+    if(!f.repaired&&f.state!=='inbound'){ let sh=0,sm=0,cnt=0; for(const s of strs){ if(s.dead||s.b<1||FBWIREISH[s.type])continue; sh+=s.hp; sm+=s.mhp; cnt++ } sm+=f.rb.length*150; if(cnt>=3&&sh/Math.max(1,sm)<.25)fbRepair(f) } }
   // player repair (hold still next to a damaged structure)
   if(!p.mv){ for(const s of strs){ if(!s.dead&&s.b>=1&&s.hp<s.mhp&&Math.hypot(p.x-s.x,p.y-s.y)<s.r+22){ s.hp=Math.min(s.mhp,s.hp+26*dt); if(rnd()<dt*8)addPart(s.x+(rnd()-.5)*10,s.y-4,(rnd()-.5)*40,-26,.3,2,'#ffe58a',true,3); break } } }
   // rebuild destroyed structures once the firebase stands
-  if(f.state==='done'&&f.rb.length&&engs.length&&!fbH){ f.rbT+=dt*Math.min(3,engs.length); if(f.rbT>=10){ f.rbT=0; const L=f.rb.shift(); const s=mkStr(L[0],L[1],L[2],L[3],0); s.stg=3; strs.push(s) } }
+  if(f.state==='done'&&f.rb.length&&engs.length&&!fbH){ f.rbT+=dt*Math.min(3,engs.length); if(f.rbT>=10){ f.rbT=0; const L=f.rb.shift(); const s=mkStr(L[0],L[1],L[2],L[3],0); s.stg=3; if(L[5])s.kind=L[5]; strs.push(s) } }
   // waves
   if(!f.sap1&&f.age>=f.sapAt&&f.state!=='inbound'){ f.sap1=true; fbSpawnRing(0,false,1); if(f.state==='building')g.banner={text:'SAPPERS! WATCH THE WIRE!',t:1.8,col:'#ffcf5a'} }
   if(g.pullT>0||(BAL.ON&&g.ex&&g.ex.ph>=3)){ f.bigT=Math.max(f.bigT,40); f.sapT=Math.max(f.sapT,12); f.waveT=Math.max(f.waveT,8) }   /* BAL: once the pad is called the firebase stops stacking its own assaults on top of the extraction waves */
@@ -6384,7 +6575,7 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
       const cap=Math.min(3,1+Math.floor((g.t-420)/300)); f.tankT=75+rnd()*35; if(nt<cap){ const k='pt76';   /* Vet: in 1968 the only enemy tank is the PT-76 - no T-54 */ const e=spawnNTank(k); if(e){ if(!f.log.tankAt)f.log.tankAt=+(f.age).toFixed(1); g.banner={text:k==='t54'?'NVA T-54 (ARTISTIC LICENSE) ADVANCING ON THE FIREBASE!':'NVA PT-76 LIGHT TANK ADVANCING ON THE FIREBASE!',t:3.2,col:'#ff6a4a'}; Snd.play('boss') } } } } }
 /* ---- enemy <-> firebase interaction ---- */
 function fbPickTarget(e){ const f=fbS; if(!f)return null; let best=null,bd=1e9; const sap=e.type==='sapper';
-  for(const s of strs){ if(s.dead||s.b<1||s.type==='wire')continue; if(sap&&chgs.some(c=>c.s===s))continue; const dx=s.x-e.x,dy=s.y-e.y,d=dx*dx+dy*dy; if(d<bd){bd=d;best=s} }
+  for(const s of strs){ if(s.dead||s.b<1||FBWIREISH[s.type])continue; if(sap&&chgs.some(c=>c.s===s))continue; const dx=s.x-e.x,dy=s.y-e.y,d=dx*dx+dy*dy; if(d<bd){bd=d;best=s} }
   if(!sap&&fbProt()<.5){ for(const g2 of engs){ const dx=g2.x-e.x,dy=g2.y-e.y,d=dx*dx+dy*dy*1.0; if(d<bd*.6){bd=d;best=g2} } }
   return best }
 function fbEnemy(e,dt,d){ // returns [dx,dy,dist,target] overriding the chase target, or null
@@ -6394,8 +6585,13 @@ function fbEnemy(e,dt,d){ // returns [dx,dy,dist,target] overriding the chase ta
   const t=e.ft; if(!t)return null;
   if(!e.siege&&!e.tank&&e.type!=='sapper'){ const pd=Math.hypot(G.p.x-e.x,G.p.y-e.y); if(pd<110)return null }
   const dx=t.x-e.x,dy=t.y-e.y; return [dx,dy,Math.hypot(dx,dy)||1,t] }
-function fbPass(e,dt){ const f=fbS; if(!f)return; const fx=e.x-f.x,fy=e.y-f.y; if(fx*fx+fy*fy>440*440)return;
+function fbTripFlare(s){ const g=G; s.used=true; g.flareAt={x:s.x,y:s.y-60,t:g.t}; ATM.flare(s.x,s.y,'mortar81'); try{ if(!SAMP.charge())Snd.play('radio') }catch(e){}
+  (fbS.log.flares||(fbS.log.flares=[])).push({t:+g.t.toFixed(1),x:Math.round(s.x-fbS.x),y:Math.round(s.y-fbS.y)}); destroyStruct(s) }   /* burnt out: back on the rebuild list */
+function fbPass(e,dt){ const f=fbS; if(!f)return; const fx=e.x-f.x,fy=e.y-f.y, RR=FB2?480:440; if(fx*fx+fy*fy>RR*RR)return;
   for(const s of strs){ if(s.dead)continue; const dx=e.x-s.x,dy=e.y-s.y;
+    if(s.type==='flare'){ if(!s.used&&s.b>=1&&dx*dx+dy*dy<24*24)fbTripFlare(s); continue }   /* rc8 C12: M49 trip flare, one use, restrung with the wire */
+    if(s.type==='claymore'||s.type==='ammo')continue;
+    if(s.type==='wire'&&s.kind==='tangle'){ if(dx*dx+dy*dy<(s.r+e.r*.5)*(s.r+e.r*.5)){ e.cs=Math.max(e.cs||0,.3); e.wt=(e.wt||0)+dt; if(e.wt>=.8){ e.wt=0; hurtStruct(s,e.tank?18:2) } } continue }   /* tanglefoot: ankle wire, x0.6 speed, no block, no damage */
     if(s.type==='wire'){ if(dx*dx+dy*dy<(s.r+e.r*.5)*(s.r+e.r*.5)){ e.slow=Math.max(e.slow||0,.25); e.wt=(e.wt||0)+dt; if(e.wt>=.5){ e.wt=0; if(!e.tank){ e.hp-=2.5; if(e.hp<=0&&!e.dead){ killEnemy(e) } } hurtStruct(s,e.tank?18:4) } } continue }
     if(!FBSOLID[s.type]||s.b<1)continue; const mn=s.r+e.r*.7;
     if(dx*dx+dy*dy<mn*mn){ const d=Math.hypot(dx,dy)||1; if(!e.tank){ e.x=s.x+dx/d*mn; e.y=s.y+dy/d*mn } else { e.atk=(e.atk||0)-dt; if(e.atk<=0){ e.atk=.5; hurtStruct(s,25) } } } } }
@@ -6431,7 +6627,32 @@ const MENU_TRACKS=()=>/[?&]title=surf/.test(location.search)?['menu']:/[?&]title
 const TITLE_TRACK=/[?&]title=surf/.test(location.search)?'menu':'briefing';   /* ?title=surf: Happy Bee - Surf as before */
 const WRECKS=[]; const COVERP=!/[?&]cover=0/.test(location.search);
 /* firebase.js art (Artist Helper): walls draw unrotated with the V sprites; bunker frame by hp; PSP pad as 2x2 tiles under the 60x56 pad */
-function fbStructArt(s,x,y){ if(!TERR.ready())return false; const fr=TERR.frame, V=Math.abs(Math.sin(s.ang))>.7, hp=s.mhp?s.hp/s.mhp:1;
+/* rc8 art: approved Artist Helper firebase_v2 sprites (assets/art/fb2_rc8.js); falls back to the rc7 art / vector if the sheet is missing */
+const FB2ART=n=>!!(window.SHEET1&&SHEET1.has?SHEET1.has(n):window.SHEET1&&SHEET1.frameCount&&SHEET1.frameCount(n)>0);
+/* rc8 AD: compound floor baked once per base from fb2Ground (clay, worn paths on the gate lanes, tamped patches, puddles) */
+/* rc8 AD: revetment ring in the wall's own 32 px sandbag sprite, 2 courses (lower course offset 4 px down) */
+function fbBagRing(x,y,r,n){ if(!TERR.ready())return; for(let c=0;c<2;c++)for(let k=0;k<n;k++){ const a=(k+(c?.5:0))/n*TAU, bx=x+Math.cos(a)*r, by=y+Math.sin(a)*r*.85+(c?0:4)-4, V=Math.abs(Math.cos(a))>.7, im=TERR.frame('fbSandbag',V?'straightV':'straightH'); if(im)ctx.drawImage(im,Math.round(bx-16),Math.round(by-16)) } }
+function fbGround2(f){ if(!FB2ART('fb2Ground'))return false; if(!f.gc){ const H=FBS-6, T=30, n=Math.ceil(2*H/T), c=document.createElement('canvas'); c.width=c.height=n*T; const x2=c.getContext('2d'); x2.imageSmoothingEnabled=false;
+    for(let j=0;j<n;j++)for(let i=0;i<n;i++){ const u=i*T+T/2-n*T/2, v=j*T+T/2-n*T/2, h=hash2(i*13+Math.round(f.x),j*7+Math.round(f.y)); let fr2;
+      if(Math.abs(u)<18&&Math.abs(v)>40)fr2='rutNS'; else if(Math.abs(v)<18&&Math.abs(u)>40)fr2='rutEW'; else if(h<.05)fr2='mud'; else if(h<.2)fr2='dust'; else if(h<.27)fr2='litter'; else fr2=['clay0','clay1','clay2'][Math.floor(h*97)%3];
+      SHEET1.draw(x2,'fb2Ground',fr2,i*T,j*T,.625) }
+    f.gc=c; f.gcH=n*T/2 }
+  ctx.drawImage(f.gc,Math.round(f.x-f.gcH),Math.round(f.y-f.gcH)); return true }
+function fbArt2(s,x,y){ const hp=s.mhp?s.hp/s.mhp:1, st=hp>.55?'':hp>0?'_dmg':'_dst', v=(hash2(Math.round(s.x),Math.round(s.y))<.5?'v0':'v1')+st, D=(n,f,sc,fl)=>{ if(!FB2ART(n))return false; SHEET1.draw(ctx,n,f,x,y,sc,fl); return true }, Tl=(n,f,cx,cy,sc,w,h)=>SHEET1.draw(ctx,n,f,Math.round(cx-w*sc/2),Math.round(cy-h*sc/2),sc);
+  switch(s.type){
+   case 'cp': return D('fb2Toc',v,.375);
+   case 'tent': return D('fb2AidStation',v,.5);
+   case 'hootch': { if(!FB2ART('fb2GPTent'))return false; fbBagRing(x,y,44,12); return D('fb2GPTent',v,.5) }
+   case 'ammo': { if(!FB2ART('fb2Ammo'))return false; fbBagRing(x,y,22,6); return D('fb2Ammo',hp>.5?'stack':'open',1) }
+   case 'm2': case 'm60': { if(!FB2ART('fb2FightPos'))return false; const sx=Math.sign(Math.round((s.x-(fbS?fbS.x:x)))), sy=Math.sign(Math.round((s.y-(fbS?fbS.y:y)))), fc=Math.abs(sy)>=Math.abs(sx)&&sy?(sy<0?'N':'S'):(sx<0?'W':'E');
+     Tl('fb2FightPos',fc,x,y,.75,48,48); ctx.save(); ctx.translate(x,y-3); ctx.rotate(s.ang); const Lg=s.type==='m2'?17:15; ctx.fillStyle='#17110a'; ctx.fillRect(0,-2.6,Lg,5.2); ctx.fillStyle='#33343a'; ctx.fillRect(1,-1.6,Lg-1,3.2); ctx.fillStyle='#4a4b52'; ctx.fillRect(-4,-4,7,8);
+     if(s.mf>0&&!MZ(s,'mf',s.type==='m60'?'m60':'m2',Lg+3,0,0)){ ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(Lg+3,0,4+rnd()*2,0,TAU); ctx.fill() } ctx.restore(); return true }   /* rc8 AD: sandbagged gun pit (bay faces out), not a flat disc */
+   case 'claymore': { if(!FB2ART('fb2Claymore'))return false; ctx.save(); ctx.translate(x,y); ctx.rotate(s.ang+Math.PI/2); SHEET1.draw(ctx,'fb2Claymore','armed',0,0,1); ctx.restore(); return true }
+   case 'flare': ctx.fillStyle='#3a2c18'; ctx.fillRect(x-1,y-6,2,9); ctx.fillStyle=s.used?'#2a2a22':'#4e5430'; ctx.fillRect(x-2,y-8,4,5); ctx.fillStyle='#8a8f96'; ctx.fillRect(x-6,y+2,12,1); return true;   /* M49 trip flare on a stake, tripwire */
+   case 'wire': if(s.kind==='tangle'){ const V=Math.abs(Math.sin(s.ang))>.7; if(!FB2ART('fb2Tangle'))return false; if(V){ ctx.save(); ctx.translate(x,y); ctx.rotate(Math.PI/2); Tl('fb2Tangle',hp<.5?'cut':'row',0,0,.625,48,48); ctx.restore(); return true } Tl('fb2Tangle',hp<.5?'cut':'row',x,y,.625,48,48); return true }
+     if(s.kind==='apron'){ const V=Math.abs(Math.sin(s.ang))>.7; if(!FB2ART('fb2Wire'))return false; Tl(V?'fb2WireV':'fb2Wire',hp<.5?'cut':'row',x,y,.625,V?40:48,V?48:40); return true } return false;
+  } return false }
+function fbStructArt(s,x,y){ if(FB2&&fbArt2(s,x,y))return true; if(!TERR.ready())return false; const fr=TERR.frame, V=Math.abs(Math.sin(s.ang))>.7, hp=s.mhp?s.hp/s.mhp:1;
   if(s.type==='sandbag'){ const im=fr('fbSandbag',V?'straightV':(hp<.5?'damagedH':'straightH')); if(!im)return false; ctx.drawImage(im,x-16,y-16); return true }
   if(s.type==='wire'){ const im=fr(V?'fbWireV':'fbWire',hp<.5?'cut':'row'); if(!im)return false; ctx.drawImage(im,V?x-8:x-16,V?y-16:y-8); return true }
   if(s.type==='bunker'){ const im=fr('fbBunker',s.dead||hp<=0?'destroyed':hp>.55?'intact':'damaged'); if(!im)return false; ctx.drawImage(im,x-28,y-22); return true }
@@ -6469,8 +6690,8 @@ function drawFirebase(camX,camY,tt){ const x0=camX-90,x1=camX+VW+90,y0=camY-90,y
       ctx.restore() }
     if(f.crate&&!f.crate.used)drawCrate(Math.round(f.crate.x),Math.round(f.crate.y)+4);
     // ground cover under the base
-    if(f.state!=='inbound'){ ctx.fillStyle='rgba(90,70,40,.18)'; ctx.fillRect(f.x-FBS-10,f.y-FBS-10,2*FBS+20,2*FBS+20) }
-    const order=['wire','sandbag','tent','pad','bunker','m2','m60','quad50','rr106']; for(const ty of order){ for(const s of strs){ if(s.type!==ty||s.dead||s.x<x0||s.x>x1||s.y<y0||s.y>y1)continue; drawStruct(s,tt) } }
+    if(f.state!=='inbound'){ if(FB2&&f.gc){} else { ctx.fillStyle='rgba(90,70,40,.18)'; ctx.fillRect(f.x-FBS-10,f.y-FBS-10,2*FBS+20,2*FBS+20) } }   /* rc8 AD: laterite ground inside the wall, no flat tint */
+    const order=['wire','flare','claymore','sandbag','ammo','tent','hootch','pad','bunker','cp','m2','m60','quad50','rr106']; for(const ty of order){ for(const s of strs){ if(s.type!==ty||s.dead||s.x<x0||s.x>x1||s.y<y0||s.y>y1)continue; drawStruct(s,tt) } }
     // flag once done
     if(f.state==='done'){ ctx.fillStyle='#d9d9d2'; ctx.fillRect(Math.round(f.x)-1,Math.round(f.y)-30,2,34); ctx.fillStyle='#c82020'; ctx.fillRect(Math.round(f.x)+1,Math.round(f.y)-30,14,9+Math.sin(tt*5)*1.2); ctx.fillStyle='#e8c030'; ctx.fillRect(Math.round(f.x)+1,Math.round(f.y)-26,14,2) }
     if(f.state==='building'){ const x=Math.round(f.x),y=Math.round(f.y), h=FBS+18; ctx.lineJoin='miter'; ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.lineWidth=7; ctx.beginPath(); ctx.rect(x-h,y-h,2*h,2*h); ctx.stroke(); ctx.strokeStyle='#ffe58a'; ctx.lineWidth=5; sqTrace(x,y,h,f.prog); ctx.stroke(); txt(Math.round(f.prog*100)+'%',x,y+5,16,'#ffe58a','center') } }
@@ -7488,13 +7709,13 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
     if(riverRow(tcy))ctx.drawImage(TILE_RH,x,y,T+1,T+1); }
   { const cam={x:camX,y:camY}, nw=performance.now(); JG.update(Math.min(.05,(nw-(JG.t||nw))/1000),cam); JG.t=nw; JG.layer('ground',cam,zoom) }   /* rc7 #4 jungle_v3 floor + paddies (?jungle=1) */
   if(IMPDEC&&window.VFX_IMPACT&&!G.demo)try{ ctx.save(); ctx.scale(.5,.5); VFX_IMPACT.drawAll(ctx,0,0,2,'ground'); ctx.restore() }catch(e){ ctx.restore() }   /* rc7 #4: VFX_IMPACT crater/scorch decals from live hits (?impdec=0) */
-  if(TERR.ready()&&!G.demo){ drawRiverLife(camX,camY,camX+VW,camY+VH,g_now()); drawCrossings(camX,camY,camX+VW,camY+VH,g_now()); drawCraters(); drawFbExtras(); try{ GUNS.draw(); MEDV.draw(); CREWX.draw() }catch(e){ if(!window.__medvE){ window.__medvE=1; console.warn('gun/medv draw',e) } } }
+  if(TERR.ready()&&!G.demo){ drawRiverLife(camX,camY,camX+VW,camY+VH,g_now()); drawCrossings(camX,camY,camX+VW,camY+VH,g_now()); drawCraters(); drawFbExtras(); try{ AMT.drawGround(); GUNS.draw(); MEDV.draw(); AMT.draw(); CREWX.draw() }catch(e){ if(!window.__medvE){ window.__medvE=1; console.warn('gun/medv draw',e) } } }
   // decor
   const DC=190; for(let cx=Math.floor(camX/DC)-1;cx<=Math.floor((camX+VW)/DC)+1;cx++)for(let cy=Math.floor(camY/DC)-1;cy<=Math.floor((camY+VH)/DC)+1;cy++){
     if(hash2(cx,cy)>.42)continue; const di=DECOR_W[Math.floor(hash2(cx+91,cy-17)*DECOR_W.length)]; const d=DECOR[di]; if(Math.abs(cx)<1&&Math.abs(cy)<1&&hash2(cx,cy)<.2)continue;
     const x=cx*DC+hash2(cx-5,cy+3)*DC, y=cy*DC+hash2(cx+7,cy-9)*DC;
     const wx=Math.floor(x/T),wy=Math.floor(y/T), lx=x-wx*T, ly=y-wy*T;
-    if(riverRow(wy)&&Math.abs(ly-128)<80)continue; if(riverCol(wx)&&Math.abs(lx-128)<80)continue; if(riverAt(x,y)||onRiver(x,y,60))continue; if(fbS&&Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y))<FBW+70)continue;
+    if(riverRow(wy)&&Math.abs(ly-128)<80)continue; if(riverCol(wx)&&Math.abs(lx-128)<80)continue; if(riverAt(x,y)||onRiver(x,y,60))continue; if(fbS&&Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y))<(fbS.cl?Math.max(FBW+70,FB_CLEAR):FBW+70))continue;
     if(paddyCell(wx,wy)&&!PADDY_OK[di])continue;
     let dc=d.c;
     ctx.drawImage(dc,Math.round(x-d.ox),Math.round(y-d.oy)); }
@@ -7526,7 +7747,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   // strike markers
   for(const q of strikes){ if(q.t<0||q.t>=q.delay)continue; const ca=Math.cos(q.a),sa=Math.sin(q.a); ctx.globalAlpha=.35+.2*Math.sin(tt*14); ctx.strokeStyle='#ff4a3a'; ctx.lineWidth=2; ctx.setLineDash([8,8]); ctx.beginPath(); ctx.moveTo(q.cx-ca*q.len/2,q.cy-sa*q.len/2); ctx.lineTo(q.cx+ca*q.len/2,q.cy+sa*q.len/2); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(q.cx,q.cy,q.rad,0,TAU); ctx.stroke(); ctx.globalAlpha=1 }
   // claymore mines
-  for(const m of mines){ ctx.save(); ctx.translate(m.x,m.y); ctx.rotate(m.a); ctx.fillStyle='rgba(0,0,0,.3)'; ctx.fillRect(-3,-6,8,14); ctx.fillStyle='#17110a'; ctx.fillRect(-4,-8,9,16); ctx.fillStyle='#5c7a3a'; ctx.fillRect(-3,-7,7,14); ctx.fillStyle='#7da053'; ctx.fillRect(2,-7,2,14); ctx.fillStyle='#e8e2b0'; ctx.font='bold 3px monospace'; ctx.save(); ctx.translate(1.4,0); ctx.rotate(Math.PI/2); ctx.textAlign='center'; ctx.fillText('FRONT TOWARD ENEMY',0,0); ctx.restore(); if(m.arm<=0&&Math.floor(tt*3)%2===0){ctx.fillStyle='#ff4a3a';ctx.fillRect(-2,-1,2,2)} ctx.restore() }
+  for(const m of mines){ if(m.hide)continue; ctx.save(); ctx.translate(m.x,m.y); ctx.rotate(m.a); ctx.fillStyle='rgba(0,0,0,.3)'; ctx.fillRect(-3,-6,8,14); ctx.fillStyle='#17110a'; ctx.fillRect(-4,-8,9,16); ctx.fillStyle='#5c7a3a'; ctx.fillRect(-3,-7,7,14); ctx.fillStyle='#7da053'; ctx.fillRect(2,-7,2,14); ctx.fillStyle='#e8e2b0'; ctx.font='bold 3px monospace'; ctx.save(); ctx.translate(1.4,0); ctx.rotate(Math.PI/2); ctx.textAlign='center'; ctx.fillText('FRONT TOWARD ENEMY',0,0); ctx.restore(); if(m.arm<=0&&Math.floor(tt*3)%2===0){ctx.fillStyle='#ff4a3a';ctx.fillRect(-2,-1,2,2)} ctx.restore() }
   for(const c of cones){ const k=c.t/c.d; ctx.globalAlpha=(1-k)*.55; ctx.fillStyle='#ffe08a'; ctx.beginPath(); ctx.moveTo(c.x,c.y); ctx.arc(c.x,c.y,c.r*(.4+.6*k),c.a-c.half,c.a+c.half); ctx.closePath(); ctx.fill(); ctx.globalAlpha=1 }
   // gems
   for(let ty=0;ty<3;ty++){ ctx.fillStyle=GEMC[ty]; ctx.beginPath(); const s=3.5+ty*2;
@@ -7712,7 +7933,7 @@ if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 { let bd=false; try{bd=sessionStorage.getItem('lco_briefed')==='1'||(BRIEF1&&localStorage.getItem('lco_briefed')==='1')}catch(e){} if(!INTRO2&&(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart'))))startBrief(); }
 try{ ZMON.warm() }catch(e){}
 DBG.zmon=()=>callBoat(Object.assign({hold:30,range:420,d50:20,d60:12,cd:60},{}),true);
-window.__ms={gunny:(...a)=>gunny(...a),hurtMember:(m,d)=>hurtMember(m,d),spawn:(t,x,y)=>spawnEnemy(t,x,y),get genChoices(){return genChoices},get ZIS(){return ZIS},get JG(){return JG},get P3(){return P3},get ACH(){return ACH},get gameOver(){return gameOver},get openCharSel(){return openCharSel},get N2(){return N2},get EXc(){return EX},get Q46(){ return {startGame,coyH,coy,INTRO,G,state,sel:v=>{SEL=v}} },get SAMP(){return SAMP},get Snd(){return Snd},get MOH(){return MOH},get FBO(){return FBO},get URG(){return URG},get MAGS(){return MAGS},get IMP(){return IMP},get FIELD(){return FIELD},get GUNS(){return GUNS},get MEDV(){return MEDV},get CREWX(){return CREWX},useAb(){ return useAbility() },openConfirm(a){ openConfirm(a) },pick(i){ if(state==='levelup')pickChoice(i|0); return state },answer(y){ if(state==='sig'){ clearTimeout(SIGASK.q); answerSignal(!!y) } return state },get BARK(){return BARK},get KIA(){return KIA},get ZMON(){return ZMON},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
+window.__ms={gunny:(...a)=>gunny(...a),hurtMember:(m,d)=>hurtMember(m,d),spawn:(t,x,y)=>spawnEnemy(t,x,y),get genChoices(){return genChoices},get ZIS(){return ZIS},get JG(){return JG},get P3(){return P3},get ACH(){return ACH},get gameOver(){return gameOver},get openCharSel(){return openCharSel},get N2(){return N2},get EXc(){return EX},get Q46(){ return {startGame,coyH,coy,INTRO,G,state,sel:v=>{SEL=v}} },get SAMP(){return SAMP},get Snd(){return Snd},get MOH(){return MOH},get FBO(){return FBO},get URG(){return URG},get MAGS(){return MAGS},get IMP(){return IMP},get FIELD(){return FIELD},get GUNS(){return GUNS},get MEDV(){return MEDV},get CREWX(){return CREWX},useAb(){ return useAbility() },openConfirm(a){ openConfirm(a) },pick(i){ if(state==='levelup')pickChoice(i|0); return state },answer(y){ if(state==='sig'){ clearTimeout(SIGASK.q); answerSignal(!!y) } return state },get BARK(){return BARK},get KIA(){return KIA},get ZMON(){return ZMON},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},AMT,fbAidPos,fbHootchPos,fbPadPos,fbOnWounded,FBHOOK,fbLine,fbBanterSlots,fbCrit,fbRto,fbCpMan,fbCaller,FB2,FBS_:()=>FBS,FBW_:()=>FBW,FB_CLEAR,fbLayout,TERRm:()=>TERR,mkEng,get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
 
