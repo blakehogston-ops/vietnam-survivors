@@ -5310,12 +5310,79 @@ function drawCargo(t){ const c=ictx; c.imageSmoothingEnabled=false; const I=INTR
   c.restore();
   if(I.boom>.5){ c.fillStyle=`rgba(255,235,200,${((I.boom-.5)*.7).toFixed(2)})`; c.fillRect(0,0,320,180) }
   const fade=Math.min(1,t/.8); if(fade<1){ c.fillStyle=`rgba(0,0,0,${(1-fade).toFixed(2)})`; c.fillRect(0,0,320,180) } }
+/* ---- CH-46D cabin (feature/next item 1): looking aft down the troop cabin at the half-open ramp, the squad on the red nylon troop seats,
+   smoking; Doc in the foreground. Uses Artist Helper's banter_poses_v1 ('smoke' / 'sitBags'). ?cab46=0 restores the Huey cargo-bay view. ---- */
+const CAB46=!/[?&]cab46=0\b/.test(location.search);
+const C46O=mk(112,64), c46o=C46O.getContext('2d'), C46ID=c46o.createImageData(112,64);
+function c46Outside(t){ const d=C46ID.data, W=112, Hh=64, hz=18;
+  for(let y=0;y<Hh;y++)for(let x=0;x<W;x++){ const o=(y*W+x)*4; let r,g,b;
+    if(y<hz){ const k=y/hz; r=150+k*80; g=176+k*50; b=196-k*20; if(y>hz-4){ r=196; g=200; b=176 } }
+    else { const z=60/(y-hz+1.5), v=z*3+t*9, u=(x-56)*z*.12, cell=ihash(Math.floor(v)*131+Math.floor(u+2000)), f=Math.min(1,(y-hz)/30);
+      const rv=Math.abs(u+Math.sin(v*.07)*6-3)<.55;   /* a river winding away under the bird */
+      if(rv){ r=110; g=140; b=150 } else { const sh=cell<.33?.72:cell<.66?.86:1; r=(46+cell*30)*sh; g=(78+cell*44)*sh; b=(38+cell*16)*sh }
+      const fog=1-f; r=r*f+170*fog*.8; g=g*f+182*fog*.8; b=b*f+170*fog*.8 }
+    d[o]=r; d[o+1]=g; d[o+2]=b; d[o+3]=255 }
+  c46o.putImageData(C46ID,0,0) }
+function drawUnitOne(c,x,y,S){ c.fillStyle='#3e4a2a'; c.fillRect(x,y,7*S,5*S); c.fillStyle='#55633a'; c.fillRect(x,y,7*S,S); c.fillStyle='#2a321c'; c.fillRect(x+3*S,y+S,S,4*S) }   /* Unit One bag, OD, no red cross (Vet rule) */
+function drawCabin46(t){ const c=ictx, I=INTRO; c.imageSmoothingEnabled=false; c.save();
+  const bob=Math.sin(t*1.7)*1.2+Math.sin(t*5.3)*.4, flare=Math.max(0,t-(IT1-1.6))/1.6;   /* last 1.6 s: the bird flares, nose up, for the LZ */
+  c.translate(160,90); c.rotate(Math.sin(t*.6)*.012-flare*.05); c.scale(1+t*.006,1+t*.006); c.translate(-160,-90+bob-flare*8);
+  const OX=104,OY=36,OW=112,OH=64;
+  c46Outside(t); c.drawImage(C46O,OX,OY);
+  // ramp: half down, hinge at the floor line, light spilling in
+  c.fillStyle='#3a4029'; c.beginPath(); c.moveTo(OX,OY+OH); c.lineTo(OX+OW,OY+OH); c.lineTo(OX+OW-6,OY+OH-22); c.lineTo(OX+6,OY+OH-22); c.closePath(); c.fill();
+  c.fillStyle='#4a5236'; for(let i=0;i<5;i++)c.fillRect(OX+10,OY+OH-20+i*4,OW-20,1);
+  // cabin walls / ceiling / floor converging on the ramp opening
+  const poly=(pts,col)=>{ c.fillStyle=col; c.beginPath(); c.moveTo(pts[0],pts[1]); for(let i=2;i<pts.length;i+=2)c.lineTo(pts[i],pts[i+1]); c.closePath(); c.fill() };
+  poly([-10,-10,330,-10,OX+OW,OY,OX,OY],'#262c1d');                 // ceiling
+  poly([-10,-10,OX,OY,OX,OY+OH,-10,200],'#2c3322');                 // left wall
+  poly([330,-10,OX+OW,OY,OX+OW,OY+OH,330,200],'#283020');           // right wall
+  poly([-10,200,OX,OY+OH,OX+OW,OY+OH,330,200],'#1f241a');           // floor
+  // frames (ribs) at depth, transmission ducting, roller rails, cargo hooks
+  for(let i=0;i<7;i++){ const k=Math.pow(i/7,1.7), x0=-10+(OX+10)*k, x1=330-(330-OX-OW)*k, y0=-10+(OY+10)*k, y1=200-(200-OY-OH)*k; c.strokeStyle=i%2?'#1a1f14':'#353d29'; c.lineWidth=Math.max(1,3*(1-k)); c.strokeRect(x0,y0,x1-x0,y1-y0) }
+  c.strokeStyle='#3a4232'; c.lineWidth=1; for(const fx of [-.42,.42]){ c.beginPath(); c.moveTo(160+fx*360,200); c.lineTo(160+fx*OW*.6,OY+OH); c.stroke() }
+  c.fillStyle='#1a1e15'; c.beginPath(); c.moveTo(120,-10); c.lineTo(200,-10); c.lineTo(OX+OW*.62,OY+4); c.lineTo(OX+OW*.38,OY+4); c.fill();   // overhead duct
+  // red nylon troop seats along both walls (backrest webbing + seat rail)
+  for(const s of [-1,1]){ c.fillStyle='#7a2a1e'; c.beginPath(); c.moveTo(160+s*170,70); c.lineTo(160+s*OW/2,OY+20); c.lineTo(160+s*OW/2,OY+34); c.lineTo(160+s*170,130); c.fill();
+    c.strokeStyle='#4e1a12'; for(let i=0;i<9;i++){ const k=i/9, x=160+s*(170-(170-OW/2)*Math.pow(k,.8)); c.beginPath(); c.moveTo(x,70+(OY+20-70)*Math.pow(k,.8)); c.lineTo(x,130+(OY+34-130)*Math.pow(k,.8)); c.stroke() }
+    c.strokeStyle='#8c8c80'; c.lineWidth=2; c.beginPath(); c.moveTo(160+s*170,132); c.lineTo(160+s*OW/2,OY+35); c.stroke(); c.lineWidth=1 }
+  // light from the ramp: a soft shaft along the floor
+  { const g=c.createLinearGradient(0,OY+OH,0,190); g.addColorStop(0,'rgba(230,226,190,.35)'); g.addColorStop(1,'rgba(230,226,190,0)'); c.fillStyle=g; c.beginPath(); c.moveTo(OX,OY+OH); c.lineTo(OX+OW,OY+OH); c.lineTo(260,190); c.lineTo(60,190); c.fill() }
+  // crew chief at the ramp, gunner's belt on, looking out (silhouette against the sky)
+  drawCrewman(c,t,160+Math.sin(t*.8)*3,OY+OH-6,.62,false,false);
+  // the squad: [x, y(feet), scale, unit, anim, flip, phase, tag]
+  const sq=I.sq||(I.sq=c46Squad());
+  for(const m of sq){ let r=null; try{ r=SHEET1.drawBanter(c,m.u,m.a,t+m.ph,m.x,m.y,m.f,m.s) }catch(e){}
+    if(m.doc)drawUnitOne(c,m.x+(m.f?-1:1)*9*m.s-3*m.s,m.y-6*m.s,m.s);
+    const em=r&&(r.ember||r.mouth); if(m.a==='smoke'&&em){ c.fillStyle=Math.sin(t*6+m.ph)>-.3?'#ff7a2a':'#b8461a'; c.fillRect(Math.round(em.x),Math.round(em.y),Math.max(1,m.s>2?2:1),Math.max(1,m.s>2?2:1));
+      if(Math.random()<.5){ (I.sm||(I.sm=[])).push({x:em.x,y:em.y,l:1.6,s:m.s}) } } }
+  // cigarette smoke: drifts up, then gets pulled aft toward the open ramp
+  for(let i=I.sm.length-1;i>=0;i--){ const q=I.sm[i]; q.l-=1/60; if(q.l<=0){ I.sm.splice(i,1); continue } const a=1.6-q.l; q.y-=.25*q.s; q.x+=(160-q.x)*.012; c.fillStyle=`rgba(205,205,195,${(.3*q.l/1.6).toFixed(2)})`; const r=Math.round(1+a*1.6*q.s); c.fillRect(Math.round(q.x+Math.sin(a*4+i)*2),Math.round(q.y),r,r) }
+  if(I.sm.length>260)I.sm.splice(0,I.sm.length-260);
+  // dim interior light: red night lens overhead, vignette, rotor flicker on the ramp light
+  { const g=c.createRadialGradient(160,70,30,160,90,210); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(6,4,2,.55)'); c.fillStyle=g; c.fillRect(-20,-20,360,220) }
+  c.fillStyle=`rgba(140,30,20,${(.06+.03*Math.sin(t*2)).toFixed(3)})`; c.fillRect(-20,-20,360,220);
+  c.fillStyle=`rgba(0,0,0,${(.06*Math.max(0,Math.sin(t*28))).toFixed(3)})`; c.fillRect(OX,OY,OW,OH);
+  c.restore();
+  if(flare>0){ const g=c.createRadialGradient(160,68,10,160,80,190); g.addColorStop(0,`rgba(255,250,235,${(flare*.45).toFixed(2)})`); g.addColorStop(1,'rgba(255,250,235,0)'); c.fillStyle=g; c.fillRect(0,0,320,180) }
+  /* lower-third name tags over the real squad (Doc + the actual squad names) */
+  c.font='bold 7px "Courier New",monospace'; c.textAlign='left'; c.textBaseline='alphabetic';
+  for(const m of sq){ if(!m.tag)continue; const t0=m.tt, a=Math.min(1,(t-t0)*3,(t0+3.2-t)*3); if(a<=0)continue; const n=Math.min(m.tag.length,Math.floor((t-t0)*28)), s=m.tag.slice(0,n), w=c.measureText(m.tag).width;
+    const x=m.f?Math.min(316-w,m.x-w+8):Math.max(4,m.x-10), y=m.y-37*m.s-6; c.globalAlpha=a; c.fillStyle='rgba(0,0,0,.6)'; c.fillRect(x-3,y-8,w+6,11); c.fillStyle='#e8c860'; c.fillRect(x-3,y+3,Math.max(2,(w+6)*Math.min(1,(t-t0)*2)),1); c.fillStyle='#f6f0cc'; c.fillText(s,x,y); c.globalAlpha=1 }
+  const fade=Math.min(1,t/.8); if(fade<1){ c.fillStyle=`rgba(0,0,0,${(1-fade).toFixed(2)})`; c.fillRect(0,0,320,180) } }
+function c46Squad(){ const doc=!G||G.char==='doc', N=Q15.names;
+  /* depth rows on both walls; left wall faces right (flip=false), right wall faces left (flip=true) */
+  const L=[ {x:118,y:84,s:1,u:'marineRadio',a:'sitBags',f:false}, {x:110,y:94,s:1,u:'baseMarine2',a:'smoke',f:false}, {x:86,y:120,s:2,u:'marineM60',a:'sitBags',f:false},
+            {x:34,y:188,s:3,u:'baseMarine3',a:'smoke',f:false,doc:doc,tt:1.2,tag:doc?"HM3 \u2018DOC\u2019 \u00b7 NAVY CORPSMAN":null} ],
+        R=[ {x:202,y:84,s:1,u:'baseMarine',a:'smoke',f:true}, {x:210,y:94,s:1,u:'marineRifle',a:'sitBags',f:true}, {x:236,y:120,s:2,u:'marineRifle',a:'smoke',f:true,tt:4.6,tag:(N[1]+' \u00b7 M60 TEAM').toUpperCase()},
+            {x:290,y:188,s:3,u:'marineRifle',a:'smoke',f:true,tt:2.9,tag:(N[0]+' \u00b7 SQUAD LEADER').toUpperCase()} ];
+  const all=L.concat(R).sort((a,b)=>a.y-b.y); all.forEach((m,i)=>m.ph=i*.83); return all }
 function fl0(I){ return Math.max(I.gf[0],I.gf[1])*8 }
 /* art hook: Artist Helper's INTRO_V2 (ui/colonel_intro_v2.js) replaces ONLY this renderer; INTRO.t, the voice clip and its timing stay in the INTRO logic. */
 function drawIntroOverlay(){ if(window.INTRO_V2&&typeof INTRO_V2.draw==='function'){ try{ ctx.setTransform(1,0,0,1,0,0); INTRO_V2.draw(ctx,{t:INTRO.t,W:cv.width,H:cv.height,intro:INTRO}); return }catch(e){} } drawIntroOverlay1() }
 function drawIntroOverlay1(){ const I=INTRO, t=I.t; ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false;
   if(I.ph===1){ ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H); const s=Math.min(W/320,H/180), dw=320*s, dh=180*s, ox=(W-dw)/2, oy=(H-dh)/2; ctx.drawImage(ICV,ox,oy,dw,dh);
-    const fs=Math.max(14,dh/13), full='QUANG TRI PROVINCE, 1968', sub='1ST MARINE DIVISION · I CORPS · REPUBLIC OF VIETNAM';
+    const fs=Math.max(14,dh/13), full='QUANG TRI PROVINCE, 1968', sub='3RD MARINE DIVISION · I CORPS · REPUBLIC OF VIETNAM';
     if(t>.9&&t<6.2){ const a=Math.min(1,(6.2-t)*2), n=Math.min(full.length,Math.floor((t-.9)*16)); ctx.globalAlpha=a; ctx.font=`bold ${fs}px "Courier New",monospace`; ctx.textAlign='left'; ctx.lineWidth=fs/6; ctx.strokeStyle='#000'; ctx.lineJoin='round';
       const x=ox+dw*.07, y=oy+dh*.9; ctx.strokeText(full.slice(0,n),x,y); ctx.fillStyle='#f6f0cc'; ctx.fillText(full.slice(0,n),x,y);
       if(t>2.3){ const m=Math.min(sub.length,Math.floor((t-2.3)*30)); ctx.font=`bold ${fs*.5}px "Courier New",monospace`; ctx.strokeText(sub.slice(0,m),x,y+fs*.7); ctx.fillStyle='#e8c860'; ctx.fillText(sub.slice(0,m),x,y+fs*.7) } ctx.globalAlpha=1 } }
@@ -6803,7 +6870,7 @@ function frame(now){
   /* real time: a slow frame runs several <=50 ms steps (up to 0.2 s per frame), so the game clock keeps pace on slow machines instead of running at half speed */
   if(state==='play'||(state==='menu'&&G&&G.demo)){ let rem=Math.min(dt,.2); while(rem>1e-6){ const st=Math.min(.05,rem); update(st); rem-=st; if(state!=='play'&&!(state==='menu'&&G&&G.demo))break } } else { if(dt>.05)dt=.05; }
   if(state==='intro')updateIntro(dt); else if(state==='brief')updateBrief(dt);
-  hudAbil(); hudSig(); hudTanker(); hudSupport(); Snd.duckTick(); const t0=performance.now(); if(state==='brief'&&BR){ drawBrief() } else if(state==='intro'&&INTRO&&INTRO.ph===1){ drawCargo(INTRO.t); drawIntroOverlay() } else { render(); if(state==='intro'&&INTRO)drawIntroOverlay() } const rt=performance.now()-t0; perf.frames++;perf.acc+=rt;perf.worst=Math.max(perf.worst,rt);
+  hudAbil(); hudSig(); hudTanker(); hudSupport(); Snd.duckTick(); const t0=performance.now(); if(state==='brief'&&BR){ drawBrief() } else if(state==='intro'&&INTRO&&INTRO.ph===1){ (CAB46&&window.SHEET1&&SHEET1.drawBanter?drawCabin46:drawCargo)(INTRO.t); drawIntroOverlay() } else { render(); if(state==='intro'&&INTRO)drawIntroOverlay() } const rt=performance.now()-t0; perf.frames++;perf.acc+=rt;perf.worst=Math.max(perf.worst,rt);
   requestAnimationFrame(frame);
 }
 buildSprites(); buildGore(); buildDeathArt(); buildExArt(); buildBubbles(); buildWorldArt(); applySheet(); Snd.setMuted(Snd.muted);
