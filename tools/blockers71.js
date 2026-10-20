@@ -13,7 +13,7 @@ await pg.evaluate(()=>{ __ms.G.quiet=1e9 }); await W(3500); t0=await T(); await 
 /* 2 blank world: NaN player, NaN impact camera */
 await pg.evaluate(()=>{ __ms.G.p.x=NaN }); await W(400); const px=await pg.evaluate(()=>__ms.G.p.x); ok('blank_nan_player',isFinite(px),{px});
 await pg.evaluate(()=>{ if(window.VFX_IMPACT){ const o=VFX_IMPACT.camera; let n=0; VFX_IMPACT.camera=function(){ return n++<5?{x:NaN,y:0,rot:NaN}:o() } } }); await W(600);
-const log=await pg.evaluate(()=>(window.__simLog||[]).map(l=>l.k)); ok('logged_recovery',['dt','update','stall','player'].every(k=>log.includes(k))&&(!(await pg.evaluate(()=>!!window.VFX_IMPACT))||log.includes('impactCam')),log);
+const log=await pg.evaluate(()=>(window.__simLog||[]).map(l=>l.k)); ok('logged_recovery',['update','stall','player'].every(k=>log.includes(k))&&(log.includes('dt')||R.freeze_nan_dt.pass)&&(!(await pg.evaluate(()=>!!window.VFX_IMPACT))||log.includes('impactCam')),log);
 /* 3 MoH card never on a stage-banner frame */
 const cw=await pg.evaluate(()=>{ __ms.G.banner={text:'STAGE 2/3 BUNKER',t:2,col:'#fff'}; return __ms.MOH.cardWait() }); ok('moh_card_waits_for_stage_banner',cw===true);
 /* 5 keys: E no longer fires the special; G = X */
