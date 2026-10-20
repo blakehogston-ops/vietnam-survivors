@@ -138,3 +138,9 @@ Walls (336 x 336 px, half-side `FBS` = 168), the wire (half-side 237), turret sl
 - `perkRadio` (tier 1) plays once per level-up popup (0.5 s minimum gap, so chained popups do not stack); `boltRifleCrack` (tier 2) is the M1903 shot, and `boltCycle` (tier 2, 19 short sources) follows 0.4 s later, at most once per 0.9 s and skipped on Low-effects devices when more than 220 enemies are out. Everything runs through `Cues.createBus` (compressor) and the final limiter; measured peak 0.87 with 0 clipped frames in a heavy fight, 0.85 with 14 forced level-up radios on top.
 
 - QA part 1: favicon is an inline data-URI (no /favicon.ico request on Pages); end-of-run service card shows BEST WEAPON (per-weapon damage tracked in `G.wd`).
+
+## Oct 20 (Blake notes)
+- **RTO calls the air strikes:** once Doc owns any air strike (napalm, strafe, Ranch Hand, Spooky, Arc Light, Box Mission) one of the fifteen takes the PRC-25 (antenna + "ON THE HORN" tag). He holds a ready strike until the enemy count on the map justifies it (bigger strikes need more targets; after ~25 s held he settles for half), then puts it on the densest concentration within ~1100 px (never closer than 90 px to Doc). 30+/60+ enemies add extra napalm canisters / B-52 bombs. He stays at Doc's shoulder. If he dies, air support is gone for the run.
+- **Med packs go in the pouch** (max 5): **H** = use on yourself (+35% HP), **Q** = patch the most hurt Marine within 110 px (+60%, RTO gets priority). On-screen buttons bottom-left for touch.
+- **No auto-aim:** M16, M60, shotgun, grease gun, M1903, knives, flamethrower, claymores and M79 fire along Doc's movement / last facing. They hold fire when no enemy is in range. `?aim=auto` restores the old nearest-enemy aim. Squad Marines still pick their own targets.
+- QA: `node tools/rtotest.js` (RTO assignment, follow distance, strike calls, loss on death, med pack self/mate heals).
