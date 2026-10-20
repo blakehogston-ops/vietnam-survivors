@@ -3163,7 +3163,7 @@ let RKN=0, medpacks=[],ftexts=[],enemies=[],bullets=[],gems=[],parts=[],blasts=[
 let decalI=0,dmgSrc=0,DTAG='',crushHd=0;
 let CURW='';   /* id of the player weapon currently firing / whose projectile or effect is being processed; hurtEnemy adds the damage to G.wd[CURW] (end-of-run 'Best weapon') */
 let bodies=[],knives=[],squad=[],ins=[],crashes=[],pits=[],bubbles=[],mshells=[],hbars=[],hshells=[],boats=[],hueys=[],vtr=[],tunnels=[],air=[],tanks=[];
-const CS=48, head=new Int32Array(4096), nextI=new Int32Array(2400);
+const CS=48, head=new Int32Array(4096), nextI=new Int32Array(2400); head.fill(-1);   /* rc7.1 (from jr/intro2 5109aa6, this line only): zeroed head made updateCompany walk j=0 forever under ?nodemo */
 const keys={}; const joy={on:false,id:-1,ox:0,oy:0,x:0,y:0};
 
 function newGame(demo){ N2.reset(); try{ ATM.reset() }catch(e){}
