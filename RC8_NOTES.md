@@ -22,6 +22,10 @@ Every line ID that rc8 adds, changes or cuts compared with rc7.1. All of these a
   - Firebase: SK-F01, then LT-R04 at +4.6 s if the Lt is alive
   - Bird call: SK-E01, or SK-E03 if the Lt is down
 
+## Added: amtracs (Lead Playtester run 2)
+- AMT_UP_1 (caption only, speaker AMTRAC): "Golf Two-Six, amtracs up. Hauling wire and ammo to the line, over."
+- Job labels over each amtrac: WIRE + AMMO / 105 SUPPORT (first 14 s), then CASEVAC / TO THE BREACH / PATROL
+
 ## Added: smoke-call captions (inline comment IDs)
 - D01 "Bird, Doc. Smoke out. Over." / G00 "Smoke's out."
 - P17 `BIRD: "I see <colour>, over."`
@@ -43,6 +47,7 @@ Every line ID that rc8 adds, changes or cuts compared with rc7.1. All of these a
 - FIREBASE BUILT · <name> SECURED; 'THE PAD'; "SIXTY MIKE-MIKE"
 - squad2 skipper = Capt O'Malley (Golf Six), shown as a radio card only; Hollis keeps the Lt portrait
 - New HUD hints:
+  - 'MOVE INTO THE RING' (HOLD F outside the firebase ring)
   - 'G: SMOKE WHEN THE BIRD ASKS FOR IT'
   - MoH 'AREA CLEAR · <task>' after a hot phase; the label no longer flips to OPTIONAL
 
