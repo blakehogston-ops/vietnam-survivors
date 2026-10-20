@@ -154,7 +154,7 @@
 
   /* ---------------- pixel grids -> baked images ---------------- */
   // palette indices: 0 empty
-  var PAL = [null, '#2a2418', '#3a3022', '#4c3e2a', '#62503a', '#7a6648', '#8e7a58', '#1a1c12', '#b08a3a', '#e0c070', '#6a4a20', '#8a3a28', '#c05a40', '#5a5a52', '#82827a', '#3e2a16', '#6e4a26', '#a07040', '#4a4630', '#665e40', '#f6e6a8', '#2e2216', '#55432c', '#735c3c', '#93795a', '#a08a6a', '#b0623e', '#8e4a2e', '#6c3622', '#46241a', '#7a5a34', '#5c4226', '#3c2a18', '#26190f'];
+  var PAL = [null, '#2a2418', '#3a3022', '#4c3e2a', '#62503a', '#7a6648', '#8e7a58', '#1a1c12', '#b08a3a', '#e0c070', '#6a4a20', '#8a3a28', '#c05a40', '#5a5a52', '#82827a', '#3e2a16', '#6e4a26', '#a07040', '#4a4630', '#665e40', '#f6e6a8', '#2e2216', '#55432c', '#735c3c', '#93795a', '#a08a6a', '#b0623e', '#8e4a2e', '#6c3622', '#46241a', '#7a5a34', '#5c4226', '#3c2a18', '#26190f', '#d6dad8', '#b4b9b8', '#8c9291', '#62686a'];
   var DEC = {   // decal kinds -> [w, h] art px, builder
     crater_s: [18, 14], crater_m: [28, 22], crater_l: [42, 32], crater_xl: [104, 78], crater_xl7: [73, 55], crater_xl13: [135, 101], scorch: [34, 26], scorch_napalm: [72, 26],
     brass_556: [4, 2], brass_762: [5, 2], brass_50: [7, 3], link_762: [3, 2], hull_12g: [4, 2],
@@ -186,8 +186,8 @@
       put(w - 1, 0, 10); put(w - 1, h - 1, 10); if (kind === 'brass_556' || kind === 'brass_762') put(0, h - 1, 9); }
     else if (kind === 'canister') {   // BLU-27 style finless aluminium tank: rounded nose, lit top row, dark belly, filler band
       for (var cxx = 0; cxx < w; cxx++) for (var cyy = 0; cyy < h; cyy++) { var endc = (cxx === 0 || cxx === w - 1) && (cyy === 0 || cyy === h - 1); if (endc) continue;
-        var nose = cxx < 2 || cxx > w - 3, c = cyy === 0 ? 14 : cyy === 1 ? (nose ? 14 : 20) : cyy < h - 2 ? 13 : cyy === h - 2 ? 18 : 7; if (cxx === 8 || cxx === 17) c = cyy < 2 ? 13 : 7; put(cxx, cyy, c); }
-      put(1, 0, 7); put(w - 2, 0, 7); put(1, h - 1, 7); put(w - 2, h - 1, 7); }
+        var nose = cxx < 2 || cxx > w - 3, c = cyy === 0 ? 35 : cyy === 1 ? (nose ? 35 : 34) : cyy < h - 2 ? 36 : 37; put(cxx, cyy, c); }   // vet E3: bare unpainted aluminium, no bands/markings
+      put(1, 0, 37); put(w - 2, 0, 37); put(1, h - 1, 37); put(w - 2, h - 1, 37); }
     else if (kind === 'link_762') { put(0, 0, 13); put(1, 0, 14); put(2, 1, 13); put(0, 1, 13); }
     else if (kind === 'hull_12g') { put(0, 0, 9); put(0, 1, 8); put(1, 0, 12); put(2, 0, 12); put(3, 0, 12); put(1, 1, 11); put(2, 1, 11); put(3, 1, 11); }
     else if (kind.indexOf('bit_') === 0) {
@@ -453,8 +453,8 @@
       for (i = 0; i < 4; i++) { f = i / 3; u = L * 0.8 + (reach - L * 0.8) * f; var tip = i === 3;
         P(u, tl + (rnd() - 0.5) * 6, 3 + f * 6 + (tip ? 4 : 0), 70 + f * 80 + rnd() * 30, (rnd() - 0.5) * 20, 20 + f * 30, t0 + f * 0.18, 0.55 + rnd() * 0.35 - f * 0.1, 7 - f * 3 + rnd() * 2, 5, tip ? 10 : i === 2 ? 9 : 11, 0.8 + rnd() * 0.2); } }
     for (i = 0; i < 6; i++) { f = (i + 0.5) / 6; P(f * L * 0.9, 0, 0, 20, 0, 0, f * D * 0.8, 1.8 + rnd() * 0.6, 20 + f * 6, 4, 13, 0.14 + rnd() * 0.05); }   // faint ~20 px glow
-    for (i = 0; i < 22; i++) { f = rnd() * 0.55; u = f * L; l = (rnd() - 0.5) * (14 + f * 30) * WS;   // black oily smoke off the back half from ~0.3 s
-      P(u, l, 8 + rnd() * 10, 10 + rnd() * 20, (rnd() - 0.5) * 10, 40 + rnd() * 60, 0.3 + Math.pow(rnd(), 1.5) * 0.9, 2.6 + rnd() * 2.6, 7 + rnd() * 6, 9 + rnd() * 8, 6, 0.7 + rnd() * 0.2); }
+    for (i = 0; i < 30; i++) { f = rnd() * 0.8; u = f * L; l = (rnd() - 0.5) * (16 + f * 34) * WS;   // vet E2: thick black oily smoke column builds from ~0.4-0.6 s and dominates the sheet by 1.5-3 s
+      P(u, l, 8 + rnd() * 10, 8 + rnd() * 16, (rnd() - 0.5) * 10, 30 + rnd() * 45, 0.4 + Math.pow(rnd(), 1.3) * 0.9, 3.6 + rnd() * 2.4, 10 + rnd() * 7, 13 + rnd() * 8, 6, 0.86 + rnd() * 0.12); }
     var np = 16 + ((rnd() * 6) | 0); for (var p2 = 0; p2 < np; p2++) { var fe = slotOf(FI, FM, fRing); fRing = (fRing + 1) % FM; var f3 = rnd(), w3 = (6 + f3 * 26) * WS, u3 = f3 * L * 0.95, l3 = (rnd() - 0.5) * 2 * w3 * 0.7;
       fe.on = true; fe.x = x + ca * u3 - sa * l3; fe.y = y + sa * u3 + ca * l3; fe.t = -rnd() * 0.6; fe.life = 8 + rnd() * 16; fe.s = rnd() * 0.4; fe.ph = rnd() * 10; fe.sz = rnd() < 0.3 ? 2 : rnd() < 0.6 ? 1.5 : 1; }
     debris('dirt', x, y, 4, 90);
@@ -579,7 +579,7 @@
         ctx.drawImage(im2, ex, ey); }
       drawNapFire(ctx, SX, SY, sc);
       for (var u = 0; u < UM; u++) { var pu = U[u]; if (!pu.on || pu.t < 0) continue; if (pu.nap && NAP_FIRE[pu.shd] != null) continue; var k = pu.t / pu.life, nsm = pu.nap && pu.shd === 6, pim = nsm ? napSmoke(bucket(pu.r), u & 3) : puffImg(bucket(pu.r), pu.shd, sc); ctx.imageSmoothingEnabled = nsm;
-        ctx.globalAlpha = pu.a * Math.min(1, pu.t * (FIRE_SHD[pu.shd] ? 60 : 12)) * Math.pow(1 - k, FIRE_SHD[pu.shd] ? 0.8 : 1.4); var ps = pu.r / PB[bucket(pu.r)] * (nsm ? sc : 1), pw = Math.max(2, Math.round(pim.width * ps));
+        ctx.globalAlpha = pu.a * Math.min(1, pu.t * (FIRE_SHD[pu.shd] ? 60 : nsm ? 4 : 12)) * Math.pow(1 - k, FIRE_SHD[pu.shd] ? 0.8 : nsm ? 0.55 : 1.4); /* vet E2: napalm black smoke holds its density (slow fade) */ var ps = pu.r / PB[bucket(pu.r)] * (nsm ? sc : 1), pw = Math.max(2, Math.round(pim.width * ps));
         if (pu.shd === 5 || pu.shd === 13) { ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(pim, SX(pu.x) - (pw >> 1), SY(pu.y - pu.z) - (pw >> 1), pw, pw); ctx.globalCompositeOperation = 'source-over'; }
         else ctx.drawImage(pim, SX(pu.x) - (pw >> 1), SY(pu.y - pu.z) - (pw >> 1), pw, pw); }
     }
