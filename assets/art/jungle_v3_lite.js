@@ -288,15 +288,14 @@
     var SAND = ['#a8a088', '#bcb49c', '#ccc6b0', '#dad4c2', '#e6e2d4'], ASH = ['#2e2c28', '#3e3b35', '#504c44', '#645e54', '#7a7468'];
     var EARTH = ['#4a3a24', '#664e30', '#7e623c', '#9a7a4c', '#8a5a34'];
     var base = new Rast(w, h), glint = [];
-    // perf (rc8): pw/pwf/WL return one reused scratch pair instead of a fresh [x,y] per call (every caller copies q[0]/q[1] immediately: Lat.fill, Lat.get, dikeRaw, pwf user)
-    var PWS = [0, 0], pw = function (wx, wy) { PWS[0] = wx + (vnoise(wx / 26, wy / 26, sd) - 0.5) * 12 + (vnoise(wx / 70, wy / 70, sd + 7) - 0.5) * 22; PWS[1] = wy + (vnoise(wx / 26, wy / 26, sd + 1) - 0.5) * 12 + (vnoise(wx / 70, wy / 70, sd + 8) - 0.5) * 22; return PWS; };
-    var PL = null, PQ = [0, 0], PFQ = [0, 0], pwf = function (wx, wy) { return PL ? PL.get(wx, wy, PFQ) : pw(wx, wy); };
+    var pw = function (wx, wy) { return [wx + (vnoise(wx / 26, wy / 26, sd) - 0.5) * 12 + (vnoise(wx / 70, wy / 70, sd + 7) - 0.5) * 22, wy + (vnoise(wx / 26, wy / 26, sd + 1) - 0.5) * 12 + (vnoise(wx / 70, wy / 70, sd + 8) - 0.5) * 22]; };
+    var PL = null, PQ = [0, 0], pwf = function (wx, wy) { return PL ? PL.get(wx, wy, [0, 0]) : pw(wx, wy); };
     var dikeRaw = function (wx, wy) { var q = PL ? PL.get(wx, wy, PQ) : pw(wx, wy), X = q[0], Y = q[1], tx = Math.floor(X / T), ty = Math.floor(Y / T); if (!isP(tx, ty)) return -1;
       var lx = X - tx * T, ly = Y - ty * T, Wd = 3.2 + vnoise(wx / 11, wy / 11, sd + 4) * 2.8;
       if ((lx < Wd && (!isP(tx - 1, ty) || tx % de === 0)) || (lx >= T - Wd && (!isP(tx + 1, ty) || (tx + 1) % de === 0)) ||
           (ly < Wd && (!isP(tx, ty - 1) || ty % de === 0)) || (ly >= T - Wd && (!isP(tx, ty + 1) || (ty + 1) % de === 0))) return 1;
       return 0; };
-    var seedW = this.o.seed || 1968, WQ = [0, 0], WS = [0, 0], WL = new Lat(function (x, y) { WS[0] = (fbm(x / 60, y / 60, seedW + 1) - 0.5) * 56; WS[1] = (fbm(x / 60, y / 60, seedW + 2) - 0.5) * 56; return WS; }, x0 - 8, y0 - 8, w + 16, h + 16, 4); yield* WL.fill();
+    var seedW = this.o.seed || 1968, WQ = [0, 0], WL = new Lat(function (x, y) { return [(fbm(x / 60, y / 60, seedW + 1) - 0.5) * 56, (fbm(x / 60, y / 60, seedW + 2) - 0.5) * 56]; }, x0 - 8, y0 - 8, w + 16, h + 16, 4); yield* WL.fill();
     var wkf = function (wx, wy) { var o2 = WL.get(wx, wy, WQ); return ta(Math.floor((wx + o2[0]) / T), Math.floor((wy + o2[1]) / T)); }; yield 0;
     var hasP = false, tx, ty; for (ty = this.ty0 - 1; ty <= this.ty1 + 1 && !hasP; ty++) for (tx = this.tx0 - 1; tx <= this.tx1 + 1; tx++) if (isP(tx, ty)) { hasP = true; break; }
     var GX0 = -4, GY0 = -4, GW2 = w + 9, GH2 = h + 9, DG = null, gi, gj;
@@ -405,8 +404,6 @@
   // jr perf: the strips of a part are also flattened into ONE canvas per chunk (same pixels, same order); used whenever no strip in the chunk is bent
   function flat(arr) { var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, i, b; for (i = 0; i < arr.length; i++) { b = arr[i]; if (!b) continue; if (b.x < x0) x0 = b.x; if (b.y < y0) y0 = b.y; if (b.x + b.c.width > x1) x1 = b.x + b.c.width; if (b.y + b.c.height > y1) y1 = b.y + b.c.height; }
     if (x1 < x0) return null; var c = mkc(x1 - x0, y1 - y0), g = c.getContext('2d'); g.imageSmoothingEnabled = false; for (i = 0; i < arr.length; i++) { b = arr[i]; if (b) g.drawImage(b.c, b.x - x0, b.y - y0); } return { c: c, x: x0, y: y0 }; }
-  // perf LOD (J.lod=1 at MED/LOW/Deck or after a watchdog downshift, set by the game from LQ.t): bent plants draw their baked pose (flat chunk canvas), i.e. no per-plant bend redraw near units. HIGH = full.
-  J.lod = 0;
   J.stat = { flat: 0, strip: 0, plant: 0, nolayer: 0 };
   // jr perf: baked canvases are swapped for ImageBitmaps (immutable, pre-decoded: much cheaper to blit than a canvas source); same pixels
   J.useBitmap = J.chunkFlat && typeof createImageBitmap !== 'undefined' && !(typeof location !== 'undefined' && /[?&]jbmp=0\b/.test(location.search));
@@ -454,13 +451,13 @@
   Field.prototype._draw = function (ctx, scale, camX, camY, part) { this._lastDraw = now(); if (!this.ready) return; var S = this._strips; if (!S || !S.length) return;
     var sc = S_(scale), cx = camX || 0, cy = camY || 0, vw = view(ctx), n = this.o.swayFrames === 1 ? 1 : 2, st = n === 1 ? 0 : Math.floor(this.t * 4) & 1, L = this._layers, p0 = ctx.imageSmoothingEnabled, a0 = this._fadeOn(ctx); ctx.imageSmoothingEnabled = false;
     if (!L && !this._layersQueued && !this._job) { this._layersQueued = true; enqueue(this, this._bakeLayers(), -1e12); }
-    if (J.chunkFlat && L && L[st][part + 'C'] !== undefined) { var anyB = false; for (var q0 = 0; q0 < S.length; q0++) if (S[q0].bent && !J.lod) { anyB = true; break; }
+    if (J.chunkFlat && L && L[st][part + 'C'] !== undefined) { var anyB = false; for (var q0 = 0; q0 < S.length; q0++) if (S[q0].bent) { anyB = true; break; }
       if (!anyB) { var F0 = L[st][part + 'C']; if (F0) { var FX = F0.x * sc - cx, FY = F0.y * sc - cy; if (!(FX > vw[0] || FY > vw[1] || FX + F0.c.width * sc < 0 || FY + F0.c.height * sc < 0)) J.stat.flat++, J.stat['px_' + part] = (J.stat['px_' + part] || 0) + F0.c.width * F0.c.height / 1e6, ctx.drawImage(F0.c, Math.round(FX), Math.round(FY), F0.c.width * sc, F0.c.height * sc); }
         ctx.imageSmoothingEnabled = p0; ctx.globalAlpha = a0; return; } }
     for (var i = 0; i < S.length; i++) { var s = S[i], Yt = (s.y0 - 110) * sc - cy, Yb = (s.y0 + this._sh + 50) * sc - cy; if (Yb < 0 || Yt > vw[1]) continue;
-      var b = L && (!s.bent || J.lod) && L[st][part] ? L[st][part][i] : undefined;
+      var b = L && !s.bent && L[st][part] ? L[st][part][i] : undefined;
       if (b === null) continue;
-      if (J.chunkFlat && s.bent && !J.lod && L && L[st][part] && L[st][part][i] && this._bentDraw(ctx, s, L[st][part][i], part, st, sc, cx, cy, vw)) continue;
+      if (J.chunkFlat && s.bent && L && L[st][part] && L[st][part][i] && this._bentDraw(ctx, s, L[st][part][i], part, st, sc, cx, cy, vw)) continue;
       if (b) { var X = b.x * sc - cx, Y = b.y * sc - cy; if (X > vw[0] || Y > vw[1] || X + b.c.width * sc < 0 || Y + b.c.height * sc < 0) continue; J.stat.strip++; J.stat['px_' + part] = (J.stat['px_' + part] || 0) + b.c.width * b.c.height / 1e6; ctx.drawImage(b.c, Math.round(X), Math.round(Y), b.c.width * sc, b.c.height * sc); continue; }
       if (!L) J.stat.nolayer++;
       for (var j = 0; j < s.p.length; j++) { var q = spr(s.p[j], part, st + (s.p[j].ph || 0)); if (!q) continue; var qx = q.x * sc - cx, qy = q.y * sc - cy; if (qx > vw[0] || qy > vw[1] || qx + q.c.width * sc < 0 || qy + q.c.height * sc < 0) continue; J.stat.plant++; J.stat['px_' + part] = (J.stat['px_' + part] || 0) + q.c.width * q.c.height / 1e6; ctx.drawImage(q.c, Math.round(qx), Math.round(qy), q.c.width * sc, q.c.height * sc); } }
