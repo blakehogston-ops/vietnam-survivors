@@ -201,7 +201,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   </div>
   <div class="help padhelp"><b>Controller</b> (Xbox / PlayStation / Steam Deck, plug in and press any button): <span class="padKeys"></span></div>
   <div class="foot" id="best"></div>
-  <div class="tribute">✦ In memory of the KC-135 crew chiefs: they kept them flying. ✦</div>
+  <div class="tribute">✦ In memory of the USAF KC-135 crew chiefs: they kept them flying. ✦</div>
   <div class="foot">A stylized arcade tribute to the Marines who served in Vietnam.<br><b style="color:#d65a4a">Mature: stylized violence</b> — cartoon pixel blood &amp; gore.</div>
 <details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">
 <p class="crh"><b>PHOTOGRAPHS (public domain, US government)</b></p>
@@ -268,7 +268,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <div id="padHint" aria-live="polite"></div>
 <div id="newBuild" role="button">A newer version of the game is available · click to reload</div>
 <div id="sup" aria-live="off"></div>
-<div id="medHud"><button id="medBtn" title="Use a med pack on yourself (H / pad B)">✚ <b id="medN">0</b><span>H</span></button><button id="medMate" title="Patch the most hurt Marine in reach (Q / pad RB)">✚ MARINE<span>Q</span></button></div>
+<div id="medHud"><button id="medBtn" title="Use a battle dressing on yourself (H / pad B)">✚ <b id="medN">0</b><span>H</span></button><button id="medMate" title="Patch the most hurt Marine in reach (Q / pad RB)">✚ MARINE<span>Q</span></button></div>
 <div id="tkr" aria-live="off"><i id="tkrRing"></i><span id="tkrTx"></span></div>
 <button id="abil" title="Special ability (Space / E)"><i id="abilCd"></i><span id="abilKey">SPACE</span><b id="abilNm"></b></button>
 <div id="levelup" class="overlay">
@@ -341,7 +341,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
   <div class="sub" id="rank" style="margin:0"></div>
   <div id="stats"></div>
   <div class="srd" id="overDed">Dedicated to the Vietnam veterans, and to MSgt Hogston, USAF.</div>
-  <div class="tribute" id="overTrib">✦ In memory of the KC-135 crew chiefs: they kept them flying. ✦</div>
+  <div class="tribute" id="overTrib">✦ In memory of the USAF KC-135 crew chiefs: they kept them flying. ✦</div>
   <button class="btn" id="btnRestart">Back in the Bush</button>
   <button class="btn alt" id="btnMenu">Main menu</button>
   <div id="overSvc"></div>
@@ -633,7 +633,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
     return 0.32;
   };
   BODY.boltRifleCrack = function (ctx, out, t) {
-    // M1903 Springfield (.30-06) single shot: slower and louder than m16/ak47. A hard but not-so-bright crack (band 500 Hz to ~4 kHz,
+    // M40 (7.62mm NATO) 5-round bolt action (internal id m1903): slower and louder than m16/ak47. A hard but not-so-bright crack (band 500 Hz to ~4 kHz,
     // lower than m16), a heavy pitch-dropping body thump, and a LONG low-mid tail (bandpass ~600 -> 180 Hz, ~0.5 s) plus a brown-noise
     // rumble, so it rings out like a big rifle over open ground. ~0.6 s.
     noise(ctx, out, { t: t, dur: 0.09, vol: 0.5, a: 0.001, filters: [['highpass', 300], ['lowpass', 2200, 1000, 0.8]] });      // crack
@@ -2275,7 +2275,7 @@ function updateSupport(dt){
     const s=b.s; for(let k=0;k<s.n;k++){ const a=rnd()*TAU,d=Math.sqrt(rnd())*s.spread; hshells.push({wid:CURW,x:b.cx+Math.cos(a)*d,y:b.cy+Math.sin(a)*d,t:-k*s.gap-rnd()*.05,d:.5,dmg:s.dmg,rad:s.rad,w:false}) }
     hbars[i]=hbars[hbars.length-1]; hbars.pop() }
   for(let i=hshells.length-1;i>=0;i--){ const q=hshells[i]; CURW=q.wid||''; q.t+=dt; if(q.t>=0&&!q.w){q.w=true;Snd.play('shellwhistle')}
-    if(q.t>=q.d){ EXIMP=1; SAMP.impact('mortar'); explode(q.x,q.y,q.rad,q.dmg,q.big?340:280); EXIMP=0; if(q.ao)addCloud(q.x,q.y,q.ao.r,q.ao.life,q.ao.dmg,true); G.shake=Math.max(G.shake,q.big?10:5); hshells[i]=hshells[hshells.length-1]; hshells.pop() } }
+    if(q.t>=q.d){ EXIMP=1; SAMP.impact('mortar'); explode(q.x,q.y,q.rad,q.dmg,q.big?340:280); EXIMP=0; G.shake=Math.max(G.shake,q.big?10:5); hshells[i]=hshells[hshells.length-1]; hshells.pop() } }
   // PBR river patrol boat
   for(let i=boats.length-1;i>=0;i--){ const b=boats[i], s=b.s; CURW=b.wid||''; b.t+=dt; const r=b.r;
     b.u0=r.h?p.x:p.y; let tgt;
@@ -2418,7 +2418,7 @@ function updateAir(dt){
       if(!a.sfx&&a.t>a.delay-1.0){ a.sfx=true; if(!SAMP.air(a.kind===3?'arc':'jet'))Snd.play(a.kind===3?'rumble':'jet') } continue }
     if(!a.go){ a.go=true; a.pos=0;
       if(a.kind===3){ const s=a.s; for(let k=0;k<s.n;k++){ const u=k*64, lat=(rnd()-.5)*2*s.lat;
-          hshells.push({wid:CURW,x:a.cx-ca*a.len/2+ca*u-sa*lat,y:a.cy-sa*a.len/2+sa*u+ca*lat,t:-(500+u)/a.speed,d:.5,dmg:s.dmg,rad:s.rad,w:false,big:true,ao:s.ao?{r:s.rad*.85,life:s.aolife,dmg:s.aodmg}:null}) } } }
+          hshells.push({wid:CURW,x:a.cx-ca*a.len/2+ca*u-sa*lat,y:a.cy-sa*a.len/2+sa*u+ca*lat,t:-(500+u)/a.speed,d:.5,dmg:s.dmg,rad:s.rad,w:false,big:true}) } } }
     a.pos+=a.speed*dt; a.px=a.cx-ca*(a.len/2+500)+ca*a.pos; a.py=a.cy-sa*(a.len/2+500)+sa*a.pos;
     const u=a.pos-500;
     if(a.kind<3){ const s=a.s;
@@ -2979,8 +2979,8 @@ const ITEMS={
     blurb:'Radio in a rifle company. Four UH-1 Hueys fly in from all sides and rope down 5 Marines each: 20 riflemen, M14 marksmen, M60 gunners and M79 grenadiers wearing yellow armbands. They stay on the ring around you and fight until they die or you extract; Hueys leave empty. Can only be called again when the cooldown is up AND 5 or fewer of the last company survive. Never more than 30 company Marines alive. Higher levels: tougher, harder-hitting Marines and a shorter cooldown.',
     stats:l=>({hp:80+30*(l-1),dm:1+.2*(l-1),cd:120-15*(l-1)}),
     desc:s=>`4 Hueys x 5 Marines · HP ${Math.round(s.hp)} each · dmg x${s.dm.toFixed(2)} · call-in cooldown ${s.cd.toFixed(0)}s (needs <=5 survivors)`},
-  medevac:{kind:'w',name:'Medevac',max:3,req:()=>!!G&&!G.demo&&G.p.lvl>=5,
-    blurb:'Radio for a Red Cross medevac Huey ("Dustoff inbound, patch them up"). It hovers over you for a few seconds and heals EVERYONE nearby: you, your squad and patrol Marines, Company Reinforcement Marines, the tank and the firebase engineers. Only comes when someone is hurt. Separate from the one-time Dustoff revive. Higher levels: bigger heal, shorter cooldown.',
+  medevac:{kind:'w',name:'Medevac (CH-46)',max:3,req:()=>!!G&&!G.demo&&G.p.lvl>=5,
+    blurb:'Radio for a Marine CH-46 Sea Knight medevac ("Medevac inbound, urgent"). It hovers over you for a few seconds and heals EVERYONE nearby: you, your squad and patrol Marines, Company Reinforcement Marines, the tank and the firebase engineers. Only comes when someone is hurt. Separate from the one-time Emergency Medevac revive. Higher levels: bigger heal, shorter cooldown.',
     stats:l=>({frac:.2+.2*l,cd:90-12*(l-1)}),
     desc:s=>`Heals everyone ${Math.round(s.frac*100)}% max HP over ~3.5s · cooldown ${s.cd.toFixed(0)}s`},
   grease:{kind:'w',name:'M3A1 "Grease Gun"',max:8,req:()=>!!G&&G.char==='chef',
@@ -2999,12 +2999,12 @@ const ITEMS={
     blurb:'A friendly tank drives in from the edge and stays with you, shelling and machine-gunning the enemy and crushing infantry. Enemies and RPGs can hurt it (HP bar); when it is destroyed a replacement rolls in after a cooldown. Higher levels: more HP, damage, fire rate and faster respawns. Level 3 adds the M67A2 "Zippo" flame tank, level 6 the M50A1 Ontos: fast, fragile and short-ranged, it dumps a salvo of six 106mm recoilless rounds (the Ontos fought at Hue in 1968) then takes a long time to reload.',
     stats:l=>({dmg:95+14*(l-1),rad:52+2*l,gcd:2*Math.pow(.955,l-1),mg:5+l,mcd:.14*Math.pow(.95,l-1),hp:200+40*(l-1),rcd:30*Math.pow(.93,l-1),fdmg:4+1.2*l,frange:Math.min(600,470+16*l),vr:1+(l>=3)+(l>=6)}),
     desc:s=>`90mm HE ${s.dmg} · M2 .50 cal ${s.mg}${s.vr>=2?' · Zippo flame '+Math.round(s.fdmg/.1)+' dps':''}${s.vr>=3?' · Ontos 6x106mm '+Math.round(s.dmg*.7):""} · HP ${Math.round(s.hp)} · replacement in ${s.rcd.toFixed(0)}s`},
-  arclight:{kind:'w',name:'B-52 Arc Light',nm:l=>l>=5?'B-52D Arc Light + Agent Orange':'B-52D Arc Light',max:8,
-    blurb:'Call an Arc Light mission: a B-52D high overhead walks a line of 500 lb bombs across a marked strip, with a KC-135A Stratotanker flying along high above (the B-52s were air-refueled by KC-135s on their long missions from Guam and U-Tapao). From level 5 the bombs also leave lingering orange defoliant clouds that poison and slow enemies (arcade liberty: the real Ranch Hand spray planes were UC-123s).',
-    stats:l=>({n:Math.round(8+1.5*l),dmg:150+30*(l-1),rad:88+5*l,lat:30+4*l,cd:38*Math.pow(.93,l-1),ao:l>=5,aodmg:4+1.1*Math.max(0,l-5),aolife:7+.5*l}),
-    desc:s=>`${s.n} bombs · Dmg ${s.dmg} · radius ${s.rad}${s.ao?' · Agent Orange cloud '+Math.round(s.aodmg/.4)+' dps':''}`},
+  arclight:{kind:'w',name:'B-52 Arc Light',nm:l=>'B-52D Arc Light',max:8,
+    blurb:'Call an Arc Light mission: a B-52D high overhead walks a line of 500 lb bombs across a marked strip, with a KC-135A Stratotanker flying along high above (the B-52s were air-refueled by KC-135s on their long missions from Guam and U-Tapao).',
+    stats:l=>({n:Math.round(8+1.5*l),dmg:150+30*(l-1),rad:88+5*l,lat:30+4*l,cd:38*Math.pow(.93,l-1)}),
+    desc:s=>`${s.n} bombs · Dmg ${s.dmg} · radius ${s.rad}`},
   kc135:{kind:'p',name:'KC-135 Aerial Refueling',max:5,req:()=>!!G&&!!(G.w.arclight||G.w.strafe||G.w.boxmission||G.w.napalm),
-    blurb:'KC-135A Stratotanker, flying boom: the tankers kept the B-52s and fighter-bombers on the line. Your air support (Arc Light, strafing, napalm) is back on station sooner and flies extra bombs and passes. The crew chief keeps them flying.',
+    blurb:'KC-135A Stratotanker, flying boom: the tankers kept the B-52s and fighter-bombers on the line. Your air support (Arc Light, strafing, napalm) is back on station sooner and flies extra bombs and passes. The USAF crew chief keeps them flying.',
     desc:l=>`Air-support cooldown -${l*7}% · Arc Light +${l*2} bombs${l>=2?' · strafing +'+((l>=2)+(l>=4))+' pass'+(l>=4?'es':''):''}`},
   helmet:{kind:'p',name:'M1 Steel Helmet',max:5,blurb:'Armor: take less damage from hits.',desc:l=>`Damage taken -${l*8}%`},
   flak:{kind:'p',name:'Flak Jacket',max:5,blurb:'Extra protection: more max health.',desc:l=>`Max HP ${100+20*l}`},
@@ -3014,13 +3014,13 @@ const ITEMS={
   radio:{kind:'p',name:'Radio Discipline',max:5,blurb:'Proper call signs and brevity codes: every weapon and air mission is ready sooner.',desc:l=>`All cooldowns -${l*8}%`},
   fm:{kind:'p',name:'Field Manual (FM 21-75)',max:5,blurb:'Study Charlie\'s habits and Army field craft: learn from every fight.',desc:l=>`XP gain +${l*10}%`},
   demo:{kind:'p',name:'C-4 Demolition Kit',max:5,blurb:'More plastic explosive, bigger bang: explosions, flames and mines cover more ground.',desc:l=>`Blast / flame / mine area +${l*8}%`},
-  dustoff:{kind:'p',name:'Dustoff',max:1,blurb:'"Dustoff" is the call sign for medical evacuation. The first time you would die, a medevac Huey drops in, patches you up and blasts the area clear. One revive per run.',desc:l=>'One revive per run (60% HP)'},
+  dustoff:{kind:'p',name:'Emergency Medevac',max:1,blurb:'The first time you would die, a Marine CH-46 Sea Knight medevac drops in, patches you up and its gunners blast the area clear. One revive per run.',desc:l=>'One revive per run (60% HP)'},
   spooky:{kind:'w',name:'AC-47 "Spooky"',evo:true,max:1,req:()=>false,
     blurb:'EVOLUTION of the M60 Machine Gun (level 8 + Ammo Pouch). "Puff the Magic Dragon": an AC-47 gunship flies a pylon turn around a fixed ground point, pouring a steady stream of red tracer fire from its side-firing miniguns into it. The point follows you or your firebase. Replaces the M60.',
     stats:l=>({dmg:16,tick:.09,rad:66,hold:15,cd:20,R:330}),
     desc:s=>`Minigun stream ${Math.round(s.dmg/s.tick)} dps in a ${s.rad}px circle · ${s.hold}s orbit every ${s.cd+s.hold}s`},
   boxmission:{kind:'w',name:'Arc Light: Box Mission',nm:l=>'Arc Light: Box Mission',evo:true,max:1,req:()=>false,
-    blurb:'EVOLUTION of B-52 Arc Light (level 8 + KC-135 Aerial Refueling). A cell of three B-52Ds drops side by side to saturate a whole "box" of jungle with 500 lb bombs and Agent Orange. Replaces Arc Light.',
+    blurb:'EVOLUTION of B-52 Arc Light (level 8 + KC-135 Aerial Refueling). A cell of three B-52Ds drops side by side to saturate a whole "box" of jungle with 500 lb bombs. Replaces Arc Light.',
     stats:l=>{ const b=ITEMS.arclight.stats(8); return Object.assign(b,{n:b.n+2,dmg:Math.round(b.dmg*1.1),cd:44,lines:3}) },
     desc:s=>`3 B-52s x ${s.n} bombs · Dmg ${s.dmg} · radius ${s.rad} · every ${s.cd}s`},
   ration:{kind:'r',name:'C-Rations',max:1,blurb:'All upgrades maxed! Restore 50% health.',desc:()=>'Heal 50%'}
@@ -3033,7 +3033,6 @@ const ET={
   rpg:{hp:978,spd:46,dmg:20,r:12,v:10,spr:'rpg',ds:1.8,name:'RPG Heavy',boss:true},   /* was r 26, hp 1150 */
   sapper:{hp:16,spd:112,dmg:6,r:8,v:3,spr:'sapper',ds:.95,name:'VC Sapper'},
   pt76:{hp:630,   /* Oct 14: ~70% of the old 900 (the PT-76 is now the only NVA tank, 1968) */spd:44,dmg:30,r:26,v:12,spr:'pt76',ds:1,name:'NVA PT-76 Light Tank',tank:true,armor:.1},
-  t54:{hp:1700,spd:36,dmg:40,r:30,spr:'t54',ds:1,name:'NVA T-54 (artistic license)',tank:true,armor:.08},
   rpgt:{hp:44,spd:66,dmg:8,r:9,v:5,spr:'rpgt',ds:.95,name:'B-40 Rocket Trooper (RPG-2)'}
 };
 const RANKS=[[0,'Private'],[1,'Private First Class'],[2,'Lance Corporal'],[4,'Corporal'],[6,'Sergeant'],[9,'Staff Sergeant'],[12,'Gunnery Sergeant'],[16,'Master Sergeant'],[20,'Second Lieutenant'],[25,'Captain'],[30,'Major']];
@@ -3401,7 +3400,7 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     /* recon RTO: PRC-25 call for fire, once, 6 s after touchdown; 6 rounds, 4 s time of flight; never within 220 px of Doc or a friendly */
     const rto=men.find(m=>m.role==='rto'&&!m.wia);
     if(rto&&!S.cff&&T>6&&!(G.pullT>0)&&enemyInView()&&((S.cfT=(S.cfT||0)-dt)<=0)){ S.cfT=.5; let best=null,bn=0; for(let i0=0;i0<40&&enemies.length;i0++){ const e=enemies[(rnd()*enemies.length)|0]; if(!e||e.dead)continue; if(Math.hypot(e.x-p.x,e.y-p.y)<300)continue; let n=0; for(const q of nearestK(e.x,e.y,10,110))n++; if(n>bn){bn=n;best=e} }
-      if(best&&bn>=4){ S.cff={x:best.x,y:best.y,t:4,n:0}; g.banner={text:'RECON RTO: FIRE MISSION, SIX ROUNDS',t:2.2,col:'#ffe58a'}; if(!this.sfx('radioCff',null,'radio_cff','special'))Snd.play('radio'); g.specLog.push({ev:'cff',t:+g.t.toFixed(1),n:bn}) } else if(T>20)S.cff={done:1} }
+      if(best&&bn>=4){ S.cff={x:best.x,y:best.y,t:4,n:0}; g.banner={text:'RECON RTO: "FIRE MISSION, OVER" · SIX ROUNDS',t:2.2,col:'#ffe58a'}; if(!this.sfx('radioCff',null,'radio_cff','special'))Snd.play('radio'); g.specLog.push({ev:'cff',t:+g.t.toFixed(1),n:bn}) } else if(T>20)S.cff={done:1} }
     if(S.cff&&!S.cff.done){ const c=S.cff; c.t-=dt; if(c.t<=0){ c.t=.38; c.n++; const x=c.x+(rnd()-.5)*120, y=c.y+(rnd()-.5)*120; let safe=Math.hypot(x-p.x,y-p.y)>220; for(const m of men)if(Math.hypot(x-m.x,y-m.y)<160)safe=false; for(const m of coy)if(Math.hypot(x-m.x,y-m.y)<140)safe=false;
         if(safe){ CURW='spec'; explode(x,y,70,40,220,.8); CURW='' } if(c.n>=6)c.done=1 } }
     /* SOG one-zero: claymore ambush, once, 3 s after touchdown: 2 mines facing the nearest threat */
@@ -3495,7 +3494,7 @@ function update(dt){
   if(p.invul>0)p.invul-=dt; if(p.hurtT>0)p.hurtT-=dt; if(g.treatT>0)g.treatT-=dt; if(g.hurt>0)g.hurt-=dt; if(g.muzzle>0)g.muzzle-=dt; if(g.bolt>0){ const b0=g.bolt; g.bolt-=dt; if(!Snd.cbus){ if(b0>.43&&g.bolt<=.43)Snd.play('boltA'); if(b0>.2&&g.bolt<=.2)Snd.play('boltB') } }
   if(regenR()>0&&p.hp<p.maxHp){p.hp=Math.min(p.maxHp,p.hp+regenR()*dt)}
   if(g.demo){p.hp=p.maxHp}
-  g.shake*=Math.exp(-7*dt); if(g.banner){g.banner.t-=dt;if(g.banner.t<=0)g.banner=null}
+  g.shake*=Math.exp(-7*dt); radioTick(); if(g.banner){g.banner.t-=dt;if(g.banner.t<=0)g.banner=null}
   // grid
   head.fill(-1); const n=enemies.length;
   for(let i=0;i<n;i++){const e=enemies[i]; const k=((Math.floor(e.x/CS)&63)<<6)|(Math.floor(e.y/CS)&63); nextI[i]=head[k]; head[k]=i}
@@ -3544,9 +3543,9 @@ function update(dt){
       if(e.flee>0){ e.flee-=dt; const ax=e.x-(fbS?fbS.x:p.x), ay=e.y-(fbS?fbS.y:p.y), al=Math.hypot(ax,ay)||1; dx=ax; dy=ay; d=al; spd*=1.25; if(e.flee<=0){ e.dead=true; burst(e.x,e.y,6,60,.4,3,['#8a8574','#6d675a'],false) } }
       else if(ftT&&ftT.type&&d<(ftT.r||10)+e.r+8){ if(plantCharge(ftT)){ e.flee=1.4 } else spd=0 } }
     else if(e.tank){ e.cdash-=dt; let T=ftT; if(!T){ const tk=tanks[0]; T=(tk&&!tk.dead&&Math.hypot(tk.x-e.x,tk.y-e.y)<800)?tk:{x:p.x,y:p.y,hp:1,r:10,player:1} }
-      dx=T.x-e.x; dy=T.y-e.y; d=Math.hypot(dx,dy)||1; if(d<=(e.type==='t54'?330:290))spd=0;
-      if(e.cdash<=0){ if(d>440||(!onScreen(e,10)&&d>380)){ e.cdash=.5 } else { e.cdash=e.type==='t54'?3.4:4.0; e.mf=.12;
-          eprojs.push({sx:e.x+(dx<0?-1:1)*30,sy:e.y-12,x:e.x,y:e.y-12,tx:T.x,ty:T.y,t:0,d:.85,rad:56,dmg:16,tr:1,trk:T.player?null:T,toff:0,tdm:e.type==='t54'?110:80,sdm:e.type==='t54'?95:70});
+      dx=T.x-e.x; dy=T.y-e.y; d=Math.hypot(dx,dy)||1; if(d<=290)spd=0;
+      if(e.cdash<=0){ if(d>440||(!onScreen(e,10)&&d>380)){ e.cdash=.5 } else { e.cdash=4.0; e.mf=.12;
+          eprojs.push({sx:e.x+(dx<0?-1:1)*30,sy:e.y-12,x:e.x,y:e.y-12,tx:T.x,ty:T.y,t:0,d:.85,rad:56,dmg:16,tr:1,trk:T.player?null:T,toff:0,tdm:80,sdm:70});
           burst(e.x+(dx<0?-1:1)*34,e.y-12,8,110,.3,4,['#fff0a0','#ffb040','#c8c8c0'],true); MIX.as('special',()=>Snd.play('enemy_cannon'),d) } } }
     else if(e.boss){ e.cdash-=dt;
       if(e.wind>0){e.wind-=dt;spd=0;if(e.wind<=0){e.dash=.9}}
@@ -3591,7 +3590,7 @@ function update(dt){
     const dx=p.x-q.x,dy=p.y-q.y,d2=dx*dx+dy*dy; if(!q.pull&&d2<mr2)q.pull=true; if(q.pull){ q.sp=Math.min(700,q.sp+1500*dt); const d=Math.sqrt(d2)||1; q.x+=dx/d*(260+q.sp)*dt; q.y+=dy/d*(260+q.sp)*dt }
     if(d2<16*16){ const m=G.med; if((G.medInv|0)>=MED.inv){ q.pull=false; continue }   // pouch full: the pack stays on the ground
       G.medInv=(G.medInv|0)+1; m.lastPick=G.t; m.picked++;
-      ftexts.push({x:p.x,y:p.y-18,t:0,s:'+1 MED PACK ('+G.medInv+')',c:'#8cf08c'}); Snd.play('medpack'); medpacks.splice(i,1) } }
+      ftexts.push({x:p.x,y:p.y-18,t:0,s:'+1 BATTLE DRESSING ('+G.medInv+')',c:'#8cf08c'}); Snd.play('medpack'); medpacks.splice(i,1) } }
   for(let i=ftexts.length-1;i>=0;i--){ const q=ftexts[i]; q.t+=dt; q.y-=26*dt; if(q.t>1.4)ftexts.splice(i,1) }
   // particles
   for(let i=parts.length-1;i>=0;i--){const q=parts[i]; q.l-=dt; if(q.l<=0){parts[i]=parts[parts.length-1];parts.pop();continue} const dr=Math.max(0,1-q.d*dt); q.vx*=dr;q.vy*=dr;q.x+=q.vx*dt;q.y+=q.vy*dt}
@@ -3623,7 +3622,7 @@ window.dbgAirCd=dbgAirCd;
 /* Hogston, "Ready the Tankers": calling in an air strike triggers a refuel run (KC-135 flyover) that cuts that weapon's next cooldown by 15%, then 20 s before the next run */
 function refuelRun(id,w){ const g=G; if(g.char!=='radio'||g.demo||(g.rfCd||0)>0)return; g.rfCd=TANKER.gap; w.rf=true; g.rfN=(g.rfN||0)+1;
   g.rfRun={t:0,dur:TANKER.run,a:(rnd()<.5?0:Math.PI)+(rnd()-.5)*.25,off:(rnd()-.5)*90};
-  annc('refuel','kc135',{text:'KC-135 TEXACO: "TANKERS FUELED, TANKERS READY" · NEXT STRIKE -15% COOLDOWN',t:2.8,col:'#cfe3f0'}); Snd.airPlay('refuel'); Snd.play('radio') }
+  annc('refuel','kc135',{text:'TEXACO ON STATION · NEXT STRIKE -15% COOLDOWN',t:2.8,col:'#cfe3f0'}); Snd.airPlay('refuel'); Snd.play('radio') }
 function drawRefuel(){ const g=G,r=g&&g.rfRun; if(!r)return; const p=g.p, u=r.t/r.dur, ca=Math.cos(r.a), sa=Math.sin(r.a), d=-700+1400*u, X=p.x+ca*d-sa*r.off, Y=p.y+sa*d+ca*r.off;
   drawKC135({a:r.a,px:X-ca*230+sa*95,py:Y-sa*230-ca*95}) }
 const AIRLBL={arclight:'ARC',boxmission:'BOX',strafe:'STR',napalm:'NPM',spooky:'SPK'};
@@ -3714,7 +3713,7 @@ function updateWeapons(dt){
     else if(id==='howitzer'){
       const c0=clump(430,130,12)||[p.x+Math.cos(g.t)*170,p.y+Math.sin(g.t)*170];
       hbars.push({wid:CURW,cx:c0[0],cy:c0[1],t:0,delay:2.1,s});
-      annc('howitzer','howitzer',{text:'FIRE MISSION! 105mm HOWITZER',t:1.8,col:'#ffe58a'}); Snd.play('radio'); w.cd+=s.cd; }
+      annc('howitzer','howitzer',{text:'"FIRE MISSION, OVER" · 105mm',t:1.4,col:'#ffe58a'}); radioSeq([[1.2,'"SHOT, OVER"'],[3.6,'"SHOT, OUT"']]); Snd.play('radio'); w.cd+=s.cd; }
     else if(id==='gunboat'){ if(boats.some(b=>!b.dead)){w.cd=1;continue} if(callBoat(s)){ w.cd+=s.cd; if(w.lvl>=ZMON.LV&&ZMON.ok())callBoat(s,true) } else w.cd=3 }
     else if(id==='huey'){ if(hueys.length){w.cd=1;continue}
       hueys.push({wid:CURW,hp:s.hhp,mhp:s.hhp,hf:0,a:rnd()*TAU,t:0,hold:s.hold,s,x:p.x+700,y:p.y,hd:0,rot:0,gcd:[.1,.25],mf:[0,0]});
@@ -3952,7 +3951,7 @@ const KIA={ON:!/[?&]kia=0\b/.test(location.search), q:[], cur:null, t:0,
   hud(U){ if(!this.cur)return; const a=Math.min(1,this.t*2,(2.8-this.t)*4); ctx.save(); ctx.globalAlpha=a*.92; ctx.font=Math.round(12*U)+'px "Courier New",monospace'; const tx='KIA: '+this.cur, w=ctx.measureText(tx).width+16*U, x0=W/2-w/2, y0=H*.235;
     ctx.fillStyle='rgba(12,14,10,.62)'; ctx.fillRect(x0,y0,w,20*U); ctx.fillStyle='#c9c2a6'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(tx,W/2,y0+10*U); ctx.restore() } };
 /* MAGS (Blake): spent magazines / links / brass / stripper clips stay on the ground. The game has no reload state, so each shooter counts
-   shots and drops at the real capacity: M16 20-rd box, M14 20, M3A1 30, M1911 7, M2 carbine 30, M60 belt links + brass, Ithaca hulls, M1903 5-rd
+   shots and drops at the real capacity: M16 20-rd box, M14 20, M3A1 30, M1911 7, M2 carbine 30, M60 belt links + brass, Ithaca hulls, M40 5-rd bolt action
    stripper clip. Tiny pooled decals (cap 300, oldest fade), short drop-and-bounce, random rotation, drawn under units. ?mags=0 off. */
 const MAGS={ON:!/[?&]mags=0\b/.test(location.search), CAP:300, L:[], i:0,
   K:{m16:{n:20,c:'#2c2c28',w:3,h:6},m14:{n:20,c:'#33302a',w:3,h:6},grease:{n:30,c:'#2a2a26',w:2,h:8},m1911:{n:7,c:'#3a3a36',w:2,h:4},carbine:{n:30,c:'#2e2e2a',w:2,h:7},
@@ -4243,6 +4242,7 @@ const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,spooky:10,arclight:14,boxmission:22},
     if(id==='napalm')o.n=ITEMS.napalm.stats(w.lvl).n+big; if((id==='arclight'||id==='boxmission')&&big)o.n=ITEMS[id].stats(w.lvl).n+4*big;
     for(const k in o)if(o[k]===undefined)delete o[k];
     ftexts.push({x:m.x+(m.x<g.p.x?-34:34),y:m.y-6,t:0,s:'FIRE MISSION · '+t.n,c:'#ffe58a'}); m.callT=1.6;
+    if(AIRIDS[id]&&id!=='howitzer'&&id!=='mortar'&&id!=='gunboat'){ const cs=id==='arclight'||id==='boxmission'?'Stratus':id==='spooky'?'Spooky':'Hellborne'; radioSeq([[.1,cs+' Two-One: "In hot"'],[1.0,'RTO: "Cleared hot"'],[id==='spooky'?14:7,cs+' Two-One: "Winchester, RTB"']]) }
     return o },
   move(m,sx,sy,d,dt){ m.mv=d>6; if(!m.mv)return; if(d>320&&!riverAt(sx,sy)){ m.x=sx; m.y=sy; return }   /* fell way behind (river, bunker exit): back at Doc's shoulder */
     const sp=Math.min(d*7,430*Math.max(1,speedMul())), k=sp*dt/d; rvMove(m,(sx-m.x)*k,(sy-m.y)*k,'m'); m.anim+=dt*9; if(!m.tg)m.face=sx>=m.x?1:-1 },
@@ -4442,7 +4442,7 @@ function pickChoice(i){
   if(it.evo){ const e=EVOS[id]; delete G.w[e.base]; G.w[id]={lvl:1,cd:.2,tick:0}; G.banner={text:'EVOLUTION: '+e.nm.toUpperCase()+'!',t:3,col:'#ffd54a'}; G.shake=Math.max(G.shake,8) }
   else if(it.kind==='w'){ if(G.w[id])G.w[id].lvl++; else G.w[id]={lvl:1,cd:.2,tick:0} }
   else if(it.kind==='p'){ G.ps[id]++; if(id==='flak'){applyPassives();G.p.hp=Math.min(G.p.maxHp,G.p.hp+20)} } else { G.p.hp=Math.min(G.p.maxHp,G.p.hp+G.p.maxHp*.5) }
-  Snd.play('pick'); if(id==='kc135')G.banner={text:'KC-135A TANKER ON STATION',t:2.2,col:'#cfe3f0'}; if(id==='dustoff')G.banner={text:'DUSTOFF ON CALL',t:2.2,col:'#9be37a'}; G.pending--; $('levelup').classList.remove('show'); state='play';
+  Snd.play('pick'); if(id==='kc135')G.banner={text:'KC-135A TANKER ON STATION',t:2.2,col:'#cfe3f0'}; if(id==='dustoff')G.banner={text:'MEDEVAC ON CALL',t:2.2,col:'#9be37a'}; G.pending--; $('levelup').classList.remove('show'); state='play';
   /* further pending levels wait for the per-frame gate above (no card chains during extraction) */
   if(G.pending>0&&!(G.ex&&(G.ex.ph>=1&&G.ex.ph!==3||G.ex.ph>=4))){ if(!DBG.bot)setTimeout(()=>{ if(state==='play')openLevelUp() },150); else openLevelUp() }
 }
@@ -4490,153 +4490,7 @@ function updatePatrol(dt){ const g=G,p=g.p; if(g.demo||!g.char||g.q15)return;
    shared memberCombat timer), contact checks every other frame, no pairwise separation.
    Medevac: a Red Cross Huey hovers over the player and heals everyone (player, squad, patrol, company, tank, engineers) for a % of max HP. */
 /* ---- Artist Helper: assets/artist/medevac_huey.js ---- */
-/* MEDEVAC HUEY (Red Cross "Dustoff" Huey). Original art. Top-down like drawHuey() in index.html; nose points +x (heading 0).
-   1) drawMedevacHuey(ctx,x,y,scale,rotorPhase[,heading])  - procedural, same style/scale as drawHuey (scale 1 = game px).
-        x,y = centre of the aircraft (same as drawHuey's x,y after the z-offset). rotorPhase: 0 or 1 (integer parity used; pass
-        Math.floor(time*N)) - the two blade positions. heading = radians, default 0 (use h.hd). Does NOT draw shadow / HP bar / rotor
-        disc glow beyond its own blur; caller keeps those. Adds: white square + red cross on roof AND tail boom, open side doors
-        (dark opening + tan litter), rotor blur disc.
-   2) MEDEVAC_HUEY.frames[0|1] - letter grids (48x48, nose right, 1 grid px = 2 game px -> draw with scale 2) + MEDEVAC_HUEY.legend.
-        '.' transparent. Rotate the canvas for heading. Fallback if you don't want the procedural version.  */
-const MEDEVAC_HUEY = {
-  w: 48, h: 48, gridPxPerGamePx: 0.5,
-  frames: [
-    ["................................................",
-     "...................b.b.b.b.b....................",
-     "................b.b.b.b.b.b.b.b.................",
-     "...............b.b.b.b.b.b.b.b.b.b..............",
-     "............b.b.b.b.b.b.b.b.b.b.b.b.............",
-     "...........b.b.b.b.b.b.b.b.b.b.b.b.b.b..........",
-     "..........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.........",
-     ".........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b........",
-     "........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.......",
-     ".......b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b......",
-     "......b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
-     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b......",
-     "....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
-     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b....",
-     "....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b...",
-     "...b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b....",
-     "..b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b...",
-     "...b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b..",
-     "..b.b.b.b.b.b.b.b.KKKKKKKKKKKKK.b.b.b.b.b.b.b...",
-     ".b.b.b.b.b.b.b.b.b.b.ZTTZ.Kb.b.b.b.b.b.b.b.b.b..",
-     "..b.b.b.b.b.b.b.b.bOOOOOOOOOO.b.b.b.b.b.b.b.b.b.",
-     "gDDD.b.b.b.b.b.b.OOODDDDDOOOCCCb.b.b.b.b.b.b.b..",
-     "gDDDb.bWRRW.b.b.bOODDWWRWWOCCCCCb.b.b.b.b.b.b.b.",
-     "gDDDDDDRRRRDDDDDOODDDWWRWWDCCcCC.b.b.b.b.b.b.b..",
-     "gDDDDDDRRRRDDDDDOODDDRRRMMDCCCCCBBBBBBBBBBBBBBB.",
-     ".b.b.b.WRRWb.b.b.OODDWWRWWOCCCCC.b.b.b.b.b.b.b..",
-     "..b.b.b.b.b.b.b.bOOODWWRWWOOCCC.b.b.b.b.b.b.b.b.",
-     ".b.b.b.b.b.b.b.b.b.OOOOOOOOOOb.b.b.b.b.b.b.b.b..",
-     "..b.b.b.b.b.b.b.b.b.bZTTZ.K.b.b.b.b.b.b.b.b.b.b.",
-     "...b.b.b.b.b.b.b.bKKKKKKKKKKKKKb.b.b.b.b.b.b.b..",
-     "..b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b...",
-     "...b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b..",
-     "....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b...",
-     "...b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b....",
-     "....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
-     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b....",
-     "......b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
-     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b......",
-     "......b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.......",
-     ".......b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b........",
-     "........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.b.........",
-     ".........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b..........",
-     "..........b.b.b.b.b.b.b.b.b.b.b.b.b.b...........",
-     ".............b.b.b.b.b.b.b.b.b.b.b.b............",
-     "..............b.b.b.b.b.b.b.b.b.b...............",
-     ".................b.b.b.b.b.b.b.b................",
-     "....................b.b.b.b.b...................",
-     "................................................"],
-    ["................................................",
-     "....................b.b.b.b.b...................",
-     ".................b.b.b.b.b.b.b.b................",
-     "..............b.b.b.b.b.b.b.b.b.b...............",
-     ".............b.b.b.b.b.b.b.b.b.b.b.b............",
-     "..........b.b.b.b.b.b.b.b.b.b.b.b.b.b...........",
-     ".........b.b.b.b.b.b.b.b.b.b.b.b.b.b.b..........",
-     "........b.BBb.b.b.b.b.b.b.b.b.b.b.b.b.b.........",
-     ".......b.b.BBb.b.b.b.b.b.b.b.b.b.b.b.b.b........",
-     "......b.b.b.B.b.b.b.b.b.b.b.b.b.b.b.b.b.b.......",
-     ".....b.b.b.b.B.b.b.b.b.b.b.b.b.b.b.b.b.b.b......",
-     "......b.b.b.bBB.b.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
-     ".....b.b.b.b.bBB.b.b.b.b.b.b.b.b.b.b.b.b.b.b....",
-     "....b.b.b.b.b.bBB.b.b.b.b.b.b.b.b.b.b.b.b.b.....",
-     "...b.b.b.b.b.b.bBb.b.b.b.b.b.b.b.b.b.b.b.b.b....",
-     "....b.b.b.b.b.b.bBb.b.b.b.b.b.b.b.b.b.b.b.b.b...",
-     "...b.b.b.b.b.b.b.BBb.b.b.b.b.b.b.b.b.b.b.b.b.b..",
-     "..b.b.b.b.b.b.b.b.BBb.b.b.b.b.b.b.b.b.b.b.b.b...",
-     "...b.b.b.b.b.b.b.bKKKKKKKKKKKKKb.b.b.b.b.b.b.b..",
-     "..b.b.b.b.b.b.b.b.b.BZTTZ.K.b.b.b.b.b.b.b.b.b.b.",
-     ".b.b.b.b.b.b.b.b.b.OOOOOOOOOOb.b.b.b.b.b.b.b.b..",
-     ".DDDb.b.b.b.b.b.bOOODDDDDOOOCCC.b.b.b.b.b.b.b.b.",
-     "gDDD.b.WRRWb.b.b.OODDWWRWWOCCCCC.b.b.b.b.b.b.b..",
-     "gDDDDDDRRRRDDDDDOODDDWWRWWDCCcCCb.b.b.b.b.b.b.b.",
-     ".DDDDDDRRRRDDDDDOODDDRRRMMDCCCCC.b.b.b.b.b.b.b..",
-     "..b.b.bWRRW.b.b.bOODDWWRWWOCCCCCb.b.b.b.b.b.b.b.",
-     ".b.b.b.b.b.b.b.b.OOODWWRWWOOCCCb.b.b.b.b.b.b.b..",
-     "..b.b.b.b.b.b.b.b.bOOOOOOOOOO.b.b.b.b.b.b.b.b.b.",
-     ".b.b.b.b.b.b.b.b.b.b.ZTTZ.KB.b.b.b.b.b.b.b.b.b..",
-     "..b.b.b.b.b.b.b.b.KKKKKKKKKKKKK.b.b.b.b.b.b.b...",
-     "...b.b.b.b.b.b.b.b.b.b.b.b.b.B.b.b.b.b.b.b.b.b..",
-     "..b.b.b.b.b.b.b.b.b.b.b.b.b.bBB.b.b.b.b.b.b.b...",
-     "...b.b.b.b.b.b.b.b.b.b.b.b.b.bBB.b.b.b.b.b.b....",
-     "....b.b.b.b.b.b.b.b.b.b.b.b.b.bBb.b.b.b.b.b.b...",
-     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.bBb.b.b.b.b.b....",
-     "....b.b.b.b.b.b.b.b.b.b.b.b.b.b.BBb.b.b.b.b.....",
-     ".....b.b.b.b.b.b.b.b.b.b.b.b.b.b.BBb.b.b.b......",
-     "......b.b.b.b.b.b.b.b.b.b.b.b.b.b.BBb.b.b.b.....",
-     ".......b.b.b.b.b.b.b.b.b.b.b.b.b.b.B.b.b.b......",
-     "........b.b.b.b.b.b.b.b.b.b.b.b.b.b.B.b.b.......",
-     ".........b.b.b.b.b.b.b.b.b.b.b.b.b.bBB.b........",
-     "..........b.b.b.b.b.b.b.b.b.b.b.b.b.bBB.........",
-     "...........b.b.b.b.b.b.b.b.b.b.b.b.b.b..........",
-     "............b.b.b.b.b.b.b.b.b.b.b.b.............",
-     "...............b.b.b.b.b.b.b.b.b.b..............",
-     "................b.b.b.b.b.b.b.b.................",
-     "...................b.b.b.b.b....................",
-     "................................................"]
-  ],
-  legend: {K:'#1c1c1c', O:'#55633f', D:'#46523a', C:'#9fc4d2', c:'#d8eef4', Z:'#1a1a14', T:'#cdb98a', W:'#f4f1e6', R:'#cf2222', g:'#2b2b2b', B:'#1a1a1a', b:'#cfcfc6', M:'#333333'}
-};
-
-function drawMedevacHuey(ctx, x, y, scale, rotorPhase, heading) {
-  scale = scale || 1; rotorPhase = (rotorPhase | 0) & 1; heading = heading || 0;
-  const TAU = Math.PI * 2, fr = ctx.fillStyle;
-  ctx.save(); ctx.translate(Math.round(x), Math.round(y)); ctx.rotate(heading); ctx.scale(scale, scale);
-  // skids
-  ctx.fillStyle = '#1c1c1c'; ctx.fillRect(-12, -11, 26, 1.6); ctx.fillRect(-12, 9.4, 26, 1.6);
-  ctx.fillRect(-6, -11, 1.5, 8); ctx.fillRect(4, -11, 1.5, 8); ctx.fillRect(-6, 3, 1.5, 8); ctx.fillRect(4, 3, 1.5, 8);
-  // tail boom + fin
-  ctx.fillStyle = '#46523a'; ctx.fillRect(-44, -2, 34, 4); ctx.fillRect(-46, -7, 5, 8);
-  // tail-boom medevac marking: white square, red cross (visible even when the roof is hidden)
-  ctx.fillStyle = '#f4f1e6'; ctx.fillRect(-34, -4, 8, 8); ctx.fillStyle = '#cf2222'; ctx.fillRect(-31, -3.5, 2, 7); ctx.fillRect(-33.5, -1, 7, 2);
-  // fuselage
-  ctx.fillStyle = '#55633f'; ctx.beginPath(); ctx.ellipse(0, 0, 16, 8.5, 0, 0, TAU); ctx.fill();
-  ctx.fillStyle = '#46523a'; ctx.beginPath(); ctx.ellipse(-3, 0, 9, 6, 0, 0, TAU); ctx.fill();
-  // nose glass
-  ctx.fillStyle = '#9fc4d2'; ctx.beginPath(); ctx.ellipse(11, 0, 5.5, 5.5, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#d8eef4'; ctx.fillRect(10, -3, 2, 2);
-  // open side doors: dark opening, tan litter inside
-  ctx.fillStyle = '#1a1a14'; ctx.fillRect(-6, -10, 8, 2.6); ctx.fillRect(-6, 7.4, 8, 2.6);
-  ctx.fillStyle = '#cdb98a'; ctx.fillRect(-5, -9.6, 5, 1.6); ctx.fillRect(-5, 8, 5, 1.6);
-  // roof: big white square + red cross (same box as drawMedevac, slightly larger)
-  ctx.fillStyle = '#f4f1e6'; ctx.fillRect(-6, -6, 12, 12); ctx.fillStyle = '#cf2222'; ctx.fillRect(-1.8, -5, 3.6, 10); ctx.fillRect(-5, -1.8, 10, 3.6);
-  // tail rotor
-  ctx.fillStyle = 'rgba(210,210,210,.55)'; ctx.save(); ctx.translate(-45, -3); ctx.rotate(rotorPhase ? 1.1 : 0); ctx.fillRect(-5, -.8, 10, 1.6); ctx.restore();
-  // rotor blur disc + 2-phase blade
-  ctx.globalAlpha = .13; ctx.fillStyle = '#cfcfc6'; ctx.beginPath(); ctx.arc(0, 0, 47, 0, TAU); ctx.fill();
-  ctx.globalAlpha = .75; ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2.6; ctx.save(); ctx.rotate(rotorPhase ? .9 : 0);
-  ctx.beginPath(); ctx.moveTo(-47, 0); ctx.lineTo(47, 0); ctx.stroke(); ctx.restore(); ctx.globalAlpha = 1;
-  ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(0, 0, 3.5, 0, TAU); ctx.fill();
-  ctx.restore(); ctx.fillStyle = fr;
-}
-function drawMedevacHueyGrid(ctx, x, y, scale, rotorPhase, heading) {   // grid fallback, centred on x,y
-  const g = MEDEVAC_HUEY.frames[(rotorPhase | 0) & 1], s = 2 * (scale || 1);
-  ctx.save(); ctx.translate(Math.round(x), Math.round(y)); ctx.rotate(heading || 0);
-  for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) { const c = MEDEVAC_HUEY.legend[g[j][i]]; if (c) { ctx.fillStyle = c; ctx.fillRect((i - 24) * s, (j - 24) * s, s + .5, s + .5) } }
-  ctx.restore();
-}
+/* (Oct 20, vet review: the red-cross medevac Huey art was removed; every Marine medevac is the CH-46, drawCH46) */
 
 /* ---- Artist Helper: assets/artist/heal_pulse.js ---- */
 /* HEAL PULSE + rising plus particle. Original art.
@@ -4806,7 +4660,7 @@ function drawHealPlus(ctx, x, y, t, scale) {
   ctx.restore();
 }
 
-const COY={cap:30,per:5,hueys:4,recall:5,roles:['rifle','rifle','m14','m60','m79'],ringR:150,leash:820,hover:2.2};
+const COY={cap:30,per:10,hueys:2,recall:5,roles:['rifle','rifle','m14','m60','m79'],ringR:150,leash:820,hover:2.2};
 const MEDEVAC={R:620,hold:3.5,ticks:7};
 let coy=[],coyH=[],medevac=null,COYSPR=[],coyF=0;
 const coyAlive=()=>{ let n=0; for(const m of coy)if(m.hp>0)n++; return n };
@@ -4818,7 +4672,7 @@ function callCompany(s){ const g=G,p=g.p, room=COY.cap-coyAlive()-coyIncoming();
   const comp={t0:g.t,n:0,alive:0,half:null,few:null,end:null,id:(g.cs.comps.length)}; g.cs.comps.push(comp);
   for(let k=0;k<COY.hueys&&left>0;k++){ const a=a0+k*TAU/COY.hueys, nn=Math.min(COY.per,left); left-=nn; comp.n+=nn;
     coyH.push({x:p.x+Math.cos(a)*Rf,y:p.y+Math.sin(a)*Rf,a,ph:0,t:-k*.45,left:nn,di:0,dT:0,endT:0,vs:60,rot:0,hd:a+Math.PI,hp:1,mhp:0,hf:0,mf:[0,0],s,comp,k,go:false}) }
-  comp.hueyAt=g.t+1; comp.dropAt=g.t+4; g.cs.calls++; g.banner={text:'COMPANY REINFORCEMENT INBOUND (4x UH-1)',t:2.4,col:'#9be37a'}; Snd.cue('reinforcementCall'); Amb.support(10); return true }
+  comp.hueyAt=g.t+1; comp.dropAt=g.t+4; g.cs.calls++; g.banner={text:'COMPANY REINFORCEMENT INBOUND (2x CH-46)',t:2.4,col:'#9be37a'}; Snd.cue('reinforcementCall'); Amb.support(10); return true }
 /* ---- THE FIFTEEN (Stage 1): Doc + 14 Marines. Three Hueys insert them at the start (4 + 5 + 5), then leave. Dead stay dead, bodies stay where they fell,
    no replacement call of any kind (Company Reinforcement, squad/patrol refills and the Medevac perk are out of the pool). The count only goes down. ---- */
 /* squad corpsman (Blake, Oct 14): an AI Navy corpsman is one of the fifteen when the player is NOT Doc (with Doc playing he is skipped: Doc is the platoon's corpsman,
@@ -4887,7 +4741,7 @@ function medevacUnits(){ const g=G,out=[g.p]; for(const arr of [squad,pat,coy])f
 function medevacNeeded(){ const p=G.p; if(p.hp<p.maxHp*.8)return true; let n=0; for(const u of medevacUnits()){ if(u!==p&&u.hp<u.mhp*.6)n++ } return n>=3 }
 function callMedevac(s){ const g=G,p=g.p, a=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+170;
   medevac={x:p.x+Math.cos(a)*Rf,y:p.y+Math.sin(a)*Rf,a,ph:0,t:0,hold:0,tk:0,hd:a+Math.PI,rot:0,hp:1,mhp:0,hf:0,mf:[0,0],z:34,s,vs:60,medic:true};
-  g.ms.calls++; g.banner={text:'DUSTOFF INBOUND, PATCH THEM UP',t:2.4,col:'#ff9a8a'}; Snd.cue('medevacCall'); Amb.support(8) }
+  g.ms.calls++; g.banner={text:'MEDEVAC INBOUND, URGENT',t:2.4,col:'#ff9a8a'}; Snd.cue('medevacCall'); Amb.support(8) }
 function medevacHeal(u,frac,scale){ if(u.hp<=0)return; const mx=u.maxHp||u.mhp, add=Math.min(mx-u.hp,mx*frac*scale); if(add<=0)return; u.hp+=add; u._mh=(u._mh||0)+add; G.ms.healed+=add }
 function updateMedevac(dt){ const g=G,p=g.p,h=medevac; updateHealFx(dt); if(g.demo||!g.char||!g.ms)return; if(!h)return; h.t+=dt; h.rot+=dt*34; if(!h.sa&&h.t>=.6){ h.sa=1; (RotorS.ok()||Snd.cue('medevacHuey')) }
   const hx=p.x, hy=p.y-6;
@@ -5160,7 +5014,7 @@ function useAbility(){ const g=G; if(!g||g.demo||!g.char||state!=='play'||g.abCd
    case 'skipper': healAllies(.5); g.rally=8; g.sqT=0; ringBurst(p.x,p.y,50,['#9be37a','#e0b43a'],24); break;
    case 'zippo': for(const R of [70,125]){ const n=R<100?6:10; for(let i=0;i<n;i++){ const a=i/n*TAU+rnd(); if(fires.length<90)fires.push({wid:CURW,x:p.x+Math.cos(a)*R,y:p.y+Math.sin(a)*R,r:30,life:5,ml:5,tick:0,dmg:3}) } } Snd.play('flame'); break;
    case 'rat': g.rr=3; p.invul=Math.max(p.invul,3); break;
-   case 'radio': { const s=ITEMS.howitzer.stats(Math.max(1,(g.w.howitzer&&g.w.howitzer.lvl)||1)); const c0=clump(430,130,12); for(let i=0;i<4;i++){ hbars.push({wid:CURW,cx:c0[0]+(rnd()-.5)*90,cy:c0[1]+(rnd()-.5)*90,t:-i*.45,delay:2.1,s}) } break }
+   case 'radio': { const s=ITEMS.howitzer.stats(Math.max(1,(g.w.howitzer&&g.w.howitzer.lvl)||1)); const c0=clump(430,130,12)||[p.x+Math.cos(g.fa||0)*200,p.y+Math.sin(g.fa||0)*200]; g.banner={text:'DANGER CLOSE',t:1.8,col:'#ff9a6a'}; setTimeout(()=>{ if(G!==g)return; for(const m of coy.concat(squad))if(m.hp>0&&Math.hypot(m.x-c0[0],m.y-c0[1])<150)hurtMember(m,4) },2300);   /* Vet: danger close means your own men catch a little of it */ for(let i=0;i<4;i++){ hbars.push({wid:CURW,cx:c0[0]+(rnd()-.5)*90,cy:c0[1]+(rnd()-.5)*90,t:-i*.45,delay:2.1,s}) } break }
    case 'preacher': { const s=ITEMS.m79.stats(Math.max(1,(g.w.m79&&g.w.m79.lvl)||1)); for(let i=0;i<14;i++){ let tx,ty; const e=enemies.length?enemies[(rnd()*enemies.length)|0]:null; if(e&&!e.dead&&Math.hypot(e.x-p.x,e.y-p.y)<330){tx=e.x;ty=e.y}else{const a=rnd()*TAU,r=90+rnd()*200;tx=p.x+Math.cos(a)*r;ty=p.y+Math.sin(a)*r}
       grenades.push({wid:CURW,sx:p.x,sy:p.y,x:p.x,y:p.y,tx,ty,t:-i*.09,d:.7,dmg:s.dmg,rad:s.rad*(1+g.area)}) } SAMP.m79(SAMP.tail()); break }
    case 'chef': g.chow=3; g.full=8; ringBurst(p.x,p.y,36,['#fff','#e8c860'],20); Snd.play('heal'); break;
@@ -5782,6 +5636,9 @@ function fbRing(x,y,hold,tt){ ctx.save(); ctx.translate(x,y+4); ctx.scale(1,.62)
   ctx.strokeStyle='rgba(255,230,120,.85)'; ctx.lineWidth=3; ctx.setLineDash([10,7]); ctx.lineDashOffset=-tt*10; ctx.beginPath(); ctx.arc(0,0,54,0,TAU); ctx.stroke(); ctx.setLineDash([]);
   if(hold>0){ ctx.strokeStyle='#9be37a'; ctx.lineWidth=7; ctx.beginPath(); ctx.arc(0,0,54,-Math.PI/2,-Math.PI/2+TAU*Math.min(1,hold)); ctx.stroke() } ctx.restore() }
 /* announcements (Stage 1): Gunny, bosses and the signal always get text; every other support call announces once per run with text, then only its icon */
+/* timed radio lines (call-for-fire phrasing): [[delay s, text], ...] shown as short banners on the sim clock */
+function radioSeq(list){ const g=G; if(!g||g.demo)return; const q=g.rq||(g.rq=[]); for(const [d,t] of list)q.push({at:g.t+d,text:t}); }
+function radioTick(){ const g=G, q=g&&g.rq; if(!q||!q.length)return; for(let i=q.length-1;i>=0;i--){ if(g.t>=q[i].at){ const it=q.splice(i,1)[0]; if(!g.banner||g.banner.t<.6||/^"|Two-One|RTO:/.test(g.banner.text)){ g.banner={text:it.text.toUpperCase(),t:1.6,col:'#e8e2c0'}; Snd.play('radio') } } } }
 function annc(key,icon,b){ const g=G; if(!g)return; const a=g.anc||(g.anc={}); if(!a[key]){ a[key]=1; g.banner=b; return } const q=g.icons||(g.icons=[]); q.push({id:icon,until:g.t+2.2}); if(q.length>5)q.shift() }
 function drawAnncIcons(U){ const g=G, q=g.icons; if(!q||!q.length)return; const sz=26*U; let x=W/2+70*U, y=26*U+SA.t*DPR+8*U;
   for(let i=q.length-1;i>=0;i--){ if(q[i].until<=g.t)q.splice(i,1) }
@@ -5824,7 +5681,7 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
     // helipad resupply
     if(f.padOk&&!fbH){ f.supT-=dt; if(f.supT<=0){ f.supT=50; const pad=strs.find(s=>s.type==='pad'&&!s.dead&&s.b>=1); if(pad){ callFbHeli('sup',pad.x,pad.y); annc('resup','huey',{text:'HUEY RESUPPLY INBOUND TO THE HELIPAD',t:2,col:'#9be37a'}) } } }
     // NVA armor
-    f.tankT-=dt; if(f.tankT<=0&&f.age>=120&&(g.t>=420||g.p.lvl>=10)){ let nt=0,t54=0; for(const e of enemies)if(e.tank&&!e.dead){nt++; if(e.type==='t54')t54++}
+    f.tankT-=dt; if(f.tankT<=0&&f.age>=120&&(g.t>=420||g.p.lvl>=10)){ let nt=0; for(const e of enemies)if(e.tank&&!e.dead)nt++;
       const cap=Math.min(3,1+Math.floor((g.t-420)/300)); f.tankT=75+rnd()*35; if(nt<cap){ const k='pt76';   /* Vet: in 1968 the only enemy tank is the PT-76 - no T-54 */ const e=spawnNTank(k); if(e){ if(!f.log.tankAt)f.log.tankAt=+(f.age).toFixed(1); g.banner={text:k==='t54'?'NVA T-54 (ARTISTIC LICENSE) ADVANCING ON THE FIREBASE!':'NVA PT-76 LIGHT TANK ADVANCING ON THE FIREBASE!',t:3.2,col:'#ff6a4a'}; Snd.play('boss') } } } } }
 /* ---- enemy <-> firebase interaction ---- */
 function fbPickTarget(e){ const f=fbS; if(!f)return null; let best=null,bd=1e9; const sap=e.type==='sapper';
@@ -5848,21 +5705,20 @@ function fbAttack(e,t,dt){ e.atk=(e.atk||0)-dt; if(e.atk>0)return; e.atk=.75;
 /* ---- drawing ---- */
 const ENGSPR={}; const ENG2=()=>!!(window.SHEET1&&SHEET1.drawEngineer&&SHEET1.engineerFrame&&!/[?&]eng2=0\b/.test(location.search));   /* Engineers v2 (Artist Helper engineers_v2.js); ?eng2=0 = old sprites */
 function buildEngSprites(){ const T=TOP_MARINE.slice(); T[6]="...UUVVUUVVUU...";T[7]="..UUVVUUUUVVUU..";T[8]="..SUVVuUUuVVUS.."; ENGSPR.eng=makeSprites(T,LEGS0,{C:'#c8bc78',c:'#9a8c50',S:'#e2b98f',E:'#24180d',U:'#58733a',u:'#3f5528',B:'#7a5a2a',P:'#5f7a3c',V:'#e8801a'},2) }
-function ntankSprite(kind){ const w=kind==='t54'?92:84,h=kind==='t54'?56:50; const out=[];
+function ntankSprite(kind){ const w=84,h=50; const out=[];
   for(let f=0;f<2;f++){ out[f]=[]; for(let flip=0;flip<2;flip++){ const mkc=(white)=>{ const c=mk(w,h),x=c.getContext('2d'); x.imageSmoothingEnabled=false; if(flip){x.translate(w,0);x.scale(-1,1)}
-        const col=kind==='t54'?'#4f5a34':'#5b6a3c', dk=kind==='t54'?'#38422a':'#43512c';
+        const col='#5b6a3c', dk='#43512c';
         x.fillStyle='rgba(0,0,0,.28)'; x.beginPath(); x.ellipse(w/2,h-6,w*.42,6,0,0,TAU); x.fill();
         // tracks + wheels
         x.fillStyle='#1b1b18'; x.fillRect(6,h-24,w-14,14); x.fillStyle='#2e2e28'; for(let k=0;k<7;k++){ x.beginPath(); x.arc(14+k*((w-28)/6),h-17,5.2,0,TAU); x.fill() } x.fillStyle='#4a4a40'; for(let k=0;k<7;k++){ x.fillRect(10+k*((w-28)/6)+(f?3:0),h-26,2,2) }
         // hull
         x.fillStyle=col; x.beginPath(); x.moveTo(8,h-26); x.lineTo(w-6,h-26); x.lineTo(w-14,h-38); x.lineTo(16,h-38); x.closePath(); x.fill(); x.fillStyle=dk; x.fillRect(10,h-28,w-18,3);
         // turret
-        if(kind==='t54'){ x.fillStyle=col; x.beginPath(); x.ellipse(w*.45,h-42,20,10,0,0,TAU); x.fill(); x.fillStyle=dk; x.beginPath(); x.ellipse(w*.45,h-45,14,6,0,0,TAU); x.fill(); x.fillStyle='#2a2a26'; x.fillRect(w*.45+16,h-46,34,4); x.fillRect(w*.45+34,h-47,6,6); }
-        else { x.fillStyle=col; x.beginPath(); x.ellipse(w*.5,h-41,15,8,0,0,TAU); x.fill(); x.fillStyle=dk; x.beginPath(); x.ellipse(w*.5,h-43,10,5,0,0,TAU); x.fill(); x.fillStyle='#2a2a26'; x.fillRect(w*.5+12,h-44,30,3); x.fillRect(w*.5+36,h-45,5,5) }
+        { x.fillStyle=col; x.beginPath(); x.ellipse(w*.5,h-41,15,8,0,0,TAU); x.fill(); x.fillStyle=dk; x.beginPath(); x.ellipse(w*.5,h-43,10,5,0,0,TAU); x.fill(); x.fillStyle='#2a2a26'; x.fillRect(w*.5+12,h-44,30,3); x.fillRect(w*.5+36,h-45,5,5) }
         x.fillStyle='#e8d040'; x.fillRect(w*.45-2,h-46,4,4); x.fillStyle='#c82020'; x.fillRect(w*.45-1,h-45,2,2);
         if(white){ x.globalCompositeOperation='source-atop'; x.fillStyle='#fff'; x.fillRect(0,0,w,h) } return c };
       out[f][flip]=[mkc(false),mkc(true)] } } return out }
-function buildNTankSprites(){ SPR.pt76=ntankSprite('pt76'); SPR.t54=SPR.pt76; }   /* 1968: PT-76 only */
+function buildNTankSprites(){ SPR.pt76=ntankSprite('pt76'); }   /* 1968: PT-76 only */
 const MENUQ=()=>state==='menu'&&!!G&&!!G.demo;
 /* menu music (Blake Oct 14): a calm Southeast Asian piece (Sound Helper slot 'menu_asian', dan tranh / bells, pentatonic) once it ships; until then the calm,
    already-licensed "Last Kiss Goodnight" (slot 'loss'). ?title=surf / ?title=groove bring back Happy Bee / DD Groove. */
@@ -5958,7 +5814,7 @@ function drawFbHud(U){ const g=G,p=g.p; ctx.setTransform(1,0,0,1,0,0);
 function tankWreck(e){ const x=e.x,y=e.y; if(WRECKS.length<6)WRECKS.push({x,y,hd:e.vhd===undefined?0:e.vhd,tg:Math.atan2(G.p.y-y,G.p.x-x),t:G.t});   /* knocked-out PT-76 stays on the field */ if(!VHX.kill(WRECKS.length?WRECKS[WRECKS.length-1]:{x,y})){ burst(x,y-6,40,220,.9,6,['#ffd54a','#ff9b21','#ff5a1a','#333'],true); burst(x,y,14,120,1.2,7,['#3a3733','#6d675a'],false) } explode(x,y,70,35,200); G.shake=Math.max(G.shake,14); (SAMP.boom('tank_kill')||Snd.play('boom'));
   if(fires.length<84){ fires.push({wid:CURW,x:x-14,y:y,r:30,life:7,ml:7,tick:0,dmg:3}); fires.push({wid:CURW,x:x+14,y:y+6,r:26,life:6,ml:6,tick:0,dmg:3}) }
   if(decals.length<DECAL_CAP)decals.push({x,y:y+4,c:SPLAT[8],l:80,sc:2.2});
-  for(let i=0;i<8;i++)dropGem(x,y,e.v,2); dropGem(x,y,0,3); dropGem(x,y,0,3); G.banner={text:(e.type==='t54'?'T-54':'PT-76')+' DESTROYED!',t:2.4,col:'#9be37a'} }
+  for(let i=0;i<8;i++)dropGem(x,y,e.v,2); dropGem(x,y,0,3); dropGem(x,y,0,3); G.banner={text:'PT-76 DESTROYED!',t:2.4,col:'#9be37a'} }
 function armorTarget(x,y,r){ let best=null,bd=r*r; for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(!e.armor||e.dead)continue; const dx=e.x-x,dy=e.y-y,d=dx*dx+dy*dy; if(d<bd){bd=d;best=e} } return best }
 
 /* ====================== EVOLUTIONS, supply crates, Dustoff ====================== */
@@ -5980,9 +5836,9 @@ function drawCrateHud(U){ const g=G,p=g.p; if(!crates.length)return; ctx.setTran
     ctx.save(); ctx.translate(ex,ey); ctx.rotate(a); ctx.fillStyle='#d8352a'; ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(15*U,0); ctx.lineTo(-8*U,-9*U); ctx.lineTo(-8*U,9*U); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore(); txt('CRATE',ex,ey-14*U,10*U,'#ffe58a','center') } }
 /* Dustoff: one revive per run */
 function dustoffRevive(){ const g=G,p=g.p; g.dustUsed=true; p.hp=Math.round(p.maxHp*.6); p.invul=3; g.dust={t:0,rot:0};
-  explode(p.x,p.y,300,260,520); burst(p.x,p.y,40,260,.9,6,['#d8d0b0','#bdb596','#ffd54a'],true); g.banner={text:'DUSTOFF! MEDEVAC HUEY ON STATION',t:3,col:'#9be37a'}; Snd.play('radio'); Snd.play('level'); g.shake=Math.max(g.shake,10) }
+  explode(p.x,p.y,300,260,520); burst(p.x,p.y,40,260,.9,6,['#d8d0b0','#bdb596','#ffd54a'],true); g.banner={text:'EMERGENCY MEDEVAC! CH-46 ON STATION',t:3,col:'#9be37a'}; Snd.play('radio'); Snd.play('level'); g.shake=Math.max(g.shake,10) }
 function updateDust(dt){ const d=G.dust; if(!d)return; d.t+=dt; d.rot+=dt*38; if(d.t>2.8)G.dust=null }
-function drawDust(){ const d=G.dust; if(!d)return; const p=G.p, z=30+Math.min(1,d.t/.6)*30; drawHuey({x:p.x+Math.min(1,d.t/.6)*-30,y:p.y-4,z,hd:0,rot:d.rot,mf:[0,0],hf:0,hp:1,mhp:0}) }
+function drawDust(){ const d=G.dust; if(!d)return; const p=G.p, z=30+Math.min(1,d.t/.6)*30; drawCH46({x:p.x+Math.min(1,d.t/.6)*-30,y:p.y-4,z,hd:0,rot:d.rot}) }
 /* ---- AC-47 "Spooky": pylon turn, red tracer stream into one ground point ---- */
 function updateSpooky(dt){ const g=G,k=g.spk; if(!k)return; CURW='spooky'; const p=g.p; k.t+=dt; if(k.t>=k.hold+1.2){ g.spk=null; return }
   const f=fbS; let gx=p.x,gy=p.y; if(f&&f.state!=='lost'&&Math.hypot(p.x-f.x,p.y-f.y)<470){ gx=f.x; gy=f.y }
@@ -6449,7 +6305,7 @@ function drawDying(camX,camY,tt){ const x0=camX-60,x1=camX+VW+60,y0=camY-60,y1=c
     ctx.translate(Math.round(d.x),Math.round(d.y-d.z+4)); ctx.rotate(d.rot); if(d.sy!==1)ctx.scale(1,d.sy); ctx.drawImage(spr,Math.round(-w/2),Math.round(-h*.58-4),w,h); ctx.restore() } }
 function drawFlashes(camX,camY){ if(!flashes.length)return; ctx.save(); ctx.globalCompositeOperation='lighter';
   for(const f of flashes){ const k=f.t/f.d, r=f.r*(.75+.35*k), a=k<.15?k/.15:Math.max(0,1-(k-.15)/.85); ctx.globalAlpha=a*.9; ctx.drawImage(FIREBALL,Math.round(f.x-r),Math.round(f.y-r*.8-8),r*2,r*1.6) } ctx.restore() }
-/* Agent Orange: wilted foliage + bare ground */
+/* wilted foliage + bare ground (no source since the Oct 20 Agent Orange removal; kept for old effect paths) */
 const wk=(x,y)=>Math.floor(x/40)*100003+Math.floor(y/40);
 function wiltMark(cx,cy,r){ if(wilt.size>2600)return; const x0=Math.floor((cx-r*.8)/40),x1=Math.floor((cx+r*.8)/40),y0=Math.floor((cy-r*.8)/40),y1=Math.floor((cy+r*.8)/40);
   for(let gx=x0;gx<=x1;gx++)for(let gy=y0;gy<=y1;gy++){ const dx=gx*40+20-cx,dy=gy*40+20-cy; if(dx*dx+dy*dy>r*r*.64)continue; const key=gx*100003+gy, v=wilt.get(key)||0; if(v<1)wilt.set(key,Math.min(1,v+.2)) } }
@@ -6719,7 +6575,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   // napalm burning ground
   WRK.draw(true,camX,camY,VW,VH); FLM.ground(); WRK.draw(false,camX,camY,VW,VH); MAGS.draw(camX,camY,VW,VH); if(window.VFX_MUZZLE&&MZW.ON)try{ VFX_MUZZLE.drawAll(ctx,0,0,1,'under') }catch(e){}
   for(const f of fires){ const k=Math.min(1,f.life/f.ml), fl=.8+.2*Math.sin(tt*18+f.x); ctx.globalAlpha=.45*Math.min(1,k*3)*fl; ctx.fillStyle='#ff6a1a'; ctx.beginPath(); ctx.ellipse(f.x,f.y,f.r,f.r*.8,0,0,TAU); ctx.fill(); ctx.globalAlpha=.5*Math.min(1,k*3)*fl; ctx.fillStyle='#ffc23a'; ctx.beginPath(); ctx.ellipse(f.x,f.y,f.r*.55,f.r*.42,0,0,TAU); ctx.fill(); ctx.globalAlpha=1 }
-  // chemical clouds (Arc Light Agent Orange)
+  // chemical clouds (unused since the Oct 20 Agent Orange removal)
   for(let i=0;i<clouds.length;i++){ const c=clouds[i]; if(c.x<camX-c.r-30||c.x>camX+VW+c.r+30||c.y<camY-c.r-30||c.y>camY+VH+c.r+30)continue; const k=Math.min(1,c.life/c.ml), fa=Math.min(1,c.life/1.2)*(.5+.5*k), sw=Math.sin(tt*1.5+c.seed);
     ctx.globalAlpha=.24*fa; ctx.fillStyle='#e0861a'; ctx.beginPath(); ctx.ellipse(c.x,c.y,c.r,c.r*.78,0,0,TAU); ctx.fill();
     ctx.globalAlpha=.2*fa; ctx.fillStyle='#f2b134'; ctx.beginPath(); ctx.ellipse(c.x+sw*c.r*.15,c.y-c.r*.1,c.r*.65,c.r*.5,0,0,TAU); ctx.fill();
@@ -6815,7 +6671,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   for(let i=0;i<hueys.length;i++)drawHuey(hueys[i]);
   for(let i=0;i<ins.length;i++)drawHuey(ins[i]);
   SPEC.drawAir(); FBO.draw(); URG.draw();
-  for(let i=0;i<coyH.length;i++){ if(coyH[i].t>=0)drawHuey(coyH[i]) }
+  for(let i=0;i<coyH.length;i++){ const h=coyH[i]; if(h.t<0)continue; if(h.comp&&h.comp.q15)drawHuey(h); else drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) }   /* Vet: company reinforcements come by CH-46 (the fifteen keep their insertion Hueys) */
   drawMedevac();
   if(introH)drawHuey(introH);
   for(let i=0;i<crashes.length;i++)drawHuey(crashes[i]);
