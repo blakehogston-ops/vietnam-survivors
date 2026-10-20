@@ -4287,12 +4287,12 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   melt(){ const p=G.p; for(const e of enemies){ if(e.mohA&&!e.dead&&(Math.abs(e.x-p.x)>VW/2+30||Math.abs(e.y-p.y)>VH/2+30))e.dead=true } },   /* after the mission the ambush group melts back into the jungle once out of sight (no reward, no chase to the base) */
   tick(dt){ if(!this.ON||!G||G.demo)return; const g=G; if((this._mt=(this._mt||0)-dt)<=0){ this._mt=.5; if(!this.cur||this.cur.ph!=='go')this.melt() }
     if(fbS&&this.fb!==fbS){ this.fb=fbS; const o=(hash2(g.seedH|0,fbS.x|0)<.5)?['ballard','taylor']:['taylor','ballard']; this.q=o.filter(k=>!this.done[k]); this.next=g.t+25 }
-    if(!this.cur&&this.q&&this.q.length&&fbS&&g.t>=this.next&&!(g.ex&&(g.ex.pad||g.ex.ph>=1))){ const k=this.q.shift(); let x=0,y=0;
-      let okP=false; for(let i=0;i<32&&!okP;i++){ const a=hash2(i+7,(g.t*10)|0)*TAU, D=Math.min(900,this.P.D*(.8+.65*hash2(g.seedH|0,(g.t*3)|0)))*(1-i*.015); x=fbS.x+Math.cos(a)*D; y=fbS.y+Math.sin(a)*D; okP=true;
+    if(!this.cur&&this.q&&this.q.length&&fbS&&g.t>=this.next&&!(g.ex&&(g.ex.pad||g.ex.ph>=1))&&state==='play'&&!exMsg&&!(g.banner&&g.banner.t>0)&&!(fbS.state==='building')&&!(g.pending>0)){   /* rc8 LPT2: the MoH card waits in line (no card, banner, level-up or build phase up) */ const k=this.q.shift(); let x=0,y=0;
+      let okP=false; for(let i=0;i<32&&!okP;i++){ const a=hash2(i+7,(g.t*10)|0)*TAU, D=Math.min(600,this.P.D*(.8+.65*hash2(g.seedH|0,(g.t*3)|0)))*(1-i*.015); x=fbS.x+Math.cos(a)*D; y=fbS.y+Math.sin(a)*D; okP=true;
         for(let k=1;k<=Math.ceil(D/24)&&okP;k++){ const u=k*24/D, sx=fbS.x+(x-fbS.x)*u, sy=fbS.y+(y-fbS.y)*u; if(riverAt(sx,sy)||!canWade(sx,sy,'p'))okP=false } }   /* objective must be reachable on foot in a straight line from the base */
       if(!okP){ this.next=g.t+20; this.q.unshift(k); return }
       for(let j=0;j<this.P.E;j++){ const a=rnd()*TAU, r=60+rnd()*90; try{ const n0=enemies.length; spawnEnemy(rnd()<.5?'vc':'nva',x+Math.cos(a)*r,y+Math.sin(a)*r); for(let q=n0;q<enemies.length;q++)enemies[q].mohA=1 }catch(e){} }   /* the pinned-down men are under fire: a small enemy group at the objective */
-      const dist=Math.hypot(x-fbS.x,y-fbS.y); this.cur={k,x,y,t:0,h:0,ph:'go',life:(+params.get('moht'))||Math.max(30,dist/Math.max(40,g.dSpd||150*speedMul()))+4,dist}   /* rc8 JPT/EP: every MoH = max(30 s, distance / Doc's measured walk speed) + 4 s */;   /* go timer scales with distance: walk + hold + ~10 s to clear the ambush (fixed 11 s was unwinnable for players) */ this.card=6; try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} this.open(); (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
+      const dist=Math.hypot(x-fbS.x,y-fbS.y); this.cur={k,x,y,t:0,h:0,ph:'go',life:(+params.get('moht'))||Math.max(45,3*dist/Math.max(40,g.dSpd||150*speedMul()))+4,dist}   /* rc8 LPT2: max(45 s, 3x straight-line walk) + 4 s; target capped at 60 m */   /* rc8 JPT/EP: every MoH = max(30 s, distance / Doc's measured walk speed) + 4 s */;   /* go timer scales with distance: walk + hold + ~10 s to clear the ambush (fixed 11 s was unwinnable for players) */ this.card=6; try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} this.open(); (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
     const c=this.cur; if(!c)return; if(!this.cardWait())this.card=Math.max(0,(this.card||0)-dt); if(!(c.ph==='go'&&this.card>0))c.t+=dt; this.alertT=Math.max(0,this.alertT-dt);
     if(!fbS){ this.end('baseLost'); return }
     if(this.away()&&this.integ()<.6&&!(this.alertT>0)){ this.alertT=6; g.banner={text:'FIREBASE '+(fbS.name||'')+' IS FALLING · GET BACK',t:2.6,col:'#ff6a4a'}; try{ Snd.play('radio') }catch(e){} }
@@ -4943,7 +4943,7 @@ function renderCards(){ const box=$('cards'); box.innerHTML='';
   luTools(); $('luTools').style.display=luForced?'none':''; $('levelup').querySelector('.sub').textContent=luForced?'Your first upgrade':'Choose an upgrade' }
 let luForced=false;
 const LU_GAP=20;
-function luBlocked(){ try{ const g=G, ex=g&&g.ex, p=g&&g.p; if(fbHoldBusy()||state==='mohcard'||(MOH.cur&&MOH.cur.ph==='go'))return true;
+function luBlocked(){ try{ const g=G, ex=g&&g.ex, p=g&&g.p; if(fbHoldBusy()||bannerHeld()||state==='mohcard'||(MOH.cur&&MOH.cur.ph==='go'))return true;
   if(lzS&&!fbS&&!(lzS.hold>0)&&Math.hypot(lzS.x-p.x,lzS.y-p.y)<30*PXM)return true;   /* rc8a: near an untouched firebase site */
   if(g.t-(g.xPressT||-99)<1.5)return true;   /* within 1.5 s of an X press */
   if(ex&&ex.ph===0&&ex.pre&&Math.hypot(ex.pre.x-p.x,ex.pre.y-p.y)<EX.PAD_R+40)return true;   /* on the pad before the call */
@@ -6664,6 +6664,7 @@ function drawSeaKnightLoad(c){ if(c.placed||c.ph>=2)return; const zc=Math.max(0,
   drawCrate(bx,by) }
 function drawCrate(x,y){ ctx.fillStyle='#6a4a26'; ctx.fillRect(x-9,y-10,18,14); ctx.fillStyle='#8a6a3a'; ctx.fillRect(x-9,y-10,18,3); ctx.fillStyle='#4a321a'; ctx.fillRect(x-9,y-3,18,1); ctx.fillRect(x-1,y-10,2,14); ctx.fillStyle='#d8d0a0'; ctx.fillRect(x-6,y-7,5,2); ctx.fillStyle='#c82020'; ctx.fillRect(x+3,y-7,3,3) }
 /* Firebase point: HOLD F (keyboard) / hold X (controller) inside the ground ring to call the engineers; touch: stand still in the ring */
+function bannerHeld(){ const b=G&&G.banner; return !!(b&&b.hold&&b.t>0&&(G.t-(b.t0||0))<b.hold) }   /* rc8 LPT2: cards wait while a held banner is up */
 function fbHoldBusy(){ try{ const s=lzS||fbS; return !!(s&&s.hold>0&&s.hold<1) }catch(e){ return false } }
 addEventListener('keydown',e=>{ if(state!=='mohcard')return; if(e.code==='KeyX'||e.code==='KeyG'){ MOH.choose(false); return }   /* rc8 JPT: the card never swallows G / X - it closes (STAY) and the key goes through */ if(e.code==='Enter'||e.code==='NumpadEnter'){ e.preventDefault(); e.stopImmediatePropagation(); MOH.choose(true) } else if(e.code==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); MOH.choose(false) } },true);
 setTimeout(()=>{ try{ $('mohGo').onclick=()=>MOH.choose(true); $('mohStay').onclick=()=>MOH.choose(false) }catch(e){} },0);
@@ -6693,7 +6694,7 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
   if(!lzS&&!fbS&&g.t>=g.nextLz&&g.ex.ph<3)spawnLz();
   const site=lzS||(fbS&&fbS.state==='stalled'&&!fbH?fbS:null);
   if(lzS)lzS.age+=dt;
-  if(site){ const d=Math.max(Math.abs(p.x-site.x),Math.abs(p.y-site.y)); if(d<52&&fbHeld()){ site.hold=Math.min(1,(site.hold||0)+dt/4); if(((site.hold*4)|0)!==((site.hold*4-dt)|0))Snd.play('radio') } else site.hold=Math.max(0,(site.hold||0)-dt*(d<52?.4:1.2));
+  if(site){ const d0=Math.max(Math.abs(p.x-site.x),Math.abs(p.y-site.y)), inR=d0<52||Math.hypot((p.x-site.x)/62,(p.y-site.y-4)/44)<=1, d=inR?0:Math.max(52,d0);   /* rc8 LPT2: HOLD F counts anywhere inside the drawn ring (+margin) */ if(!inR&&d0<220&&fbHeld()&&(!g.banner||g.banner.t<=0))g.banner={text:'MOVE INTO THE RING',t:1.2,col:'#ffcf5a'}; if(d<52&&fbHeld()){ site.hold=Math.min(1,(site.hold||0)+dt/4); if(((site.hold*4)|0)!==((site.hold*4-dt)|0))Snd.play('radio') } else site.hold=Math.max(0,(site.hold||0)-dt*(d<52?.4:1.2));
     if(site.hold>=1){ site.hold=0; if(lzS)beginFirebase(); else { callFbHeli('reinf',site.x,site.y); g.banner={text:'RADIO: ENGINEER REINFORCEMENTS INBOUND',t:2.4,col:'#9be37a'}; Snd.play('radio') } } }
   if(FB2&&fbS&&fbS.state==='done'&&!fbS.cl){ fbS.cl=1; try{ TERR.inval(); if(window.JUNGLE3&&JUNGLE3.inval)JUNGLE3.inval() }catch(e){} }   /* rc8 C9: field of fire cleared to square 460 once the base is up */
   if(FB2&&fbS)fbMedevac(dt); try{ FBBT.tick(dt) }catch(e){ if(!window.__fbbE){ window.__fbbE=1; console.warn('fbbt',e) } }
@@ -6705,7 +6706,7 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
   while(f.idx<f.lay.length&&f.prog>=f.lay[f.idx][4]){ const L=f.lay[f.idx++]; const s=mkStr(L[0],L[1],L[2],L[3],L[4]); s.stg=L[5]; if(L[6])s.kind=L[6]; strs.push(s); if(L[0]==='m2'||L[0]==='quad50')SAMP.build('corner'); else if(L[0]==='m60')SAMP.build('mid'); if(L[0]==='rr106'){ if(f.crate)f.crate.used=true; g.banner={text:'MORTAR PIT / HEAVY GUN EMPLACED',t:2.4,col:'#ffe58a'}; Snd.play('stage') } }
   const ph=Math.min(4,Math.floor(f.prog/.2)); if(f.state==='building'&&ph>f.phase){ if(ph>=2){ g.banner={text:'FIREBASE '+f.name+' · PHASE '+(ph+1)+': '+FBPH[ph],t:2.4,col:'#ffe58a'}; Snd.play('radio') } f.phase=ph }
   if(f.phase<0)f.phase=0;
-  if(f.state==='building'&&f.prog>=1&&f.crateOk){ window.__fbStats.built++; f.state='done'; f.doneAt=g.t; f.log.doneAt=+(g.t-f.t0).toFixed(1); g.fbN++; g.banner={text:'FIREBASE BUILT · '+f.name+' SECURED',t:3.4,col:'#9be37a'}; try{ const r=coy.find(q=>q.rto&&q.hp>0&&q.state==='ok')||squad.find(q=>q.rto&&q.hp>0&&q.state==='ok'); radioSeq([[3.6,(r?'RTO':'CP')+': "'+LINES.FB_BUILT_1+'"']]) }catch(e){}   /* rc8 EP P0: FIREBASE BUILT + FB_BUILT_1 (RTO, else a Marine at the CP radio) */ PULL.start(g,f); Snd.play('radio'); G.shake=Math.max(G.shake,4); ringBurst(f.x,f.y,60,['#ffe58a','#fff'],30) }
+  if(f.state==='building'&&f.prog>=1&&f.crateOk){ window.__fbStats.built++; f.state='done'; f.doneAt=g.t; f.log.doneAt=+(g.t-f.t0).toFixed(1); g.fbN++; g.banner={text:'FIREBASE BUILT · '+f.name+' SECURED',crit:true,hold:3,t:3.4,col:'#9be37a'}; try{ const r=coy.find(q=>q.rto&&q.hp>0&&q.state==='ok')||squad.find(q=>q.rto&&q.hp>0&&q.state==='ok'); radioSeq([[3.6,(r?'RTO':'CP')+': "'+LINES.FB_BUILT_1+'"']]) }catch(e){}   /* rc8 EP P0: FIREBASE BUILT + FB_BUILT_1 (RTO, else a Marine at the CP radio) */ PULL.start(g,f); Snd.play('radio'); G.shake=Math.max(G.shake,4); ringBurst(f.x,f.y,60,['#ffe58a','#fff'],30) }
   updateEngineers(dt); try{ FBWD.tick(dt) }catch(e){ if(!window.__fbwE){ window.__fbwE=1; console.warn('fbw',e) } } updateStructures(dt); BNK.tick(dt); updateCharges(dt); fbStages(f); updateSeaKnight(dt);
   { // one free emergency repair when the site is nearly gone
     if(!f.repaired&&f.state!=='inbound'){ let sh=0,sm=0,cnt=0; for(const s of strs){ if(s.dead||s.b<1||FBWIREISH[s.type])continue; sh+=s.hp; sm+=s.mhp; cnt++ } sm+=f.rb.length*150; if(cnt>=3&&sh/Math.max(1,sm)<.25)fbRepair(f) } }
@@ -7081,7 +7082,7 @@ function bannerQ(g){ let cur=null; const q=[], seen=new Map();   /* rc8: one ban
     if(v==null){ cur=null; while(q.length){ const n=q.shift(); if(t-n.q<6){ n.t0=t; cur=n; break } } return }
     if(cur&&cur.text===v.text){ cur.t=Math.max(cur.t,v.t||0); return }
     const ls=seen.get(v.text); if(ls!=null&&t-ls<5&&!(v.crit))return; seen.set(v.text,t); if(seen.size>60)seen.clear();
-    v.t0=t; if(cur&&cur.t>0&&t-(cur.t0||0)<1.2&&!v.crit){ if(!q.some(n=>n.text===v.text)){ v.q=t; q.push(v); if(q.length>3)q.shift() } return } cur=v } }) }
+    v.t0=t; if(cur&&cur.t>0&&((cur.hold&&t-(cur.t0||0)<cur.hold)||(t-(cur.t0||0)<1.2&&!v.crit))){   /* rc8 LPT2: a held priority banner (FIREBASE BUILT) queues everything, crit too */ if(!q.some(n=>n.text===v.text)){ v.q=t; q.push(v); if(q.length>3)q.shift() } return } cur=v } }) }
 const LANE={y:0,U:1}; function laneT(size,minY){ const y=Math.max(minY,LANE.y+size); LANE.y=y+8*LANE.U; return y }
 let sigs=[], exMsg=null, exQ=[], exStack=0, GUNNY=null;
 function mkEx(){ const col0=SIGN[(rnd()*SIGN.length)|0]; return {ph:0,smokeCol:col0,call:null,callN:0,calls:[],said:false,t:0,sig:null,charlie:null,charlieAt:null,pad:null,padShown:false,padCol:'violet',wrong:false,at:null,idCol:null,misId:false,inC:false,inS:false,
