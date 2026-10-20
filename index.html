@@ -328,7 +328,7 @@ Pause .......... Esc / P     Mute ... M</pre></div>
 <div id="sup" aria-live="off"></div>
 <div id="medHud"><button id="medBtn" title="Use a battle dressing on yourself (H / pad B)">✚ <b id="medN">0</b><span>H</span></button><button id="medMate" title="Patch the most hurt Marine in reach (Q / pad RB)">✚ <i id="medMateT">MARINE</i><span>Q</span></button><b id="rtoHud" style="display:none;align-self:center;font:bold 12px monospace;padding:4px 7px;background:rgba(10,12,8,.75);border-radius:4px"></b></div>
 <div id="tkr" aria-live="off"><i id="tkrRing"></i><span id="tkrTx"></span></div>
-<button id="abil" title="Special ability (Space / E)"><i id="abilCd"></i><span id="abilKey">SPACE</span><b id="abilNm"></b></button>
+<button id="abil" title="Special ability (Space)"><i id="abilCd"></i><span id="abilKey">SPACE</span><b id="abilNm"></b></button>
 <div id="mohCard" class="overlay"><div style="margin:auto;max-width:560px;background:#0d140d;border:2px solid #8a7a40;padding:14px 18px;color:#f6f0cc;font-family:monospace;text-align:left"><div id="mohTxt"></div><div style="display:flex;gap:12px;margin-top:12px;justify-content:center"><button id="mohGo" class="btn" style="min-width:140px">GO (Enter)</button><button id="mohStay" class="btn" style="min-width:140px">STAY (Esc)</button></div></div></div>
 <div id="levelup" class="overlay">
   <h2>LEVEL UP!</h2>
@@ -3640,7 +3640,7 @@ function spawnBoss(){ (G.blog=G.blog||[]).push({n:G.bossN,t0:G.t,t1:null}); cons
   G.banner={text:kind==='rpg'?'RPG HEAVY INBOUND!':'NVA COMMANDER INBOUND!',t:3.2,col:'#ff6a4a'}; Snd.play('boss'); G.shake=Math.max(G.shake,6); }
 
 /* ===== SPEC (Blake Oct 14): one spec-ops reinforcement event per run (?sog=0 off, ?sog=at:SECONDS to move it).
-   At the same moment (1) a PBR runs up the nearest river and drops a 5-man Marine recon team (3rd Recon / Force Recon style) on the bank,
+   At the same moment (1) a PBR runs up the nearest river and drops a 6-man Marine recon team (3rd Recon / Force Recon style) on the bank,
    and (2) a Huey (no H-34 Kingbee art; drawHuey per Vietnam Vet) inserts a 6-man SOG-style team on land: 3 Americans plus 2 Montagnards and 1 Nung,
    all full team members, sterile kit (no insignia, no real names). They fight a short break-out (~47 s, ends on the reinforcements sting's final hit)
    and extract the way they came: recon back to the PBR, SOG back to the Huey. Wounded men are carried out, never left (no hero deaths).
@@ -5388,7 +5388,7 @@ const CHD={
  doc:{rank:'HM3',nm:'Ramon Reyes',nick:'Doc',home:'Corpus Christi, TX',mos:'Hospital Corpsman',age:21,sn:'B-2231907',
   bio:["Joined the Navy to see the world. The world turned out to be a muddy hillside with a bad attitude.","Carries more morphine than a pharmacy and more opinions than a chaplain. Will patch you up, then explain exactly how dumb it was."],
   known:"Fixing grunts who insist \"it's just a scratch.\"",quote:"Hold still. This'll hurt me more than it hurts you. That's a lie, it's gonna hurt you a lot.",
-  loadout:'M16A1 · Medic Kit (regen)',passive:'Heals nearby Marines & tank in a wide aura.',ab:{nm:'Triage',cd:28,desc:'Heal yourself 60%, squad & tank 50%.'},
+  loadout:'M16A1 · Medic Kit (regen)',passive:'Heals nearby Marines & tank in a wide aura.',ab:{nm:'Triage',cd:28,desc:'Heal yourself 60%, Marines & tank 50%.'},
   base:{},start:{w:['m16'],ps:{regen:1}},
   perks:[{t:'+15 max HP',m:{hp:15}},{t:'Triage cooldown -15%',m:{ab:.15}},{t:'Regen +0.4 HP/s',m:{reg:.4}},{t:'Damage taken -8%',m:{arm:.08}},{t:'Healing aura +60%, Triage -15%',m:{aura:.6,ab:.15}}]},
  hammer:{rank:'Sgt',nm:'Maximus Savage',nick:'Hammer',home:'Scranton, PA',mos:'Machine Gunner',age:26,sn:'A-1840552',
