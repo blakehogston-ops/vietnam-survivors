@@ -3177,7 +3177,7 @@ function newGame(demo){ N2.reset(); try{ ATM.reset() }catch(e){}
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(240,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:130,maxHp:130,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,medInv:3,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
-    tankRot:0,nextRpgT:EX.PAD_T+75,rpgSeen:false,sqT:.8,sqS:null,sqL:0,fdx:0,fdy:1,nextTunnel:t0+2,nextVc:0,mortarT:0,hueyUnlocked:false,nextPit:t0+1.5,nextShout:t0+3,han:null,nextHan:(DBG.t>0?t0+6:t0+250+rnd()*120),cryQ:0,lastShout:-1,aim:0,hasTarget:false,flameAng:0,pending:0,boss:null,levelTimer:0,botTimer:0};
+    tankRot:0,nextRpgT:EX.PAD_T+75,rpgSeen:false,sqT:.8,sqS:null,sqL:0,fdx:0,fdy:1,nextTunnel:t0+2,nextVc:0,mortarT:0,hueyUnlocked:false,nextPit:t0+1.5,nextShout:t0+3,han:null,nextHan:(DBG.t>0?t0+6:t0+250+rnd()*120),cryQ:0,lastShout:-1,aim:0,hasTarget:false,flameAng:0,pending:0,boss:null,levelTimer:0,botTimer:0}; bannerQ(G);
   if(demo||DBG.t>0){ // give some kit for demo / debug start
     const n=Math.floor(t0/40); const ids=['m60','m79','flame','claymore','napalm','m16'];
     for(let i=0;i<Math.min(ids.length,1+Math.floor(n/2));i++)G.w[ids[i]]={lvl:Math.min(5,1+Math.floor(n/3)),cd:.2,tick:0};
@@ -3365,7 +3365,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
   canCall(g){ const ex=g.ex; return this.XC&&ex&&ex.ph===0&&!ex.padPlan&&g.t>=this.XMIN&&state==='play' },
   call(auto){ const g=G,ex=g.ex; if(!this.canCall(g))return false; try{ MOH.card=0 }catch(e){}   /* Blake: the pad call clears the MoH card from the screen but never cancels a pending MoH call */ planPad(); ex.landT=g.t+this.XIN-Math.min(15,g.pullEx||0); this.log.call=+g.t.toFixed(1);
     g.banner={text:'SMOKE OUT · CH-46 INBOUND · '+fmt(this.XIN),t:3.2,col:'#9be37a'};
-    gunny(auto?"Doc, the bird's coming for you now whether you're ready or not. Minute fifteen. Hold that pad.":"Bird's on the way, minute fifteen out. Hold that pad, Doc. When he calls for smoke, get on the circle.",4.6,1); return true },
+    gunny(auto?"Doc, the bird's about a minute out, ready or not. Hold that pad.":"Bird's inbound, about a minute out. Hold that pad, Doc. Pop smoke when he calls for it.",4.6,1); return true },
   /* (d) wave-off: the pad overrun on short final -> the bird breaks off, orbits ~20 s and comes back (max twice, then he lands anyway) */
   woCheck(ex,dt){ if(!this.WO)return false; const g=G,hu=ex.huey,lz=ex.pad;
     if(ex.wo){ const w=ex.wo; w.t+=dt; w.a+=dt*.32; const R=520; hu.x+=(lz.x+Math.cos(w.a)*R-hu.x)*Math.min(1,dt*1.5); hu.y+=(lz.y+Math.sin(w.a)*R-hu.y)*Math.min(1,dt*1.5); hu.z+=(90-hu.z)*Math.min(1,dt*1.2); hu.hd=w.a+Math.PI/2; hu.rot+=dt*40;
@@ -3383,7 +3383,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
       const hp=fbS&&fbS.state==='done'&&strs.find(s=>s.type==='pad'&&!s.dead&&s.b>=1); if(this.SMB&&g.t>=this.XMIN&&!g.demo&&hp&&(!ex.pre||!ex.pre.heli||ex.pre.x!==hp.x)){ ex.pre={x:hp.x,y:hp.y,heli:1}; ex.preBad=0; this.preMarked(g,true) }   /* rc8 EP: firebase built -> the helipad IS the pickup pad */
       else if(this.SMB&&g.t>=this.XMIN&&!g.demo&&!(ex.pre&&ex.pre.heli)&&(!ex.pre||ex.preBad>2||Math.hypot(ex.pre.x-g.p.x,ex.pre.y-g.p.y)>900)){ ex.preBad=0; const a=rnd()*TAU, Rp=Math.max(60,Math.min(200,Math.min(VW,VH)/2-90)); ex.pre=pickLz(g.p.x+Math.cos(a)*Rp,g.p.y+Math.sin(a)*Rp); this.preMarked(g,false) }   /* route9 L2 at selection: the 5:00 pre-pick is what planPad reuses */   /* rc6b blocker 1: the first call pops smoke ON a marked pad, shown from 3:30 */
       if(g.t>=this.XMIN&&!ex.xr){ ex.xr=1; g.banner={text:'EXTRACTION AVAILABLE · CALL THE BIRD WHEN READY',t:3.4,col:'#9be37a'};
-        gunny("Doc, Gunny. The bird can come for us any time now. Call him when you're ready ("+(matchMedia('(pointer:coarse)').matches?'tap CALL BIRD':'press X')+"). He needs a minute fifteen to get here.",5.6,1) }
+        gunny("Doc, Gunny. The bird can come for us any time now. Call him when you're ready ("+(matchMedia('(pointer:coarse)').matches?'tap CALL BIRD':'press X')+"). He's about a minute out.",5.6,1) }
       if(ex.xr&&(g.t>=this.XAUTO||(DBG.bot&&g.t>=(+params.get('botcall')||this.XMIN+15))))this.call(g.t>=this.XAUTO) }
     const b=this.btn(); if(b){ const sw=this.smokeWait(); let on=state==='play'&&((this.canCall(g)&&ex.xr)||!!sw), mode=sw?(sw==='on'?'pop':'off'):(this.SMB&&!this.atPad(g)?'off':'call');
       if(HUDM.on&&mode==='off'){ if(on&&b._offT!==1){ b._offT=1; if(!g.banner||g.banner.t<=0)g.banner={text:'GET TO THE PAD FIRST',t:1.8,col:'#ffcf5a'} } on=false } else b._offT=0;   /* rc7.1 mobile: the greyed button covered medic/TRIAGE; it becomes one top-lane message */
@@ -3394,7 +3394,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
   preMarked(g,heli){ const ex=g.ex, d=Math.round(Math.hypot(ex.pre.x-g.p.x,ex.pre.y-g.p.y)/10); g.banner={text:'PICKUP PAD MARKED'+(heli?' · FIREBASE HELIPAD':'')+' · '+d+'m',t:3,col:'#9be37a'} },   /* rc8 EP: one banner when the pad appears (the pad arrow is exTarget) */
   press(){ if(G&&G.ex&&G.ex.ph===0&&G.t<this.XMIN){ G.banner={text:'EXTRACTION AVAILABLE AT '+fmt(this.XMIN)+' · IN '+fmt(Math.ceil(this.XMIN-G.t)),t:1.8,col:'#ffcf5a'}; return false } const w=this.smokeWait(); if(w==='on'){ popSmoke(); return true } if(w==='off'){ G.banner={text:'GET TO THE PAD FIRST',t:1.4,col:'#ffcf5a'}; return false } if(this.SMB&&!this.atPad(G)){ G.banner={text:'GET TO THE PAD FIRST',t:1.4,col:'#ffcf5a'}; return false } return this.call(false) },
   atPad(g){ if(!g||g.p.hp<=0)return false; const ex=g.ex; if(ex&&ex.ph===0&&ex.pre)return Math.hypot(g.p.x-ex.pre.x,g.p.y-ex.pre.y)<=EX.PAD_R*1.35;   /* EP: bigger snap onto the pad */ return onPad(g.p.x,g.p.y) },   /* rc6b blocker 1: the FIRST call (pop smoke + call bird) also needs Doc inside the pad circle */
-  hud(U){ if(!this.shells.some(q=>q.t>=(q.w||0))||G.demo)return; const a=.75+.25*Math.sin(performance.now()/90); ctx.globalAlpha=a; txt('INCOMING!',W/2,Math.max(H*.34,170*U),Math.round(30*U),'#ff5a3a','center'); ctx.globalAlpha=1 },
+  hud(U){ if(!this.shells.some(q=>q.t>=(q.w||0))||G.demo)return; const a=.75+.25*Math.sin(performance.now()/90); ctx.globalAlpha=a; txt('INCOMING!',W/2,laneT(30*U,Math.max(H*.34,170*U)),Math.round(30*U),'#ff5a3a','center'); ctx.globalAlpha=1 },
   qaSpawn(t,x,y){ return spawnEnemy(t,x,y) },
   btn(){ let b=document.getElementById('n2x'); if(!b&&this.XC&&document.body){ b=document.createElement('button'); b.id='n2x'; b.textContent='CALL THE BIRD (X)';
       b.style.cssText='position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;display:none;padding:12px 18px;font:bold 15px "Courier New",monospace;color:#10180c;background:#b9e08a;border:3px solid #2c3e1c;border-radius:6px;box-shadow:0 3px 0 #2c3e1c;touch-action:manipulation';
@@ -3495,7 +3495,7 @@ const PULL={T:30,ARROW_AT:5,
     g.banner={text:'HERE THEY COME! '+D.length+' SIDES!',t:2.6,col:'#ff6a4a'}; Snd.play('radio'); G.cryQ=4; if(!SAMP.charge())Snd.play('whistle'); G.shake=Math.max(G.shake,5);
     if(f)f.bigT=Math.max(f.bigT,45); if((g.pullN|0)===1&&!/[?&]breach=0\b/.test(location.search))g.brAt=g.t+9; if((g.pullN|0)===1){ g.w1End=g.t+90; g.w1L=0 } g.pullDirs=null; g.pullLog.assault={t:+g.t.toFixed(1),sides:D.length,men:P.teams.reduce((n,T)=>n+T.n0,0)};
     (g.pullHist||(g.pullHist=[])).push(g.pullLog); if(g.runLog)g.runLog.pull=g.pullHist },
-  hud(U){ const g=G; if(!(g.pullT>0))return; txt(g.pullTxt||'',W/2,Math.max(H*.25,150*U),24*U,g.pullT<=5?'#ff7a5a':'#ffe58a','center'); if(!g.pullDirs)return; const R=Math.min(W,H)*.40, pul=.6+.4*Math.sin(g.t*10);
+  hud(U){ const g=G; if(!(g.pullT>0))return; txt(g.pullTxt||'',W/2,laneT(24*U,Math.max(H*.25,150*U)),24*U,g.pullT<=5?'#ff7a5a':'#ffe58a','center'); if(!g.pullDirs)return; const R=Math.min(W,H)*.40, pul=.6+.4*Math.sin(g.t*10);
     for(const a of g.pullDirs){ const x=W/2+Math.cos(a)*R, y=H/2+Math.sin(a)*R; ctx.save(); ctx.translate(x,y); ctx.rotate(a+Math.PI); ctx.globalAlpha=pul; ctx.fillStyle='#ff5a3a'; ctx.strokeStyle='#200'; ctx.lineWidth=2*U;
       ctx.beginPath(); ctx.moveTo(22*U,0); ctx.lineTo(-10*U,-16*U); ctx.lineTo(-4*U,0); ctx.lineTo(-10*U,16*U); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore() } ctx.globalAlpha=1 },
   breach(g){ if(!(g.brAt>0)||g.t<g.brAt||state!=='play')return; g.brAt=0; const f=g.pullF||fbS||g.p; let m=null,bd=-1; for(const q of coy){ if(q.hp>0&&q.state==='ok'&&!q.hid&&!q.rto){ const d=Math.hypot(q.x-f.x,q.y-f.y); if(d>bd){ bd=d; m=q } } }   /* RC4: light breach, a sapper gets through the wire on the outermost Marine (never the RTO) */
@@ -3568,7 +3568,7 @@ function surge(){
     G.banner={text:'NVA ASSAULT!',t:2.6,col:'#ffcf5a'};
   }
   Snd.play('radio'); assaultCry(); G.shake=Math.max(G.shake,5); }
-function spawnBoss(){ (G.blog=G.blog||[]).push({n:G.bossN,t0:G.t,t1:null}); const [x,y]=edgePoint(90); const kind=G.bossN%2===0?'boss':'rpg'; const b=spawnEnemy(kind,x,y); const mult=1+G.bossN*.6; b.hp=b.mhp=ET[kind].hp*mult*(1+G.t/500); b.dmg=ET[kind].dmg+G.bossN*3; b.cdash=kind==='rpg'?1.8:3; if(G.bossN===0&&G.ex&&G.ex.ph===0)b.sigKind='smoke';   /* the NVA commander carries the smoke */ G.bossN++; G.boss=b; b.spawnT=G.t; if(G.bossN===1&&!G.demo){ try{ gunny('NVA officer moving in! Keep your distance, Doc!',3.2,1); G.banner={text:'COMMANDER SPOTTED · GET CLEAR',t:2.4,col:'#ff6a4a'} }catch(e){} }   /* rc7.1 LPT#2 telegraph */
+function spawnBoss(){ (G.blog=G.blog||[]).push({n:G.bossN,t0:G.t,t1:null}); const [x,y]=edgePoint(90); const kind=G.bossN%2===0?'boss':'rpg'; const b=spawnEnemy(kind,x,y); const mult=1+G.bossN*.6; b.hp=b.mhp=ET[kind].hp*mult*(1+G.t/500); b.dmg=ET[kind].dmg+G.bossN*3; b.cdash=kind==='rpg'?1.8:3; if(G.bossN===0&&G.ex&&G.ex.ph===0)b.sigKind='smoke';   /* the NVA commander carries the smoke */ G.bossN++; G.boss=b; b.spawnT=G.t; if(G.bossN===1&&!G.demo){ try{ gunny('NVA officer! Stay clear of him, Doc!',3.2,1); G.banner={text:'COMMANDER SPOTTED · GET CLEAR',t:2.4,col:'#ff6a4a'} }catch(e){} }   /* rc7.1 LPT#2 telegraph */
   G.banner={text:kind==='rpg'?'RPG HEAVY INBOUND!':'NVA COMMANDER INBOUND!',t:3.2,col:'#ff6a4a'}; Snd.play('boss'); G.shake=Math.max(G.shake,6); }
 
 /* ===== SPEC (Blake Oct 14): one spec-ops reinforcement event per run (?sog=0 off, ?sog=at:SECONDS to move it).
@@ -4253,7 +4253,7 @@ const KIA={ON:!/[?&]kia=0\b/.test(location.search), q:[], cur:null, t:0,
   reset(){ this.q.length=0; this.cur=null; this.t=0 },
   add(m){ const g=G; if(!this.ON||!g||g.demo)return; const nm=this.nameFor(m); (g.kiaL||(g.kiaL=[])).push(nm); try{ BARK.ev('down',{nm,x:m.x,y:m.y}) }catch(e){} this.q.push(nm); try{ Snd.play('pulse') }catch(e){} },
   tick(dt){ if(this.cur){ this.t-=dt; if(this.t<=0)this.cur=null } if(!this.cur&&this.q.length){ this.cur=this.q.length>2?this.q.splice(0,this.q.length).join(', '):this.q.shift(); this.t=2.8 } },
-  hud(U){ if(!this.cur)return; const a=Math.min(1,this.t*2,(2.8-this.t)*4); ctx.save(); ctx.globalAlpha=a*.92; ctx.font=Math.round(12*U)+'px "Courier New",monospace'; const tx='KIA: '+this.cur, w=ctx.measureText(tx).width+16*U, x0=W/2-w/2, y0=(G.banner&&G.banner.t>0)?H*.27+30*U:H*.235;
+  hud(U){ if(!this.cur)return; const a=Math.min(1,this.t*2,(2.8-this.t)*4); ctx.save(); ctx.globalAlpha=a*.92; ctx.font=Math.round(12*U)+'px "Courier New",monospace'; const tx='KIA: '+this.cur, w=ctx.measureText(tx).width+16*U, x0=W/2-w/2, y0=laneT(22*U,H*.235)-22*U;
     ctx.fillStyle='rgba(12,14,10,.62)'; ctx.fillRect(x0,y0,w,20*U); ctx.fillStyle='#c9c2a6'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(tx,W/2,y0+10*U); ctx.restore() } };
 /* MAGS (Blake): spent magazines / links / brass / stripper clips stay on the ground. The game has no reload state, so each shooter counts
    shots and drops at the real capacity: M16 20-rd box, M14 20, M3A1 30, M1911 7, M2 carbine 30, M60 belt links + brass, Ithaca hulls, M40 5-rd bolt action
@@ -4546,7 +4546,7 @@ const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,spooky:10,arclight:14,boxmission:22},
     if(id==='napalm')o.n=ITEMS.napalm.stats(w.lvl).n+big; if((id==='arclight'||id==='boxmission')&&big)o.n=ITEMS[id].stats(w.lvl).n+4*big;
     for(const k in o)if(o[k]===undefined)delete o[k];
     ftexts.push({x:m.x+(m.x<g.p.x?-34:34),y:m.y-6,t:0,s:'FIRE MISSION · '+t.n,c:'#ffe58a'}); m.callT=1.6;
-    if(AIRIDS[id]&&id!=='howitzer'&&id!=='mortar'&&id!=='gunboat'){ const arc=id==='arclight'||id==='boxmission', cs=id==='spooky'?'Spooky':'Hellborne'; if(arc){ /* rc7.1 Vet correction: B-52 runs are rumble only, no voice, no caption */ } else radioSeq([[.1,cs+' Two-One: "In hot"'],[1.0,'RTO: "Cleared hot"'],[id==='spooky'?14:7,cs+' Two-One: "Winchester, RTB"']]) }   /* Vet rc7.1: B-52s at altitude do not call in hot/Winchester; Arc Light gets one RTO warning */
+    if(AIRIDS[id]&&id!=='howitzer'&&id!=='mortar'&&id!=='gunboat'){ const arc=id==='arclight'||id==='boxmission', cs=id==='spooky'?'Spooky':'Hellborne'; if(arc){ /* rc7.1 Vet correction: B-52 runs are rumble only, no voice, no caption */ } else radioSeq([[.1,cs+' Two-One: "In hot"'],[1.0,'RTO: "Cleared hot"'],[id==='spooky'?14:7,cs+' Two-One: "Winchester, RTB"']]) }   /* Vet: B-52 runs are rumble only (no voice, no caption) */
     return o },
   move(m,sx,sy,d,dt){ m.mv=d>6; if(!m.mv)return; if(d>320&&!riverAt(sx,sy)){ m.x=sx; m.y=sy; return }   /* fell way behind (river, bunker exit): back at Doc's shoulder */
     const sp=Math.min(d*7,430*Math.max(1,speedMul())), k=sp*dt/d; rvMove(m,(sx-m.x)*k,(sy-m.y)*k,'m'); m.anim+=dt*9; if(!m.tg)m.face=sx>=m.x?1:-1 },
@@ -5901,7 +5901,7 @@ function spawnLz(){ const g=G,p=g.p; let best=null,bs=-1e9;
   if(!best){ const a=rnd()*TAU,d=430+rnd()*140; best={x:p.x+Math.cos(a)*d,y:p.y+Math.sin(a)*d} }
   linkRivers(p.x,p.y,best.x,best.y);
   lzS={x:best.x,y:best.y,hold:0,name:FBNAMES[(g.lzN++)%8],age:0};
-  if(!g.mck){ g.banner={text:'RADIO POINT SPOTTED: FIREBASE SITE',t:3,col:'#9be37a'}; Snd.play('radio'); if(!g.fbSay){ g.fbSay=1; try{ gunny("Doc, Gunny. Firebase site is marked, follow the yellow arrow. Stand in the ring and hold F to call the engineers.".replace('hold F',PAD.on?'hold X':COARSE.matches?'stand still':'hold F'),4.6,1) }catch(e){} } } }   /* rc7.1 JPT#3 */
+  if(!g.mck){ g.banner={text:'RADIO POINT SPOTTED: FIREBASE SITE',t:3,col:'#9be37a'}; Snd.play('radio'); if(!g.fbSay){ g.fbSay=1; try{ gunny("Doc, Gunny. Firebase site's marked. Get there and call up the engineers.",4.6,1) }catch(e){} } } }   /* rc7.1 JPT#3 */
 function mkStr(type,x,y,ang,at){ const d=SD[type], m=(1+(G.fbN||0)*.15)*1.35; return {stg:3,type,x,y,ang:ang||0,at,hp:d.hp*m,mhp:d.hp*m,r:d.r,b:0,dead:false,cd:rnd()*.5,flash:0,mf:0,tg:null,tgT:0,burst:0,wob:rnd()*TAU,needed:true} }
 /* Firebase footprint: a SQUARE perimeter. Sandbag walls on the four sides (half-side FBS = 168 px, i.e. a 336 x 336 px site, 1.5x the old 112 px ring radius),
    a gate gap in the middle of each side, turrets at the four corners and the four gate midpoints, bunker / medic tent / helipad / heavy gun inside,
@@ -6362,6 +6362,13 @@ const SIGNOTE={smoke:'Smoke out. The pilot names the color he sees - check it ag
   mirror:'Mirror flashing. The pilot calls the flash he sees - roger it only if that is your mirror. No timer.',
   flare:'Flare up. The pilot names the flare color he sees - check it against your line. No timer.'};
 const sigLabel=it=>sigName(it.kind,it.col);
+function bannerQ(g){ let cur=null; const q=[], seen=new Map();   /* rc8: one banner at a time; min 1.2 s on screen, same text de-duped for 5 s, max 3 waiting */
+  Object.defineProperty(g,'banner',{configurable:true,enumerable:true,get(){ return cur },set(v){ const t=g.t||0;
+    if(v==null){ cur=null; while(q.length){ const n=q.shift(); if(t-n.q<6){ n.t0=t; cur=n; break } } return }
+    if(cur&&cur.text===v.text){ cur.t=Math.max(cur.t,v.t||0); return }
+    const ls=seen.get(v.text); if(ls!=null&&t-ls<5&&!(v.crit))return; seen.set(v.text,t); if(seen.size>60)seen.clear();
+    v.t0=t; if(cur&&cur.t>0&&t-(cur.t0||0)<1.2&&!v.crit){ if(!q.some(n=>n.text===v.text)){ v.q=t; q.push(v); if(q.length>3)q.shift() } return } cur=v } }) }
+const LANE={y:0,U:1}; function laneT(size,minY){ const y=Math.max(minY,LANE.y+size); LANE.y=y+8*LANE.U; return y }
 let sigs=[], exMsg=null, exQ=[], exStack=0, GUNNY=null;
 function mkEx(){ const col0=SIGN[(rnd()*SIGN.length)|0]; return {ph:0,smokeCol:col0,call:null,callN:0,calls:[],said:false,t:0,sig:null,charlie:null,charlieAt:null,pad:null,padShown:false,padCol:'violet',wrong:false,at:null,idCol:null,misId:false,inC:false,inS:false,
   huey:null,col:col0,kind:'smoke',evac:false,popped:false,result:'',dropAt:null,reachAt:null,confAt:null,landT:EX.LZ_T,offPad:0,holdKills:0,k0:0,board:0,ramp:0,landAt:0,
@@ -6451,7 +6458,7 @@ function placePad(right){ padMedBonus(); const g=G,ex=g.ex,p=g.p; ex.ph=3; ex.co
 /* ---- the per-frame mission driver (own clocks; never depends on player hp or camera) ---- */
 function updateExtraction(dt){ const g=G,p=g.p,ex=g.ex; if(g.demo||!ex||state==='over')return; if(g.pullT>0){ g.pullEx=(g.pullEx||0)+dt; if(ex.ph>=1)return }   /* the 30 s pull-back lull never counts toward the pad hold / boarding clock */ if(ALLU||DBG.god||DBG.t>0||DBG.used)g.dbg=true;
   updateGunny(dt);
-  if(!ex.intro&&g.t>=(DBG.t|0)+6){ ex.intro=true; if(!DBG.t)gunny(N2.XC?"Gunny here. Fifteen of you on the ground and Doc has the smoke. From about "+fmt(N2.XMIN)+" you can call the bird; it needs a minute fifteen to get here.":"Gunny here. Fifteen of you on the ground and Doc has the smoke. Pad gets marked at about "+fmt(EX.PAD_T)+"; the bird sets down "+fmt(EX_HOLD)+" after that.",5.6) }
+  if(!ex.intro&&g.t>=(DBG.t|0)+6){ ex.intro=true; if(!DBG.t)gunny(N2.XC?"Gunny here. Fifteen of you on the ground and Doc has the smoke. From about "+fmt(N2.XMIN)+" you can call the bird; it's about a minute out.":"Gunny here. Fifteen of you on the ground and Doc has the smoke. Pad gets marked at about "+fmt(EX.PAD_T)+"; the bird sets down "+fmt(EX_HOLD)+" after that.",5.6) }
   if(!ex.said&&g.t>=(DBG.t|0)+(DBG.t?1:12)){ const sc=ex.smokeCol||ex.col; if(sc){ ex.said=true; ex.saidT=g.t; g.banner={text:'GUNNY: "OUR SMOKE IS '+sc.toUpperCase()+'."',t:4,col:SIGC[sc]}; gunny('Our smoke is '+sc.toUpperCase()+'.',3.6,1) } }   /* QA bug 1: ex.col is only set once the smoke is popped - the run colour lives in ex.smokeCol */   /* said ONCE, with the real radio squelch (gunny -> Snd.play('radio') -> radio_squelch) */
   if(!ex.five&&g.t>=300&&ex.ph===0){ ex.five=true; gunny("Five mikes. Keep your smoke on your belt until the bird calls for it.",4) }
   if(ex.sig&&!ex.sig.land){ ex.sig.z=Math.max(0,ex.sig.z-dt*160); if(ex.sig.z<=0){ ex.sig.land=true; ex.sig.landAt=g.t; Snd.play('thud'); g.shake=Math.max(g.shake,3); burst(ex.sig.x,ex.sig.y,10,60,.5,3,['#8a7a52','#6d675a'],false) } }
@@ -7308,6 +7315,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   // timer / kills
   txt(fmt(g.t),W/2,56*U+oy,28*U,'#f6f0cc','center');
   txt('BODY COUNT '+g.kills,bx,by+bh+17*U,15*U,'#f0e6a8','left');
+  LANE.y=exTop(U)+(exStack||0)+6*U; LANE.U=U;   /* rc8 one top lane: everything below the timer / commander bar / firebase lines / Gunny card stacks, nothing overlaps */
   drawSigLine(U,oy);   /* permanent line under the timer + MARINES count */
   // boss bar
   if(g.boss&&!g.boss.dead){ const bw2=Math.min(460*U,W*.6),bx2=W/2-bw2/2,by2=PY; ctx.fillStyle='#0b140c'; ctx.fillRect(bx2-3,by2-3,bw2+6,16*U+6); ctx.fillStyle='#3a1210'; ctx.fillRect(bx2,by2,bw2,16*U); ctx.fillStyle='#d83a2a'; ctx.fillRect(bx2,by2,bw2*Math.max(0,g.boss.hp/g.boss.mhp),16*U); txt(g.boss.name.toUpperCase(),W/2,by2+13*U,12*U,'#fff','center') }
@@ -7318,7 +7326,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   // banner
   if(HUDM.on){ const tw=document.getElementById('p3toast'); if(tw){ const top=Math.round((exTop(U)+(exStack||0)+(g.pullT>0?40:18)*U+(g.banner?16*U:0)+44*U)/DPR+6)+"px"; if(tw.style.top!==top)tw.style.top=top } }   /* rc7 hudmobile fix: toast lane sits BELOW the banner (no overlap) */
   if(g.banner){ const b=g.banner,k=Math.min(1,(3.2-b.t)*5,b.t*2); if(HUDM.on){ const cr=HUDM.crit(b), fs=Math.min((cr?22:15)*U,(W-20)/Math.max(8,b.text.length)*1.6), k2=cr?k:Math.min(k,b.t*1.4,(b.t>1.6?1:b.t/1.6)); ctx.globalAlpha=Math.max(0,Math.min(1,k2)); txt(HUDM.short(b.text),W/2,exTop(U)+(exStack||0)+(g.pullT>0?40:18)*U,fs,b.col,'center'); ctx.globalAlpha=1 }   /* hudmobile: in the top lane under the signal line, smaller; non-critical ones fade faster */
-    else { ctx.globalAlpha=Math.max(0,Math.min(1,k)); txt(b.text,W/2,b.top?Math.max(H*.12,96*U):g.pullT>0?Math.max(H*.25,150*U)+34*U:H*.27,Math.min((30+6*(1-Math.min(1,k)))*U,(W-40*U)/Math.max(8,b.text.length*.62)),b.col,'center');   /* rc7.1: long banners shrink to fit (SUPPLY DROP clipped at ~910 px) */ ctx.globalAlpha=1 } }
+    else { ctx.globalAlpha=Math.max(0,Math.min(1,k)); txt(b.text,W/2,laneT(30*U,b.top?Math.max(H*.12,96*U):H*.27),Math.min((30+6*(1-Math.min(1,k)))*U,(W-40*U)/Math.max(8,b.text.length*.62)),b.col,'center');   /* rc7.1: long banners shrink to fit (SUPPLY DROP clipped at ~910 px) */ ctx.globalAlpha=1 } }
   N2.hud(U); PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); try{ PB.hud(U) }catch(e){} FIELD.hud(U); KIA.hud(U); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
   // joystick
   if(joy.on){ ctx.globalAlpha=.45; ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(joy.ox*(W/innerWidth),joy.oy*(H/innerHeight),55*(W/innerWidth),0,TAU); ctx.stroke(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc((joy.ox+joy.x*55)*(W/innerWidth),(joy.oy+joy.y*55)*(H/innerHeight),22*(W/innerWidth),0,TAU); ctx.fill(); ctx.globalAlpha=1 }
