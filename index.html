@@ -3230,6 +3230,9 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
   sapSc(e){ const s0=e.spr&&e.spr[0]&&e.spr[0][0]&&e.spr[0][0][0]; return Math.max(1,Math.round((s0?s0.height:33)*(e.ds||1)/33)) },
   sapDie(e){ if(!this.V4())return false; this.dead.push({x:e.x,y:e.y,f:e.dir===1,a:e.crawl?'crawlDie':'die',t:0,sc:this.sapSc(e)}); if(this.dead.length>24)this.dead.shift(); if(GORE)burst(e.x,e.y-4,5,60,.3,2,['#7a1010','#5a0c0c'],false); return true },
   drawSap(e){ const sc=this.sapSc(e), fl=e.dir===1; SHEET1.SAPPER_GORE=!!GORE; const an=e.arm>0&&e.thT!=null&&e.tg?'throw':'crawl', t=an==='throw'?e.thT:G.t+(e.x+e.y)*.003;
+    if(SAPRIM&&an==='crawl'){ const d=fl?-1:1, nt=this.night(), x0=e.x, y0=e.y+10*sc; ctx.save();   /* rc6 Gamer #7: kicked-up dust trail + faint rim so a crawler reads ~3 s out (?saprim=0) */
+      for(let i=0;i<3;i++){ const ph=(G.t*1.6+i/3+(e.x*.01))%1; ctx.globalAlpha=(nt?.16:.22)*(1-ph); ctx.fillStyle=nt?'#8c8a78':'#b8a47a'; ctx.beginPath(); ctx.ellipse(x0+d*(14+ph*22)*sc,y0-ph*4*sc,(5+ph*8)*sc,(2.5+ph*3)*sc,0,0,TAU); ctx.fill() }
+      ctx.globalAlpha=nt?.22:.14; ctx.strokeStyle=nt?'#d8e0c0':'#f4e6b0'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.ellipse(x0,y0-6*sc,17*sc,6.5*sc,0,Math.PI*1.05,Math.PI*1.95); ctx.stroke(); ctx.restore() }
     if(e.flash>0)ctx.globalAlpha=Math.min(ctx.globalAlpha,.7); try{ SHEET1.drawSapper(ctx,an,t,Math.round(e.x),Math.round(e.y+12*sc),fl,{scale:sc,unarmed:true,gore:!!GORE}) }catch(er){} ctx.globalAlpha=1 },
   satchel(e){ const g=G,p=g.p,x=e.x,y=e.y; this.log.satch++; e.dead=true; e.noXp=1; explode(x,y,70,60,260); burst(x,y,20,150,.6,5,['#fff0a0','#ffb040','#ff5a1a','#333'],true); g.shake=Math.max(g.shake,9);
     if(window.VFX_IMPACT)try{ VFX_IMPACT.impact('grenade',x,y,{cx:p.x,cy:p.y}) }catch(er){}
@@ -6893,6 +6896,7 @@ function jetShape(sc,col){ ctx.scale(sc,sc);
   ctx.fillStyle=col?'#7a8592':'#000'; ctx.beginPath(); ctx.moveTo(6,-3); ctx.lineTo(-10,-28); ctx.lineTo(-17,-28); ctx.lineTo(-8,-3); ctx.closePath(); ctx.fill();
   ctx.beginPath(); ctx.moveTo(6,3); ctx.lineTo(-10,28); ctx.lineTo(-17,28); ctx.lineTo(-8,3); ctx.closePath(); ctx.fill();
   f(-26,-9,6,18,col?'#6a7480':'#000'); if(col){ f(8,-2,8,3,'#2c3640'); f(-30,-2,6,4,'#ff8a1f'); f(-34,-1,5,2,'#ffe08a'); f(-8,-11,3,5,'#ff8a1f'); f(-8,6,3,5,'#ff8a1f') } }
+const SAPRIM=!/[?&]saprim=0\b/.test(location.search);
 const RCAM={x:0,y:0};
 /* rc6 Gamer #6: softer low-HP vignette at dusk/night (dark screen + heavy red read as black). ?softvig=0 off */
 const SOFTVIG=!/[?&]softvig=0\b/.test(location.search); function VDK(){ if(!SOFTVIG||typeof ATM==='undefined'||!ATM.ON||!G)return 0; return Math.max(0,Math.min(1,(ATM.hourAt(G.t)-16.5)/4)) } function VSOFT(){ return 1-.45*VDK() }   /* camera of the last rendered frame (the HUD-arrow test reads it) */
