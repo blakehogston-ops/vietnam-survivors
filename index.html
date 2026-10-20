@@ -1203,7 +1203,7 @@ Pause .......... Esc / P     Mute ... M</pre></div>
 <script src="assets/art/vfx_water_impacts.js?v=2399611"></script>
 <script src="assets/art/vfx_flame.js?v=2399611"></script><script>/* Artist HUD art (XP strap + health dog tag, ?hudart=0 off) */ if(!/[?&]hudart=0\b/.test(location.search))document.write('<script src="assets/art/hud_art.js?v=2399611"><\/script>')</script>
 <script src="assets/art/map_wrecks.js?v=2399611"></script>
-<script>if(/[?&]jungle=1\b/.test(location.search))document.write('<script src="assets/art/jungle_v3_lite.js?v=2399611"><\/script>')</script>
+<script>if(!/[?&]jungle=0\b/.test(location.search))document.write('<script src="assets/art/jungle_v3_lite.js?v=rc8jr"><\/script>')</script>
 <script>if(/[?&]terrain=1\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=2399611"><\/script>')</script>
 <script src="assets/art/vehicles.js?v=2399611"></script><script src="assets/art/ch46_v2.js?v=2399611"></script><script src="assets/art/dressing_pickups.js?v=2399611"></script><script src="assets/art/tanks_v2.js?v=2399611"></script><script src="assets/art/vehicles_v3.js?v=2399611"></script><script src="assets/vfx/muzzle_flash.js"></script>
 <script src="assets/vfx/rockets.js"></script>
@@ -2380,7 +2380,7 @@ const VEH=()=>!!(window.SHEET1&&SHEET1.vehiclesBig);
 /* jr Oct 20: optional VFX_IMPACT hooks, each OFF unless its flag is set. ?impnapalm=1 canister+rolling fireball+teardrop scorch on each napalm drop (replaces the old G.shake there),
    ?implat=1 red laterite soil eruption column on big blasts (rad>=40, mud on paddy), ?impm40=1 M40 sniper uses SHAKE.m40 + KICK.m40 recoil instead of the flat G.shake 2.2. arcLight deliberately NOT wired (doubles the booms). */
 const IMPNP=/[?&]impnapalm=1\b/.test(location.search), IMPLAT=/[?&]implat=1\b/.test(location.search), IMPM40=/[?&]impm40=1\b/.test(location.search);
-const IMPDEC=/[?&]jungle=1\b/.test(location.search)&&!/[?&]impdec=0\b/.test(location.search), IGR=(x,y)=>{ const j=JG.ground(x,y); if(j)return j; try{ const m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); return m==='P'?'paddy':'dirt' }catch(e){ return 'dirt' } };
+const IMPDEC=!/[?&]jungle=0\b/.test(location.search)&&!/[?&]impdec=0\b/.test(location.search), IGR=(x,y)=>{ const j=JG.ground(x,y); if(j)return j; try{ const m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); return m==='P'?'paddy':'dirt' }catch(e){ return 'dirt' } };
 const MOPEN=!/[?&]mopen=0\b/.test(location.search), MLEAD=2.0;
 const RTOP=/[?&]rtop=0\b/.test(location.search)?0:(+(location.search.match(/[?&]rtop=(\d+)/)||[])[1]||300);
 const LULLCUE=!/[?&]lullcue=0\b/.test(location.search);
@@ -2840,10 +2840,10 @@ function drawIcon(c,id,s){
 }
 /* ---- background tiles + decor ---- */
 let TILE_J,TILE_P,TILE_RH,TILE_RV,DECOR=[];
-/* ===== JG (rc7 #4, ?jungle=1, OFF by default): Artist Idea Bot's jungle_v3 rev 3 depth layer (48 px tiles) on top of the ground.
+/* ===== JG (rc7 #4, ON by default since jr rc8 perf pass, ?jungle=0 turns it off): Artist Idea Bot's jungle_v3 rev 3 depth layer (48 px tiles) on top of the ground.
    Lowlands near the base/Route 9: paddy (P), elephant grass (E), scrub / hedgerow bamboo (J). Triple canopy (jungle/rubber/teak) only far out
    (> 2600 px from the start = the map edges) and in the western hills (x < -1800). Baked in 8x8-tile chunks, one per frame budget, nearest first. ===== */
-const JG={ON:/[?&]jungle=1\b/.test(location.search),C:8,F:new Map(),q:[],ms:[],t:0,
+const JG={ON:!/[?&]jungle=0\b/.test(location.search),C:8,F:new Map(),q:[],ms:[],t:0,
   ok(){ return this.ON&&!!window.JUNGLE3&&!G.demo&&TERR.ready() },
   type(tx,ty){ const x=tx*48+24, y=ty*48+24, m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); if(m==='W'||m==='C'||m==='K')return 'other';
     if(fbS&&Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y))<FBW+140)return 'other'; const ex=G.ex, P=ex&&(ex.pad||ex.pre); if(P&&Math.hypot(x-P.x,y-P.y)<EX.PAD_R+60)return 'other';
