@@ -1009,7 +1009,7 @@ music/music_easter_valkyries.ogg + music/music_easter_valkyries.m4a  (scene: ope
     sha256: ogg f84d663de48322805ca6d249b9ad27652db8fa466f736b87055269812a3042a9  m4a 02794561af5e0f7da83309ce1ec9a4e052c035b675f3adb0dc57baf728874c59
     Edit:   18.0-94.0 s, 2 s fade in, 5 s fade out, no loop, -14.0 LUFS, period crackle kept.
 
-[2026-10-20 rc8 sourcing — o1 / amtrac / firebase (game copy; tokay not included). Gated per AUD_PENDING in index.html, see RC8_NOTES.md]
+[2026-10-20 rc8 sourcing — o1 / amtrac / firebase: Legal PASS + Audio Director PASS 2026-10-20, shipping. tokay: PENDING LEGAL, QA builds only (AUD_PENDING.tokay); drop this tokay entry if Legal does not clear it]
 samples/ogg + samples/m4a/o1_birddog_flyby_1  (STAND-IN for the O-1 Bird Dog: unidentified propeller light plane)
     Source: "Propeller plane and birds singing" by ezwa (pdsounds.org), https://commons.wikimedia.org/wiki/File:Propeller_plane_and_birds_singing.ogg
     Licence: Public domain (pdsounds.org). Edit: 3-27 s, fades, level.  sha256: ogg b6463d1ce5a617ecc172da74048f71ec9add787a0dde6ecf931470955dda71d1  m4a 0ea2c6a258682fe96b682d43c32f2fc0723f907834a33250b1eda476ebdc92d8
@@ -1019,3 +1019,7 @@ samples/ogg + samples/m4a/lvtp5_engine_loop_1  (amtrac engine loop, edited from 
 samples/ogg + samples/m4a/firebase_amb_loop_1  (real night rainforest, Guatemala; region stand-in)
     Source: "Rainforest by Night" by Anon6116, https://archive.org/details/RainforestNight
     Licence: CC0 1.0. Edit: 264-306 s (rev 2), 40 s loop.  sha256: ogg 96da626ebcf09fbb3cf2679f546f4681ef6ee3f9d61c0f593c6257bda57f32df  m4a afa939135d435a572151d7f9e8a82c1f5cf86a67f4f8eba74b6f4337e754ac34
+samples/ogg + samples/m4a/tokay_gecko_1..3  (real tokay gecko, northern Laos)  Legal PASS 2026-10-20 (source SHA-1 83b9bfad verified)
+    Source: "Mating call of a male Tokay gecko (Gekko gecko)" by Richard Ling, https://commons.wikimedia.org/wiki/File:Mating_call_of_a_male_Tokay_gecko_(Gekko_gecko).ogg
+    Licence: Public domain (author's release). Edit: three cuts, HP 80 Hz, fades, level.
+    sha256: 1 ogg 54e487c625ce876c80c7d5800077f421429dda6b50039351078805382d5ba27d m4a 2148464e2959a64154e3617aeedb998e54f7c82e32abcd8a4fbc3a340428c4f8; 2 ogg a7cee0b0cdc363074bdb614108de76e5fa28f774853314e75be34d85bfb45798 m4a fc95986748764f73dfa9de77187afc31a3a763a6b8eac1c501c1e3047b8c5941; 3 ogg 07b3fb8ea8780c0deaba7617c598250ad6d72a20ef593cb90566b375239e2e69 m4a f3bdb9458f12adb56149c81b8430d7f4125060aaf162e0730a76a60ae2f348f2

@@ -80,6 +80,7 @@
     o1_birddog_flyby:   { cat: 'air',       prio: 4, gain: 0.5 },                                  // STAND-IN light-plane pass (post-gain RMS -24, specials bus -7 -> -31)
     lvtp5_engine_loop:  { cat: 'engine',    prio: 5, gain: 0.5, loop: true },                      // amtrac engine loop (modern AAV-7 source, not an LVTP-5), 12 s loop (post-gain -30, ambience bus -10 -> -40)
     firebase_amb_loop:  { cat: 'ambience',  prio: 5, gain: 0.5, loop: true },                      // night insects bed, 40 s loop (post-gain -33, ambience bus -10 -> -43)
+    tokay_gecko:        { cat: 'weather',   prio: 3, gain: 0.5, vary: true },                      // tokay calls, 3 variants (gated post-gain -30, ambience bus -10 -> -40); not a loop
     mortar_launch:      { cat: 'explosive', prio: 3, gain: 0.7554, vary: true },
     mortar_impact:      { cat: 'explosive', prio: 3, gain: 0.3547, vary: true },
     mortar_incoming:    { cat: 'explosive', prio: 3, gain: 0.3587, vary: true },
