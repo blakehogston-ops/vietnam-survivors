@@ -1318,7 +1318,6 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
       case 'airstrafe': for(let i=0;i<16;i++)this.noise(.03,.18,4200-i*140,1700,'highpass',i*.03); this.tone('sawtooth',1100,420,.5,.035); break;   // tearing burst
       case 'airnapalm': this.noise(1.2,.42,520,55,'lowpass'); this.tone('sine',72,26,1,.5); this.noise(.5,.1,2400,500,'bandpass',.08); break;   // low whoomph
       case 'airarc': this.noise(1.6,.3,320,60,'lowpass'); this.tone('sine',50,28,1.4,.32); break;
-      case 'airranch': this.noise(1,.16,3200,900,'highpass'); this.tone('sawtooth',135,92,.9,.035); break;
       case 'airspooky': this.tone('sawtooth',74,66,1.5,.05); this.noise(1.4,.09,650,300,'bandpass'); break;
       case 'ready': this.tone('sine',1568,1568,.06,.03); break;   // soft cooldown-ready tick
       case 'refuel': // flight line: low turbine spooling up, metallic boom clank, then the deep tanker flyover
@@ -2410,13 +2409,13 @@ function drawTunnel(q,tt){
   ctx.fillStyle='#a8b25c'; ctx.fillRect(-8,-1-(o*4),16,1); ctx.restore();
   ctx.fillStyle='#4f6a2d'; for(let i=0;i<7;i++){ const a=i/7*TAU+q.seed; ctx.fillRect(Math.round(x+Math.cos(a)*14-1),Math.round(y+Math.sin(a)*9.5-1),2,3) } }
 
-/* ====================== air support (strafing, B-52 Arc Light, Ranch Hand), armor, chemical clouds ====================== */
+/* ====================== air support (strafing, B-52 Arc Light), armor, chemical clouds ====================== */
 function updateAir(dt){
   const g=G;
   for(let i=air.length-1;i>=0;i--){ const a=air[i]; CURW=a.wid||''; a.t+=dt; if(a.t<0)continue;
     const ca=Math.cos(a.a), sa=Math.sin(a.a);
     if(a.t<a.delay){ if(rnd()<.6)addPart(a.cx+(rnd()-.5)*10,a.cy+(rnd()-.5)*10,(rnd()-.5)*14,-34-rnd()*24,1.1,5+rnd()*4,a.mk[(rnd()<.5)|0],false,.4);
-      if(!a.sfx&&a.t>a.delay-1.0){ a.sfx=true; if(!SAMP.air(a.kind===3?'arc':a.kind===4?'ranch':'jet'))Snd.play(a.kind===3?'rumble':a.kind===4?'spray':'jet') } continue }
+      if(!a.sfx&&a.t>a.delay-1.0){ a.sfx=true; if(!SAMP.air(a.kind===3?'arc':'jet'))Snd.play(a.kind===3?'rumble':'jet') } continue }
     if(!a.go){ a.go=true; a.pos=0;
       if(a.kind===3){ const s=a.s; for(let k=0;k<s.n;k++){ const u=k*64, lat=(rnd()-.5)*2*s.lat;
           hshells.push({wid:CURW,x:a.cx-ca*a.len/2+ca*u-sa*lat,y:a.cy-sa*a.len/2+sa*u+ca*lat,t:-(500+u)/a.speed,d:.5,dmg:s.dmg,rad:s.rad,w:false,big:true,ao:s.ao?{r:s.rad*.85,life:s.aolife,dmg:s.aodmg}:null}) } } }
@@ -2434,9 +2433,6 @@ function updateAir(dt){
           const uu=Math.min(a.len,u+150+rnd()*90), lat=(rnd()-.5)*a.w, x=a.cx-ca*a.len/2+ca*uu-sa*lat, y=a.cy-sa*a.len/2+sa*uu+ca*lat;
           for(let k=0;k<5;k++){ const f=k/5; addPart(a.px+(x-a.px)*f,a.py+(y-a.py)*f-10*(1-f),(rnd()-.5)*10,(rnd()-.5)*10,.5,3,'#cfcab8',false,2) }
           explode(x,y,s.rkrad,s.rkdmg,220); if(fires.length<90)fires.push({wid:CURW,x,y,r:s.rkrad*.45,life:2,ml:2,tick:0,dmg:2.5}); Snd.play('zuni') } } }
-    else if(a.kind===4){ const s=a.s;
-      if(u>0&&u<a.len){ while(a.pos-500-a.last>=36){ a.last+=36; addCloud(a.px,a.py,s.cr,s.life,s.dmg,s.slow) }
-        if(rnd()<dt*40)addPart(a.px-ca*20,a.py-sa*20,-ca*20+(rnd()-.5)*30,(rnd()-.5)*30,.9,4+rnd()*3,['#e8921c','#f2b134'][(rnd()*2)|0],false,1.5) } }
     if(a.pos>a.len+1000){ air[i]=air[air.length-1]; air.pop() } }
 }
 function updateClouds(dt){
@@ -2647,7 +2643,7 @@ function planePath(k){ if(PLANEP[k])return PLANEP[k]; const p=new Path2D(); cons
   else { p.rect(-28,-4,56,8); p.rect(-6,-40,12,80); p.rect(-28,-13,8,26) }
   PLANEP[k]=p; return p }
 const PLANEP=[], PCOL=['#7d8a96','#9aa4ae','#8c96a2','#66705a','#8a9570'];
-const AIRK=['a1h','a4e','f4b','b52d','uc123'];
+const AIRK=['a1h','a4e','f4b','b52d'];
 function drawAir(a){ if(!a.go)return; const k=a.kind, alt=k===3?74:k===4?14:22, sc=k===3?1.3:1;
   if(VEH()&&SHEET1.drawAircraft){ SHEET1.drawAircraft(ctx,AIRK[k]||'a4e',{x:Math.round(a.px),y:Math.round(a.py),alt,heading:a.a,scale:1,t:performance.now()/1000}); if(k===3&&!a.nokc)drawKC135(a); return }
   ctx.save(); ctx.translate(Math.round(a.px)+(k===3?50:12),Math.round(a.py)+(k===3?60:14)); ctx.rotate(a.a); ctx.scale(sc,sc); ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fill(planePath(k)); ctx.restore();
@@ -2733,7 +2729,6 @@ function drawIcon(c,id,s){
     case 'tank': R(1,9,14,5,'#2e3125');R(2,6,12,5,'#55633f');R(5,3,6,4,'#64734a');R(10,4,6,2,'#22251c');R(3,12,10,1,'#444');R(6,8,3,1,'#e8e8e0');break;
     case 'squad': R(2,2,12,1,'#bbb');R(4,3,8,3,'#55633f');R(11,4,3,2,'#9fc4d2');R(1,4,3,1,'#46523a');R(5,6,1,5,'#c8b890');R(10,6,1,5,'#c8b890');R(3,11,3,3,'#58733a');R(3,10,3,1,'#6e8b4a');R(7,12,3,2,'#58733a');R(7,11,3,1,'#6e8b4a');R(11,11,3,3,'#58733a');R(11,10,3,1,'#6e8b4a');R(0,14,16,1,'#3f5528');break;
     case 'arclight': R(6,1,4,3,'#6b7566');R(5,4,6,8,'#4b5440');R(6,12,4,2,'#33382d');R(3,6,2,3,'#c9b83a');R(11,6,2,3,'#c9b83a');R(7,13,2,2,'#ff8a1f');R(0,14,16,1,'#e8921c');break;
-    case 'ranch': R(7,2,2,11,'#8a9570');R(0,6,16,3,'#8a9570');R(5,12,6,2,'#8a9570');R(1,10,14,2,'#e8921c');R(3,12,10,2,'#f2b134');R(5,14,6,1,'#d9801a');break;
     case 'helmet': R(4,4,8,1,'#6e8b4a');R(3,5,10,5,'#6e8b4a');R(2,9,12,2,'#4a6233');R(5,11,1,3,'#d9c48a');R(10,11,1,3,'#d9c48a');R(5,6,3,1,'#8aa862');R(8,7,2,1,'#4a6233');break;
     case 'flak': R(3,2,10,12,'#58733a');R(6,2,4,3,'#17110a');R(3,6,10,1,'#3f5528');R(3,9,10,1,'#3f5528');R(7,5,1,9,'#3f5528');R(3,2,2,3,'#6f8d4d');R(11,2,2,3,'#6f8d4d');break;
     case 'boots': R(4,2,5,9,'#3b3326');R(4,10,10,4,'#3b3326');R(4,13,10,1,'#1d1d1d');R(4,2,5,1,'#6b6a3a');R(6,5,3,1,'#6b6a3a');R(6,7,3,1,'#6b6a3a');break;
@@ -3007,12 +3002,9 @@ const ITEMS={
     blurb:'Call an Arc Light mission: a B-52D high overhead walks a line of 500 lb bombs across a marked strip, with a KC-135A Stratotanker flying along high above (the B-52s were air-refueled by KC-135s on their long missions from Guam and U-Tapao). From level 5 the bombs also leave lingering orange defoliant clouds that poison and slow enemies (arcade liberty: the real Ranch Hand spray planes were UC-123s).',
     stats:l=>({n:Math.round(8+1.5*l),dmg:150+30*(l-1),rad:88+5*l,lat:30+4*l,cd:38*Math.pow(.93,l-1),ao:l>=5,aodmg:4+1.1*Math.max(0,l-5),aolife:7+.5*l}),
     desc:s=>`${s.n} bombs · Dmg ${s.dmg} · radius ${s.rad}${s.ao?' · Agent Orange cloud '+Math.round(s.aodmg/.4)+' dps':''}`},
-  ranch:{kind:'w',name:'UC-123 Ranch Hand',max:8,blurb:'Operation Ranch Hand: a low-flying UC-123 Provider sprays an orange defoliant trail. The chemical cloud poisons enemies over time and slows them from level 3.',
-    stats:l=>({dmg:4+1.2*(l-1),cr:38+3*l,life:5+.5*l,len:560+40*l,passes:1+(l>=4)+(l>=7),cd:20*Math.pow(.93,l-1),slow:l>=3}),
-    desc:s=>`Poison ${Math.round(s.dmg/.4)} dps · cloud ${s.cr} · ${s.passes} pass${s.passes>1?'es':''}${s.slow?' · slows':''}`},
-  kc135:{kind:'p',name:'KC-135 Aerial Refueling',max:5,req:()=>!!G&&!!(G.w.arclight||G.w.strafe||G.w.ranch||G.w.boxmission||G.w.napalm),
-    blurb:'KC-135A Stratotanker, flying boom: the tankers kept the B-52s and fighter-bombers on the line. Your air support (Arc Light, strafing, napalm, Ranch Hand) is back on station sooner and flies extra bombs and passes. The crew chief keeps them flying.',
-    desc:l=>`Air-support cooldown -${l*7}% · Arc Light +${l*2} bombs${l>=2?' · strafing +'+((l>=2)+(l>=4))+' pass'+(l>=4?'es':''):''}${l>=3?' · Ranch Hand +'+((l>=3)+(l>=5))+' pass'+(l>=5?'es':''):''}`},
+  kc135:{kind:'p',name:'KC-135 Aerial Refueling',max:5,req:()=>!!G&&!!(G.w.arclight||G.w.strafe||G.w.boxmission||G.w.napalm),
+    blurb:'KC-135A Stratotanker, flying boom: the tankers kept the B-52s and fighter-bombers on the line. Your air support (Arc Light, strafing, napalm) is back on station sooner and flies extra bombs and passes. The crew chief keeps them flying.',
+    desc:l=>`Air-support cooldown -${l*7}% · Arc Light +${l*2} bombs${l>=2?' · strafing +'+((l>=2)+(l>=4))+' pass'+(l>=4?'es':''):''}`},
   helmet:{kind:'p',name:'M1 Steel Helmet',max:5,blurb:'Armor: take less damage from hits.',desc:l=>`Damage taken -${l*8}%`},
   flak:{kind:'p',name:'Flak Jacket',max:5,blurb:'Extra protection: more max health.',desc:l=>`Max HP ${100+20*l}`},
   boots:{kind:'p',name:'Jungle Boots',max:5,blurb:'Move faster through the bush.',desc:l=>`Move speed +${l*10}%`},
@@ -3612,7 +3604,7 @@ function update(dt){
   if(g.pending>0&&state==='play'&&!g.demo&&p.hp>0&&!luHold){ g.luAt=g.t; openLevelUp() }
   else if(g.pending>0&&g.demo){g.pending=0}
 }
-const KCIDS={arclight:1,boxmission:1,strafe:1,ranch:1,napalm:1};
+const KCIDS={arclight:1,boxmission:1,strafe:1,napalm:1};
 function airCap(){ return G&&G.char==='radio'?AIR_CDR_CAP_HOGSTON:AIR_CDR_CAP }   // -45% for everyone, -60% for MSgt Hogston
 function kcFac(id){ const kc=G.ps.kc135|0; return kc&&KCIDS[id]?1-.07*kc:1 }
 /* how fast a weapon's cooldown runs: radio discipline, character air bonus, firebase, refuel run; air support is capped so total reduction never exceeds AIR_CDR_CAP */
@@ -3633,7 +3625,7 @@ function refuelRun(id,w){ const g=G; if(g.char!=='radio'||g.demo||(g.rfCd||0)>0)
   annc('refuel','kc135',{text:'KC-135 TEXACO: "TANKERS FUELED, TANKERS READY" · NEXT STRIKE -15% COOLDOWN',t:2.8,col:'#cfe3f0'}); Snd.airPlay('refuel'); Snd.play('radio') }
 function drawRefuel(){ const g=G,r=g&&g.rfRun; if(!r)return; const p=g.p, u=r.t/r.dur, ca=Math.cos(r.a), sa=Math.sin(r.a), d=-700+1400*u, X=p.x+ca*d-sa*r.off, Y=p.y+sa*d+ca*r.off;
   drawKC135({a:r.a,px:X-ca*230+sa*95,py:Y-sa*230-ca*95}) }
-const AIRLBL={arclight:'ARC',boxmission:'BOX',strafe:'STR',napalm:'NPM',ranch:'RH',spooky:'SPK'};
+const AIRLBL={arclight:'ARC',boxmission:'BOX',strafe:'STR',napalm:'NPM',spooky:'SPK'};
 function hudTanker(){ const el=$('tkr'), g=G, show=!!(g&&g.char==='radio'&&!g.demo&&(state==='play'||state==='paused'||state==='levelup'));
   if(!show){ if(el.style.display!=='none')el.style.display='none'; return } if(el.style.display!=='flex')el.style.display='flex';
   const cd=g.rfCd||0, run=!!g.rfRun, txt=run?'KC-135 REFUELING…':cd>0?'TANKER RESET '+Math.ceil(cd)+'s':'TANKER READY', tx=$('tkrTx'); if(txt!==tx.textContent){ tx.textContent=txt; el.className=run?'run':cd>0?'cd':'rdy' }
@@ -3741,11 +3733,6 @@ function updateWeapons(dt){
       const nB=Math.min(s.n,id==='boxmission'?24:40), lines=s.lines||1, c0=clump(430,150,12)||[p.x+Math.cos(g.t)*170,p.y+Math.sin(g.t)*170], a=rnd()*TAU, len=(nB-1)*64, nx=-Math.sin(a), ny=Math.cos(a), gap=2*(s.rad+s.lat)*.95;
       for(let i=0;i<lines;i++){ const off=(i-(lines-1)/2)*gap; air.push({wid:CURW,kind:3,nokc:i>0,cx:c0[0]+nx*off,cy:c0[1]+ny*off,a,len,w:s.rad+s.lat,t:-i*.15,delay:2.6,speed:(len+1000)/3.0,s:Object.assign({},s,{n:nB}),mk:['#ff4a3a','#ffb0a0'],go:false}) }
       annc(id,id,{text:id==='boxmission'?'ARC LIGHT: BOX MISSION! 3x B-52D':'ARC LIGHT! B-52 INBOUND',t:2.2,col:'#ff9a6a'}); Snd.play('radio'); if(!SAMP.air('arc'))Snd.airPlay('airarc'); w.cd+=s.cd; refuelRun(id,w); RTO_T=null; }
-    else if(id==='ranch'){
-      const c0=clump(420,120,10)||[p.x+Math.cos(g.t)*150,p.y+Math.sin(g.t)*150], a=rnd()*TAU, nx=-Math.sin(a), ny=Math.cos(a);
-      for(let i=0;i<s.passes;i++){ const off=(i-(s.passes-1)/2)*(s.cr*2.2+10);
-        air.push({wid:CURW,kind:4,cx:c0[0]+nx*off,cy:c0[1]+ny*off,a:a+(i%2?Math.PI:0),len:s.len,w:s.cr*2,t:-i*.7,delay:1.5,speed:420,s,last:0,mk:['#f2a22a','#ffd070'],go:false}) }
-      annc('ranch','ranch',{text:'RANCH HAND SPRAY RUN',t:1.8,col:'#f2a22a'}); Snd.play('radio'); if(!SAMP.fly('ranchHand'))Snd.airPlay('airranch'); w.cd+=s.cd; refuelRun(id,w); RTO_T=null; }
   }
 }
 /* M67 'Zippo' (Blake Oct 14 night): flame reaches ~1.6-2x the handheld M2. It never torches friendlies or the pad smoke:
@@ -4232,7 +4219,7 @@ function addCloud(x,y,r,life,dmg,slow){ if(clouds.length>=48)clouds.shift(); clo
    He holds a ready strike until the count justifies it, then puts it on the densest enemy concentration on the map.
    He stays at Doc's shoulder. If he dies, air support is gone for the run. Doc can patch him with a med pack (Q). ===== */
 let RTO_T=null;
-const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,ranch:6,spooky:10,arclight:14,boxmission:22},GAP:2.5,
+const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,spooky:10,arclight:14,boxmission:22},GAP:2.5,
   on(g){ if(g.demo||!g.char)return false; if(g.rtoLost)return true; return !!this.get(g) },
   get(g){ if(g.rtoLost)return null; let m=coy.find(q=>q.rto); if(m)return m.hp>0?m:null;   /* one RTO per run: a man at 0 HP this frame is not replaced */
     if(!Object.keys(g.w).some(k=>AIRCALL[k]))return null;
@@ -4251,7 +4238,7 @@ const RTO={AGGRO:.3,MIN:{napalm:5,strafe:4,ranch:6,spooky:10,arclight:14,boxmiss
     if(N<need)return false; const t=this.densest(); if(!t||t.n<Math.min(3,need))return false;
     RTO_T=[t.x,t.y]; w.held=0; g.rtoGap=g.t+this.GAP; g.rtoCalls=(g.rtoCalls|0)+1;
     const big=N>=60?2:N>=30?1:0, o={};
-    if(id==='napalm')o.n=ITEMS.napalm.stats(w.lvl).n+big; if(id==='strafe'||id==='ranch')o.passes=undefined; if((id==='arclight'||id==='boxmission')&&big)o.n=ITEMS[id].stats(w.lvl).n+4*big;
+    if(id==='napalm')o.n=ITEMS.napalm.stats(w.lvl).n+big; if((id==='arclight'||id==='boxmission')&&big)o.n=ITEMS[id].stats(w.lvl).n+4*big;
     for(const k in o)if(o[k]===undefined)delete o[k];
     ftexts.push({x:m.x+(m.x<g.p.x?-34:34),y:m.y-6,t:0,s:'FIRE MISSION · '+t.n,c:'#ffe58a'}); m.callT=1.6;
     return o },
@@ -4970,7 +4957,7 @@ const CHD={
  radio:{rank:'MSgt',nm:'MSgt Hogston, USAF',nick:'Hogston',label:'MSgt Hogston, USAF',card:['MSgt Hogston','USAF · Tanker Maint.'],svc:'U.S. AIR FORCE · ATTACHED TO USMC',home:'Saltville, Virginia',mos:'Tanker Maintenance (USAF)',age:'',sn:'',
   bio:["Master Sergeant, USAF, Tanker Maintenance, out of Saltville, Virginia. The only airman in the squad, and nobody can quite explain how he ended up with the Marines. He doesn't carry the biggest gun, but he knows a KC-135 better than the pilots who fly one."],
   known:"Knowing a KC-135 better than the pilots who fly one.",quote:"",
-  loadout:'M1911A1 sidearm · 105mm Howitzer (radio fire) · KC-135 Aerial Refueling Lv1',passive:'Ready the Tankers: "Tankers fueled, tankers ready." Starts with KC-135 Aerial Refueling at level 1. Calling in an air strike (Arc Light, strafing, Ranch Hand, Spooky) sends a refuel run: a KC-135 flies over and that weapon\'s next cooldown is 15% shorter (20 s between runs). Air & artillery cooldowns -20%; his air-support cooldown reduction is capped at -55% (everyone else -45%); 5s floor between uses. Trade-off: -30 max HP, slower, sidearm-only firepower.',ab:{nm:'Danger Close',cd:40,desc:'Four 105mm shells on the thickest enemy clump.'},
+  loadout:'M1911A1 sidearm · 105mm Howitzer (radio fire) · KC-135 Aerial Refueling Lv1',passive:'Ready the Tankers: "Tankers fueled, tankers ready." Starts with KC-135 Aerial Refueling at level 1. Calling in an air strike (Arc Light, strafing, Spooky) sends a refuel run: a KC-135 flies over and that weapon\'s next cooldown is 15% shorter (20 s between runs). Air & artillery cooldowns -20%; his air-support cooldown reduction is capped at -55% (everyone else -45%); 5s floor between uses. Trade-off: -30 max HP, slower, sidearm-only firepower.',ab:{nm:'Danger Close',cd:40,desc:'Four 105mm shells on the thickest enemy clump.'},
   base:{dr:.65,mh:1.2,air:.2,hp:-30,spd:-.15,sidearm:true},start:{w:['howitzer'],ps:{kc135:1}},
   perks:[{t:'Air & arty cooldown -5%',m:{air:.05}},{t:'Danger Close cooldown -15%',m:{ab:.15}},{t:'+15 max HP',m:{hp:15}},{t:'Air & arty cooldown -8%',m:{air:.08}},{t:'XP gain +10%, Danger Close -15%',m:{xp:.1,ab:.15}}]},
  preacher:{rank:'Sgt',nm:'Elijah Miller',nick:'Preacher',home:'Tupelo, MS',mos:'Grenadier',age:25,sn:'G-7241130',
@@ -4989,11 +4976,11 @@ const CHD={
 const CHORDER=['doc','hammer','boone','skipper','zippo','rat','radio','preacher','chef'];
 const TIER_XP=[350,1000,2200,4000,6500];   /* was [120,320,620,1050,1600] */
 const AIR_CDR_CAP=.45, AIR_CDR_CAP_HOGSTON=.55, AIR_FLOOR=5, AIR_FX_MAX=7, TANKER={cut:.15,gap:20,run:2.8};     // hard cap: total air-support cooldown reduction (all sources incl. KC-135 levels), and Hogston's refuel run
-const AIRIDS={boxmission:1,spooky:1,arclight:1,strafe:1,ranch:1,napalm:1,howitzer:1,mortar:1,gunboat:1};   // gets the character air bonus
+const AIRIDS={boxmission:1,spooky:1,arclight:1,strafe:1,napalm:1,howitzer:1,mortar:1,gunboat:1};   // gets the character air bonus
 /* player specials (auto-firing support): pause in the pull-back lull, fire only with a living enemy in view */
-const SPECW={boxmission:1,spooky:1,arclight:1,strafe:1,ranch:1,napalm:1,mortar:1,howitzer:1,gunboat:1,huey:1,kc135:1};
+const SPECW={boxmission:1,spooky:1,arclight:1,strafe:1,napalm:1,mortar:1,howitzer:1,gunboat:1,huey:1,kc135:1};
 let _eivT=-1,_eiv=false; function enemyInView(){ const t=G.t; if(t===_eivT)return _eiv; _eivT=t; _eiv=false; for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(!e.dead&&onScreen(e,0)){ _eiv=true; break } } return _eiv }
-const AIRCALL={boxmission:1,spooky:1,arclight:1,strafe:1,ranch:1,napalm:1};   // true air support: hard cap + 5 s floor apply. Mortar/howitzer/gunboat are artillery and sit OUTSIDE the cap
+const AIRCALL={boxmission:1,spooky:1,arclight:1,strafe:1,napalm:1};   // true air support: hard cap + 5 s floor apply. Mortar/howitzer/gunboat are artillery and sit OUTSIDE the cap
 function loadChars(){ let o; try{ o=JSON.parse(localStorage.getItem('lbo2_chars')||'{}')||{} }catch(e){ return {} } return migrateRib(o) }
 /* Oct 8: the gameplay 'moh' award became 'lbo' (Last Bird Out). An already-earned rib.moh keeps the badge under the new id; nothing else carries over. */
 function migrateRib(o){ for(const k in o){ const c=o[k], r=c&&c.rib; if(r&&r.moh){ if(!r.lbo)r.lbo=Object.assign({},r.moh,{from:'moh'}); delete r.moh } else if(r&&('moh' in r))delete r.moh } return o }
@@ -6730,15 +6717,15 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   // napalm burning ground
   WRK.draw(true,camX,camY,VW,VH); FLM.ground(); WRK.draw(false,camX,camY,VW,VH); MAGS.draw(camX,camY,VW,VH); if(window.VFX_MUZZLE&&MZW.ON)try{ VFX_MUZZLE.drawAll(ctx,0,0,1,'under') }catch(e){}
   for(const f of fires){ const k=Math.min(1,f.life/f.ml), fl=.8+.2*Math.sin(tt*18+f.x); ctx.globalAlpha=.45*Math.min(1,k*3)*fl; ctx.fillStyle='#ff6a1a'; ctx.beginPath(); ctx.ellipse(f.x,f.y,f.r,f.r*.8,0,0,TAU); ctx.fill(); ctx.globalAlpha=.5*Math.min(1,k*3)*fl; ctx.fillStyle='#ffc23a'; ctx.beginPath(); ctx.ellipse(f.x,f.y,f.r*.55,f.r*.42,0,0,TAU); ctx.fill(); ctx.globalAlpha=1 }
-  // chemical clouds (Agent Orange / Ranch Hand)
+  // chemical clouds (Arc Light Agent Orange)
   for(let i=0;i<clouds.length;i++){ const c=clouds[i]; if(c.x<camX-c.r-30||c.x>camX+VW+c.r+30||c.y<camY-c.r-30||c.y>camY+VH+c.r+30)continue; const k=Math.min(1,c.life/c.ml), fa=Math.min(1,c.life/1.2)*(.5+.5*k), sw=Math.sin(tt*1.5+c.seed);
     ctx.globalAlpha=.24*fa; ctx.fillStyle='#e0861a'; ctx.beginPath(); ctx.ellipse(c.x,c.y,c.r,c.r*.78,0,0,TAU); ctx.fill();
     ctx.globalAlpha=.2*fa; ctx.fillStyle='#f2b134'; ctx.beginPath(); ctx.ellipse(c.x+sw*c.r*.15,c.y-c.r*.1,c.r*.65,c.r*.5,0,0,TAU); ctx.fill();
     ctx.globalAlpha=.16*fa; ctx.fillStyle='#c46a12'; ctx.beginPath(); ctx.ellipse(c.x-sw*c.r*.2,c.y+c.r*.12,c.r*.45,c.r*.36,0,0,TAU); ctx.fill(); ctx.globalAlpha=1 }
   // air strike lanes (warning strips)
   for(let i=0;i<air.length;i++){ const a=air[i]; if(a.t<0&&a.kind!==3)continue; if(a.go&&a.pos-500>a.len+40)continue; const ca=Math.cos(a.a),sa=Math.sin(a.a);
-    ctx.save(); ctx.translate(a.cx,a.cy); ctx.rotate(a.a); ctx.globalAlpha=a.kind===3?.22+.1*Math.sin(tt*10):.16+.08*Math.sin(tt*12); ctx.fillStyle=a.kind===4?'#f2a22a':'#ff4a3a'; ctx.fillRect(-a.len/2,-a.w/2,a.len,a.w);
-    ctx.globalAlpha=.55; ctx.strokeStyle=a.kind===4?'#f2a22a':'#ff4a3a'; ctx.lineWidth=2; ctx.setLineDash([10,8]); ctx.strokeRect(-a.len/2,-a.w/2,a.len,a.w); ctx.setLineDash([]); ctx.restore(); ctx.globalAlpha=1 }
+    ctx.save(); ctx.translate(a.cx,a.cy); ctx.rotate(a.a); ctx.globalAlpha=a.kind===3?.22+.1*Math.sin(tt*10):.16+.08*Math.sin(tt*12); ctx.fillStyle='#ff4a3a'; ctx.fillRect(-a.len/2,-a.w/2,a.len,a.w);
+    ctx.globalAlpha=.55; ctx.strokeStyle='#ff4a3a'; ctx.lineWidth=2; ctx.setLineDash([10,8]); ctx.strokeRect(-a.len/2,-a.w/2,a.len,a.w); ctx.setLineDash([]); ctx.restore(); ctx.globalAlpha=1 }
   // strike markers
   for(const q of strikes){ if(q.t<0||q.t>=q.delay)continue; const ca=Math.cos(q.a),sa=Math.sin(q.a); ctx.globalAlpha=.35+.2*Math.sin(tt*14); ctx.strokeStyle='#ff4a3a'; ctx.lineWidth=2; ctx.setLineDash([8,8]); ctx.beginPath(); ctx.moveTo(q.cx-ca*q.len/2,q.cy-sa*q.len/2); ctx.lineTo(q.cx+ca*q.len/2,q.cy+sa*q.len/2); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(q.cx,q.cy,q.rad,0,TAU); ctx.stroke(); ctx.globalAlpha=1 }
   // claymore mines
@@ -6985,7 +6972,6 @@ const SAMP={on:false,real:{},st:{b40:0,b40Late:0,b40Silent:0,charge:0,chargeLate
   air(kind){ if(!this.ready())return false; const fl=t=>SamplePlayer.hasSample(({jet:'jet_flyby',ranchHand:'ranch_hand_flyover'})[t]);
     if(kind==='spooky'){ if(!fl('ranchHand'))return false; SamplePlayer.flyby('ranchHand',{vol:.6}); const c=Snd.ctx.currentTime; for(let i=0;i<3;i++)SamplePlayer.minigun({when:c+3+i*2.6,vol:.7}); return true }
     if(kind==='arc'){ if(!fl('jet'))return false; SamplePlayer.flyby('jet',{bombAt:Snd.ctx.currentTime+3,bomb:true,vol:.5}); return true }
-    if(kind==='ranch'){ if(!fl('ranchHand'))return false; SamplePlayer.flyby('ranchHand'); return true }
     if(!fl('jet'))return false; SamplePlayer.flyby('jet'); return true },
   build(pos){ if(this.on&&!Snd.muted)try{ SamplePlayer.turretBuild(pos) }catch(e){} },
   stepT:0,

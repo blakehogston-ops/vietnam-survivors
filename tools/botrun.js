@@ -18,7 +18,7 @@ const SUMMARY=[];
     await pg.goto(URL+'?nodemo&nointro&nobrief&bot&char='+CHAR+'&autostart'+(arg('q','')?'&'+arg('q',''):'')); await pg.waitForTimeout(800);
     const report=await pg.evaluate(({MINS,MISSION,FB,LIMIT,TRACE})=>{
       const m=__ms,G0=()=>m.G; window.__simHold=true;
-      const WPRI=['m16','m60','tank','m79','claymore','mortar','arclight','strafe','squad','howitzer','napalm','huey','flame','ranch','gunboat'];
+      const WPRI=['m16','m60','tank','m79','claymore','mortar','arclight','strafe','squad','howitzer','napalm','huey','flame','gunboat'];
       const PPRI={helmet:42,flak:44,regen:41,boots:36,magnet:30,radio:40,fm:34,demo:32,dustoff:46,kc135:49};
       m.BOTF.pick=ch=>{ const G=G0(); let best=0,bs=-1; ch.forEach((id,i)=>{ const it=m.ITEMS?m.ITEMS[id]:null; let sc=10;
           if(m.EVOS[id])sc=200; else if(G.w[id]){ sc=50+G.w[id].lvl } else if(WPRI.indexOf(id)>=0){ sc=(Object.keys(G.w).length<6?72:12)-WPRI.indexOf(id)*.6 } else if(PPRI[id])sc=PPRI[id]-(G.ps[id]|0)*3;
