@@ -2942,7 +2942,7 @@ function drawCrossings(x0,y0,x1,y1,t){ const fr=TERR.frame;
 function fbLanding(f){ const r=nearestRiver(f.x,f.y); if(!r)return null; if(r.h){ const cy=rowCy(r.wy,f.x), s=Math.sign(f.y-cy); return {h:true,x:f.x,y:cy+s*(MAPB.HW-4),s,u:f.x,r} } const cx=colCx(r.wx,f.y), s=Math.sign(f.x-cx); return {h:false,x:cx+s*(MAPB.HW-4),y:f.y,s,u:f.y,r} }
 function fbProps(f){ const out=[]; let k=0;
   if(FB2){ for(const L of (f.lay||[])){ if(L[0]!=='bunker'&&L[0]!=='cp')continue; const h=hash2(k*7+3,9); k++; out.push([h>.6?'fbDrums':'fbDrum',h>.6?'group':'od',L[1]+(L[0]==='cp'?-34:-36),L[2]+18]) }
-    const X=f.x, Y=f.y; out.push(['fbAmmo','crate',X-92,Y+44],['fbAmmo','stack',X-34,Y+136],['fbAmmo','open',X+58,Y+128],['fbAmmo','crate',X+6,Y-92],['fbAmmo','stack',X+96,Y+58]);   /* crates beside the pits and CP */
+    const X=f.x, Y=f.y; out.push(['fbAmmo','crate',X-92,Y+44],['fbAmmo','stack',X-34,Y+136],['fbAmmo','open',X+68,Y+132],['fbAmmo','crate',X+6,Y-92],['fbAmmo','stack',X+96,Y+58]);   /* crates beside the pits and CP */
     if(window.SHEET1&&SHEET1.drawFbProp)out.push(['fbp','generator',X+104,Y-2,1],['fbp','waterCans6',X+40,Y+4,1],['fbp','generator3kw',X-124,Y-58,1],['fbp','waterCans3',X-126,Y+128,1],['fbp','waterCan',X+126,Y-128,1],['fbp','waterCans3',X+128,Y+30,1]);   /* AD fb_props_rc8: generators + water cans by the aid station, bunker and gun pits */
     else out.push(['fb2WaterBuffalo','v0',X+30,Y+50,.5]);   /* fallback: water trailer */
     for(const [fx,fy,fc] of [[-100,165,'S'],[90,-165,'N'],[165,90,'E'],[-165,-100,'W']])out.push(['fb2FightPos',fc,X+fx,Y+fy,.625,1]);   /* sandbagged foxholes along the inside of the wall */
@@ -5999,7 +5999,7 @@ function fbLayout(f){ const L=[], C=f;
 function fbLayout2(f,L,wall){ const C=f, n0=()=>L.length;
   wall(FBS,15,40,'sandbag',.02,.28,0); if(AMT.ON)for(let i=L.length-1;i>=0;i--){ const q=L[i]; if(q[0]==='sandbag'&&Math.abs(q[1]-(C.x-FBS))<1&&(Math.abs(q[2]-(C.y-50))<40||Math.abs(q[2]-(C.y+100))<40))L.splice(i,1) } if(AMT.ON)for(let i=L.length-1;i>=0;i--){ const q=L[i]; if(q[0]==='sandbag'&&Math.abs(q[1]-(C.x+FBS))<1&&Math.abs(q[2]-(C.y+55))<40)L.splice(i,1) }   /* amtrac revetments sit in the west wall line */
   L.push(['bunker',C.x-90,C.y-78,0,.33,1]); L.push(['cp',C.x-20,C.y-100,0,.35,1]);
-  L.push(['ammo',C.x-120,C.y+40,0,.36,1]); L.push(['ammo',C.x-60,C.y+130,0,.37,1]); L.push(['ammo',C.x+30,C.y+145,0,.38,1]);
+  L.push(['ammo',C.x-120,C.y+40,0,.36,1]); L.push(['ammo',C.x-60,C.y+130,0,.37,1]); L.push(['ammo',C.x+40,C.y+146,0,.38,1]);
   const T=[['m2',-1,-1,.40],['m60',1,-1,.44],['m2',1,1,.48],['m60',-1,1,.52],['m60',0,-1,.55],['m2',1,0,.58],['m60',0,1,.61],['m2',-1,0,.64]];
   for(const [ty,sx,sy,at] of T){ const x=sx*(FBS-56), y=sy*(FBS-56); L.push([ty,C.x+x,C.y+y,Math.atan2(sy||0,sx||0),at,2]) }
   for(const [h,n,t,k] of FBW_BANDS){ const i0=n0(); wall(h,n,44,t,.66,.76,3); for(let i=i0;i<L.length;i++)L[i][6]=k }
