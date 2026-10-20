@@ -2120,9 +2120,9 @@ function buildGore(){
   [5,7,9,11,14,17,8,12,4,6].forEach(R=>{ const sz=(R+6)*2, c=mk(sz*2,sz*2), x=c.getContext('2d'); const cx=sz,cy=sz;
     const lobes=[]; for(let i=0;i<4+((R/4)|0);i++){const a=r()*TAU,d=r()*R*.55; lobes.push([Math.cos(a)*d,Math.sin(a)*d,R*(.35+r()*.4)])}
     for(let yy=-R-4;yy<=R+4;yy+=2)for(let xx=-R-4;xx<=R+4;xx+=2){ let v=0; for(const [lx,ly,lr] of lobes){const d=Math.hypot(xx-lx,yy-ly); if(d<lr)v=Math.max(v,1-d/lr)} v+=(r()-.5)*.25;
-      if(v>.1){ x.fillStyle=v>.7?'#b01818':v>.4?'#8f1012':'#650b0d'; x.fillRect(cx+xx,cy+yy,2,2) } }
-    for(let i=0;i<6+R/2;i++){const a=r()*TAU,d=R*(.8+r()*.7); x.fillStyle=r()<.5?'#8f1012':'#a31616'; x.fillRect(cx+Math.round(Math.cos(a)*d/2)*2,cy+Math.round(Math.sin(a)*d/2)*2,2,2)}
-    if(R>=9){x.fillStyle='#d83030';x.fillRect(cx-2,cy-2,2,2);x.fillRect(cx+2,cy,2,2)}
+      if(v>.1){ x.fillStyle=v>.7?'#5e1712':v>.4?'#4a120e':'#33100c'; x.fillRect(cx+xx,cy+yy,2,2) } }
+    for(let i=0;i<6+R/2;i++){const a=r()*TAU,d=R*(.8+r()*.7); x.fillStyle=r()<.5?'#4a120e':'#561510'; x.fillRect(cx+Math.round(Math.cos(a)*d/2)*2,cy+Math.round(Math.sin(a)*d/2)*2,2,2)}
+    if(R>=9){x.fillStyle='#6a1d16';x.fillRect(cx-2,cy-2,2,2);x.fillRect(cx+2,cy,2,2)}
     SPLAT.push(c) });
   // gib sprites
   const mkp=(rows,pal,sc)=>{ const h=rows.length,w=rows[0].length; const g=[]; for(let y=0;y<h+2;y++)g.push(new Array(w+2).fill(null));
@@ -2130,28 +2130,28 @@ function buildGore(){
     const c=mk((w+2)*sc,(h+2)*sc),px=c.getContext('2d');
     for(let y=0;y<h+2;y++)for(let x=0;x<w+2;x++){ let col=g[y][x]; if(!col&&((y>0&&g[y-1][x])||(y<h+1&&g[y+1][x])||(x>0&&g[y][x-1])||(x<w+1&&g[y][x+1])))col='#2a0808'; if(col){px.fillStyle=col;px.fillRect(x*sc,y*sc,sc,sc)} }
     return c };
-  const M={R:'#c01a1a',D:'#7a0a0c',L:'#ff4a4a'};
+  const M={R:'#5a1812',D:'#3e0f0c',L:'#74241b'};
   GIBSPR[0]=mkp([".RR.","RLRD","RRDR",".RR."],M,2);                       // meat S
   GIBSPR[1]=mkp([".RRR.","RLRRD","RRRDR","RDRRR",".RRR."],M,2);            // meat M
   GIBSPR[2]=mkp(["..RRR..",".RLRRD.","RRRRDRR","RDRRRRD",".RRDRR.","..RR..."],M,2); // meat L
-  GIBSPR[3]=mkp(["W.W",".W.",".W.",".W.","WRW"],{W:'#efe8d4',R:'#c01a1a'},2);   // bone
+  GIBSPR[3]=mkp(["W.W",".W.",".W.",".W.","WRW"],{W:'#efe8d4',R:'#5a1812'},2);   // bone
   GIBSPR[4]=mkp(["BB..","BB..","BBBB","KKKK"],{B:'#4a3a22',K:'#1a1410'},2);    // boot
-  const limb=u=>mkp(["UU","UU","UU","UU","SS","RR"],{U:u,S:'#e2b98f',R:'#c01a1a'},2);
+  const limb=u=>mkp(["UU","UU","UU","UU","SS","RR"],{U:u,S:'#e2b98f',R:'#5a1812'},2);
   GIBSPR[5]=limb('#3a3a40'); GIBSPR[6]=limb('#a89c5c'); GIBSPR[7]=limb('#7f8a4a'); // limbs: VC / NVA / officer
   GIBSPR[8]=mkp(["..HH..",".HHHH.","hhhhhh"],{H:'#dcc880',h:'#a8924a'},2);        // straw hat
   GIBSPR[9]=mkp(["..PP..",".PPPP.","cccccc"],{P:'#d3cb9c',c:'#a39b6a'},2);        // pith helmet
   GIBSPR[10]=mkp(["KK.","KKK",".KK"],{K:'#2a2420'},2);                            // charred chunk
-  GIBSPR[11]=mkp(["UU","UU","RR"],{U:'#58733a',R:'#c01a1a'},2);                   // spare (olive)
+  GIBSPR[11]=mkp(["UU","UU","RR"],{U:'#58733a',R:'#5a1812'},2);                   // spare (olive)
   // corpses: dimmed, flopped sprites over a blood pool
   for(const k of ['marine','vc','nva','officer','boss','rpg','rpgt']){ const spr=SPR[k][0][0][0], w=spr.width,h=spr.height; CORPSE[k]=[];
     for(let v=0;v<2;v++){ const c=mk(h+18,w+14),x=c.getContext('2d'); x.imageSmoothingEnabled=false; const cx=c.width/2,cy=c.height/2;
-      for(let yy=-w/2-5;yy<=w/2+5;yy+=2)for(let xx=-h/2-8;xx<=h/2+8;xx+=2){const d=Math.hypot(xx/(h/2+9),yy/(w/2+6))+(r()-.5)*.25; if(d<1){x.fillStyle=d<.55?'#9a1214':'#6a0b0d';x.fillRect(Math.round(cx+xx),Math.round(cy+yy),2,2)}}
-      const t=mk(w,h),tx=t.getContext('2d'); tx.drawImage(spr,0,0); tx.globalCompositeOperation='source-atop'; tx.fillStyle='rgba(40,0,0,.34)'; tx.fillRect(0,0,w,h);
+      for(let yy=-w/2-5;yy<=w/2+5;yy+=2)for(let xx=-h/2-8;xx<=h/2+8;xx+=2){const d=Math.hypot(xx/(h/2+9),yy/(w/2+6))+(r()-.5)*.25; if(d<1){x.fillStyle=d<.55?'#4e140f':'#36100c';x.fillRect(Math.round(cx+xx),Math.round(cy+yy),2,2)}}
+      const t=mk(w,h),tx=t.getContext('2d'); tx.drawImage(spr,0,0); tx.globalCompositeOperation='source-atop'; tx.fillStyle='rgba(30,10,4,.34)'; tx.fillRect(0,0,w,h);
       x.save(); x.translate(cx,cy); x.rotate(v?-Math.PI/2:Math.PI/2); x.drawImage(t,-w/2,-h/2); x.restore();
-      x.fillStyle='#c01a1a'; for(let i=0;i<5;i++)x.fillRect(Math.round(cx-h/3+r()*h*.6),Math.round(cy-w/4+r()*w*.5),2,2);
+      x.fillStyle='#5a1812'; for(let i=0;i<5;i++)x.fillRect(Math.round(cx-h/3+r()*h*.6),Math.round(cy-w/4+r()*w*.5),2,2);
       CORPSE[k].push(c) } }
 }
-const BLOODC=['#d01818','#a00f10','#ff3030','#7a0a0c'];
+const BLOODC=['#5a1712','#43110d','#6e1f17','#2f0d0a'];   /* Blake Oct 20: dark, muted, realistic blood (was bright arcade red) */
 let DECAL_CAP=380;
 let GORE=true; try{GORE=localStorage.getItem('lbo2_gore')!=='0'}catch(e){}
 function setGore(v,silent){ GORE=!!v; try{localStorage.setItem('lbo2_gore',GORE?'1':'0')}catch(e){}
