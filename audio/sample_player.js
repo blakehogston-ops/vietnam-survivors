@@ -1,6 +1,5 @@
-/* copied from Sound Helper by tools/build_audio.py; game patches: mix-bus routing (P.route); and one game-side patch marked "game patch" (warning voices outside the caps) */
 /*
- * sample_player.js - real recorded samples for "Last Chopper Out - Quang Tri, 1968".
+ * sample_player.js - real recorded samples for "Last Bird Out - Quang Tri, 1968".
  * Plain browser JS, no dependencies. Works next to sound_cues.js (the synthesized cues).
  *
  *   SamplePlayer.init(audioCtx, { sfxBus, musicBus, voiceBus, rotorBus, musicDuck, sfxDuck });
@@ -12,7 +11,7 @@
  *   SamplePlayer.flyby('jet', { bombAt });        // aircraft: jet | skyraider | ranchHand | tandemRotor | huey
  *   SamplePlayer.turretFire('corner' | 'mid');    // .50 cal / M60 bursts, 2 dB quieter (at the base)
  *   SamplePlayer.loadMusic(SAMPLE_MANIFEST);     // music slots, after the sample batches (not in the 1.5 MB first batch)
- *   SamplePlayer.playMusic('menu' | 'intro_riff' | 'briefing' | 'combat' | 'extraction' | 'win' | 'dedication' | 'loss');
+ *   SamplePlayer.playMusic('menu' | 'intro_riff' | 'briefing' | 'combat' | 'extraction' | 'win' | 'dedication' | 'loss' | 'reinforcements' | 'menu_intro' | 'menu_theme' | 'combat_2..5');   // menu_asian CUT (do not ship)
  *   SamplePlayer.combatIntensity('calm' | 'intense'); SamplePlayer.stopMusic(fade);
  *
  * Rules built in (Blake's spec):
@@ -68,37 +67,12 @@
     pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.284, vary: true },                 // STAND-IN .50 cal (M2 not confirmed)
     pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.146, loop: true },                 // under the Huey loop
     river_ambience_loop: { cat: 'ambience', prio: 5, gain: 0.062, loop: true },                 // under the footsteps
-    // weather (2026-10-14 night, 'ambience' group)
+    // weather (2026-10-14 night, 'ambience' group): loops prio 5 so gunfire never steals the bed; thunder prio 3, not a gun
     rain_light:         { cat: 'ambience',  prio: 5, gain: 0.082, loop: true },                    // post-gain RMS -42
     rain_heavy:         { cat: 'ambience',  prio: 5, gain: 0.132, loop: true },                    // post-gain RMS -40
     rain_roof_loop:     { cat: 'ambience',  prio: 5, gain: 0.068, loop: true },                    // post-gain RMS -41 (bunker interiors)
     thunder_distant:    { cat: 'weather',   prio: 3, gain: 0.142, vary: true },                    // post-gain RMS -42
     thunder_near:       { cat: 'weather',   prio: 3, gain: 0.206, vary: true },                    // post-gain RMS -40.5, crack peaks ~-15 dBFS
-    // 2026-10-14 night: missing / placeholder sounds (samples/build_missing_oct14.py; all new sources PENDING LEGAL)
-    m3a1_burst:         { cat: 'gun',       prio: 1, gain: 0.543, vary: true, maxDur: 1.2 },   // CLOSE STAND-IN M3A1 Grease Gun: real Sten rounds pitched -2 st, ~450 rpm
-    m14_shot:           { cat: 'gun',       prio: 1, gain: 0.193, vary: true, maxDur: 0.6 },   // M14 (marksmen): gezortenplotz .308 (7.62x51), 3 varied edits
-    hurt_grunt:         { cat: 'hit',       prio: 4, gain: 0.234, vary: true },   // player hurt: Wigglesworth body hits (no voice; MrFossy grunt on hold)
-    m1911_shot:         { cat: 'gun',       prio: 1, gain: 0.499, vary: true, maxDur: 0.5 },   // M1911 .45 (corpsman): C-V + Carmelomike
-    m2_carbine:         { cat: 'gun',       prio: 1, gain: 0.335, vary: true, maxDur: 0.5 },   // M2 carbine single (real M1 carbine, cognito perceptu)
-    m2_carbine_burst:   { cat: 'gun',       prio: 1, gain: 0.255, vary: true, maxDur: 0.8 },   // M2 carbine auto, real rounds on a 80 ms beat
-    ui_pickup:          { cat: 'ui',        prio: 0, gain: 0.354, vary: true },   // gem / pick: dog-tag clinks
-    ui_heal:            { cat: 'ui',        prio: 2, gain: 0.203, vary: true },   // heal / medpack: velcro pouch + bandage rip
-    bandage_dressing:   { cat: 'foley',     prio: 2, gain: 0.203, vary: true },   // battle dressing: wrapper tear + cloth rip + press (Luckius / OwlishMedia CC0, Legal PASS 2026-10-20 §1q)
-    ui_level:           { cat: 'ui',        prio: 3, gain: 0.183 },   // level up: charging handle + dog tags
-    ui_ready:           { cat: 'ui',        prio: 2, gain: 0.122 },   // ready: charging-handle release
-    ui_chime:           { cat: 'ui',        prio: 3, gain: 0.149 },   // boarding chime: ship bell
-    radio_pulse:        { cat: 'ui',        prio: 2, gain: 0.117 },   // extraction homing pulse: PRC beep (LukaCafuka)
-    hit_flesh:          { cat: 'hit',       prio: 0, gain: 0.169, vary: true },   // enemy hit: body punches
-    kill_hit:           { cat: 'hit',       prio: 1, gain: 0.418, vary: true },   // demo kill: heavier hit
-    thud_dirt:          { cat: 'foley',     prio: 1, gain: 0.341, vary: true },   // generic thud: sandbag + canvas on dirt
-    punji_trap:         { cat: 'foley',     prio: 3, gain: 0.64, vary: true },   // punji: bamboo snap + hit
-    creak_wood:         { cat: 'foley',     prio: 1, gain: 0.161 },   // wood creak
-    hatch_metal:        { cat: 'foley',     prio: 2, gain: 0.262 },   // metal hatch
-    stage_hammer:       { cat: 'foley',     prio: 3, gain: 0.289 },   // build stage complete: three hammer blows
-    radio_tune:         { cat: 'radio',     prio: 3, gain: 0.303 },   // Hanoi Hannah broadcast start: radio tuning static
-    sting_boss:         { cat: 'sting',     prio: 5, gain: 0.89 },   // boss inbound: timpani hit
-    sting_evac:         { cat: 'sting',     prio: 5, gain: 0.309 },   // evac fallback (music missing): acoustic C major
-    sting_over:         { cat: 'sting',     prio: 5, gain: 0.299 },   // game-over fallback (music missing): acoustic chords -2 st
     mortar_launch:      { cat: 'explosive', prio: 3, gain: 0.521, vary: true },
     mortar_impact:      { cat: 'explosive', prio: 3, gain: 0.306, vary: true },
     mortar_incoming:    { cat: 'explosive', prio: 3, gain: 0.285, vary: true },
@@ -122,7 +96,7 @@
     explosion_claymore: { cat: 'explosive', prio: 4, gain: 0.477, vary: true },                // sharp crack
     napalm_ignite:      { cat: 'fire',      prio: 3, gain: 0.54, vary: true },
     fire_loop:          { cat: 'fire',      prio: 5, gain: 0.469, loop: true },                // quiet burning loop
-    knife_throw:        { cat: 'blade',     prio: 1, gain: 0.353, vary: true, maxDur: 1.0 },   // thrown knife into wood (not a gun) - merged from Sound Helper 2026-10-14
+    knife_throw:        { cat: 'blade',     prio: 1, gain: 0.353, vary: true, maxDur: 1.0 },   // thrown knife into wood (not a gun)
     // ---- Blake's new features, 2026-10-14 evening (samples/build_blake_oct14.py). Guns are cat 'gun' (6-gunshot cap).
     car15_single:       { cat: 'gun',       prio: 1, gain: 0.336, vary: true, maxDur: 0.6 },       // CAR-15 / XM177 (FFSL AR-15, brighter, shorter tail)
     car15_burst:        { cat: 'gun',       prio: 1, gain: 0.282, vary: true, maxDur: 1.0, burstOf: 'car15_single', rate: 13.3, rounds: [3, 5], maxRounds: 5 },  // ~800 rpm
@@ -140,6 +114,36 @@
     h34_hover_loop:     { cat: 'rotor',     prio: 5, gain: 0.315, out: 'rotor', loop: true },
     radio_cff:          { cat: 'radio',     prio: 3, gain: 0.64 },                                // call-for-fire key-up / static / release, no voices
     smoke_pop:          { cat: 'canister',  prio: 6, gain: 0.498 },                            // Doc's canister: pop + hiss
+    // 2026-10-14 night: missing / placeholder sounds (samples/build_missing_oct14.py; all new sources PENDING LEGAL)
+    m3a1_burst:         { cat: 'gun',       prio: 1, gain: 0.543, vary: true, maxDur: 1.2 },   // CLOSE STAND-IN M3A1 Grease Gun: real Sten rounds pitched -2 st, ~450 rpm
+    m14_shot:           { cat: 'gun',       prio: 1, gain: 0.193, vary: true, maxDur: 0.6 },   // M14 (marksmen): gezortenplotz .308 (7.62x51), 3 varied edits
+    m1911_shot:         { cat: 'gun',       prio: 1, gain: 0.499, vary: true, maxDur: 0.5 },   // M1911 .45 (corpsman): C-V + Carmelomike
+    m2_carbine:         { cat: 'gun',       prio: 1, gain: 0.335, vary: true, maxDur: 0.5 },   // M2 carbine single (real M1 carbine, cognito perceptu)
+    m2_carbine_burst:   { cat: 'gun',       prio: 1, gain: 0.255, vary: true, maxDur: 0.8 },   // M2 carbine auto, real rounds on a 80 ms beat
+    ui_pickup:          { cat: 'ui',        prio: 0, gain: 0.354, vary: true },   // gem / pick: dog-tag clinks
+    ui_heal:            { cat: 'ui',        prio: 2, gain: 0.203, vary: true },   // heal / medpack: velcro pouch + bandage rip
+    ui_level:           { cat: 'ui',        prio: 3, gain: 0.183 },   // level up: charging handle + dog tags
+    ui_ready:           { cat: 'ui',        prio: 2, gain: 0.122 },   // ready: charging-handle release
+    ui_chime:           { cat: 'ui',        prio: 3, gain: 0.149 },   // boarding chime: ship bell
+    radio_pulse:        { cat: 'ui',        prio: 2, gain: 0.117 },   // extraction homing pulse: PRC beep (LukaCafuka)
+    hit_flesh:          { cat: 'hit',       prio: 0, gain: 0.169, vary: true },   // enemy hit: body punches
+    kill_hit:           { cat: 'hit',       prio: 1, gain: 0.418, vary: true },   // demo kill: heavier hit
+    hurt_grunt:         { cat: 'hit',       prio: 4, gain: 0.234, vary: true },   // player hurt: Wigglesworth body hits (no voice; MrFossy grunt on hold)
+    thud_dirt:          { cat: 'foley',     prio: 1, gain: 0.341, vary: true },   // generic thud: sandbag + canvas on dirt
+    punji_trap:         { cat: 'foley',     prio: 3, gain: 0.64, vary: true },   // punji: bamboo snap + hit
+    creak_wood:         { cat: 'foley',     prio: 1, gain: 0.161 },   // wood creak
+    hatch_metal:        { cat: 'foley',     prio: 2, gain: 0.262 },   // metal hatch
+    stage_hammer:       { cat: 'foley',     prio: 3, gain: 0.289 },   // build stage complete: three hammer blows
+    radio_tune:         { cat: 'radio',     prio: 3, gain: 0.303 },   // Hanoi Hannah broadcast start: radio tuning static
+    sting_boss:         { cat: 'sting',     prio: 5, gain: 0.89 },   // boss inbound: timpani hit
+    sting_evac:         { cat: 'sting',     prio: 5, gain: 0.309 },   // evac fallback (music missing): acoustic C major
+    sting_over:         { cat: 'sting',     prio: 5, gain: 0.299 },   // game-over fallback (music missing): acoustic chords -2 st
+    // 2026-10-20 (samples/build_radio_oct20.py; new sources PENDING LEGAL)
+    rto_down_sting:     { cat: 'sting',     prio: 5, gain: 0.213 },   // RTO killed: low brass D minor + static cut to dead air
+    radio_key_in:       { cat: 'radio',     prio: 4, gain: 0.242 },   // faint handset key click + squelch open/hiss (radioLine)
+    radio_key_out:      { cat: 'radio',     prio: 4, gain: 0.456 },   // release: short FM static rush, then silence; no roger beep (PRC-25) (radioLine)
+    radio_static_bed_loop: { cat: 'radio',  prio: 4, gain: 0.316, loop: true },   // PRC-25-style hiss bed (radioLine plays it ~-12 dB under the voice)
+    bandage_dressing:   { cat: 'foley',     prio: 2, gain: 0.203, vary: true },   // battle dressing: wrapper tear + cloth rip + press
     // Footsteps: all 12 clips are loudness-matched in build_samples.py; these per-surface trims put every surface ~6 dB
     // under the M16 single-shot average (whole-clip RMS, measured by samples/measure_levels.py).
     step_mud:           { cat: 'step',      prio: 0, gain: 0.233, vary: true },
@@ -285,7 +289,7 @@
     function prune(t) { voices = voices.filter(function (v) { return v.end > t && !v.dead; }); }
     function activeAt(t, filter) { return voices.filter(function (v) { return v.start <= t + 1e-6 && v.end > t && !v.dead && (!filter || filter(v)); }); }
     // voices whose lifetime overlaps [t0, t1): used for caps so voices scheduled in the future are counted too
-    function overlapping(t0, t1, filter) { return voices.filter(function (v) { return v.cat !== 'warn' && v.start < t1 && v.end > t0 && !v.dead && (!filter || filter(v)); }); }
+    function overlapping(t0, t1, filter) { return voices.filter(function (v) { return v.start < t1 && v.end > t0 && !v.dead && (!filter || filter(v)); }); }
     function kill(v, t) {
       v.dead = true; stats.stolen++;
       try { v.g.gain.cancelScheduledValues(t); v.g.gain.setValueAtTime(v.g.gain.value, t); v.g.gain.linearRampToValueAtTime(0, t + 0.015); v.src.stop(t + 0.02); } catch (e) { /* already stopped */ }
@@ -336,7 +340,7 @@
       }
       if (loop) src.loop = true;
       src.start(t); if (!loop) src.stop(t + dur + 0.01);
-      var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g, bus: o.busName || '' };
+      var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g };
       src.onended = function () { v.dead = true; };
       voices.push(v); stats.played++;
       return v;
@@ -364,18 +368,12 @@
       var s = SLOTS[slot]; if (!s) { info('unknown slot "' + slot + '"'); return null; }
       var t = o.when != null ? Math.max(o.when, now()) : now();
       prune(Math.min(t, now()));
-      /* game patch (mix buses): P.route(slot, s, o) -> { dest, vol, prio, cat, bus, cap } or { drop: true }; per-bus per-slot voice caps */
-      if (P.route && !o.routed) { var rt = P.route(slot, s, o); if (rt) { if (rt.drop) { stats.dropped++; return null; }
-          if (rt.cap) { var same = overlapping(t, t + 0.05, function (v) { return v.slot === slot && v.bus === rt.bus; }); if (same.length >= rt.cap) { stats.capped = (stats.capped || 0) + 1; return null; } }
-          o = Object.assign({}, o, { dest: rt.dest || o.dest, vol: (o.vol == null ? 1 : o.vol) * (rt.vol == null ? 1 : rt.vol), routed: true, busName: rt.bus });
-          if (rt.prio != null || rt.cat) s = Object.assign({}, s, { prio: rt.prio != null ? rt.prio : s.prio, cat: rt.cat || s.cat }); } }
       // recorded bursts are used when loaded; play(..., { rounds: n }) or no burst files -> re-trigger the single shot
       if (s.burstOf && (o.rounds || !(buffers[slot] && buffers[slot].length))) return playBurst(slot, s, t, o);
       // o.variant: preferred file index (explosion(kind)); falls back to a random variant if that file is not loaded
       var buf = o.variant != null && buffers[slot] && buffers[slot][o.variant] ? buffers[slot][o.variant] : pickBuffer(slot);
       if (!buf) return WEAPONS[slot] ? silentWeapon(slot) : fallback(slot, s, t, o);
       var plan = planVoice(s, buf, o, s.maxDur);
-      if (o.warnVoice) { var wv = startVoice(slot, s, buf, t, o, s.maxDur, plan); wv.cat = 'warn'; wv.prio = 99; stats.warnVoices = (stats.warnVoices || 0) + 1; return handle(wv); }   /* game patch: warning voice outside the caps */
       if (!makeRoom(s, t, plan.dur)) { stats.dropped++; return null; }
       return handle(startVoice(slot, s, buf, t, o, s.maxDur, plan));
     };
@@ -476,7 +474,7 @@
     function warnCue(slot, leadMs, attackAt, o) {
       o = o || {}; if (!ctx) return null;
       var lead = leadMs / 1000, t = now(), want = attackAt != null ? attackAt - lead : (o.when != null ? o.when : t);
-      var at = Math.max(want, t), h = P.play(slot, Object.assign({}, o, { when: at, warnVoice: true }));
+      var at = Math.max(want, t), h = P.play(slot, Object.assign({}, o, { when: at }));
       return { slot: slot, cueAt: at, attackAt: attackAt != null ? attackAt : at + lead, leadMs: leadMs, late: want < t - 1e-3, handle: h, played: !!h };
     }
     // b40Launch({ impactAt }) or b40Launch({ when }): launch bang 1 s (cues.b40.leadMs) before the rocket impact.
@@ -503,7 +501,7 @@
     P.m79Impact = function (o) { return P.play('m79_impact', o || {}); };
     // flyby(type, { when, vol, bombAt, bomb }): type = 'jet' | 'skyraider' | 'ranchHand' | 'tandemRotor' | 'huey'.
     // jet + bombAt: the pass starts cues.jetFlyby.leadMs (3 s) before bombAt so the jet goes over before the distant
-    // bomb; bomb: true also plays bomb_distant at bombAt. tandemRotor = the CH-46 Sea Knight (enabled in the game's manifest).
+    // bomb; bomb: true also plays bomb_distant at bombAt. tandemRotor is disabled in the manifest (null unless loaded).
     P.flyby = function (type, o) {
       o = o || {}; if (!ctx) return null; var slot = FLYBYS[type];
       if (!slot) { info('unknown flyby "' + type + '" (use ' + Object.keys(FLYBYS).join('|') + ')'); return null; }
@@ -547,13 +545,12 @@
     P.shotgunRack = function (o) { return P.play('shotgun_rack', o || {}); };
     // cannon(kind, o): kind = 'tank90' (M48) | 't54' | 'pt76' | 'howitzer' (105 mm) -> cannon slot, small pitch per calibre;
     // 'recoilless' (106 mm) | 'ontos' | 'zuni' -> back-blast slot (heavier, longer than the B-40).
-    var CANNON = { /* game patch: Blake approved the ZiS-3 Oct 14 - pt76 uses cannon_76mm (falls back to the main cannon clips if it is not loaded) */ tank90: { slot: 'cannon', rate: 1.04 }, t54: { slot: 'cannon', rate: 1.0 }, pt76: { slot: 'cannon_76mm', rate: 1.0, fb: { slot: 'cannon', rate: 1.12 } },
+    var CANNON = { tank90: { slot: 'cannon', rate: 1.04 }, t54: { slot: 'cannon', rate: 1.0 }, pt76: { slot: 'cannon_76mm', rate: 1.0 },
       howitzer: { slot: 'cannon', rate: 0.96 }, recoilless: { slot: 'backblast', rate: 1.0 }, ontos: { slot: 'backblast', rate: 0.98 },
       zuni: { slot: 'backblast', rate: 1.04 } };
     P.cannon = function (kind, o) {
       o = o || {}; var k = CANNON[kind || 'tank90'];
       if (!k) { info('unknown cannon "' + kind + '" (use ' + Object.keys(CANNON).join('|') + ')'); return null; }
-      if (k.fb && !P.hasSample(k.slot)) k = k.fb;
       return P.play(k.slot, Object.assign({}, o, { rate: (o.rate || 1) * k.rate }));
     };
     P.zuni = function (o) { return P.cannon('zuni', o); };
@@ -586,7 +583,8 @@
         if (g) { var t = h.start, v0 = g.gain.value; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v0, t + o.fade); } }
       return h;
     };
-    P.knifeThrow = function (o) { return P.play('knife_throw', o || {}); };       // merged from Sound Helper: whoosh + thunk into wood; silent if not loaded
+    P.knifeThrow = function (o) { return P.play('knife_throw', o || {}); };       // whoosh + thunk into wood; silent if not loaded
+    P.smokePop = function (o) { return P.play('smoke_pop', o || {}); };            // Doc pops the canister on the circle
     // Blake's new features (2026-10-14 evening). Weapons stay silent if not loaded; the rest are plain one-shots / a loop.
     P.car15 = function (o) { o = o || {}; return P.play(o.rounds ? 'car15_burst' : 'car15_single', o); };  // {rounds} -> burst
     P.m79Sawed = function (o) {                                                    // like m79(): launch now, m79_impact at impactAt
@@ -606,12 +604,55 @@
     P.m14 = function (o) { return P.play('m14_shot', o || {}); };
     P.m1911 = function (o) { return P.play('m1911_shot', o || {}); };
     P.m2Carbine = function (o) { o = o || {}; return P.play(o.auto ? 'm2_carbine_burst' : 'm2_carbine', o); };   // {auto} -> burst
-    P.bandage = function (o) { return P.play('bandage_dressing', o || {}); };
     P.ui = function (kind, o) { var s = { pick: 'ui_pickup', gem: 'ui_pickup', heal: 'ui_heal', medpack: 'ui_heal', level: 'ui_level', ready: 'ui_ready', chime: 'ui_chime', pulse: 'radio_pulse' }[kind]; return s ? P.play(s, o || {}) : null; };
     P.hit = function (kind, o) { var s = { hit: 'hit_flesh', kill: 'kill_hit', hurt: 'hurt_grunt', thud: 'thud_dirt', punji: 'punji_trap' }[kind || 'hit']; return s ? P.play(s, o || {}) : null; };
     P.world = function (kind, o) { var s = { creak: 'creak_wood', hatch: 'hatch_metal', stage: 'stage_hammer', tune: 'radio_tune', sigpop: 'smoke_pop' }[kind]; return s ? P.play(s, o || {}) : null; };
-    P.smokePop = function (o) { return P.play('smoke_pop', o || {}); };            // Doc pops the canister on the circle
-    P.sting = function (kind, o) { var s = { boss: 'sting_boss', evac: 'sting_evac', over: 'sting_over' }[kind]; return s ? P.play(s, o || {}) : null; };
+    P.sting = function (kind, o) { var s = { boss: 'sting_boss', evac: 'sting_evac', over: 'sting_over', rtoDown: 'rto_down_sting' }[kind]; return s ? P.play(s, o || {}) : null; };
+
+    // ---------- 2026-10-20: RTO down, battle dressing, radio voice lines ----------
+    P.rtoDown = function (o) { return P.play('rto_down_sting', o || {}); };
+    P.bandage = function (o) { return P.play('bandage_dressing', o || {}); };
+    // radioLine(bufferOrSlot, { when, vol, bed, bedDb, lowHz, highHz, drive, keyGap, dest }) -> handle | null
+    // Wraps a recorded voice line so it sounds like a PRC-25 transmission: radio_key_in, then the voice through a band-pass
+    // (high-pass lowHz ~300 Hz + low-pass highHz ~3000 Hz, 2 poles each) and a light soft-clip (drive 0..1, default 0.25),
+    // the radio_static_bed_loop under it (bedDb, default -12 dB re. its slot level; bed:false = off), then radio_key_out.
+    // bufferOrSlot = an AudioBuffer or a slot name (e.g. a future 'vo_*' slot). Routes to the voice bus when init() got one.
+    // Key-in/out/bed play only when loaded (no synth fallback); the voice still plays without them.
+    cfg.radioLowHz = 300; cfg.radioHighHz = 3000; cfg.radioDrive = 0.25; cfg.radioBedDb = -12; cfg.radioKeyGap = 0.30;
+    function softClipCurve(drive) {
+      var n = 1024, c = new Float32Array(n), k = 1 + drive * 9, norm = Math.tanh(k);
+      for (var i = 0; i < n; i++) { var x = i * 2 / (n - 1) - 1; c[i] = Math.tanh(k * x) / norm; }
+      return c;
+    }
+    P.radioLine = function (line, o) {
+      o = o || {}; if (!ctx) return null;
+      var buf = line && typeof line === 'object' && line.getChannelData ? line : (typeof line === 'string' ? pickBuffer(line) : null);
+      if (!buf) { info('radioLine: no voice buffer for ' + (typeof line === 'string' ? '"' + line + '"' : 'that argument')); return null; }
+      var t = o.when != null ? Math.max(o.when, now()) : now(), vol = o.vol == null ? 1 : o.vol;
+      var gap = o.keyGap != null ? o.keyGap : cfg.radioKeyGap;
+      var hk = (buffers.radio_key_in && buffers.radio_key_in.length) ? P.play('radio_key_in', { when: t, vol: vol, vary: false }) : null;
+      var tv = t + (hk ? gap : 0), dest = o.dest || buses.voice || out.sfx;
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var hp1 = ctx.createBiquadFilter(), hp2 = ctx.createBiquadFilter(), lp1 = ctx.createBiquadFilter(), lp2 = ctx.createBiquadFilter();
+      [hp1, hp2].forEach(function (f) { f.type = 'highpass'; f.frequency.value = o.lowHz || cfg.radioLowHz; f.Q.value = 0.707; });
+      [lp1, lp2].forEach(function (f) { f.type = 'lowpass'; f.frequency.value = o.highHz || cfg.radioHighHz; f.Q.value = 0.707; });
+      var ws = ctx.createWaveShaper(); ws.curve = softClipCurve(o.drive != null ? o.drive : cfg.radioDrive); ws.oversample = '2x';
+      var g = ctx.createGain(); g.gain.value = (o.voiceGain != null ? o.voiceGain : 1) * vol;
+      src.connect(hp1); hp1.connect(hp2); hp2.connect(lp1); lp1.connect(lp2); lp2.connect(ws); ws.connect(g); g.connect(dest);
+      var dur = buf.duration; src.start(tv); src.stop(tv + dur + 0.01);
+      var bed = null;
+      if (o.bed !== false && buffers.radio_static_bed_loop && buffers.radio_static_bed_loop.length)
+        bed = P.play('radio_static_bed_loop', { when: tv - 0.05, vol: vol * dbToGain(o.bedDb != null ? o.bedDb : cfg.radioBedDb), vary: false });
+      var tEnd = tv + dur;
+      if (bed) { var bv = voiceOf(bed);   // end the looping bed sample-accurately with the voice (40 ms fade under the key-out)
+        if (bv) { var bg = bv.g.gain.value; bv.g.gain.setValueAtTime(bg, tEnd + 0.02); bv.g.gain.linearRampToValueAtTime(0, tEnd + 0.06); bv.src.stop(tEnd + 0.07); bv.end = tEnd + 0.07; bed.end = bv.end; } }
+      var hout = (buffers.radio_key_out && buffers.radio_key_out.length) ? P.play('radio_key_out', { when: tEnd + 0.02, vol: vol, vary: false }) : null;
+      var end = tEnd + 0.02 + (hout ? hout.end - hout.start : 0), stopped = false;
+      return { slot: 'radioLine', start: t, voiceStart: tv, voiceEnd: tEnd, end: end, keyIn: hk, keyOut: hout, bed: bed, nodes: { hp: hp1, lp: lp2, shaper: ws, gain: g },
+        stop: function (fade) { if (stopped) return; stopped = true; fade = fade == null ? 0.08 : fade; var n = now();
+          try { g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(g.gain.value, n); g.gain.linearRampToValueAtTime(0, n + fade); src.stop(n + fade + 0.01); } catch (e) { /* ignore */ }
+          [hk, hout, bed].forEach(function (h) { if (h && h.stop) h.stop(fade); }); } };
+    };
 
     // ---------- weather (2026-10-14 night) ----------
     // weather('light' | 'heavy' | 'off', { fade, when, vol }) -> handle { mode, slot, voice, stop(fade) }. Crossfades from the
@@ -698,6 +739,8 @@
       var key = musicName(name), sp = music.spec, tr = sp && sp.tracks[key], buf = music.buffers[key];
       if (!tr) { info('unknown music slot "' + name + '"'); return null; }
       if (!buf) { info('music "' + name + '" not loaded; staying silent'); return null; }
+      // a track already queued to come back after a sting (returnTo) is not restarted when the game asks for it again
+      if (music.cur && music.cur.auto && !music.cur.dead && music.cur.name === key && !o.exact && o.when == null) return music.cur.handle;
       var t = o.when != null ? Math.max(o.when, now()) : now(), fade = o.fade != null ? o.fade : 0.5;
       var off = music.fmt[key] === 'm4a' ? (tr.m4aOffsetSec || 0) : 0;
       var src = ctx.createBufferSource(); src.buffer = buf;
@@ -710,12 +753,25 @@
       var end = Infinity;
       if (tr.loop) { src.loop = true; src.loopStart = off + (tr.loopStart || 0); src.loopEnd = off + (tr.loopEnd || (buf.duration - off)); src.start(t, off + (o.offset || 0)); }
       else { var d = tr.dur || (buf.duration - off); src.start(t, off, d); end = t + d; }
-      if (music.cur) stopTrack(music.cur, t, fade);
+      if (music.cur) { stopTrack(music.cur, t, fade); if (music.cur.prev) stopTrack(music.cur.prev, t, fade); }
       var cur = { name: key, src: src, g: g, f: f, start: t, end: end, loop: !!tr.loop, lvl: lvl, intensity: !!tr.intensity, dead: false };
       src.onended = function () { cur.dead = true; if (music.cur === cur) music.cur = null; };
       music.cur = cur;
-      return { name: key, start: t, end: end, loop: cur.loop, stop: function (fd) { stopTrack(cur, now(), fd == null ? 0.5 : fd); if (music.cur === cur) music.cur = null; } };
+      var handle = { name: key, start: t, end: end, loop: cur.loop, stop: function (fd) { stopTrack(cur, now(), fd == null ? 0.5 : fd); if (cur.next && cur.next.start > now()) cur.next.handle.stop(fd); if (music.cur === cur) music.cur = null; } };
+      cur.handle = handle;
+      // 2026-10-20: stings with returnTo (manifest) or { then } crossfade back into that track BEFORE they end, so there is no
+      // silence after them (reinforcements -> combat: the combat tier fades in over returnXf s under the band's ring-out).
+      var ret = o.then !== undefined ? o.then : tr.returnTo;
+      if (!tr.loop && ret && isFinite(end)) {
+        var rk = musicName(ret === 'combat' ? tierTrack(music.tier) : ret), xf = tr.returnXf != null ? tr.returnXf : 2.5;
+        if (music.buffers[rk] && sp.tracks[rk]) {
+          var at = Math.max(t + 0.05, tr.returnAtSec != null ? t + tr.returnAtSec : end - xf), rh = P.playMusic(ret, { when: at, fade: xf, exact: ret !== 'combat' });
+          if (rh && music.cur && music.cur !== cur) { music.cur.auto = true; music.cur.prev = cur; cur.next = music.cur; handle.next = rh; }
+        }
+      }
+      return handle;
     };
+
     // ---------- combat tiers (2026-10-14) ----------
     // manifest.music.combatTiers = ['combat', 'combat_2', ... 'combat_5'] (tier 1..5, rising energy, all -13.6 LUFS).
     // combatMusicTier(n, { waveBreak, force, fade = 2.5 }) changes track at the next PHRASE boundary (phraseBars bars at the

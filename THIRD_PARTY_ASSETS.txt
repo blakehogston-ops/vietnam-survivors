@@ -36,3 +36,14 @@ assets/photos/pbr_perfume.webp (replaces pbr_nh96707, per Vietnam Vet: an I Corp
     Basis: Public domain (US government work, 17 U.S.C. 105). Edited: greyscale, WebP. (Game caption new: needs a quick Vet re-check.)
 
 radio_key_in_1 / radio_key_out_1 (added Oct 20): Sound Helper build_radio_oct20.py. Sources per Sound Helper manifest: LukaCafuka key/release, pdsounds STE-011 squelch, JovianSounds roger chirp (marked cleared). Full credit lines still to be added to Sound Helper THIRD_PARTY_AUDIO.txt.
+
+--- Music + sound credits added 2026-10-20 (RC4; Legal PASS 2026-10-20, LICENSE_AUDIT.md) ---
+"Heavy Pizza Jam" by Ə (Petites Maisons / Jangwa Nook Records), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: https://freemusicarchive.org/music/e/heavy-pizza-jams/heavy-pizza-jam/ — edited (looped/trimmed). [combat tier 5: audio/music/music_combat_5.*]
+"Rock Oco" by Ə (Petites Maisons / Jangwa Nook Records), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: https://freemusicarchive.org/music/e/heavy-pizza-jams/rock-oco/ — edited. [combat tier 4 alternate, ?c4=alt: audio/music/music_combat_4_alt.*]
+"The Thunderer" (John Philip Sousa, 1889), performed by "The President's Own" United States Marine Band (2017). Public domain. Use does not imply endorsement by the U.S. Marine Corps or DoD. [extraction: audio/music/music_extraction.*]
+"Semper Fidelis" (John Philip Sousa, 1888), performed by "The President's Own" United States Marine Band (2016), The Complete Marches of John Philip Sousa, Vol. 2. Public domain (U.S. government work), via Wikimedia Commons. Not used in branding or store copy; no USMC insignia. [menu: audio/music/music_menu_march.*]
+"When Johnny Comes Marching Home", U.S. Navy Band Brass Quartet. Public domain (U.S. government work), via Wikimedia Commons. [menu intro]
+Battle dressing foley: Luckius "Various paper sound effects" (OpenGameArt, CC0); Owlish Media / Ashe Kirk "202 More Sound Effects" and "Sound Effects Pack" (CC0). Courtesy credit.
+Radio key-in/out: LukaCafuka "Walkie-talkie end of transmission" (Freesound #760245, CC0, Legal PASS 2026-10-20); JovianSounds #524205 (CC0); pdsounds.org STE-011 (public domain).
+VSCO 2 Community Edition, Versilian Studios (CC0) — courtesy.
+Removed from the build: "La Menteuse" and "Zapatista" (JoshuaHudesMusic) and the menu_asian track (not shipped).

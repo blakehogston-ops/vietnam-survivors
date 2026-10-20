@@ -849,7 +849,7 @@
         ".......KKKKK.............."
       ]
     ]}),
-    marineCoy: Object.assign({"w": 26, "h": 37, "anchor": "feet", "names": ["idle", "walk1", "walk2"], "legend": {"K": "#1a1c12", "h": "#a6b867", "H": "#6a7f3c", "d": "#35421f", "b": "#6e5a36", "S": "#e2b98f", "s": "#b58a62", "E": "#24180d", "v": "#8a9d5a", "U": "#5a6f38", "u": "#34421e", "F": "#4b5c33", "f": "#2b3420", "W": "#7a7450", "P": "#566a35", "p": "#35421f", "c": "#55593a", "B": "#2f2b24", "R": "#7f8552", "r": "#565c36", "C": "#7f7c4a", "o": "#5a5833", "k": "#24241c", "Y": "#f0d23a"}, "tall": true, "marine": true, "gripY": 16, "note": "Company reinforcement (yellow armbands). 26x37, feet = centre-bottom."}, {frames: [
+    marineCoy: Object.assign({"w": 26, "h": 37, "anchor": "feet", "names": ["idle", "walk1", "walk2"], "legend": {"K": "#1a1c12", "h": "#a6b867", "H": "#6a7f3c", "d": "#35421f", "b": "#6e5a36", "S": "#e2b98f", "s": "#b58a62", "E": "#24180d", "v": "#8a9d5a", "U": "#5a6f38", "u": "#34421e", "F": "#4b5c33", "f": "#2b3420", "W": "#7a7450", "P": "#566a35", "p": "#35421f", "c": "#55593a", "B": "#2f2b24", "R": "#7f8552", "r": "#565c36", "C": "#7f7c4a", "o": "#5a5833", "k": "#24241c", "Y": "#4c5030"}, "tall": true, "marine": true, "gripY": 16, "note": "Company reinforcement (yellow armbands). 26x37, feet = centre-bottom."}, {frames: [
       [
         "..........KKKKKK..........",
         "........KKhhhhhhKK........",
@@ -968,7 +968,7 @@
         ".......KKKKK.............."
       ]
     ]}),
-    marineCoyWashington: Object.assign({"w": 26, "h": 37, "anchor": "feet", "names": ["idle", "walk1", "walk2"], "legend": {"K": "#1a1c12", "h": "#a6b867", "H": "#6a7f3c", "d": "#35421f", "b": "#6e5a36", "S": "#7a4b2d", "s": "#5a3520", "E": "#120c08", "v": "#8a9d5a", "U": "#5a6f38", "u": "#34421e", "F": "#4b5c33", "f": "#2b3420", "W": "#7a7450", "P": "#566a35", "p": "#35421f", "c": "#55593a", "B": "#2f2b24", "R": "#7f8552", "r": "#565c36", "C": "#7f7c4a", "o": "#5a5833", "k": "#24241c", "j": "#1b130e", "Y": "#f0d23a", "w": "#f2efe4"}, "tall": true, "marine": true, "gripY": 16, "note": "Company reinforcement, Washington look. 26x37, feet = centre-bottom."}, {frames: [
+    marineCoyWashington: Object.assign({"w": 26, "h": 37, "anchor": "feet", "names": ["idle", "walk1", "walk2"], "legend": {"K": "#1a1c12", "h": "#a6b867", "H": "#6a7f3c", "d": "#35421f", "b": "#6e5a36", "S": "#7a4b2d", "s": "#5a3520", "E": "#120c08", "v": "#8a9d5a", "U": "#5a6f38", "u": "#34421e", "F": "#4b5c33", "f": "#2b3420", "W": "#7a7450", "P": "#566a35", "p": "#35421f", "c": "#55593a", "B": "#2f2b24", "R": "#7f8552", "r": "#565c36", "C": "#7f7c4a", "o": "#5a5833", "k": "#24241c", "j": "#1b130e", "Y": "#4c5030", "w": "#f2efe4"}, "tall": true, "marine": true, "gripY": 16, "note": "Company reinforcement, Washington look. 26x37, feet = centre-bottom."}, {frames: [
       [
         "..........KKKKKK..........",
         "........KKhhhhhhKK........",
@@ -1087,7 +1087,7 @@
         ".......KKKKK.............."
       ]
     ]}),
-    marineCoyMedium: Object.assign({"w": 26, "h": 37, "anchor": "feet", "names": ["idle", "walk1", "walk2"], "legend": {"K": "#1a1c12", "h": "#a6b867", "H": "#6a7f3c", "d": "#35421f", "b": "#6e5a36", "S": "#b4774a", "s": "#8a5634", "E": "#150e08", "v": "#8a9d5a", "U": "#5a6f38", "u": "#34421e", "F": "#4b5c33", "f": "#2b3420", "W": "#7a7450", "P": "#566a35", "p": "#35421f", "c": "#55593a", "B": "#2f2b24", "R": "#7f8552", "r": "#565c36", "C": "#7f7c4a", "o": "#5a5833", "k": "#24241c", "j": "#14100c", "Y": "#f0d23a"}, "tall": true, "marine": true, "gripY": 16, "note": "Company reinforcement, medium-brown skin. 26x37, feet = centre-bottom."}, {frames: [
+    marineCoyMedium: Object.assign({"w": 26, "h": 37, "anchor": "feet", "names": ["idle", "walk1", "walk2"], "legend": {"K": "#1a1c12", "h": "#a6b867", "H": "#6a7f3c", "d": "#35421f", "b": "#6e5a36", "S": "#b4774a", "s": "#8a5634", "E": "#150e08", "v": "#8a9d5a", "U": "#5a6f38", "u": "#34421e", "F": "#4b5c33", "f": "#2b3420", "W": "#7a7450", "P": "#566a35", "p": "#35421f", "c": "#55593a", "B": "#2f2b24", "R": "#7f8552", "r": "#565c36", "C": "#7f7c4a", "o": "#5a5833", "k": "#24241c", "j": "#14100c", "Y": "#4c5030"}, "tall": true, "marine": true, "gripY": 16, "note": "Company reinforcement, medium-brown skin. 26x37, feet = centre-bottom."}, {frames: [
       [
         "..........KKKKKK..........",
         "........KKhhhhhhKK........",
@@ -1206,7 +1206,7 @@
         ".......KKKKK.............."
       ]
     ]}),
-    marineCoyFair: Object.assign({"w": 26, "h": 37, "anchor": "feet", "names": ["idle", "walk1", "walk2"], "legend": {"K": "#1a1c12", "h": "#a6b867", "H": "#6a7f3c", "d": "#35421f", "b": "#6e5a36", "S": "#f2d2b0", "s": "#d0a684", "E": "#24180d", "v": "#8a9d5a", "U": "#5a6f38", "u": "#34421e", "F": "#4b5c33", "f": "#2b3420", "W": "#7a7450", "P": "#566a35", "p": "#35421f", "c": "#55593a", "B": "#2f2b24", "R": "#7f8552", "r": "#565c36", "C": "#7f7c4a", "o": "#5a5833", "k": "#24241c", "j": "#b5481f", "e": "#cf8f6a", "Y": "#f0d23a", "w": "#f2efe4"}, "tall": true, "marine": true, "gripY": 16, "note": "Company reinforcement, fair/freckled. 26x37, feet = centre-bottom."}, {frames: [
+    marineCoyFair: Object.assign({"w": 26, "h": 37, "anchor": "feet", "names": ["idle", "walk1", "walk2"], "legend": {"K": "#1a1c12", "h": "#a6b867", "H": "#6a7f3c", "d": "#35421f", "b": "#6e5a36", "S": "#f2d2b0", "s": "#d0a684", "E": "#24180d", "v": "#8a9d5a", "U": "#5a6f38", "u": "#34421e", "F": "#4b5c33", "f": "#2b3420", "W": "#7a7450", "P": "#566a35", "p": "#35421f", "c": "#55593a", "B": "#2f2b24", "R": "#7f8552", "r": "#565c36", "C": "#7f7c4a", "o": "#5a5833", "k": "#24241c", "j": "#b5481f", "e": "#cf8f6a", "Y": "#4c5030", "w": "#f2efe4"}, "tall": true, "marine": true, "gripY": 16, "note": "Company reinforcement, fair/freckled. 26x37, feet = centre-bottom."}, {frames: [
       [
         "..........KKKKKK..........",
         "........KKhhhhhhKK........",
