@@ -2350,6 +2350,7 @@ const IMPDEC=/[?&]jungle=1\b/.test(location.search)&&!/[?&]impdec=0\b/.test(loca
 const MORB=!/[?&]morb=0\b/.test(location.search);
 const RTOP=/[?&]rtop=0\b/.test(location.search)?0:(+(location.search.match(/[?&]rtop=(\d+)/)||[])[1]||300);
 const LULLCUE=!/[?&]lullcue=0\b/.test(location.search);
+const AIRW=+(location.search.match(/[?&]airw=([\d.]+)/)||[])[1]||2;
 const V3V=()=>VEH()&&!!SHEET1.drawZiS3&&!/[?&]veh3=0\b/.test(location.search);   /* rc7 #4 vehicles_v3 (?veh3=0 = old draws) */
 /* PBR v2 (80x68, pivot 40,36): wake first (speed from the hull's own motion, 0..1), then the boat */
 function pbrWake(b,hd){ if(!SHEET1.drawPBRWake||b.dead)return; const px=b._wx===undefined?b.x:b._wx, py=b._wy===undefined?b.y:b._wy; b._wx=b.x; b._wy=b.y; const v=Math.hypot(b.x-px,b.y-py)*60;
@@ -4648,7 +4649,7 @@ function curLvl(id){const it=ITEMS[id]; return it.kind==='w'?(G.w[id]?G.w[id].lv
 function genChoices(excl,n){
   excl=excl||[]; n=n||3; const out=[];
   if(n===3&&!excl.length){ const ev=evoReady(); if(ev.length)out.push(ev[0]) }
-  const pool=[]; for(const id in ITEMS){const it=ITEMS[id]; if(it.kind==='r'||(G.q15&&Q15_BAN[id])||G.banned[id]||excl.indexOf(id)>=0||out.indexOf(id)>=0)continue; if(it.req&&!it.req())continue; const l=curLvl(id); if(l<it.max)pool.push({id,w:l===0?1.5:1})}
+  const pool=[]; for(const id in ITEMS){const it=ITEMS[id]; if(it.kind==='r'||(G.q15&&Q15_BAN[id])||G.banned[id]||excl.indexOf(id)>=0||out.indexOf(id)>=0)continue; if(it.req&&!it.req())continue; const l=curLvl(id); if(l<it.max)pool.push({id,w:(l===0?1.5:1)*(AIRCALL[id]&&!G.demo?AIRW:1)})}   /* rc7 #8: air-strike cards come up more often (x AIRW, ?airw=1 = old) */
   while(out.length<n&&pool.length){let tot=0;pool.forEach(o=>tot+=o.w); let r=rnd()*tot,i=0; for(;i<pool.length;i++){r-=pool[i].w;if(r<=0)break} i=Math.min(i,pool.length-1); out.push(pool[i].id); pool.splice(i,1)}
   if(!out.length)out.push('ration'); return out }
 function cardInfo(id){const it=ITEMS[id],l=curLvl(id); let line; if(it.kind==='w')line=it.desc(it.stats(l+1)); else if(it.kind==='p')line=it.desc(l+1); else line=it.desc(); return {lvl:l,line}}
