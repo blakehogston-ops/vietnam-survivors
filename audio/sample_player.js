@@ -83,6 +83,7 @@
     m2_carbine_burst:   { cat: 'gun',       prio: 1, gain: 0.255, vary: true, maxDur: 0.8 },   // M2 carbine auto, real rounds on a 80 ms beat
     ui_pickup:          { cat: 'ui',        prio: 0, gain: 0.354, vary: true },   // gem / pick: dog-tag clinks
     ui_heal:            { cat: 'ui',        prio: 2, gain: 0.203, vary: true },   // heal / medpack: velcro pouch + bandage rip
+    bandage_dressing:   { cat: 'foley',     prio: 2, gain: 0.203, vary: true },   // battle dressing: wrapper tear + cloth rip + press (Luckius / OwlishMedia CC0, Legal PASS 2026-10-20 §1q)
     ui_level:           { cat: 'ui',        prio: 3, gain: 0.183 },   // level up: charging handle + dog tags
     ui_ready:           { cat: 'ui',        prio: 2, gain: 0.122 },   // ready: charging-handle release
     ui_chime:           { cat: 'ui',        prio: 3, gain: 0.149 },   // boarding chime: ship bell
@@ -605,6 +606,7 @@
     P.m14 = function (o) { return P.play('m14_shot', o || {}); };
     P.m1911 = function (o) { return P.play('m1911_shot', o || {}); };
     P.m2Carbine = function (o) { o = o || {}; return P.play(o.auto ? 'm2_carbine_burst' : 'm2_carbine', o); };   // {auto} -> burst
+    P.bandage = function (o) { return P.play('bandage_dressing', o || {}); };
     P.ui = function (kind, o) { var s = { pick: 'ui_pickup', gem: 'ui_pickup', heal: 'ui_heal', medpack: 'ui_heal', level: 'ui_level', ready: 'ui_ready', chime: 'ui_chime', pulse: 'radio_pulse' }[kind]; return s ? P.play(s, o || {}) : null; };
     P.hit = function (kind, o) { var s = { hit: 'hit_flesh', kill: 'kill_hit', hurt: 'hurt_grunt', thud: 'thud_dirt', punji: 'punji_trap' }[kind || 'hit']; return s ? P.play(s, o || {}) : null; };
     P.world = function (kind, o) { var s = { creak: 'creak_wood', hatch: 'hatch_metal', stage: 'stage_hammer', tune: 'radio_tune', sigpop: 'smoke_pop' }[kind]; return s ? P.play(s, o || {}) : null; };

@@ -175,6 +175,15 @@
     "radio_key_out_1"
    ]
   },
+  "bandage_dressing": {
+   "group": "foley",
+   "batch": 2,
+   "files": [
+    "bandage_dressing_1",
+    "bandage_dressing_2",
+    "bandage_dressing_3"
+   ]
+  },
   "radio_squelch": {
    "batch": 1,
    "files": [

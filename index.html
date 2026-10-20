@@ -1173,7 +1173,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 <script src="assets/art/pbr_splash.js?v=53f1d74"></script><script src="assets/art/pbr_wake.js?v=53f1d74"></script><script src="assets/art/zippo_monitor.js?v=53f1d74"></script>
 <script src="assets/art/engineers_v2.js?v=53f1d74"></script><script src="assets/art/doc_hivis.js?v=53f1d74"></script><script src="assets/art/marines_tall.js?v=53f1d74"></script><script src="assets/art/heroes_tall.js?v=53f1d74"></script><script src="assets/art/cover_poses.js?v=53f1d74"></script><script src="assets/art/hit_prone_poses.js?v=53f1d74"></script><script src="assets/art/firebase.js?v=53f1d74"></script><script src="assets/art/terrain.js?v=53f1d74"></script><script src="assets/art/recon_team.js?v=53f1d74"></script><script src="assets/art/sog_team.js?v=53f1d74"></script><script src="assets/art/bunker_interior.js?v=53f1d74"></script><script src="assets/art/trench_poses.js"></script><script>if(/[?&]v3=0\b/.test(location.search))SHEET1.useV3=false</script><script src="assets/art/heroes_v3.js?v=53f1d74"></script><script src="assets/art/marines_v3.js"></script><script src="assets/art/cover_poses_v4.js"></script><script src="assets/art/hit_prone_poses_v4.js"></script><script src="assets/art/trench_poses_v4.js"></script>
 <script>/* Artist Helper v4 recon/SOG ports onto the v3 rig (?v4teams=0 keeps the originals) */ if(!/[?&]v4teams=0\b/.test(location.search))document.write('<script src="assets/art/recon_team_v4.js?v=53f1d74"><\/script><script src="assets/art/sog_team_v4.js?v=53f1d74"><\/script>')</script>
-<script>/* Artist Helper explosion VFX (?xfx=0 off) */ if(!/[?&]xfx=0\b/.test(location.search))document.write('<script src="assets/art/explosions.js?v=53f1d74"><\/script>')</script><script src="assets/art/enemies_v3.js"></script><script src="assets/art/engineers_v4.js"></script><script src="assets/art/fb2_guns.js"></script><script src="assets/art/aid_jeep.js"></script><script src="assets/art/fb2_aid_station.js"></script><script src="assets/art/ability_icons.js?v=53f1d74"></script><script src="assets/art/pbr_splash.js?v=53f1d74"></script><script defer src="audio/sample_player.js?v=53f1d74"></script><script defer src="audio/samples/manifest.js?v=53f1d74"></script>
+<script>/* Artist Helper atmosphere grade/lights (?atmo=0 off) + impact feel debris/kick (?impfx=0 off) */ if(!/[?&]atmo=0\b/.test(location.search))document.write('<script src="assets/vfx/atmosphere.js?v=e80a6a5"><\/script>'); if(!/[?&]impfx=0\b/.test(location.search))document.write('<script src="assets/vfx/impact_feel.js?v=e80a6a5"><\/script>')</script><script>/* Artist Helper explosion VFX (?xfx=0 off) */ if(!/[?&]xfx=0\b/.test(location.search))document.write('<script src="assets/art/explosions.js?v=53f1d74"><\/script>')</script><script src="assets/art/enemies_v3.js"></script><script src="assets/art/engineers_v4.js"></script><script src="assets/art/fb2_guns.js"></script><script src="assets/art/aid_jeep.js"></script><script src="assets/art/fb2_aid_station.js"></script><script src="assets/art/ability_icons.js?v=53f1d74"></script><script src="assets/art/pbr_splash.js?v=53f1d74"></script><script defer src="audio/sample_player.js?v=53f1d74"></script><script defer src="audio/samples/manifest.js?v=53f1d74"></script>
 <script>
 /* BUILD STAMP: set by tools/stamp.js (run after every code commit; it records that commit's short hash + date). Also the ?v= cache-buster for audio / images / icons. */
 const BUILD={id:'53f1d74',date:'2026-10-20 01:31 ET',tag:'lco-rc2'}, AV='?v='+BUILD.id;
@@ -3092,10 +3092,11 @@ const MED={chance:.05,pity:45,gap:16,cap:3,life:40,blink:6,heal:.17,inv:5,self:.
 /* Blake Oct 20: med packs go in Doc's pouch (max 5). H = use on yourself, Q = patch the most hurt Marine within reach (RTO first) */
 function useMed(mate){ const g=G; if(!g||g.demo||state!=='play'||!(g.medInv>0))return false; const p=g.p; const now=performance.now(); if(now-(g.medLock||0)<400)return false; g.medLock=now;   /* RC2: H+Q together use one dressing, never two */
   if(!mate){ if(p.maxHp-p.hp<1){ g.medLock=0; ftexts.push({x:p.x,y:p.y-18,t:0,s:'FULL HEALTH',c:'#cfcfb0'}); return false } const amt=Math.round(p.maxHp*MED.self), got=Math.min(amt,p.maxHp-p.hp); p.hp+=got; g.med.healed+=got; g.medInv--;
-    ftexts.push({x:p.x,y:p.y-18,t:0,s:'+'+Math.max(1,Math.round(got))+' HP',c:'#8cf08c'}); burst(p.x,p.y,6,40,.4,2,['#c8c8b8','#8a9a6a'],true); Snd.play('heal'); return true }
+    ftexts.push({x:p.x,y:p.y-18,t:0,s:'+'+Math.max(1,Math.round(got))+' HP',c:'#8cf08c'}); burst(p.x,p.y,6,40,.4,2,['#c8c8b8','#8a9a6a'],true); DRESS_SND(); return true }
   const b=medTarget();
   if(!b){ g.medLock=0; ftexts.push({x:p.x,y:p.y-18,t:0,s:'NO WOUNDED IN REACH',c:'#cfcfb0'}); return false } const amt=Math.round(b.mhp*MED.mate), got=Math.min(amt,b.mhp-b.hp); b.hp+=got; g.medInv--; g.medMates=(g.medMates|0)+1;
-  ftexts.push({x:b.x,y:b.y-22,t:0,s:'+'+Math.round(got)+' '+(b.nm||'MARINE'),c:'#8cf08c'}); burst(b.x,b.y,6,40,.4,2,['#c8c8b8','#8a9a6a'],true); Snd.play('heal'); return true }
+  ftexts.push({x:b.x,y:b.y-22,t:0,s:'+'+Math.round(got)+' '+(b.nm||'MARINE'),c:'#8cf08c'}); burst(b.x,b.y,6,40,.4,2,['#c8c8b8','#8a9a6a'],true); DRESS_SND(); return true }
+function DRESS_SND(){ try{ if(SAMP.ready()&&SamplePlayer.hasSample('bandage_dressing')){ MIX.as('special',()=>SamplePlayer.bandage({vol:.9})); return } }catch(e){} Snd.play('heal') }   /* battle-dressing foley (sound_pack Oct 20, Legal PASS); synth heal as fallback */
 function medDrop(e){ const g=G, m=g.med; if(!m||g.demo||e.type!=='nva')return; m.dry++; if(g.t<m.nextT||medpacks.length>=MED.cap)return;
   if(rnd()<MED.chance||m.dry>=MED.pity){ m.dry=0; m.nextT=g.t+MED.gap; m.drops++; medpacks.push({x:e.x,y:e.y,life:MED.life,pull:false,sp:0}); if(Math.hypot(e.x-g.p.x,e.y-g.p.y)<720)Snd.cue('medpackDrop') } }
 function killEnemy(e){ e.dead=true; G.kills++; medDrop(e);
@@ -3115,7 +3116,7 @@ function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return;
   spawnDrops(p.x,p.y-6,0,0,12,130); if(rnd()<.6)addDecal(p.x+(rnd()-.5)*16,p.y+8,SPLAT[(rnd()*5)|0],30,.8);
   if(p.hp<=0){ if((G.ps.dustoff|0)&&!G.dustUsed)dustoffRevive(); else { p.hp=0; gameOver() } } }
 let EXIMP=0;   /* set while a real impact clip already covers this explosion (M79 / mortar / 105) */
-function explode(x,y,rad,dmg,kb,vol){ rad*=1+.08*(G.ps.demo|0); if(window.VFX_EXPLOSIONS&&XFX.length<24&&!(G&&G.demo&&XFX.length>8)){ try{ XFX.push({ty:VFX_EXPLOSIONS.forRadius(rad),x,y,t0:G.t}) }catch(e){} } WFX.hit(x,y,rad>=40?'big':'heavy'); if(rad>=40)addCrater(x,y,rad);
+function explode(x,y,rad,dmg,kb,vol){ rad*=1+.08*(G.ps.demo|0); if(window.VFX_ATMO)try{ VFX_ATMO.addLight(x,y,'explosion') }catch(e){} if(window.VFX_EXPLOSIONS&&XFX.length<24&&!(G&&G.demo&&XFX.length>8)){ try{ XFX.push({ty:VFX_EXPLOSIONS.forRadius(rad),x,y,t0:G.t}) }catch(e){} } WFX.hit(x,y,rad>=40?'big':'heavy'); if(rad>=40)addCrater(x,y,rad); if(window.VFX_IMPACT&&!(G&&G.demo)){ try{ const n=rad>=90?10:rad>=40?6:3; VFX_IMPACT.debris('dirt',x,y,n,Math.min(1.6,.5+rad/80)); if(rad>=40)VFX_IMPACT.debris('clod',x,y,n>>1,Math.min(1.4,.4+rad/90)); VFX_IMPACT.kick(Math.atan2(G.p.y-y,G.p.x-x),rad>=90?'mortar':'m79',{intensity:Math.max(0,1-Math.hypot(G.p.x-x,G.p.y-y)/500)}) }catch(e){} }
   dmgSrc=2;
   for(let i=0;i<enemies.length;i++){const e=enemies[i]; if(e.dead)continue; const dx=e.x-x,dy=e.y-y,d=Math.hypot(dx,dy); if(d<rad+e.r){const n=d||1; hurtEnemy(e,dmg,dx/n*kb,dy/n*kb)}}
   dmgSrc=0;
@@ -3485,6 +3486,7 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){const dx=p.
   const l=Math.hypot(x,y); if(l>1){x/=l;y/=l} return [x,y]; }
 
 function update(dt){
+  if(window.VFX_IMPACT)try{ VFX_IMPACT.update(dt) }catch(e){}
   CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt); FIELD.tick(dt); GUNS.tick(dt); MEDV.tick(dt); CREWX.tick(dt); PADRUSH(dt); IMP.tick(dt); BARK.tick(dt); if(window.VFX_MUZZLE)try{ VFX_MUZZLE.update(dt) }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.update(dt) }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.update(dt) }catch(e){}
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
@@ -6536,7 +6538,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false; ctx.fillStyle='#2c5226'; ctx.fillRect(0,0,W,H);
   const g=G; if(!g)return; const p=g.p;
   const shx=g.shake>.3?(rnd()-.5)*g.shake:0, shy=g.shake>.3?(rnd()-.5)*g.shake:0;
-  const camX=Math.round((p.x+shx)*zoom)/zoom-VW/2, camY=Math.round((p.y+shy)*zoom)/zoom-VH/2;
+  const ic=window.VFX_IMPACT?VFX_IMPACT.camera():null, camX=Math.round((p.x+shx+(ic?ic.x:0))*zoom)/zoom-VW/2, camY=Math.round((p.y+shy+(ic?ic.y:0))*zoom)/zoom-VH/2;
   ctx.setTransform(zoom,0,0,zoom,-camX*zoom,-camY*zoom); RCAM.x=camX; RCAM.y=camY; MZW.z=zoom; MZW.cx=camX; MZW.cy=camY;
   // background
   const T=256; for(let x=Math.floor(camX/T)*T;x<camX+VW;x+=T)for(let y=Math.floor(camY/T)*T;y<camY+VH;y+=T){
@@ -6569,7 +6571,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   for(let i=0;i<hbars.length;i++){ const b=hbars[i], k=Math.min(1,b.t/b.delay); ctx.globalAlpha=.3+.2*Math.sin(performance.now()/1000*12); ctx.strokeStyle='#ffe05a'; ctx.lineWidth=2; ctx.setLineDash([7,6]); ctx.beginPath(); ctx.arc(b.cx,b.cy,b.s.spread*(1.0-.1*k),0,TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1 }
   for(let i=0;i<hshells.length;i++){ const q=hshells[i]; if(q.t<-.45)continue; ctx.globalAlpha=.3; ctx.strokeStyle='#ff4a3a'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(q.x,q.y,q.rad*.55,0,TAU); ctx.stroke(); ctx.globalAlpha=1 }
   // blasts under
-  for(let i=XFX.length-1;i>=0;i--){ const q=XFX[i]; let on=false; try{ on=VFX_EXPLOSIONS.draw(ctx,q.ty,q.x,q.y,G.t-q.t0,2,0) }catch(e){} if(!on)XFX.splice(i,1) }   /* Artist Helper explosions over the old blast discs (game clock: freeze on pause, no pile-up in fast sim) */
+  for(let i=XFX.length-1;i>=0;i--){ const q=XFX[i]; let on=false; try{ on=VFX_EXPLOSIONS.draw(ctx,q.ty,q.x,q.y,G.t-q.t0,2,0) }catch(e){} if(!on)XFX.splice(i,1) } if(window.VFX_IMPACT)try{ ctx.save(); ctx.scale(.5,.5); VFX_IMPACT.drawAll(ctx,0,0,2,'debris'); ctx.restore() }catch(e){}   /* Artist Helper explosions over the old blast discs (game clock: freeze on pause, no pile-up in fast sim) */
   for(const b of blasts){const k=b.t/b.d; ctx.globalAlpha=(1-k)*.55; ctx.fillStyle='#ff8a2a'; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*(.4+.6*Math.sqrt(k)),0,TAU); ctx.fill(); ctx.globalAlpha=(1-k)*.8; ctx.fillStyle='#ffe58a'; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*.5*(1-k*.6),0,TAU); ctx.fill(); ctx.globalAlpha=(1-k); ctx.strokeStyle='#fff3c0'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*(.5+.5*k),0,TAU); ctx.stroke(); ctx.globalAlpha=1}
   const tt=performance.now()/1000;
   // napalm burning ground
@@ -6683,6 +6685,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   if(p.hp<p.maxHp){ ctx.fillStyle='#000a'; ctx.fillRect(p.x-16,p.y+20,32,5); ctx.fillStyle=p.hp/p.maxHp>.3?'#5bd05b':'#e64a3a'; ctx.fillRect(p.x-15,p.y+21,30*p.hp/p.maxHp,3) }
   // ---- screen space HUD ----
   ctx.setTransform(1,0,0,1,0,0);
+  if(window.VFX_ATMO&&!g.demo){ try{ const now=performance.now(), adt=Math.min(.1,(now-(render.aT||now))/1000); render.aT=now; if(!render.aI){ render.aI=1; VFX_ATMO.init(W,H); VFX_ATMO.hookLowToggle&&VFX_ATMO.hookLowToggle(); VFX_ATMO.setLow&&VFX_ATMO.setLow(!!LOWFX) } if(render.aW!==W||render.aH!==H){ render.aW=W; render.aH=H; VFX_ATMO.init(W,H) } VFX_ATMO.update(adt); VFX_ATMO.drawWorldOverlay(ctx,camX,camY,zoom); VFX_ATMO.drawScreen(ctx) }catch(e){} }   /* Artist Helper atmosphere (day grade, haze, lights) */
   WX.draw(W,H);   /* weather sits under the HUD: never hides prompts, timers or the pad arrow */
   { const low=(!g.demo&&p.hp>0&&p.hp/p.maxHp<.3)?(.45+(g.hbPulse>0?(g.hbPulse/.38)*(g.hbAmp||.3)*.55:0)+(g.hbT===undefined||g.hbT===0?.06*Math.sin(tt*5):0))*(1-p.hp/p.maxHp/.3*.5):0;   /* pulses on each heartbeat cue (dangerTick) */ const a=Math.max(Math.min(.8,Math.max(g.hurt>0?g.hurt*1.5:0,low))*(GORE?1:.35),low);
     if(a>.01){ const gr=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.18,W/2,H/2,Math.max(W,H)*.68); gr.addColorStop(0,'rgba(120,0,0,0)'); gr.addColorStop(.6,`rgba(140,6,6,${a*.45})`); gr.addColorStop(1,`rgba(110,0,0,${a})`); ctx.fillStyle=gr; ctx.fillRect(0,0,W,H) } if(low>0){ const pu=.55+.45*(g.hbPulse>0?g.hbPulse/.38:0), lw=Math.max(6,Math.min(W,H)*.018); ctx.strokeStyle=`rgba(200,20,16,${.7*pu})`; ctx.lineWidth=lw; ctx.strokeRect(lw/2,lw/2,W-lw,H-lw) } }   /* RC2: hard red screen edge under 30% HP, pulsing with the heartbeat */
