@@ -3114,7 +3114,7 @@ function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return;
   spawnDrops(p.x,p.y-6,0,0,12,130); if(rnd()<.6)addDecal(p.x+(rnd()-.5)*16,p.y+8,SPLAT[(rnd()*5)|0],30,.8);
   if(p.hp<=0){ if((G.ps.dustoff|0)&&!G.dustUsed)dustoffRevive(); else { p.hp=0; gameOver() } } }
 let EXIMP=0;   /* set while a real impact clip already covers this explosion (M79 / mortar / 105) */
-function explode(x,y,rad,dmg,kb,vol){ rad*=1+.08*(G.ps.demo|0); if(window.VFX_EXPLOSIONS&&XFX.length<24&&!(G&&G.demo&&XFX.length>8)){ try{ XFX.push({ty:VFX_EXPLOSIONS.forRadius(rad),x,y,t0:performance.now()/1000}) }catch(e){} } WFX.hit(x,y,rad>=40?'big':'heavy'); if(rad>=40)addCrater(x,y,rad);
+function explode(x,y,rad,dmg,kb,vol){ rad*=1+.08*(G.ps.demo|0); if(window.VFX_EXPLOSIONS&&XFX.length<24&&!(G&&G.demo&&XFX.length>8)){ try{ XFX.push({ty:VFX_EXPLOSIONS.forRadius(rad),x,y,t0:G.t}) }catch(e){} } WFX.hit(x,y,rad>=40?'big':'heavy'); if(rad>=40)addCrater(x,y,rad);
   dmgSrc=2;
   for(let i=0;i<enemies.length;i++){const e=enemies[i]; if(e.dead)continue; const dx=e.x-x,dy=e.y-y,d=Math.hypot(dx,dy); if(d<rad+e.r){const n=d||1; hurtEnemy(e,dmg,dx/n*kb,dy/n*kb)}}
   dmgSrc=0;
@@ -6563,7 +6563,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; TERR.budget(TERR.stats().cells<6?24:
   for(let i=0;i<hbars.length;i++){ const b=hbars[i], k=Math.min(1,b.t/b.delay); ctx.globalAlpha=.3+.2*Math.sin(performance.now()/1000*12); ctx.strokeStyle='#ffe05a'; ctx.lineWidth=2; ctx.setLineDash([7,6]); ctx.beginPath(); ctx.arc(b.cx,b.cy,b.s.spread*(1.0-.1*k),0,TAU); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1 }
   for(let i=0;i<hshells.length;i++){ const q=hshells[i]; if(q.t<-.45)continue; ctx.globalAlpha=.3; ctx.strokeStyle='#ff4a3a'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(q.x,q.y,q.rad*.55,0,TAU); ctx.stroke(); ctx.globalAlpha=1 }
   // blasts under
-  for(let i=XFX.length-1;i>=0;i--){ const q=XFX[i]; let on=false; try{ on=VFX_EXPLOSIONS.draw(ctx,q.ty,q.x,q.y,performance.now()/1000-q.t0,2,0) }catch(e){} if(!on)XFX.splice(i,1) }   /* Artist Helper explosions over the old blast discs */
+  for(let i=XFX.length-1;i>=0;i--){ const q=XFX[i]; let on=false; try{ on=VFX_EXPLOSIONS.draw(ctx,q.ty,q.x,q.y,G.t-q.t0,2,0) }catch(e){} if(!on)XFX.splice(i,1) }   /* Artist Helper explosions over the old blast discs (game clock: freeze on pause, no pile-up in fast sim) */
   for(const b of blasts){const k=b.t/b.d; ctx.globalAlpha=(1-k)*.55; ctx.fillStyle='#ff8a2a'; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*(.4+.6*Math.sqrt(k)),0,TAU); ctx.fill(); ctx.globalAlpha=(1-k)*.8; ctx.fillStyle='#ffe58a'; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*.5*(1-k*.6),0,TAU); ctx.fill(); ctx.globalAlpha=(1-k); ctx.strokeStyle='#fff3c0'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*(.5+.5*k),0,TAU); ctx.stroke(); ctx.globalAlpha=1}
   const tt=performance.now()/1000;
   // napalm burning ground
