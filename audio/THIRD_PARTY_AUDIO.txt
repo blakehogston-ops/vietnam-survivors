@@ -1009,7 +1009,7 @@ music/music_easter_valkyries.ogg + music/music_easter_valkyries.m4a  (scene: ope
     sha256: ogg f84d663de48322805ca6d249b9ad27652db8fa466f736b87055269812a3042a9  m4a 02794561af5e0f7da83309ce1ec9a4e052c035b675f3adb0dc57baf728874c59
     Edit:   18.0-94.0 s, 2 s fade in, 5 s fade out, no loop, -14.0 LUFS, period crackle kept.
 
-[2026-10-20 rc8 sourcing — o1 / amtrac / firebase: Legal PASS + Audio Director PASS 2026-10-20, shipping. tokay: PENDING LEGAL, QA builds only (AUD_PENDING.tokay); drop this tokay entry if Legal does not clear it]
+[2026-10-20 rc8 sourcing — o1 / amtrac / firebase: Legal PASS + Audio Director PASS 2026-10-20, shipping. tokay: Legal cleared 2026-10-20, shipping]
 samples/ogg + samples/m4a/o1_birddog_flyby_1  (STAND-IN for the O-1 Bird Dog: unidentified propeller light plane)
     Source: "Propeller plane and birds singing" by ezwa (pdsounds.org), https://commons.wikimedia.org/wiki/File:Propeller_plane_and_birds_singing.ogg
     Licence: Public domain (pdsounds.org). Edit: 3-27 s, fades, level.  sha256: ogg b6463d1ce5a617ecc172da74048f71ec9add787a0dde6ecf931470955dda71d1  m4a 0ea2c6a258682fe96b682d43c32f2fc0723f907834a33250b1eda476ebdc92d8

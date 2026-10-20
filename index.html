@@ -1286,12 +1286,8 @@ const DEMO_BUILD=false;
 const STEAM_URL='';
 const IS_ELECTRON=!!(window.process&&window.process.versions&&window.process.versions.electron)||/\belectron\//i.test(navigator.userAgent);
 const IS_NEXT=/\/next\//.test(location.pathname);
-/* rc8 AUD_PENDING (Lead, MERGE_NOTE_RC8_SOURCING_OCT20 rev 2): o1_birddog_flyby, lvtp5_engine_loop (amtrac engine loop) and firebase_amb_loop
-   PASSED by Audio Director 2026-10-20 -> on by default, no pending flag. Still pending: tokay_gecko (PENDING LEGAL) -> QA builds ONLY.
-   AUD_PENDING.tokay MUST stay true (and the clip out of public/Steam builds) until Legal clears it; see RC8_NOTES.md. */
-const AUD_PENDING={tokay:true};
-const AUD_QA=/[?&]audqa=1\b/.test(location.search)||(!/[?&]audqa=0\b/.test(location.search)&&!IS_ELECTRON&&!DEMO_BUILD);   /* QA build = web, non-demo, non-Electron (Steam is Electron) */
-const AUD_OK={o1_birddog_flyby:true,lvtp5_engine_loop:true,firebase_amb_loop:true,tokay_gecko:!AUD_PENDING.tokay||AUD_QA};
+/* rc8 sourced clips (o1_birddog_flyby, lvtp5_engine_loop = amtrac engine loop, firebase_amb_loop, tokay_gecko): Legal + Audio Director cleared 2026-10-20; on in every build. */
+const AUD_OK={o1_birddog_flyby:true,lvtp5_engine_loop:true,firebase_amb_loop:true,tokay_gecko:true};
 const DEMO=!IS_ELECTRON&&params.get('demo')!=='0'&&(params.get('demo')==='1'||(DEMO_BUILD&&!IS_NEXT));
 const PUBLIC_BUILD=params.get('public')==='1'||(!IS_NEXT&&!IS_ELECTRON&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname));
 try{ if(DEMO)document.documentElement.classList.add('demo') }catch(e){}
@@ -8169,7 +8165,7 @@ const SAMP={on:false,real:{},st:{b40:0,b40Late:0,b40Silent:0,charge:0,chargeLate
     this.mDuck=c.createGain(); try{ Snd.mbus.disconnect() }catch(e){} Snd.mbus.connect(this.mDuck); MIX.build(c,this.sfxDuck); this.mDuck.connect(MIX.bus.mus); MIX.bus.mus.connect(Snd.out);
     this.rotEnv=c.createGain(); this.rotEnv.gain.value=0; this.rotPan=c.createStereoPanner?c.createStereoPanner():null; if(this.rotPan){ this.rotEnv.connect(this.rotPan); this.rotPan.connect(MIX.bus.rot) } else this.rotEnv.connect(MIX.bus.rot); MIX.bus.rot.connect(Snd.master); SamplePlayer.route=(sl,s,o)=>MIX.route(sl,s,o);
     SamplePlayer.init(c,{sfxBus:this.sfxDuck,musicBus:Snd.mbus,rotorBus:this.rotEnv,musicDuck:this.mDuck,sfxDuck:this.sfxDuck,cues:window.Cues});
-    for(const k in AUD_OK)if(!AUD_OK[k]&&M.slots[k])M.slots[k].disabled=true;   /* rc8: tokay_gecko never loads outside QA while AUD_PENDING.tokay */
+    for(const k in AUD_OK)if(!AUD_OK[k]&&M.slots[k])M.slots[k].disabled=true;   /* per-clip kill switch (all cleared) */
     for(const k in M.slots){ const sl=M.slots[k], has=!sl.disabled&&((sl.files&&sl.files.length)||(sl.alt&&sl.alt.length)); this.real[k]=has?'sample':'silent' }   /* slots not in the manifest (named weapon slots with no clip) stay silent */
     if(M.cues){ if(M.cues.b40&&M.cues.b40.leadMs)EXW.B40=M.cues.b40.leadMs/1000; if(M.cues.chargeWarning&&M.cues.chargeWarning.leadMs)EXW.CHARGE=M.cues.chargeWarning.leadMs/1000 }
     this.on=true; SamplePlayer.load(M,{batch:1}).then(r=>{ this.r1=r; return SamplePlayer.load(M,{batch:2}) }).then(r=>{ this.r2=r; return SamplePlayer.load(M,{batch:3}) }).then(r=>{ this.r3=r }).catch(()=>{}) },
@@ -8255,7 +8251,7 @@ const H34S={h:null,g:null,
   tick(){ const S=G&&!G.demo&&G.spec, hl=S&&S.helo, w=!!(hl&&(hl.ph===1||hl.ph===4)&&(state==='play'||state==='sig'||state==='levelup')&&SAMP.ready()&&SamplePlayer.hasSample('h34_hover_loop'));
     if(this.h&&(!w||this.g!==G)){ try{ this.h.stop(.8) }catch(e){} this.h=null; this.g=null }
     if(w&&!this.h){ this.g=G; try{ this.h=MIX.as('squad',()=>SamplePlayer.h34('hover',{vol:.8,fade:1})) }catch(e){ this.h=null } } } };
-/* AUDP (rc8 sourcing, gated per clip by AUD_OK / AUD_PENDING): Bird Dog pass, amtrac engine loop, firebase night bed. Never touches the seeded RNG.
+/* AUDP (rc8 sourcing, all cleared; AUD_OK kill switch): Bird Dog pass, amtrac engine loop, firebase night bed. Never touches the seeded RNG.
    Bird Dog coupling: jr/officer-of (f3fb2df) has no audio hook. AUDP.birdDog() is the public hook the officer code can call (~9 s before
    the WP marking rocket); until then AUDP.tick() polls OFFI.air / OFFI.fac (fields as on f3fb2df: air.T, air.mk, air.st, fac) and starts the
    pass once per strike when the impact clock is <= 22.5 s out (the marking rocket fires at <= 13.5 s). Rename those fields = update this. */
@@ -8276,7 +8272,7 @@ const AUDP={bd:null,amt:null,fb:null,fbF:null,tkT:0,
     { const f=typeof fbS!=='undefined'?fbS:null, want=!!(f&&f.state==='done');
       if(this.fb&&(!want||this.fbF!==f)){ try{ this.fb.stop(1.2) }catch(e){} this.fb=null; this.fbF=null }
       if(want&&!this.fb&&this.ok('firebase_amb_loop')){ this.fb=SamplePlayer.play('firebase_amb_loop',{vol:1,loop:true}); this.fbF=f }
-      /* tokay gecko (QA only while AUD_PENDING.tokay): <= 1 call per 60-120 s (Math.random, never the game RNG), built firebase, night or calm, no contact, never in extraction */
+      /* tokay gecko (Legal cleared): <= 1 call per 60-120 s (Math.random, never the game RNG), built firebase, night or calm, no contact, never in extraction */
       const now=performance.now()/1000, ex=g.ex; if(!this.tkT)this.tkT=now+60+Math.random()*60;
       if(want&&now>=this.tkT){ this.tkT=now+60+Math.random()*60; let night=false, calm=false, hostile=true; try{ night=!!(typeof ATM!=='undefined'&&ATM.ON&&ATM.hourAt(g.t)>=19) }catch(e){} try{ calm=fbCalm()>0||Combat.ci<.15 }catch(e){} try{ hostile=nearCount(f.x,f.y,FBS+260)>0 }catch(e){}
         if((night||calm)&&!hostile&&!(ex&&ex.ph>=4)&&this.ok('tokay_gecko'))try{ MIX.as('amb',()=>SamplePlayer.play('tokay_gecko',{vol:.8+Math.random()*.2})); (this.tk||(this.tk=[])).push(+g.t.toFixed(1)) }catch(e){} } } } };

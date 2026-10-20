@@ -170,7 +170,7 @@
       lvtp5_engine_loop:  { group: 'ambience', batch: 2, files: ['lvtp5_engine_loop_1'] },
       // firebase night bed, 40 s loop: Anon6116 'Rainforest by Night' (CC0), Peten, Guatemala (REGION STAND-IN for Quang Tri). ambience bus -10 -> -43. Game: MIX.AMB 'jungle_loop' -> this slot
       firebase_amb_loop:  { group: 'ambience', batch: 2, files: ['firebase_amb_loop_1'] },
-      // tokay gecko calls (real, northern Laos), Richard Ling via Commons (PD). PENDING LEGAL. One-shot, trigger sparingly: once every 1-2 min, night / calm at the firebase. ambience bus -10 -> -40 (gated RMS)
+      // tokay gecko calls (real, northern Laos), Richard Ling via Commons (PD). Legal cleared 2026-10-20. One-shot, trigger sparingly: once every 1-2 min, night / calm at the firebase. ambience bus -10 -> -40 (gated RMS)
       tokay_gecko:        { group: 'ambience', batch: 2, files: ['tokay_gecko_1', 'tokay_gecko_2', 'tokay_gecko_3'] }
     },
     // ---- music slots (2026-10-14). Real recordings only. Loudness matched to combat_loop (-13.6 LUFS integrated, within
