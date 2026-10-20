@@ -14,7 +14,7 @@ Skip anything already in the build.
 - Period slang: in-country, the World, beaucoup, Willy Pete, slick
 - Map names with one-line blurbs: Khe Sanh, Hue, Con Thien, Hill 881, Cua Viet (I Corps 1968)
 - Monsoon weather (rain, fog, red laterite mud tile), with a low-effects setting; must not hide enemies/warnings
-- Radio call signs as spoken chatter: Dustoff, Spooky, Arc Light
+- Radio call signs as spoken chatter: Spooky, Arc Light
 
 ## Sound
 - Per-map ambience: artillery (Khe Sanh), river/boat engines (Cua Viet), urban echo (Hue); rain on foliage, distant thunder

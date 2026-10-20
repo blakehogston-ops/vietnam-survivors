@@ -3641,8 +3641,8 @@ function spawnBoss(){ (G.blog=G.blog||[]).push({n:G.bossN,t0:G.t,t1:null}); cons
   G.banner={text:kind==='rpg'?'RPG HEAVY INBOUND!':'NVA COMMANDER INBOUND!',t:3.2,col:'#ff6a4a'}; Snd.play('boss'); G.shake=Math.max(G.shake,6); }
 
 /* ===== SPEC (Blake Oct 14): one spec-ops reinforcement event per run (?sog=0 off, ?sog=at:SECONDS to move it).
-   At the same moment (1) a PBR runs up the nearest river and drops a 6-man Marine recon team (3rd Recon / Force Recon style) on the bank,
-   and (2) a Huey (no H-34 Kingbee art; drawHuey per Vietnam Vet) inserts a 6-man SOG-style team on land: 3 Americans plus 2 Montagnards and 1 Nung,
+   At the same moment (1) a PBR runs up the nearest river and drops a 6-man Marine recon team (3rd Reconnaissance Battalion) on the bank,
+   and (2) an H-34 (Kingbee) inserts a 6-man SOG-style team on land: 3 Americans plus 2 Montagnards and 1 Nung,
    all full team members, sterile kit (no insignia, no real names). They fight a short break-out (~47 s, ends on the reinforcements sting's final hit)
    and extract the way they came: recon back to the PBR, SOG back to the Huey. Wounded men are carried out, never left (no hero deaths).
    Gear (Vietnam Vet): recon = M16A1s, one M79, PRC-25 RTO, M14 marksman, utilities, boonies, face paint.
@@ -3692,7 +3692,7 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     const away=r&&B?Math.atan2(p.y-B.by,p.x-B.bx):rnd()*TAU, lz=pickLz(p.x+Math.cos(away)*170,p.y+Math.sin(away)*170);
     S.lz={x:lz.x,y:lz.y}; const a0=away+Math.PI*.6; S.helo={x:lz.x+Math.cos(a0)*900,y:lz.y+Math.sin(a0)*900,z:60,hd:a0+Math.PI,rot:0,ph:0,t:0,sx:lz.x+Math.cos(a0)*900,sy:lz.y+Math.sin(a0)*900};
     if(!B){ /* no river in reach: recon rides a CH-46 (logged) */ const a1=a0+1.3; S.helo2={sk46:1,x:lz.x+Math.cos(a1)*900,y:lz.y+Math.sin(a1)*900,z:60,hd:a1+Math.PI,rot:0,ph:0,t:0,sx:lz.x+Math.cos(a1)*900,sy:lz.y+Math.sin(a1)*900,lz:{x:lz.x+60,y:lz.y+30}}; g.specLog.push({ev:'noRiver'}) }
-    g.banner={text:B?'SPEC-OPS INBOUND: RECON BY PBR · SOG BY H-34':'SPEC-OPS INBOUND: RECON BY CH-46 · SOG BY H-34',t:2.8,col:'#ffe58a'}; Snd.play('radio');
+    g.banner={text:'RECON INBOUND: 3RD RECON BN BY PBR · SOG BY H-34',t:2.8,col:'#ffe58a'}; Snd.play('radio');
     if(!this.sfx('h34','flyby','h34_flyby','squad'))try{ if(SAMP.ready()&&SamplePlayer.hasSample('huey_flyby'))MIX.as('squad',()=>SamplePlayer.play('huey_flyby',{vol:.8})) }catch(e){} if(S.boat)this.sfx('pbrManeuver','runup','pbr_runup','squad',Math.hypot(S.boat.x-g.p.x,S.boat.y-g.p.y)) },
   land(kind){ const g=G,S=this.st();
     if(kind==='recon'){ const b=S.boat, B=b?b.B:null, L=B?{x:B.bx,y:B.by}:S.helo2.lz; const roles=[['tl','m16'],['rto','m16'],['m79','m79'],['m14','m16'],['pt','m16'],['r2','m16']];   /* rc8: 6-man team; the m14 slot is now an M16A1 rifleman (rifleman1), r2 = rifleman2 */
@@ -4315,16 +4315,16 @@ const ZMON={LV:6, ON:!/[?&]zmon=0\b/.test(location.search), R:300,
     if(r&&b.fl>0&&!b.dead){ const L=this.R*.85; SHEET1.drawMonitorFlame(ctx,r,b.x+Math.cos(b.fa)*L,b.y+Math.sin(b.fa)*L,tt,5,1) }
     if(b.mhp&&!b.dead){ const rr=Math.max(0,b.hp/b.mhp), w=40, bx=Math.round(b.x)-w/2, by=Math.round(b.y)-56; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,5); ctx.fillStyle=rr>.55?'#6fd04a':rr>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,w*rr,5) } } };
 /* URG (Blake, Vet verified): at Doc's Triage a random chance flags the worst-wounded Marine URGENT. A CH-46 (no red crosses) flies in, he is
-   lifted out, the radio calls "urgent medevac"; he leaves the field squad and counts as extracted (score + end card). Max 2 a run, 75 s apart,
+   lifted out, the radio calls "emergency medevac"; he leaves the field squad and counts as extracted (score + end card). Unlimited (rc8 EP), one bird airborne at a time, the rest queued, 75 s apart,
    never once the bird is inbound. ?urg=0 off. */
-const URG={ON:!/[?&]urg=0\b/.test(location.search), P:.3, CD:75, MAX:2, h:null, reset(){ this.h=null; this.n=0; this.at=-1e9 },
-  triage(){ const g=G; if(!this.ON||!g||g.demo||this.h||this.n>=this.MAX||g.t-this.at<this.CD||(g.ex&&g.ex.ph>=4)||rnd()>this.P)return;
+const URG={ON:!/[?&]urg=0\b/.test(location.search), P:.3, CD:75, MAX:Infinity, h:null, q:0, reset(){ this.h=null; this.n=0; this.at=-1e9; this.q=0 },   /* rc8 EP: unlimited; one bird airborne at a time, the rest queue (q) */
+  triage(force){ const g=G; if(!this.ON||!g||g.demo||(g.ex&&g.ex.ph>=4))return; if(!force&&rnd()>this.P)return; if(this.h||g.t-this.at<this.CD){ this.q++; return } if(force&&this.q>0)this.q--;
     let m=null; for(const q of coy){ if(q.hp>0&&q.state==='ok'&&!q.hid&&q.hp<q.mhp*.6&&(!m||q.hp/q.mhp<m.hp/m.mhp))m=q } if(!m)return;
     this.n++; this.at=g.t; m.urg=true; const a=rnd()*TAU, R0=Math.hypot(VW,VH)/2+380;
     this.h={m,x:m.x+Math.cos(a)*R0,y:m.y+Math.sin(a)*R0,z:110,hd:a+Math.PI,rot:0,ch46:true,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,lt:0,out:0};
     g.banner={text:'RADIO: EMERGENCY MEDEVAC INBOUND FOR '+(m.nm||'A MARINE').toUpperCase(),t:2.8,col:'#9be37a'}; Snd.play('radio');
     (g.urgLog||(g.urgLog=[])).push({t:+g.t.toFixed(1),ev:'call',nm:m.nm}) },
-  tick(dt){ const h=this.h; if(!h)return; const g=G, m=h.m; h.t+=dt; h.rot+=dt*20;
+  tick(dt){ const h=this.h; if(!h){ if(this.q>0&&G&&G.t-this.at>=this.CD)this.triage(true); return } const g=G, m=h.m; h.t+=dt; h.rot+=dt*20;
     if(h.ph===0){ if(m.hp<=0){ h.ph=2; h.ex=h.hd; return } const dx=m.x-h.x, dy=m.y-4-h.y, d=Math.hypot(dx,dy)||1, sp=Math.min(260,50+d*1.1); try{ if(d<330)SeaKnightS.cue(h,'in') }catch(e){}
       h.x+=dx/d*sp*dt; h.y+=dy/d*sp*dt; h.hd=turnTo(h.hd,Math.atan2(dy,dx),1.8*dt); if(d<300)h.z+=(30-h.z)*Math.min(1,dt*1.5); if(d<16){ h.ph=1; h.lt=0 } }
     else if(h.ph===1){ h.lt+=dt; h.z+=(14-h.z)*Math.min(1,dt*3); h.x+=(m.x-h.x)*Math.min(1,dt*3); h.y+=(m.y-4-h.y)*Math.min(1,dt*3); try{ SeaKnightS.cue(h,'hover') }catch(e){}
@@ -4333,7 +4333,7 @@ const URG={ON:!/[?&]urg=0\b/.test(location.search), P:.3, CD:75, MAX:2, h:null, 
     else { try{ SeaKnightS.cue(h,'out') }catch(e){} h.out+=dt; h.z+=(40*h.out+8)*dt; h.hd=turnTo(h.hd,h.ex,1.2*dt); h.x+=Math.cos(h.hd)*(40+200*h.out)*dt; h.y+=Math.sin(h.hd)*(40+200*h.out)*dt; if(h.out>7)this.h=null } },
   draw(){ if(this.h)drawHuey(this.h) } };
 /* KIA (Blake): a short, dignified notice when a Marine falls ("KIA: LCpl Ortiz"), muted typewriter style, queued, soft radio tone.
-   Reinforcements get seeded, period-plausible fictional names (never real people). The end card lists the roll; urgent medevacs show as MEDEVAC. ?kia=0 off. */
+   Reinforcements get seeded, period-plausible fictional names (never real people). The end card lists the roll; emergency medevacs show as MEDEVAC. ?kia=0 off. */
 const KIA={ON:!/[?&]kia=0\b/.test(location.search), q:[], cur:null, t:0,
   RK:['Pvt','PFC','PFC','PFC','LCpl','LCpl','Cpl','Sgt'], SN:['Alvarez','Becker','Carver','Dawson','Ellison','Fischer','Garza','Ingram','Jaramillo','Lawson','Mendez','Novak','Oakes','Quinlan','Ramos','Sorensen','Tate','Underwood','Vance','Whitfield','Yates','Zamora','Abbott','Bishop','Coleman','Duarte','Embry'],
   nameFor(m){ if(m.nm)return m.nm; const g=G, h=hash2((g.seedH|0)+7,(g.kiaN=(g.kiaN|0)+1)*131+(m.slot|0)); m.nm=this.RK[(h*this.RK.length)|0]+' '+this.SN[(hash2(h*1e4|0,3)*this.SN.length)|0]; return m.nm },
@@ -4862,8 +4862,8 @@ function updateHazards(dt){
   // napalm strikes
   for(let i=strikes.length-1;i>=0;i--){const q=strikes[i]; CURW=q.wid||''; q.t+=dt; if(q.t<0)continue;
     const ca=Math.cos(q.a),sa=Math.sin(q.a);
-    if(q.t<q.delay){ // red smoke marker
-      if(Math.random()<.6){addPart(q.cx+(rnd()-.5)*10,q.cy+(rnd()-.5)*10,(rnd()-.5)*14,-34-rnd()*24,1.1,5+rnd()*4,rnd()<.5?'#ff4a3a':'#ffb0a0',false,.4)}
+    if(q.t<q.delay){ // WP marking rocket
+      if(Math.random()<.6){addPart(q.cx+(rnd()-.5)*10,q.cy+(rnd()-.5)*10,(rnd()-.5)*14,-34-rnd()*24,1.1,5+rnd()*4,rnd()<.5?'#f4f4ee':'#cfd2c8',false,.4)}
       if(!q.sfx&&q.t>q.delay-3.2){q.sfx=true; SAMP.fly('jet',{bombAt:Snd.ctx?Snd.ctx.currentTime+Math.max(0,q.delay-q.t):0})}
       continue; }
     const s=(q.t-q.delay)*1000-420; // position along the run
@@ -4993,7 +4993,7 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
   lawCarrier(T){ let b=null,bd=1e9; for(const m of coy){ if(!this.ok(m)||!(m.law>0))continue; const d=Math.hypot(m.x-T.x,m.y-T.y); if(d<bd){bd=d;b=m} } return b&&bd<300?b:null },
   docTreat(g){ return g.treatT>0||coy.some(m=>m.healBy&&m.hp>0&&Math.hypot(m.x-g.p.x,m.y-g.p.y)<150) },
   rtoAlive(g){ return !g.rtoLost&&coy.some(q=>q.rto&&q.hp>0&&!q.hid) },
-  /* STRETCH (rc8): fire mission (60mm) on a dense group; needs a living RTO, else 'radio's out' (once per 60 s) */
+  /* STRETCH (rc8): fire mission (60mm) on a dense group; needs a living RTO, else 'Nobody on the radio!' (once per 60 s) */
   mortar(g){ if(this.cd.fire>0||this.mort)return; const c=this.cmd, p=g.p; let best=null,bn=0;
     for(const e of nearestK(c.x,c.y,12,650)){ if(Math.hypot(e.x-p.x,e.y-p.y)<260)continue; const n=nearestK(e.x,e.y,10,110).length; if(n>bn){bn=n;best=e} } if(!best||bn<6)return;
     for(const m of coy)if(m.hp>0&&Math.hypot(m.x-best.x,m.y-best.y)<170)return;   /* danger close: hold it */
@@ -5977,7 +5977,7 @@ const BRIEF_LINES=[
  {t:"Our mission is simple to say and hard to do: hold the line, look after the man beside you, and give the people of this country a chance to live free.",pin:[4]},
  {t:"It's hot, it's wet, and it's miserable out there. And I have never been prouder to serve alongside anyone than the United States Marines.",pin:-1},
  {t:"You're a credit to the Corps, Marine. Your Corps and your country are counting on you.",pin:-1},
- {t:"You'll have a fire team on your flank, air and artillery on the radio, and a Huey waiting to take you in. Use all of it. Keep your head down and your eyes open.",pin:[4,2]},
+ {t:"You'll have a fire team on your flank, air and artillery on the radio, and a CH-46 waiting to take you in. Use all of it. Keep your head down and your eyes open.",pin:[4,2]},
  {t:"Good luck, Marine. Make every round count. Semper Fi.",pin:-1}];
 const BCV=mk(240,135), bctx=BCV.getContext('2d');
 
