@@ -5864,8 +5864,8 @@ function b2Ground(){ const c=mk(320,180), x=c.getContext('2d');
 function b2Shadow(c,draw,x,y){ /* long soft shadow thrown left, away from the low sun on the right */
   c.save(); const g=c.createLinearGradient(x,0,x-34,0); g.addColorStop(0,'rgba(26,13,6,.42)'); g.addColorStop(1,'rgba(26,13,6,0)'); c.fillStyle=g; c.beginPath(); c.ellipse(x-15,y,20,2.8,-.04,0,TAU); c.fill();
   c.fillStyle='rgba(26,13,6,.32)'; c.beginPath(); c.ellipse(x,y,8,2.4,0,0,TAU); c.fill(); c.restore() }
-function b2Rotor(c,x,y,t,ph){ /* slow idle rotor: dark blur disc (~.35), sagging tips, motion-blur arcs */
-  c.save(); const g=c.createRadialGradient(x,y,3,x,y,40); g.addColorStop(0,'rgba(22,24,18,.38)'); g.addColorStop(.75,'rgba(22,24,18,.30)'); g.addColorStop(1,'rgba(22,24,18,0)'); c.fillStyle=g;
+function b2Rotor(c,x,y,t,ph){ /* slow idle rotor: dark blur disc (~.45), sagging tips, motion-blur arcs */
+  c.save(); const g=c.createRadialGradient(x,y,3,x,y,40); g.addColorStop(0,'rgba(22,24,18,.47)'); g.addColorStop(.75,'rgba(22,24,18,.42)'); g.addColorStop(1,'rgba(22,24,18,0)'); c.fillStyle=g;
   c.beginPath(); c.ellipse(x,y+1.5,40,12.5,0,0,TAU); c.fill();   /* disc sits a touch low at the rim = blade droop at idle */
   for(let k=0;k<3;k++){ const a=t*2.4+ph+k*2.094; c.strokeStyle='rgba(16,18,14,.55)'; c.lineWidth=1.6; c.beginPath(); c.ellipse(x,y+1.5,38,11.5,0,a,a+.55); c.stroke(); c.strokeStyle='rgba(16,18,14,.25)'; c.lineWidth=1; c.beginPath(); c.ellipse(x,y+1.5,30,9,0,a-.1,a+.35); c.stroke() }
   c.fillStyle='#1c1e16'; c.fillRect(x-1,y-1,3,3); c.restore() }
