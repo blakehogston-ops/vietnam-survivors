@@ -5000,7 +5000,7 @@ function ch46Tick(h,dt){ const g=G,p=g.p, X=C46X; h.t+=dt; h.rot+=dt*34; SeaKnig
   else if(h.ph===1){ h.z=Math.max(0,h.z-dt*(6+h.z*.9)); h.st=h.z>.5?'hover':'landed'; if(h.z<=0){ h.ph=2; h.t2=0; burst(h.x,h.y+6,16,90,.6,3,['#a8946a','#8a7a52'],false) } }
   else if(h.ph===2){ h.t2+=dt; h.st='landed'; if(h.t2>.55){ h.ph=3; h.t2=0; h.st='rampDown'; Snd.play('thud') } }
   else if(h.ph===3){ h.t2+=dt; h.st='rampDown'; const rx=h.x+X.ramp[0], ry=h.y+X.ramp[1];
-    if(state==='intro'&&g.hide&&!h.docOut&&h.t2>.35){ h.docOut=1; if(INTRO&&INTRO.quiet){ g.banner={text:INS2_LINE.who+': "'+INS2_LINE.t+'"',t:3.2,col:'#e8c860'}; try{Snd.play('radio')}catch(e){} } g.hide=false; g.docWalk={x0:rx,y0:ry,x1:p.x,y1:p.y,t:0}; p.x=rx; p.y=ry }
+    if(state==='intro'&&g.hide&&!h.docOut&&h.t2>.35){ h.docOut=1; if(INTRO&&INTRO.quiet){ INTRO.cap0=INTRO.t2; try{Snd.play('radio')}catch(e){} } g.hide=false; g.docWalk={x0:rx,y0:ry,x1:p.x,y1:p.y,t:0}; p.x=rx; p.y=ry }
     if(h.di<h.left){ h.dT-=dt; if(h.dT<=0&&h.t2>.75){ if(coyAlive()<COY.cap){ const j=h.base+h.di, sl=coyFreeSlot(), role=(j===13&&g.char!=='doc'&&CORP.ON)?'corps':Q15.roles[j], hp0=(h.s.hp+Math.min(60,g.t/10))*(1+g.sq.hp)*Q15.HPM, e=X.exit[h.di%X.exit.length], sp=1+Math.floor(h.di/X.exit.length);
           coy.push({role,nm:role==='corps'?'HM3 Fontaine':Q15.names[j],slot:sl,cv:h.di&3,coy:true,pat:true,comp:h.comp,state:'ramp',rt:0,hx:rx,hy:ry,lx:h.x+e[0]-sp*14+(rnd()-.5)*10,ly:h.y+e[1]+((h.di&1)?1:-1)*sp*9,x:rx,y:ry,rz:0,hp:hp0,mhp:hp0,dm:h.s.dm*(1+g.sq.dm),face:-1,anim:rnd()*4,mv:true,cd:.4+rnd()*.5,tg:null,tgT:rnd()*.3,mf:0,hf:0,inv:0,aim:Math.PI,ph:rnd()*TAU,born:g.t});
           h.comp.alive++; h.comp.dr=(h.comp.dr||0)+1; g.cs.dropped++; if(h.comp.alive>g.cs.peak)g.cs.peak=h.comp.alive }
@@ -5830,7 +5830,7 @@ const INTRO2=/[?&]ltbrief=1\b/.test(location.search);   /* ?ltbrief=1 (not ?intr
 const BRIEF2_LINES=[
  {id:'brief2_01',who:'LIEUTENANT',t:"Listen up. Platoon's running a sweep north of Quang Tri. Choppers in, check the villes, out before dark."},
  {id:'brief2_02',who:'LIEUTENANT',t:"S-2 says it's quiet. Don't believe it. Keep your intervals, five meters."},
- {id:'brief2_03',who:'LIEUTENANT',t:"Doc, you're with me. Stay behind the radio."},
+ {id:'brief2_03',who:'LIEUTENANT',t:"Doc, you're with me. Stick close to the radio."},
  {id:'brief2_04',who:'SERGEANT',t:"Saddle up! Lock and load on the LZ, not before."}];
 const INS2_LINE={id:'ins2_01',who:'LIEUTENANT',t:"Off the ramp, set the perimeter!"};
 const B2CPS=34, B2HOLD=1.35;
@@ -5876,8 +5876,12 @@ function drawBrief2(){ const B=BR2; ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle
   ctx.font=`${Math.max(10,fs*.6)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.75)'; ctx.fillText('PRESS ANY KEY / TAP TO SKIP',W-14,H-14);
   ctx.textAlign='left'; ctx.fillStyle='rgba(232,200,96,.8)'; ctx.fillText('NORTH OF QUANG TRI · 1968',ox+14,oy+dh-14) }
 ['keydown','pointerdown','touchstart'].forEach(ev=>window.addEventListener(ev,e=>{ if(state!=='brief2'||!BR2||BR2.t<.3)return; if(ev==='keydown'&&(e.repeat||e.code==='KeyM'||e.metaKey))return; endBrief2() },{passive:true}));
-if(INTRO2){ try{ $('btnBrief').style.display='none' }catch(e){} }   /* Mercer briefing is not reachable on the ?intro2 path */
+if(INTRO2){ try{ $('btnBrief').style.display='none' }catch(e){} }   /* Mercer briefing is not reachable on the ?ltbrief=1 path */
 if(DBG.bot){ window.__ms_ub2=dt=>updateBrief2(dt); window.__ms_i2c=()=>intro2Contact() }   /* test hooks, ?bot only */
+/* the HUD (and G.banner) is not drawn during state 'intro', so the ramp line gets its own caption, same style as the briefing box */
+function drawIns2Cap(){ const I=INTRO; if(!I||!I.quiet||I.ph!==2||I.cap0==null)return; const e=I.t2-I.cap0; if(e<0||e>3.4)return; const a=Math.min(1,e*4,(3.4-e)*3);
+  ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=a; const fs=Math.max(13,Math.min(26,H/26)); ctx.font=`bold ${fs}px "Courier New",monospace`; const txt='"'+INS2_LINE.t+'"', w=Math.max(ctx.measureText(txt).width,ctx.measureText(INS2_LINE.who).width)+fs*2, h=fs*3, x=(W-w)/2, y=H*.72;
+  ctx.fillStyle='rgba(0,0,0,.62)'; ctx.fillRect(x,y,w,h); ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.fillStyle='#e8c860'; ctx.fillText(INS2_LINE.who,x+fs,y+fs*1.15); ctx.fillStyle='#f2efe0'; ctx.fillText(txt,x+fs,y+fs*2.4); ctx.globalAlpha=1 }
 function intro2Contact(){ /* the insert goes bad: fire from the treeline right after the bird lifts */
   try{ const p=G.p, a=rnd()*TAU; for(let i=0;i<6;i++){ const b=a+(i-2.5)*.18, d=360+i*14; spawnEnemy(i%3?'nva':'vc',p.x+Math.cos(b)*d,p.y+Math.sin(b)*d) } }catch(e){}
   try{ Snd.play('radio') }catch(e){} try{ gunny("Contact! Treeline, get down!",2.6,1) }catch(e){}
@@ -7396,7 +7400,7 @@ function frame(now){
   if(state==='play'||(state==='menu'&&G&&G.demo)){ let rem=Math.min(dt,.2); while(rem>1e-6){ const st=Math.min(.05,rem); try{ update(st) }catch(e){ simGuard('update',String(e&&e.message||e)); if(!SIMG.thrown){ SIMG.thrown=1; console.error(e) } } rem-=st; if(state!=='play'&&!(state==='menu'&&G&&G.demo))break } } else { if(dt>.05)dt=.05; }
   try{ simWatch() }catch(e){}
   if(state==='intro')updateIntro(dt); else if(state==='brief')updateBrief(dt); else if(state==='brief2')updateBrief2(dt);
-  hudAbil(); hudSig(); hudTanker(); hudSupport(); Snd.duckTick(); const t0=performance.now(); if(state==='brief'&&BR){ drawBrief() } else if(state==='brief2'&&BR2){ drawBrief2() } else if(state==='intro'&&INTRO&&INTRO.ph===1){ (CAB46&&window.SHEET1&&SHEET1.drawBanter?drawCabin46:drawCargo)(INTRO.t); drawIntroOverlay() } else { render(); if(state==='intro'&&INTRO)drawIntroOverlay() } const rt=performance.now()-t0; pcapTick(rt); perf.frames++;perf.acc+=rt;perf.worst=Math.max(perf.worst,rt);
+  hudAbil(); hudSig(); hudTanker(); hudSupport(); Snd.duckTick(); const t0=performance.now(); if(state==='brief'&&BR){ drawBrief() } else if(state==='brief2'&&BR2){ drawBrief2() } else if(state==='intro'&&INTRO&&INTRO.ph===1){ (CAB46&&window.SHEET1&&SHEET1.drawBanter?drawCabin46:drawCargo)(INTRO.t); drawIntroOverlay() } else { render(); if(state==='intro'&&INTRO){ drawIntroOverlay(); drawIns2Cap() } } const rt=performance.now()-t0; pcapTick(rt); perf.frames++;perf.acc+=rt;perf.worst=Math.max(perf.worst,rt);
   requestAnimationFrame(frame);
 }
 buildSprites(); buildGore(); buildDeathArt(); buildExArt(); buildBubbles(); buildWorldArt(); applySheet(); Snd.setMuted(Snd.muted);
