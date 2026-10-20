@@ -13,7 +13,7 @@ Preview: https://blakehogston-ops.github.io/vietnam-survivors/next/ (the site ro
 - **Line under the timer:** NO SIGNAL → `<COLOR> SMOKE — Nm` with a live arrow → `HOLD FOR LZ — 10:00` → BIRD INBOUND → BIRD LIFTS. Under it: `MARINES n`.
 - **Pad:** a marked circle, telegraphed at 8:00. The bird sets down at 10:00 (or 30 s after a late confirm). Boarding needs Doc plus at least one other living Marine on the circle for 2 s. The bird leaves on its clock (45 s on the deck). Its door gunners work the area around the pad on short final.
 - **Cards:** the death card gives one plain fact. The win card shows GOT ON (names), LOADED (bodies on the pad), LEFT BEHIND, then kills · time · seed in small type. Both keep the service record and the Hogston dedication. `?seed=N` replays a seed, and a fresh launch never repeats the last seed.
-- **Saves:** prefix `lbo2_` (old `lbo_` saves are not read). On a fresh save only Doc is open. The other records open the first time Doc extracts.
+- **Saves:** prefix `lco_` (old `lbo_` saves are not read). On a fresh save only Doc is open. The other records open the first time Doc extracts.
 - **First level-up** is forced: one card, Magnet.
 - **Hidden QA:** `DBG.runLog()` lists per run the first Marine death time, smoke-drop→Doc seconds, and Doc's off-pad seconds during the hold. `DBG.smokeTest=true` draws all four smoke columns.
 - **Art:** Artist Helper sheet 1 (`assets/art/sheet1.js`, `assets/art/huey.js`), swapped in by sheet name (`SHEET_ENEMY`, `SHEET_CHAR`, `SHEET_SMOKE`). A missing sheet name falls back to the old sprite. Tracers: US red, enemy green.

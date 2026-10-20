@@ -1,0 +1,82 @@
+{
+  "name": "last-chopper-out",
+  "version": "0.1.0",
+  "description": "Last Chopper Out - Quang Tri, 1968 (Steam build scaffold)",
+  "main": "main.js",
+  "author": "TODO Your Studio Name",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "start:nosandbox": "electron . --no-sandbox",
+    "test:smoke": "VS_TEST=1 xvfb-run -a electron . --no-sandbox --disable-gpu",
+    "dist:win": "electron-builder --win zip --x64",
+    "dist:linux": "electron-builder --linux dir --x64",
+    "dist:mac": "electron-builder --mac",
+    "dist:win:installer": "electron-builder --win nsis --x64"
+  },
+  "dependencies": {
+    "steamworks.js": "^0.4.0"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.example.lastchopperout",
+    "productName": "Last Chopper Out",
+    "copyright": "TODO",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "title.json",
+      "main.js",
+      "preload.js",
+      "steam.js",
+      "game/**",
+      "build/icon.png",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/steamworks.js/**"
+    ],
+    "extraFiles": [
+      {
+        "from": "steam_appid.txt",
+        "to": "."
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "linux": {
+      "target": [
+        "dir"
+      ],
+      "category": "Game",
+      "icon": "build/icon.png"
+    }
+  }
+}

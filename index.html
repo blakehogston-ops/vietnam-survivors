@@ -372,6 +372,11 @@ body.hudm #rtoHud{max-width:40px;overflow:hidden;white-space:nowrap}body.hudm #r
   <div id="overSvc"></div>
 </div>
 
+<script>/* save-key migration (rename Last Bird Out -> Last Chopper Out): once per browser profile, copy every old lbo2_/lbo2demo_ key to the
+   new lco_/lcodemo_ prefix when the new key is not already set. Old keys are kept (never deleted) so a rollback still finds them. ?lcomig=0 skips it. */
+(function(){ try{ if(/[?&]lcomig=0\b/.test(location.search))return; const L=localStorage; if(L.getItem('lco_migrated'))return; let n=0;
+  const ks=[]; for(let i=0;i<L.length;i++)ks.push(L.key(i)); for(const k of ks){ const m=/^lbo2(demo)?_(.+)$/.exec(k||''); if(!m)continue; const nk=(m[1]?'lcodemo_':'lco_')+m[2]; if(L.getItem(nk)===null){ L.setItem(nk,L.getItem(k)); n++ } }
+  L.setItem('lco_migrated',String(n)); window.__lcoMig=n }catch(e){} })();</script>
 <script>/* ===== Sound Helper cue pack (sound_pack/sound_cues.js, 45 original synth cues, no samples) ===== */
 /*!
  * sound_cues.js - original WebAudio synth cues for a 1968 Vietnam-era pixel survivor game.
@@ -1203,7 +1208,7 @@ body.hudm #rtoHud{max-width:40px;overflow:hidden;white-space:nowrap}body.hudm #r
 <script>
 /* BUILD STAMP: set by tools/stamp.js (run after every code commit; it records that commit's short hash + date). Also the ?v= cache-buster for audio / images / icons. */
 const BUILD={id:'2399611',date:'2026-10-20 08:37 ET',tag:'rc7'}, AV='?v='+BUILD.id;
-/* Quang Tri preview (Stage 1): saves use the lbo2_ prefix; old vs_/lbo_ saves are never read or touched. */
+/* Quang Tri preview (Stage 1): saves use the lco_ prefix; old vs_/lbo_ saves are never read or touched. */
 (()=>{
 'use strict';
 /* ====================== setup ====================== */
@@ -1258,11 +1263,11 @@ resize();
 const TAU=Math.PI*2;
 const intNums=v=>String(v).replace(/\d+\.\d+/g,m=>String(Math.round(+m)));   /* popups never show decimals */
 const TR_US='#ff3b2a', TR_EN='#48f048';   /* tracer convention (Artist Helper / historian): US red, NVA/VC green */
-/* Seeded RNG (Stage 1): one mulberry32 stream per run. Seed shown on the end card; replay with ?seed=N. A fresh launch never repeats the last seed (lbo2_lastseed). Seed-driven content comes later. */
+/* Seeded RNG (Stage 1): one mulberry32 stream per run. Seed shown on the end card; replay with ?seed=N. A fresh launch never repeats the last seed (lco_lastseed). Seed-driven content comes later. */
 let RSEED=0, _rs=1;
 function seedRun(sd){ RSEED=sd>>>0; _rs=RSEED||1 }
 const rnd=()=>{ _rs=(_rs+0x6D2B79F5)|0; let t=Math.imul(_rs^(_rs>>>15),1|_rs); t=(t+Math.imul(t^(t>>>7),61|t))^t; return ((t^(t>>>14))>>>0)/4294967296 };
-function newSeed(){ const q=params.get('seed'); if(q!==null&&q!==''&&!isNaN(+q))return (+q)>>>0; let last=-1; try{ last=+localStorage.getItem('lbo2_lastseed') }catch(e){}
+function newSeed(){ const q=params.get('seed'); if(q!==null&&q!==''&&!isNaN(+q))return (+q)>>>0; let last=-1; try{ last=+localStorage.getItem('lco_lastseed') }catch(e){}
   let sd; do{ sd=(Math.floor(Math.random()*900000)+100000)>>>0 }while(sd===last); return sd }
 seedRun(Math.floor(Math.random()*4294967296));
 const fmt=t=>{t=Math.max(0,Math.floor(t));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
@@ -1285,8 +1290,8 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
     }catch(e){this.ctx=null} try{ SAMP.init(); RMUS.decode() }catch(e){} },
   resume(){ if(this.ctx&&this.ctx.state!=='running'){ try{ const r=this.ctx.resume(); if(r&&r.catch)r.catch(()=>{}) }catch(e){} } },
   vol:{mus:.8,sfx:1},
-  setVol(k,v){ v=+v; if(!isFinite(v))return; v=Math.max(0,Math.min(1,v)); this.vol[k]=v; if(k==='mus'&&this.mbus)this.mbus.gain.value=v; if(k==='sfx'&&this.master)this.master.gain.value=v; try{localStorage.setItem('lbo2_vol_'+k,String(v))}catch(e){} document.querySelectorAll(k==='mus'?'.volM':'.volS').forEach(el=>{el.value=Math.round(v*100)}) },
-  setMuted(m){ this.muted=m; if(this.out)this.out.gain.value=m?0:.55; try{localStorage.setItem('lbo2_mute',m?'1':'0')}catch(e){} window.SKIN&&setTimeout(SKIN.repaint,0); $('btnMute').textContent=m?'🔇':'🔊'; },
+  setVol(k,v){ v=+v; if(!isFinite(v))return; v=Math.max(0,Math.min(1,v)); this.vol[k]=v; if(k==='mus'&&this.mbus)this.mbus.gain.value=v; if(k==='sfx'&&this.master)this.master.gain.value=v; try{localStorage.setItem('lco_vol_'+k,String(v))}catch(e){} document.querySelectorAll(k==='mus'?'.volM':'.volS').forEach(el=>{el.value=Math.round(v*100)}) },
+  setMuted(m){ this.muted=m; if(this.out)this.out.gain.value=m?0:.55; try{localStorage.setItem('lco_mute',m?'1':'0')}catch(e){} window.SKIN&&setTimeout(SKIN.repaint,0); $('btnMute').textContent=m?'🔇':'🔊'; },
   /* air-call sounds share a voice limit: only the 2 newest play at full volume, older ones duck */
   airPlay(kind){ const c=this.ctx; if(!c||!this.master||c.state!=='running')return; { const am=CUEAIR[kind]; if(am&&this.cbus){ this.cue(am[0],am[1]); return } } const now=c.currentTime; this._av=(this._av||[]).filter(v=>v.end>now);
     const bus=c.createGain(); bus.connect(this.master); const m=this.master; this.master=bus; try{ this.play(kind) }finally{ this.master=m }
@@ -1386,7 +1391,7 @@ const Snd={ctx:null,master:null,muted:false,nb:null,last:{},
       case 'medpack': this.tone('sine',784,1047,.1,.14); this.tone('sine',1047,1568,.14,.14,.08); this.tone('triangle',392,392,.2,.06); break;
       case 'heal': this.tone('sine',523,784,.12,.15); this.tone('sine',784,1047,.15,.15,.09); break;
     }}};
-try{Snd.muted=localStorage.getItem('lbo2_mute')==='1'; for(const k of ['mus','sfx']){ const v=localStorage.getItem('lbo2_vol_'+k); if(v!==null&&!isNaN(+v))Snd.vol[k]=Math.max(0,Math.min(1,+v)) }}catch(e){}
+try{Snd.muted=localStorage.getItem('lco_mute')==='1'; for(const k of ['mus','sfx']){ const v=localStorage.getItem('lco_vol_'+k); if(v!==null&&!isNaN(+v))Snd.vol[k]=Math.max(0,Math.min(1,+v)) }}catch(e){}
 
 /* ====================== pixel sprites ====================== */
 const P16=r=>(r+'................').slice(0,16);
@@ -2086,9 +2091,9 @@ function armband(top){ const g=top.map(r=>r.split('')); g[7][2]='A'; g[7][13]='A
 /* LOW EFFECTS (Stage D): on by default on phones/touch devices, persistent (localStorage lbo_lowfx), ?lowfx=1/0 overrides.
    Caps particles / decals / drops, thins rotor wash, lowers the enemy cap (420 vs 700) and mutes tier-3 sound cues. */
 let LOWFX=false; const LOWFX_ON=()=>LOWFX, FXK=()=>LOWFX?.3:1;
-(function(){ let v=null; try{v=localStorage.getItem('lbo2_lowfx')}catch(e){} const touch=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window)||(navigator.maxTouchPoints>0);
+(function(){ let v=null; try{v=localStorage.getItem('lco_lowfx')}catch(e){} const touch=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window)||(navigator.maxTouchPoints>0);
   LOWFX=params.has('lowfx')?params.get('lowfx')!=='0':(v===null?touch:v==='1') })();
-function setLowFx(v,silent){ LOWFX=!!v; if(!silent){ try{localStorage.setItem('lbo2_lowfx',LOWFX?'1':'0')}catch(e){} }
+function setLowFx(v,silent){ LOWFX=!!v; if(!silent){ try{localStorage.setItem('lco_lowfx',LOWFX?'1':'0')}catch(e){} }
   document.querySelectorAll('.lowChk').forEach(c=>{ c.checked=LOWFX }); document.querySelectorAll('.lowTxt').forEach(t=>{ t.textContent=LOWFX?'ON':'OFF' }); window.SKIN&&setTimeout(SKIN.repaint,0); document.querySelectorAll('.lowSw').forEach(w=>w.classList.toggle('off',!LOWFX));
   try{ Cues.setLowEffects(LOWFX) }catch(e){}
   DECAL_CAP=LOWFX?90:380;   /* phone fps gate: scaled decal blits were the late-game cost */ if(decals.length>DECAL_CAP){ decals.length=DECAL_CAP } decalI=0; if(LOWFX&&parts.length>210)parts.length=210 }
@@ -2206,8 +2211,8 @@ function buildGore(){
 }
 const BLOODC=['#5a1712','#43110d','#6e1f17','#2f0d0a'];   /* Blake Oct 20: dark, muted, realistic blood (was bright arcade red) */
 let DECAL_CAP=380;
-let GORE=true; try{GORE=localStorage.getItem('lbo2_gore')!=='0'}catch(e){}
-function setGore(v,silent){ GORE=!!v; try{localStorage.setItem('lbo2_gore',GORE?'1':'0')}catch(e){}
+let GORE=true; try{GORE=localStorage.getItem('lco_gore')!=='0'}catch(e){}
+function setGore(v,silent){ GORE=!!v; try{localStorage.setItem('lco_gore',GORE?'1':'0')}catch(e){}
   const c=document.getElementById('goreChk'),t=document.getElementById('goreTxt'),w=document.getElementById('goreSw'); if(c)c.checked=GORE; if(t)t.textContent=GORE?'ON':'OFF'; if(w)w.classList.toggle('off',!GORE);
   if(!silent&&window.onGoreChange)window.onGoreChange(GORE) }
 function addDecal(x,y,c,life,sc){ if(!GORE)return; const d={x,y,c,l:life,sc:sc||1}; if(decals.length<DECAL_CAP)decals.push(d); else {decals[decalI]=d; decalI=(decalI+1)%DECAL_CAP;} }
@@ -3153,7 +3158,7 @@ const CS=48, head=new Int32Array(4096), nextI=new Int32Array(2400);
 const keys={}; const joy={on:false,id:-1,ox:0,oy:0,x:0,y:0};
 
 function newGame(demo){ N2.reset(); try{ ATM.reset() }catch(e){}
-  let seed=0; if(!demo){ seed=newSeed(); seedRun(seed); try{ localStorage.setItem('lbo2_lastseed',String(seed)) }catch(e){} }
+  let seed=0; if(!demo){ seed=newSeed(); seedRun(seed); try{ localStorage.setItem('lco_lastseed',String(seed)) }catch(e){} }
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
@@ -3690,21 +3695,21 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     if(S.ph==='fight'&&window.ABILITY_ICONS){ const al=r=>men.some(m=>m.role===r&&!m.wia&&!m.on), I=[['callForFire',al('rto')&&!(S.cff&&S.cff.done)],['sniperOverwatch',al('m14')],['enemyMark',sp>0],['claymoreAmbush',al('oz')&&!S.clay],['silentKill',al('oz')]];
       const sz=U>=1.2?24:16, gap=sz+6, x0=W/2-(I.length-1)*gap/2, y0=H*.205+12*U+sz/2; for(let i=0;i<I.length;i++){ ctx.globalAlpha=I[i][1]?1:.35; ABILITY_ICONS.draw(ctx,I[i][0],Math.round(x0+i*gap),Math.round(y0),sz) } ctx.globalAlpha=1 } } };
 
-/* CRUMB (crash forensics, Oct 14): every 2 s of play a small snapshot goes to localStorage (lbo2_crumb, last 40). If a session ends without a clean
+/* CRUMB (crash forensics, Oct 14): every 2 s of play a small snapshot goes to localStorage (lco_crumb, last 40). If a session ends without a clean
    exit (tab / browser crash), the next load shows the last snapshot on the menu and in the console (DBG.lastCrash()) so a tester can paste it. */
-const CRUMB={k:'lbo2_crumb',last:0,
+const CRUMB={k:'lco_crumb',last:0,
   snap(){ const g=G; if(!g||g.demo)return; const now=performance.now(); if(now-this.last<2000)return; this.last=now;
     let sp=null; try{ sp=SamplePlayer.stats?SamplePlayer.stats():null }catch(e){}
     const fps=Math.round((this.fr|0)*1000/Math.max(1,now-(this.l0||now-2000))); this.fr=0; this.l0=now; const c={b:BUILD.id,at:Date.now(),t:+g.t.toFixed(1),ph:g.ex?g.ex.ph:-1,ext:g.ex?+(g.ex.t||0).toFixed(1):0,st:state,en:enemies.length,kills:g.kills|0,mar:(typeof coyAlive==='function'?coyAlive():0),
       pt:parts.length,dc:decals.length,gm:gems.length,bl:bullets.length,heap:performance.memory?Math.round(performance.memory.usedJSHeapSize/1e6):-1,cv:window.__mkN|0,
       bake:(window.SHEET1&&SHEET1.bakeStats)?SHEET1.bakeStats().frames:-1,sv:Snd.vN|0,svd:Snd.vDrop|0,sa:sp?sp.active:-1,mus:MUSX.key,fps,W:W,H:H};
-    try{ const a=JSON.parse(localStorage.getItem(this.k)||'[]'); a.push(c); while(a.length>40)a.shift(); localStorage.setItem(this.k,JSON.stringify(a)); localStorage.setItem('lbo2_clean','0') }catch(e){} },
-  clean(){ try{ localStorage.setItem('lbo2_clean','1') }catch(e){} },
-  check(){ try{ const cl=localStorage.getItem('lbo2_clean'), a=JSON.parse(localStorage.getItem(this.k)||'[]'); if(cl==='0'&&a.length){ const L=a[a.length-1]; this.prev=a.slice(-15);
+    try{ const a=JSON.parse(localStorage.getItem(this.k)||'[]'); a.push(c); while(a.length>40)a.shift(); localStorage.setItem(this.k,JSON.stringify(a)); localStorage.setItem('lco_clean','0') }catch(e){} },
+  clean(){ try{ localStorage.setItem('lco_clean','1') }catch(e){} },
+  check(){ try{ const cl=localStorage.getItem('lco_clean'), a=JSON.parse(localStorage.getItem(this.k)||'[]'); if(cl==='0'&&a.length){ const L=a[a.length-1]; this.prev=a.slice(-15);
         const el=document.createElement('div'); el.id='crashNote'; el.style.cssText='position:fixed;left:8px;bottom:22px;z-index:40;max-width:min(560px,94vw);font:11px monospace;color:#ffcf9a;background:rgba(20,10,6,.9);border:1px solid #a0603a;padding:6px 8px;cursor:pointer';
         el.textContent='Last run ended unexpectedly at '+fmt(L.t)+' (phase '+L.ph+', '+L.en+' enemies, heap '+L.heap+' MB, build '+L.b+'). Click to copy the report for the dev.';
         el.onclick=()=>{ try{ navigator.clipboard.writeText(JSON.stringify(this.prev)); el.textContent='Copied. Paste it to the dev. (click again to hide)'; el.onclick=()=>el.remove() }catch(e){ console.log(JSON.stringify(this.prev)) } };
-        document.body.appendChild(el); console.warn('[LBO] previous session ended unexpectedly; last snapshots:',JSON.stringify(this.prev)) } localStorage.setItem('lbo2_clean','1') }catch(e){} } };
+        document.body.appendChild(el); console.warn('[LBO] previous session ended unexpectedly; last snapshots:',JSON.stringify(this.prev)) } localStorage.setItem('lco_clean','1') }catch(e){} } };
 DBG.lastCrash=()=>CRUMB.prev||null;
 window.addEventListener('pagehide',()=>CRUMB.clean()); document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden')CRUMB.clean() });
 setTimeout(()=>CRUMB.check(),400);
@@ -5128,17 +5133,17 @@ const AIRIDS={boxmission:1,spooky:1,arclight:1,strafe:1,napalm:1,howitzer:1,mort
 const SPECW={boxmission:1,spooky:1,arclight:1,strafe:1,napalm:1,mortar:1,howitzer:1,gunboat:1,huey:1,kc135:1};
 let _eivT=-1,_eiv=false; function enemyInView(){ const t=G.t; if(t===_eivT)return _eiv; _eivT=t; _eiv=false; for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(!e.dead&&onScreen(e,0)){ _eiv=true; break } } return _eiv }
 const AIRCALL={boxmission:1,spooky:1,arclight:1,strafe:1,napalm:1};   // true air support: hard cap + 5 s floor apply. Mortar/howitzer/gunboat are artillery and sit OUTSIDE the cap
-function loadChars(){ let o; try{ o=JSON.parse(localStorage.getItem('lbo2_chars')||'{}')||{} }catch(e){ return {} } return migrateRib(o) }
+function loadChars(){ let o; try{ o=JSON.parse(localStorage.getItem('lco_chars')||'{}')||{} }catch(e){ return {} } return migrateRib(o) }
 /* Oct 8: the gameplay 'moh' award became 'lbo' (Last Bird Out). An already-earned rib.moh keeps the badge under the new id; nothing else carries over. */
 function migrateRib(o){ for(const k in o){ const c=o[k], r=c&&c.rib; if(r&&r.moh){ if(!r.lbo)r.lbo=Object.assign({},r.moh,{from:'moh'}); delete r.moh } else if(r&&('moh' in r))delete r.moh } return o }
-let CHS=loadChars(); window.addEventListener('storage',e=>{ if(e.key==='lbo2_chars')CHS=loadChars() });   /* another tab finished a patrol */
+let CHS=loadChars(); window.addEventListener('storage',e=>{ if(e.key==='lco_chars')CHS=loadChars() });   /* another tab finished a patrol */
 /* debug runs (?t=, &god, ?give, ?char= on a closed record, DBG.give / DBG.grantRibbon during the run) never open records or write records or medals */
 function dbgMark(){ const g=G; if(!g||g.demo)return; if(ALLU||DBG.t>0||DBG.god||DBG.used||params.has('give')||(params.get('char')&&!chOpenRaw(params.get('char'))))g.dbg=true }
-let SEL='doc'; try{SEL=localStorage.getItem('lbo2_char')||'doc'}catch(e){}
+let SEL='doc'; try{SEL=localStorage.getItem('lco_char')||'doc'}catch(e){}
 if(params.get('char'))SEL=params.get('char'); if(!CHD[SEL])SEL='doc';
-/* Stage 1: on a fresh save Doc is the only open record; every other record opens the first time Doc comes home (lbo2_open). */
-function chOpenSave(id){ if(id==='doc')return true; try{ return localStorage.getItem('lbo2_open')==='1' }catch(e){ return false } }
-/* ?all (tester build): every Marine selectable for this session only; nothing is written to the lbo2_ save and the run is a debug run */
+/* Stage 1: on a fresh save Doc is the only open record; every other record opens the first time Doc comes home (lco_open). */
+function chOpenSave(id){ if(id==='doc')return true; try{ return localStorage.getItem('lco_open')==='1' }catch(e){ return false } }
+/* ?all (tester build): every Marine selectable for this session only; nothing is written to the lco_ save and the run is a debug run */
 const ALLU=params.has('all')&&!DEMO;
 /* Blake Oct 15: every character unlocked on /next/ (investor build). Unlock code untouched: set UNLOCK_ALL=false (or ?unlockall=0) to re-enable the gates. Not a debug run (no g.dbg). */
 const UNLOCK_ALL=params.get('unlockall')==='0'?false:(/\/next\//.test(location.pathname)||params.get('unlockall')==='1'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname));
@@ -5147,7 +5152,7 @@ const DOC_ONLY=params.get('doconly')!=='0';
 function chOpen(id){ if(DEMO)return id==='doc'; if(DOC_ONLY&&!ALLU)return id==='doc'; return ALLU||UNLOCK_ALL||chOpenSave(id) }
 const chOpenRaw=id=>chOpenSave(id);
 if(!chOpen(SEL))SEL='doc';
-function saveChars(){ try{localStorage.setItem('lbo2_chars',JSON.stringify(CHS));localStorage.setItem('lbo2_char',SEL)}catch(e){} if(window.onCharsChange)window.onCharsChange() }
+function saveChars(){ try{localStorage.setItem('lco_chars',JSON.stringify(CHS));localStorage.setItem('lco_char',SEL)}catch(e){} if(window.onCharsChange)window.onCharsChange() }
 const chXp=id=>(CHS[id]&&CHS[id].xp)||0;
 function chTier(id){ const x=chXp(id); let t=0; while(t<5&&x>=TIER_XP[t])t++; return t }
 function chMods(id){ const m={}, t=chTier(id); for(let i=0;i<t;i++){ const pm=CHD[id].perks[i].m; for(const k in pm)m[k]=(m[k]||0)+pm[k] } return m }
@@ -5337,7 +5342,7 @@ function buildCharList(){ const el=$('csList'); el.innerHTML='';
   for(const id of CHORDER){ const D=CHD[id], t=chTier(id), b=document.createElement('button'), op=chOpen(id); b.className='tag'+(id===SEL?' sel':'')+(op?'':' lk'); b.dataset.id=id;
     b.innerHTML=`<b${D.card?' style="text-transform:none"':''}>${op?'':'🔒 '}${D.card?D.card[0]:D.nick}</b><i>${D.card?D.card[1]:D.rank+' '+D.nm.split(' ').pop()}</i>${op?`<i class="pips">${'●'.repeat(t)}${'○'.repeat(5-t)}</i>`:'<i class="lkt">Opens when Doc comes home.</i>'}`;
     b.onclick=()=>selectChar(id); el.appendChild(b) } }
-function selectChar(id){ if(!CHD[id])return; const op=chOpen(id); SEL=id; if(op&&chOpenSave(id))try{localStorage.setItem('lbo2_char',SEL)}catch(e){}   /* ?all never saves a pick the real record has not opened */   /* picking a Marine never rewrites the records (a stale tab used to overwrite a finished patrol) */ const D=CHD[id], t=chTier(id), x=chXp(id), c=CHS[id]||{runs:0,best:0,kills:0};
+function selectChar(id){ if(!CHD[id])return; const op=chOpen(id); SEL=id; if(op&&chOpenSave(id))try{localStorage.setItem('lco_char',SEL)}catch(e){}   /* ?all never saves a pick the real record has not opened */   /* picking a Marine never rewrites the records (a stale tab used to overwrite a finished patrol) */ const D=CHD[id], t=chTier(id), x=chXp(id), c=CHS[id]||{runs:0,best:0,kills:0};
   for(const b of $('csList').children)b.classList.toggle('sel',b.dataset.id===id);
   const lo=t?TIER_XP[t-1]:0, hi=t<5?TIER_XP[t]:TIER_XP[4], pct=t>=5?100:Math.round((x-lo)/(hi-lo)*100);
   $('csRec').innerHTML=`<div class="rh"><span>${D.svc||'U.S. MARINE CORPS'} · SERVICE RECORD</span><span>${D.sn?'SN '+D.sn:''}</span></div>
@@ -5672,11 +5677,14 @@ const BriefSnd={nodes:[],hum:null,tk:1,gun:6,on:false,
   blip(){ if(!this.on)return; Snd.noise(.11,.07,3200,2400,'bandpass'); Snd.tone('square',1400,1400,.03,.015,.09) },
   stop(){ const c=Snd.ctx; this.on=false; if(!c){ this.nodes=[]; return } const now=c.currentTime; try{ if(this.hum){ this.hum.gain.cancelScheduledValues(now); this.hum.gain.setValueAtTime(this.hum.gain.value,now); this.hum.gain.linearRampToValueAtTime(0,now+.25) } }catch(e){} const ns=this.nodes, h=this.hum; this.nodes=[]; this.hum=null; setTimeout(()=>{ ns.forEach(n=>{try{n.stop()}catch(e){}}); try{h&&h.disconnect()}catch(e){} },350) } };
 let BR=null, BVOICE=null;
-function pickVoice(){ const vs=(window.speechSynthesis&&speechSynthesis.getVoices())||[]; if(!vs.length){ BVOICE=null; return }
+/* browser TTS is OFF unless ?tts=1 (web and Electron): a missing recording shows the caption and plays the radio-static sting instead */
+const TTS=/[?&]tts=1\b/.test(location.search);
+function ttsCancel(){ if(TTS){ try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} } }
+function pickVoice(){ if(!TTS){ BVOICE=null; return } const vs=(window.speechSynthesis&&speechSynthesis.getVoices())||[]; if(!vs.length){ BVOICE=null; return }
   const en=vs.filter(v=>/^en[-_]/i.test(v.lang)); const us=en.filter(v=>/en[-_]US/i.test(v.lang));
   const male=v=>/david|mark|alex|daniel|fred|james|george|tom\b|guy|ryan|male|google uk english male|microsoft (david|mark|guy)/i.test(v.name)&&!/female|zira|samantha|susan|hazel|aria|jenny|victoria|karen|moira|tessa/i.test(v.name);
   BVOICE=us.find(male)||en.find(male)||us[0]||en[0]||null }
-if(window.speechSynthesis){ try{ speechSynthesis.addEventListener('voiceschanged',pickVoice); pickVoice() }catch(e){} }
+if(TTS&&window.speechSynthesis){ try{ speechSynthesis.addEventListener('voiceschanged',pickVoice); pickVoice() }catch(e){} }
 /* Recorded Colonel voice (audio/brief_01..08.mp3, Blake's recording). Browser speech synthesis is only the FALLBACK if a clip fails to load/decode. */
 const BVOX={n:8,raw:[],dec:[],src:null,gain:null,tok:0,t0:0,dur:0,log:[],
   url(i){ return 'audio/brief_0'+(i+1)+'.mp3'+AV },
@@ -5699,23 +5707,23 @@ const BVOX={n:8,raw:[],dec:[],src:null,gain:null,tok:0,t0:0,dur:0,log:[],
       this.src=s; this.gain=g; this.dur=buf.duration; this.t0=c.currentTime; s.start(); this.log.push({line:i+1,src:'clip'}); onStart() })
     .catch(err=>{ if(tok!==this.tok||!BR)return; this.log.push({line:i+1,src:'fallback',err:String(err&&err.message||err)}); onFail() }) } };
 function briefSpeakTTS(text){ const B=BR; if(!B)return;   /* BR is null once the briefing ends; late speech callbacks must not touch it */
-  B.vox=false; B.ended=false; B.bidx=0; B.voice=false; if(Snd.muted||!window.speechSynthesis||!BVOICE){ return }
-  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.voice=BVOICE; u.lang=BVOICE.lang||'en-US'; u.pitch=0.05; u.rate=0.85; u.volume=Math.max(.15,Math.min(1,Snd.vol.sfx));
+  B.vox=false; B.ended=false; B.bidx=0; B.voice=false; if(!TTS){ if(!Snd.muted){ try{Snd.play('radio')}catch(e){} } BVOX.log.push({src:'caption'}); return } if(Snd.muted||!window.speechSynthesis||!BVOICE){ return }
+  try{ ttsCancel(); const u=new SpeechSynthesisUtterance(text); u.voice=BVOICE; u.lang=BVOICE.lang||'en-US'; u.pitch=0.05; u.rate=0.85; u.volume=Math.max(.15,Math.min(1,Snd.vol.sfx));
     u.onboundary=e=>{ if(BR===B)B.bidx=Math.max(B.bidx,(e.charIndex||0)+(e.charLength||4)) }; u.onend=u.onerror=()=>{ const b=BR; if(b&&b===B)b.ended=true }; B.voice=true; B.utt=u; speechSynthesis.speak(u) }catch(e){ B.voice=false } }
-function briefSpeak(i){ if(!BR)return; const text=BRIEF_LINES[i].t; try{BriefSnd.blip()}catch(e){} if(!BR)return; BR.ended=false; BR.bidx=0; BR.voice=false; BR.vox=false; BR.vwait=0; BVOX.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}
+function briefSpeak(i){ if(!BR)return; const text=BRIEF_LINES[i].t; try{BriefSnd.blip()}catch(e){} if(!BR)return; BR.ended=false; BR.bidx=0; BR.voice=false; BR.vox=false; BR.vwait=0; BVOX.stop(); ttsCancel()
   if(Snd.muted){ BVOX.log.push({line:i+1,src:'muted'}); return }
   if(!Snd.ctx){ BVOX.log.push({line:i+1,src:'tts-noctx'}); briefSpeakTTS(text); return }
   const my=BR; BR.voice=true; BR.vox=true;   /* text reveal is paced by the clip; falls back to speech if it can't load */
   BVOX.play(i,()=>{},()=>{ const b=BR; if(b&&b===my&&b.page===i)b.ended=true },()=>{ const b=BR; if(b&&b===my&&b.page===i)briefSpeakTTS(text) }) }
 function startBrief(){ try{ window.INTRO_V2&&INTRO_V2.reset&&INTRO_V2.reset() }catch(e){} BR={ph:0,page:0,t:0,typed:0,wait:0,ended:true,voice:false,bidx:0,px:0,py:0,pi:0,blip:0};
-  state='brief'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{BVOX.prefetch()}catch(e){} }
-function endBrief(){ BVOX.stop(); BriefSnd.stop(); try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){} try{sessionStorage.setItem('lbo2_briefed','1'); if(BRIEF1)localStorage.setItem('lbo2_briefed','1')}catch(e){} BR=null; state='menu'; $('menu').classList.add('show'); $('topbtns').style.display='none'; last=performance.now() }
+  state='brief'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; ttsCancel(); try{BVOX.prefetch()}catch(e){} }
+function endBrief(){ BVOX.stop(); BriefSnd.stop(); ttsCancel(); try{sessionStorage.setItem('lco_briefed','1'); if(BRIEF1)localStorage.setItem('lco_briefed','1')}catch(e){} BR=null; state='menu'; $('menu').classList.add('show'); $('topbtns').style.display='none'; last=performance.now() }
 function briefBegin(){ if(!BR)return; BR.ph=1; BR.page=0; BR.t=0; BR.typed=0; BR.wait=0; Snd.init(); Snd.resume(); setTimeout(()=>{ if(BR)BriefSnd.start() },120); briefSpeak(0) }
 /* rc6 Gamer #8: auto briefing + tutorial ask are first-launch only (saved in localStorage; ?brief forces it, ?brief1=0 = old per-session). Any key/tap mid-line completes the text instantly. */
 const BRIEF1=!/[?&]brief1=0\b/.test(location.search);
 function briefNext(){ if(!BR)return; if(BR.ph===0){ briefBegin(); return }
   const L=BRIEF_LINES[BR.page]; if(BR.typed<L.t.length){ BR.typed=L.t.length; return }
-  BVOX.stop(); try{speechSynthesis.cancel()}catch(e){}
+  BVOX.stop(); ttsCancel()
   if(!BR)return; if(BR.page>=BRIEF_LINES.length-1){ endBrief(); return }
   BR.page++; BR.t=0; BR.typed=0; BR.wait=0; briefSpeak(BR.page) }
 function updateBrief(dt){ const B=BR; if(!B)return; B.t+=dt; if(B.ph===0)return; BriefSnd.tick(dt);
@@ -5796,7 +5804,7 @@ const TUT={i:0,on:false,ask:false,IMG:{move:1,squad:1,smoke:1,hold:1,gems:1,conf
   ['board','When it lands, get everyone aboard. Nobody gets left behind.'],
   ['fb','At a firebase, use the pull-back lull to regroup before the next wave steps off.'],
   ['bunker','Step into a bunker (E / Y / the button) for cover. You can still shoot.']],
-  open(ask){ this.on=true; this.ask=!!ask; this.i=0; $('tut').classList.add('show'); this.r(); try{localStorage.setItem('lbo2_tutAsk','1')}catch(e){} },
+  open(ask){ this.on=true; this.ask=!!ask; this.i=0; $('tut').classList.add('show'); this.r(); try{localStorage.setItem('lco_tutAsk','1')}catch(e){} },
   close(){ this.on=false; $('tut').classList.remove('show') },
   go(d){ if(this.ask){ if(d>0){ this.ask=false; this.r() } else this.close(); return } const n=this.i+d; if(n<0)return; if(n>=this.C.length){ this.close(); return } this.i=n; this.r() },
   r(){ const q=$('tut').querySelector('.tq');
@@ -5822,7 +5830,7 @@ const KB={ON:!/[?&]photos=0\b/.test(location.search),L:['ch46_auburn','ch53_khes
     a.style.backgroundImage='url(assets/photos/'+k+'.webp)'; a.classList.remove('go'); void a.offsetWidth; a.classList.add('show','go'); b.classList.remove('show'); this.f=1-this.f } };
 window.KB=KB; setInterval(()=>{ if(state==='menu')KB.start(); else if(KB.t)KB.stop() },1000);
 window.addEventListener('keydown',e=>TUT.key(e),true);
-{ const iv=setInterval(()=>{ let a=false; try{a=localStorage.getItem('lbo2_tutAsk')==='1'}catch(e){} if(a||DBG.bot||params.has('autostart')||DBG.t>0||/[?&]notut\b/.test(location.search)){ clearInterval(iv); return }
+{ const iv=setInterval(()=>{ let a=false; try{a=localStorage.getItem('lco_tutAsk')==='1'}catch(e){} if(a||DBG.bot||params.has('autostart')||DBG.t>0||/[?&]notut\b/.test(location.search)){ clearInterval(iv); return }
   if(state==='menu'&&!$('charsel').classList.contains('show')){ clearInterval(iv); TUT.open(true) } },500) }
 
 /* ====================== FIREBASE: radio LZ -> Huey + engineers -> phased build, turrets, sappers, enemy armor ====================== */
@@ -6438,8 +6446,8 @@ function startInbound(){ const g=G,ex=g.ex,lz=ex.pad; ex.ph=4; ex.t=0; ex.padSho
   const a=rnd()*TAU, R=Math.max(VW,VH)*.5+1100; ex.huey={x:lz.x+Math.cos(a)*R,y:lz.y+Math.sin(a)*R,ox:Math.cos(a),oy:Math.sin(a),R,z:90,hd:a+Math.PI,rot:0,mf:[0,0],gcd:[.2,.35],gunner:true,hf:0,hp:1,mhp:0,lift:0,landed:false,ch46:!!(VEH()&&SHEET1.drawEvacBird)};   /* the evac bird is the CH-46 Sea Knight when vehicles.js is loaded */
   newCall(); gunny("Doc, Bird. Inbound to your pad. Pop smoke. Over.",4,1,'BIRD'); Snd.play('radio'); Amb.support(12) }
 /* ---- the pad call: Doc pops his smoke on the circle; Charlie may pop the same colour off the pad; the bird names what it sees ---- */
-const decoyCareer={n:0,last:-99,load(){ try{ this.n=+localStorage.getItem('lbo2_padcalls')||0; this.last=+(localStorage.getItem('lbo2_lastdecoy')??-99) }catch(e){} },
-  save(){ if(G&&G.dbg)return; try{ localStorage.setItem('lbo2_padcalls',String(this.n)); localStorage.setItem('lbo2_lastdecoy',String(this.last)) }catch(e){} } };   /* career pad-call count (debug / ?all runs never write it) */
+const decoyCareer={n:0,last:-99,load(){ try{ this.n=+localStorage.getItem('lco_padcalls')||0; this.last=+(localStorage.getItem('lco_lastdecoy')??-99) }catch(e){} },
+  save(){ if(G&&G.dbg)return; try{ localStorage.setItem('lco_padcalls',String(this.n)); localStorage.setItem('lco_lastdecoy',String(this.last)) }catch(e){} } };   /* career pad-call count (debug / ?all runs never write it) */
 /* pure decoy plan: r = random source, n = the player's pad-call number (1-based), last = call number of the previous decoy, vw/vh = view in world px */
 function decoyPlan(r,n,last,vw,vh,okAt){ const roll=r(), b0=Math.floor((n-1)/3)*3+1, left=b0+3-n;   /* RC3 (QA): exactly 1 decoy per block of 3 pad calls (1-3, 4-6, ...), fresh saves included; never back-to-back */
   if(last>=b0||n-last<=EX.DECOY_GAP||roll>=1/left)return {decoy:false,n,roll};
@@ -6715,13 +6723,13 @@ function deathFact(g){ const ex=g.ex||{}, p=g.p, lh=g.lastHit, who=charNick(g); 
   if((ex.ph===4||ex.ph===5)&&ex.pad&&!onPad(p.x,p.y)){ return 'The pad was '+mDist(ex.pad.x-p.x,ex.pad.y-p.y)+'.' }
   if(lh&&HIT_FACT[lh.src])return who+' went down to '+HIT_FACT[lh.src]+'.'; if(lh&&lh.src&&lh.src.indexOf('boss ')===0)return who+' went down to the '+lh.src.slice(5)+'.';
   return who+' went down at '+fmt(g.t)+'.' }
-const recOpen=()=>{ try{ return localStorage.getItem('lbo2_open')==='1' }catch(e){ return false } };
+const recOpen=()=>{ try{ return localStorage.getItem('lco_open')==='1' }catch(e){ return false } };
 /* ===== P3 (feature/next item 3): hold-out score + local top-10 leaderboard (?score=0), achievements + toast + Steam hook (?ach=0),
    unlockable Marines / Doc loadouts (?unlocks=0). DOC_ONLY stays the public default: other service records only open with ?all. ===== */
 const P3F=k=>!new RegExp('[?&]'+k+'=0\\b').test(location.search);
 const ENDACH=!/[?&]endach=0\b/.test(location.search);
 const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
-  dk(k){ return DEMO?k.replace(/^lbo2_/,'lbo2demo_'):k },   /* DEMO progress never mixes with the full game's */
+  dk(k){ return DEMO?k.replace(/^lco_/,'lcodemo_'):k },   /* DEMO progress never mixes with the full game's */
   ls(k,d){ k=this.dk(k); try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d }catch(e){ return d } }, ss(k,v){ k=this.dk(k); try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} },
   /* ---- run context shared by score + achievements ---- */
   ctx(g,end){ const ex=g.ex||{}, L=(typeof N2!=='undefined'&&N2.log)||{}, win=!!(end&&end.win);
@@ -6734,9 +6742,9 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
     if(c.win){ add('Extracted',1000); add('Wave-offs survived',c.wo*300);
       if(c.call!=null){ if(c.call>=480)add('Late call (high risk)',Math.min(2400,(c.call-360)*6)); else if(c.call<=240)add('Early call (low risk)',150) } }
     const tot=r.reduce((s,q)=>s+q[1],0); return {tot,r} },
-  board(){ return this.ls('lbo2_lb',[]) },
+  board(){ return this.ls('lco_lb',[]) },
   post(c,s){ const b=this.board(); const e={s:s.tot,t:Math.round(c.t),win:c.win,home:c.home,k:c.kills,call:c.call,ch:c.char,lo:c.load,d:new Date().toISOString().slice(0,10),dbg:c.dbg?1:0}; b.push(e);
-    b.sort((a,z)=>z.s-a.s); const top=b.slice(0,10); this.ss('lbo2_lb',top); return top.indexOf(e) },
+    b.sort((a,z)=>z.s-a.s); const top=b.slice(0,10); this.ss('lco_lb',top); return top.indexOf(e) },
   boardHtml(hi){ const b=this.board(); if(!b.length)return '<div class="p3lb">No hold-outs on record yet.</div>';
     return (DEMO?'<div class="p3lbh">DEMO LEADERBOARD · this device</div>':'')+'<table class="p3lb"><tr><th>#</th><th>SCORE</th><th>HELD</th><th>HOME</th><th>RESULT</th><th>DATE</th></tr>'+b.map((e,i)=>`<tr${i===hi?' class="hi"':''}><td>${i+1}</td><td>${e.s.toLocaleString()}</td><td>${fmt(e.t)}</td><td>${e.home}</td><td>${e.win?'EXTRACTED':'DOWN'}${e.dbg?' (debug)':''}</td><td>${e.d}</td></tr>`).join('')+'</table>' },
   css(){ if(this._css)return; this._css=1; const s=document.createElement('style'); s.textContent=
@@ -6753,13 +6761,13 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
     s.r.map(q=>`<div class="row"><span>${q[0]}</span><span>+${q[1].toLocaleString()}</span></div>`).join('')+`<div class="row tot"><span>TOTAL</span><span>${s.tot.toLocaleString()}</span></div>`+
     `<div style="text-align:center;margin-top:6px"><button class="btn alt" id="p3lbBtn" style="font-size:12px;padding:4px 10px">Leaderboard</button></div><div id="p3lbBox" style="display:none">${this.boardHtml(rank)}</div></div>` },
   onOver(win,why){ const g=G; if(!g||g.demo)return; const c=this.ctx(g,{win,why}); let html='';
-    if(this.SC){ this.css(); const s=this.score(c); c.score=s.tot; const rank=this.post(c,s); const best=this.ls('lbo2_hiscore',0); if(s.tot>best)this.ss('lbo2_hiscore',s.tot); html=this.endHtml(c,s,rank) }
+    if(this.SC){ this.css(); const s=this.score(c); c.score=s.tot; const rank=this.post(c,s); const best=this.ls('lco_hiscore',0); if(s.tot>best)this.ss('lco_hiscore',s.tot); html=this.endHtml(c,s,rank) }
     if(this.ACH)this.check(c);
     if(this.ACH&&ENDACH){ this.css(); const ra=this.runAch||[]; html+='<div class="p3sc" id="p3runAch"><div class="row"><b>ACHIEVEMENTS THIS RUN'+(DEMO?' · DEMO':'')+'</b><span>'+ra.length+'</span></div>'+(ra.length?ra.map(a=>'<div class="row"><span>&#9733; '+a.name+'</span><span style="opacity:.7">'+a.desc+'</span></div>').join(''):'<div class="row"><span style="opacity:.7">none this time</span></div>')+'</div>' }   /* rc6 Gamer #9 (?endach=0) */
     if(html){ $('stats').insertAdjacentHTML('beforeend',html); const b=$('p3lbBtn'); if(b)b.onclick=()=>{ const x=$('p3lbBox'); x.style.display=x.style.display==='none'?'block':'none' } } },
   /* ---- (b) achievements ---- */
-  got(){ return this.ls('lbo2_ach',{}) },
-  unlock(a){ const m=this.got(); if(m[a.id])return false; m[a.id]=Date.now(); this.ss('lbo2_ach',m); (this.runAch||(this.runAch=[])).push(a); this.toast(a); this.steam(a.id); return true },
+  got(){ return this.ls('lco_ach',{}) },
+  unlock(a){ const m=this.got(); if(m[a.id])return false; m[a.id]=Date.now(); this.ss('lco_ach',m); (this.runAch||(this.runAch=[])).push(a); this.toast(a); this.steam(a.id); return true },
   steam(id){ if(DEMO)return; try{ const sw=window.steamworks; if(sw){ if(sw.achievement&&sw.achievement.activate)sw.achievement.activate(id); else if(sw.activateAchievement)sw.activateAchievement(id); return } const gw=window.greenworks; if(gw&&gw.activateAchievement)gw.activateAchievement(id,()=>{},()=>{}) }catch(e){} },
   toast(a){ (this.tq||(this.tq=[])).push(a); this.pump() },
   pump(){ const w=$('p3toast'); if(!this.tq.length||(w&&w.children.length>=(innerWidth<700?1:3)))return; this.show(this.tq.shift()); setTimeout(()=>this.pump(),900) },
@@ -6775,16 +6783,16 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
     {id:'m79',nm:'Grenadier',ds:'Starts with the M79. -1 battle dressing, -10% squad HP.',req:{score:8000},fx:g=>{ if(!g.w.m79)g.w.m79={lvl:1,cd:.2,tick:0}; g.medInv=Math.max(0,(g.medInv|0)-1); g.sq.hp-=.1 }},
     {id:'gun',nm:'Gun Team',ds:'Starts with the M60. -20 max HP.',req:{ach:'all_home'},fx:g=>{ if(!g.w.m60)g.w.m60={lvl:1,cd:.2,tick:0}; g.hpB=(g.hpB||0)-20 }}],
   MREQ:{hammer:'first_out',boone:'hold_10',skipper:'moh_one',zippo:'night_hold',rat:'sapper_stop',radio:'late_call',preacher:'all_home',chef:'score_15k'},
-  reqOk(r){ if(!r)return true; if(DEMO)return false; if(r.ach)return !!this.got()[r.ach]; if(r.score)return this.ls('lbo2_hiscore',0)>=r.score; return false },
+  reqOk(r){ if(!r)return true; if(DEMO)return false; if(r.ach)return !!this.got()[r.ach]; if(r.score)return this.ls('lco_hiscore',0)>=r.score; return false },
   reqTx(r){ if(!r)return ''; if(DEMO)return 'Full game'; if(r.ach){ const a=ACH.find(q=>q.id===r.ach); return 'Earn "'+(a?a.name:r.ach)+'"' } return 'Hold-out score '+r.score.toLocaleString() },
-  cur(){ if(DEMO)return 'std'; const id=this.ls('lbo2_loadout','std'), L=this.LO.find(q=>q.id===id); return L&&this.reqOk(L.req)?id:'std' },
+  cur(){ if(DEMO)return 'std'; const id=this.ls('lco_loadout','std'), L=this.LO.find(q=>q.id===id); return L&&this.reqOk(L.req)?id:'std' },
   loadout(){ const g=G; if(!this.UNL||!g||g.demo||g.char!=='doc')return; const L=this.LO.find(q=>q.id===this.cur()); if(L){ L.fx(g); g.loadout=L.id; try{ applyPassives(); g.p.hp=g.p.maxHp }catch(e){} } },
   panel(){ if(!this.UNL)return; this.css(); const cs=$('charsel'); if(!cs)return; let el=$('p3unl'); if(!el){ el=document.createElement('div'); el.id='p3unl'; const bt=cs.querySelector('.cs-btns'); cs.insertBefore(el,bt) }
     const cur=this.cur(), got=this.got(), n=Object.keys(got).length;
-    el.innerHTML=(DEMO?'<div class="p3demo">DEMO · Doc with the standard kit. Loadouts and the other Marines are in the full game.</div>':'')+'<div><b>DOC\'S LOADOUT</b> <small>('+n+'/'+ACH.length+' achievements'+(DEMO?' in this demo':'')+' · best score '+this.ls('lbo2_hiscore',0).toLocaleString()+')</small></div>'+
+    el.innerHTML=(DEMO?'<div class="p3demo">DEMO · Doc with the standard kit. Loadouts and the other Marines are in the full game.</div>':'')+'<div><b>DOC\'S LOADOUT</b> <small>('+n+'/'+ACH.length+' achievements'+(DEMO?' in this demo':'')+' · best score '+this.ls('lco_hiscore',0).toLocaleString()+')</small></div>'+
       this.LO.map(L=>{ const ok=this.reqOk(L.req); return `<span class="lo${L.id===cur?' sel':''}${ok?'':' lk'}" data-lo="${L.id}" title="${L.ds}">${ok?'':'🔒 '}${L.nm}<br><small>${ok?L.ds:this.reqTx(L.req)}</small></span>` }).join('')+
       '<div style="margin-top:6px"><b>SERVICE RECORDS</b> <small>'+(DEMO?'(full game)':DOC_ONLY&&!ALLU?'(this build deploys Doc only)':'')+'</small><br>'+CHORDER.filter(k=>k!=='doc').map(k=>{ const r=this.MREQ[k], ok=!!got[r]; return `<small>${ok?'✓':'🔒'} ${(CHD[k]&&CHD[k].nick)||k}: ${this.reqTx({ach:r})}</small>` }).join(' · ')+'</div>';
-    for(const b of el.querySelectorAll('.lo'))b.onclick=()=>{ const L=this.LO.find(q=>q.id===b.dataset.lo); if(!L||!this.reqOk(L.req))return; this.ss('lbo2_loadout',L.id); this.panel() } } };
+    for(const b of el.querySelectorAll('.lo'))b.onclick=()=>{ const L=this.LO.find(q=>q.id===b.dataset.lo); if(!L||!this.reqOk(L.req))return; this.ss('lco_loadout',L.id); this.panel() } } };
 /* Achievement table (Vet review list: /workspace/proof/next_item3/achievements.txt). live:true = checked during the run; others at the end of a run. */
 const ACH=[
   {id:'boots',name:'Boots on the Ground',desc:'Hold for one minute after insertion.',live:1,cond:c=>c.t>=60},
@@ -6826,7 +6834,7 @@ function gameOver(win,why){ state='over'; overAt=performance.now(); const g=G, e
   if(!win)(MUSX.has('loss')||Snd.play('over'));
   if(!why){ spawnDrops(g.p.x,g.p.y-6,0,0,40,200); addDecal(g.p.x,g.p.y+6,SPLAT[6],90,1.8); addDecal(g.p.x,g.p.y+8,CORPSE.marine[0],90,1) }
   RUNLOGS.push(runLogOf(g)); if(RUNLOGS.length>50)RUNLOGS.shift();
-  dbgMark(); let opened=false; if(!g.dbg&&!g.demo)try{ const best=+localStorage.getItem('lbo2_best')||0; if(g.t>best)localStorage.setItem('lbo2_best',String(g.t)); if(win&&!g.demo){ if(!DBG.bot)localStorage.setItem('lbo2_evacs',String((+localStorage.getItem('lbo2_evacs')||0)+1)); if(g.char==='doc'&&!recOpen()){ localStorage.setItem('lbo2_open','1'); opened=true } } }catch(e){}
+  dbgMark(); let opened=false; if(!g.dbg&&!g.demo)try{ const best=+localStorage.getItem('lco_best')||0; if(g.t>best)localStorage.setItem('lco_best',String(g.t)); if(win&&!g.demo){ if(!DBG.bot)localStorage.setItem('lco_evacs',String((+localStorage.getItem('lco_evacs')||0)+1)); if(g.char==='doc'&&!recOpen()){ localStorage.setItem('lco_open','1'); opened=true } } }catch(e){}
   const aw=awardRun(true), sm=t=>`<div class="ocsm">${t}</div>`, seedTx='Seed '+g.seed, D=CHD[g.char]||CHD.doc;
   if(win){ $('overTitle').textContent='EXTRACTED — THE BIRD IS OUT'; $('rank').textContent='';
     const on=[D.nick+' ('+D.rank+' '+D.nm.split(' ').pop()+')'].concat((ex.gotOn||[]).filter(n=>!(g.kiaL||[]).includes(n)&&!(ex.loaded||[]).includes(n)));
@@ -6857,7 +6865,7 @@ function serviceCard(aw){ if(!aw)return ''; const D=CHD[aw.id], c=CHS[aw.id]||{}
    (earned.length?`<div class="srstrip">${earned.map(k=>`<img src="${k==='lbo'?ribURL(k,false,1):ribURL(k,false,2)}" class="${k==='lbo'?'bdg':''}" title="${RIB[k].nm}${fresh.indexOf(k)>=0?' (NEW)':''}" alt="${RIB[k].nm}" style="${fresh.indexOf(k)>=0?'outline:2px solid #ffd54a':''}">`).join('')}</div>`:'')+
    (fresh.length?'<div class="newrib">'+fresh.slice().sort((a,b)=>RIB_ORDER.indexOf(a)-RIB_ORDER.indexOf(b)).map(k=>`<div class="nr${k==='lbo'?' bdg':''}"><img src="${k==='lbo'?ribURL(k,false,1):ribURL(k,true,3)}" alt=""><span><b>NEW: ${RIB[k].nm}</b><br>${RIB[k].how}</span></div>`).join('')+'</div>':'')+
    `</div>` }
-function showBest(){ let b=0; try{b=+localStorage.getItem('lbo2_best')||0}catch(e){} let ev=0; try{ev=+localStorage.getItem('lbo2_evacs')||0}catch(e){} $('best').textContent=(b?('Best survival: '+fmt(b)):'')+(ev?(b?' · ':'')+'Evacuations: '+ev:''); }
+function showBest(){ let b=0; try{b=+localStorage.getItem('lco_best')||0}catch(e){} let ev=0; try{ev=+localStorage.getItem('lco_evacs')||0}catch(e){} $('best').textContent=(b?('Best survival: '+fmt(b)):'')+(ev?(b?' · ':'')+'Evacuations: '+ev:''); }
 $('btnStart').onclick=openCharSel; $('btnRestart').onclick=startGame; $('btnMenu').onclick=toMenu; $('btnResume').onclick=resumeGame; $('btnQuit').onclick=toMenu; $('btnPause').onclick=()=>{state==='play'?pauseGame():resumeGame()};
 document.querySelectorAll('.volM,.volS').forEach(el=>{ const k=el.classList.contains('volM')?'mus':'sfx'; el.value=Math.round(Snd.vol[k]*100); el.addEventListener('input',e=>{ Snd.setVol(k,e.target.value/100) }); el.addEventListener('keydown',e=>e.stopPropagation()); el.addEventListener('pointerdown',e=>e.stopPropagation()) });
 $('btnMute').onclick=()=>{Snd.init();Snd.resume();Snd.setMuted(!Snd.muted)};
@@ -7273,7 +7281,7 @@ buildSprites(); buildGore(); buildDeathArt(); buildExArt(); buildBubbles(); buil
 if(DBG.nodemo){ G=null; newGame(false); } else newGame(true);
 showBest();
 if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
-{ let bd=false; try{bd=sessionStorage.getItem('lbo2_briefed')==='1'||(BRIEF1&&localStorage.getItem('lbo2_briefed')==='1')}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
+{ let bd=false; try{bd=sessionStorage.getItem('lco_briefed')==='1'||(BRIEF1&&localStorage.getItem('lco_briefed')==='1')}catch(e){} if(params.has('brief')||(!bd&&!DBG.nodemo&&!DBG.nointro&&!DBG.nobrief&&!(DBG.t>0)&&!DBG.bot&&!params.has('autostart')))startBrief(); }
 try{ ZMON.warm() }catch(e){}
 DBG.zmon=()=>callBoat(Object.assign({hold:30,range:420,d50:20,d60:12,cd:60},{}),true);
 window.__ms={gunny:(...a)=>gunny(...a),hurtMember:(m,d)=>hurtMember(m,d),spawn:(t,x,y)=>spawnEnemy(t,x,y),get genChoices(){return genChoices},get ZIS(){return ZIS},get JG(){return JG},get P3(){return P3},get ACH(){return ACH},get gameOver(){return gameOver},get openCharSel(){return openCharSel},get N2(){return N2},get EXc(){return EX},get Q46(){ return {startGame,coyH,coy,INTRO,G,state,sel:v=>{SEL=v}} },get SAMP(){return SAMP},get Snd(){return Snd},get MOH(){return MOH},get FBO(){return FBO},get URG(){return URG},get MAGS(){return MAGS},get IMP(){return IMP},get FIELD(){return FIELD},get GUNS(){return GUNS},get MEDV(){return MEDV},get CREWX(){return CREWX},useAb(){ return useAbility() },openConfirm(a){ openConfirm(a) },pick(i){ if(state==='levelup')pickChoice(i|0); return state },answer(y){ if(state==='sig'){ clearTimeout(SIGASK.q); answerSignal(!!y) } return state },get BARK(){return BARK},get KIA(){return KIA},get ZMON(){return ZMON},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro,startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
