@@ -198,7 +198,7 @@ function drawScreen(ctx){ const t0=performance.now(), w=S.w,h=S.h,low=S.low; ctx
    Draw it right after the world sprites and BEFORE drawWorldOverlay. One fill per flare; elongated ellipses that swing with the pendulum. */
 function flareShadow(x,y){ let best=null,bv=0; for(const f of S.F) if(f.on&&f.k>0){ const gx=f.x, gy=f.y+f.alt*.15, d2=(gx-x)**2+(gy-y)**2; if(d2>f.R*f.R)continue; const v=f.k*(1-Math.sqrt(d2)/f.R); if(v>bv){bv=v;best=f} } if(!best)return null;
   const f=best, gx=f.x, gy=f.y+f.alt*.15, dx=x-gx, dy=y-gy, d=Math.hypot(dx,dy)||1, alt=Math.max(60,f.alt*(1-f.t/f.life*.7));
-  const len=Math.min(9,d/alt*4+.8); return {dx:dx/d, dy:dy/d, len, ang:Math.atan2(dy,dx), a:clamp(.25+bv*.8,0,.65)} }
+  const len=Math.min(2.2,d/alt*1.6+.6); return {dx:dx/d, dy:dy/d, len, ang:Math.atan2(dy,dx), a:clamp(.18+bv*.5,0,.42)} }   /* rc7.1 (Junior Play Tester, 7:55 night): was up to 9x unit height = long dark streaks over units; capped at 2.2x, lighter */
 function drawFlareShadows(ctx,camX,camY,zoom,units){ if(!units||!units.length)return; zoom=zoom||1; let any=false; for(const f of S.F) if(f.on&&f.k>0){any=true;break} if(!any)return;
   ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#05070a'; const max=S.low?60:240, w=S.w,h=S.h;
   for(let i=0;i<units.length&&i<max;i++){ const u=units[i], X=(u.x-camX)*zoom, Y=(u.y-camY)*zoom; if(X<-200||Y<-200||X>w+200||Y>h+200)continue; const s=flareShadow(u.x,u.y); if(!s)continue;
