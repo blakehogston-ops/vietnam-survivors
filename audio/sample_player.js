@@ -38,7 +38,7 @@
   // out: which internal output the slot uses ('sfx' -> sfxBus, 'rotor' -> rotorBus or sfxBus).
   var SLOTS = {
     huey_rotor_loop:    { cat: 'rotor',     prio: 5, gain: 0.394, out: 'rotor', loop: true },
-    huey_flyby:         { cat: 'rotor',     prio: 5, gain: 0.5576, out: 'rotor', fallback: 'medevacHuey' },
+    huey_flyby:         { cat: 'rotor',     prio: 5, gain: 0.5576, out: 'rotor' },
     // aircraft (Blake approved 2026-10-07, batch 2): not guns, never in the gunshot cap. flyby(type) plays them.
     jet_flyby:          { cat: 'air',       prio: 4, gain: 0.5605 },                                  // STAND-IN F-4/F-5 low pass; before the bomb
     skyraider_flyby:    { cat: 'air',       prio: 4, gain: 0.516 },                                  // A-1H (P-47D mixed in)
@@ -79,7 +79,7 @@
     bomb_distant:       { cat: 'explosive', prio: 4, gain: 0.4513, vary: true },
     flamethrower_loop:  { cat: 'fire',      prio: 3, gain: 0.4582, loop: true },
     flamethrower_burst: { cat: 'fire',      prio: 3, gain: 0.4866, vary: true },
-    radio_squelch:      { cat: 'radio',     prio: 3, gain: 0.370, vary: true, fallback: 'radioSquelch' },
+    radio_squelch:      { cat: 'radio',     prio: 3, gain: 0.370, vary: true },
     // ---- week of 2026-10-14 (build_weapons_oct14.py). Every shot slot is cat 'gun' (6-gunshot cap). Gains calibrated
     // to TARGET_POST in samples/measure_levels.py: rifles under the Huey, bomb and Gunny; bomb_distant stays loudest.
     bolt_rifle_shot:    { cat: 'gun',       prio: 2, gain: 0.1023, vary: true },                // M40 / Springfield (.308 Remington 700)
