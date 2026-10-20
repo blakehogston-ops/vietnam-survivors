@@ -2622,13 +2622,15 @@ function updateIns(dt){
 }
 const TALLM=m=>{ const S=window.SHEET1; if(!S||!S.marinesTall||!S.drawMarine)return null; const nm=m.coy?S.MARINE_COY[(m.cv|0)%S.MARINE_COY.length]:(S.MARINE_ROLE[m.role]||'marineRifle'), sp=S.sprites[nm]; return sp?{h:sp.h,grip:sp.gripY||16}:null };   /* labels/HP bars use the sprite's .h */
 /* rc7 #1: unit contrast. A soft 1 px dark outline (cached per sprite frame / per sprite canvas) behind Marines + enemies so they separate from the ground; at night a faint cool rim instead. ?unitrim=0 off, ?rimA=X alpha */
-window.RIMX=null; const RIM={ON:!/[?&]unitrim=0\b/.test(location.search),A:+params.get('rimA')||.55,AN:+params.get('rimN')||.4,on:false,M:new Map(),LT:[],   /* v2 (Artist Helper): day #1a1c12 @.55 on the side away from the light (down-right); night: dark rim @.4 ONLY inside flare/fire light, none outside; Doc never */
+const RIMS2D=1;
+window.RIMX=null; const RIM={ON:!/[?&]unitrim=0\b/.test(location.search),A:+params.get('rimA')||.9,AN:+params.get('rimN')||1,on:false,M:new Map(),LT:[],   /* v3 (Hauptman): all-round 1 px #1a1c12 @.9 by day, @1 at night ONLY inside flare/fire light (v2 was one-sided .55/.4, below the rim-off edge metric) ONLY inside flare/fire light, none outside; Doc never */
   night(){ return typeof ATM!=='undefined'&&ATM.ON&&!!G&&ATM.hourAt(G.t)>=19 },
   lit(x,y){ try{ if(window.VFX_ATMO&&VFX_ATMO.flareShadow(x,y))return true }catch(e){} const t=G?G.t:0; for(const l of this.LT)if(t-l.t<.3&&(l.x-x)*(l.x-x)+(l.y-y)*(l.y-y)<l.r*l.r*.5)return true; return false },
   ua(x,y){ return this.night()?(this.lit(x,y)?this.AN:0):this.A },
   hook(){ const V=window.VFX_ATMO; if(!V||V._rimH)return; V._rimH=1; const o=V.addLight, R=this; V.addLight=function(x,y,rad,col,i,ttl){ if(typeof rad==='string'&&rad!=='muzzle'){ const P=V.PRESET[rad]; if(P){ R.LT.push({x,y,r:P[1]*(typeof col==='number'?col:1),t:G?G.t:0}); if(R.LT.length>64)R.LT.shift() } } return o.apply(this,arguments) } },
+  S2:params.get('rimS')==='1'?0:params.get('rimS')==='2'?1:RIMS2D, OFF(){ return this.S2?[[1,0],[0,1],[1,1],[-1,0],[0,-1],[-1,-1],[1,-1],[-1,1]]:[[1,0],[0,1],[1,1]] },   /* v3: ?rimS=1 one-sided (v2), ?rimS=2 all-round */
   col(){ return '#1a1c12' },
-  dil(src,col){ const w=src.width+4,h=src.height+4,t=mk(w,h),x=t.getContext('2d'); x.imageSmoothingEnabled=false; for(const [dx,dy] of [[1,0],[0,1],[1,1]])x.drawImage(src,2+dx,2+dy); x.globalCompositeOperation='source-in'; x.fillStyle=col; x.fillRect(0,0,w,h); return t },
+  dil(src,col){ const w=src.width+4,h=src.height+4,t=mk(w,h),x=t.getContext('2d'); x.imageSmoothingEnabled=false; for(const [dx,dy] of this.OFF())x.drawImage(src,2+dx,2+dy); x.globalCompositeOperation='source-in'; x.fillStyle=col; x.fillRect(0,0,w,h); return t },
   can(c){ const k=this.col(); if(!c._rim||c._rimK!==k){ c._rim=this.dil(c,k); c._rimK=k } return c._rim },   /* enemy sprite canvases */
   draw(c,x,y,w,h){ if(!this.ON)return; const a=this.ua(x+w/2,y+h); if(a<=0)return; const o=this.can(c), sx=w/c.width, sy=h/c.height; ctx.save(); ctx.globalAlpha*=a; ctx.drawImage(o,x-2*sx,y-2*sy,o.width*sx,o.height*sy); ctx.restore() },
   alpha(){ return this.night()?this.AN:this.A },
