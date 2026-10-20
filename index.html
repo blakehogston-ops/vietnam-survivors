@@ -3182,7 +3182,7 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
   teamN(g){ return this.SURGE?Math.floor(this.esc(g)*3):0 },
   wave(g){ const e=this.esc(g), p=g.p; if(this.SURGE&&e>.45&&!PACE.hold(g)){ const n=Math.min(Math.max(0,enemyCap(g)-enemies.length),Math.round(4+10*(e-.45)/.55)), a0=rnd()*TAU, R=Math.hypot(VW,VH)/2+90;   /* late surge: a rush on top of the fire teams */
       for(let i=0;i<n;i++){ const a=a0+(rnd()-.5)*1.6; spawnEnemy(rnd()<.5?'vc':'nva',p.x+Math.cos(a)*(R+rnd()*80),p.y+Math.sin(a)*(R+rnd()*80),true) } }
-    if(this.SAP&&g.t>90&&(!this.SAPT||this.night()||rnd()<.15))this.sappers(g) },
+    if(this.SAP&&g.t>90&&(!this.SAPT||rnd()<(this.night()?.45:.15)))this.sappers(g) },
   /* (b) barrage: 'INCOMING!' + whistle, red rings on the impact spots ~2 s before each round lands */
   barrage(g){ if(!this.BAR||g.demo||!g.char)return; const p=g.p, e=this.esc(g), cal=this.CAL&&rnd()<.4?60:82, n=(cal===60?4:3)+Math.round(e*5), L=this.TH?3.2:0, tgts=[p];   /* NVA 82mm (heavier, fewer) or 60mm (lighter, more rounds) */ for(const m of coy)if(m.hp>0&&m.state==='ok'&&!m.hid)tgts.push(m);
     for(let i=0;i<n;i++){ const T=tgts[(rnd()*tgts.length)|0], a=rnd()*TAU, r=(T===p?70:30)+rnd()*170; let x=T.x+Math.cos(a)*r, y=T.y+Math.sin(a)*r; if(riverAt(x,y)){ x=T.x-Math.cos(a)*r; y=T.y-Math.sin(a)*r }
