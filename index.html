@@ -6724,7 +6724,7 @@ function drawExHud(U,camX,camY,tt){ const g=G,p=g.p,ex=g.ex; exStack=0; if(!ex||
     const talking=m.t<m.text.length/40+.2, fr=talking?(1+Math.floor(tt*9)%2):0; if(GUNNY&&m.who!=='DOC'){ ctx.imageSmoothingEnabled=false; ctx.drawImage(GUNNY[m.who==='GUNNY'?fr:3],bx+8*U,y+7*U,pw,ph) } else if(m.who==='DOC'){ ctx.fillStyle='#1c2414'; ctx.fillRect(bx+8*U,y+7*U,pw,ph); ctx.fillStyle='#e8c030'; ctx.font='bold '+Math.round(11*U)+'px monospace'; ctx.textAlign='center'; ctx.fillText('HM3',bx+8*U+pw/2,y+7*U+ph*.6) }   /* Doc's own radio reply: no pilot portrait */
     ctx.strokeStyle='#c8c8c8'; ctx.lineWidth=1.5*U; ctx.strokeRect(bx+8*U,y+7*U,pw,ph);
     if(m.t<.5||Math.random()<.03){ ctx.fillStyle='rgba(255,255,255,.16)'; for(let i=0;i<20;i++)ctx.fillRect(bx+4+Math.random()*(bw-8),y+4+Math.random()*(bh-8),3*U,Math.random()*2*U+1) }
-    ctx.textAlign='left'; ctx.fillStyle='#e8c030'; ctx.fillText(HUDM.on?(m.who==='GUNNY'?'GUNNY':m.who==='DOC'?'DOC':m.who):m.who==='GUNNY'?'GySgt "GUNNY" HOLLIS, USMC':m.who==='DOC'?'DOC (YOU)':m.who,bx+pw+16*U,y+(HUDM.on?13:16)*U);
+    ctx.textAlign='left'; ctx.fillStyle='#e8c030'; ctx.fillText(HUDM.on?(m.who==='GUNNY'?'GUNNY':m.who==='DOC'?'DOC':m.who):m.who==='GUNNY'?'GySgt "GUNNY" MABRY, USMC':m.who==='DOC'?'DOC (YOU)':m.who,bx+pw+16*U,y+(HUDM.on?13:16)*U);
     ctx.fillStyle='#f6f6e6'; const shown=Math.floor(m.t*40); let idx=0; const full=m.text; lines.forEach((L,i)=>{ const at=Math.max(idx,full.indexOf(L,idx)); const part=L.slice(0,Math.max(0,shown-at)); ctx.fillText(part,bx+pw+16*U,y+(HUDM.on?(26+i*12):(32+i*15))*U); idx=at+L.length });   /* RC5.1: find each wrapped line in the text (double spaces no longer shift the typewriter) */
     ctx.globalAlpha=1; y+=bh+4*U }
   exStack=y-exTop(U) }
