@@ -6648,9 +6648,11 @@ function cbMark(col,x,y,tt,fade){ return;   /* rc8 AD: no patterns painted on th
   else { ctx.globalAlpha=.5*fade; ctx.strokeStyle='#1a0f2a'; ctx.lineWidth=3; const o=(tt*14)%12; ctx.beginPath(); for(let k=-160;k<80;k+=12){ ctx.moveTo(x-30,y+k+o); ctx.lineTo(x+30,y+k+o-30) } ctx.stroke() }
   ctx.restore() }
 function drawSigFx(x,y,kind,col,tt,fade){ if(window.DBG_NOSMOKE)return; const c=SIGC[col]; ctx.save();
-  if(kind==='smoke'&&drawSheetSmoke(col,x,y,tt,fade)){ cbMark(col,x,y,tt,fade); smokeTag(col,x,y,fade) }
-  else if(kind==='smoke'){ const N=18; for(let i=0;i<N;i++){ const u=(tt*.4+i/N)%1, h=u*170, r=9+u*30, sway=Math.sin(tt*1.1+i*1.9)*u*18+u*u*26; ctx.globalAlpha=Math.min(1,u*9)*(1-u*u)*.82*fade; ctx.fillStyle=c; ctx.beginPath(); ctx.arc(x+sway,y-6-h,r,0,TAU); ctx.fill();
-      ctx.globalAlpha*=.35; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(x+sway-r*.3,y-6-h-r*.3,r*.55,0,TAU); ctx.fill() }
+  if(kind==='smoke'&&/[?&]smksheet=1\b/.test(location.search)&&drawSheetSmoke(col,x,y,tt,fade)){   /* rc8 AD: sprite-sheet columns read cartoony; soft M18 puffs are the default (?smksheet=1 = old sheet) */ cbMark(col,x,y,tt,fade); smokeTag(col,x,y,fade) }
+  else if(kind==='smoke'){ const N=26; for(let i=0;i<N;i++){ const u=(tt*.32+i/N)%1, h=u*150, r=7+u*34+Math.sin(i*2.3)*3, sway=Math.sin(tt*.9+i*1.9)*u*10+u*u*48;   /* soft billowing M18 column, leaning down-wind */
+      const px=x+sway, py=y-6-h, a0=Math.min(1,u*7)*(1-u)*(1-u*.4)*.6*fade, gr=ctx.createRadialGradient(px,py,r*.15,px,py,r); gr.addColorStop(0,c); gr.addColorStop(.6,c); gr.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.globalAlpha=a0; ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(px,py,r,0,TAU); ctx.fill();
+      ctx.globalAlpha=a0*.22; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(px-r*.3,py-r*.3,r*.5,0,TAU); ctx.fill() }
     ctx.globalAlpha=.7*fade; ctx.fillStyle=c; ctx.beginPath(); ctx.ellipse(x,y,26,10,0,0,TAU); ctx.fill(); ctx.globalAlpha=1; cbMark(col,x,y,tt,fade); smokeTag(col,x,y,fade) }
   else if(kind==='flare'){ const fy=y-70-Math.sin(tt*2)*5, fl=RFX?.92:.85+.15*Math.sin(tt*31)+.1*Math.sin(tt*17); ctx.globalCompositeOperation='lighter';
     const gr=ctx.createRadialGradient(x,fy,2,x,fy,110*fl); gr.addColorStop(0,'rgba(255,255,255,.95)'); gr.addColorStop(.2,c); gr.addColorStop(1,'rgba(0,0,0,0)'); ctx.globalAlpha=.85*fade; ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(x,fy,110*fl,0,TAU); ctx.fill();
