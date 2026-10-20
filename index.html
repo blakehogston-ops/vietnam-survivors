@@ -5841,9 +5841,9 @@ function endBrief2(){ if(!BR2)return; window.__brief2Dur=(performance.now()-BR2.
 function updateBrief2(dt){ const B=BR2; if(!B)return; B.t+=dt; B.lt+=dt; const L=BRIEF2_LINES[B.page]; B.typed=Math.min(L.t.length,B.lt*B2CPS);
   if(B.lt>=L.t.length/B2CPS+B2HOLD){ if(B.page>=BRIEF2_LINES.length-1){ endBrief2(); return } B.page++; B.lt=0; B.typed=0; b2Sting() } }
 /* briefing art (Art Director rework): approved game sprites at 1x on a 320x180 buffer, integer upscale. No hand-drawn men.
-   Lt = heroes_tall 'skipper' (2ndLt), Doc = heroDoc 'treat' (kneeling) + his yellow ring, RTO = marine rig 'radio' (PRC-25),
+   Lt = marine rig 'leader' (plain head, no glasses, matches the squad2 portrait), Doc = heroDoc 'treat' (kneeling) + his yellow ring, RTO = marine rig 'radio' (PRC-25),
    riflemen = marine rig with the Company looks (different faces / skin tones), CH-46 = ch46_v2 rampDown with soft blur discs. */
-const B2PORT={}; for(const [k,f] of [['lt','platoon_lieutenant_portrait_112x128.png'],['sgt','squad_leader_portrait_112x128.png']]){ const im=new Image(); im.src='assets/art/squad2/'+f; B2PORT[k]=im }
+const B2PORT={}; for(const [k,f] of [['lt','platoon_lieutenant_portrait_112x128.png'],['sgt','squad_leader_portrait_112x128.png'],['doc','doc_112x128.png']]){ const im=new Image(); im.src='assets/art/squad2/'+f; B2PORT[k]=im }
 let B2BG=null;
 function b2Ground(){ const c=mk(320,180), x=c.getContext('2d');
   /* dawn sky: cool grey-blue overhead to a warm low band at the horizon */
@@ -5864,28 +5864,39 @@ function b2Ground(){ const c=mk(320,180), x=c.getContext('2d');
 function b2Shadow(c,draw,x,y){ /* long soft shadow thrown left, away from the low sun on the right */
   c.save(); const g=c.createLinearGradient(x,0,x-34,0); g.addColorStop(0,'rgba(26,13,6,.42)'); g.addColorStop(1,'rgba(26,13,6,0)'); c.fillStyle=g; c.beginPath(); c.ellipse(x-15,y,20,2.8,-.04,0,TAU); c.fill();
   c.fillStyle='rgba(26,13,6,.32)'; c.beginPath(); c.ellipse(x,y,8,2.4,0,0,TAU); c.fill(); c.restore() }
+function b2Rotor(c,x,y,t,ph){ /* slow idle rotor: dark blur disc (~.35), sagging tips, motion-blur arcs */
+  c.save(); const g=c.createRadialGradient(x,y,3,x,y,40); g.addColorStop(0,'rgba(22,24,18,.38)'); g.addColorStop(.75,'rgba(22,24,18,.30)'); g.addColorStop(1,'rgba(22,24,18,0)'); c.fillStyle=g;
+  c.beginPath(); c.ellipse(x,y+1.5,40,12.5,0,0,TAU); c.fill();   /* disc sits a touch low at the rim = blade droop at idle */
+  for(let k=0;k<3;k++){ const a=t*2.4+ph+k*2.094; c.strokeStyle='rgba(16,18,14,.55)'; c.lineWidth=1.6; c.beginPath(); c.ellipse(x,y+1.5,38,11.5,0,a,a+.55); c.stroke(); c.strokeStyle='rgba(16,18,14,.25)'; c.lineWidth=1; c.beginPath(); c.ellipse(x,y+1.5,30,9,0,a-.1,a+.35); c.stroke() }
+  c.fillStyle='#1c1e16'; c.fillRect(x-1,y-1,3,3); c.restore() }
 function drawBrief2Scene(t){ const c=b2c; c.setTransform(1,0,0,1,0,0); c.imageSmoothingEnabled=false; if(!B2BG)B2BG=b2Ground(); c.drawImage(B2BG,0,0);
-  const S=window.SHEET1;
-  /* CH-46 on the pad behind, ramp down toward the platoon, rotors turning slowly as soft discs */
-  if(S&&S.drawSeaKnight){ try{ const r=S.drawSeaKnight(c,{x:250,y:96,heading:0,state:'rampDown',t,scale:1,rotor:false,wash:false});
-      { /* Art Director: no national insignia on the briefing bird -> paint the star-and-bar out with the hull colour sampled beside it */ const d=c.getImageData(250+1,96-1,1,1).data; c.fillStyle=`rgb(${d[0]},${d[1]},${d[2]})`; c.fillRect(250+3,96-4,17,8) }
-      for(const h of r.hubs){ const g=c.createRadialGradient(h[0],h[1],2,h[0],h[1],40); g.addColorStop(0,'rgba(40,42,34,.30)'); g.addColorStop(.8,'rgba(40,42,34,.16)'); g.addColorStop(1,'rgba(40,42,34,0)'); c.fillStyle=g; c.beginPath(); c.ellipse(h[0],h[1],40,14,0,0,TAU); c.fill();
-        const a=t*1.6; c.strokeStyle='rgba(28,30,24,.22)'; c.lineWidth=1; c.beginPath(); c.ellipse(h[0],h[1],38,13,0,a,a+.5); c.stroke() } }catch(e){} }
+  /* soft dawn ground mist low over the treeline, drifting */
+  for(let k=0;k<3;k++){ const yy=54+k*5, dx=(t*(2+k)+k*60)%320; const g=c.createLinearGradient(0,yy-6,0,yy+6); g.addColorStop(0,'rgba(222,212,196,0)'); g.addColorStop(.5,`rgba(222,212,196,${.22-k*.05})`); g.addColorStop(1,'rgba(222,212,196,0)'); c.fillStyle=g;
+    for(let i=-1;i<4;i++){ const cx=i*110+dx; c.beginPath(); c.ellipse(cx,yy,70,5,0,0,TAU); c.fill() } }
+  const S=window.SHEET1; let ramp=null;
+  if(S&&S.drawSeaKnight){ try{ const BX=250,BY=96, r=S.drawSeaKnight(c,{x:BX,y:BY,heading:0,state:'rampDown',t,scale:1,rotor:false,wash:false}); ramp=r;
+      const hull=c.getImageData(BX+1,BY-1,1,1).data, hc=`rgb(${hull[0]},${hull[1]},${hull[2]})`;
+      /* star-and-bar stays (correct US insignia, Art Director + Vet) */
+      /* aft MARINES lettering is unreadable at 1x: leave it out (Art Director) */ c.fillStyle=hc; c.fillRect(BX-38,BY-6,38,4);
+      b2Rotor(c,r.hubs[1][0],r.hubs[1][1],t,0); b2Rotor(c,r.hubs[0][0],r.hubs[0][1],t,1.1) }catch(e){} }
   if(!S||!S.drawMarine||!S.drawHero)return;
-  /* the platoon, back row first; roles and Company looks vary faces and skin tones */
-  const men=[ [58,128,'rifle',0,1], [88,124,'m60',null,0], [206,132,'rifle',2,1], [232,136,'m79',null,1], [34,150,'rifle',3,0], [268,158,'rifle',1,1], [112,156,'radio',null,0] ];
-  const drawM=(cx,x,y,m)=>S.drawMarine(cx,m[2],0,x,y,1,!!m[4],false,m[3]==null?undefined:m[3]);
-  for(const m of men)b2Shadow(c,(s,x,y)=>drawM(s,x,y,m),m[0],m[1]);
-  b2Shadow(c,(s,x,y)=>S.drawHero(s,'skipper','idle',x,y,1,false,false),146,154); b2Shadow(c,(s,x,y)=>S.drawHero(s,'doc','treat',x,y,1,true,false),176,160);
-  const all=men.map(m=>({y:m[1],f:()=>drawM(c,m[0],m[1],m)}));
-  all.push({y:154,f:()=>{ const hp=S.drawHero(c,'skipper','idle',146,154,1,false,false); /* map in a plastic cover in his hand */ const hx=Math.round((hp&&hp.x)||150), hy=Math.round((hp&&hp.y)||138); c.fillStyle='#cfc49a'; c.fillRect(hx-1,hy-3,7,5); c.fillStyle='#7f9064'; c.fillRect(hx,hy-2,3,2); c.fillStyle='rgba(255,255,255,.35)'; c.fillRect(hx-1,hy-3,7,1) }});
+  const LX=150, LY=150;   /* the Lt; men left of him face right, men right of him face left (flip) */
+  /* fireteam clusters of 3-4, staggered; [x,y,role,coyLook] */
+  const men=[ [46,132,'rifle',0],[62,138,'m60',null],[38,146,'rifle',3],[70,150,'m79',null],
+              [214,140,'rifle',2],[232,146,'rifle',1],[204,156,'m14',null],
+              [124,152,'radio',null] ];
+  const all=[];
+  for(const m of men){ const fl=m[0]>LX; b2Shadow(c,null,m[0],m[1]); all.push({y:m[1],f:()=>S.drawMarine(c,m[2],0,m[0],m[1],1,fl,false,m[3]==null?undefined:m[3])}) }
+  /* 1-2 men walking off the ramp toward the platoon, looping */
+  if(ramp&&ramp.ramp){ const [rx,ry]=ramp.ramp; for(let k=0;k<2;k++){ const u=((t*.16+k*.5)%1), x=rx-6-u*44, y=ry+4+u*14+k*3, fr=1+(Math.floor(t*6+k)&1); b2Shadow(c,null,x,y); all.push({y,f:()=>{ c.globalAlpha=Math.min(1,u*6); S.drawMarine(c,'rifle',fr,Math.round(x),Math.round(y),1,true,false,k?2:0); c.globalAlpha=1 }}) } }
+  b2Shadow(c,null,LX,LY); b2Shadow(c,null,176,160);
+  all.push({y:LY,f:()=>{ const hp=S.drawMarine(c,'leader',0,LX,LY,1,false,false); /* plain rig head, no glasses; map in a plastic cover */ const hx=Math.round((hp&&hp.x)||LX+4), hy=Math.round((hp&&hp.y)||LY-16); c.fillStyle='#cfc49a'; c.fillRect(hx-1,hy-3,7,5); c.fillStyle='#7f9064'; c.fillRect(hx,hy-2,3,2); c.fillStyle='rgba(255,255,255,.35)'; c.fillRect(hx-1,hy-3,7,1) }});
   all.push({y:160,f:()=>{ c.strokeStyle='rgba(255,214,64,.9)'; c.lineWidth=1.4; c.beginPath(); c.ellipse(176,160,11,3.6,0,0,TAU); c.stroke(); S.drawHero(c,'doc','treat',176,160,1,true,false) }});
   all.sort((a,b)=>a.y-b.y).forEach(o=>{ try{o.f()}catch(e){} });
-  /* low warm light from the right, cool fill in the shadows */
   const lg=c.createLinearGradient(320,0,0,0); lg.addColorStop(0,'rgba(255,190,120,.10)'); lg.addColorStop(1,'rgba(60,70,100,.10)'); c.fillStyle=lg; c.fillRect(0,0,320,180) }
 /* dialogue box framed like the Gunny radio box: black frame, silver bevel, navy panel, silver-stroked portrait, gold name plate */
 function b2Portrait(x,y,pw,ph,k){ const im=B2PORT[k]; ctx.fillStyle='#1c2414'; ctx.fillRect(x,y,pw,ph);
-  if(k==='doc'){ const S=window.SHEET1; if(S&&S.drawHero){ const sc=Math.max(1,Math.floor(pw/16)); ctx.save(); ctx.beginPath(); ctx.rect(x,y,pw,ph); ctx.clip(); ctx.imageSmoothingEnabled=false; S.drawHero(ctx,'doc','idle',Math.round(x+pw/2),Math.round(y+37*sc-2*sc),sc,false,false);   /* head-and-shoulders crop of his game sprite, integer scale */ ctx.restore() } }
+  if(k==='doc'&&!(im&&im.complete&&im.naturalWidth)){ const S=window.SHEET1; if(S&&S.drawHero){ const sc=Math.max(1,Math.floor(pw/16)); ctx.save(); ctx.beginPath(); ctx.rect(x,y,pw,ph); ctx.clip(); ctx.imageSmoothingEnabled=false; S.drawHero(ctx,'doc','idle',Math.round(x+pw/2),Math.round(y+37*sc-2*sc),sc,false,false);   /* head-and-shoulders crop of his game sprite, integer scale */ ctx.restore() } }
   else if(im&&im.complete&&im.naturalWidth){ ctx.imageSmoothingEnabled=true; ctx.drawImage(im,x,y,pw,ph); ctx.imageSmoothingEnabled=false }
   ctx.strokeStyle='#c8c8c8'; ctx.lineWidth=1.5*b2U; ctx.strokeRect(x,y,pw,ph) }
 let b2U=1;
