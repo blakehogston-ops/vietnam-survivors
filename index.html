@@ -4044,6 +4044,7 @@ function updateWeapons(dt){
     if(SPECW[id]&&!enemyInView()){ w.cd=0; continue }   /* Blake: never fire with no enemy on screen; held ready, not wasted or reset */
     if(AIRCALL[id]&&id!=='spooky'&&(air.length+strikes.length)>=AIR_FX_MAX){ w.cd=.5; continue }   // limit overlapping air-call effects
     if(AIRCALL[id]&&RTO.on(g)){ const r=RTO.call(g,id,w); if(r===false){ w.cd=0; continue } s=Object.assign({},s,r) }   /* Blake Oct 20: the radio operator calls (or holds) every air strike */
+    if(AIRCALL[id]&&OFF_ON&&OFFI.air)OFFI.override(g,id);   /* rc8 OF-Q01: Doc's own air call holds the officer's pending air mission */
     if(AIRCALL[id]&&g.char==='radio'&&!g.demo)Snd.play('ready');   // soft tick: call is off cooldown
     w.rf=false;
     if(id==='grease'){ const t=faceK(p,1,s.range)[0]; if(!t){w.cd=.05;continue} const a=Math.atan2(t.y-p.y,t.x-p.x)+(rnd()-.5)*.05; addBullet(p.x+Math.cos(a)*14,p.y-3+Math.sin(a)*14,a,640,s.dmg,s.pierce,.8,3,'#ffe08a'); Snd.play('grease'); MAGS.shot(p,'grease',p.x,p.y); g.muzzle=.05; w.cd+=s.cd; }
@@ -4862,7 +4863,7 @@ function updateHazards(dt){
   for(let i=strikes.length-1;i>=0;i--){const q=strikes[i]; CURW=q.wid||''; q.t+=dt; if(q.t<0)continue;
     const ca=Math.cos(q.a),sa=Math.sin(q.a);
     if(q.t<q.delay){ // red smoke marker
-      if(Math.random()<.6){addPart(q.cx+(rnd()-.5)*10,q.cy+(rnd()-.5)*10,(rnd()-.5)*14,-34-rnd()*24,1.1,5+rnd()*4,rnd()<.5?'#ff4a3a':'#ffb0a0',false,.4)}
+      if(!q.wp&&Math.random()<.6){addPart(q.cx+(rnd()-.5)*10,q.cy+(rnd()-.5)*10,(rnd()-.5)*14,-34-rnd()*24,q.wp?1.8:1.1,q.wp?7+rnd()*5:5+rnd()*4,q.wp?(rnd()<.5?'#f4f4ee':'#cfd2c8'):rnd()<.5?'#ff4a3a':'#ffb0a0',false,.4)}   /* officer air: white Willie Peter marking smoke */
       if(!q.sfx&&q.t>q.delay-3.2){q.sfx=true; SAMP.fly('jet',{bombAt:Snd.ctx?Snd.ctx.currentTime+Math.max(0,q.delay-q.t):0})}
       continue; }
     const s=(q.t-q.delay)*1000-420; // position along the run
@@ -4956,9 +4957,11 @@ const OFFVO={
   'HO-F01':'Everybody on that position, fire!','HO-F02':'Fire on that bunch! Fire!','HO-T01':'B-40! Take him out first!','HO-T03':'RPG! Take him out first!','HO-T02':'Gun! Pin that gun down!',
   'HO-W01':'Out of LAWs!','HO-W02':'LAW! Hit that bunker! Backblast clear!','HO-M01':'Shot, over!','HO-M02':'Splash!',
   'HO-Y01':"Sparks is down! Somebody get on the hook!",'HO-Y02':'Sparks is down, no radio!',
-  'SK-F02':'Two-Six, Six. Your fire mission is approved. Keep me advised. Out.'};
+  'SK-F02':'Two-Six, Six. Your fire mission is approved. Keep me advised. Out.',
+  /* rc8 (Lead/EP 10/20): OF- lines, caption-only (no VO recorded yet); wording per Lead's rc8 task */
+  'OF-L01':"Corpsman up! Lieutenant's hit!",'OF-A01':'Get me air on that position!','OF-A02':"Air's coming in. Get down!",'OF-D01':'Check fire, check fire! Too close!','OF-Q01':"Hold the fire mission! Doc's got men out there!"};
 const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,fire:0}, toast:null, barkT:-99, used:{}, log:[], live:false, noCmd:false, hoT:-99, hoP:null, mark:null, ltHit:false, seq:[], mort:null, lawQ:null, ri:0,
-  reset(){ Object.assign(this,{cmd:null,tgt:null,sT:0,oT:0,cd:{focus:0,sup:0,law:0,fire:0},toast:null,barkT:-99,used:{},log:[],live:false,noCmd:false,hoT:-99,hoP:null,mark:null,ltHit:false,seq:[],mort:null,lawQ:null,ri:0,hoN:0,radioOutT:-99});
+  reset(){ Object.assign(this,{cmd:null,tgt:null,sT:0,oT:0,cd:{focus:0,sup:0,law:0,fire:0},toast:null,barkT:-99,used:{},log:[],live:false,noCmd:false,hoT:-99,hoP:null,mark:null,ltHit:false,seq:[],mort:null,lawQ:null,ri:0,hoN:0,radioOutT:-99,air:null,airCd:60,fac:null,wp:null});
     if(!this.ON)return; Q15.names[0]=OFFN.LT; Q15.names[2]=OFFN.PSGT; KIA.SN=KIA.SN.filter(s=>s!==NAMES.lt.last&&s!==NAMES.gunny.last) },
   on(){ return this.ON&&!!G&&!G.demo&&!!G.q15 },
   rk(m){ const k=(m.nm||'').split(' ')[0]; return OFF_RK[k]||0 },
@@ -4969,7 +4972,8 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
   who(m){ return (m.nm||'MARINE').toUpperCase() },
   say(id,m,pri){ const g=G; if(!OFFVO[id])return false; const ho=/^HO-[SCLPX]|LT-H/.test(id);
     if(!ho&&!pri){ if(this.seq.length)return false;   /* fire-mission radio sequence plays uninterrupted */ if(g.t-this.barkT<3||g.t-(this.used[id]||-99)<30)return false }
-    this.barkT=g.t; this.used[id]=g.t; const sp=id.startsWith('SK-')?'GOLF SIX':m?this.who(m):'MARINE'; if(!pri&&exMsg&&exQ.length>=1)return false; gunny(OFFVO[id],null,false,sp);   /* never pre-empt or push out a Gunny/extraction card */ (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'bark',id]); return true },
+    this.barkT=g.t; this.used[id]=g.t; const sp=id.startsWith('SK-')?'GOLF SIX':m?this.who(m):'MARINE'; if(!pri&&exMsg&&exQ.length>=1)return false; { const was=exMsg; gunny(OFFVO[id],null,false,sp); const m=exMsg!==was?exMsg:exQ[exQ.length-1]; if(m)m.off=1;
+      if(pri&&/^OF-/.test(id)&&m&&m!==exMsg){ exQ.splice(exQ.indexOf(m),1); if(exMsg&&exMsg.off){ exMsg=m; Snd.play('radio') } else exQ.unshift(m) } }   /* rc8 OF- P0: jumps the queue / replaces an officer bark, never cuts a Gunny/extraction card */   /* never pre-empt or push out a Gunny/extraction card */ (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'bark',id]); return true },
   pick1(ids){ for(const id of ids)if(G.t-(this.used[id]||-99)>=30)return id; return ids[0] },
   hoBark(m,n){ const r=m.rank; if(n===1)return 'HO-X01'; if(m.isLt)return 'LT-H01';
     return r===5?this.pick1(['HO-S01','HO-S03']):r===4?this.pick1(['HO-C01','HO-C02','HO-C03']):r===3?this.pick1(['HO-L01','HO-L02','HO-L03']):'HO-P01' },
@@ -5005,10 +5009,11 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
     if(this.toast&&(this.toast.t-=dt)<=0)this.toast=null; if(this.chev>0)this.chev-=dt;
     if(this.hoP&&g.t>=this.hoP.t){ const P=this.hoP; this.hoP=null; if(P.m===this.cmd&&P.m.hp>0)this.say(P.id,P.m) }
     while(this.seq.length&&g.t>=this.seq[0][0]){ const s=this.seq.shift(); this.say(s[1],s[2],1) }
+    this.airTick(g,dt); this.facTick(dt); this.wpTick(dt);
     if(this.mort){ const M=this.mort; M.t-=dt; if(M.t<=0){ M.t=.4; M.n++; const a=M.n*2.4, x=M.x+Math.cos(a)*M.n*9, y=M.y+Math.sin(a)*M.n*9; let safe=Math.hypot(x-g.p.x,y-g.p.y)>200; for(const m of coy)if(m.hp>0&&Math.hypot(x-m.x,y-m.y)<130)safe=false;
         if(safe){ CURW='off_mortar'; explode(x,y,62,38,220,.8); CURW='' } if(M.n>=6)this.mort=null } }
     /* Lt wounded: LT DOWN banner + marker, and he is Doc's top-priority patient (medTarget) */
-    const lt=coy.find(m=>m.isLt&&m.hp>0); if(lt){ const f=lt.hp/lt.mhp; if(!this.ltHit&&f<.35){ this.ltHit=true; g.banner={text:'LT DOWN · DOC, GET TO '+this.who(lt),t:2.6,col:'#ff8a4a'}; lg.push([+g.t.toFixed(1),'ltdown']) } else if(this.ltHit&&f>=.6)this.ltHit=false }
+    const lt=coy.find(m=>m.isLt&&m.hp>0); if(lt){ const f=lt.hp/lt.mhp; if(!this.ltHit&&f<.35){ this.ltHit=true; g.banner={text:'LT DOWN · DOC, GET TO '+this.who(lt),t:2.6,col:'#ff8a4a'}; lg.push([+g.t.toFixed(1),'ltdown']); { const sp=this.near(lt); if(sp)this.say('OF-L01',sp,1) } } else if(this.ltHit&&f>=.6)this.ltHit=false }
     else if(this.ltHit&&!lt)this.ltHit=false;
     if(!this.ok(this.cmd))this.succ(g);
     else if(g.t-this.hoT>10){ const C=this.chain(); if(C[0]&&C[0]!==this.cmd&&C[0].rank>this.cmd.rank)this.succ(g) }
@@ -5020,7 +5025,57 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
       if(T.hard&&!this.cd.law&&Math.hypot(T.x-this.cmd.x,T.y-this.cmd.y)<250&&(this.lawCarrier(T)||!this.used['HO-W01']))this.order(g,'law',T);
       else if((T.crew||T.hard||this.docTreat(g))&&!this.cd.sup)this.order(g,'sup',T);
       else if((T.S>=30||T.mark)&&!this.cd.focus)this.order(g,'focus',T);
-      this.mortar(g) } },
+      this.mortar(g); this.airOrder(g) } },
+  /* rc8 OF-A/D/Q: air on a position. The commander (Lt or Sgt, RTO alive) asks for air on a dense group well clear of friendlies; a FAC takes 20-30 s:
+     the FAC marks the target with Willie Peter ~12 s out (white smoke = marking cue), 'inbound' cue ~7 s out, Sgt OF-A02 3 s out, then one napalm run parallel to the line.
+     Danger close (any friendly within NAP_SAFE of the run line at 3 s out or at release) = check fire (OF-D01). Doc calling his own air while ours is pending = OF-Q01, ours is held. */
+  near(x,not){ let b=null,bd=1e9; for(const m of coy){ if(m===x||m===not||!this.ok(m))continue; const d=Math.hypot(m.x-x.x,m.y-x.y); if(d<bd){bd=d;b=m} } return b },
+  sgt(){ return this.chain().find(m=>m.rank===5)||null },
+  ltOrSgt(){ return this.chain().find(m=>m.rank>=5)||null },
+  airOrder(g,force){ const c=this.cmd, p=g.p; if(!c||this.air||this.mort||this.seq.length)return false; if(!force){ if(this.airCd>0||c.rank<5||!this.rtoAlive(g)||(g.ex&&g.ex.ph>=3))return false }
+    let tx,ty; if(force){ tx=force.x; ty=force.y } else { let best=null,bn=0; for(const e of nearestK(c.x,c.y,12,650)){ const d=Math.hypot(e.x-p.x,e.y-p.y); if(d<300)continue; const n=nearestK(e.x,e.y,12,120).length; if(n>bn){bn=n;best=e} } if(!best||bn<6)return false; tx=best.x; ty=best.y }
+    const a=Math.atan2(ty-p.y,tx-p.x)+Math.PI/2, len=300; if(!force&&napMinFriendly(tx,ty,a,len,1)<NAP_SAFE+60)return false;
+    const D=force&&force.d?force.d:20+((g.t*7.31)%10); this.airCd=150; this.air={x:tx,y:ty,a,len,T:g.t+D,st:0,q:null,by:c};
+    g.banner={text:(c.isLt?OFFN.LT.toUpperCase():this.who(c))+': AIR ON THAT POSITION · FAC ON STATION, ~'+Math.round(D)+' S',t:2.6,col:'#ffe58a'}; Snd.play('radio');
+    if(c.isLt)this.say('OF-A01',c,1); (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'air',Math.round(D)]); return true },
+  airTick(g,dt){ if(this.airCd>0)this.airCd-=dt; const A=this.air; if(!A)return; const left=A.T-g.t, lg=g.offLog;
+    if(A.st===0&&!this.fac&&!A.mk){ this.fac={x:A.x+170,y:A.y,th:0,a:Math.PI/2,alt:70,ph:'orbit',rk:null,A,life:0}; g.banner={text:'BIRD DOG ON STATION',t:2.4,col:'#e8eef2'}; lg.push([+g.t.toFixed(1),'airfac']) }   /* O-1 orbits high and slow over the target */
+    if(this.fac&&this.fac.ph==='orbit'&&left<=15){ this.fac.ph='dive' }   /* one shallow dive at the smoke point */
+    if(A.st===0&&!A.mk&&this.fac&&this.fac.ph==='dive'&&left<=13.5){ if(napMinFriendly(A.x,A.y,A.a,A.len,1)<NAP_SAFE){ this.airVeto(g); return } A.st=.7; const F=this.fac; F.rk={x:F.x,y:F.y,sx:F.x,sy:F.y,sa:F.alt,t:0,d:.9,tr:[]}; F.ph='pull'; Snd.play('rpg') }   /* one WP marking rocket, never within NAP_SAFE of a friendly */
+    if(A.st===.7&&left<=12.6){ A.st=0; A.mk=1; const sp=['#f4f4ee','#cfd2c8']; for(let k=0;k<14;k++){ const an=k/14*TAU+Math.random()*.3, v=90+Math.random()*80; addPart(A.x,A.y,Math.cos(an)*v,Math.sin(an)*v-40,1.1,2.5,sp[k&1],false,.6) } burst(A.x,A.y,22,60,1.4,8,sp,false); this.wp={x:A.x,y:A.y,t:36,T:36}; if(this.fac)this.fac.rk=null; lg.push([+g.t.toFixed(1),'airwp']) }   /* WP: white streamer spray + billowing column ~36 s */
+    if(A.st===0&&A.mk&&left<=12.6){ A.st=1; const s=ITEMS.napalm.stats(3); A.q={wid:'off_air',cx:A.x,cy:A.y,a:A.a,len:A.len,t:0,delay:Math.max(.5,left),drops:0,dropN:9,dmg:s.dmg,rad:s.rad,fdmg:s.fdmg,flife:s.flife,sfx:false,jx:0,jy:0,show:false,wp:1,off:1}; strikes.push(A.q);
+      g.banner={text:'FAC MARKING · WILLIE PETER ON THE TARGET',t:2.4,col:'#e8eef2'}; lg.push([+g.t.toFixed(1),'airmark']) }
+    if(A.st===1&&left<=7){ A.st=2; g.banner={text:'AIR INBOUND · FAST MOVERS, NAPE · STAY CLEAR OF THE WHITE SMOKE',t:2.6,col:'#ffb04a'}; Snd.play('radio'); lg.push([+g.t.toFixed(1),'airinb']) }
+    if(A.st===2&&left<=3){ A.st=3; if(napMinFriendly(A.x,A.y,A.a,A.len,1)<NAP_SAFE){ this.airVeto(g); return } const s=this.sgt(); if(s)this.say('OF-A02',s,1); lg.push([+g.t.toFixed(1),'air3s']) }
+    if(A.st===3&&A.q){ if(A.q.abort){ this.airVeto(g); return } if(!strikes.includes(A.q)){ this.air=null; lg.push([+g.t.toFixed(1),'airdone']) } } },
+  wpTick(dt){ const W=this.wp; if(!W)return; if((W.t-=dt)<=0){ this.wp=null; return } const k=W.t/W.T; if(Math.random()<.9*Math.min(1,k*2)){ const h=Math.random(); addPart(W.x+(Math.random()-.5)*(10+h*14),W.y-h*8,(Math.random()-.5)*10+5,-34-Math.random()*26,3.6+Math.random()*1.4,11+Math.random()*9+h*6,Math.random()<.55?'#f4f4ee':'#cfd2c8',false,.45) } },
+  facTick(dt){ const F=this.fac; if(!F)return; const A=F.A;
+    if(F.ph==='orbit'){ F.th+=dt*.42; F.x=A.x+Math.cos(F.th)*170; F.y=A.y+Math.sin(F.th)*170*.8; F.a=F.th+Math.PI/2; F.bank=.25 }   /* slow left-hand orbit, ~95 kt */
+    else { if(F.ph==='dive'){ const ta=Math.atan2(A.y-F.y,A.x-F.x); let d=ta-F.a; d=Math.atan2(Math.sin(d),Math.cos(d)); F.a+=Math.max(-1.6*dt,Math.min(1.6*dt,d)); F.alt=Math.max(40,F.alt-12*dt); F.bank=d>0?-.2:.2 } else { F.alt=Math.min(80,F.alt+10*dt); F.a+=.5*dt; F.bank=.3; if((F.life+=dt)>14)this.fac=null }
+      F.x+=Math.cos(F.a)*70*dt; F.y+=Math.sin(F.a)*70*dt }
+    if(F.rk){ const R=F.rk; R.t+=dt; const k=Math.min(1,R.t/R.d); R.x=R.sx+(A.x-R.sx)*k; R.y=R.sy+(A.y-R.sy)*k; R.al=R.sa*(1-k); R.tr.push([R.x,R.y-R.al]); if(R.tr.length>40)R.tr.shift() } },
+  /* O-1 Bird Dog, top-down, vehicles_v3 style and scale (~5.2 px/m like the A-4E sheet): 36 ft span -> 57 px, 26 ft long -> 41 px.
+     Vet 10/20: Marine VMO-6, overall matte weathered light gray, star-and-bar on the LEFT wing only, no fuselage/tail markings top-down, 2 rocket stubs per wing. One palette block: */
+  O1PAL:{K:'#1a1c12',body:'#a9aca6',bodyHi:'#bcbfb8',bodyLo:'#8d908a',wing:'#b1b4ad',wingHi:'#c2c5be',wingLo:'#929590',grime:'rgba(70,66,52,.18)',glass:'#3a4a56',glassHi:'#7f97a6',strut:'#6f726c',tube:'#2a2c26',prop:'rgba(30,30,28,.38)',shadow:'rgba(0,0,0,.24)',
+    insig:{on:'L',blue:'#2c3a6b',white:'#e9e9e2',red:'#a8342e'}},
+  drawO1(x,y,a,bank,sc){ const P=this.O1PAL; ctx.save(); ctx.translate(x,y); try{ this.o1At=new DOMPoint(0,0).matrixTransform(ctx.getTransform()) }catch(e){} ctx.rotate(a); ctx.scale(sc,sc*Math.cos(bank||0)); const R=(x,y,w,h,c)=>{ ctx.fillStyle=c; ctx.fillRect(x,y,w,h) };
+    R(-24,-2.5,40,5,P.K); R(15,-1.5,3,3,P.K); R(-6,-29,10,58,P.K); R(-25,-9,7,18,P.K);   /* #1a1c12 outline */
+    R(-24,-8.5,6,17,P.body); R(-24,-8.5,6,1,P.bodyHi); R(-22,-1,4,2,P.bodyLo);   /* tailplane */
+    R(-23,-1.5,38,3,P.body); R(-23,-1.5,38,1,P.bodyHi); R(-23,.8,38,.7,P.bodyLo); R(4,-2,10,4,P.body);   /* slim fuselage */
+    R(-5,-28,8,56,P.wing); R(-5,-28,8,1.4,P.wingHi); R(1.6,-28,1.4,56,P.wingLo); R(-5,-12,8,1,P.grime); R(-5,11,8,1,P.grime);   /* long straight high wing */
+    R(-3,-14,1,12,P.strut); R(-3,2,1,12,P.strut);   /* lift struts (just visible under the wing edge) */
+    R(-1,-2.2,5,4.4,P.glass); R(2,-2.2,1.5,1.5,P.glassHi); R(-4,-2,2.6,4,P.glass);   /* glazed cabin + skylight */
+    for(const y of [-19,-15,14,18])R(3.2,y,2.4,1,P.tube);   /* 2.75-in rocket tubes, 2 per wing */
+    R(14,-1,3,2,P.bodyLo); ctx.fillStyle=P.prop; ctx.beginPath(); ctx.ellipse(18.2,0,1.2,7,0,0,TAU); ctx.fill();   /* cowl + 2-blade prop blur */
+    if(P.insig.on==='L'){ const cx=-1,cy=-21; R(cx-4.2,cy-1,8.4,2,P.insig.white); R(cx-4.2,cy-.3,8.4,.6,P.insig.red); ctx.fillStyle=P.insig.blue; ctx.beginPath(); ctx.arc(cx,cy,2.5,0,TAU); ctx.fill(); ctx.fillStyle=P.insig.white; ctx.beginPath(); for(let i=0;i<10;i++){ const r=i%2?0.8:2, t=-Math.PI/2+i*Math.PI/5; ctx.lineTo(cx+Math.cos(t)*r,cy+Math.sin(t)*r) } ctx.fill() }   /* star-and-bar, LEFT wing (heading +x: left = -y) */
+    ctx.restore() },
+  drawFac(){ const F=this.fac, P=this.O1PAL; if(F){ ctx.save(); ctx.translate(Math.round(F.x)+F.alt*.3,Math.round(F.y)+F.alt*.35); ctx.rotate(F.a); ctx.fillStyle=P.shadow; ctx.fillRect(-23,-1.5,38,3); ctx.fillRect(-5,-28,8,56); ctx.fillRect(-24,-8.5,6,17); ctx.restore();
+      this.drawO1(Math.round(F.x),Math.round(F.y-F.alt),F.a,F.bank,1);
+      if(F.rk){ const r=F.rk; ctx.save(); ctx.strokeStyle='rgba(244,244,238,.75)'; ctx.lineWidth=1.2; ctx.beginPath(); r.tr.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.stroke(); const a=Math.atan2(F.A.y-r.sy,F.A.x-r.sx); ctx.translate(r.x,r.y-r.al); ctx.rotate(a); ctx.fillStyle='#d8d8cc'; ctx.fillRect(-3,-.6,5,1.2); ctx.fillStyle='rgba(255,210,110,.95)'; ctx.fillRect(-5,-.8,2,1.6); ctx.restore() } } },
+  airDrop(){ if(this.fac)this.fac.ph='pull'; const A=this.air; if(A&&A.q){ const i=strikes.indexOf(A.q); if(i>=0)strikes.splice(i,1) } this.air=null },
+  airVeto(g){ this.airDrop(); let sp=null,bd=1e9; for(const m of coy)if(this.ok(m)){ const d=Math.hypot(m.x-g.p.x,m.y-g.p.y); if(d<bd){bd=d;sp=m} } if(sp)this.say('OF-D01',sp,1);
+    g.banner={text:'CHECK FIRE · DANGER CLOSE · RUN WAVED OFF',t:2.4,col:'#ff6a4a'}; g.offLog.push([+g.t.toFixed(1),'airveto']) },
+  override(g,id){ if(!this.on()||!this.air||this.air.st>=3)return; this.airDrop(); const sp=this.ltOrSgt(); if(sp)this.say('OF-Q01',sp,1); g.banner={text:'FIRE MISSION HELD · DOC\'S CALL',t:2.2,col:'#ffe58a'}; g.offLog.push([+g.t.toFixed(1),'airheld',id]) },
   /* T: Doc marks the enemy nearest his facing/aim (within 520 px); the commander shifts focus to it at once */
   markKey(){ const g=G; if(!this.on()||state!=='play')return false; const p=g.p, a=g.aim||0; let b=null,bs=-1e9;
     for(const e of nearestK(p.x,p.y,16,520)){ const d=Math.hypot(e.x-p.x,e.y-p.y), da=Math.abs(Math.atan2(Math.sin(Math.atan2(e.y-p.y,e.x-p.x)-a),Math.cos(Math.atan2(e.y-p.y,e.x-p.x)-a))); const s=-da*300-d*.4; if(s>bs){bs=s;b=e} }
@@ -7884,7 +7939,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   // Huey (flies above everything)
   for(let i=0;i<hueys.length;i++)drawHuey(hueys[i]);
   for(let i=0;i<ins.length;i++)drawHuey(ins[i]);
-  SPEC.drawAir(); FBO.draw(); URG.draw();
+  SPEC.drawAir(); try{ OFFI.drawFac() }catch(e){} FBO.draw(); URG.draw();
   for(let i=0;i<coyH.length;i++){ const h=coyH[i]; if(h.ch46){ drawCH46Ins(h); continue } if(h.t<0)continue; if(h.comp&&h.comp.q15)drawHuey(h); else drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) }   /* Vet: company reinforcements come by CH-46 (the fifteen keep their insertion Hueys) */
   drawMedevac();
   if(introH)drawHuey(introH);
