@@ -3196,12 +3196,14 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
       for(let i=0;i<n;i++){ const a=a0+(rnd()-.5)*1.6; spawnEnemy(rnd()<.5?'vc':'nva',p.x+Math.cos(a)*(R+rnd()*80),p.y+Math.sin(a)*(R+rnd()*80),true) } }
     if(this.SAP&&g.t>90&&(!this.SAPT||rnd()<(this.night()?.45:.15)))this.sappers(g) },
   /* (b) barrage: 'INCOMING!' + whistle, red rings on the impact spots ~2 s before each round lands */
-  barrage(g){ if(!this.BAR||g.demo||!g.char)return; const p=g.p, e=this.esc(g), cal=this.CAL&&rnd()<.4?60:82, n=(cal===60?4:3)+Math.round(e*5), L=this.TH?3.2:0, tgts=[p];   /* NVA 82mm (heavier, fewer) or 60mm (lighter, more rounds) */ for(const m of coy)if(m.hp>0&&m.state==='ok'&&!m.hid)tgts.push(m);
+  barrage(g){ if(!this.BAR||g.demo||!g.char)return; const p=g.p, e=this.esc(g), cal=this.CAL&&rnd()<.4?60:82, n=(cal===60?4:3)+Math.round(e*5), L=this.TH?3.2:0, spare=this.spareDoc(g), tgts=spare?[]:[p];   /* NVA 82mm (heavier, fewer) or 60mm (lighter, more rounds) */ for(const m of coy)if(m.hp>0&&m.state==='ok'&&!m.hid)tgts.push(m); if(!tgts.length)tgts.push({x:p.x+(rnd()<.5?-1:1)*320,y:p.y+(rnd()-.5)*200});
     for(let i=0;i<n;i++){ const T=tgts[(rnd()*tgts.length)|0], a=rnd()*TAU, r=(T===p?70:30)+rnd()*170; let x=T.x+Math.cos(a)*r, y=T.y+Math.sin(a)*r; if(riverAt(x,y)){ x=T.x-Math.cos(a)*r; y=T.y-Math.sin(a)*r }
-      this.shells.push({x,y,t:0,d:L+2.1+i*.38+rnd()*.2,w:L,cal}) }
+      if(spare){ const dd=Math.hypot(x-p.x,y-p.y), mn=this.BR+40; if(dd<mn){ const a2=dd>1?Math.atan2(y-p.y,x-p.x):rnd()*TAU; x=p.x+Math.cos(a2)*mn; y=p.y+Math.sin(a2)*mn } }   /* Gamer rc6 #4: never a round on Doc when he is under 25% HP or on an alert */
+      this.shells.push({x,y,t:0,d:L+2.1+i*.38+rnd()*.2,w:Math.max(0,L-.8),cal}) }
     this.log.bar++; this.cal=cal;
-    if(L){ this.whT=g.t+L; try{ if(SAMP.ready()&&SamplePlayer.hasSample('mortar_launch'))MIX.as('special',()=>SamplePlayer.play('mortar_launch',{vol:.22})) }catch(er){} } else this.warn(g);   /* faint distant tube 'thunk' (existing pack mortar_launch) ~3 s before the rounds land */
+    if(L){ this.whT=g.t+Math.max(.01,L-.8);   /* rings + INCOMING ~2.9 s before the first impact (Gamer rc6 #4) */ try{ if(SAMP.ready()&&SamplePlayer.hasSample('mortar_launch'))MIX.as('special',()=>SamplePlayer.play('mortar_launch',{vol:.22})) }catch(er){} } else this.warn(g);   /* faint distant tube 'thunk' (existing pack mortar_launch) ~3 s before the rounds land */
     if(this.SAP&&this.SAPT&&g.t>90&&rnd()<.75)this.sapAt=g.t+L+2.1+n*.38+1.5 },   /* sappers come in right behind the barrage */
+  spareDoc(g){ const p=g.p, ex=g.ex, c=ex&&ex.call; return p.hp<p.maxHp*.25||state!=='play'||!!(c&&(c.st==='wait'||c.st==='ask'||c.st==='popped'))||this.thrown.length>0||enemies.some(e=>e.arm>0&&!e.dead) },
   warn(g){ g.banner={text:'INCOMING! '+(this.CAL?this.cal+'MM':''),t:1.8,col:'#ff6a4a'}; g.shake=Math.max(g.shake,2);
     try{ if(SAMP.ready()&&SamplePlayer.hasSample('mortar_incoming'))MIX.as('special',()=>SamplePlayer.play('mortar_incoming')); else Snd.play('mortar') }catch(er){} },
   land(q){ const g=G,p=g.p, l60=q.cal===60, R=this.BR*(l60?.8:1), e=this.esc(g)*(l60?.7:1); this.log.shells++; EXIMP=1; try{ SAMP.impact('mortar') }catch(er){} explode(q.x,q.y,R,40,200); EXIMP=0;
