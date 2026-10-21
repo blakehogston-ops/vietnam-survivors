@@ -214,7 +214,11 @@ body.capture #p3toast,body.capture #p3runAch,body.capture .p3sc,body.capture .p3
 body.nohud>*:not(canvas#c):not(.overlay):not(script):not(#tut),body.nohud .bstamp,body.nohud #overDed,body.nohud #over .ocsm,body.nohud #p3toast,body.nohud #p3runAch,body.nohud #crashNote{display:none!important}
 /* rc8 Art Director nit: How to Play body text lifted for contrast */
 .howto,.howto .htBody{color:#c9c3a0!important}
-body>:not(canvas):not(script){zoom:var(--uis,1)}   /* rc8.1: UI scale max(1, innerHeight/1080) */
+body>:not(canvas):not(script){zoom:var(--uis,1)}
+#pause.show{overflow-y:auto;overscroll-behavior:contain}   /* rc8.1 menu-drop: skinned settings panel is taller than short windows (667 px in 594) - scroll, never clip */
+#quitAsk{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;background:rgba(7,15,9,.72)}#quitAsk.show{display:flex}
+#quitAsk .qb{background:rgba(14,22,12,.96);border:3px solid #1d2f14;box-shadow:0 5px 0 #1d2f14;border-radius:4px;padding:18px 26px;text-align:center;color:#f6f0cc}
+#quitAsk h3{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(20px,3vw,28px);letter-spacing:.12em;margin:0 0 6px;text-transform:uppercase}#quitAsk p{font-size:14px;color:#c9c3a0;margin:0 0 8px}   /* rc8.1: UI scale max(1, innerHeight/1080) */
 </style>
 </head>
 <body>
@@ -341,6 +345,7 @@ Pause .......... Esc / P     Mute ... M</pre></div>
   <div id="luHint"></div>
 </div>
 
+<div id="quitAsk" role="dialog" aria-modal="true" aria-labelledby="quitAskT"><div class="qb"><h3 id="quitAskT">Quit run?</h3><p>Progress in this run is lost. Enter / Esc = No</p><button class="btn alt" id="qaYes">Yes</button><button class="btn" id="qaNo">No</button></div></div>
 <div id="pause" class="overlay">
   <div class="bstamp"></div>
   <h2>PAUSED</h2>
@@ -5853,7 +5858,7 @@ function closeCharSel(){ $('charsel').classList.remove('show'); $('menu').classL
 $('btnCsBack').onclick=closeCharSel; $('btnCsGo').onclick=()=>startGame();
 $('charsel').addEventListener('keydown',e=>{ if(e.code==='Enter'||e.code==='Space')e.stopPropagation();
   if(e.code==='ArrowRight'||e.code==='ArrowLeft'||e.code==='ArrowDown'||e.code==='ArrowUp'){ const i=CHORDER.indexOf(SEL), d=(e.code==='ArrowRight'||e.code==='ArrowDown')?1:-1; selectChar(CHORDER[(i+d+CHORDER.length)%CHORDER.length]); e.preventDefault() }
-  if(e.code==='Escape')closeCharSel() });
+  if(e.code==='Escape'&&$('charsel').classList.contains('show'))closeCharSel() });   /* rc8.1 menu-drop: a stale focus inside the hidden character select must never re-open the menu mid-run */
 { const pb=$('pbBtn'); pb.addEventListener('pointerdown',e=>{ e.stopPropagation(); e.preventDefault(); PB.toggle() }); pb.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true}); setInterval(()=>{ if(state!=='play'&&pb.style.display!=='none'){ pb.style.display='none'; PB._sh=false } },250) }
 { const sb=$('sigBtn'); sb.addEventListener('pointerdown',e=>{ e.stopPropagation(); e.preventDefault(); popSignal() }); sb.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true}); sb.addEventListener('click',e=>e.preventDefault());
   /* smoke confirm: ONLY Enter / Esc, pad A / B, or a real click / tap on ROGER / NEGATIVE. A keyboard-activated button click (Space on a focused button) has detail 0 and is ignored. */
@@ -7604,9 +7609,15 @@ function drawFlashes(camX,camY){ if(!flashes.length)return; ctx.save(); ctx.glob
 
 /* ====================== game flow ====================== */
 function startGame(){ if(!chOpen(SEL)){ if($('charsel').classList.contains('show'))return; SEL='doc' } try{document.activeElement&&document.activeElement.blur()}catch(e){} if(!navigator.userActivation||navigator.userActivation.hasBeenActive){Snd.init(); Snd.resume();} newGame(false); state='play'; ['menu','charsel','over','pause','levelup','sigask'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='flex'; if(!(DBG.t>0||DBG.nointro)){ if(INTRO2&&!DBG.nobrief)startBrief2(); else startIntro() } }   /* rc8.1: ?nobrief also skips brief2 */
-function toMenu(){ setTimeout(()=>window.martHow&&martHow(),60); if(G&&!G.demo&&(state==='paused'||state==='over'||state==='play'))awardRun(); state='menu'; ['over','pause','levelup','charsel','sigask'].forEach(i=>$(i).classList.remove('show')); $('menu').classList.add('show'); $('topbtns').style.display='none'; showBest(); if(!DBG.nodemo)newGame(true); }
+function toMenu(){ try{quitAskClose()}catch(e){} setTimeout(()=>window.martHow&&martHow(),60); if(G&&!G.demo&&(state==='paused'||state==='over'||state==='play'))awardRun(); state='menu'; ['over','pause','levelup','charsel','sigask'].forEach(i=>$(i).classList.remove('show')); $('menu').classList.add('show'); $('topbtns').style.display='none'; showBest(); if(!DBG.nodemo)newGame(true); }
 function pauseGame(){ if(state==='play'){state='paused';$('pause').classList.add('show')} }
-function resumeGame(){ if(state==='paused'){state='play';$('pause').classList.remove('show');last=performance.now()} }
+function resumeGame(){ if(state==='paused'){ quitAskClose(); state='play';$('pause').classList.remove('show');last=performance.now(); try{document.activeElement&&document.activeElement.blur()}catch(e){} } }   /* rc8.1 menu-drop: no focused overlay button survives into play */
+/* rc8.1 menu-drop: Quit to menu mid-run asks first; default No (Enter / Esc / N = No, Y = Yes). Game-over Main menu + pad B stay instant. */
+function quitAskOpen(){ if(state!=='paused'){ toMenu(); return } $('quitAsk').classList.add('show'); setTimeout(()=>{ try{$('qaNo').focus()}catch(e){} },0) }
+function quitAskClose(){ $('quitAsk').classList.remove('show'); try{document.activeElement&&document.activeElement.blur()}catch(e){} }
+function quitAskOn(){ return $('quitAsk').classList.contains('show') }
+$('qaNo').onclick=()=>quitAskClose(); $('qaYes').onclick=()=>{ quitAskClose(); toMenu() };
+window.addEventListener('keydown',e=>{ if(!quitAskOn())return; e.preventDefault(); e.stopImmediatePropagation(); if(e.repeat)return; if(e.code==='KeyY'){ quitAskClose(); toMenu() } else if(e.code==='Enter'||e.code==='NumpadEnter'||e.code==='Escape'||e.code==='KeyN'||e.code==='Space')quitAskClose() },true);
 function exScore(g){ const ex=g.ex; return Math.floor(g.kills*10+(ex?ex.holdKills*30:0)+(ex&&ex.evac?5000:0)+g.t) }
 /* ---- end cards (Stage 1). Never any debug text. Death card: one plain fact. Win card: who got on (by name), who was loaded, who was left; kills small; seed. ---- */
 const RUNLOGS=[];
@@ -7775,7 +7786,7 @@ function serviceCard(aw){ if(!aw)return ''; const D=CHD[aw.id], c=CHS[aw.id]||{}
    (fresh.length?'<div class="newrib">'+fresh.slice().sort((a,b)=>RIB_ORDER.indexOf(a)-RIB_ORDER.indexOf(b)).map(k=>`<div class="nr${k==='lbo'?' bdg':''}"><img src="${k==='lbo'?ribURL(k,false,1):ribURL(k,true,3)}" alt=""><span><b>NEW: ${RIB[k].nm}</b><br>${RIB[k].how}</span></div>`).join('')+'</div>':'')+
    `</div>` }
 function showBest(){ let b=0; try{b=+localStorage.getItem('lco_best')||0}catch(e){} let ev=0; try{ev=+localStorage.getItem('lco_evacs')||0}catch(e){} $('best').textContent=(b?('Best survival: '+fmt(b)):'')+(ev?(b?' · ':'')+'Evacuations: '+ev:''); }
-$('btnStart').onclick=openCharSel; $('btnRestart').onclick=startGame; $('btnMenu').onclick=toMenu; $('btnResume').onclick=resumeGame; $('btnQuit').onclick=toMenu; $('btnPause').onclick=()=>{state==='play'?pauseGame():resumeGame()};
+$('btnStart').onclick=openCharSel; $('btnRestart').onclick=startGame; $('btnMenu').onclick=toMenu; $('btnResume').onclick=resumeGame; $('btnQuit').onclick=quitAskOpen; $('btnPause').onclick=()=>{state==='play'?pauseGame():resumeGame()};
 document.querySelectorAll('.volM,.volS').forEach(el=>{ const k=el.classList.contains('volM')?'mus':'sfx'; el.value=Math.round(Snd.vol[k]*100); el.addEventListener('input',e=>{ Snd.setVol(k,e.target.value/100) }); el.addEventListener('keydown',e=>e.stopPropagation()); el.addEventListener('pointerdown',e=>e.stopPropagation()) });
 $('btnMute').onclick=()=>{Snd.init();Snd.resume();Snd.setMuted(!Snd.muted)};
 document.querySelectorAll('.lowChk').forEach(c=>{ c.addEventListener('change',e=>{ setLowFx(e.target.checked); e.target.blur() }); c.addEventListener('keydown',e=>{ e.stopPropagation() }) }); setLowFx(LOWFX,true); document.querySelectorAll('.rfChk').forEach(c=>{ c.addEventListener('change',e=>{ setRFX(e.target.checked); e.target.blur() }); c.addEventListener('keydown',e=>{ e.stopPropagation() }) }); setRFX(RFX,true);
@@ -7851,6 +7862,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
     if(st==='sig'){ if(!sigAskReady())return;   /* a pad press edge after the dialog opened is always a fresh press */ if(k==='A')answerSignal(true); else if(k==='B')answerSignal(false); return }
     if(st==='levelup'){ const n=choices.length; if(!k){ if(dx||dy)this.luI=Math.max(0,Math.min(n-1,this.luI+(dx||dy))) } else if(k==='LB')this.luI=Math.max(0,this.luI-1); else if(k==='RB')this.luI=Math.min(n-1,this.luI+1);
       else if(k==='A')pickChoice(Math.min(this.luI,n-1)); else if(k==='X')doReroll(); else if(k==='Y')toggleBan(); else if(k==='B'&&banMode)toggleBan(); return }
+    if(st==='paused'&&quitAskOn()){ const y=document.activeElement===$('qaYes'); if(k==='A')$(y?'qaYes':'qaNo').click(); else if(k==='B'||k==='ST')quitAskClose(); else if(!k&&(dx||dy))$(y?'qaNo':'qaYes').focus(); return }   /* rc8.1 quit confirm on the pad */
     if(st==='paused'){ if(k==='ST'||k==='B'){ resumeGame(); return } }
     if(st==='over'&&performance.now()-overAt<900)return;
     if(st==='over'&&k==='B'){ toMenu(); return }
