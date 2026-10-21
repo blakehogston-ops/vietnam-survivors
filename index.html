@@ -1322,7 +1322,7 @@ const HUDM=window.HUDM={P:(location.search.match(/[?&]hudmobile=([01])/)||[])[1]
   crit(b){ return !!b&&(/INCOMING|SMOKE|RTO DOWN|BREACH|WAVING OFF|GUN/.test(b.text)||b.col==='#ff6a4a') },
   ft(list){ const m=new Map(); for(const q of list){ const k=q.s; const o=m.get(k); if(!o||q.t<o.q.t)m.set(k,{q,n:(o?o.n:0)+1}); else o.n++ } return [...m.values()].sort((a,b)=>a.q.t-b.q.t).slice(0,2) } };
 function resize(){
-  const dpr=Math.min(window.devicePixelRatio||1,COARSE.matches?DRES.cap:1.5);   /* phones: 1.25x backing store, 1.0 if DRES steps down (fps gate) */
+  const dpr=COARSE.matches?Math.min(window.devicePixelRatio||1,DRES.cap):((window.devicePixelRatio||1)>=1.75?2:Math.min(window.devicePixelRatio||1,1.5));   /* rc8.1 retina: desktop dpr2 got a 1.5x store upscaled 1.333x by the browser = faint wavy resample lines; use an integer 2x store there */   /* phones: 1.25x backing store, 1.0 if DRES steps down (fps gate) */
   W=cv.width=Math.max(320,Math.floor(innerWidth*dpr)); H=cv.height=Math.max(240,Math.floor(innerHeight*dpr));
   const KS=Math.max(1,H/1080);   /* rc8.1 scaling: above 1080 px tall, keep the 1080p view (world + canvas HUD scale with height); 1280x800 / 1080p / 2560x1080 unchanged */
   zoom=Math.max(.5,Math.min(1.7,Math.min(W/KS,H/KS)/700))*KS; VW=W/zoom; VH=H/zoom;
@@ -6735,8 +6735,8 @@ const FBPADHIDE=!/[?&]fbpadhide=0\b/.test(location.search);
 function padActiveNear(x,y){ const ex=G&&G.ex; if(!ex)return false; const P=(ex.pad&&(ex.padShown||ex.ph>=3)&&ex.ph<=7)?ex.pad:(ex.ph===0&&ex.pre&&N2.XC&&G.t>=N2.XMIN?ex.pre:null); return !!P&&Math.hypot(P.x-x,P.y-y)<260 }
 function fbCallText(){ return PAD.on?'HOLD '+PAD.pn('X').split(' ')[0].toUpperCase()+' TO CALL ENGINEERS':COARSE.matches?HUDM.short('STAND STILL TO CALL ENGINEERS'):'HOLD F TO CALL ENGINEERS' }
 function fbCallNear(){ if(state!=='play'||!G||G.demo)return false; const site=lzS||(fbS&&fbS.state==='stalled'&&!fbH?fbS:null); return !!(site&&Math.hypot(G.p.x-site.x,G.p.y-site.y)<140) }
-function fbRing(x,y,hold,tt){ ctx.save(); ctx.translate(x,y+4); ctx.scale(1,.62); ctx.lineWidth=5; ctx.strokeStyle='rgba(0,0,0,.45)'; ctx.beginPath(); ctx.arc(0,0,54,0,TAU); ctx.stroke();
-  ctx.strokeStyle='rgba(255,230,120,.85)'; ctx.lineWidth=3; ctx.setLineDash([10,7]); ctx.lineDashOffset=-tt*10; ctx.beginPath(); ctx.arc(0,0,54,0,TAU); ctx.stroke(); ctx.setLineDash([]);
+function fbRing(x,y,hold,tt){ ctx.save(); ctx.translate(x,y+4); ctx.scale(1,.62); ctx.lineWidth=7; ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.beginPath(); ctx.arc(0,0,54,0,TAU); ctx.stroke();
+  ctx.strokeStyle='rgba(255,236,140,1)'; ctx.lineWidth=4.5; ctx.setLineDash([10,7]); ctx.lineDashOffset=-tt*10; ctx.beginPath(); ctx.arc(0,0,54,0,TAU); ctx.stroke(); ctx.setLineDash([]);
   if(hold>0){ ctx.strokeStyle='#9be37a'; ctx.lineWidth=7; ctx.beginPath(); ctx.arc(0,0,54,-Math.PI/2,-Math.PI/2+TAU*Math.min(1,hold)); ctx.stroke() } ctx.restore() }
 /* announcements (Stage 1): Gunny, bosses and the signal always get text; every other support call announces once per run with text, then only its icon */
 /* timed radio lines (call-for-fire phrasing): [[delay s, text], ...] shown as short banners on the sim clock */
