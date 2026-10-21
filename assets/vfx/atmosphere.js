@@ -59,6 +59,8 @@ function grade(){ const H=((S.hour%24)+24)%24; let a=KEYS[0],b=KEYS[1];
 /* single cached offscreen canvas holding the full grade (sky-to-ground falloff baked in); rebuilt only when quantised params change */
 /* rc8.1 retina DEBUG: ?fxoff=a,b|all skips layers (opt-in, off by default) */
 const FXO=(()=>{ try{ const m=location.search.match(/[?&]fxoff=([^&]*)/); return m?decodeURIComponent(m[1]).split(','):[] }catch(e){ return [] } })(), FXOFF=n=>FXO.includes('all')||FXO.includes(n);
+/* rc8.1: heat shimmer caused white wavy lines on Retina (Blake bisect) -> OFF by default, ?shimmer=1 debug opt-in */
+const SHIM_ON=(()=>{ try{ return /[?&]shimmer=1\b/.test(location.search) }catch(e){ return false } })();
 function buildGrade(){ const G=S.cur, m=G.mul, l=(m[0]*.3+m[1]*.59+m[2]*.11), k=G.sat*.3; S.mulCss=`rgb(${lerp(m[0],l,k)|0},${lerp(m[1],l,k)|0},${lerp(m[2],l,k)|0})`;
   { const v=S.rain>0?[112,112,104]:[150,136,108]; S.veilCss=`rgba(${v[0]},${v[1]},${v[2]},${(G.sat*.22).toFixed(3)})` }
   const key=(S.rain*10|0)+'|'+S.low; if(key!==S.gk){ S.gk=key; buildScreen() } }
@@ -152,7 +154,7 @@ function drawWorldOverlay(ctx,camX,camY,zoom){ const t0=performance.now(); zoom=
     ctx.globalAlpha=1 }
   PM('haze');
   // 2) heat shimmer by day (cheap: few horizontal strips self-offset)
-  if(!low&&!FXOFF('shimmer')&&G.dark<.05&&S.rain<.3&&S.hour>9&&S.hour<16){ ctx.globalCompositeOperation='screen'; ctx.globalAlpha=.8; for(let i=0;i<3;i++){ const y=(h*.5+i*h*.16+Math.sin(S.t*.4+i)*8)|0, off=-((S.t*(9+i*4)+camX*zoom*.2)%512+512)%512|0; for(let x=off;x<w;x+=512) ctx.drawImage(S.shim,x,y) } ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over' }
+  if(!low&&SHIM_ON&&!FXOFF('shimmer')&&G.dark<.05&&S.rain<.3&&S.hour>9&&S.hour<16){ ctx.globalCompositeOperation='screen'; ctx.globalAlpha=.8; for(let i=0;i<3;i++){ const y=(h*.5+i*h*.16+Math.sin(S.t*.4+i)*8)|0, off=-((S.t*(9+i*4)+camX*zoom*.2)%512+512)%512|0; for(let x=off;x<w;x+=512) ctx.drawImage(S.shim,x,y) } ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over' }
   PM('shimmer');
   // 3) dust motes (dry weather), drift with slight parallax
   if(S.rain<.2&&!FXOFF('dust')){ ctx.fillStyle=G.dark>.3?'rgba(200,210,230,.35)':'rgba(240,226,180,.45)'; const n=Math.min(low?25:MAXD,Q.dust), tw=w+40, th=h+40;
