@@ -1,0 +1,53 @@
+
+[photos, Oct 14 night] Public-domain US government photographs (menu background, ON; ?photos=0 off). Captions verified by Vietnam Vet, Oct 14 night (game captions: ch46_auburn 'Operation Auburn, Quang Nam, c. January 1968'; khesanh_howitzer '155mm howitzer, Battery W, 1/13 Marines, Khe Sanh, 1968'; pbr_nh96707 'Mekong Delta / Rung Sat, January 1968').
+assets/photos/khesanh_howitzer.webp: Marines load an M118 howitzer, Khe Sanh 1968.jpg
+    Caption (source): Marines of Battery W, 1st Battalion, 13th Marines at Khe Sanh are seen preparing to load a M114A 155mm howitzer.
+    Author: Department of Defense (USMC) photo A190292
+    Source: https://commons.wikimedia.org/wiki/File:Marines_load_an_M118_howitzer,_Khe_Sanh_1968.jpg
+    Credit: http://www.marines.mil U.S. Marines in Vietnam 1968 The Defining Year p538
+    Basis: Public domain (work of a US federal employee/military member in official duties, 17 U.S.C. 105). Edited: greyscale, resized, WebP.
+assets/photos/pbr_nh96707.webp: NH 96707.jpg
+    Caption (source): River patrol boat (PBR) crewmen check a Vietnamese identification card, during a patrol in the Mekong Delta and Rung Sat special zone, January 1968. Men are (l-r): Quartermaster First Class Steward Hickman, EngM3 Ronald Bartelmel, GM3 J. D. Glynn. Note Honeywell Mk18 40mm grenade
+    Author: Naval History and Heritage Command NH 96707 photo by Lieutenant Junior Grade T. S. Storck, USNR
+    Source: https://commons.wikimedia.org/wiki/File:NH_96707.jpg
+    Credit: https://www.history.navy.mil/our-collections/photography/numerical-list-of-images/nhhc-series/nh-series/NH-96000/NH-96707.html
+    Basis: Public domain (work of a US federal employee/military member in official duties, 17 U.S.C. 105). Edited: greyscale, resized, WebP.
+assets/photos/ch46_auburn.webp: 3.5 Marines offload from CH-46 during Operation Auburn.jpg
+    Caption (source): The following information was provided by digitizing partner Fold3: Browse Subject: Helicopters CH-46 Subject Description: Helicopters CH-46 Category: Helicopters Place: Vietnam Date Month: January Date Day: 1 Date Year: 1968
+    Author: Department of Defense. Department of the Navy. U.S. Marine Corps. 9/18/1947
+    Source: https://commons.wikimedia.org/wiki/File:3.5_Marines_offload_from_CH-46_during_Operation_Auburn.jpg
+    Credit: This file was contributed to Wikimedia Commons by National Archives at College Park - Still Pictures as part of a cooperation project. The donation was facilitated by the Digital Public Library of Ame
+    Basis: Public domain (work of a US federal employee/military member in official duties, 17 U.S.C. 105). Edited: greyscale, resized, WebP.
+assets/photos/conthien_bunker.webp: Marines build a fighting bunker, Con Thien, January 1968.jpg
+    Caption (source): A Marine platoon from the 1st Battalion, 4th Marines is seen at work building a bunker emplacement at C-4 Con Thien with sandbags for overhead cover in January
+    Author: Department of Defense (USMC) photo A190197
+    Source: https://commons.wikimedia.org/wiki/File:Marines_build_a_fighting_bunker,_Con_Thien,_January_1968.jpg
+    Credit: http://www.marines.mil U.S. Marines in Vietnam 1968 The Defining Year
+    Basis: Public domain (work of a US federal employee/military member in official duties, 17 U.S.C. 105). Edited: greyscale, resized, WebP.
+assets/photos/ch53_khesanh.webp: Marines offload a CH-53 at Khe Sanh, 23 January 1968.jpg
+    Caption (source): The following information was provided by digitizing partner Fold3: Browse Subject: Supply (loading and unloading of gear) Subject Description: Supply (loading and unloading of gear) Category: Equipment Place: Vietnam Date Month: January Date Day: 23 Date Year: 1968
+    Author: Department of Defense. Department of the Navy. U.S. Marine Corps. 9/18/1947
+    Source: https://commons.wikimedia.org/wiki/File:Marines_offload_a_CH-53_at_Khe_Sanh,_23_January_1968.jpg
+    Credit: This file was contributed to Wikimedia Commons by National Archives and Records Administration as part of a cooperation project. The donation was facilitated by the Digital Public Library of America, 
+    Basis: Public domain (work of a US federal employee/military member in official duties, 17 U.S.C. 105). Edited: greyscale, resized, WebP.
+assets/photos/pbr_perfume.webp (replaces pbr_nh96707, per Vietnam Vet: an I Corps PBR photo): "PBR checks IDs of Vietnamese sampan crew on the Perfume River"
+    Caption (source): PERFUME RIVER, REPUBLIC OF VIETNAM...Vietnamese aboard a junk show their identification papers to the crewmen of a U.S. Navy River Patrol Boat (PBR). 20 August 1968.
+    Author: LT Storck. Source: https://commons.wikimedia.org/wiki/File:PBR_checks_IDs_of_Vietnamese_sampan_crew_on_the_Perfume_River.jpg ; NARA 127-GVC-127-A704280
+    Basis: Public domain (US government work, 17 U.S.C. 105). Edited: greyscale, WebP. (Game caption new: needs a quick Vet re-check.)
+
+radio_key_in_1 / radio_key_out_1 (added Oct 20): Sound Helper build_radio_oct20.py. Sources per Sound Helper manifest: LukaCafuka key/release, pdsounds STE-011 squelch, JovianSounds roger chirp (marked cleared). Full credit lines still to be added to Sound Helper THIRD_PARTY_AUDIO.txt.
+
+--- Music + sound credits added 2026-10-20 (RC4; Legal PASS 2026-10-20, LICENSE_AUDIT.md) ---
+"Heavy Pizza Jam" by Ə (Petites Maisons / Jangwa Nook Records), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: https://freemusicarchive.org/music/e/heavy-pizza-jams/heavy-pizza-jam/ — edited (looped/trimmed). [combat tier 5: audio/music/music_combat_5.*]
+"The Thunderer" (John Philip Sousa, 1889), performed by "The President's Own" United States Marine Band (2017). Public domain. Use does not imply endorsement by the U.S. Marine Corps or DoD. [extraction: audio/music/music_extraction.*]
+"Semper Fidelis" (John Philip Sousa, 1888), performed by "The President's Own" United States Marine Band (2016), The Complete Marches of John Philip Sousa, Vol. 2. Public domain (U.S. government work), via Wikimedia Commons. Not used in branding or store copy; no USMC insignia. [menu: audio/music/music_menu_march.*]
+"When Johnny Comes Marching Home", U.S. Navy Band Brass Quartet. Public domain (U.S. government work), via Wikimedia Commons. [menu intro]
+Battle dressing foley: Luckius "Various paper sound effects" (OpenGameArt, CC0); Owlish Media / Ashe Kirk "202 More Sound Effects" and "Sound Effects Pack" (CC0). Courtesy credit.
+Radio key-in/out: LukaCafuka "Walkie-talkie end of transmission" (Freesound #760245, CC0, Legal PASS 2026-10-20); JovianSounds #524205 (CC0); pdsounds.org STE-011 (public domain).
+VSCO 2 Community Edition, Versilian Studios (CC0) — courtesy.
+Removed from the build: "La Menteuse" and "Zapatista" (JoshuaHudesMusic) and the menu_asian track (not shipped).
+--- RC5 (2026-10-20): combat tiers restored (Sound Helper); full sources in audio/THIRD_PARTY_AUDIO.txt ---
+combat_2: "60s Underground Organ Rock" by JuliusH, via Pixabay (https://pixabay.com/music/vintage-60s-underground-organ-rock-4209/). Legal PASS Oct 20 (test build); tier 4 needs AI disclosure or a swap before Steam.
+combat_3: "Steampunk Garage" by Pixabay user 4379051, via Pixabay (https://pixabay.com/music/rock-steampunk-garage-142325/). Legal PASS Oct 20 (test build); tier 4 needs AI disclosure or a swap before Steam.
+combat_4: "Garage Rock" by NewEraMusic, via Pixabay (https://pixabay.com/music/rock-garage-rock-559346/). Legal PASS Oct 20 (test build); tier 4 needs AI disclosure or a swap before Steam.
+combat_4_alt (?c4=alt only, off by default): "Rock Oco" by Ə (Petites Maisons / Jangwa Nook Records), CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Source: https://freemusicarchive.org/music/e/heavy-pizza-jams/rock-oco/ - edited. Legal PASS Oct 20 (test build); tier 4 needs AI disclosure or a swap before Steam.

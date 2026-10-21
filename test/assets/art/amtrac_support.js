@@ -98,6 +98,7 @@
     });
   }
   // ---- burning / disabled: blackened hull (Burnt legend), flames out of the hatches, thick black oily smoke column
+  function vf(ctx, fr, x, y, sc, t, w, h, I) { var F = root.VFX_FLAME; if (F && F.drawFire && F.SHARED) return F.drawFire(ctx, { x: x, y: y, w: (w || 15) * sc, h: (h || 14) * sc, intensity: I || 0.85, t: t || 0, seed: ((x * 7 + y * 3) | 0) & 1023, smoke: 0.45, embers: 0.6 }); S.draw(ctx, 'vehFire', fr, x, y, sc); }   /* rc8.1: shared napalm-sheet fire when vfx/flame_shared.js is loaded */
   function burning(ctx, o, i, lvl, deckF) {
     var sc = o.scale || 1, t = o.t || 0, wind = o.wind == null ? 0.35 : o.wind;
     for (var k = 0; k < 14; k++) {
@@ -105,6 +106,8 @@
       var x = src[0] + (age * age * 60 * wind + (hash(seed) - 0.5) * 10 * age) * sc, y = src[1] - age * 70 * sc;
       puff(ctx, 'smk', age < 0.25 ? SMOKE : (age < 0.7 ? SMOKE : GREY), x, y, (4 + age * 14) * sc, (age < 0.1 ? age * 10 : 1) * (1 - age * 0.7) * 0.9 * lvl, seed);
     }
+    var SF = root.VFX_FLAME; if (SF && SF.drawFire && SF.SHARED) { var h1 = at(o, i, deckF, 0, 22), h2 = at(o, i, deckF + 18, 6, 22);   // hatches: one shared fire each, the smoke column above stays
+      vf(ctx, 0, h1[0], h1[1], sc, t, 16, 18, lvl); if (lvl > 0.5) vf(ctx, 0, h2[0], h2[1], sc, t + 0.41, 13, 15, lvl); return; }
     if (S.sprites.vehFire) { var ff = Math.floor(t * 10), a = at(o, i, deckF, 0, 22), b = at(o, i, deckF + 18, 6, 22);
       S.draw(ctx, 'vehFire', ff + 1, a[0], a[1], sc); if (lvl > 0.5) S.draw(ctx, 'vehFire', ff + 3, b[0], b[1], sc); }
     for (var j = 0; j < 4; j++) { var fl = at(o, i, deckF - 8 + j * 9, (j % 2 ? -5 : 5), 24 + (Math.sin(t * 13 + j) + 1) * 2);
