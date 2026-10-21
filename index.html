@@ -7996,7 +7996,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   const T=256; for(let x=Math.floor(camX/T)*T;x<camX+VW;x+=T)for(let y=Math.floor(camY/T)*T;y<camY+VH;y+=T){
     const tcx=Math.floor(x/T),tcy=Math.floor(y/T);
     const tc=TERR.ready()&&!G.demo?TERR.get(tcx,tcy):null;
-    if(tc){ ctx.drawImage(tc[tc.length>1?Math.floor(g_now()*4)%3:0],x,y,T+1,T+1); continue }
+    if(tc){ const dx=Math.round((x-camX)*zoom), dy=Math.round((y-camY)*zoom); ctx.setTransform(1,0,0,1,0,0); ctx.drawImage(tc[tc.length>1?Math.floor(g_now()*4)%3:0],dx,dy,Math.round((x+T-camX)*zoom)-dx,Math.round((y+T-camY)*zoom)-dy); ctx.setTransform(zoom,0,0,zoom,-camX*zoom,-camY*zoom); continue }   /* rc8.1 retina: chunk edges snapped to whole device pixels, no 257/256 stretch (that duplicated a source row per chunk = faint seam lines) */
     ctx.drawImage(paddyCell(tcx,tcy)?TILE_P:TILE_J,x,y,T+1,T+1);
     if(riverCol(tcx))ctx.drawImage(TILE_RV,x,y,T+1,T+1);
     if(riverRow(tcy))ctx.drawImage(TILE_RH,x,y,T+1,T+1); }
