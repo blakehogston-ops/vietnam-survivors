@@ -55,6 +55,7 @@
   };
   var add = {};
   Object.keys(SPR).forEach(function (k) { var s = SPR[k]; s.frames = s.rle.map(unrle); delete s.rle; add[k] = s; });
+  function vf(ctx, fr, x, y, sc, t, w, h, I) { var F = root.VFX_FLAME; if (F && F.drawFire && F.SHARED) return F.drawFire(ctx, { x: x, y: y, w: (w || 15) * sc, h: (h || 14) * sc, intensity: I || 0.85, t: t || 0, seed: ((x * 7 + y * 3) | 0) & 1023, smoke: 0.45, embers: 0.6 }); S.draw(ctx, 'vehFire', fr, x, y, sc); }   /* rc8.1: shared napalm-sheet fire when vfx/flame_shared.js is loaded */
   function burnt(hex) { var r = parseInt(hex.substr(1, 2), 16), g = parseInt(hex.substr(3, 2), 16), b = parseInt(hex.substr(5, 2), 16), l = (r * .3 + g * .59 + b * .11) * .55 + 14;
     var h = function (v) { v = Math.max(0, Math.min(255, Math.round(v))); return (v < 16 ? '0' : '') + v.toString(16); }; return '#' + h(l + 14) + h(l + 6) + h(l - 2); }
   Object.keys(SPR).forEach(function (k) { var s = SPR[k]; if (s.fx || k === 'litterCarry') return; var lg = {};
@@ -85,7 +86,7 @@
     var t = S.sprites[k[1]], mz = pts(t, 'muzzle', j, o.x, o.y, sc), br = pts(t, 'breech', j, o.x, o.y, sc)[0];
     if (kind === 'ontos' && !o.dead && o.fire !== undefined && o.fire < 0.45 && br) S.draw(ctx, 'ontosBackblast', ((Math.min(2, Math.floor(o.fire / 0.15))) * 8) + j, br[0], br[1], sc);
     S.draw(ctx, k[1] + b, j, o.x, o.y, sc, false, o.hit);
-    if (o.dead) { var ff = Math.floor((o.t || 0) * 10); S.draw(ctx, 'vehFire', ff, o.x, o.y - 8 * sc, sc); S.draw(ctx, 'vehFire', ff + 1, o.x - 9 * sc, o.y - 4 * sc, sc); }
+    if (o.dead) { var ff = Math.floor((o.t || 0) * 10); vf(ctx, ff, o.x, o.y - 8 * sc, sc, o.t); vf(ctx, ff + 1, o.x - 9 * sc, o.y - 4 * sc, sc, (o.t || 0) + 0.37); }
     if (!o.dead && kind !== 'm67' && o.fire !== undefined && o.fire < 0.12) {
       var fk = o.fire < 0.06 ? 0 : 1, n = kind === 'ontos' ? 1 : mz.length;
       for (var m = 0; m < n; m++) S.draw(ctx, 'tankFlash', fk * 8 + j, mz[m][0], mz[m][1], sc * (kind === 'pt76' ? 0.8 : 1));

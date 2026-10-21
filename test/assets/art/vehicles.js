@@ -111,13 +111,15 @@
   };
   var VK = { m48: ['m48Hull', 'm48Turret'], m67: ['m48Hull', 'm67Turret'], ontos: ['ontosHull', 'ontosTurret'], pt76: ['pt76Hull', 'pt76Turret'], t54: ['t54Hull', 't54Turret'], m35: ['m35', null] };
   S.vehicleKinds = VK;
+  /* rc8.1 flame: burning vehicles use the shared napalm-sheet fire (vfx/flame_shared.js) when loaded, else the old vehFire sprite */
+  function vf(ctx, fr, x, y, sc, t) { var F = root.VFX_FLAME; if (F && F.drawFire && F.SHARED) return F.drawFire(ctx, { x: x, y: y, w: 15 * sc, h: 14 * sc, intensity: 0.85, t: t || 0, seed: ((x * 7 + y * 3) | 0) & 1023, smoke: 0.45, embers: 0.6 }); S.draw(ctx, 'vehFire', fr, x, y, sc); }
   S.drawVehicle = function (ctx, kind, o) {
     var k = VK[kind] || VK.m48, sc = o.scale || 1, i = hd(o.heading), j = hd(o.turret === undefined ? o.heading : o.turret), b = o.dead ? 'Burnt' : '';
     shadow(ctx, k[0], i, o.x + 3 * sc, o.y + 2 * sc, sc, 0.35);
     S.draw(ctx, k[0] + b, i, o.x, o.y, sc, false, o.hit);
     if (!k[1]) return { muzzle: [], mg: null };
     S.draw(ctx, k[1] + b, j, o.x, o.y, sc, false, o.hit);
-    if (o.dead) S.draw(ctx, 'vehFire', Math.floor((o.t || 0) * 10), o.x, o.y - 8 * sc, sc);
+    if (o.dead) vf(ctx, Math.floor((o.t || 0) * 10), o.x, o.y - 8 * sc, sc, o.t);
     var t = S.sprites[k[1]];
     return { muzzle: pts(t, 'muzzle', j, o.x, o.y, sc), mg: (pts(t, 'mg', j, o.x, o.y, sc)[0] || null) };
   };
@@ -131,7 +133,7 @@
     var sc = o.scale || 1, i = hd(o.heading), n = o.dead ? 'pbrWreck' : 'pbr', s = S.sprites.pbr;
     shadow(ctx, n, i, o.x + 2 * sc, o.y + 2 * sc, sc, 0.25);
     S.draw(ctx, n, i, o.x, o.y, sc, false, o.hit);
-    if (o.dead) { var f = Math.floor((o.t || 0) * 10); S.draw(ctx, 'vehFire', f, o.x, o.y - 4 * sc, sc); S.draw(ctx, 'vehFire', f + 1, o.x - 10 * sc, o.y - 2 * sc, sc); }
+    if (o.dead) { var f = Math.floor((o.t || 0) * 10); vf(ctx, f, o.x, o.y - 4 * sc, sc, o.t); vf(ctx, f + 1, o.x - 10 * sc, o.y - 2 * sc, sc, (o.t || 0) + 0.37); }
     return { fwd: pts(s, 'fwd', i, o.x, o.y, sc)[0], aft: pts(s, 'aft', i, o.x, o.y, sc)[0] };
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = S;

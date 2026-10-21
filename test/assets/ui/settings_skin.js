@@ -10,7 +10,7 @@
   function track(el,inp,re){ el.addEventListener('pointerenter',function(){el._h=1;re()}); el.addEventListener('pointerleave',function(){el._h=0;el._p=0;re()});
     el.addEventListener('pointerdown',function(){el._p=1;re()}); addEventListener('pointerup',function(){ if(el._p){el._p=0;re()} });
     if(inp){ inp.addEventListener('focus',function(){el._f=inp.matches(':focus-visible')?1:0;re()}); inp.addEventListener('blur',function(){el._f=0;re()}); } }
-  function toggle(el){ var inp=el.querySelector('input'), lab=(el.querySelector('span')||{}).textContent||'';
+  function toggle(el){ var inp=el.querySelector('input'), lab=(el.querySelector('span')||{}).textContent||''; if(!inp) return;   /* rc8.1: QUALITY row is a native <select>, not a switch */
     el.classList.add('sartT'); var W=Math.max(208,Math.min(268,(el.offsetWidth||220)+8)), H=48;   /* rc8 AD nit: +8 px between label and switch art (switch stays vertically centred on the label row) */ el.style.width=W+'px'; el.style.height=H+'px';
     function re(){ paint(el,W,H,function(x){ return SETTINGS_ART.drawToggle(x,0,0,W,H,!!inp.checked,st(el),lab) }) }
     inp.addEventListener('change',re); track(el,inp,re); el._re=re; re() }
