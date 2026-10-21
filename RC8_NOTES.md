@@ -98,3 +98,8 @@ Per Lead (MERGE_NOTE_RC8_SOURCING_OCT20 rev 2). Files were recopied fresh from s
 - LOW: terrain v2, light jungle LOD (off on touch/mobile), impact napalm, LOW flame caps, warm blast glow (bglow), lowest particle cap.
 - Kept off on every tier: fglow, jstrike, smksheet, tts, napalm rev 2.
 - Perf gate: perf-regress +10% on MED and LOW; HIGH reported only.
+
+## rc8.1 UI scaling + first-run card
+- DOM UI (HUD, banners, menus) scaled by CSS zoom max(1, innerHeight/1080) (--uis); canvas world zoom + canvas HUD scale with height above 1080 px, so 1440p/4K show the 1080p view. 1280x800, 1080p, 2560x1080 unchanged. Proof: /workspace/proof/rc81/scale/.
+- First-run "Move with WASD" card opens at insertion (intro/early play), never over the main menu.
+- settings_skin toggle(): `if(!inp) return;` (QUALITY row is a <select>).

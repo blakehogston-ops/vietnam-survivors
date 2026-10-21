@@ -214,6 +214,7 @@ body.capture #p3toast,body.capture #p3runAch,body.capture .p3sc,body.capture .p3
 body.nohud>*:not(canvas#c):not(.overlay):not(script):not(#tut),body.nohud .bstamp,body.nohud #overDed,body.nohud #over .ocsm,body.nohud #p3toast,body.nohud #p3runAch,body.nohud #crashNote{display:none!important}
 /* rc8 Art Director nit: How to Play body text lifted for contrast */
 .howto,.howto .htBody{color:#c9c3a0!important}
+body>:not(canvas):not(script){zoom:var(--uis,1)}   /* rc8.1: UI scale max(1, innerHeight/1080) */
 </style>
 </head>
 <body>
@@ -1316,8 +1317,10 @@ const HUDM=window.HUDM={P:(location.search.match(/[?&]hudmobile=([01])/)||[])[1]
 function resize(){
   const dpr=Math.min(window.devicePixelRatio||1,COARSE.matches?DRES.cap:1.5);   /* phones: 1.25x backing store, 1.0 if DRES steps down (fps gate) */
   W=cv.width=Math.max(320,Math.floor(innerWidth*dpr)); H=cv.height=Math.max(240,Math.floor(innerHeight*dpr));
-  zoom=Math.max(.5,Math.min(1.7,Math.min(W,H)/700)); VW=W/zoom; VH=H/zoom;
-  UI=Math.max(.8,Math.min(2.2,Math.min(W,H)/620)); DPR=W/innerWidth;
+  const KS=Math.max(1,H/1080);   /* rc8.1 scaling: above 1080 px tall, keep the 1080p view (world + canvas HUD scale with height); 1280x800 / 1080p / 2560x1080 unchanged */
+  zoom=Math.max(.5,Math.min(1.7,Math.min(W/KS,H/KS)/700))*KS; VW=W/zoom; VH=H/zoom;
+  UI=Math.max(.8,Math.min(2.2,Math.min(W/KS,H/KS)/620))*KS; DPR=W/innerWidth;
+  document.documentElement.style.setProperty('--uis',String(Math.max(1,innerHeight/1080)));   /* DOM HUD, banners, menus */
   { const cs=getComputedStyle(SAEL); SA={t:parseFloat(cs.paddingTop)||0,r:parseFloat(cs.paddingRight)||0,b:parseFloat(cs.paddingBottom)||0,l:parseFloat(cs.paddingLeft)||0} }
   const tb=document.getElementById('topbtns'); if(tb){ tb.style.top=Math.round(SA.t+22*UI/DPR+4)+'px' }
   PY=Math.max(70*UI,(SA.t+22*UI/DPR+4+(COARSE.matches?44:34)+6)*DPR); PY=Math.max(PY,SA.t*DPR+116*UI);   /* rc8a: +8 so the NVA COMMANDER bar never touches the MARINES line */   /* below the timer, the signal line and the MARINES count */
@@ -6427,7 +6430,7 @@ const KB={ON:!/[?&]photos=0\b/.test(location.search),L:['ch46_auburn','ch53_khes
 window.KB=KB; setInterval(()=>{ if(state==='menu')KB.start(); else if(KB.t)KB.stop() },1000);
 window.addEventListener('keydown',e=>TUT.key(e),true);
 { const iv=setInterval(()=>{ let a=false; try{a=localStorage.getItem('lco_tutAsk')==='1'}catch(e){} if(a||DBG.bot||params.has('autostart')||DBG.t>0||/[?&]notut\b/.test(location.search)){ clearInterval(iv); return }
-  if(state==='menu'&&!$('charsel').classList.contains('show')){ clearInterval(iv); TUT.open(true) } },500) }
+  if((state==='intro'||(state==='play'&&G&&!G.demo&&G.t<3))&&!$('charsel').classList.contains('show')){ clearInterval(iv); TUT.open(true) } },500) }   /* rc8.1: first-run 'Move with WASD' card only once gameplay starts (insertion), never over the main menu */
 
 /* ====================== FIREBASE: radio LZ -> Huey + engineers -> phased build, turrets, sappers, enemy armor ====================== */
 let lzS=null, fbS=null, engs=[], strs=[], chgs=[], fbH=null, fbC=null;
@@ -7108,8 +7111,9 @@ const TIP={seen:{},q:[],cur:null,until:0,gap:0,
     if(this.cur&&((this.cur.id==='confirm'&&state!=='sig')||(this.cur.id==='lvl'&&state!=='levelup')||(this.cur.id==='pad'&&G.ex&&G.ex.popped)||(this.cur.id==='officerT'&&G.ex&&G.ex.mark)))this.until=Math.min(this.until,now);
     if(state==='sig')this.show('confirm','Is that YOUR smoke? <b>Y</b> / <b>Enter</b> = yes · <b>N</b> / <b>Esc</b> = no');
     if(state==='levelup')this.show('lvl',this.touch()?'Pick one upgrade: tap a card.':'Pick one upgrade: <b>1</b> / <b>2</b> / <b>3</b> or click a card.');
+    if(this.cur&&this.cur.id==='move'&&(state!=='play'||(G&&G.demo)))this.until=Math.min(this.until,now);   /* rc8.1: never over the menu / attract demo */
     if(state!=='play')return; const g=G,p=g.p,ex=g.ex;
-    if(g.t>.5)this.show('move',this.touch()?'Drag anywhere to move. Your weapons fire on their own.':'Move with <b>WASD</b> or the <b>arrow keys</b>. Your weapons fire on their own.');
+    if(g.t>.5&&!g.demo)this.show('move',this.touch()?'Drag anywhere to move. Your weapons fire on their own.':'Move with <b>WASD</b> or the <b>arrow keys</b>. Your weapons fire on their own.');
     if(g.t>4&&gems.some(q=>Math.abs(q.x-p.x)<260&&Math.abs(q.y-p.y)<200))this.show('gems','Walk over the gems (small diamond shapes) to level up.');
     if(squad.concat(pat,coy).some(m=>m&&!m.hid&&m.hp>0&&m.mhp&&m.hp<m.mhp*.8))this.show('med',this.touch()?'A Marine is hit. Tap MED to patch him (or yourself).':'A Marine is hit. <b>Q</b> = patch a Marine · <b>H</b> = patch Doc.');
     if(g.t>6&&g.abMax>0&&g.abCd<=0)this.show('abil',this.touch()?'Special ready: tap the ability button.':'Special ready: <b>SPACE</b>.');
