@@ -6753,7 +6753,7 @@ function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
   if(!lzS&&!fbS&&g.t>=g.nextLz&&g.ex.ph<3)spawnLz();
   const site=lzS||(fbS&&fbS.state==='stalled'&&!fbH?fbS:null);
   if(lzS)lzS.age+=dt;
-  if(site){ const d0=Math.max(Math.abs(p.x-site.x),Math.abs(p.y-site.y)), inR=d0<56||Math.hypot((p.x-site.x)/70,(p.y-site.y-4)/52)<=1, d=inR?0:Math.max(56,d0);   /* rc8.1: ring + 8 px margin (HOLD F missed on the rim) */   /* rc8 LPT2: HOLD F counts anywhere inside the drawn ring (+margin) */ if(!inR&&d0<220&&fbHeld()&&(!g.banner||g.banner.t<=0))g.banner={text:'MOVE INTO THE RING',t:1.2,col:'#ffcf5a'}; if(inR&&fbHeld()){ site.hold=Math.min(1,(site.hold||0)+dt/4); if(((site.hold*4)|0)!==((site.hold*4-dt)|0))Snd.play('radio') } else site.hold=Math.max(0,(site.hold||0)-dt*(inR?.15:1.2));
+  if(site){ const sc=site===lzS?fbSiteC():{x:site.x,y:site.y}, d0=Math.max(Math.abs(p.x-sc.x),Math.abs(p.y-sc.y)), inR=d0<56||Math.hypot((p.x-sc.x)/70,(p.y-sc.y-4)/52)<=1, d=inR?0:Math.max(56,d0);   /* rc8.1: ring + 8 px margin (HOLD F missed on the rim) */   /* rc8 LPT2: HOLD F counts anywhere inside the drawn ring (+margin) */ if(!inR&&d0<220&&fbHeld()&&(!g.banner||g.banner.t<=0))g.banner={text:'MOVE INTO THE RING',t:1.2,col:'#ffcf5a'}; if(inR&&fbHeld()){ site.hold=Math.min(1,(site.hold||0)+dt/4); if(((site.hold*4)|0)!==((site.hold*4-dt)|0))Snd.play('radio') } else site.hold=Math.max(0,(site.hold||0)-dt*(inR?.15:1.2));
     if(site.hold>=1){ site.hold=0; if(lzS)beginFirebase(); else { callFbHeli('reinf',site.x,site.y); g.banner={text:'RADIO: ENGINEER REINFORCEMENTS INBOUND',t:2.4,col:'#9be37a'}; Snd.play('radio') } } }
   if(FB2&&fbS&&fbS.state==='done'&&!fbS.cl){ fbS.cl=1; try{ TERR.inval(); if(window.JUNGLE3&&JUNGLE3.inval)JUNGLE3.inval() }catch(e){} }   /* rc8 C9: field of fire cleared to square 460 once the base is up */
   if(FB2&&fbS)fbMedevac(dt); try{ FBBT.tick(dt) }catch(e){ if(!window.__fbbE){ window.__fbbE=1; console.warn('fbbt',e) } }
@@ -6893,11 +6893,14 @@ function drawStruct(s,tt){ const x=Math.round(s.x),y=Math.round(s.y), a=s.b<1?.4
   ctx.globalAlpha=1; if(s.flash>0){ ctx.fillStyle='rgba(255,255,255,.35)'; ctx.fillRect(x-s.r,y-s.r*.6,s.r*2,s.r*1.2) }
   if(s.hp<s.mhp&&s.type!=='wire'){ const r=Math.max(0,s.hp/s.mhp), w=Math.max(22,s.r*1.6), by=Math.round(y-s.r-12); ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(x-w/2-1,by-1,w+2,5); ctx.fillStyle='#2a2a22'; ctx.fillRect(x-w/2,by,w,3); ctx.fillStyle=r>.55?'#6fd04a':r>.28?'#f2b134':'#e03a2a'; ctx.fillRect(x-w/2,by,Math.round(w*r),3) }
   if(s.b<1){ ctx.strokeStyle='#ffe58a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,s.r+4,-Math.PI/2,-Math.PI/2+TAU*s.b); ctx.stroke() } }
+function fbSiteC(){ const l=lzS; return l?{x:Math.round(l.x),y:Math.round(l.y)}:null }   /* rc8.1: one shared world centre for ring, label, arrow and the HOLD F hit test */
+function fbSiteTop(camX,camY,tt){ const c=fbSiteC(); if(!c)return; const l=lzS; if(c.x<camX-90||c.x>camX+VW+90||c.y<camY-90||c.y>camY+VH+90)return; fbRing(c.x,c.y,l.hold,tt);
+  txt('FIREBASE SITE',c.x,c.y-84,Math.round(13*PADL()),'#ffe58a','center'); if(l.hold>0)txt('CALLING '+Math.round(l.hold*100)+'%',c.x,c.y+52,Math.round(12*PADL()),'#9be37a','center'); else if(!FBPADHIDE||!padActiveNear(c.x,c.y))txt(fbCallText(),c.x,c.y+52,Math.round(12*PADL()),'#ffe58a','center') }
 function drawFirebase(camX,camY,tt){ const x0=camX-90,x1=camX+VW+90,y0=camY-90,y1=camY+VH+90, f=fbS;
-  if(lzS){ const l=lzS, x=Math.round(l.x), y=Math.round(l.y); if(x>x0&&x<x1&&y>y0&&y<y1){ ctx.fillStyle='rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x,y+6,34,12,0,0,TAU); ctx.fill(); fbRing(x,y,l.hold,tt);   /* ring on the ground: the call point */
+  if(lzS){ const l=lzS, x=Math.round(l.x), y=Math.round(l.y); if(x>x0&&x<x1&&y>y0&&y<y1){ ctx.fillStyle='rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x,y+6,34,12,0,0,TAU); ctx.fill();   /* ring on the ground: the call point */
       ctx.fillStyle='#4a4b42'; ctx.fillRect(x-6,y-10,12,14); ctx.fillStyle='#2e2e28'; ctx.fillRect(x-4,y-8,8,3); ctx.fillStyle='#9aa0a6'; ctx.fillRect(x+4,y-40,1,32); ctx.fillStyle=(Math.floor(tt*2)%2)?'#ff4a3a':'#6a1a12'; ctx.fillRect(x+3,y-42,3,3);
       for(let k=0;k<4;k++){ const q=((tt*.8+k*.25)%1); ctx.globalAlpha=(1-q)*.6; ctx.fillStyle=k&1?'#ffe040':'#f2c820'; ctx.fillRect(Math.round(x-14+Math.sin(q*6+k)*6),Math.round(y-12-q*70),6+q*8,6+q*8) } ctx.globalAlpha=1;
-      txt('FIREBASE SITE',x,y-84,Math.round(13*PADL()),'#ffe58a','center'); if(l.hold>0)txt('CALLING '+Math.round(l.hold*100)+'%',x,y+52,Math.round(12*PADL()),'#9be37a','center'); else if(!FBPADHIDE||!padActiveNear(x,y))txt(fbCallText(),x,y+52,Math.round(12*PADL()),'#ffe58a','center') } }
+      /* ring + label: fbSiteTop() after the canopy */ } }
   if(f){ if(f.state==='stalled'||f.state==='inbound'){ const x=Math.round(f.x),y=Math.round(f.y); if(f.state==='stalled'){ txt(fbCallText(),x,y-100,12,'#ff8a6a','center'); fbRing(x,y,f.hold,tt) } }
     // build zone outline + ghost footprints of what is still to be built
     if(f.state!=='done'){ const x=Math.round(f.x),y=Math.round(f.y); ctx.save(); ctx.strokeStyle='rgba(255,229,138,.55)'; ctx.lineWidth=2; ctx.setLineDash([9,7]); ctx.lineDashOffset=-tt*8; ctx.beginPath(); ctx.rect(x-FBS-18,y-FBS-18,2*FBS+36,2*FBS+36); ctx.stroke(); ctx.setLineDash([]);
@@ -8116,6 +8119,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
       if(g.muzzle>0){ const mx=p.x+gx*24,my=hy+gy*24; if(!MZ(g,'muzzle',g.mzW||'m16',mx,my,Math.atan2(gy,gx))){ ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(mx,my,6+rnd()*3,0,TAU); ctx.fill() } } } }
   JG.layer('over',{x:camX,y:camY},zoom);
   JG.layer('canopy',{x:camX,y:camY},zoom);   /* rc7 #4 jungle front blades + canopy (hole at Doc) */
+  fbSiteTop(camX,camY,tt);   /* rc8.1: FIREBASE SITE ring + label above terrain/jungle on every tier (HIGH canopy hid them) */
   if(JG.ok()&&window.VFX_IMPACT)try{ ctx.save(); ctx.scale(.5,.5); VFX_IMPACT.drawAll(ctx,0,0,2,'debris'); ctx.restore() }catch(e){}   /* jr: with jungle on, airborne fire/smoke/debris draws above the front grass/bamboo blades AND the canopy */
   // particles
   for(let pass=0;pass<2;pass++){ if(pass===1)ctx.globalCompositeOperation='lighter';
