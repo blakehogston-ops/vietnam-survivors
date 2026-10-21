@@ -250,7 +250,7 @@ Level-up ....... 1 / 2 / 3 pick   R reroll   B banish
 Pause .......... Esc / P     Mute ... M</pre></div>
   <div class="help padhelp"><b>Controller</b> (Xbox / PlayStation / Steam Deck, plug in and press any button): <span class="padKeys"></span><span class="padNone">not connected</span></div>
   <div class="foot" id="best"></div>
-  <div class="tribute">✦ In memory of the USAF KC-135 crew chiefs: they kept them flying. ✦</div>
+  <div class="tribute">✦ For the Marines, Navy corpsmen, and all who served alongside them in Quang Tri, 1968. ✦</div>
   <div class="foot">A stylized arcade tribute to the Marines who served in Vietnam.<br><b style="color:#d65a4a">Mature: stylized violence</b> — stylized pixel blood &amp; gore.</div>
 <details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">
 <p class="crh"><b>PHOTOGRAPHS (public domain, US government)</b></p>
@@ -416,7 +416,7 @@ Pause .......... Esc / P     Mute ... M</pre></div>
   <div class="sub" id="rank" style="margin:0"></div>
   <div id="stats"></div>
   <div class="srd" id="overDed">Dedicated to the Vietnam veterans, and to MSgt Hogston, USAF.</div>
-  <div class="tribute" id="overTrib">✦ In memory of the USAF KC-135 crew chiefs: they kept them flying. ✦</div>
+  <div class="tribute" id="overTrib">✦ For the Marines, Navy corpsmen, and all who served alongside them in Quang Tri, 1968. ✦</div>
   <button class="btn" id="btnRestart">Back in the Bush</button>
   <button class="btn alt" id="btnMenu">Main menu</button>
   <div id="overSvc"></div>
@@ -3135,7 +3135,7 @@ const ITEMS={
     blurb:'M40: the Marine Corps\' bolt-action 7.62mm sniper rifle (Remington 700 action, fielded from 1966). One loud round every ~1.5 s that kills ANY regular enemy outright (VC, NVA, officers, B-40 troopers) and keeps going through a line of them. Bosses and tanks only take heavy damage. Long range, visible tracer. Levels: faster bolt, more penetration, longer reach; level 8 (best glass) pierces everything in the line.',
     stats:l=>({dmg:120+30*(l-1),cd:1.55*Math.pow(.93,l-1),pierce:l>=8?99:4+Math.floor(l/2),range:600+45*(l-1)}),
     desc:s=>`Kills regulars outright · boss dmg ${s.dmg} · bolt ${s.cd.toFixed(2)}s · pierce ${s.pierce>=99?'all':s.pierce} · range ${s.range}`},
-  m16:{kind:'w',name:'M16A1 Rifle',max:8,req:()=>!G||G.char!=='boone',blurb:'Reliable rifle. Hits the nearest enemy.',
+  m16:{kind:'w',name:'M16A1 Rifle',max:8,req:()=>!G||G.char!=='boone',blurb:'Reliable rifle. Fires where you face.',
     stats:l=>({dmg:16+6*(l-1),cd:.55*Math.pow(.9,l-1),shots:l>=7?3:l>=4?2:1,pierce:l>=5?2:1}),
     desc:s=>`Dmg ${s.dmg} · ${(1/s.cd).toFixed(1)}/s · ${s.shots} target${s.shots>1?'s':''}${s.pierce>1?' · pierce':''}`},
   m60:{kind:'w',name:'M60 Machine Gun',max:8,blurb:'Belt-fed "Pig". Sustained 7.62 fire.',
