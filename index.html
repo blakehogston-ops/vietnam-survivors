@@ -6435,7 +6435,7 @@ const KB={ON:!/[?&]photos=0\b/.test(location.search),L:['ch46_auburn','ch53_khes
 window.KB=KB; setInterval(()=>{ if(state==='menu')KB.start(); else if(KB.t)KB.stop() },1000);
 window.addEventListener('keydown',e=>TUT.key(e),true);
 { const iv=setInterval(()=>{ let a=false; try{a=localStorage.getItem('lco_tutAsk')==='1'}catch(e){} if(a||DBG.bot||params.has('autostart')||DBG.t>0||/[?&]notut\b/.test(location.search)){ clearInterval(iv); return }
-  if((state==='intro'||(state==='play'&&G&&!G.demo&&G.t<3))&&!$('charsel').classList.contains('show')){ clearInterval(iv); TUT.open(true) } },500) }   /* rc8.1: first-run 'Move with WASD' card only once gameplay starts (insertion), never over the main menu */
+  if((state==='intro'||(state==='play'&&G&&!G.demo&&G.t<3))&&!$('charsel').classList.contains('show')){ clearInterval(iv); try{localStorage.setItem('lco_tutAsk','1')}catch(e){} } },500) }   /* rc8.1 fix (fb_rootcause): no modal card in play (it swallowed WASD/F); first-run guidance = non-modal TIP 'move'; never over the main menu */
 
 /* ====================== FIREBASE: radio LZ -> Huey + engineers -> phased build, turrets, sappers, enemy armor ====================== */
 let lzS=null, fbS=null, engs=[], strs=[], chgs=[], fbH=null, fbC=null;
