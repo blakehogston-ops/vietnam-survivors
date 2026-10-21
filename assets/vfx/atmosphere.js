@@ -80,7 +80,7 @@ function init(w,h){ S.w=w|0; S.h=h|0; S.g=true; S.gk=''; S.scr=null; S.lmC=null;
   // mist band (soft, long, cached)
   S.mist=mk(512,64); { const x=S.mist.getContext('2d'); for(let i=0;i<26;i++){ const cx=rnd()*512, cy=24+rnd()*16, r=30+rnd()*50; for(const o of[0,-512,512]){ const g=x.createRadialGradient(cx+o,cy,0,cx+o,cy,r);
     g.addColorStop(0,'rgba(220,226,214,.20)'); g.addColorStop(1,'rgba(220,226,214,0)'); x.fillStyle=g; x.fillRect(0,0,512,64) } } }
-  { const m2=mk(1024,128),x=m2.getContext('2d'); x.drawImage(S.mist,0,0,1024,128); S.mist2=m2 }
+  { const m2=mk(1024,128),x=m2.getContext('2d'); x.drawImage(S.mist,0,0,1024,128); { const fg=x.createLinearGradient(0,0,0,128); fg.addColorStop(0,'rgba(0,0,0,0)'); fg.addColorStop(.35,'#000'); fg.addColorStop(.65,'#000'); fg.addColorStop(1,'rgba(0,0,0,0)'); x.globalCompositeOperation='destination-in'; x.fillStyle=fg; x.fillRect(0,0,1024,128); x.globalCompositeOperation='source-over' } S.mist2=m2 }   /* rc8.1 retina: the mist gradients were clipped flat at the band's top/bottom edge = faint white wavy lines (sin bob) across the screen; feather both edges */
   // heat shimmer stripe (cached wavy bright band, scrolled)
   S.shim=mk(512,20); { const x=S.shim.getContext('2d'); x.strokeStyle='rgba(255,250,225,.10)'; for(let k=0;k<3;k++){ x.lineWidth=1+k; x.beginPath(); for(let i=0;i<=512;i+=4){ const y=10+Math.sin(i/512*TAU*6+k)*3*(1+k*.3); i?x.lineTo(i,y):x.moveTo(i,y) } x.stroke() } }
   // wet sheen (diagonal specular smears)
@@ -206,7 +206,7 @@ function drawScreen(ctx){ const t0=performance.now(), w=S.w,h=S.h,low=S.low; ctx
     for(let i=0;i<n;i++){ const r=S.R[i], X=r.x*w|0, Y=r.y*h|0, L=(10+14*r.l)*S.rain+6; ctx.moveTo(X,Y); ctx.lineTo(X-L*.24,Y-L) } ctx.stroke();
   }
   PM('rain');
-  { const k=(S.t*12|0)%S.scr.length, j=((S.t*24|0)*37)%32; ctx.drawImage(S.scr[k],-32+(low?0:j-16)+16,-32+(low?0:((j*7)%32)-16)+16) }
+  { const k=(S.t*12|0)%S.scr.length, j=((S.t*24|0)*37)%32; ctx.drawImage(S.scr[k],-32,-32) }   /* rc8.1 retina: no per-frame jitter of the composite (it shook the vignette/grain 0-31 px = left-edge band stutter and crawling grain lines); centred; 2 grain frames still alternate */
   PM('grain');
   ctx.restore(); const ms=S._w+(performance.now()-t0); S.perf.last=ms; S.perf.avg=S.perf.avg*.95+ms*.05; S.perf.n++; }
 
