@@ -60,6 +60,7 @@ function grade(){ const H=((S.hour%24)+24)%24; let a=KEYS[0],b=KEYS[1];
 /* rc8.1 retina DEBUG: ?fxoff=a,b|all skips layers (opt-in, off by default) */
 const FXO=(()=>{ try{ const m=location.search.match(/[?&]fxoff=([^&]*)/); return m?decodeURIComponent(m[1]).split(','):[] }catch(e){ return [] } })(), FXOFF=n=>FXO.includes('all')||FXO.includes(n);
 /* rc8.1: heat shimmer caused white wavy lines on Retina (Blake bisect) -> OFF by default, ?shimmer=1 debug opt-in */
+const HAZE_ON=(()=>{ try{ return !/[?&]haze=0\b/.test(location.search) }catch(e){ return true } })();   /* haze default ON; ?haze=0 off */
 const SHIM_ON=(()=>{ try{ return /[?&]shimmer=1\b/.test(location.search) }catch(e){ return false } })();
 function buildGrade(){ const G=S.cur, m=G.mul, l=(m[0]*.3+m[1]*.59+m[2]*.11), k=G.sat*.3; S.mulCss=`rgb(${lerp(m[0],l,k)|0},${lerp(m[1],l,k)|0},${lerp(m[2],l,k)|0})`;
   { const v=S.rain>0?[112,112,104]:[150,136,108]; S.veilCss=`rgba(${v[0]},${v[1]},${v[2]},${(G.sat*.22).toFixed(3)})` }
@@ -148,9 +149,9 @@ function drawWorldOverlay(ctx,camX,camY,zoom){ const t0=performance.now(); zoom=
   // flares register their light every frame (moving light)
   for(const f of S.F) if(f.on&&f.k>0){ const R=f.R*(.8+.2*Math.min(1,f.k*1.3)); addLight(f.x,f.y+f.alt*.15,R,FLARE_COL,f.k,0) }
   // 1) ground haze bands (world-anchored, parallax drift)
-  if(G.haze>.02&&!FXOFF('haze')){ ctx.globalAlpha=clamp(G.haze,0,1); const bands=Math.min(low?2:3,Q.mistBands), mw=1024, mh=128;
-    for(let b=0;b<bands;b++){ const wy=Math.floor((camY+b*h/zoom/bands)/220)*220+60+b*37, y=sy(wy+Math.sin(S.t*.1+b)*8)|0; if(y<-mh||y>h)continue;
-      const off=(((-(camX*zoom)*(.9+b*.05)+S.t*(6+b*3))%mw)+mw)%mw|0; for(let x=off-mw;x<w;x+=mw) ctx.drawImage(S.mist2,x,y) }
+  if(G.haze>.02&&HAZE_ON&&!FXOFF('haze')){ ctx.globalAlpha=clamp(G.haze,0,1)*.55; const bands=low?1:2, TW=1024*zoom, BH=Math.max(h*.9,256*zoom), span=h+BH;   /* rc8.1 haze fix (Blake: dark pulsing lines): no 220-unit grid snap, no |0 rounding, continuous parallax; very tall feathered bands (mist2 feather spans ~0.9 screen), zoom-scaled seamless tiles (mist wraps at 512), lower alpha */
+    for(let b=0;b<bands;b++){ const y=((((b*span/bands)-camY*zoom*(.35+b*.1)+Math.sin(S.t*.1+b)*6)%span)+span)%span-BH;
+      const off=((((-camX*zoom)*(.9+b*.05)+S.t*(6+b*3))%TW)+TW)%TW; for(let x=off-TW;x<w;x+=TW-1) ctx.drawImage(S.mist2,x,y,TW,BH) }
     ctx.globalAlpha=1 }
   PM('haze');
   // 2) heat shimmer by day (cheap: few horizontal strips self-offset)
