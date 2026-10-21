@@ -7804,14 +7804,14 @@ document.querySelectorAll('.lowChk').forEach(c=>{ c.addEventListener('change',e=
   const standalone=navigator.standalone===true||(window.matchMedia&&(matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches));
   const ios=/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   let ht=0; function showHint(){ hint.classList.add('show'); clearTimeout(ht); ht=setTimeout(()=>hint.classList.remove('show'),5000) }
-  function toggle(){ if(!req){ if(ios&&!standalone)showHint(); return }
+  function toggle(){ const HO=window.vsHost||window.lcoHost; if(HO&&HO.setFullscreen){ HO.setFullscreen(!(innerWidth>=screen.width&&innerHeight>=screen.height)); return }   /* Electron host: native window fullscreen via IPC */ if(!req){ if(ios&&!standalone)showHint(); return }
     try{ const r=isFs()?exit.call(document):req.call(de,{navigationUI:'hide'}); if(r&&r.catch)r.catch(()=>{}) }catch(e){} }
   function sync(){ btn.textContent=isFs()?'🗗':'⛶'; btn.title=(isFs()?'Exit fullscreen':'Fullscreen')+' (F)'; resize(); setTimeout(resize,120); setTimeout(resize,400) }
   ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,sync));
   window.addEventListener('orientationchange',()=>setTimeout(resize,200));
   if(!req&&(standalone||!ios))btn.style.display='none';
   btn.onclick=()=>{ toggle(); btn.blur() };
-  document.addEventListener('keydown',e=>{ if(e.code==='F11'&&!e.repeat){ e.preventDefault(); toggle() } });   /* rc7.1: fullscreen moved to F11 (and the on-screen button); F is only the firebase engineer hold */   /* F near a firebase call point = HOLD F TO CALL ENGINEERS, not fullscreen */
+  document.addEventListener('keydown',e=>{ if(!e.repeat&&(e.code==='F11'||(e.code==='KeyF'&&e.ctrlKey&&e.metaKey)||(e.code==='Enter'&&e.altKey))){ e.preventDefault(); e.stopImmediatePropagation(); toggle() } }, true);   /* rc8.1 Mac: F11 is Show Desktop there, so Ctrl+Cmd+F (macOS standard) and Alt+Enter also toggle; plain F stays the build hold */   /* rc7.1: fullscreen moved to F11 (and the on-screen button); F is only the firebase engineer hold */   /* F near a firebase call point = HOLD F TO CALL ENGINEERS, not fullscreen */
   window.__fs={toggle,isFs,req:!!req};
 })();
 document.addEventListener('keydown',e=>{
@@ -7860,7 +7860,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
   def(root){ const q=root.id==='menu'?'btnStart':root.id==='pause'?'btnResume':root.id==='over'?'btnRestart':root.id==='charsel'?'btnCsGo':root.id==='sigask'?'btnSigOk':null; return q?$(q):this.items(root)[0] },
   act(k,dx,dy){ this.uses++; this.last=k||('dir'+dx+','+dy); document.body.classList.add('padmode'); const st=state;
     if(!['play'].includes(st)){ try{ Snd.init(); Snd.resume() }catch(e){} }
-    if(k==='SE'){ document.dispatchEvent(new KeyboardEvent('keydown',{code:'KeyF',key:'f'})); document.body.classList.add('padmode'); return }   /* same handler as the F key (also the Steam host) */
+    if(k==='SE'){ window.__fs&&__fs.toggle(); document.body.classList.add('padmode'); return }   /* same handler as the F key (also the Steam host) */
     if(st==='intro'){ if(k)skipIntro(); return }
     if(st==='brief'){ if(k==='A')briefNext(); else if(k==='ST'||k==='B')endBrief(); return }
     if(st==='play'){ if(k==='A'||k==='LT'||k==='RT')useAbility(); else if(k==='X')popSignal(); else if(k==='Y')PB.toggle(); else if(k==='B')useMed(false); else if(k==='RB')useMed(true); else if(k==='LB'||k==='R3'){ Snd.init(); Snd.resume(); Snd.setMuted(!Snd.muted) } else if(k==='ST')pauseGame(); return }
