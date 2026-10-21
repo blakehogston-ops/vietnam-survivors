@@ -66,7 +66,6 @@ Per Lead (MERGE_NOTE_RC8_SOURCING_OCT20 rev 2). Files were recopied fresh from s
   - It rides `MIX.AMB` and plays at most one call every 60-120 s (Math.random, never the game RNG).
   - It plays only at a built firebase, at night (hour ≥ 19) or during calm. It never plays during contact (no enemies within FBS+260 px of the firebase) or extraction (`ex.ph>=4`).
 - **Every rc8 audio clip is now cleared.** Nothing is left pending, so the `AUD_PENDING` flag has been removed. `AUD_OK` stays as a per-clip kill switch, and all its entries are true.
-- **Not copied:** rto_down_sting and radio_static_bed_loop stay disabled because the pdsounds STE-011 broadcast-bleed ear check is still open.
 - Bus offsets are unchanged.
 
 ## rc8.1 (branch rc8.1, off 622cade) — no new VO line IDs
