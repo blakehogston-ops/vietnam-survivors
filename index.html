@@ -221,6 +221,9 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
 #quitAsk{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;background:rgba(7,15,9,.72)}#quitAsk.show{display:flex}
 #quitAsk .qb{background:rgba(14,22,12,.96);border:3px solid #1d2f14;box-shadow:0 5px 0 #1d2f14;border-radius:4px;padding:18px 26px;text-align:center;color:#f6f0cc}
 #quitAsk h3{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(20px,3vw,28px);letter-spacing:.12em;margin:0 0 6px;text-transform:uppercase}#quitAsk p{font-size:14px;color:#c9c3a0;margin:0 0 8px}   /* rc8.1: UI scale max(1, innerHeight/1080) */
+
+/* rc8.1 Pass 1 (UX P1-1): desktop UI text >= 18px at 1080p (the UI already scales up above 1080p); cards get more width so 18px fits */
+@media (pointer:fine) and (min-height:700px){ .foot,#luHint,.card .lv,.card .key,#fsHint,#abil span,#sigBtn span,#sigask .who,.tag b,.tag i,.padKeys,#overDed,.vols{font-size:18px!important} .card .ds{font-size:18px!important;line-height:1.3!important} .card{width:300px!important} }
 </style>
 </head>
 <body>
@@ -3852,6 +3855,7 @@ const CRUMB={k:'lco_crumb',last:0,
         const el=document.createElement('div'); el.id='crashNote'; el.style.cssText='position:fixed;left:8px;bottom:22px;z-index:40;max-width:min(560px,94vw);font:12px monospace;color:#ffcf9a;background:rgba(20,10,6,.9);border:1px solid #a0603a;padding:6px 8px;cursor:pointer';
         el.textContent='Last run ended unexpectedly at '+fmt(L.t)+' (phase '+L.ph+', '+L.en+' enemies, heap '+L.heap+' MB, build '+L.b+'). Click to copy the report for the dev.';
         el.onclick=()=>{ try{ navigator.clipboard.writeText(JSON.stringify(this.prev)); el.textContent='Copied. Paste it to the dev. (click again to hide)'; el.onclick=()=>el.remove() }catch(e){ console.log(JSON.stringify(this.prev)) } };
+        el.title='Click to copy · disappears when the next patrol starts'; { const iv=setInterval(()=>{ if(state==='play'||!el.isConnected){ el.remove(); clearInterval(iv) } },500) }   /* rc8.1 Pass 1 (LPT r1): menu only, never over the HUD */
         document.body.appendChild(el); console.warn('[LBO] previous session ended unexpectedly; last snapshots:',JSON.stringify(this.prev)) } localStorage.setItem('lco_clean','1') }catch(e){} } };
 DBG.lastCrash=()=>CRUMB.prev||null;
 window.addEventListener('pagehide',()=>CRUMB.clean()); document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden')CRUMB.clean() });
@@ -4989,7 +4993,7 @@ function pickChoice(i){
   else if(it.kind==='p'){ G.ps[id]++; if(id==='flak'){applyPassives();G.p.hp=Math.min(G.p.maxHp,G.p.hp+20)} } else { G.p.hp=Math.min(G.p.maxHp,G.p.hp+G.p.maxHp*.5) }
   Snd.play('pick'); if(id==='kc135')G.banner={text:'KC-135A TANKER ON STATION',t:2.2,col:'#cfe3f0'}; if(id==='dustoff')G.banner={text:'MEDEVAC ON CALL',t:2.2,col:'#9be37a'}; G.pending--;
   if(!DBG.bot&&G.pending>0&&!luBlocked()&&!(G.ex&&(G.ex.ph>=1&&G.ex.ph!==3||G.ex.ph>=4))){ banMode=false; luForced=false; G.luN=(G.luN||0)+1; choices=genChoices(); airCard(choices); (G.luLog||(G.luLog=[])).push(choices.slice()); LUOPEN=performance.now(); renderCards(); luTools(); try{ $('levelup').querySelector('.sub').textContent='Choose an upgrade · '+(G.pending)+' more to pick' }catch(e){} return }   /* rc8 EP: batched picks on ONE card, never a chain of popups */
-  $('levelup').classList.remove('show'); state='play';
+  $('levelup').classList.remove('show'); state='play'; try{document.activeElement&&document.activeElement.blur&&document.activeElement.blur()}catch(e){}
   /* further pending levels wait for the per-frame gate above (no card chains during extraction) */
   if(G.pending>0&&!(G.ex&&(G.ex.ph>=1&&G.ex.ph!==3||G.ex.ph>=4))){ if(!DBG.bot)setTimeout(()=>{ if(state==='play')openLevelUp() },150); else openLevelUp() }
 }
@@ -6220,7 +6224,7 @@ function briefSpeak(i){ if(!BR)return; const text=BRIEF_LINES[i].t; try{BriefSnd
   BVOX.play(i,()=>{},()=>{ const b=BR; if(b&&b===my&&b.page===i)b.ended=true },()=>{ const b=BR; if(b&&b===my&&b.page===i)briefSpeakTTS(text) }) }
 function startBrief(){ try{ window.INTRO_V2&&INTRO_V2.reset&&INTRO_V2.reset() }catch(e){} BR={ph:0,page:0,t:0,typed:0,wait:0,ended:true,voice:false,bidx:0,px:0,py:0,pi:0,blip:0};
   state='brief'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; ttsCancel(); try{BVOX.prefetch()}catch(e){} }
-function endBrief(){ BVOX.stop(); BriefSnd.stop(); ttsCancel(); try{sessionStorage.setItem('lco_briefed','1'); if(BRIEF1)localStorage.setItem('lco_briefed','1')}catch(e){} BR=null; state='menu'; $('menu').classList.add('show'); $('topbtns').style.display='none'; last=performance.now() }
+function endBrief(){ if(state!=='brief'&&state!=='menu'){ menuBlock('endBrief'); return } BVOX.stop(); BriefSnd.stop(); ttsCancel(); try{sessionStorage.setItem('lco_briefed','1'); if(BRIEF1)localStorage.setItem('lco_briefed','1')}catch(e){} BR=null; state='menu'; $('menu').classList.add('show'); $('topbtns').style.display='none'; last=performance.now() }
 function briefBegin(){ if(!BR)return; BR.ph=1; BR.page=0; BR.t=0; BR.typed=0; BR.wait=0; Snd.init(); Snd.resume(); setTimeout(()=>{ if(BR)BriefSnd.start() },120); briefSpeak(0) }
 /* rc6 Gamer #8: auto briefing + tutorial ask are first-launch only (saved in localStorage; ?brief forces it, ?brief1=0 = old per-session). Any key/tap mid-line completes the text instantly. */
 const BRIEF1=!/[?&]brief1=0\b/.test(location.search);
@@ -7614,14 +7618,18 @@ function drawFlashes(camX,camY){ if(!flashes.length)return; ctx.save(); ctx.glob
 
 /* ====================== game flow ====================== */
 function startGame(){ if(!chOpen(SEL)){ if($('charsel').classList.contains('show'))return; SEL='doc' } try{document.activeElement&&document.activeElement.blur()}catch(e){} if(!navigator.userActivation||navigator.userActivation.hasBeenActive){Snd.init(); Snd.resume();} newGame(false); state='play'; ['menu','charsel','over','pause','levelup','sigask'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='flex'; if(!(DBG.t>0||DBG.nointro)){ if(INTRO2&&!DBG.nobrief)startBrief2(); else startIntro() } }   /* rc8.1: ?nobrief also skips brief2 */
-function toMenu(){ try{quitAskClose()}catch(e){} setTimeout(()=>window.martHow&&martHow(),60); if(G&&!G.demo&&(state==='paused'||state==='over'||state==='play'))awardRun(); state='menu'; ['over','pause','levelup','charsel','sigask'].forEach(i=>$(i).classList.remove('show')); $('menu').classList.add('show'); $('topbtns').style.display='none'; showBest(); if(!DBG.nodemo)newGame(true); }
+/* rc8.1 Pass 1 (drop-to-title, Junior Play Tester): returning to the menu is only allowed from paused (via the Quit confirm), over, charsel, brief or menu. A stray click/Enter/Space on a focused hidden button (btnQuit/btnMenu) or a stale timer mid-run used to drop to title with no end screen. Blocked calls are logged (window.__menuBlock, localStorage lco_menublock). */
+function menuOk(){ return state==='paused'||state==='over'||state==='menu'||state==='charsel'||state==='brief'||!G||G.demo }
+function menuBlock(why){ const m={why,state,t:G&&G.t,at:Date.now()}; (window.__menuBlock=window.__menuBlock||[]).push(m); try{ localStorage.setItem('lco_menublock',JSON.stringify(m)) }catch(e){} console.warn('menu return blocked mid-run',m) }
+function toMenu(){ if(!menuOk()){ menuBlock('toMenu'); return } try{quitAskClose()}catch(e){} setTimeout(()=>window.martHow&&martHow(),60); if(G&&!G.demo&&(state==='paused'||state==='over'||state==='play'))awardRun(); state='menu'; ['over','pause','levelup','charsel','sigask'].forEach(i=>$(i).classList.remove('show')); $('menu').classList.add('show'); $('topbtns').style.display='none'; showBest(); if(!DBG.nodemo)newGame(true); }
 function pauseGame(){ if(state==='play'){state='paused';$('pause').classList.add('show')} }
 function resumeGame(){ if(state==='paused'){ quitAskClose(); state='play';$('pause').classList.remove('show');last=performance.now(); try{document.activeElement&&document.activeElement.blur()}catch(e){} } }   /* rc8.1 menu-drop: no focused overlay button survives into play */
 /* rc8.1 menu-drop: Quit to menu mid-run asks first; default No (Enter / Esc / N = No, Y = Yes). Game-over Main menu + pad B stay instant. */
-function quitAskOpen(){ if(state!=='paused'){ toMenu(); return } $('quitAsk').classList.add('show'); setTimeout(()=>{ try{$('qaNo').focus()}catch(e){} },0) }
+function quitAskOpen(){ if(state!=='paused'){ if(state==='over'||state==='menu')toMenu(); else menuBlock('quitAskOpen'); return } $('quitAsk').classList.add('show'); setTimeout(()=>{ try{$('qaNo').focus()}catch(e){} },0) }
 function quitAskClose(){ $('quitAsk').classList.remove('show'); try{document.activeElement&&document.activeElement.blur()}catch(e){} }
 function quitAskOn(){ return $('quitAsk').classList.contains('show') }
 $('qaNo').onclick=()=>quitAskClose(); $('qaYes').onclick=()=>{ quitAskClose(); toMenu() };
+window.addEventListener('keydown',e=>{ const ae=document.activeElement; if((state==='play'||state==='levelup')&&ae&&ae.tagName==='BUTTON'&&(e.code==='Space'||e.code==='Enter'||e.code==='NumpadEnter')&&!ae.closest('#levelup')){ e.preventDefault(); ae.blur() } },true);   /* rc8.1 Pass 1: no hidden-button activation mid-run */
 window.addEventListener('keydown',e=>{ if(!quitAskOn())return; e.preventDefault(); e.stopImmediatePropagation(); if(e.repeat)return; if(e.code==='KeyY'){ quitAskClose(); toMenu() } else if(e.code==='Enter'||e.code==='NumpadEnter'||e.code==='Escape'||e.code==='KeyN'||e.code==='Space')quitAskClose() },true);
 function exScore(g){ const ex=g.ex; return Math.floor(g.kills*10+(ex?ex.holdKills*30:0)+(ex&&ex.evac?5000:0)+g.t) }
 /* ---- end cards (Stage 1). Never any debug text. Death card: one plain fact. Win card: who got on (by name), who was loaded, who was left; kills small; seed. ---- */
@@ -7808,7 +7816,7 @@ document.querySelectorAll('.lowChk').forEach(c=>{ c.addEventListener('change',e=
   let ht=0; function showHint(){ hint.classList.add('show'); clearTimeout(ht); ht=setTimeout(()=>hint.classList.remove('show'),5000) }
   function toggle(){ const HO=window.vsHost||window.lcoHost; if(HO&&HO.setFullscreen){ HO.setFullscreen(!(innerWidth>=screen.width&&innerHeight>=screen.height)); return }   /* Electron host: native window fullscreen via IPC */ if(!req){ if(ios&&!standalone)showHint(); return }
     try{ const r=isFs()?exit.call(document):req.call(de,{navigationUI:'hide'}); if(r&&r.catch)r.catch(()=>{}) }catch(e){} }
-  function sync(){ btn.textContent=isFs()?'🗗':'⛶'; btn.title=(isFs()?'Exit fullscreen':'Fullscreen')+' (F)'; resize(); setTimeout(resize,120); setTimeout(resize,400) }
+  function sync(){ btn.textContent=isFs()?'🗗':'⛶'; btn.title=(isFs()?'Exit fullscreen':'Fullscreen')+(/Mac/.test(navigator.platform)?' (Ctrl+Cmd+F)':' (F11)'); resize(); setTimeout(resize,120); setTimeout(resize,400) }
   ['fullscreenchange','webkitfullscreenchange'].forEach(ev=>document.addEventListener(ev,sync));
   window.addEventListener('orientationchange',()=>setTimeout(resize,200));
   if(!req&&(standalone||!ios))btn.style.display='none';
