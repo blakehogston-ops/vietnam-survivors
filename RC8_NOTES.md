@@ -82,11 +82,11 @@ Per Lead (MERGE_NOTE_RC8_SOURCING_OCT20 rev 2). Files were recopied fresh from s
 | impm40 | ON (?impm40=0 off) | finished M40 SHAKE/KICK recoil |
 | implat | ON (unchanged) | already default |
 | jungle | ON desktop (unchanged) | Lead ruling rc8; off on touch/LOW |
-| terrain | kept OFF (?terrain=1) | terrain v2 has no Art Director sign-off on record and replaces the whole ground; unreviewed |
+| terrain | ON (?terrain=0 off) | terrain v2 (48 px MAP_TERRAIN2 ground); EP flag ruling |
 | tts | kept OFF | browser robot voice; captions + recordings are the design |
 | jstrike | kept OFF | option NOT approved (jungle LOD during strikes) |
 | fglow | kept OFF | measured ~5 ms slower in software raster; re-test on real GPU |
-| bglow | kept OFF | ~0.4 ms per glow on LOW; perf |
+| bglow | ON (?bglow=0 off) | warm blast glow, LOW quality only; EP flag ruling |
 | smksheet | kept OFF | AD rc8: sheet smoke reads cartoony |
 | napalm rev 2 | kept OFF | EP/perf ruling (option D) |
 | lowfx | auto (unchanged) | on for touch devices only |

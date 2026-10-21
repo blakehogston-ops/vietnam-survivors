@@ -1248,7 +1248,7 @@ window.JUNGLE_ON=(function(){ const q=location.search; if(/[?&]jungle=0\b/.test(
   const touch=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window)||(navigator.maxTouchPoints>0); let lv=null; try{ lv=localStorage.getItem('lco_lowfx')||localStorage.getItem('lbo2_lowfx') }catch(e){}
   const m=q.match(/[?&]lowfx=([^&]*)/), low=m?m[1]!=='0':lv==='1'; return !touch&&!low })();
 if(window.JUNGLE_ON)document.write('<script src="assets/art/jungle_v3_lite.js?v=0807d76"><\/script>')</script>
-<script>if(/[?&]terrain=1\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=0807d76"><\/script>')</script>
+<script>if(!/[?&]terrain=0\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=0807d76"><\/script>')</script>
 <script>if(!/[?&]fb2=0\b/.test(location.search))document.write('<script src="assets/art/fb2_rc8.js?v=0807d76"><\/script>')</script>
 <script>if(!/[?&]fb2=0\b/.test(location.search))document.write('<script src="assets/art/fb_props_rc8.js?v=0807d76"><\/script>')</script>
 <script src="assets/art/vehicles.js?v=0807d76"></script><script src="assets/art/ch46_v2.js?v=0807d76"></script><script src="assets/art/dressing_pickups.js?v=0807d76"></script><script src="assets/art/tanks_v2.js?v=0807d76"></script><script src="assets/art/amtrac_support.js?v=0807d76"></script><script src="assets/art/vehicles_v3.js?v=0807d76"></script><script src="assets/vfx/muzzle_flash.js"></script>
@@ -2961,7 +2961,7 @@ const TERR=(()=>{ let B=null, ok=false; const cache=new Map(); let gen=0, bakesL
   /* terrain v2 (?terrain=1, OFF by default): Artist Helper's 48 px MAP_TERRAIN2 ground + dual-grid edges, baked into the same 256 px chunk cache.
      Gameplay (rivers, banks, bridges, pads, collision) stays on the analytic map, so v2 is visual only and the water edge can sit up to 24 px off the
      real bank; that is why it stays opt-in for this build. */
-  const V2=/[?&]terrain=1\b/.test(location.search);
+  const V2=!/[?&]terrain=0\b/.test(location.search);   /* rc8.1: ON by default, ?terrain=0 off */
   function t2(tx,ty){ const x=tx*48+24, y=ty*48+24, r=riverAt(x,y); if(r)return r.h?'gRiver':'gRiverS';
     if(fbS){ const m=Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y)); if(m<FBS+28)return 'gDirt'; if(m<FBW+64||(fbS.cl&&m<FB_CLEAR))return 'gKill' }
     if(paddyCell(Math.floor(x/RT),Math.floor(y/RT))){ if(JG.ON)return 'gGrass'; const h=hash2(tx+9,ty-4); return h<.1?'gPaddyDry':h<.5?'gPaddy':'gPaddyMature' }   /* rc7 #4: under jungle_v3 the paddies are its own (curved dikes) - gGrass underneath per the API */
@@ -3279,7 +3279,7 @@ const LQ={auto:true,t:'high',slow:0,
     const n=navigator.hardwareConcurrency||8, m=navigator.deviceMemory||8; const deck=/Steam ?Deck|SteamOS/i.test(navigator.userAgent)||(/Linux/.test(navigator.platform||'')&&screen.width===1280&&screen.height===800); if(deck)return 'med';   /* Steam Deck profile */
     return (COARSE.matches||n<=4||m<=4)?'low':n<=6?'med':'high' },
   set(t,save){ if(!LQT[t])return; this.t=t; this.c=LQT[t]; PCAP=Math.min(PCAP,this.c.pcap); try{ window.VFX_ATMO&&VFX_ATMO.setQuality&&VFX_ATMO.setQuality(t) }catch(e){} if(save){ this.auto=false; try{ localStorage.setItem('lco_quality',t) }catch(e){} } } };
-LQ.bglow=/[?&]bglow=1\b/.test(location.search); window.LCO_QUALITY=LQ;
+LQ.bglow=!/[?&]bglow=0\b/.test(location.search);   /* rc8.1: ON by default (LOW only), ?bglow=0 off */ window.LCO_QUALITY=LQ;
 const PCAPON=!/[?&]pcap=0\b/.test(location.search); let PCAP=520; LQ.c=LQT.high; LQ.set(LQ.detect());
 /* rc8 perf A+B (Lead-approved; AD: counts only, never stages/effect types): LQ.sf 0..1 = "strike on screen" mix, eased at 2/s (~0.5 s in and out), held 0.8 s after the last strike leaves.
    A: VFX_ATMO.setStrikeMix(sf) on HIGH (atmosphere eases to its MED light budget). B: flame_shared HIGH caps lerp to MED counts (tongues/embers/stream segs/blit budget).
