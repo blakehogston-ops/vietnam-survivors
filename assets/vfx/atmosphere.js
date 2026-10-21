@@ -27,7 +27,7 @@ const S={w:0,h:0,low:false,hour:12,rain:0,haze:1,t:0,g:null,gk:'',
   L:[],nL:0, F:[],D:[],R:[],P:[],
   lm:null,lmx:null,ls:2, vig:null,grain:[],gp:[],sheen:null,mist:null,spr:{},flareSpr:null,chute:null,perf:{last:0,avg:0,n:0}};
 /* atmo-1.2 (perf rc8): quality tiers. Q.ls light-map scale, Q.bloom additive light sprites, Q.lights max lights fed to the map, Q.grain film grain, Q.sat saturation/veil pass, Q.dust motes, Q.shadows max flare shadows */
-const QT={high:{poolMax:160,ls:4,bloom:32,lights:160,grain:2,sat:true,dust:70,shadows:240,mistBands:3},med:{poolMax:160,ls:6,bloom:16,lights:80,grain:1,sat:true,dust:40,shadows:90,mistBands:2},low:{ls:6,bloom:10,lights:40,grain:0,sat:true,dust:20,shadows:40,mistBands:1,poolMax:160,blastGlow:true}};
+const QT={high:{poolMax:160,ls:4,bloom:32,lights:160,grain:2,sat:true,dust:70,shadows:240,mistBands:3},med:{poolMax:160,ls:6,bloom:16,lights:80,grain:1,sat:true,dust:40,shadows:90,mistBands:2},low:{ls:6,bloom:10,lights:40,grain:0,sat:true,dust:20,shadows:40,mistBands:0,poolMax:160,blastGlow:true}};
 let Q=QT.high, QN='high';
 /* rc8 perf A (Lead-approved, AD-approved): while a strike is on screen, HIGH eases to the MED light budget. setStrikeMix(f), f 0..1 (game fades it over ~0.5 s).
    bloom/lights/shadows/dust are lerped (counts ramp, no pop); light-map scale + mist bands swap at f=.5 using a pre-built second light map (no re-init, no allocation per frame). */
@@ -149,7 +149,7 @@ function drawWorldOverlay(ctx,camX,camY,zoom){ const t0=performance.now(); zoom=
   // flares register their light every frame (moving light)
   for(const f of S.F) if(f.on&&f.k>0){ const R=f.R*(.8+.2*Math.min(1,f.k*1.3)); addLight(f.x,f.y+f.alt*.15,R,FLARE_COL,f.k,0) }
   // 1) ground haze bands (world-anchored, parallax drift)
-  if(G.haze>.02&&HAZE_ON&&!FXOFF('haze')){ ctx.globalAlpha=clamp(G.haze,0,1)*.55; const bands=low?1:2, TW=1024*zoom, BH=Math.max(h*.9,256*zoom), span=h+BH;   /* rc8.1 haze fix (Blake: dark pulsing lines): no 220-unit grid snap, no |0 rounding, continuous parallax; very tall feathered bands (mist2 feather spans ~0.9 screen), zoom-scaled seamless tiles (mist wraps at 512), lower alpha */
+  if(G.haze>.02&&HAZE_ON&&!FXOFF('haze')){ ctx.globalAlpha=clamp(G.haze,0,1)*.55; const bands=Math.min(low?1:2,Q.mistBands|0), TW=1024*zoom, BH=Math.max(h*.9,256*zoom), span=h+BH;   /* rc8.1 haze fix (Blake: dark pulsing lines): no 220-unit grid snap, no |0 rounding, continuous parallax; very tall feathered bands (mist2 feather spans ~0.9 screen), zoom-scaled seamless tiles (mist wraps at 512), lower alpha */
     for(let b=0;b<bands;b++){ const y=((((b*span/bands)-camY*zoom*(.35+b*.1)+Math.sin(S.t*.1+b)*6)%span)+span)%span-BH;
       const off=((((-camX*zoom)*(.9+b*.05)+S.t*(6+b*3))%TW)+TW)%TW; for(let x=off-TW;x<w;x+=TW-1) ctx.drawImage(S.mist2,x,y,TW,BH) }
     ctx.globalAlpha=1 }
