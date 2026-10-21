@@ -91,3 +91,10 @@ Per Lead (MERGE_NOTE_RC8_SOURCING_OCT20 rev 2). Files were recopied fresh from s
 | napalm rev 2 | kept OFF | EP/perf ruling (option D) |
 | lowfx | auto (unchanged) | on for touch devices only |
 | decoy, capture, napsafe, botfb, padmel, t, nobrief, nointro, nodemo, autostart, bot, god, give, win, loss, unlockall, demo, public, meter, fps, all, brief, combat, reinforcements, menu_intro, intro_riff, moht/mohd | opt-in | QA / debug / harness / test-only |
+
+## QUALITY TIERS (rc8.1, EP: target a high-end PC; Settings > QUALITY LOW/MED/HIGH, saved in localStorage lco_quality; ?q= forces)
+- HIGH: every finished visual on: terrain v2, full jungle (LOD 0), impact napalm + FX81 napalm, full flame caps, full atmosphere. No strike-time drop (rc8 perf A+B strike mix now opt-in via ?smix=1).
+- MED: terrain v2, light jungle LOD, impact napalm, MED flame/atmosphere caps (LQT.med particle cap).
+- LOW: terrain v2, light jungle LOD (off on touch/mobile), impact napalm, LOW flame caps, warm blast glow (bglow), lowest particle cap.
+- Kept off on every tier: fglow, jstrike, smksheet, tts, napalm rev 2.
+- Perf gate: perf-regress +10% on MED and LOW; HIGH reported only.
