@@ -122,10 +122,10 @@
       sting_evac:         { group: 'sting', batch: 3, files: ['sting_evac_1'] },   // evac fallback (music missing): acoustic C major. PENDING LEGAL
       sting_over:         { group: 'sting', batch: 3, files: ['sting_over_1'] },   // game-over fallback (music missing): acoustic chords -2 st. PENDING LEGAL
       // 2026-10-20 (samples/build_radio_oct20.py): RTO-down sting, radio beds for Blake's voice lines, battle dressing. New sources PENDING LEGAL.
-      rto_down_sting:     { disabled: true, /* RC4: waiting on the pdsounds listening check */ group: 'sting', batch: 3, files: ['rto_down_sting_1'] },   // RTO killed: VSCO 2 CE low brass D minor (CC0) + pdsounds static cut to dead air + LukaCafuka key/release. PENDING LEGAL
+      rto_down_sting:     { /* FILL-IN (Blake ruling Oct 20): licence OPEN, Legal check before Steam */ group: 'sting', batch: 3, files: ['rto_down_sting_1'] },   // RTO killed: VSCO 2 CE low brass D minor (CC0) + pdsounds static cut to dead air + LukaCafuka key/release. PENDING LEGAL
       radio_key_in:       { group: 'radio', batch: 2, files: ['radio_key_in_1'] },     // faint key click + squelch open/hiss: LukaCafuka + pdsounds STE-011 (cleared sources)
       radio_key_out:      { group: 'radio', batch: 2, files: ['radio_key_out_1'] },    // release burst + FM static rush, then silence (no roger beep): LukaCafuka + pdsounds STE-011 (cleared)
-      radio_static_bed_loop: { disabled: true, /* RC4: waiting on the pdsounds listening check */ group: 'radio', batch: 2, files: ['radio_static_bed_loop_1'] },   // PRC-25-style hiss bed, 6.0 s seamless loop: pdsounds STE-011 (PwC; broadcast-bleed ear check open)
+      radio_static_bed_loop: { /* FILL-IN (Blake ruling Oct 20): licence OPEN, Legal check before Steam */ group: 'radio', batch: 2, files: ['radio_static_bed_loop_1'] },   // PRC-25-style hiss bed, 6.0 s seamless loop: pdsounds STE-011 (PwC; broadcast-bleed ear check open)
       bandage_dressing:   { group: 'foley', batch: 2, files: ['bandage_dressing_1', 'bandage_dressing_2', 'bandage_dressing_3'] },   // wrapper tear + cloth rip + press: Luckius / OwlishMedia (OGA, CC0). PENDING LEGAL
       // claymore: modusmogulus crack + qubodup snap + Kostrava (all CC0; areniporgen #693421 FAILED the Oct 14 audit)
       explosion_claymore: { group: 'specials', batch: 1, files: ['explosion_claymore_1'] },

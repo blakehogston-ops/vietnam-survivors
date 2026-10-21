@@ -103,3 +103,10 @@ Per Lead (MERGE_NOTE_RC8_SOURCING_OCT20 rev 2). Files were recopied fresh from s
 - DOM UI (HUD, banners, menus) scaled by CSS zoom max(1, innerHeight/1080) (--uis); canvas world zoom + canvas HUD scale with height above 1080 px, so 1440p/4K show the 1080p view. 1280x800, 1080p, 2560x1080 unchanged. Proof: /workspace/proof/rc81/scale/.
 - First-run "Move with WASD" card opens at insertion (intro/early play), never over the main menu.
 - settings_skin toggle(): `if(!inp) return;` (QUALITY row is a <select>).
+
+## FILL_IN_AUDIO (rc8.1, Blake ruling Oct 20: uncleared audio stays in test/friends builds as fill-in)
+| Manifest key | Files | Source | Licence status |
+|---|---|---|---|
+| rto_down_sting | audio/samples/{ogg,m4a}/rto_down_sting_1.* | VSCO 2 CE low brass D minor (CC0) + pdsounds static cut + LukaCafuka key/release (existing sound_pack file, not recreated) | OPEN - Legal check before Steam |
+| radio_static_bed_loop | audio/samples/{ogg,m4a}/radio_static_bed_loop_1.* | pdsounds STE-011 hiss bed, 6.0 s loop (existing sound_pack file, not recreated) | OPEN - broadcast-bleed ear check + Legal check before Steam |
+Levels unchanged: sample_player gains 0.213 (sting) / 0.316 (radio bed).
