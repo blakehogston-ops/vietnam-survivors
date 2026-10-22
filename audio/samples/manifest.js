@@ -203,7 +203,7 @@
         // menu_theme (2026-10-20): Semper Fidelis (Sousa, 1888), United States Marine Band 2016, Wikimedia Commons, U.S. gov work, PUBLIC DOMAIN.
         // Replaces Zapatista (Content ID HIGH; music_menu_theme.* kept unused, DO NOT SHIP). One repeated strain 56.00-112.51 s, -14.0 LUFS.
         menu_theme: { file: 'music_menu_march', group: 'music', loop: true, loopStart: 0, loopEnd: 56.510, m4aOffsetSec: 0.046440, gain: 1 },
-        scene_opening: { file: 'music_easter_valkyries', group: 'music', loop: false, scene: 'opening', dur: 76.000, m4aOffsetSec: 0.046440, gain: 1, returnTo: 'combat', returnXf: 2.5 },   // Ride of the Valkyries, Edison 1921 (PD) - opening insertion ONLY
+        scene_opening: { file: 'music_valkyries_short', group: 'music', loop: false, scene: 'opening', dur: 12.000, m4aOffsetSec: 0, gain: 1 },   // Ride of the Valkyries, Edison 1921 (PD) - 12 s clip as the helo comes in for air-support cover (Blake, Oct 22); assets/music_ai.js crossfades into the state's Jungle Dread track at the end. The 76 s music_easter_valkyries.* is kept, off the load list
         menu_intro: { file: 'music_menu_intro', group: 'music', loop: false, sting: true, dur: 14.500, finalHitSec: 12.150, m4aOffsetSec: 0.046440, gain: 1, next: 'menu_theme' },  // When Johnny Comes Marching Home, U.S. Navy Band Brass Quartet (Wikimedia Commons, U.S. gov work, PD). playMenu() plays it, then the loop
         // ---- Jungle Dread AI score (rc8.1, Blake's pick Oct 21; /workspace/sound_pack/music_ai/README.md). FILL-IN · AI MUSIC: ElevenLabs Starter,
         // Legal PASS under the Indie conditions, PENDING the Steam AI-music disclosure sentence. Files in audio/music_ai/ (MUSX sets base 'audio/music/').

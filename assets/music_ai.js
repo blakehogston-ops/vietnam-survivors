@@ -34,7 +34,13 @@
   };
   function nearFoes() { try { var g = X().G, en = X().enemies, n = 0; for (var i = 0; i < en.length; i++) { var e = en[i]; if (!e.dead && Math.abs(e.x - g.p.x) < 720 && Math.abs(e.y - g.p.y) < 520) n++; } return n; } catch (e) { return 99; } }
   M.pick = function (g, ex) {
-    try { var ms = SamplePlayer.musicState && SamplePlayer.musicState(); if (ms && ms.scene) return 'combat'; } catch (e) {}   /* the opening scene owns the music; 'combat' is the slot it hands back to */
+    try { var ms = SamplePlayer.musicState && SamplePlayer.musicState();
+      if (ms && ms.scene) {   /* the 12 s Valkyries clip owns the music; 1.8 s before it ends the scene is released and MUSX crossfades into this state's Jungle Dread track (no wait for ramp / liftoff) */
+        var sp = mu.tracks.scene_opening || {}, t = now(); if (M.scT0 == null) M.scT0 = t;
+        if (t - M.scT0 < (sp.dur || 12) - M.XF) return 'combat';
+        M.scT0 = null; SamplePlayer.musicEvent('release'); try { X().MUSX.key = null; } catch (e) {} M.log.push({ t: +t.toFixed(2), scene: 'released' });
+      } else M.scT0 = null;
+    } catch (e) {}
     if (M.wave && now() - M.waveAt > 45 && nearFoes() < 4) M.wave = false;   /* a wave with no break call (firebase) ends when the area is quiet */
     if (M.wave) return 'combat';
     return M.explore();   /* 'intro_riff' = alias of ai_full: same MUSX key as the insertion walk, so the track carries on instead of restarting */

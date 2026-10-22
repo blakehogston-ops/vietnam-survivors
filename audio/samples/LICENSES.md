@@ -295,3 +295,10 @@ Rejected sources: Boscoricardo17 "Corneta Militar" #868980 (Spanish cavalry call
 | Radio | Interception – Radio Transmission Sound Effects | Bluezone | 18,95 € | https://www.bluezone-corporation.com/packs/interception-radio-transmission-sound-effects | "royalty-free ... use them without any restrictions in all your personal and commercial projects." | 145 sounds. **It includes digital beeps and synth sources**, so use only the analog static and squelch. No PRC-25 recording was found anywhere. |
 | Footsteps | Footstep and Foley Sounds | Gamemaster Audio (itch.io) | **No price shown for this pack**; the page says "Pro Sound Collection ... available for $47" | https://gamemaster-audio.itch.io/footstep-and-foley-sounds | "Royalty-free for commercial use" | Mud, water, wood and metal surfaces. |
 | (reject) | Military Warfare SFX Bundle | GfxSoundsStudios via Sonniss | $69.00 (was $119.00) | (Sonniss marketplace) | Sonniss EULA | Explicitly "modern combat". Mud footsteps only, if anything. |
+
+
+## Music: Ride of the Valkyries short clip (2026-10-22)
+| File | Use | Source | Licence | sha256 |
+|---|---|---|---|---|
+| `music/music_valkyries_short.ogg` | scene_opening (12 s, helo in for air-support cover) | "Ride of the Valkyries" (Wagner), American Symphony Orchestra, Edison Diamond Disc 80638-R (1921), Wikimedia Commons | Public domain (US, pre-1923); Legal PASS with conditions 2026-10-20; credit unchanged (see THIRD_PARTY_AUDIO.txt) | 0536590f1869576563e33620ee2e107bc8049b965d8cde46ffd42f202732f68c |
+| `music/music_valkyries_short.m4a` | same | same | same | 5208a39675fb7edd6a74e773995e724b2124c3daa82c607e6d34f079e3189155 |

@@ -14,7 +14,7 @@ const SND=()=>{ const s=SamplePlayer.musicState(); return s.cur };
   ok(L.on,'MusicAI on by default'); ok(L.has.every(x=>x.endsWith('true')),'all game music loaded '+L.has.join(' '));
   const ai=got.filter(u=>u.startsWith('music_ai/')), old=got.filter(u=>u.startsWith('music/'));
   ok(!bad.length,'no 404 / failed music requests '+JSON.stringify(bad)); ok(ai.length===10,'10 music_ai files fetched ('+ai.join(', ')+')');
-  ok(old.every(u=>/music_win|music_easter_valkyries/.test(u)),'old score only Hymn + Valkyries fetched: '+old.join(', '));
+  ok(old.every(u=>/music_win|music_valkyries_short/.test(u))&&old.some(u=>/music_valkyries_short/.test(u)),'old score only Hymn + Valkyries fetched: '+old.join(', '));
   ok(!L.cues.length,'cues decoded '+JSON.stringify(L.cues));
   ok(await pg.evaluate(()=>__ms.stateX)==='menu'&&await pg.evaluate(SND)==='ai_menu','menu -> ai_menu ('+await pg.evaluate(SND)+')');
   // start a run (no intro), exploration
@@ -44,7 +44,9 @@ const SND=()=>{ const s=SamplePlayer.musicState(); return s.cur };
 { const {pg,bad,errs}=await open('&autostart');
   await pg.waitForFunction(()=>SamplePlayer.hasMusic('scene_opening')&&SamplePlayer.hasMusic('ai_combat'),null,{timeout:90000}).catch(()=>{});
   const v=await pg.evaluate(async()=>{ SamplePlayer.musicEvent('opening_in'); await new Promise(r=>setTimeout(r,3000)); return SamplePlayer.musicState() });
-  ok(v.scene==='opening'&&v.cur==='scene_opening','Valkyries opening scene plays and holds ('+v.scene+'/'+v.cur+')'); ok(!errs.length&&!bad.length,'no errors/404 (opening)'); await pg.close() }
+  ok(v.scene==='opening'&&v.cur==='scene_opening','Valkyries opening scene plays and holds ('+v.scene+'/'+v.cur+')');
+  const v2=await pg.evaluate(async()=>{ await new Promise(r=>setTimeout(r,10500)); return SamplePlayer.musicState() });
+  ok(!v2.scene&&/^ai_(full|combat|river)$/.test(v2.cur),'12 s Valkyries clip hands off to the state track at its end ('+v2.scene+'/'+v2.cur+')'); ok(!errs.length&&!bad.length,'no errors/404 (opening)'); await pg.close() }
 // ?music=old
 { const {pg,bad,got,errs}=await open('&music=old'); await pg.waitForTimeout(12000);
   const o=await pg.evaluate(()=>({on:MusicAI.on,cur:SamplePlayer.musicState().cur}));

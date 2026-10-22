@@ -1008,6 +1008,9 @@ music/music_easter_valkyries.ogg + music/music_easter_valkyries.m4a  (scene: ope
     Conditions (Legal 2026-10-20): NO Apocalypse Now material in the game or marketing (no film audio or dialogue, no napalm line, no Kilgore or Air Cav references, no trailer pairing this track with a Huey charge); keep the courtesy credit and the source links; no 'authentic period' claim.
     sha256: ogg f84d663de48322805ca6d249b9ad27652db8fa466f736b87055269812a3042a9  m4a 02794561af5e0f7da83309ce1ec9a4e052c035b675f3adb0dc57baf728874c59
     Edit:   18.0-94.0 s, 2 s fade in, 5 s fade out, no loop, -14.0 LUFS, period crackle kept.
+music/music_valkyries_short.ogg + music/music_valkyries_short.m4a  (slot scene_opening from 2026-10-22, Blake: ~10 s as the helo comes in for air-support cover; same recording, same credit and conditions as above; the 76 s files are kept but no longer loaded)
+    sha256: ogg 0536590f1869576563e33620ee2e107bc8049b965d8cde46ffd42f202732f68c  m4a 5208a39675fb7edd6a74e773995e724b2124c3daa82c607e6d34f079e3189155
+    Edit:   12.0 s, no loop, -13.8 LUFS.
 
 [2026-10-20 rc8 sourcing — o1 / amtrac / firebase: Legal PASS + Audio Director PASS 2026-10-20, shipping. tokay: Legal cleared 2026-10-20, shipping]
 samples/ogg + samples/m4a/o1_birddog_flyby_1  (STAND-IN for the O-1 Bird Dog: unidentified propeller light plane)
