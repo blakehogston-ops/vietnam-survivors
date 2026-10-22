@@ -25,8 +25,8 @@ ok(A.retTarget,'A return target = firebase');
 ok(A.log.some(e=>e.ev==='reward'&&e.xp>0)&&A.banners.some(t=>/BACK INSIDE THE WIRE · \+\d+ XP/.test(t)),'A reward shown on return');
 ok(A.out.some(o=>/completed/.test(o.res)),'A end-screen record (completed)');
 ok(!A.errs.length,'A no page errors '+A.errs.slice(0,2).join(' | '));
-// B) forced fail: 5 s go timer, mission expires with a clear fail moment
-const B=await run('&build=done&moht=5&mohd=600',202,200);
+// B) forced fail: 1 s go timer (deterministic), mission expires with a clear fail moment
+const B=await run('&build=done&moht=1&mohd=600',202,200);
 ok(B.log.some(e=>e.ev==='expired'),'B fail moment (expired) logged');
 ok(B.banners.some(t=>/MISSION FAILED/.test(t)),'B fail banner shown');
 ok(B.out.some(o=>/not reached/.test(o.res)),'B end-screen record (failed)');
