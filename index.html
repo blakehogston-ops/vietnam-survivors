@@ -229,7 +229,7 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
 <body>
 <canvas id="c"></canvas>
 
-<div id="topbtns"><button id="btnMute" title="Mute / unmute (M)">🔊</button><button id="btnPause" title="Pause (P / Esc)">❚❚</button><button id="btnFull" title="Fullscreen (F11)">⛶</button></div>
+<div id="topbtns"><button type="button" id="btnMute" title="Mute / unmute (M)">🔊</button><button type="button" id="btnPause" title="Pause (P / Esc)">❚❚</button><button type="button" id="btnFull" title="Fullscreen (F11)">⛶</button></div>
 <div id="fsHint">For fullscreen on iPhone: tap <b>Share</b> ▸ <b>Add to Home Screen</b>, then launch from the icon.</div>
 
 <div id="tut"><div class="tb"><div class="tq"></div></div></div>
@@ -238,9 +238,9 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
   <div class="bstamp"></div>
   <h1>LAST CHOPPER <span>OUT</span></h1>
   <div class="sub">Quang Tri, 1968</div>
-  <button class="btn" id="btnStart">Start Patrol</button>
-  <button class="btn alt" id="btnBrief">Replay Briefing</button>
-  <button class="btn alt" id="btnTut">Quick Tutorial</button>
+  <button type="button" class="btn" id="btnStart">Start Patrol</button>
+  <button type="button" class="btn alt" id="btnBrief">Replay Briefing</button>
+  <button type="button" class="btn alt" id="btnTut">Quick Tutorial</button>
   <label class="goresw" id="goreSw" title="Blood, gibs and corpses. OFF = enemies just poof into dust."><span>GORE</span><input type="checkbox" id="goreChk" checked><i></i><b id="goreTxt">ON</b></label>
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label><label class="goresw qSw" title="Graphics quality. HIGH = everything on (high-end PC); MED and LOW scale effects down. Saved."><span>QUALITY</span><select class="qSel" style="font:inherit;background:#1a1712;color:#e8dcc0;border:1px solid #8a2a22;border-radius:8px;padding:2px 6px"><option value="low">LOW</option><option value="med">MED</option><option value="high">HIGH</option></select></label>
   <label class="goresw rfSw" title="Fewer and slower flashes: no white flash in the intro, steady low-HP border, steady flares and strobes. Follows your system Reduce motion setting until you change it."><span>REDUCE FLASHING</span><input type="checkbox" class="rfChk"><i></i><b class="rfTxt">OFF</b></label>
@@ -325,37 +325,37 @@ Pause .......... Esc / P     Mute ... M</pre></div>
 <div id="charsel" class="overlay">
   <div class="cs-title">SERVICE RECORDS<small>3rd MARINE DIVISION · I CORPS · SELECT YOUR MAN</small></div>
   <div class="cs-wrap"><div id="csList"></div><div id="csRec"></div></div>
-  <div class="cs-btns"><button class="btn alt" id="btnCsBack">Back</button><button class="btn" id="btnCsGo">Deploy</button></div>
+  <div class="cs-btns"><button type="button" class="btn alt" id="btnCsBack">Back</button><button type="button" class="btn" id="btnCsGo">Deploy</button></div>
 </div>
-<button id="sigBtn" title="Pop your signal at the LZ (G)"><i id="sigDot"></i><b id="sigNm">SIGNAL</b><span>G</span></button>
+<button type="button" id="sigBtn" title="Pop your signal at the LZ (G)"><i id="sigDot"></i><b id="sigNm">SIGNAL</b><span>G</span></button>
 <div id="sigask" class="overlay">
   <div class="rbox"><canvas id="sigPort" width="36" height="40"></canvas><div><div class="who" id="sigWho">BIRD · CH-46D</div><div id="sigQ">"Doc, Bird. I've got red. Over."</div></div></div>
   <div id="sigSw">RED</div>
   <div class="note" id="sigNote">Smoke out. The pilot names the color he sees - check it against your line. Charlie pops his own smoke. No timer.</div>
-  <div class="sigbtns"><button class="btn" id="btnSigOk">CONFIRM</button><button class="btn alt" id="btnSigNo">NEGATIVE</button></div>
+  <div class="sigbtns"><button type="button" class="btn" id="btnSigOk">CONFIRM</button><button type="button" class="btn alt" id="btnSigNo">NEGATIVE</button></div>
 </div>
-<button id="pbBtn" title="Enter / leave the bunker (E, controller Y)"><b id="pbNm">ENTER BUNKER</b><span>E</span></button>
+<button type="button" id="pbBtn" title="Enter / leave the bunker (E, controller Y)"><b id="pbNm">ENTER BUNKER</b><span>E</span></button>
 <div id="padHint" aria-live="polite"></div>
 <div id="newBuild" role="button">A newer version of the game is available · click to reload</div>
 <div id="sup" aria-live="off"></div>
-<div id="medHud"><button id="medBtn" title="Use a battle dressing on yourself (H / pad B)">✚ <b id="medN">0</b><span>H</span></button><button id="medMate" title="Patch the most hurt Marine in reach (Q / pad RB)">✚ <i id="medMateT">MARINE</i><span>Q</span></button><b id="rtoHud" style="display:none;align-self:center;font:bold 12px monospace;padding:4px 7px;background:rgba(10,12,8,.75);border-radius:4px"></b></div>
+<div id="medHud"><button type="button" id="medBtn" title="Use a battle dressing on yourself (H / pad B)">✚ <b id="medN">0</b><span>H</span></button><button type="button" id="medMate" title="Patch the most hurt Marine in reach (Q / pad RB)">✚ <i id="medMateT">MARINE</i><span>Q</span></button><b id="rtoHud" style="display:none;align-self:center;font:bold 12px monospace;padding:4px 7px;background:rgba(10,12,8,.75);border-radius:4px"></b></div>
 <div id="tkr" aria-live="off"><i id="tkrRing"></i><span id="tkrTx"></span></div>
-<button id="abil" title="Special ability (Space)"><i id="abilCd"></i><span id="abilKey">SPACE</span><b id="abilNm"></b></button>
-<div id="mohCard" class="overlay"><div style="margin:auto;max-width:560px;background:#0d140d;border:2px solid #8a7a40;padding:14px 18px;color:#f6f0cc;font-family:monospace;text-align:left"><div id="mohTxt"></div><div style="display:flex;gap:12px;margin-top:12px;justify-content:center"><button id="mohGo" class="btn" style="min-width:140px">GO (Enter)</button><button id="mohStay" class="btn" style="min-width:140px">STAY (Esc)</button></div></div></div>
+<button type="button" id="abil" title="Special ability (Space)"><i id="abilCd"></i><span id="abilKey">SPACE</span><b id="abilNm"></b></button>
+<div id="mohCard" class="overlay"><div style="margin:auto;max-width:560px;background:#0d140d;border:2px solid #8a7a40;padding:14px 18px;color:#f6f0cc;font-family:monospace;text-align:left"><div id="mohTxt"></div><div style="display:flex;gap:12px;margin-top:12px;justify-content:center"><button type="button" id="mohGo" class="btn" style="min-width:140px">GO (Enter)</button><button type="button" id="mohStay" class="btn" style="min-width:140px">STAY (Esc)</button></div></div></div>
 <div id="levelup" class="overlay">
   <h2>LEVEL UP!</h2>
   <div class="sub" style="margin-top:0">Choose an upgrade</div>
   <div id="cards"></div>
-  <div id="luTools"><button id="btnReroll" class="lutool">&#8635; REROLL <b id="rrN">2</b> <small>[R]</small></button><button id="btnBanish" class="lutool">&#10006; BANISH <b id="bnN">2</b> <small>[B]</small></button></div>
+  <div id="luTools"><button type="button" id="btnReroll" class="lutool">&#8635; REROLL <b id="rrN">2</b> <small>[R]</small></button><button type="button" id="btnBanish" class="lutool">&#10006; BANISH <b id="bnN">2</b> <small>[B]</small></button></div>
   <div id="luHint"></div>
 </div>
 
-<div id="quitAsk" role="dialog" aria-modal="true" aria-labelledby="quitAskT"><div class="qb"><h3 id="quitAskT">Quit run?</h3><p>Progress in this run is lost. Enter / Esc = No</p><button class="btn alt" id="qaYes">Yes</button><button class="btn" id="qaNo">No</button></div></div>
+<div id="quitAsk" role="dialog" aria-modal="true" aria-labelledby="quitAskT"><div class="qb"><h3 id="quitAskT">Quit run?</h3><p>Progress in this run is lost. Enter / Esc = No</p><button type="button" class="btn alt" id="qaYes">Yes</button><button type="button" class="btn" id="qaNo">No</button></div></div>
 <div id="pause" class="overlay">
   <div class="bstamp"></div>
   <h2>PAUSED</h2>
-  <button class="btn" id="btnResume">Resume</button>
-  <button class="btn alt" id="btnQuit">Quit to menu</button>
+  <button type="button" class="btn" id="btnResume">Resume</button>
+  <button type="button" class="btn alt" id="btnQuit">Quit to menu</button>
   <div class="padKeys padPause"></div>
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label><label class="goresw qSw" title="Graphics quality. HIGH = everything on (high-end PC); MED and LOW scale effects down. Saved."><span>QUALITY</span><select class="qSel" style="font:inherit;background:#1a1712;color:#e8dcc0;border:1px solid #8a2a22;border-radius:8px;padding:2px 6px"><option value="low">LOW</option><option value="med">MED</option><option value="high">HIGH</option></select></label>
   <label class="goresw rfSw" title="Fewer and slower flashes: no white flash in the intro, steady low-HP border, steady flares and strobes. Follows your system Reduce motion setting until you change it."><span>REDUCE FLASHING</span><input type="checkbox" class="rfChk"><i></i><b class="rfTxt">OFF</b></label>
@@ -427,8 +427,8 @@ Pause .......... Esc / P     Mute ... M</pre></div>
   <div id="stats"></div>
   <div class="srd" id="overDed">Dedicated to the Vietnam veterans, and to MSgt Hogston, USAF.</div>
   <div class="tribute" id="overTrib">✦ For the Marines, Navy corpsmen, and all who served alongside them in Quang Tri, 1968. ✦</div>
-  <button class="btn" id="btnRestart">Back in the Bush</button>
-  <button class="btn alt" id="btnMenu">Main menu</button>
+  <button type="button" class="btn" id="btnRestart">Back in the Bush</button>
+  <button type="button" class="btn alt" id="btnMenu">Main menu</button>
   <div id="overSvc"></div>
 </div>
 
@@ -2640,7 +2640,7 @@ function callSquad(s,l){
    and a squad catch-up on incoming damage by how many are still alive (8 or fewer x.45, 9-10 x.75, 12 x1.1, 13+ x1.45). ?bal=0 turns both off. */
 const BAL={ON:!/[?&]bal=0\b/.test(location.search),GRACE:120,
   k(){ const g=G; if(g._bk!==undefined&&g.t-g._bkT<.5)return g._bk; let n=0; for(const q of coy)if(q.hp>0&&q.state==='ok')n++; g._bkT=g.t; return (g._bk=n<=8?.3:n<=10?.65:n>=13?1.8:n>=12?1.1:1) } };
-function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(m.rto){ if(m.rtoIf>G.t)return; m.rtoIf=G.t+.25; dmg*=G.t<(G.rtoShield||0)?.2:.5; if(RTOP&&!G.demo){ const k=G.t<RTOP-30?0:Math.min(1,(G.t-(RTOP-30))/60); dmg*=.4+.6*k; if(k<1)m._rtoF=1 } }   /* rc7 #6: the RTO can't be killed before ~4:30, takes 40% of that until then, back to normal by 5:30 (?rtop=0) */   /* RC5 (Gamer: RTO died at the smoke answer): half damage, 0.25 s between hits (a burst can't stack), 80% off for 4 s after the smoke prompt closes */ if(G.ex&&G.ex.ph===4&&!m.rto)dmg*=INB_DM;   /* RC4: bird-inbound phase hits a little harder */ if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER; if(m.coy&&AIS.L.length&&AIS.cover(m))dmg*=.75;   /* in cover */
+function hurtMember(m,dmg){ if(m.hp<=0||m.state!=='ok'||m.hid)return; if(G&&!G.demo&&G.t>20)TEACH.want('med'); if(m.rto){ if(m.rtoIf>G.t)return; m.rtoIf=G.t+.25; dmg*=G.t<(G.rtoShield||0)?.2:.5; if(RTOP&&!G.demo){ const k=G.t<RTOP-30?0:Math.min(1,(G.t-(RTOP-30))/60); dmg*=.4+.6*k; if(k<1)m._rtoF=1 } }   /* rc7 #6: the RTO can't be killed before ~4:30, takes 40% of that until then, back to normal by 5:30 (?rtop=0) */   /* RC5 (Gamer: RTO died at the smoke answer): half damage, 0.25 s between hits (a burst can't stack), 80% off for 4 s after the smoke prompt closes */ if(G.ex&&G.ex.ph===4&&!m.rto)dmg*=INB_DM;   /* RC4: bird-inbound phase hits a little harder */ if(m.bk&&!m.bk.dead&&Math.hypot(m.x-m.bk.x,m.y-m.bk.y)<BNK.IN)dmg*=BNK.DMG;   /* boarded Marines (hid at lift) can't be hit */ if(m.coy&&!m.mv&&G.plf&&G.plf.c>0)dmg*=PACE.M_COVER; if(m.coy&&AIS.L.length&&AIS.cover(m))dmg*=.75;   /* in cover */
   if(m.coy&&BAL.ON&&!G.demo){ dmg*=BAL.k()*(MOH.away()?.5:1)*(fbS&&G.ex&&G.ex.ph>=4?.6:1); if(G.t<BAL.GRACE&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) } }
   if(!m.coy&&BAL.ON&&!G.demo&&G.char!=='doc'&&G.t<BAL.GRACE&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) }   /* non-Doc heroes bring their own patrol: same 120 s grace as the company */
   if(m.coy&&G.w1End>G.t&&(G.w1L|0)>=3&&m.hp-dmg<1){ m.hp=Math.max(1,m.hp); dmg=Math.max(0,m.hp-1) }   /* RC5 (QA outlier): the first post-build wave takes at most 3 Marines */
@@ -3263,7 +3263,7 @@ function newGame(demo){ N2.reset(); try{ ATM.reset() }catch(e){}
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
-  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); FIELD.reset(); GUNS.reset(); MEDV.reset(); CREWX.reset(); BARK.reset(); VHX.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); OFFI.reset(); MAGS.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
+  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); try{ TEACH.reset() }catch(e){} FIELD.reset(); GUNS.reset(); MEDV.reset(); CREWX.reset(); BARK.reset(); VHX.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); OFFI.reset(); MAGS.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(240,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:130,maxHp:130,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,medInv:3,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
@@ -3689,6 +3689,7 @@ function surge(){
     G.banner={text:'NVA ASSAULT!',t:2.6,col:'#ffcf5a'};
   }
   Snd.play('radio'); assaultCry(); G.shake=Math.max(G.shake,5); }
+function lateLull(g){ if(g.t<330)return 1; const c=(g.t-330)%62; if(c>=50){ if(!g.lullOn){ g.lullOn=1; (g.lullLog||(g.lullLog=[])).push(+g.t.toFixed(1)) } return .3 } g.lullOn=0; return c<8?1.15:1 }   /* rc8.1 Pass 3: after 5:30, 50 s surges then a 12 s lull (spawns x0.3), not one constant flood */
 function spawnBoss(){ (G.blog=G.blog||[]).push({n:G.bossN,t0:G.t,t1:null}); const [x,y]=edgePoint(90); const kind=G.bossN%2===0?'boss':'rpg'; const b=spawnEnemy(kind,x,y); const mult=1+G.bossN*.6; b.hp=b.mhp=ET[kind].hp*mult*(1+G.t/500); b.dmg=ET[kind].dmg+G.bossN*3; b.cdash=kind==='rpg'?1.8:3; if(G.bossN===0&&G.ex&&G.ex.ph===0)b.sigKind='smoke';   /* the NVA commander carries the smoke */ G.bossN++; G.boss=b; b.spawnT=G.t; if(G.bossN===1&&!G.demo){ try{ gunny('NVA officer! Stay clear of him, Doc!',3.2,1); G.banner={text:'COMMANDER SPOTTED · GET CLEAR',t:2.4,col:'#ff6a4a'} }catch(e){} }   /* rc7.1 LPT#2 telegraph */
   G.banner={text:kind==='rpg'?'RPG HEAVY INBOUND!':'NVA COMMANDER INBOUND!',t:3.2,col:'#ff6a4a'}; Snd.play('boss'); G.shake=Math.max(G.shake,6); }
 
@@ -3906,7 +3907,7 @@ function update(dt){
   if(G.xPend){ G.xPend=0; try{ const ex=G.ex; if(ex&&ex.ph<3)N2.press() }catch(e){} }
   if(window.VFX_IMPACT)try{ VFX_IMPACT.update(dt) }catch(e){}
   N2.tick(dt); EFIGHT.tick(); P3.tick(dt); if(QAHP&&G.p.hp>G.p.maxHp*QAHP/100)G.p.hp=G.p.maxHp*QAHP/100;   /* QA only: ?qahp=N holds Doc at N% HP (screenshots of the low-HP vignette) */
-  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt); FIELD.tick(dt); GUNS.tick(dt); MEDV.tick(dt); AMT.tick(dt); CREWX.tick(dt); PADRUSH(dt); IMP.tick(dt); BARK.tick(dt); if(window.VFX_MUZZLE)try{ VFX_MUZZLE.update(dt) }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.update(dt) }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.update(dt) }catch(e){}
+  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); TEACH.tick(dt); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt); FIELD.tick(dt); GUNS.tick(dt); MEDV.tick(dt); AMT.tick(dt); CREWX.tick(dt); PADRUSH(dt); IMP.tick(dt); BARK.tick(dt); if(window.VFX_MUZZLE)try{ VFX_MUZZLE.update(dt) }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.update(dt) }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.update(dt) }catch(e){}
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
   const g=G,p=g.p; g.t+=dt; g.dthF=0;
@@ -3928,7 +3929,7 @@ function update(dt){
   if(tg){g.aim=Math.atan2(tg.y-p.y,tg.x-p.x); p.face=Math.cos(g.aim)>=0?1:-1}else{ if(p.mv){g.aim=Math.atan2(p.fy,p.fx); } if(Math.abs(p.fx)>.1)p.face=p.fx>=0?1:-1 } }
   // spawns
   if(g.massT>0)g.massT-=dt; PULL.qa(g); PULL.breach(g); const pulling=PULL.tick(g,dt); const massOn=!pulling&&(g.demo||PACE.mass(g)); if(!massOn&&!pulling)PACE.tick(g,dt);
-  const cap=massOn?enemyCap(g):0; if(pulling)g.spawnAcc=0; g.spawnAcc+=massOn?dt*(.8+rampT(g.t)*.03)*(g.exHold?EX.SPAWN_MUL:1)*fbDens():0; let guard=0;
+  const cap=massOn?enemyCap(g):0; if(pulling)g.spawnAcc=0; g.spawnAcc+=massOn?dt*(.8+rampT(g.t)*.03)*(g.exHold?EX.SPAWN_MUL:1)*fbDens()*lateLull(g):0; let guard=0;
   while(g.spawnAcc>=1){g.spawnAcc--; if(enemies.length<cap&&guard++<6){const ty=pickType(), e0=spawnEnemy(ty); if(e0&&ty==='vc'){const k=(rnd()*3)|0; for(let q=0;q<k;q++)spawnEnemy('vc',e0.x+(rnd()-.5)*44,e0.y+(rnd()-.5)*44)}}}
   if(pulling)g.nextSurge=Math.max(g.nextSurge,g.t+30);
   if(massOn&&g.t>=g.nextSurge){surge();g.nextSurge=Math.max(g.nextSurge+60,g.t+30)}
@@ -4287,15 +4288,42 @@ const NAMES={gunny:{rank:'GySgt',first:'Raymond',mi:'T.',last:'Mabry',home:'Lubb
 function drawTrib(U){ const g=G; if(!g||g.demo)return; let T=g.trib; if(!T){ if(!g.tribQ||!g.tribQ.length)return; if(exMsg||state!=='play'||(g.banner&&g.banner.t>0)||(MOH.cur&&MOH.card>0))return; T=g.trib={text:g.tribQ.shift(),t0:g.t} }
   const a=Math.max(0,Math.min(1,(g.t-T.t0)/.8,(4-(g.t-T.t0))/.8)); if(g.t-T.t0>=4){ g.trib=null; return } if(exMsg)return;   /* never over dialogue */
   ctx.save(); ctx.globalAlpha=a; txt(T.text,W/2,laneT(18*U,H*.2),Math.min(16*U,(W-24*U)/Math.max(8,T.text.length*.62)),'#f0d890','center'); ctx.restore() }   /* rc8: tribute line in its own lane, ~4 s fade, only when no dialogue / MoH card / combat banner */
+/* rc8.1 Pass 3: onboarding v2 (design/onboarding_v2.md). One prompt at a time, bottom centre, >=18px; each until done or 8 s, 2 s gap; once per profile
+   (lco_teach); after that only when stuck (20 s at a firebase site with no build). COMMANDER / BIRD / SMOKE banners always win. Never in intro/brief/pause/cards. */
+const TEACH={ON:!/[?&]teach=0\b/.test(location.search),seen:(()=>{ try{ return JSON.parse(localStorage.getItem('lco_teach')||'{}')||{} }catch(e){ return {} } })(),q:[],cur:null,gap:0,stuckT:0,stuckDone:0,log:[],
+  L:{move:'Move: WASD. Doc fires on his own.',xp:"Grab the drops: they're XP.",med:'Q: patch up a Marine. H: patch yourself.',fb:'Firebase: hold F to call the engineers.',hold:'Hold...',bunker:'Firebase up. E near a bunker to take cover.',bird:'Radio: the bird can come now. X to call it, then survive until it lands.',pad:'Get to the pad. G: pop smoke on it.',padhold:'Hold the pad until the bird lands.',board:'Get aboard: stand in the ring.'},
+  reset(){ this.q=[]; this.cur=null; this.gap=2; this.stuckT=0; this.stuckDone=0; this.log=[] },
+  mark(id){ this.seen[id]=1; try{ localStorage.setItem('lco_teach',JSON.stringify(this.seen)) }catch(e){} },
+  want(id,force){ if(!this.ON||!G||G.demo)return; if((this.seen[id]&&!force)||this.q.includes(id)||(this.cur&&this.cur.id===id))return; this.q.push(id) },
+  done(id){ if(this.cur&&this.cur.id===id)this.cur.t=99; else { const i=this.q.indexOf(id); if(i>=0){ this.q.splice(i,1); this.mark(id) } } },
+  block(){ const g=G, b=g&&g.banner; return state!=='play'||!!(b&&b.t>0&&/COMMANDER|BIRD|SMOKE/.test(b.text)) },
+  tick(dt){ if(!this.ON||!G||G.demo||state!=='play')return; const g=G, p=g.p, ex=g.ex;
+    if(g.t>.5)this.want('move'); if(g.kills>=1)this.want('xp');
+    if(lzS&&!fbS&&Math.hypot(lzS.x-p.x,lzS.y-p.y)<240){ this.want('fb'); if(this.seen.fb&&!(lzS.hold>0)&&!this.stuckDone&&(this.stuckT+=dt)>20){ this.stuckDone=1; this.want('fb',1) } }
+    if(fbHoldBusy()){ this.done('fb'); this.want('hold') } else this.done('hold');
+    if(fbS&&fbS.state==='done')this.want('bunker');
+    if(ex&&N2.canCall&&N2.canCall(g))this.want('bird'); if(ex&&ex.callT)this.done('bird');
+    if(ex&&ex.pad&&ex.ph===3)this.want('pad'); if(ex&&ex.ph>=4)this.done('pad');
+    if(ex&&ex.ph===4)this.want('padhold'); if(ex&&ex.ph>=5)this.done('padhold');
+    if(ex&&ex.ph===5&&!ex.result)this.want('board');
+    if(this.block())return;
+    const c=this.cur; if(c){ c.t+=dt; const ok=c.id==='move'?(g.dSpd||0)>20&&c.t>2:c.id==='hold'?false:false; if(ok)c.t=Math.max(c.t,7.6); if(c.t>=8){ this.mark(c.id); this.log.push([c.id,+g.t.toFixed(1)]); this.cur=null; this.gap=2 } return }
+    if((this.gap-=dt)>0||!this.q.length)return; const pri=['bird','pad','padhold','board','fb','hold','bunker','med','xp','move']; this.q.sort((a,b)=>pri.indexOf(a)-pri.indexOf(b));
+    let id=this.q.shift(); if(id==='bunker'&&fbHoldBusy()){ this.q.push(id); return } this.cur={id,t:0} },
+  hud(U){ const c=this.cur; if(!c||this.block()||!G||G.demo)return; const a=Math.min(1,c.t*4,(8-c.t)*2); ctx.save(); ctx.globalAlpha=Math.max(0,a); txt(this.L[c.id]||'',W/2,H*.79,Math.max(15*U,txtMin()),'#ffe58a','center'); ctx.restore() } };
 const PXM=10;   /* rc8: ONE metre scale for every player-facing distance (HUD, MoH card, Gunny) */
 const DBGSPD=/[?&]dbg=speed\b/.test(location.search);
 const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   C:{ballard:{lab:'IN HONOR OF',nm:'HM2 Donald E. Ballard',svc:'U.S. Navy',unit:'M Company, 3rd Battalion, 4th Marines',date:'16 May 1968 · Quang Tri Province',
       q:'"Observing a wounded marine, HC2c. Ballard unhesitatingly moved across the fire-swept terrain to the injured man and swiftly rendered medical assistance to his comrade."',
-      task:'A Marine is down in the open. Reach him and treat him (hold 4 s).',hold:4,d:260},
+      task:'A Marine is down in the open. Reach him and treat him (hold 4 s).',hold:4,d:260,
+      brief:'Navy corpsman with the 4th Marines. Under fire, he went out to the wounded and treated them where they fell.',
+      radio:'Firebase, Golf Two-Six. Marine down in the open, no corpsman with us. Can Doc get out to him? Over.'},
     taylor:{lab:'IN MEMORY OF',nm:'SSgt Karl G. Taylor Sr.',svc:'U.S. Marine Corps',unit:'Company I, 3rd Battalion, 26th Marines',date:'8 December 1968 · Operation Meade River, Quang Nam Province, Republic of Vietnam',
       q:'"...crawled forward to the beleaguered unit through a hail of hostile fire, shouted encouragement and instructions to the men, and deployed them to covered positions."',
-      task:'A squad is cut off and pinned down. Get to them and hold (3 s).',hold:3,d:340}},
+      task:'A squad is cut off and pinned down. Get to them and hold (3 s).',hold:3,d:340,
+      brief:'Company gunnery sergeant. He went forward under fire to a pinned-down unit and moved its men to cover. Killed in action.',
+      radio:'Firebase, Golf Two-Six. A squad is cut off and pinned down out past the wire. Need someone out there. Over.'}},
   /* Blake's design: an optional radio call marks an objective OFF the firebase; the clock keeps running, no extra men. While the player is away the squad
      holds the base under more pressure (structure damage x P), with an alert if it starts to fall. Own timer, return-home arrow; the reward (XP + tribute) is paid
      only on getting back. Never starts once the pad is called / chopper is inbound. Tunables: ?mohd= distance from base, ?moht= go timer, ?mohr= return timer, ?mohp= pressure. */
@@ -4305,11 +4333,12 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   press(){ return this.away()?this.P.P:1 },
   integ(){ let n=0,l=0; for(const s of strs){ if(FBWIREISH[s.type])continue; n++; if(!s.dead)l++ } return n?l/n:1 },
   botPull(){ const c=this.cur; if(!c||!G)return null; const p=G.p, tx=c.ph==='go'?c.x:(fbS?fbS.x:p.x), ty=c.ph==='go'?c.y:(fbS?fbS.y:p.y), dx=tx-p.x, dy=ty-p.y, d=Math.hypot(dx,dy)||1; return (c.ph==='go'&&d<20)?[0,0]:(c.ph==='ret'&&d<150?null:[dx/d,dy/d]) },
-  end(ev){ const g=G, c=this.cur; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev,d:Math.round(c.dist)}); this.cur=null; this.next=g.t+(ev==='done'?40:25) },   /* rc7.1: a failed/expired call queues the next one sooner (25 s) */
+  end(ev){ const g=G, c=this.cur; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev,d:Math.round(c.dist)}); try{ const C=this.C[c.k], O=this.OUT[ev]; if(O){ (g.mohOut||(g.mohOut=[])).push({k:c.k,ev,nm:C.nm,res:O[1]}); if(O[0])g.banner={text:O[0],t:3,col:ev==='home'?'#f0d890':'#ff9a6a'}; if(O[2])gunny(O[2],4.2,0,'GOLF TWO-SIX') } }catch(e){}   /* rc8.1 Pass 3: every call ends on a clear, named moment and is listed on the end screen */ this.cur=null; this.next=g.t+(ev==='done'?40:25) },   /* rc7.1: a failed/expired call queues the next one sooner (25 s) */
+  OUT:{home:[0,'completed, reward paid on return',0],stay:[0,'declined (STAY)',0],expired:['MISSION FAILED · YOU DID NOT REACH THEM IN TIME','not reached in time','Two-Six. Too late, Doc. We lost them. Get back inside the wire. Out.'],late:['MISSION FAILED · NOT BACK AT THE FIREBASE IN TIME','reached them, not back in time (no reward)','Two-Six. You never made it back inside the wire, Doc. Out.'],baseLost:['MISSION FAILED · THE FIREBASE WAS OVERRUN','firebase overrun while away',0]},
   melt(){ const p=G.p; for(const e of enemies){ if(e.mohA&&!e.dead&&(Math.abs(e.x-p.x)>VW/2+30||Math.abs(e.y-p.y)>VH/2+30))e.dead=true } },   /* after the mission the ambush group melts back into the jungle once out of sight (no reward, no chase to the base) */
   tick(dt){ if(!this.ON||!G||G.demo)return; const g=G; if((this._mt=(this._mt||0)-dt)<=0){ this._mt=.5; if(!this.cur||this.cur.ph!=='go')this.melt() }
-    if(fbS&&this.fb!==fbS){ this.fb=fbS; const o=(hash2(g.seedH|0,fbS.x|0)<.5)?['ballard','taylor']:['taylor','ballard']; this.q=o.filter(k=>!this.done[k]); this.next=g.t+25 }
-    if(!this.cur&&this.q&&this.q.length&&fbS&&g.t>=this.next&&!(g.ex&&(g.ex.pad||g.ex.ph>=1))&&state==='play'){   /* rc8-final2: MoH spawns during the build too; only the CARD waits (pend below) */   /* rc8 LPT2: the MoH card waits in line (no card, banner, level-up or build phase up) */ const k=this.q.shift(); let x=0,y=0;
+    if(fbS&&fbS.state==='done'&&this.fb!==fbS){ this.fb=fbS;   /* rc8.1 Pass 3: MoH calls only once the firebase is BUILT (no time fallback) */ const o=(hash2(g.seedH|0,fbS.x|0)<.5)?['ballard','taylor']:['taylor','ballard']; this.q=o.filter(k=>!this.done[k]); this.next=g.t+25 }
+    if(!this.cur&&this.q&&this.q.length&&fbS&&fbS.state==='done'&&g.t>=this.next&&!(g.ex&&(g.ex.pad||g.ex.ph>=1))&&state==='play'){   /* rc8-final2: MoH spawns during the build too; only the CARD waits (pend below) */   /* rc8 LPT2: the MoH card waits in line (no card, banner, level-up or build phase up) */ const k=this.q.shift(); let x=0,y=0;
       let okP=false; for(let i=0;i<32&&!okP;i++){ const a=hash2(i+7,(g.t*10)|0)*TAU, D=Math.min(600,this.P.D*(.8+.65*hash2(g.seedH|0,(g.t*3)|0)))*(1-i*.015); x=fbS.x+Math.cos(a)*D; y=fbS.y+Math.sin(a)*D; okP=true;
         for(let k=1;k<=Math.ceil(D/24)&&okP;k++){ const u=k*24/D, sx=fbS.x+(x-fbS.x)*u, sy=fbS.y+(y-fbS.y)*u; if(riverAt(sx,sy)||!canWade(sx,sy,'p'))okP=false } }   /* objective must be reachable on foot in a straight line from the base */
       if(!okP){ this.next=g.t+20; this.q.unshift(k); return }
@@ -4317,12 +4346,12 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
       const dist=Math.hypot(x-fbS.x,y-fbS.y); this.cur={k,x,y,t:0,h:0,ph:'go',life:(+params.get('moht'))||Math.max(45,3*dist/Math.max(40,g.dSpd||150*speedMul()))+4,dist}   /* rc8 LPT2: max(45 s, 3x straight-line walk) + 4 s; target capped at 60 m */   /* rc8 JPT/EP: every MoH = max(30 s, distance / Doc's measured walk speed) + 4 s */;   /* go timer scales with distance: walk + hold + ~10 s to clear the ambush (fixed 11 s was unwinnable for players) */ this.card=6; this.cur.pend=1; this.cur.hw=0; (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'spawn'}); (g.mohLog||(g.mohLog=[])).push({k,t:+g.t.toFixed(1),ev:'call'}) }
     const c=this.cur; if(!c)return;
     if(c.pend){ const b=g.banner, vis=state!=='play'||!!exMsg||(b&&b.t>0); c.hw+=dt; if(vis&&!(bannerHeld()===false&&c.hw>8&&state==='play')){ if(!c.hl){ c.hl=1; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'held',why:state!=='play'?state:exMsg?'card':'banner'}) } return }   /* held: timer frozen; after 8 s only a held priority banner / a modal still blocks */
-      c.pend=0; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'show',held:+c.hw.toFixed(1)}); try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} this.open(); if(!this.cur)return }
+      c.pend=0; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'show',held:+c.hw.toFixed(1)}); try{ Snd.play('radio'); Snd.play('bugle') }catch(e){} try{ gunny(this.C[c.k].radio,5,0,'GOLF TWO-SIX') }catch(e){} this.open(); if(!this.cur)return }
     if(!this.cardWait())this.card=Math.max(0,(this.card||0)-dt); if(!(c.ph==='go'&&this.card>0))c.t+=dt; this.alertT=Math.max(0,this.alertT-dt);
     if(!fbS){ this.end('baseLost'); return }
     if(this.away()&&this.integ()<.6&&!(this.alertT>0)){ this.alertT=6; g.banner={text:'FIREBASE '+(fbS.name||'')+' IS FALLING · GET BACK',t:2.6,col:'#ff6a4a'}; try{ Snd.play('radio') }catch(e){} }
-    if(c.ph==='go'){ { const h0=(c.hotT=(c.hotT||0)-dt)>0?c.h0:(c.hotT=.25,c.h0=enemies.some(e=>!e.dead&&Math.abs(e.x-c.x)<this.P.HR&&Math.abs(e.y-c.y)<this.P.HR&&Math.hypot(e.x-c.x,e.y-c.y)<this.P.HR)); if(h0){ c.hot=true; c.wasHot=1; c.coolT=1.5 } else if(c.hot&&(c.coolT-=dt)>0){} else c.hot=false }   /* rc8.1: cache the raw enemy check (caching c.hot re-armed coolT forever = permanent UNDER FIRE) */ /* rc8a: 1.5 s hysteresis - MoH #2 flipped UNDER FIRE -> OPTIONAL when one NVA stepped out of HR */ if(Math.hypot(g.p.x-c.x,g.p.y-c.y)<46&&!c.hot){ c.h+=dt; if(c.h>=this.C[c.k].hold){ c.ph='ret'; c.t=0; c.life=this.P.R; g.banner={text:'DONE · GET BACK TO THE FIREBASE',t:2.4,col:'#f0d890'}; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'done'}) } } else c.h=Math.max(0,c.h-dt) }
-    else if(Math.hypot(g.p.x-fbS.x,g.p.y-fbS.y)<200){ this.done[c.k]=1; (g.honor||(g.honor=[])).push(this.C[c.k].lab.toLowerCase().replace(/^./,x=>x.toUpperCase())+' '+this.C[c.k].nm); const p=g.p; p.xp+=p.need*.75; (g.tribQ||(g.tribQ=[])).push(this.C[c.k].lab+' '+this.C[c.k].nm.toUpperCase()); this.end('home');   /* rc8: tribute waits for a clear moment (drawTrib) */ return }
+    if(c.ph==='go'){ { const h0=(c.hotT=(c.hotT||0)-dt)>0?c.h0:(c.hotT=.25,c.h0=enemies.some(e=>!e.dead&&Math.abs(e.x-c.x)<this.P.HR&&Math.abs(e.y-c.y)<this.P.HR&&Math.hypot(e.x-c.x,e.y-c.y)<this.P.HR)); if(h0){ c.hot=true; c.wasHot=1; c.coolT=1.5 } else if(c.hot&&(c.coolT-=dt)>0){} else c.hot=false }   /* rc8.1: cache the raw enemy check (caching c.hot re-armed coolT forever = permanent UNDER FIRE) */ /* rc8a: 1.5 s hysteresis - MoH #2 flipped UNDER FIRE -> OPTIONAL when one NVA stepped out of HR */ if(Math.hypot(g.p.x-c.x,g.p.y-c.y)<46&&!c.hot){ c.h+=dt; if(c.h>=this.C[c.k].hold){ c.ph='ret'; c.t=0; c.life=this.P.R; g.banner={text:'THEY ARE SAFE · NOW GET BACK TO THE FIREBASE',t:3,col:'#f0d890'}; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'done'}) } } else c.h=Math.max(0,c.h-dt) }
+    else if(Math.hypot(g.p.x-fbS.x,g.p.y-fbS.y)<200){ this.done[c.k]=1; (g.honor||(g.honor=[])).push(this.C[c.k].lab.toLowerCase().replace(/^./,x=>x.toUpperCase())+' '+this.C[c.k].nm); const p=g.p; const xpG=Math.round(p.need*.75); p.xp+=xpG; (g.tribQ||(g.tribQ=[])).push(this.C[c.k].lab+' '+this.C[c.k].nm.toUpperCase()); this.end('home'); g.banner={text:'BACK INSIDE THE WIRE · +'+xpG+' XP · NAME ADDED TO YOUR RECORD',t:3.4,col:'#f0d890'}; g.mohLog.push({k:c.k,t:+g.t.toFixed(1),ev:'reward',xp:xpG});   /* rc8: tribute waits for a clear moment (drawTrib) */ return }
     if(c.t>c.life)this.end(c.ph==='go'?'expired':'late') },
   drawWorld(){ const c=this.cur; if(!c||c.ph!=='go')return; const t=G.t, r=34+Math.sin(t*4)*4; ctx.save(); ctx.strokeStyle='#f0d890'; ctx.lineWidth=2; ctx.setLineDash([6,5]); ctx.beginPath(); ctx.arc(c.x,c.y,r,0,TAU); ctx.stroke(); ctx.setLineDash([]);
     if(c.h>0){ ctx.strokeStyle='#ffffff'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(c.x,c.y,r+6,-Math.PI/2,-Math.PI/2+TAU*c.h/this.C[c.k].hold); ctx.stroke() } ctx.restore() },
@@ -4331,14 +4360,14 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
   open(){ const c=this.cur; if(!c)return; if(DBG.bot||!$('mohCard')){ this.card=0; return }   /* Blake's design: decision card, game paused until GO / STAY */
     const C=this.C[c.k], esc=x=>String(x).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
     $('mohTxt').innerHTML='<div style="color:#b8a868;font-size:12px">'+esc(C.lab)+'</div><div style="font-size:18px">'+esc(C.nm)+'</div><div style="color:#c8c8b0;font-size:12px">'+esc(C.svc+' · '+C.unit)+'<br>'+esc(C.date)+'</div>'+
-      '<div style="margin-top:8px;font-size:14px"><b>SITUATION:</b> '+esc(C.task)+'<br><b>LOCATION:</b> '+Math.round(Math.hypot(c.x-G.p.x,c.y-G.p.y)/PXM)+' m from you<br><b>RISK:</b> enemy at the objective, firebase unguarded while you are away<br><b>REWARD:</b> big XP boost and his name on your record<br><b>TIME:</b> '+Math.ceil(c.life)+' s, starts when you choose GO</div>';
+      '<div style="margin-top:8px;font-size:15px;color:#e8e2c0;font-style:italic">'+esc(C.brief)+'</div><div style="margin-top:6px;font-size:13px;color:#d8d0a0">'+esc(C.q)+'</div><div style="margin-top:8px;font-size:18px"><b>SITUATION:</b> '+esc(C.task)+'<br><b>LOCATION:</b> '+Math.round(Math.hypot(c.x-G.p.x,c.y-G.p.y)/PXM)+' m from you<br><b>RISK:</b> enemy at the objective, firebase unguarded while you are away<br><b>REWARD:</b> big XP boost and his name on your record<br><b>TIME:</b> '+Math.ceil(c.life)+' s, starts when you choose GO</div><div style="margin-top:8px;font-size:18px;color:#ffe58a">Optional. GO = risky rescue, STAY = safe.</div>';
     this.card=0; state='mohcard'; $('mohCard').classList.add('show'); try{ $('mohGo').focus() }catch(e){} },
   choose(go){ if(state!=='mohcard')return; $('mohCard').classList.remove('show'); state='play'; try{ last=performance.now() }catch(e){} const c=this.cur; if(!c)return; if(go){ c.t=0; (G.mohLog||(G.mohLog=[])).push({k:c.k,t:+G.t.toFixed(1),ev:'go'}) } else this.end('stay') },
   cardWait(){ const b=G&&G.banner; return !!exMsg||mobIncoming()||!!(b&&b.t>0&&/STAGE|PHASE|BUNKER|FIREBASE/.test(b.text)) },   /* + never on the same frame as a stage banner */   /* rc7.1 queue: the MoH card waits for the Gunny card / INCOMING instead of overlapping them */
   hud(U,W,H){ const c=this.cur; if(DBGSPD&&G&&G.p){ txt('DOC '+Math.round(G.dSpd||0)+' px/s = '+((G.dSpd||0)/PXM).toFixed(1)+' m/s ('+PXM+' px/m)'+(c?' · MoH '+Math.round(Math.hypot(c.x-G.p.x,c.y-G.p.y)/PXM)+' m':''),12*U,H-60*U,11*U,'#9be37a','left') } if(!c||state==='mohcard')return; const C=this.C[c.k], g=G, p=g.p;
     const go=c.ph==='go', ox=go?c.x:(fbS?fbS.x:p.x), oy=go?c.y:(fbS?fbS.y:p.y), dx=ox-p.x, dy=oy-p.y, d=Math.hypot(dx,dy); txt((go?(c.hot?'UNDER FIRE · CLEAR THE AREA TO TREAT HIM':(c.wasHot?'AREA CLEAR · ':'OPTIONAL · ')+C.task):'RETURN TO THE FIREBASE')+'  '+Math.max(0,Math.ceil(c.life-c.t))+'s · '+Math.round(d/PXM)+'m',W/2,H*.86,13*U,go?'#f0d890':'#ffffff','center');
     let padUp=false; try{ const T=exTarget(); padUp=!!T&&(T===G.ex.pad||T===G.ex.pre) }catch(e){}   /* rc8 JPT: one guidance arrow - the PICKUP PAD arrow wins (testers followed the MoH arrow the wrong way) */
-    if(d>140&&!padUp){ const a=Math.atan2(dy,dx), R=Math.min(W,H)*.36, ax=W/2+Math.cos(a)*R, ay=Math.min(H/2+Math.sin(a)*R,H*.86-30*U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle=go?'#f0d890':'#ffffff'; ctx.globalAlpha=.85+.15*Math.sin(G.t*6); ctx.beginPath(); ctx.moveTo(16*U,0); ctx.lineTo(-8*U,-10*U); ctx.lineTo(-3*U,0); ctx.lineTo(-8*U,10*U); ctx.closePath(); ctx.fill(); ctx.restore() }
+    if(d>140&&!padUp){ const a=Math.atan2(dy,dx), R=Math.min(W,H)*.36, ax=W/2+Math.cos(a)*R, ay=Math.min(H/2+Math.sin(a)*R,H*.86-30*U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle=go?'#f0d890':'#ffffff'; ctx.globalAlpha=.85+.15*Math.sin(G.t*6); ctx.beginPath(); ctx.moveTo(16*U,0); ctx.lineTo(-8*U,-10*U); ctx.lineTo(-3*U,0); ctx.lineTo(-8*U,10*U); ctx.closePath(); ctx.fill(); ctx.restore(); txt((go?'MOH ':'FIREBASE ')+Math.round(d/PXM)+'m',ax,ay+(ay>H/2?-18*U:24*U),12*U,go?'#f0d890':'#ffffff','center') }
     if(!(this.card>0)||this.cardWait())return; const a=Math.min(1,this.card,  (6-this.card)*3), w=Math.min(560*U,W*.9), h=150*U, x0=W/2-w/2, y0=H*.86-h-26*U; ctx.save(); ctx.globalAlpha=a*.92; ctx.fillStyle='#0d140d'; ctx.fillRect(x0,y0,w,h); ctx.strokeStyle='#8a7a40'; ctx.lineWidth=2; ctx.strokeRect(x0,y0,w,h); ctx.globalAlpha=a;
     const im=this.img(); if(im){ ctx.imageSmoothingEnabled=false; ctx.drawImage(im,x0+12*U,y0+14*U,im.width*2.4*U,im.height*2.4*U) } const tx=x0+(im?im.width*2.4*U+26*U:14*U), tw=x0+w-tx-12*U;
     txt(C.lab,tx,y0+20*U,11*U,'#b8a868','left'); txt(C.nm,tx,y0+40*U,17*U,'#f6f0cc','left'); txt(C.svc+' · '+C.unit,tx,y0+58*U,10*U,'#c8c8b0','left'); txt(C.date,tx,y0+73*U,10*U,'#c8c8b0','left');
@@ -4959,14 +4988,16 @@ function genChoices(excl,n){
 function cardInfo(id){const it=ITEMS[id],l=curLvl(id); let line; if(it.kind==='w')line=it.desc(it.stats(l+1)); else if(it.kind==='p')line=it.desc(l+1); else line=it.desc(); return {lvl:l,line}}
 let banMode=false, LUOPEN=0;
 function luTools(){ $('rrN').textContent=G.rerolls; $('bnN').textContent=G.banishes; $('btnReroll').disabled=G.rerolls<=0; $('btnBanish').disabled=G.banishes<=0&&!banMode; $('btnBanish').classList.toggle('on',banMode); $('cards').classList.toggle('banning',banMode); $('luHint').textContent=banMode?'BANISH: tap a card to remove it from this run':'' }
+const CARD1={m16:'Steady rifle fire at the nearest enemy.',m60:'Heavy sustained machine-gun fire.',m79:'Lobbed grenades that burst in an area.',claymore:'Mines that blast a cone when enemies close in.',flame:'Short-range fire cone; burns the brush.',napalm:'Air strike: a line of burning ground.',mortar:'81mm rounds land in a high arc.',howitzer:'Delayed 105mm salvo on a marked spot.',gunboat:'River patrol boat strafes along the nearest river.',huey:'Gunship escort makes gun runs overhead.',strafe:'Jet cannon run along a marked strip.',squad:'Marines fly in and fight beside you.',company:'A rifle company lands and holds a ring around you.',medevac:'Helicopter heals everyone nearby.',grease:'Fast close-range .45 fire.',knives:'Thrown blades cut through a line.',shotgun:'Close-range buckshot cone.',tank:'A friendly tank fights alongside you.',arclight:'B-52 bombs a long strip of jungle.',m1903:'Slow, long-range shot that kills one enemy.',kc135:'Air strikes come back sooner.',helmet:'Take less damage.',flak:'More max health.',boots:'Move faster.',magnet:'Pick up XP from farther away.',regen:'Heal slowly over time.',radio:'All weapons and air support ready sooner.',fm:'Earn more XP.',demo:'Bigger explosions, fire and mines.',dustoff:'One revive when you would die.',spooky:'Gunship circles and rakes the area.',boxmission:'Three B-52s bomb a wide box.',ration:'Restore half your health.'};
+function card1(id){ const it=ITEMS[id]||{}; if(CARD1[id])return CARD1[id]; const b=String(it.blurb||'').split(/(?<=[.!])\s/)[0]; return b.length>70?b.slice(0,67)+'...':b }   /* rc8.1 Pass 3: one-line summary on every level-up card */
 function renderCards(){ const box=$('cards'); box.innerHTML='';
   choices.forEach((id,i)=>{ const it=ITEMS[id],inf=cardInfo(id); const b=document.createElement('button'); b.className='card'+(it.evo?' evo':'');
     const cc=mk(32,32); drawIcon(cc.getContext('2d'),id,32); b.appendChild(cc);
     const lv=it.evo?'EVOLUTION!':it.kind==='r'?'RESTORE':(inf.lvl===0?'NEW!':`LV ${inf.lvl} → ${inf.lvl+1}`);
     if(luForced&&id==='magnet')b.insertAdjacentHTML('beforeend',`<div class="nm">Magnet</div><div class="lv">${lv}</div><div class="ds">Pulls the XP at your feet.</div><div class="key">[1]</div>`); else
-    b.insertAdjacentHTML('beforeend',`<div class="nm">${it.nm?it.nm(inf.lvl+1):it.name}</div><div class="lv">${lv}</div><div class="ds">${it.blurb}<br><b style="color:#e8dfae">${inf.line}</b>${id==='claymore'?'<div class="cmfront">FRONT TOWARD ENEMY</div>':''}</div><div class="key">[${i+1}]</div>`);
+    b.insertAdjacentHTML('beforeend',`<div class="nm">${it.nm?it.nm(inf.lvl+1):it.name}</div><div class="lv">${lv}</div><div class="one" style="font-weight:bold;color:#fff3b0;font-size:18px;line-height:1.25">${card1(id)}</div><div class="ds">${it.blurb}<br><b style="color:#e8dfae">${inf.line}</b>${id==='claymore'?'<div class="cmfront">FRONT TOWARD ENEMY</div>':''}</div><div class="key">[${i+1}]</div>`);
     b.addEventListener('click',()=>pickChoice(i)); b.addEventListener('pointerdown',e=>{ b._pd=performance.now() }); b.addEventListener('pointerup',e=>{ if(b._pd&&performance.now()-b._pd<1500&&performance.now()-(LUOPEN||0)>250)pickChoice(i); b._pd=0 }); box.appendChild(b); });   /* Gamer: mouse clicks on cards sometimes didn't register - a press + release on the card picks it directly (pickChoice is idempotent) */
-  luTools(); $('luTools').style.display=luForced?'none':''; $('levelup').querySelector('.sub').textContent=luForced?'Your first upgrade':'Choose an upgrade' }
+  luTools(); $('luTools').style.display=luForced?'none':''; $('levelup').querySelector('.sub').textContent=luForced?'Your first upgrade':'Choose an upgrade'; try{ if(!TEACH.seen.lu){ $('levelup').querySelector('.sub').textContent='Pick one. Upgrades stack.'; TEACH.mark('lu') } }catch(e){} }
 let luForced=false;
 const LU_GAP=20;
 function luBlocked(){ try{ const g=G, ex=g&&g.ex, p=g&&g.p; if(fbHoldBusy()||bannerHeld()||state==='mohcard'||(MOH.cur&&MOH.cur.ph==='go'))return true;
@@ -5879,7 +5910,7 @@ $('charsel').addEventListener('keydown',e=>{ if(e.code==='Enter'||e.code==='Spac
     b.addEventListener('keyup',e=>e.preventDefault()) } }
 { const ab=$('abil'); ab.addEventListener('pointerdown',e=>{ e.stopPropagation(); e.preventDefault(); useAbility() }); ab.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true}); ab.addEventListener('click',e=>e.preventDefault()) }
 document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat&&e.code==='Space')useAbility() });   /* rc7.1: E is bunker-only (one press used to fire the special AND toggle the bunker) */
-document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat){ if(e.code==='KeyH')useMed(false); else if(e.code==='KeyQ')useMed(true) } });
+document.addEventListener('keydown',e=>{ if(state==='play'&&!e.repeat){ if(e.code==='KeyH')useMed(false); else if(e.code==='KeyQ')useMed(true); try{ TEACH.done('med') }catch(e){} } });
 { const mb=document.getElementById('medBtn'), mm=document.getElementById('medMate'); for(const [el,mt] of [[mb,false],[mm,true]])if(el){ el.addEventListener('pointerdown',e=>{ e.stopPropagation(); e.preventDefault(); useMed(mt) }); el.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true}) } }
 
 /* ====================== INTRO CINEMATIC: Huey cargo-bay approach -> LZ landing -> gameplay ====================== */
@@ -6420,9 +6451,9 @@ const TUT={i:0,on:false,ask:false,IMG:{intro:1,move:1,squad:1,smoke:1,hold:1,gem
   close(){ this.on=false; $('tut').classList.remove('show') },
   go(d){ if(this.ask){ if(d>0){ this.ask=false; this.r() } else this.close(); return } if(this.one){ if(d>0)this.close(); return } const n=this.i+d; if(n<0)return; if(n>=this.C.length-1){ this.close(); return } this.i=n; this.r() },
   r(){ const q=$('tut').querySelector('.tq');
-    if(this.ask){ q.innerHTML='<div class="ask">Quick tutorial?</div><div class="tbr"><button class="btn" id="tutY">Yes</button><button class="btn alt" id="tutN">Skip</button></div>'; $('tutY').onclick=()=>this.go(1); $('tutN').onclick=()=>this.close(); return }
+    if(this.ask){ q.innerHTML='<div class="ask">Quick tutorial?</div><div class="tbr"><button type="button" class="btn" id="tutY">Yes</button><button type="button" class="btn alt" id="tutN">Skip</button></div>'; $('tutY').onclick=()=>this.go(1); $('tutN').onclick=()=>this.close(); return }
     const [k,t]=this.C[this.i], N=this.one?1:this.C.length-1, last=this.one||this.i===N-1;
-    q.innerHTML=(TUT.IMG[k]?'<img alt="" src="assets/tut/'+(k==='intro'?'move':k)+'.webp">':'')+'<div class="tl"></div><div class="tn">'+(this.one?1:this.i+1)+' / '+N+'</div><div class="tbr"><button class="btn alt" id="tutB"'+(this.i&&!this.one?'':' disabled')+'>Back</button><button class="btn" id="tutX">'+(last?'Done':'Next')+'</button><button class="btn alt" id="tutS">Skip</button></div>';
+    q.innerHTML=(TUT.IMG[k]?'<img alt="" src="assets/tut/'+(k==='intro'?'move':k)+'.webp">':'')+'<div class="tl"></div><div class="tn">'+(this.one?1:this.i+1)+' / '+N+'</div><div class="tbr"><button type="button" class="btn alt" id="tutB"'+(this.i&&!this.one?'':' disabled')+'>Back</button><button type="button" class="btn" id="tutX">'+(last?'Done':'Next')+'</button><button type="button" class="btn alt" id="tutS">Skip</button></div>';
     q.querySelector('.tl').textContent=t; $('tutB').onclick=()=>this.go(-1); $('tutX').onclick=()=>this.go(1); $('tutS').onclick=()=>this.close() },
   key(e){ if(!this.on)return false; if(e.code==='Escape'){ this.close() } else if(e.code==='ArrowRight'||e.code==='Enter'||e.code==='Space'||e.code==='KeyD'){ this.go(1) } else if(e.code==='ArrowLeft'||e.code==='KeyA'||e.code==='Backspace'){ this.go(-1) } e.preventDefault(); e.stopPropagation(); return true },
   pad(k,dx){ if(!this.on)return false; if(k==='A')this.go(1); else if(k==='B'||k==='ST')this.close(); else if(!k&&dx)this.go(dx>0?1:-1); return true } };
@@ -6757,6 +6788,7 @@ function drawAnncIcons(U){ const g=G, q=g.icons; if(!q||!q.length)return; const 
 function updateFirebase(dt){ const g=G,p=g.p; if(g.demo)return;
   // LZ marker + radio hold
   if(lzS&&!lzS.lock&&Math.hypot(lzS.x-g.p.x,lzS.y-g.p.y)<100*PXM)lzS.lock=1;   /* rc8a LPT: once Doc is within 100 m the site (and its arrow) is locked; it never re-sites */
+  if(lzS&&!lzS.lock&&Math.hypot(lzS.x-g.p.x,lzS.y-g.p.y)<900)lzS.lock=1;   /* rc8.1 Pass 3: once Doc is within ~90 m the site never moves (arrow distance jumped 55->309 m) */
   if(lzS&&!lzS.lock&&!fbS&&!(lzS.hold>0)&&(lzS.age||0)>30&&g.ex.ph<3&&Math.hypot(lzS.x-g.p.x,lzS.y-g.p.y)>1500){ const o=lzS; lzS=null; g.mck=1; spawnLz(); g.mck=0; if(lzS&&(Math.hypot(lzS.x-g.p.x,lzS.y-g.p.y)>=Math.hypot(o.x-g.p.x,o.y-g.p.y)||((lzS.x-g.p.x)*(o.x-g.p.x)+(lzS.y-g.p.y)*(o.y-g.p.y))<0)){ lzS=o; o.age=0 }   /* rc8.1: never re-site behind Doc (arrow flip) */ else if(lzS)lzS.name=o.name }   /* rc8 EP: arrow always to the NEAREST firebase site (re-site when Doc wanders off) */
   if(!lzS&&!fbS&&g.t>=g.nextLz&&g.ex.ph<3)spawnLz();
   const site=lzS||(fbS&&fbS.state==='stalled'&&!fbH?fbS:null);
@@ -6958,7 +6990,8 @@ function drawFbHud(U){ const g=G,p=g.p; ctx.setTransform(1,0,0,1,0,0);
   const T=((G.ex&&(G.ex.ph>=1||exTarget()))?null:lzS)||(f&&f.state!=='done'?f:null)||null;   /* rc7.1 (Gamer): the firebase LZ arrow shows whenever no pad/signal arrow is up (an off-screen LZ had no arrow at all) */ if(T){   /* extraction: no LZ-radio arrow (it is not the pad; Gamer overshot) - the PAD arrow appears when the pad is marked */ const dx=T.x-p.x,dy=T.y-p.y,d=Math.hypot(dx,dy); const on=Math.abs(dx)<VW/2-30&&Math.abs(dy)<VH/2-30;
     if(!on){ const a0=Math.atan2(dy,dx); let a=a0; if(g.fbArA!=null&&g.fbArT===T){ const dd=Math.atan2(Math.sin(a0-g.fbArA),Math.cos(a0-g.fbArA)); a=g.fbArA+Math.sign(dd)*Math.min(Math.abs(dd),.12) } g.fbArA=a; g.fbArT=T; const [ex,ey]=edgeArrow(a,U);   /* rc8.1: arrow turns (max 7 deg/frame), never snaps */
       ctx.save(); ctx.translate(ex,ey); ctx.rotate(a); ctx.fillStyle='#ffe58a'; ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(16*U,0); ctx.lineTo(-8*U,-9*U); ctx.lineTo(-8*U,9*U); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore(); txt((lzS?'FIREBASE SITE ':'FB '+T.name+' ')+Math.round(d/10)+'m',ex,ey+(ey>H/2?-16*U:22*U),11*U,'#ffe58a','center') }
-    else if(lzS&&lzS.hold>0){ bar('CALLING SUPPORT '+Math.round(lzS.hold*100)+'%',lzS.hold,'#4fb34a',H*.62) } }
+    else if(!(lzS&&lzS.hold>0)&&d>60){ const sx=W/2+dx*W/VW, sy=H/2+dy*H/VH; txt((lzS?'FIREBASE SITE ':'FB '+T.name+' ')+Math.round(d/10)+'m',sx,sy-30*U,11*U,'#ffe58a','center') }   /* rc8.1 Pass 3: label stays on screen (no vanish/reappear) */
+    if(lzS&&lzS.hold>0){ bar('CALLING SUPPORT '+Math.round(lzS.hold*100)+'%',lzS.hold,'#4fb34a',H*.62) } }
   if(fbS&&fbS.state==='stalled'&&fbS.hold>0)bar('CALLING ENGINEERS '+Math.round(fbS.hold*100)+'%',fbS.hold,'#4fb34a',H*.62) }
 
 function tankWreck(e){ const x=e.x,y=e.y; if(WRECKS.length<6)WRECKS.push({x,y,hd:e.vhd===undefined?0:e.vhd,tg:Math.atan2(G.p.y-y,G.p.x-x),t:G.t});   /* knocked-out PT-76 stays on the field */ if(!VHX.kill(WRECKS.length?WRECKS[WRECKS.length-1]:{x,y})){ burst(x,y-6,40,220,.9,6,['#ffd54a','#ff9b21','#ff5a1a','#333'],true); burst(x,y,14,120,1.2,7,['#3a3733','#6d675a'],false) } explode(x,y,70,35,200); G.shake=Math.max(G.shake,14); (SAMP.boom('tank_kill')||Snd.play('boom'));
@@ -7161,11 +7194,12 @@ function mkEx(){ const col0=SIGN[(rnd()*SIGN.length)|0]; return {ph:0,smokeCol:c
   hot:false,broken:false,jet:false,warn:false,nagB:0,pulseT:0,prox:0,pan:0,intro:false,five:false,eight:false,fb:false,gotOn:[],loaded:[],left:[]} }
 /* ---- Gunny radio box (text + radio blip, no voice acting) ---- */
 function gunny(text,dur,pri,who){ const g=G; if(!g||g.demo)return; const m={text,who:who||'GUNNY',dur:dur||Math.max(3.2,1.7+text.length*.05),t:0};
-  if(pri){ const c=exMsg; if(c&&c.t<c.text.length/40+.8){ m.pr=1; exQ.length=0; exQ.push(m); return }   /* rc8a: let the current line finish typing (+0.8 s) before a priority line replaces it */ exQ.length=0; exMsg=m; Snd.play('radio'); return }
-  if(!exMsg&&!exQ.length){ exMsg=m; Snd.play('radio') } else { if(exQ.length>=3)exQ.shift(); exQ.push(m) } }
+  m.dur=Math.max(m.dur,m.text.length/40+1.6);   /* rc8.1 Pass 3: every line types fully + 1.6 s to read */ if(exMsg&&exMsg.text===text||exQ.some(q=>q.text===text))return;
+  if(pri){ m.pr=1; if(!exMsg){ exMsg=m; Snd.play('radio'); return } const i=exQ.findIndex(q=>!q.pr); exQ.splice(i<0?exQ.length:i,0,m); while(exQ.length>4){ const j=exQ.map(q=>!!q.pr).lastIndexOf(false); if(j<0)break; exQ.splice(j,1) } return }   /* priority lines jump the queue but never cut the current line or wipe queued ones (Hollis/Mabry cut-offs) */
+  if(!exMsg&&!exQ.length){ exMsg=m; Snd.play('radio') } else { if(exQ.length>=4){ const j=exQ.findIndex(q=>!q.pr); if(j>=0)exQ.splice(j,1) } exQ.push(m) } }
 function updateGunny(dt){ const m=exMsg; if(!m)return; if(HUDM.on&&mobIncoming())return;   /* rc7.1 mobile one-at-a-time: the Gunny card waits while INCOMING is up */ const pr=Math.floor(m.t*40); m.t+=dt; const n=Math.floor(m.t*40);
   if(n>pr&&n<m.text.length+6&&(n&1)===0&&m.text[n]&&m.text[n]!==' ')Snd.blip(150+((rnd()*5)|0)*18);
-  if(m.t>m.dur||(exQ[0]&&exQ[0].pr&&m.t>m.text.length/40+.8)){ exMsg=exQ.shift()||null; if(exMsg)Snd.play('radio') } }
+  if(m.t>m.dur||(exQ[0]&&exQ[0].pr&&!m.pr&&m.t>m.text.length/40+1.4)){ exMsg=exQ.shift()||null; if(exMsg)Snd.play('radio') } }
 /* ---- the signal drop ---- */
 function commanderDrop(x,y){ return;   /* Oct 14: no commander smoke pickup any more - Doc carries the canister */ const g=G,ex=g&&g.ex; if(!ex||g.demo||ex.ph!==0)return; const col=SIGN[(rnd()*SIGN.length)|0];
   ex.sig={x,y,kind:'smoke',col,z:70,land:false}; ex.kind='smoke'; ex.col=col; ex.ph=1; ex.dropAt=g.t; g.quiet=EX.QUIET; SAMP.smokeDrop();   /* one quiet second: hit-stop + music duck, the canister hits, then the fight returns */
@@ -7504,7 +7538,7 @@ function drawExHud(U,camX,camY,tt){ const g=G,p=g.p,ex=g.ex; exStack=0; if(!ex||
     if(!on){ const a=Math.atan2(dy,dx), [ax,ay]=edgeArrow(a,U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); const tp=T===ex.pad||T===ex.pre; if(PADARR&&tp)ctx.translate(-8*U,0); ctx.fillStyle=(PADARR&&tp&&!sg)?'#fff6a0':c; ctx.strokeStyle='#000'; ctx.lineWidth=PADARR&&tp?5:4; ctx.beginPath(); ctx.moveTo(22*U*big,0); ctx.lineTo(-10*U*big,-14*U*big); ctx.lineTo(-10*U*big,14*U*big); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
       txt(lab+' '+Math.round(d/10)+'m',ax,ay+(ay>H/2?-22*U:30*U),13*U,c,'center') } }
   // Gunny radio box (colonel's style: black frame, silver bevel, navy panel, gold name)
-  const m=state==='sig'||(HUDM.on&&mobIncoming())?null:exMsg; if(m){ const k=Math.min(1,m.t/.18,(m.dur-m.t)/.25)*(HUDM.on?.9:1);   /* hidden while the confirm prompt is up (it peeked out behind it) */ const fs=(HUDM.on?10:12)*U, pw=(HUDM.on?22:34)*U, ph=(HUDM.on?25:38)*U;   /* hudmobile: compact radio box */ ctx.font=`bold ${fs}px "Courier New",monospace`;
+  const m=state==='sig'||(HUDM.on&&mobIncoming())?null:exMsg; if(m){ const k=Math.min(1,m.t/.18,(m.dur-m.t)/.25)*(HUDM.on?.9:1);   /* hidden while the confirm prompt is up (it peeked out behind it) */ const fs=Math.max((HUDM.on?10:12)*U,txtMin()), pw=(HUDM.on?22:34)*U, ph=(HUDM.on?25:38)*U;   /* hudmobile: compact radio box */ ctx.font=`bold ${fs}px "Courier New",monospace`;
     const lines=wrapPx(m.text,bw-pw-26*U), bh=HUDM.on?Math.max(ph+10*U,(22+lines.length*12)*U):Math.max(ph+14*U,(26+lines.length*15)*U); ctx.globalAlpha=Math.max(0,k);
     ctx.fillStyle='#000'; ctx.fillRect(bx-2,y-2,bw+4,bh+4); ctx.fillStyle='#c8c8c8'; ctx.fillRect(bx-1,y-1,bw+2,bh+2); ctx.fillStyle='#101830'; ctx.fillRect(bx+2,y+2,bw-4,bh-4);
     const talking=m.t<m.text.length/40+.2, fr=talking?(1+Math.floor(tt*9)%2):0; if(GUNNY&&m.who!=='DOC'){ ctx.imageSmoothingEnabled=false; ctx.drawImage(GUNNY[m.who==='GUNNY'?fr:3],bx+8*U,y+7*U,pw,ph) } else if(m.who==='DOC'){ ctx.fillStyle='#1c2414'; ctx.fillRect(bx+8*U,y+7*U,pw,ph); ctx.fillStyle='#e8c030'; ctx.font='bold '+Math.max(12,Math.round(11*U))+'px monospace'; ctx.textAlign='center'; ctx.fillText('HM3',bx+8*U+pw/2,y+7*U+ph*.6) }   /* Doc's own radio reply: no pilot portrait */
@@ -7621,6 +7655,13 @@ function drawFlashes(camX,camY){ if(!flashes.length)return; ctx.save(); ctx.glob
 /* ====================== game flow ====================== */
 function startGame(){ if(!chOpen(SEL)){ if($('charsel').classList.contains('show'))return; SEL='doc' } try{document.activeElement&&document.activeElement.blur()}catch(e){} if(!navigator.userActivation||navigator.userActivation.hasBeenActive){Snd.init(); Snd.resume();} newGame(false); state='play'; ['menu','charsel','over','pause','levelup','sigask'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='flex'; if(!(DBG.t>0||DBG.nointro)){ if(INTRO2&&!DBG.nobrief)startBrief2(); else startIntro() } }   /* rc8.1: ?nobrief also skips brief2 */
 /* rc8.1 Pass 1 (drop-to-title, Junior Play Tester): returning to the menu is only allowed from paused (via the Quit confirm), over, charsel, brief or menu. A stray click/Enter/Space on a focused hidden button (btnQuit/btnMenu) or a stale timer mid-run used to drop to title with no end screen. Blocked calls are logged (window.__menuBlock, localStorage lco_menublock). */
+/* rc8.1 JPT blocker (real page navigation mid-run, no error): no code path in the game navigates (audited: no form, no reload/assign/replace, only target=_blank links and the ?v= new-build button). Diagnostics so the next one names its cause:
+   - beforeunload while a run is active -> localStorage lco_unload {state,t,ae} (fires for user/page navigations: reload, address bar, link). No prompt.
+   - next load: document.wasDiscarded (Chrome tab discard under memory pressure, which reloads the tab silently) or an unclean end with no lco_unload (renderer crash / kill) is logged to lco_navcause + console. */
+addEventListener('beforeunload',()=>{ try{ if(G&&!G.demo&&(state==='play'||state==='levelup'||state==='paused'||state==='sig')){ const ae=document.activeElement; localStorage.setItem('lco_unload',JSON.stringify({state,t:Math.round(G.t),ae:ae?(ae.tagName+'#'+(ae.id||'')):'',at:Date.now()})); console.warn('beforeunload mid-run',state) } }catch(e){} });
+document.addEventListener('submit',e=>{ e.preventDefault() },true);
+document.addEventListener('click',e=>{ const a=e.target&&e.target.closest&&e.target.closest('a[href]'); if(a&&a.target!=='_blank'&&G&&state!=='menu'&&state!=='over'){ e.preventDefault() } },true);
+(function(){ try{ const u=localStorage.getItem('lco_unload'), cl=localStorage.getItem('lco_clean'); const c={disc:!!document.wasDiscarded,unload:u?JSON.parse(u):null,unclean:cl==='0',at:Date.now()}; if(c.disc||c.unload||c.unclean){ localStorage.setItem('lco_navcause',JSON.stringify(c)); console.warn('[LCO] previous page ended mid-run:',c.disc?'Chrome DISCARDED the tab (memory)':c.unload?'navigation/reload (beforeunload fired) '+u:'renderer ended without unload (crash/kill)') } localStorage.removeItem('lco_unload') }catch(e){} })();
 function menuOk(){ return state==='paused'||state==='over'||state==='menu'||state==='charsel'||state==='brief'||!G||G.demo }
 function menuBlock(why){ const m={why,state,t:G&&G.t,at:Date.now()}; (window.__menuBlock=window.__menuBlock||[]).push(m); try{ localStorage.setItem('lco_menublock',JSON.stringify(m)) }catch(e){} console.warn('menu return blocked mid-run',m) }
 function toMenu(){ if(!menuOk()){ menuBlock('toMenu'); return } try{quitAskClose()}catch(e){} setTimeout(()=>window.martHow&&martHow(),60); if(G&&!G.demo&&(state==='paused'||state==='over'||state==='play')){ const ab=state!=='over'; awardRun(false,ab); if(ab&&!G.dbg)try{ RUNLOGS.push(Object.assign(runLogOf(G),{result:'abandoned'})); if(RUNLOGS.length>50)RUNLOGS.shift(); localStorage.setItem('lco_abandoned',String((+localStorage.getItem('lco_abandoned')||0)+1)) }catch(e){} }   /* rc8.1 Pass 2 (QA): a quit run is recorded as ABANDONED - counts as a patrol (xp/kills) in the service record, never as a best or leaderboard entry; debug/god runs stay unrecorded */ state='menu'; ['over','pause','levelup','charsel','sigask'].forEach(i=>$(i).classList.remove('show')); $('menu').classList.add('show'); $('topbtns').style.display='none'; showBest(); if(!DBG.nodemo)newGame(true); }
@@ -7686,7 +7727,7 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
     '@media (max-width:700px){.dmc h3{font-size:15px}.dmc{padding:8px}#p3toast{top:auto;bottom:14px;right:8px;left:8px}.p3t{max-width:none;min-width:0}.p3sc,.p3lb{font-size:12px}#p3unl{font-size:12px}}'; document.head.appendChild(s) },
   endHtml(c,s,rank){ return `<div class="p3sc"><div class="row"><b>HOLD-OUT SCORE${DEMO?' · DEMO':''}</b><span>${rank>=0?'LEADERBOARD #'+(rank+1):'not in the top 10'}</span></div>`+
     s.r.map(q=>`<div class="row"><span>${q[0]}</span><span>+${q[1].toLocaleString()}</span></div>`).join('')+`<div class="row tot"><span>TOTAL</span><span>${s.tot.toLocaleString()}</span></div>`+
-    `<div style="text-align:center;margin-top:6px"><button class="btn alt" id="p3lbBtn" style="font-size:12px;padding:4px 10px">Leaderboard</button></div><div id="p3lbBox" style="display:none">${this.boardHtml(rank)}</div></div>` },
+    `<div style="text-align:center;margin-top:6px"><button type="button" class="btn alt" id="p3lbBtn" style="font-size:12px;padding:4px 10px">Leaderboard</button></div><div id="p3lbBox" style="display:none">${this.boardHtml(rank)}</div></div>` },
   onOver(win,why){ const g=G; if(!g||g.demo)return; const c=this.ctx(g,{win,why}); let html='';
     if(this.SC){ this.css(); const s=this.score(c); c.score=s.tot; const rank=this.post(c,s); const best=this.ls('lco_hiscore',0); if(s.tot>best)this.ss('lco_hiscore',s.tot); html=this.endHtml(c,s,rank) }
     if(this.ACH)this.check(c); squad2Check();
@@ -7780,7 +7821,7 @@ function gameOver(win,why){ state='over'; overAt=performance.now(); const g=G, e
     const HON=(g.honor&&g.honor.length)?`<div class="ochon">${g.honor.map(h=>'<span class="hrib"></span> '+h).join('<br>')}</div>`:'';
     $('stats').innerHTML=HON+ROLL+`<div class="ocon"><b>GOT ON:</b> ${on.join(', ')}</div>`+
       (LB.length?`<div class="oclf"><b>LEFT BEHIND:</b> ${LB.join(', ')}</div>`:'')+   /* RC5.2 (QA): living Marines only - the dead are listed under KIA */
-      `<div class="ocopt"><b>OPTIONAL CALL:</b> ${ex.optCall?ex.optCall:'none'}</div>`+
+      `<div class="ocopt"><b>OPTIONAL CALL:</b> ${ex.optCall?ex.optCall:'none'}</div>`+((g.mohOut&&g.mohOut.length)?`<div class="ocopt"><b>MEDAL OF HONOR CALLS:</b> ${g.mohOut.map(o=>o.nm+': '+o.res).join(' · ')}</div>`:'')+
       (opened&&!DEMO?'<div class="ocop">The other service records are open.</div>':'')+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')+LU_UNCL(g)); $('overSvc').innerHTML=serviceCard(aw) }
   else { $('overTitle').textContent=why==='left'?'LEFT ON THE LZ — THE BIRD IS GONE':charNick(g).toUpperCase()+' IS DOWN'; $('rank').textContent='';
     $('stats').innerHTML=((g.honor&&g.honor.length)?`<div class="ochon">${g.honor.map(h=>'<span class="hrib"></span> '+h).join('<br>')}</div>`:'')+((g.kiaL&&g.kiaL.length)?`<div class="ockia"><b>KIA:</b> ${g.kiaL.join(', ')}</div>`:'')+((g.urgL&&g.urgL.length)?`<div class="ockia"><b>MEDEVAC:</b> ${g.urgL.join(', ')}</div>`:'')+`<div class="ocfact">${deathFact(g)}</div>`+sm(`kills ${g.kills} · ${fmt(g.t)} · ${seedTx}`+(g.dbg?' · debug run, records not saved':'')+LU_UNCL(g)); $('overSvc').innerHTML=serviceCard(aw) }
@@ -7960,7 +8001,8 @@ cv.addEventListener('contextmenu',e=>e.preventDefault());
 /* ====================== render ====================== */
 /* rc7.1 mobile: LZ / PAD world labels 1.5x on HUDM (desktop 1x) */
 function PADL(){ return HUDM.on?1.5:1 }
-function txt(s,x,y,size,col,align,stroke){ctx.font=`bold ${size}px "Courier New",monospace`;ctx.textAlign=align||'left';ctx.lineWidth=Math.max(2,size/6);ctx.strokeStyle=stroke||'#0b140c';ctx.lineJoin='round';ctx.strokeText(s,x,y);ctx.fillStyle=col||'#f1ecd0';ctx.fillText(s,x,y)}
+function txtMin(){ return (HUDM&&HUDM.on)?0:18*H/1080 }   /* rc8.1 Pass 3: in-canvas text >= ~18 css px at 1080p (desktop) */
+function txt(s,x,y,size,col,align,stroke){size=Math.max(size,txtMin());ctx.font=`bold ${size}px "Courier New",monospace`;ctx.textAlign=align||'left';ctx.lineWidth=Math.max(2,size/6);ctx.strokeStyle=stroke||'#0b140c';ctx.lineJoin='round';ctx.strokeText(s,x,y);ctx.fillStyle=col||'#f1ecd0';ctx.fillText(s,x,y)}
 const GEMC=['#4fb4ff','#5be07a','#ff5a5a'];
 function jetShape(sc,col){ ctx.scale(sc,sc);
   const f=(x,y,w,h,c)=>{ctx.fillStyle=col?c:'#000';ctx.fillRect(x,y,w,h)};
@@ -8204,7 +8246,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   /* rc8 LPT2: large centre banners (RTO fire mission, MARINE HIT, INCOMING, SAPPERS) one lane higher - clear of the firebase progress bar + tab strip */
   if(g.banner&&!obDlgOpen()){ const b=g.banner,k=Math.min(1,(3.2-b.t)*5,b.t*2); if(HUDM.on){ const cr=HUDM.crit(b), fs=Math.min((cr?22:15)*U,(W-20)/Math.max(8,b.text.length)*1.6), k2=cr?k:Math.min(k,b.t*1.4,(b.t>1.6?1:b.t/1.6)); ctx.globalAlpha=Math.max(0,Math.min(1,k2)); txt(HUDM.short(b.text),W/2,exTop(U)+(exStack||0)+(g.pullT>0?40:18)*U,fs,b.col,'center'); ctx.globalAlpha=1 }   /* hudmobile: in the top lane under the signal line, smaller; non-critical ones fade faster */
     else { ctx.globalAlpha=Math.max(0,Math.min(1,k)); txt(b.text,W/2,laneT(30*U,b.top?Math.max(H*.12,96*U):/FIRE MISSION|MARINE HIT|INCOMING|SAPPER/i.test(b.text)?H*.27-38*U:H*.27),Math.min((30+6*(1-Math.min(1,k)))*U,(W-40*U)/Math.max(8,b.text.length*.62)),b.col,'center');   /* rc7.1: long banners shrink to fit (SUPPLY DROP clipped at ~910 px) */ ctx.globalAlpha=1 } }
-  N2.hud(U); PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); try{ PB.hud(U); drawTrib(U) }catch(e){} FIELD.hud(U); KIA.hud(U); OFFI.hud(U,camX,camY); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
+  N2.hud(U); PULL.hud(U); SPEC.hud(U); MOH.hud(U,W,H); try{ PB.hud(U); drawTrib(U); TEACH.hud(U) }catch(e){} FIELD.hud(U); KIA.hud(U); OFFI.hud(U,camX,camY); drawFbHud(U); drawCrateHud(U); drawExHud(U,camX,camY,tt); drawHannah(U); drawAnncIcons(U);
   // joystick
   if(joy.on){ ctx.globalAlpha=.45; ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(joy.ox*(W/innerWidth),joy.oy*(H/innerHeight),55*(W/innerWidth),0,TAU); ctx.stroke(); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc((joy.ox+joy.x*55)*(W/innerWidth),(joy.oy+joy.y*55)*(H/innerHeight),22*(W/innerWidth),0,TAU); ctx.fill(); ctx.globalAlpha=1 }
 }
