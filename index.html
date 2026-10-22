@@ -2221,7 +2221,7 @@ function buildSprites(){
    Outlines are baked into the sheet grids, so it never goes through makeSprites. Baked once per scale (SHEET1.bake) and cached. */
 const SHEET_ENEMY={vc:'vc',nva:'nva',officer:'officer',sapper:'sapper',rpgt:'rpgt',rpg:'rpg',boss:'boss'};   // SPR key -> sheet name
 const SHEET_CHAR={doc:'doc'};                                                                                    // CHSPR key -> sheet name
-const SHEET_SMOKE={red:'smokeRed',yellow:'smokeYellow',green:'smokeGreen',violet:'smokeViolet'};
+const SHEET_SMOKE={yellow:'smokeYellow',green:'smokeGreen',violet:'smokeViolet'};
 const SHEET_SCALE_MEN=1, SHEET_SCALE_SMOKE=2;   /* men: 32 world px tall (same as the old 16-row x2 sprites); smoke always 2x so the four shapes read */
 const hasSheet=n=>!!(window.SHEET1&&SHEET1.sprites&&SHEET1.sprites[n]);
 function sheetSprites(name){ if(SHEET1.useV3!==false&&SHEET1.enemySheetName){ const v=SHEET1.enemySheetName(name); if(v&&SHEET1.sprites[v])name=v }   /* enemies_v3 redraw (gated ?v3=0) */
@@ -5079,7 +5079,7 @@ const OFFVO={
   'HO-C01':"Sergeant's hit. I've got it. Tighten up!",'HO-C02':"I've got the platoon! Stay on me, stay low!",'HO-C03':"Corporal's got it. Doc, take care of 'em. Rest of you, fire!",
   'HO-L01':"Corporals are down. I've got it. Stay on me!",'HO-L02':"Okay, it's me. Everybody up, follow me!",'HO-L03':"I've got the platoon. We get the wounded to the bird!",
   'HO-P01':"I've got it! On me! Stay low!",'HO-X01':"It's just me. Get to the bird, Doc.",
-  'HO-F01':'Everybody on that position, fire!','HO-F02':'Fire on that bunch! Fire!','HO-T01':'B-40! Take him out first!','HO-T03':'RPG! Take him out first!','HO-T02':'Gun! Pin that gun down!',
+  'HO-F01':'Everybody on that position, fire!','HO-F02':'Fire on that bunch! Fire!','HO-T01':'B-40! Take him out first!','HO-T03':'RPG! Take him out first!','HO-T02':'Gun! Pin that gun down!','HO-U01':'Ski, cover Doc!',
   'HO-W01':'Out of LAWs!','HO-W02':'LAW! Hit that bunker! Backblast clear!','HO-M01':'Shot, over!','HO-M02':'Splash!',
   'HO-Y01':"Sparks is down! Somebody get on the hook!",'HO-Y02':'Sparks is down, no radio!',
   'SK-F02':'Two-Six, Six. Your fire mission is approved. Keep me advised. Out.',
@@ -5120,7 +5120,7 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
     if(k==='focus'){ this.cd.focus=8; for(const m of this.members(14).filter(q=>(q.role==='rifle'||q.role==='m14')&&Math.hypot(q.x-T.x,q.y-T.y)<(SQR[q.role].rng||400)).slice(0,6)){ m.focusT=T.e; m.focusU=g.t+6 }   /* riflemen in range only, at most 6: the guns keep covering Doc */
       let id; if(T.rpg)id=this.pick1(['HO-T01','HO-T03']); else if(lt)id=T.sw?'LT-F03':T.mark?'LT-F01':this.pick1(['LT-F01','LT-F02','LT-F04']); else id=r===5?'HO-F01':'HO-F02'; this.say(id,c) }
     else if(k==='sup'){ this.cd.sup=14; const gun=coy.filter(m=>this.ok(m)&&m.role==='m60'&&m!==c&&Math.hypot(m.x-T.x,m.y-T.y)<(SQR.m60.rng||400)); for(const m of gun){ m.focusT=T.e; m.focusU=g.t+8 }
-      for(const e of nearestK(T.x,T.y,12,90))e.supT=g.t+8; T.e.supT=g.t+8; let id; if(T.mg&&!lt)id='HO-T02'; else if(lt)id=this.docTreat(g)?'LT-S04':T.crew?'LT-S03':'LT-S01'; else id=T.mg?'HO-T02':'HO-T02'; this.say(id,c) }
+      for(const e of nearestK(T.x,T.y,12,90))e.supT=g.t+8; T.e.supT=g.t+8; let id; if(T.mg&&!lt)id='HO-T02'; else if(lt)id=this.docTreat(g)?'LT-S04':T.crew?'LT-S03':'LT-S01'; else id=T.mg?'HO-T02':gun.length?'HO-U01':'HO-F01'; this.say(id,c) }   /* triage: non-MG target = HO-U01 when the M60 gunner (Ski) is up, else HO-F01 (was HO-T02 on both branches) */
     else if(k==='law'){ this.cd.law=20; const L=this.lawCarrier(T); if(!L){ this.say('HO-W01',c); return } L.law--; L.lawW={e:T.e,t:2}; this.say(lt?(T.e.tank?'LT-A02':'LT-A01'):'HO-W02',c) } },
   lawCarrier(T){ let b=null,bd=1e9; for(const m of coy){ if(!this.ok(m)||!(m.law>0))continue; const d=Math.hypot(m.x-T.x,m.y-T.y); if(d<bd){bd=d;b=m} } return b&&bd<300?b:null },
   docTreat(g){ return g.treatT>0||coy.some(m=>m.healBy&&m.hp>0&&Math.hypot(m.x-g.p.x,m.y-g.p.y)<150) },
@@ -7142,8 +7142,8 @@ function setRFX(v,silent){ RFX=!!v; if(!silent){ try{localStorage.setItem('lco_r
   document.querySelectorAll('.rfChk').forEach(c=>{ c.checked=RFX }); document.querySelectorAll('.rfTxt').forEach(t=>{ t.textContent=RFX?'ON':'OFF' }); document.querySelectorAll('.rfSw').forEach(w=>w.classList.toggle('off',!RFX)) }
 window.setRFX=setRFX;
 /* smoke: a pattern AND a text tag for every colour (colour is never the only cue) */
-const SMK_TAG={red:'RED',yellow:'YEL',green:'GRN',violet:'VIO',white:'WHT'}, SMK_NAME={red:'RED',yellow:'YELLOW',green:'GREEN',violet:'VIOLET',white:'WHITE'},
-  SMK_PAT={red:'cross-hatch',yellow:'bright core',green:'vertical streaks',violet:'diagonal hatching',white:'plain white'};
+const SMK_TAG={yellow:'YEL',green:'GRN',violet:'VIO',white:'WHT'}, SMK_NAME={yellow:'YELLOW',green:'GREEN',violet:'VIOLET',white:'WHITE'},
+  SMK_PAT={yellow:'bright core',green:'vertical streaks',violet:'diagonal hatching',white:'plain white'};
 /* rc8 a11y (AD+A11Y review): the colour-blind cue lives ONLY in this chip, anchored to each plume/flare/mirror (real, Charlie decoy, pad).
    Drawn in screen space: 13px letters (never under 12 screen px), 14px pattern swatch, dark outline so it reads on jungle and sky. ?cbpat=0 hides it. */
 function obDlgOpen(){ return !!exMsg||!!document.querySelector('#sigask.show,#levelup.show,#pause.show,#over.show,#tut.show,#charsel.show') }   /* AD: no ghost banner behind a dialogue */
@@ -7156,7 +7156,7 @@ function smokeTag(col,x,y,fade,kind){ if(!OB.pat||!SMK_TAG[col])return; if(state
 /* tiny pattern icon (also used in the pop-smoke button and tips) */
 function smokeIcon(c,col,x,y,r){ c.save(); c.beginPath(); c.arc(x,y,r,0,TAU); c.fillStyle=SIGC[col]||'#888'; c.fill(); c.clip(); c.strokeStyle='rgba(10,10,10,.85)'; c.lineWidth=1.2; c.beginPath();
   if(col==='green'){ for(let k=-r;k<=r;k+=3){ c.moveTo(x+k,y-r); c.lineTo(x+k,y+r) } } else if(col==='violet'){ for(let k=-2*r;k<=2*r;k+=3){ c.moveTo(x+k,y+r); c.lineTo(x+k+2*r,y-r) } }
-  else if(col==='red'){ for(let k=-2*r;k<=2*r;k+=4){ c.moveTo(x+k,y+r); c.lineTo(x+k+2*r,y-r); c.moveTo(x+k,y-r); c.lineTo(x+k+2*r,y+r) } } c.stroke();
+ c.stroke();
   if(col==='yellow'){ c.fillStyle='#fffbe6'; c.beginPath(); c.arc(x,y,r*.45,0,TAU); c.fill() } c.restore(); c.strokeStyle='#000'; c.lineWidth=1; c.beginPath(); c.arc(x,y,r,0,TAU); c.stroke() }
 function smokeIconURL(col){ const k='_u_'+col; if(smokeIconURL[k])return smokeIconURL[k]; const cv=document.createElement('canvas'); cv.width=cv.height=20; smokeIcon(cv.getContext('2d'),col,10,10,8); return smokeIconURL[k]=cv.toDataURL() }
 /* friendly chevron under a Marine's feet (enemies get none) */
@@ -7200,7 +7200,7 @@ const TIP={seen:{},q:[],cur:null,until:0,gap:0,
     if(lzS&&Math.max(Math.abs(p.x-lzS.x),Math.abs(p.y-lzS.y))<140)this.show('fb',this.touch()?'Stand still at the radio point to call the engineers.':'Hold <b>F</b> at the radio point to call the engineers.') } };
 TIP.init(); setInterval(()=>{ try{TIP.poll()}catch(e){} },250); window.TIP=TIP;
 
-const SIGC={red:'#e0262e',yellow:'#f7d728',green:'#3cc04a',violet:'#8e4fe6',white:'#e8f4ff'};   /* rc8 A11Y: hues spread as far as M18 realism allows (red 357, yellow 51, green 126, violet 266) */
+const SIGC={yellow:'#f7d728',green:'#3cc04a',violet:'#8e4fe6',white:'#e8f4ff'};   /* rc8 A11Y: hues spread as far as M18 realism allows (red 357, yellow 51, green 126, violet 266) */
 const SIGN=['violet','yellow','green'];   /* Blake / QA Oct 14: no red (red = enemy contact / hot LZ) */
 const sigName=(kind,col)=>kind==='mirror'?'SIGNAL MIRROR':kind==='flare'?col.toUpperCase()+' FLARE':col.toUpperCase()+' SMOKE';
 const SIGNOTE={smoke:'Smoke out. The pilot names the color he sees - check it against your line. Charlie pops his own smoke. No timer.',
@@ -7302,7 +7302,7 @@ function placePad(right){ padMedBonus(); const g=G,ex=g.ex,p=g.p; ex.ph=3; ex.co
   let q; if(right)q=ex.padPlan&&ex.pad?{x:ex.pad.x,y:ex.pad.y}:pickLz(ex.sig.x,ex.sig.y); else { const a=rnd()*TAU, d=EX.WRONG_MIN+rnd()*(EX.WRONG_MAX-EX.WRONG_MIN); q=pickLz(p.x+Math.cos(a)*d,p.y+Math.sin(a)*d) }
   ex.pad={x:q.x,y:q.y}; ex.landT=Math.max(EX.LZ_T,g.t+EX.INBOUND); if(g.t>=EX.PAD_T)ex.padShown=true;
   g.banner={text:'HOLD FOR LZ · BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+Math.min(15,G.pullEx||0)-G.t))),t:3,col:SIGC[ex.col==='white'?'yellow':ex.col]}; Snd.play('radio');
-  gunny('Bird, Doc. Roger '+(ex.idCol==='white'?'mirror':ex.idCol)+'. Over.  -  Bird: Wilco. Setting down in '+fmt(Math.ceil(Math.max(0,ex.landT+Math.min(15,G.pullEx||0)-G.t)))+'. Over.',4.6,1,'DOC') }
+  gunny('Bird, Doc. Roger '+(ex.idCol==='white'?'mirror':ex.idCol)+'. Over.  -  Bird: Wilco. Setting down on your smoke. Over.',4.6,1,'DOC') }
 /* ---- the per-frame mission driver (own clocks; never depends on player hp or camera) ---- */
 /* rc8.1 FX81: extraction wash, strike spectacle, firebase life + Marine repair. ?fx81=0 off. Own pool, tier-capped (MED caps hold during strikes). */
 const FX81={ON:!/[?&]fx81=0\b/.test(location.search), P:[], W:[], R:[], log:{wash:0,nap:0,rep:0,boardStag:0,flare:0,hi:0},
@@ -7489,7 +7489,7 @@ function drawExGround(tt){ const g=G,ex=g.ex; if(!ex)return;
     if(ex.ph===3)txt('PICKUP PAD · BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+Math.min(15,G.pullEx||0)-G.t))),lz.x,lz.y+R*.78+18,Math.round(12*PADL()),'#f2e8c0','center'); else if(ex.ph===4&&ex.call&&ex.call.st==='wait')txt('STAND HERE: POP SMOKE',lz.x,lz.y+R*.78+18,Math.round(13*PADL()),'#ffe58a','center') } }
 /* smoke columns + the bird: drawn above the men so the column reads */
 function drawExAir(tt){ const g=G,ex=g.ex; if(!ex)return;
-  if(DBG.smokeTest){ const p=g.p; (DBG.smokeTest===2?SIGN.concat('red'):SIGN).forEach((c,i)=>drawSigFx(p.x-240+i*160,p.y-70,'smoke',c,tt,1)); if(DBG.smokeTest===2){ drawSigFx(p.x-160,p.y+120,'flare','yellow',tt,1); drawSigFx(p.x+160,p.y+120,'mirror','white',tt,1) } }   /* QA only (console: DBG.smokeTest=true) - all four smoke columns side by side */
+  if(DBG.smokeTest){ const p=g.p; SIGN.forEach((c,i)=>drawSigFx(p.x-240+i*160,p.y-70,'smoke',c,tt,1)); }   /* QA only (console: DBG.smokeTest=true) - the three smoke columns side by side */
   const fade=ex.ph>=6?Math.max(0,1-ex.t/(EX.LIFT+1)):1;
   const s=ex.sig; if(s&&ex.popped){ drawSigFx(s.x,s.y,'smoke',s.col,tt,fade) } else if(false&&s&&!(ex.ph>=3&&!ex.wrong)){ if(!s.land){ ctx.fillStyle='#2b2f2a'; ctx.fillRect(Math.round(s.x-3),Math.round(s.y-s.z-6),6,9) } else drawSigFx(s.x,s.y,s.kind,s.col,tt,1) }
   if(ex.charlie)drawSigFx(ex.charlie.x,ex.charlie.y,'smoke',ex.charlie.col,tt+.37,1);
@@ -7497,7 +7497,7 @@ function drawExAir(tt){ const g=G,ex=g.ex; if(!ex)return;
   if(ex.huey&&ex.ph>=4)drawExHuey(ex.huey,tt) }
 /* RC3 (QA colour-blind): smoke colours also differ in brightness + pattern (protanopia / greyscale): yellow = bright core, violet = dark hatching, green = plain */
 function cbMark(col,x,y,tt,fade){ return;   /* rc8 AD: no patterns painted on the smoke itself; the pattern is in the chip (smokeTag) */
-  if(OB.pat&&(col==='green'||col==='red')){ ctx.save(); ctx.beginPath(); ctx.ellipse(x,y-70,26,62,0,0,TAU); ctx.clip(); ctx.globalAlpha=.42*fade; ctx.strokeStyle=col==='green'?'#0c2a10':'#2a0806'; ctx.lineWidth=3; const o=(tt*14)%12; ctx.beginPath();
+  if(OB.pat&&col==='green'){ ctx.save(); ctx.beginPath(); ctx.ellipse(x,y-70,26,62,0,0,TAU); ctx.clip(); ctx.globalAlpha=.42*fade; ctx.strokeStyle='#0c2a10'; ctx.lineWidth=3; const o=(tt*14)%12; ctx.beginPath();
     if(col==='green'){ for(let k=-30;k<=30;k+=10){ ctx.moveTo(x+k,y+10); ctx.lineTo(x+k+Math.sin(tt+k)*3,y-150) } } else { for(let k=-160;k<80;k+=14){ ctx.moveTo(x-30,y+k+o); ctx.lineTo(x+30,y+k+o-30); ctx.moveTo(x-30,y+k+o-30); ctx.lineTo(x+30,y+k+o) } } ctx.stroke(); ctx.restore(); return }   /* rc8 a11y: green = vertical streaks, red = cross-hatch */
   if(col!=='yellow'&&col!=='violet')return; ctx.save(); ctx.beginPath(); ctx.ellipse(x,y-70,26,62,0,0,TAU); ctx.clip();
   if(col==='yellow'){ ctx.globalAlpha=.42*fade; ctx.fillStyle='#fffbe6'; for(let i=0;i<5;i++){ const u=(tt*.35+i/5)%1; ctx.beginPath(); ctx.arc(x+Math.sin(tt+i)*8,y-12-u*120,7+u*10,0,TAU); ctx.fill() } }

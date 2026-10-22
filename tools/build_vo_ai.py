@@ -7,6 +7,8 @@ RADIO=set(x.strip() for x in re.search(r'Radio IDs: (.*)',H).group(1).split(',')
 man=re.findall(r"^\s*(\w+): \{ group: '(\w+)', batch: 3, files: \['(\w+)'\] \},\s*// (\S+)",H,re.M)
 raw={x['id']:x for x in json.load(open(S+'/raw_lines.json'))}
 FRIENDS={'HO-K01','HO-K02'}
+# UNMATCHED_TRIAGE.md (A): regenerated with the exact game caption
+TEXT={'G04':"Charlie is pulling back to regroup. Thirty seconds and they hit the firebase again. Get inside the wire!",'D05':"Bird, Doc. Negative, that's not our smoke. Over."}
 def dur(p): return float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','csv=p=0',p]).decode())
 rows=[]
 for slot,grp,f,lid in man:
@@ -16,7 +18,7 @@ for slot,grp,f,lid in man:
   if lid=='BK_RADIO_OUT-alt': text='Nobody on the hook!'
   elif base=='G22': text=None
   else:
-    w=raw[lid]['words']; q=re.findall(r'"([^"]+)"',w); text=q[0] if q else w
+    w=raw[lid]['words']; q=re.findall(r'"([^"]+)"',w); text=TEXT.get(lid) or (q[0] if q else w)
   sub='dry/' if radio else ''
   for ext in ('ogg','m4a'):
     d=os.path.join(R,'audio/vo_ai',sub+ext); os.makedirs(d,exist_ok=True)
