@@ -7678,6 +7678,12 @@ addEventListener('beforeunload',()=>{ try{ if(G&&!G.demo&&(state==='play'||state
 document.addEventListener('submit',e=>{ e.preventDefault() },true);
 document.addEventListener('click',e=>{ const a=e.target&&e.target.closest&&e.target.closest('a[href]'); if(a&&a.target!=='_blank'&&G&&state!=='menu'&&state!=='over'){ e.preventDefault() } },true);
 (function(){ try{ const u=localStorage.getItem('lco_unload'), cl=localStorage.getItem('lco_clean'); const c={disc:!!document.wasDiscarded,unload:u?JSON.parse(u):null,unclean:cl==='0',at:Date.now()}; if(c.disc||c.unload||c.unclean){ localStorage.setItem('lco_navcause',JSON.stringify(c)); console.warn('[LCO] previous page ended mid-run:',c.disc?'Chrome DISCARDED the tab (memory)':c.unload?'navigation/reload (beforeunload fired) '+u:'renderer ended without unload (crash/kill)') } localStorage.removeItem('lco_unload') }catch(e){} })();
+/* rc8.1 EP resume-after-discard: state bridge for assets/runsave.js (snapshot/restore). A resumed run sets G.awarded so it never records a best. */
+window.__RSH={state:()=>state, live:()=>!!(G&&!G.demo&&(!G.dbg||/[?&]rstest\b/.test(location.search))&&!(DBG.t>0)&&(state==='play'||state==='levelup'||state==='paused'||state==='sig')),
+  get:()=>({G,SEL,lzS,fbS,fbC,engs,strs,chgs,fbH,squad,moh:{cur:MOH.cur,q:MOH.q,fb:MOH.fb,done:MOH.done,alertT:MOH.alertT}}),
+  put:o=>{ if(o.SEL&&CHD[o.SEL])SEL=o.SEL; const ni=DBG.nointro,nb=DBG.nobrief; DBG.nointro=1; DBG.nobrief=1; try{ startGame() }finally{ DBG.nointro=ni; DBG.nobrief=nb }
+    if(o.G.seed)seedRun(o.G.seed); Object.assign(G,o.G); G.demo=false; G.awarded=true; G.resumed=true;
+    lzS=o.lzS||null; fbS=o.fbS||null; fbC=o.fbC||null; engs=o.engs||[]; strs=o.strs||[]; chgs=o.chgs||[]; fbH=o.fbH||null; squad=o.squad||[]; if(o.moh)Object.assign(MOH,o.moh); state='play' }};
 function menuOk(){ return state==='paused'||state==='over'||state==='menu'||state==='charsel'||state==='brief'||!G||G.demo }
 function menuBlock(why){ const m={why,state,t:G&&G.t,at:Date.now()}; (window.__menuBlock=window.__menuBlock||[]).push(m); try{ localStorage.setItem('lco_menublock',JSON.stringify(m)) }catch(e){} console.warn('menu return blocked mid-run',m) }
 function toMenu(){ if(!menuOk()){ menuBlock('toMenu'); return } try{quitAskClose()}catch(e){} setTimeout(()=>window.martHow&&martHow(),60); if(G&&!G.demo&&(state==='paused'||state==='over'||state==='play')){ const ab=state!=='over'; awardRun(false,ab); if(ab&&!G.dbg)try{ RUNLOGS.push(Object.assign(runLogOf(G),{result:'abandoned'})); if(RUNLOGS.length>50)RUNLOGS.shift(); localStorage.setItem('lco_abandoned',String((+localStorage.getItem('lco_abandoned')||0)+1)) }catch(e){} }   /* rc8.1 Pass 2 (QA): a quit run is recorded as ABANDONED - counts as a patrol (xp/kills) in the service record, never as a best or leaderboard entry; debug/god runs stay unrecorded */ state='menu'; ['over','pause','levelup','charsel','sigask'].forEach(i=>$(i).classList.remove('show')); $('menu').classList.add('show'); $('topbtns').style.display='none'; showBest(); if(!DBG.nodemo)newGame(true); }
@@ -8715,5 +8721,6 @@ Object.defineProperty(window.__ms,'ftexts',{get:()=>ftexts}); window.__ms.render
 })();
 })();
 </script>
+<script src="assets/runsave.js?v=3614582"></script><script src="assets/memtrim.js?v=3614582"></script>
 </body>
 </html>
