@@ -58,16 +58,19 @@
     return null;
   };
   /* ---------- cues ---------- */
-  var CUE = { wave: { f: 'cue_wave_start', k: 'ai_cue_wave', pr: 2, duck: -4 }, levelup: { f: 'cue_level_up', k: 'ai_cue_levelup', pr: 1, duck: -6, len: 1.55, fo: 0.35 }, landing: { f: 'cue_extraction_landing', k: 'ai_cue_landing', pr: 3, duck: -4 } };
-  var buf = {}, cur = null, ldd = false;
+  var CUE = { wave: { f: 'cue_wave_start', k: 'ai_cue_wave', pr: 2, duck: -4 }, levelup: { f: 'cue_level_up', k: 'ai_cue_levelup', pr: 1, duck: -6, len: 1.55, fo: 0.35 }, landing: { f: 'cue_extraction_landing', k: 'ai_cue_landing', pr: 3, duck: -7 }   /* AD: same -7 dB as VO */ };
+  var buf = {}, cur = null, ldd = false; M.fmt = {};
   function ctx() { try { return X().Snd.ctx; } catch (e) { return null; } }
   M.load = function () {
     var c = ctx(); if (ldd || !c) return; ldd = true;
     var ogg = false; try { ogg = !!new Audio().canPlayType('audio/ogg; codecs="vorbis"'); } catch (e) {}
     Object.keys(CUE).forEach(function (n) {
-      fetch('audio/music_ai/' + CUE[n].f + '.' + (ogg ? 'ogg' : 'm4a')).then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
-        .then(function (ab) { return new Promise(function (res, rej) { c.decodeAudioData(ab, res, rej); }); }).then(function (b) { buf[n] = b; })
-        .catch(function (e) { M.log.push('cue ' + n + ' failed ' + e); });
+      /* same rule as SamplePlayer.pickFormats: ogg first; m4a first only when canPlayType('audio/ogg; codecs="vorbis"') is ''; the other format is the fallback */
+      var fm = ogg ? ['ogg', 'm4a'] : ['m4a', 'ogg'];
+      function get(i) { return fetch('audio/music_ai/' + CUE[n].f + '.' + fm[i]).then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+        .then(function (ab) { return new Promise(function (res, rej) { c.decodeAudioData(ab, res, rej); }); }).then(function (b) { buf[n] = b; M.fmt[n] = fm[i]; })
+        .catch(function (e) { if (i + 1 < fm.length) return get(i + 1); M.log.push('cue ' + n + ' failed ' + e); }); }
+      get(0);
     });
   };
   M.cue = function (n) {
