@@ -226,7 +226,7 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
 #quitAsk h3{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(20px,3vw,28px);letter-spacing:.12em;margin:0 0 6px;text-transform:uppercase}#quitAsk p{font-size:14px;color:#c9c3a0;margin:0 0 8px}   /* rc8.1: UI scale max(1, innerHeight/1080) */
 
 /* rc8.1 Pass 1 (UX P1-1): desktop UI text >= 18px at 1080p (the UI already scales up above 1080p); cards get more width so 18px fits */
-@media (pointer:fine) and (min-height:700px){ .foot,#luHint,.card .lv,.card .key,#fsHint,#abil span,#sigBtn span,#sigask .who,.tag b,.tag i,.padKeys,#overDed,.vols{font-size:18px!important} .card .ds{font-size:18px!important;line-height:1.3!important} .card{width:300px!important} }
+@media (pointer:fine) and (min-height:700px){ .foot,#luHint,.card .lv,.card .key,#fsHint,#abil span,#abilNm,.sub,#luHelp,#sigBtn span,#sigask .who,.tag b,.tag i,.padKeys,#overDed,.vols{font-size:18px!important} .card .ds{font-size:18px!important;line-height:1.3!important} .card{width:300px!important} }
 </style>
 </head>
 <body>
@@ -2251,7 +2251,7 @@ function bossOutline(c){ if(c._bo)return c._bo; const t=mk(c.width,c.height), x=
 function drawBossMark(e,w,h,tt){ const top=Math.round(e.y-h*.58)-4, bw=34, r=Math.max(0,e.hp/e.mhp), bx=Math.round(e.x-bw/2);
   ctx.fillStyle='rgba(0,0,0,.75)'; ctx.fillRect(bx-1,top-7,bw+2,5); ctx.fillStyle='#d83a2a'; ctx.fillRect(bx,top-6,Math.round(bw*r),3);
   ctx.font='bold 12px monospace'; ctx.textAlign='center'; ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.85)'; const nm=(e.name||'').toUpperCase(); ctx.strokeText(nm,Math.round(e.x),top-10); ctx.fillStyle='#ffcf6a'; ctx.fillText(nm,Math.round(e.x),top-10) }
-function drawDocRing(x,y){ if(hasSheet('docRing')){ const tt=performance.now()/1000; ctx.fillStyle='rgba(255,226,74,'+(.22+.1*Math.sin(tt*5))+')'; ctx.beginPath(); ctx.ellipse(x,y,27,10,0,0,TAU); ctx.fill(); SHEET1.draw(ctx,'docRing',SHEET1.frameIndex?SHEET1.frameIndex('docRing',tt):0,x,y,1.35); return }   /* Gamer: Doc hard to spot -> brighter, 35% bigger ring + glow */ ctx.fillStyle='rgba(255,240,170,.2)'; ctx.beginPath(); ctx.ellipse(x,y,19,7,0,0,TAU); ctx.fill() }
+function drawDocRing(x,y){ if(hasSheet('docRing')){ const tt=performance.now()/1000; ctx.beginPath(); ctx.ellipse(x,y,27,10,0,0,TAU); ctx.lineWidth=2; ctx.strokeStyle='#0b140c'; ctx.stroke(); ctx.fillStyle='rgba(255,226,74,'+(.45+.1*Math.sin(tt*5))+')'; ctx.fill();   /* a11y P2: 2 px #0b140c outline, alpha >= .45 */ SHEET1.draw(ctx,'docRing',SHEET1.frameIndex?SHEET1.frameIndex('docRing',tt):0,x,y,1.35); return }   /* Gamer: Doc hard to spot -> brighter, 35% bigger ring + glow */ ctx.beginPath(); ctx.ellipse(x,y,19,7,0,0,TAU); ctx.lineWidth=2; ctx.strokeStyle='#0b140c'; ctx.stroke(); ctx.fillStyle='rgba(255,240,170,.45)'; ctx.fill() }
 
 /* ====================== gore (stylized pixel) ====================== */
 const SPLAT=[], GIBSPR=[], CORPSE={}, XFX=[];
@@ -4322,7 +4322,7 @@ const TEACH={ON:!/[?&]teach=0\b/.test(location.search),seen:(()=>{ try{ return J
     let id=this.q.shift(); if(id==='bunker'&&fbHoldBusy()){ this.q.push(id); return } this.cur={id,t:0} },
   hud(U){ const c=this.cur; if(!c||this.block()||!G||G.demo)return; if(!HUDB.take()){ c.t=Math.max(0,c.t-1/60); return } const a=Math.min(1,c.t*4,(8-c.t)*2); ctx.save(); ctx.globalAlpha=Math.max(0,a); txt(this.L[c.id]||'',W/2,H*.79,Math.max(18*U,txtMin()),'#ffe58a','center'); ctx.restore() } };
 function docMark(){ const g=G, p=g&&g.p; if(!p||g.demo||p.hp<=0)return; ctx.save(); ctx.lineWidth=3; ctx.strokeStyle='rgba(10,12,8,.8)'; ctx.beginPath(); ctx.ellipse(p.x,p.y+6,20,8,0,0,TAU); ctx.stroke(); ctx.lineWidth=1.6; ctx.strokeStyle='rgba(255,250,210,.95)'; ctx.stroke();
-  const y=p.y-46+Math.sin(g.t*4)*1.5; ctx.fillStyle='#fff6c0'; ctx.strokeStyle='#0b140c'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p.x-6,y-8); ctx.lineTo(p.x+6,y-8); ctx.lineTo(p.x,y); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore() }   /* rc8.1 3b (Junior): Doc reads in tall grass - foot ring + marker drawn over the canopy */
+  const y=p.y-46+Math.sin(g.t*4)*1.5; ctx.fillStyle='#fff6c0'; ctx.strokeStyle='#0b140c'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(p.x-9,y-12); ctx.lineTo(p.x+9,y-12); ctx.lineTo(p.x,y); ctx.closePath();   /* a11y P2: marker ~18 px (was 12x8) */ ctx.stroke(); ctx.fill(); ctx.restore() }   /* rc8.1 3b (Junior): Doc reads in tall grass - foot ring + marker drawn over the canopy */
 function fbBeacon(){ const T=lzS||(fbS&&fbS.state!=='done'?fbS:null); if(!T||!G||G.demo)return; const t=G.t; ctx.save();   /* rc8.1 3b #2: ground beacon at the firebase site - green marker smoke column + stake + label, seen over the grass */
   for(let i=0;i<9;i++){ const k=((t*.35+i/9)%1), y=T.y-10-k*170, x=T.x+Math.sin(t*.7+i)*6+k*22, r=10+k*26; ctx.globalAlpha=(1-k)*.42; ctx.fillStyle=SIGC.green; ctx.beginPath(); ctx.arc(x,y,r,0,TAU); ctx.fill() }
   ctx.globalAlpha=1; ctx.fillStyle='#3a2a14'; ctx.fillRect(T.x-2,T.y-34,4,34); ctx.fillStyle='#ffe58a'; ctx.fillRect(T.x+2,T.y-34,16,10);
@@ -4720,7 +4720,7 @@ const AMT={ON:!/[?&]amtrac=0\b/.test(location.search), V:[], f:null, trk:[], cre
       if(R){ v._hit=R.hitOffset; if(v.stamp&&R.rear){ v.stamp=0; if(this.trk.length>420)this.trk.shift(); this.trk.push([R.rear[0],R.rear[1],v.h,G.t]) }
         if(dis&&R.rampOpen)S.drawDismount(ctx,R,{n:4,phase:Math.min(1,v.dis),t,scale:1}) } }   /* bow ramp: riders file out the front toward the breach */
     for(const s of sl)S.drawRevetment(ctx,{x:s.x,y:s.y,heading:s.lvth?0:Math.PI,scale:1,layer:'front'});
-    for(const v of this.V){ if(v.dead)continue; const L=G.t<(this.jobT||0)?(v.lvth?'105 SUPPORT':'WIRE + AMMO'):v.mode==='shuttle'?'CASEVAC':v.mode==='breach'?'TO THE BREACH':v.mode==='patrol'?'PATROL':''; if(!L)continue; ctx.save(); ctx.font='bold 9px "Courier New",monospace'; ctx.textAlign='center'; const w=ctx.measureText(L).width+6, lx=Math.round(v.x), ly=Math.round(v.y)-30; ctx.fillStyle='rgba(8,14,9,.7)'; ctx.fillRect(lx-w/2,ly-9,w,12); ctx.fillStyle='#ffe58a'; ctx.fillText(L,lx,ly); ctx.restore() }   /* rc8 LPT2: short job label over each amtrac */
+    for(const v of this.V){ if(v.dead)continue; const L=G.t<(this.jobT||0)?(v.lvth?'105 SUPPORT':'WIRE + AMMO'):v.mode==='shuttle'?'CASEVAC':v.mode==='breach'?'TO THE BREACH':v.mode==='patrol'?'PATROL':''; if(!L)continue; ctx.save(); const lx=Math.round(v.x), ly=Math.round(v.y)-30, a=ctx.getTransform().a||1; ctx.translate(lx,ly); ctx.scale(1/a,1/a); txt(L,0,0,Math.max(12*(DPR||1),txtMin()),'#ffe58a','center'); ctx.restore() }   /* a11y P1: drawn in screen space at the txt() floor (was bold 9px in world space) */   /* rc8 LPT2: short job label over each amtrac */
     for(const c of this.crew)S.draw(ctx,'marineRifle',(Math.floor(c.t*8)%2)?'walk1':'walk2',Math.round(c.x),Math.round(c.y),1,c.tx<c.x) } };
 /* CREWX (Blake-confirmed): base support men once the firebase is DONE. M60 assistant gunner beside every M60 post (agFeed under fire, agSpot
    otherwise); 2 ammo runners carrying cans bunker -> a random post -> hand-off -> back (visual only); a sharpshooter on the bunker roof
@@ -5102,7 +5102,7 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
   say(id,m,pri){ const g=G; if(!OFFVO[id])return false; const ho=/^HO-[SCLPX]|LT-H/.test(id);
     if(!ho&&!pri){ if(this.seq.length)return false;   /* fire-mission radio sequence plays uninterrupted */ if(g.t-this.barkT<3||g.t-(this.used[id]||-99)<30)return false }
     this.barkT=g.t; this.used[id]=g.t; const sp=id.startsWith('SK-')?'GOLF SIX':m?this.who(m):'MARINE'; if(!pri&&exMsg&&exQ.length>=1)return false; { const was=exMsg; gunny(OFFVO[id],null,false,sp); const m=exMsg!==was?exMsg:exQ[exQ.length-1]; if(m)m.off=1;
-      if(pri&&/^OF-/.test(id)&&m&&m!==exMsg){ exQ.splice(exQ.indexOf(m),1); if(exMsg&&exMsg.off){ exMsg=m; Snd.play('radio') } else exQ.unshift(m) } }   /* rc8 OF- P0: jumps the queue / replaces an officer bark, never cuts a Gunny/extraction card */   /* never pre-empt or push out a Gunny/extraction card */ (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'bark',id]); return true },
+      if(pri&&/^OF-/.test(id)&&m&&m!==exMsg){ exQ.splice(exQ.indexOf(m),1); if(exMsg&&exMsg.off){ VOX(exMsg); exMsg=m; VOH(m) } else exQ.unshift(m) } }   /* rc8 OF- P0: jumps the queue / replaces an officer bark, never cuts a Gunny/extraction card */   /* never pre-empt or push out a Gunny/extraction card */ (g.offLog||(g.offLog=[])).push([+g.t.toFixed(1),'bark',id]); return true },
   pick1(ids){ for(const id of ids)if(G.t-(this.used[id]||-99)>=30)return id; return ids[0] },
   hoBark(m,n){ const r=m.rank; if(n===1)return 'HO-X01'; if(m.isLt)return 'LT-H01';
     return r===5?this.pick1(['HO-S01','HO-S03']):r===4?this.pick1(['HO-C01','HO-C02','HO-C03']):r===3?this.pick1(['HO-L01','HO-L02','HO-L03']):'HO-P01' },
@@ -7133,7 +7133,7 @@ function beltSprite(col,kind){ const base=kind==='held'?'smokeCanHeld':'docSmoke
    All ON by default; each has a kill switch: ?tut2=0 (old 9-card first-launch deck, no contextual tips), ?cbpat=0 (smoke patterns + labels),
    ?padshape=0 (pad ring colour-only), ?chev=0 (friendly chevrons), ?lowhptag=0. Reduce flashing: settings toggle (lco_rflash), defaults to
    prefers-reduced-motion; ?rflash=1/0 forces it. */
-const OB={tut:!/[?&]tut2=0\b/.test(location.search),pat:!/[?&]cbpat=0\b/.test(location.search),pad:!/[?&]padshape=0\b/.test(location.search),
+const OB={tut:!/[?&]tut2=0\b/.test(location.search),pat:!(/[?&]cbpat=0\b/.test(location.search)&&!PUBLIC_BUILD&&!IS_ELECTRON),pad:!/[?&]padshape=0\b/.test(location.search),
   chev:!/[?&]chev=0\b/.test(location.search),lowhp:!/[?&]lowhptag=0\b/.test(location.search)};
 let RFX=false;
 (function(){ const q=location.search.match(/[?&]rflash=([01])\b/); let v=null; try{v=localStorage.getItem('lco_rflash')}catch(e){}
@@ -7568,7 +7568,7 @@ function drawExHud(U,camX,camY,tt){ const g=G,p=g.p,ex=g.ex; exStack=0; if(!ex||
     if(!on){ const a=Math.atan2(dy,dx), [ax,ay]=edgeArrow(a,U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); const tp=T===ex.pad||T===ex.pre; if(PADARR&&tp)ctx.translate(-8*U,0); ctx.fillStyle=(PADARR&&tp&&!sg)?'#fff6a0':c; ctx.strokeStyle='#000'; ctx.lineWidth=PADARR&&tp?5:4; ctx.beginPath(); ctx.moveTo(22*U*big,0); ctx.lineTo(-10*U*big,-14*U*big); ctx.lineTo(-10*U*big,14*U*big); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore();
       txt(lab+' '+Math.round(d/10)+'m',ax,ay+(ay>H/2?-22*U:30*U),13*U,c,'center') } }
   // Gunny radio box (colonel's style: black frame, silver bevel, navy panel, gold name)
-  const m=state==='sig'||(HUDM.on&&mobIncoming())?null:exMsg; if(m){ const k=Math.min(1,m.t/.18,(m.dur-m.t)/.25)*(HUDM.on?.9:1);   /* hidden while the confirm prompt is up (it peeked out behind it) */ const fs=Math.max((HUDM.on?10:12)*U,txtMin()), pw=(HUDM.on?22:34)*U, ph=(HUDM.on?25:38)*U;   /* hudmobile: compact radio box */ ctx.font=`bold ${fs}px "Courier New",monospace`;
+  const m=state==='sig'||state==='levelup'||(HUDM.on&&mobIncoming())?null:exMsg;   /* a11y P2: no Gunny box behind LEVEL UP */ if(m){ const k=Math.min(1,m.t/.18,(m.dur-m.t)/.25)*(HUDM.on?.9:1);   /* hidden while the confirm prompt is up (it peeked out behind it) */ const fs=Math.max((HUDM.on?10:12)*U,txtMin()), pw=(HUDM.on?22:34)*U, ph=(HUDM.on?25:38)*U;   /* hudmobile: compact radio box */ ctx.font=`bold ${fs}px "Courier New",monospace`;
     const lines=wrapPx(m.text,bw-pw-26*U), bh=HUDM.on?Math.max(ph+10*U,(22+lines.length*12)*U):Math.max(ph+14*U,(26+lines.length*15)*U); ctx.globalAlpha=Math.max(0,k);
     ctx.fillStyle='#000'; ctx.fillRect(bx-2,y-2,bw+4,bh+4); ctx.fillStyle='#c8c8c8'; ctx.fillRect(bx-1,y-1,bw+2,bh+2); ctx.fillStyle='#101830'; ctx.fillRect(bx+2,y+2,bw-4,bh-4);
     const talking=m.t<m.text.length/40+.2, fr=talking?(1+Math.floor(tt*9)%2):0; if(GUNNY&&m.who!=='DOC'){ ctx.imageSmoothingEnabled=false; ctx.drawImage(GUNNY[m.who==='GUNNY'?fr:3],bx+8*U,y+7*U,pw,ph) } else if(m.who==='DOC'){ ctx.fillStyle='#1c2414'; ctx.fillRect(bx+8*U,y+7*U,pw,ph); ctx.fillStyle='#e8c030'; ctx.font='bold '+Math.max(12,Math.round(11*U))+'px monospace'; ctx.textAlign='center'; ctx.fillText('HM3',bx+8*U+pw/2,y+7*U+ph*.6) }   /* Doc's own radio reply: no pilot portrait */
@@ -8037,7 +8037,7 @@ cv.addEventListener('contextmenu',e=>e.preventDefault());
 /* ====================== render ====================== */
 /* rc7.1 mobile: LZ / PAD world labels 1.5x on HUDM (desktop 1x) */
 function PADL(){ return HUDM.on?1.5:1 }
-function txtMin(){ return (HUDM&&HUDM.on)?0:18*H/1080 }   /* rc8.1 Pass 3: in-canvas text >= ~18 css px at 1080p (desktop) */
+function txtMin(){ return (HUDM&&HUDM.on)?12*(DPR||1):Math.max(18,18*H/1080) }   /* a11y P1: 18 px floor on desktop (was 12 px at 720p), 12*DPR on the mobile HUD (was 0) */   /* rc8.1 Pass 3: in-canvas text >= ~18 css px at 1080p (desktop) */
 function txt(s,x,y,size,col,align,stroke){size=Math.max(size,txtMin());ctx.font=`bold ${size}px "Courier New",monospace`;ctx.textAlign=align||'left';ctx.lineWidth=Math.max(2,size/6);ctx.strokeStyle=stroke||'#0b140c';ctx.lineJoin='round';ctx.strokeText(s,x,y);ctx.fillStyle=col||'#f1ecd0';ctx.fillText(s,x,y)}
 const GEMC=['#4fb4ff','#5be07a','#ff5a5a'];
 function jetShape(sc,col){ ctx.scale(sc,sc);
