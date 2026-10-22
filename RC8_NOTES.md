@@ -110,6 +110,22 @@ Per Lead (MERGE_NOTE_RC8_SOURCING_OCT20 rev 2). Files were recopied fresh from s
 | radio_static_bed_loop | audio/samples/{ogg,m4a}/radio_static_bed_loop_1.* | pdsounds STE-011 hiss bed, 6.0 s loop (existing sound_pack file, not recreated) | OPEN - broadcast-bleed ear check + Legal check before Steam |
 Levels unchanged: sample_player gains 0.213 (sting) / 0.316 (radio bed).
 
+### FILL_IN_AUDIO: AI MUSIC - Jungle Dread score (rc8.1, Blake's pick Oct 21-22) - 10 files, ALL FILL-IN
+Source: ElevenLabs Starter, /workspace/sound_pack/music_ai (README.md). Legal PASS under the Indie conditions, PENDING the Steam AI-music disclosure sentence. Code: assets/music_ai.js (slot aliases + selection + cues), tracks ai_* in audio/samples/manifest.js, files audio/music_ai/{ogg,m4a}. Gains lift ~-16 LUFS to ~-14 LUFS (old music level); music bus unchanged. Old score removed from the load list (files kept in audio/music/); ?music=old = debug opt-in back to it. Marines' Hymn (win) and the Valkyries opening are unchanged.
+
+| Manifest key | File | Use | Status |
+|---|---|---|---|
+| ai_menu | audio/music_ai/jungle_dread_menu.{ogg,m4a} | menu + briefing loop | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_full | audio/music_ai/jungle_dread_full.{ogg,m4a} | exploration / pre-wave loop (alternates with river) | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_river | audio/music_ai/jungle_river.{ogg,m4a} | exploration / pre-wave loop #2 | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_combat | audio/music_ai/jungle_dread_combat.{ogg,m4a} | wave combat loop | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_final | audio/music_ai/jungle_final_wave.{ogg,m4a} | final wave = extraction (bird inbound / on the pad) loop | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_over | audio/music_ai/cue_game_over.{ogg,m4a} | game over, then ai_menu | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_cue_wave | audio/music_ai/cue_wave_start.{ogg,m4a} | wave start cue | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_cue_levelup | audio/music_ai/cue_level_up.{ogg,m4a} | level-up cue (cut to 1.9 s, ducks music -6 dB) | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_cue_landing | audio/music_ai/cue_extraction_landing.{ogg,m4a} | bird touchdown cue | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_credits | audio/music_ai/jungle_credits.{ogg,m4a} | once after the win Hymn / credits panel open | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+
 ### FILL_IN_AUDIO: AI VO (rc8.1, Blake approved Oct 21) - 171 lines, ALL FILL-IN, PENDING LEGAL + Steam AI-content disclosure
 Source: ElevenLabs Starter (paid), /workspace/sound_pack/vo_ai (HANDOFF_FOR_LEAD.md, FILL_IN_AUDIO_VO.md has voice ids + credits). Code: assets/vo_ai.js (table built by tools/build_vo_ai.py).
 Files: audio/vo_ai/{ogg,m4a}/ (in-person, SamplePlayer.play) and audio/vo_ai/dry/{ogg,m4a}/ (radio, SamplePlayer.radioLine only; the baked-radio ogg/ takes are NOT shipped, so the radio FX is never doubled). Gain 1.0, special bus (RMS -24, -31 net).
