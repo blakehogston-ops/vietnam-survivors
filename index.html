@@ -226,7 +226,7 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
 #quitAsk h3{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(20px,3vw,28px);letter-spacing:.12em;margin:0 0 6px;text-transform:uppercase}#quitAsk p{font-size:14px;color:#c9c3a0;margin:0 0 8px}   /* rc8.1: UI scale max(1, innerHeight/1080) */
 
 /* rc8.1 Pass 1 (UX P1-1): desktop UI text >= 18px at 1080p (the UI already scales up above 1080p); cards get more width so 18px fits */
-@media (pointer:fine) and (min-height:700px){ .foot,#luHint,.card .lv,.card .key,#fsHint,#abil span,#abilNm,.sub,#luHelp,#sigBtn span,#sigask .who,.tag b,.tag i,.padKeys,#overDed,.vols,.htBody,.help.padhelp,.help.padhelp b,#medHud,#medHud button,#medHud span,#medHud b,#medHud i,#p3toast,#p3toast *,#n2x{font-size:18px!important}   /* rc8.1 QA: 18px floor at 1280x720 (tools/textfloor.js) */ .card .ds{font-size:18px!important;line-height:1.3!important} .card{width:300px!important} }
+@media (pointer:fine) and (min-height:700px){ .foot,#luHint,.card .lv,.card .key,#fsHint,#abil span,#abilNm,.sub,#luHelp,#sigBtn span,#sigask .who,.tag b,.tag i,.padKeys,#overDed,.vols,.htBody,.help.padhelp,.help.padhelp b,#medHud,#medHud button,#medHud span,#medHud b,#medHud i,#p3toast,#p3toast *,#n2x{font-size:18px!important}   /* rc8.1 QA: 18px floor at 1280x720 (tools/textfloor.js) */ #medHud{flex-wrap:wrap;max-width:min(32vw,420px)} #rtoHud{order:-1;flex-basis:100%;white-space:normal;line-height:1.2;box-sizing:border-box}   /* rc8.1 QA chip fit: RADIOMAN line gets its own row above the med buttons (it ran under the call button) */ .card .ds{font-size:18px!important;line-height:1.3!important} .card{width:300px!important} }
 </style>
 </head>
 <body>
@@ -1321,7 +1321,9 @@ const DRES=window.DRES={cap:1, a:0, n:0, tick(dt){ if(!COARSE.matches||state!=='
    Smoke Y/N, INCOMING and low-HP prompts keep their full size. */
 /* rc8.1 QA: 18 css px canvas text floor on desktop (1280x720 audit, tools/textfloor.js). Any main-canvas string whose on-screen size is 6-18 css px
    (world labels scaled by zoom, fixed 12-15 px HUD fonts) is drawn at 18 css px; <6 px decal text (claymore lettering) is art and left alone. Mobile HUD keeps its own scale. ?txtfloor=0 off (debug). */
-(function(){ if(/[?&]txtfloor=0\b/.test(location.search))return; const fl=n=>{ const o=ctx[n]; ctx[n]=function(s,x,y,w){ try{ if(!(window.HUDM&&HUDM.on)){ const f0=this.font, m=/(\d+(?:\.\d+)?)px/.exec(f0); if(m){ const t=this.getTransform(), k=Math.hypot(t.a,t.b)/(DPR||1), e=+m[1]*k; if(e>=6&&e<17.95&&k>0){ this.font=f0.replace(m[0],(18/k).toFixed(2)+'px'); try{ return w===undefined?o.call(this,s,x,y):o.call(this,s,x,y,w) } finally{ this.font=f0 } } } } }catch(e){} return w===undefined?o.call(this,s,x,y):o.call(this,s,x,y,w) } }; fl('fillText'); fl('strokeText') })();
+(function(){ if(/[?&]txtfloor=0\b/.test(location.search))return; const fl=n=>{ const o=ctx[n]; ctx[n]=function(s,x,y,w){ try{ if(!(window.HUDM&&HUDM.on)){ const f0=this.font, m=/(\d+(?:\.\d+)?)px/.exec(f0); if(m){ const t=this.getTransform(), k=Math.hypot(t.a,t.b)/(DPR||1), e=+m[1]*k; if(e>=6&&e<17.95&&k>0){ this.font=f0.replace(m[0],(18/k).toFixed(2)+'px'); try{ return w===undefined?o.call(this,s,x,y):o.call(this,s,x,y,w) } finally{ this.font=f0 } } } } }catch(e){} return w===undefined?o.call(this,s,x,y):o.call(this,s,x,y,w) } }; fl('fillText'); fl('strokeText');
+  { const om=ctx.measureText; ctx.measureText=function(s){ try{ if(!(window.HUDM&&HUDM.on)){ const f0=this.font, m=/(\d+(?:\.\d+)?)px/.exec(f0); if(m){ const t=this.getTransform(), k=Math.hypot(t.a,t.b)/(DPR||1), e=+m[1]*k; if(e>=6&&e<17.95&&k>0){ this.font=f0.replace(m[0],(18/k).toFixed(2)+'px'); try{ return om.call(this,s) } finally{ this.font=f0 } } } } }catch(e){} return om.call(this,s) } }   /* chips/boxes sized from measureText get the floored width (rc8.1 QA chip overflow) */
+})();
 const HUDM=window.HUDM={P:(location.search.match(/[?&]hudmobile=([01])/)||[])[1], on:false,
   set(){ this.on=this.P==='1'?true:this.P==='0'?false:!window.lcoHost&&(COARSE.matches||innerWidth<900);   /* rc8 Deck: never auto-on in the Electron/Steam host (Deck has a touch screen) */ document.body&&document.body.classList.toggle('hudm',this.on); window.DECKTXT&&DECKTXT.upd() },
   SH:[[/SMOKE ON DOC'S BELT/,'SMOKE'],[/GET ON THE PAD (\d+m) TO CALL THE BIRD/,'TO PAD $1'],[/CALL THE BIRD FROM/,'CALL AT'],[/CALL THE BIRD WHEN READY · BIRD 1:15 OUT/,'CALL BIRD'],[/ON THE PAD · CALL THE BIRD WHEN READY/,'ON PAD · CALL BIRD'],
@@ -7167,9 +7169,11 @@ function smokeIconURL(col){ const k='_u_'+col; if(smokeIconURL[k])return smokeIc
 function obChevron(x,y){ ctx.save(); ctx.globalAlpha=.8; ctx.lineCap='round'; ctx.lineJoin='round'; const P=()=>{ ctx.beginPath(); ctx.moveTo(x-4,y-4); ctx.lineTo(x,y); ctx.lineTo(x+4,y-4); ctx.stroke() };   /* rc8 AD: small pale-green chevron ~5px above each Marine's head (Doc has none) */
   ctx.strokeStyle='#1a1c12'; ctx.lineWidth=4.2; P(); ctx.strokeStyle='#cdeea8'; ctx.lineWidth=2.2; P(); ctx.restore() }
 /* pad ring: dashed while Doc is off, solid + check + ON PAD when he is on (shape, not colour) */
-function obPadCheck(x,y,R){ ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round'; scrSpace(x,y-R*.78-14); x=0; const cy=0; ctx.fillStyle='rgba(8,10,8,.85)'; ctx.fillRect(x-38,cy-11,76,22); ctx.strokeStyle='#f2e8c0'; ctx.lineWidth=1.5; ctx.strokeRect(x-37.5,cy-10.5,75,21);
-  ctx.strokeStyle='#f2e8c0'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x-30,cy); ctx.lineTo(x-26,cy+5); ctx.lineTo(x-18,cy-5); ctx.stroke();
-  ctx.font='bold 13px "Courier New",monospace'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillStyle='#f2e8c0'; ctx.fillText('ON PAD',x-12,cy+1); ctx.restore() }
+function obPadCheck(x,y,R){ ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round'; scrSpace(x,y-R*.78-14); x=0; const cy=0;   /* rc8.1 QA chip fit: box sized to the measured 18 px text + check + padding (was a fixed 76x22 box for 13 px) */
+  ctx.font='bold 18px "Courier New",monospace'; const tw=ctx.measureText('ON PAD').width, bw=Math.ceil(8+18+6+tw+10), bh=28, bx=x-bw/2;
+  ctx.fillStyle='rgba(8,10,8,.85)'; ctx.fillRect(bx,cy-bh/2,bw,bh); ctx.strokeStyle='#f2e8c0'; ctx.lineWidth=1.5; ctx.strokeRect(bx+.5,cy-bh/2+.5,bw-1,bh-1);
+  ctx.strokeStyle='#f2e8c0'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(bx+9,cy); ctx.lineTo(bx+14,cy+6); ctx.lineTo(bx+24,cy-6); ctx.stroke();
+  ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillStyle='#f2e8c0'; ctx.fillText('ON PAD',bx+8+18+6,cy+1); ctx.restore() }
 /* LOW HP tag next to the HP bar (steady, never only the red edge) */
 function obLowTag(bx,by,bh,U){ ctx.save(); const fs=Math.max(12,13*U); ctx.font=`bold ${fs}px "Courier New",monospace`; const t='LOW HP', w=ctx.measureText(t).width+fs*1.8, h=bh; ctx.fillStyle='rgba(20,4,4,.9)'; ctx.fillRect(bx,by,w,h); ctx.strokeStyle='#ff5a48'; ctx.lineWidth=2; ctx.strokeRect(bx+1,by+1,w-2,h-2);
   const cx=bx+fs*.75, cy=by+h/2, a=fs*.32; ctx.fillStyle='#fff'; ctx.fillRect(cx-a*.35,cy-a,a*.7,a*2); ctx.fillRect(cx-a,cy-a*.35,a*2,a*.7);
@@ -7503,6 +7507,7 @@ function padNight(tt,cx,cy){ const g=G, ex=g&&g.ex; if(!ex||g.demo||state!=='pla
   ctx.translate(sx,sy); ctx.scale(1,.78); ctx.lineWidth=Math.max(3,5*zoom); ctx.shadowColor=wait?'#ffcf5a':'#fff6a0'; ctx.shadowBlur=18; ctx.strokeStyle=on?'#9be37a':wait?'#ffcf5a':'#fff6a0';
   if(!on){ ctx.setLineDash([16*zoom,10*zoom]); ctx.lineDashOffset=-tt*24 } ctx.beginPath(); ctx.arc(0,0,R*pul,0,TAU); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
   ctx.save(); ctx.globalAlpha=k*(Math.floor(tt*2)%2?1:.45); ctx.fillStyle=wait?'#ffcf5a':'#fff6a0'; ctx.beginPath(); ctx.arc(sx,sy-R*.78-10*DPR,5*DPR,0,TAU); ctx.fill(); ctx.restore();
+  if(on&&OB.pad&&dk>.05)obPadCheck(sx,sy,R);   /* the ON PAD chip again over the night grade */
   if(!on&&!wait){ ctx.save(); ctx.globalAlpha=Math.max(.85,k); txt('PICKUP PAD',sx,sy+R*.78+18*DPR,Math.max(txtMin(),14*DPR),wait?'#ffe58a':'#fff6a0','center'); ctx.restore() }
   if(wait&&!on){ const key=PAD.on?PAD.pn('X').split(' ')[0].toUpperCase():COARSE.matches?'POP SMOKE':'G'; const t='BIRD WANTS SMOKE · STAND IN THE PAD RING · IT POPS BY ITSELF ('+(COARSE.matches&&!PAD.on?'or tap ':'or ')+key+')';
     const fs=Math.max(txtMin(),18*DPR); ctx.save(); ctx.font='bold '+fs+'px "Courier New",monospace'; const w=Math.min(W-16,ctx.measureText(t).width+fs*1.4), y=H*.7; ctx.fillStyle='rgba(8,10,8,.85)'; ctx.fillRect(W/2-w/2,y-fs*.95,w,fs*1.9); ctx.strokeStyle='#ffcf5a'; ctx.lineWidth=2; ctx.strokeRect(W/2-w/2+1,y-fs*.95+1,w-2,fs*1.9-2); ctx.restore();
@@ -8296,7 +8301,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   if(OB.lowhp&&p.hp>0&&p.hp/p.maxHp<.3)obLowTag(bx+bw+8*U,by,bh,U);
   drawSigLine(U,oy);   /* permanent line under the timer + MARINES count */
   // boss bar
-  if(g.boss&&!g.boss.dead){ const bw2=Math.min(460*U,W*.6),bx2=W/2-bw2/2,by2=PY; ctx.fillStyle='#0b140c'; ctx.fillRect(bx2-3,by2-3,bw2+6,16*U+6); ctx.fillStyle='#3a1210'; ctx.fillRect(bx2,by2,bw2,16*U); ctx.fillStyle='#d83a2a'; ctx.fillRect(bx2,by2,bw2*Math.max(0,g.boss.hp/g.boss.mhp),16*U); txt(g.boss.name.toUpperCase(),W/2,by2+13*U,12*U,'#fff','center') }
+  if(g.boss&&!g.boss.dead){ const bw2=Math.min(460*U,W*.6),bx2=W/2-bw2/2,by2=PY; ctx.fillStyle='#0b140c'; const bh2=Math.max(16*U,txtMin()+6); ctx.fillRect(bx2-3,by2-3,bw2+6,bh2+6); ctx.fillStyle='#3a1210'; ctx.fillRect(bx2,by2,bw2,bh2); ctx.fillStyle='#d83a2a'; ctx.fillRect(bx2,by2,bw2*Math.max(0,g.boss.hp/g.boss.mhp),bh2); txt(g.boss.name.toUpperCase(),W/2,by2+bh2*.8,12*U,'#fff','center')   /* rc8.1 QA chip fit: bar tall enough for the 18 px name */ }
   // weapons list
   const sz=30*U; let ix=12*U+ox,iy=H-44*U-ob; const ixMax=W-orr-(COARSE.matches?190*DPR:60*DPR);
   const row=(id,l)=>{ ctx.fillStyle='rgba(10,20,12,.7)'; if(ix+sz>ixMax&&ix>12*U+ox+sz){ ix=12*U+ox; iy-=sz+16*U } ctx.fillRect(ix-2,iy-2,sz+4,sz+4+8*U); ctx.save(); ctx.translate(ix,iy); drawIcon(ctx,id,sz); ctx.restore(); txt('L'+l,ix+sz/2,iy+sz+9*U,10*U,'#e8c860','center'); ix+=sz+8*U };

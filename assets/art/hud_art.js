@@ -54,6 +54,7 @@ function stencil(ctx,text,x,y,fs,col,align,base){ ctx.save(); ctx.font=fs+'px '+
 function mono(ctx,text,x,y,fs,col,align){ ctx.save(); ctx.font='bold '+fs+'px '+MONO; ctx.textAlign=align||'left'; ctx.lineJoin='round'; ctx.lineWidth=Math.max(2,fs*.22); ctx.strokeStyle='rgba(0,0,0,.85)'; ctx.strokeText(text,x,y); ctx.fillStyle=col; ctx.fillText(text,x,y); ctx.restore() }
 /* steel dog tag (M1967 rounded rect with notch) */
 function dogtag(ctx,x,y,w,h,U,metal,lines,big){ ctx.save(); var r=h*.32;
+  /* rc8.1 QA chip fit: grow the tag to its measured text (the 18 px floor makes 'LVL n' wider than the old fixed tag) */ for(var j=0;j<lines.length;j++){ var fj=(j===0&&big)?big:Math.max(7,h*(lines.length>1?.26:.5)); ctx.font='bold '+fj+'px '+MONO; w=Math.max(w,h*.5+ctx.measureText(lines[j]).width+h*.45) }
   ctx.fillStyle='rgba(0,0,0,.5)'; rr(ctx,x+2*U,y+2*U,w,h,r); ctx.fill();
   var g=ctx.createLinearGradient(x,y,x+w*.6,y+h); if(metal==='brass'){ g.addColorStop(0,'#f2d58a'); g.addColorStop(.45,'#c9a13a'); g.addColorStop(1,'#7a5c1c') } else { g.addColorStop(0,'#e9ece8'); g.addColorStop(.45,'#a9aeaa'); g.addColorStop(1,'#5f6460') }
   ctx.fillStyle=g; rr(ctx,x,y,w,h,r); ctx.fill(); ctx.strokeStyle=OUT; ctx.lineWidth=1.5*U; ctx.stroke();

@@ -7,17 +7,17 @@ const SEEDS=(process.env.SEEDS||'1071,1362,1556').split(',');
  for(const seed of SEEDS){ const pg=await b.newPage({viewport:{width:1280,height:720}}); const errs=[]; pg.on('pageerror',e=>errs.push(e.message));
   await pg.goto(`http://localhost:${P}/?nodemo&nointro&nobrief&bot&char=doc&autostart&seed=${seed}&botcall=${CALL}${Q}`);
   await pg.waitForFunction(()=>window.__ms&&__ms.G&&__ms.G.p&&__ms.stateX==='play',null,{timeout:120000,polling:50});
-  const o=await pg.evaluate(([CALL,SHOT])=>{ const m=__ms; window.__simHold=true; const r={waitT:null,popT:null,res:null,shot:false};
+  const o=await pg.evaluate(([CALL,SHOT,process_NOMOVE])=>{ const m=__ms; window.__simHold=true; const r={waitT:null,popT:null,res:null,shot:false};
    for(let i=0;i<60*(CALL+200);i++){ const st=m.stateX||m.state; if(st==='over')break;
     if(st==='sig'){ const ex=m.G.ex; window.__ans(ex.call&&ex.call.st==='ask'?ex.call.look==='real':(ex.at==='real'&&ex.idCol===ex.sig.col)); continue }
     if(st==='levelup'&&m.pick){ m.pick(0); continue }
     const ex=m.G.ex; m.BOTF.move=(ex&&ex.pad&&ex.ph>=3&&!ex.evac)?()=>{ const p=m.G.p,dx=ex.pad.x-p.x,dy=ex.pad.y-p.y,d=Math.hypot(dx,dy); return d<14?[0,0]:[dx/d,dy/d] }:null;
     if(SHOT&&ex&&ex.call&&ex.call.st==='wait'){ m.BOTF.move=()=>[1,0] }   /* off the pad so the prompt shows */
     m.step(1/60); const c=ex&&ex.call;
-    if(c&&c.st==='wait'&&r.waitT==null){ r.waitT=+m.G.t.toFixed(2); if(SHOT){ m.G.p.x+=260; m.BOTF.move=()=>[0,0]; for(let j=0;j<20;j++)m.step(1/60); m.render(); r.shot=true; r.prompt=!(m.G.ex.popped); break } }
+    if(c&&c.st==='wait'&&r.waitT==null){ r.waitT=+m.G.t.toFixed(2); if(SHOT){ if(!process_NOMOVE)m.G.p.x+=260; m.BOTF.move=()=>[0,0]; for(let j=0;j<20;j++)m.step(1/60); m.render(); r.shot=true; r.prompt=!(m.G.ex.popped); break } }
     if(ex&&ex.popped&&r.popT==null&&r.waitT!=null)r.popT=+m.G.t.toFixed(2);
     if(ex&&ex.evac)break }
-   const rl=(DBG.runLog()||[]).slice(-1)[0]||{}; r.res=rl.result||(m.G.ex&&m.G.ex.evac?'evac':m.stateX); r.t=+m.G.t.toFixed(1); return r },[CALL,!!process.env.SHOT]);
+   const rl=(DBG.runLog()||[]).slice(-1)[0]||{}; r.res=rl.result||(m.G.ex&&m.G.ex.evac?'evac':m.stateX); r.t=+m.G.t.toFixed(1); return r },[CALL,!!process.env.SHOT,!!process.env.NOMOVE]);
   if(o.shot)await pg.screenshot({path:process.env.SHOT.replace('.png','_'+seed+'.png')});
   const okr=o.shot||(o.waitT!=null&&o.popT!=null&&o.popT-o.waitT<=6); if(!okr)bad++;
   console.log('NSMOKE seed '+seed+' '+(okr?'OK':'BAD')+' '+JSON.stringify(o)+(errs.length?' ERR '+errs[0].slice(0,80):'')); await pg.close() }
