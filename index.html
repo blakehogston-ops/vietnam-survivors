@@ -2944,8 +2944,11 @@ const JG={ON:!!window.JUNGLE_ON,C:8,F:new Map(),q:[],ms:[],t:0,
   covered(x,y){ if(!this.ok())return false; const S=48*this.C, F=this.F.get(this.key(Math.floor(x/S),Math.floor(y/S))); return !!(F&&F.coveredAt(x,y)) },
   ground(x,y){ if(!this.ok())return null; const t=this.type(Math.floor(x/48),Math.floor(y/48)); return t==='paddy'?'paddy':null } };
 /* ===== TERR: terrain.js + firebase.js tiles, baked per 256 px world cell (LRU) so a phone holds 60 fps ===== */
-const TERR=(()=>{ let B=null, ok=false; const cache=new Map(); let gen=0, bakesLeft=0;
-  function art(){ if(B)return ok; if(!window.SHEET1||!SHEET1.sprites||!SHEET1.sprites.tRiver||!SHEET1.sprites.fbGround)return false; B=SHEET1.bake(1); ok=!!B.tRiver; return ok }
+const TERR=(()=>{ let B=null, ok=false; const cache=new Map(), stale=new Map(); let gen=0, bakesLeft=0, staleT=0;   /* rc8.1 hitch: after inval() the old chunks stay drawable until their rebake lands (spread at the normal 4/frame) */
+  function art(){ if(B)return ok; if(!window.SHEET1||!SHEET1.sprites||!SHEET1.sprites.tRiver||!SHEET1.sprites.fbGround)return false; B=SHEET1.bake(1); ok=!!B.tRiver; if(ok)prewarm(); return ok }
+  /* rc8.1 hitch: the first firebase frame lazily baked ~90 sprite frames (firebase dirt/kill-zone ground + edges, wrecks, fb props, .625 fight pos) in one frame. Bake them in idle time after load instead; same canvases, only earlier. */
+  function prewarm(){ if(typeof requestIdleCallback==='undefined'||/[?&]prewarm=0\b/.test(location.search))return; const RX=/^(gDirt|gKill|eDirt|eKill|eDirtLip|eKillLip|fbAmmo|fbDrum|ch46Gunner)$|^(w_|fbp)/, L=[]; for(const n in SHEET1.sprites)if(RX.test(n))L.push([1,n]); if(SHEET1.sprites.fb2FightPos)L.push([.625,'fb2FightPos']);
+    const step=d=>{ while(L.length&&d.timeRemaining()>2){ const [sc,n]=L.pop(); try{ for(const f of SHEET1.bake(sc)[n])void f.n }catch(e){} } if(L.length)requestIdleCallback(step,{timeout:1000}) }; requestIdleCallback(step,{timeout:1000}) }
   const fr=(n,f)=>{ const sp=SHEET1.sprites[n]; let i=typeof f==='number'?f:sp.names.indexOf(f); if(i<0)i=0; const o=B[n]&&B[n][i]; return o&&o.n };
   /* material of a 32 px tile: W water, C clay (inside the wire), K kill zone, P paddy, E elephant grass, J jungle/treeline, G grass */
   function mat(tx,ty){ const x=tx*32+16, y=ty*32+16; if(riverAt(x,y))return 'W';
@@ -2989,8 +2992,9 @@ const TERR=(()=>{ let B=null, ok=false; const cache=new Map(); let gen=0, bakesL
     const memo=new Map(), M=(tx,ty)=>{ const k=tx*100003+ty; let v=memo.get(k); if(v===undefined){ v=mat(tx,ty); memo.set(k,v) } return v };
     const out=[]; for(let f=0;f<(hasW?3:1);f++){ const cv=mk(RT,RT), c=cv.getContext('2d'); c.imageSmoothingEnabled=false;
       for(let j=0;j<8;j++)for(let i=0;i<8;i++)tile(c,cx*8+i,cy*8+j,i*32,j*32,'water'+f,M); out.push(cv) } return out }
-  function get(cx,cy){ const k=cx+','+cy+':'+gen; let v=cache.get(k); if(v){ cache.delete(k); cache.set(k,v); return v } if(bakesLeft<=0)return null; bakesLeft--; v=bake(cx,cy); cache.set(k,v); while(cache.size>90){ const k0=cache.keys().next().value, old=cache.get(k0); cache.delete(k0); if(old)for(const c of old){ c.width=0; c.height=0 } }   /* free the evicted chunk's backing store now, not at the next GC (GPU memory) */ return v }
-  return { ready:art, inval(){ gen++; for(const v of cache.values())for(const c of v){ c.width=0; c.height=0 } cache.clear() }, get, frame:fr, mat, landing, budget(n){ bakesLeft=n }, stats:()=>({cells:cache.size,gen}) } })();
+  function freeV(v){ if(v)for(const c of v){ c.width=0; c.height=0 } } function dropStale(){ for(const v of stale.values())freeV(v); stale.clear() }
+  function get(cx,cy){ const k=cx+','+cy+':'+gen; let v=cache.get(k); if(v){ cache.delete(k); cache.set(k,v); return v } const sk=cx+','+cy; if(bakesLeft<=0)return stale.get(sk)||null; bakesLeft--; v=bake(cx,cy); cache.set(k,v); if(stale.has(sk)){ freeV(stale.get(sk)); stale.delete(sk) } while(cache.size>90){ const k0=cache.keys().next().value, old=cache.get(k0); cache.delete(k0); if(old)for(const c of old){ c.width=0; c.height=0 } }   /* free the evicted chunk's backing store now, not at the next GC (GPU memory) */ return v }
+  return { ready:art, inval(){ gen++; dropStale(); if(state==='play'){ for(const [k,v] of cache)stale.set(k.slice(0,k.lastIndexOf(':')),v); staleT=performance.now() } else for(const v of cache.values())freeV(v); cache.clear() }, staleN:()=>stale.size, tick(){ if(stale.size&&performance.now()-staleT>3000)dropStale() }, get, frame:fr, mat, landing, budget(n){ bakesLeft=n }, stats:()=>({cells:cache.size,gen}) } })();
 /* flow: current direction per river, speed rises where the channel narrows; foam at banks and bridge piles, debris drifts downstream */
 function rivFlow(h,i){ const d=hash2(i*31+(h?3:9),77)<.5?-1:1; return d }
 function drawRiverLife(x0,y0,x1,y1,t){ const T=RT;
@@ -8071,7 +8075,7 @@ const ATM={ON:!!window.VFX_ATMO&&!/[?&]atmo=0\b/.test(location.search),NIGHT_MAX
     this.dT-=adt; if(this.dT<=0){ this.dT=.12; for(const t of tanks.concat(enemies.filter(e=>e.tank&&!e.dead))){ if(t.dead)continue; if(t._ax!==undefined&&Math.abs(t.x-t._ax)+Math.abs(t.y-t._ay)>2&&t.x>x0&&t.x<x1&&t.y>y0&&t.y<y1)A.addDust(t.x+(Math.random()-.5)*16,t.y+8,1); t._ax=t.x; t._ay=t.y } }
     const U=this.U; U.length=0; if(p&&p.hp>0)U.push({x:p.x,y:p.y,h:28}); for(const q of coy){ if(U.length>=(low?60:240))break; if(q.hp>0&&!q.hid&&q.x>x0&&q.x<x1&&q.y>y0&&q.y<y1)U.push({x:q.x,y:q.y,h:26}) } for(const e of enemies){ if(U.length>=(low?60:240))break; if(!e.dead&&e.x>x0&&e.x<x1&&e.y>y0&&e.y<y1)U.push({x:e.x,y:e.y,h:e.tank?30:24,w:e.tank?40:undefined}) }
     A.update(adt); A.drawFlareShadows&&A.drawFlareShadows(ctx,camX,camY,zoom,U); A.drawWorldOverlay(ctx,camX,camY,zoom); A.drawScreen(ctx) } };
-function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.JUNGLE3&&JUNGLE3.pump&&(!JUNGLE3.pending||JUNGLE3.pending()>0||!JG.F.size))try{ JG.boot() }catch(e){} TERR.budget(TERR.stats().cells<6?24:4);
+function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.JUNGLE3&&JUNGLE3.pump&&(!JUNGLE3.pending||JUNGLE3.pending()>0||!JG.F.size))try{ JG.boot() }catch(e){} TERR.tick(); TERR.budget(TERR.stats().cells<6&&!TERR.staleN()?24:4);
   ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false; ctx.fillStyle='#2c5226'; ctx.fillRect(0,0,W,H);
   const g=G; if(!g)return; const p=g.p;
   const shx=g.shake>.3?(rnd()-.5)*g.shake:0, shy=g.shake>.3?(rnd()-.5)*g.shake:0;
