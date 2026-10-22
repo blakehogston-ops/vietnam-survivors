@@ -2139,7 +2139,7 @@ const LAST_BIRD_OUT_BADGE = {
 const RIBBON_RACK_ORDER = ['nc','ss','bs','ph','car']; // Artist Helper's gameplay ribbon rack, highest precedence first ('moh' removed: tribute cards only)
 const RIB_ORDER = ['lbo'].concat(RIBBON_RACK_ORDER);   // service-record rack = the Last Chopper Out badge, then the ribbons
 /* NVA medic pack pickup sprite (Artist Helper, assets/artist/medpack.js): 12x10 grid + legend, drawn at 2x */
-const MEDPACK={grid:["....OOOO....","...OssssO...","..OOOOOOOO..",".OGGGGGGGGO.",".OGWWWWWWGO.",".OGWWRRWWGO.",".OGWRRRRWGO.",".OGWWRRWWGO.",".OGGGGGGGGO.","..OOOOOOOO.."],legend:{O:'#1c1a12',s:'#8a7a4a',G:'#5b6b36',W:'#cfc493',R:'#5a5a34'}};   /* battle dressing: OD pouch, khaki printed label (no red cross) */
+const MEDPACK={grid:["....OOOO....","...OssssO...","..OOOOOOOO..",".OGGGGGGGGO.",".OGGGGGGGGO.",".OWWWWWWWWO.",".OWWWWWWWWO.",".OGGGGGGGGO.",".OGGGGGGGGO.","..OOOOOOOO.."],legend:{O:'#1c1a12',s:'#8a7a4a',G:'#5b6b36',W:'#cfc493',R:'#5a5a34'}};   /* battle dressing: OD pouch, plain OD bag, tan band, no cross */
 let MEDSPR=null; (function(){ const sc=2, rows=MEDPACK.grid, pal=MEDPACK.legend, c=document.createElement('canvas'); c.width=rows[0].length*sc; c.height=rows.length*sc; const x=c.getContext('2d'); rows.forEach((r,yy)=>{ for(let xx=0;xx<r.length;xx++){ const col=pal[r[xx]]; if(col){ x.fillStyle=col; x.fillRect(xx*sc,yy*sc,sc,sc) } } }); MEDSPR=c })();
 const SPR={}, SQSPR={};
 const CHSPR={};
@@ -3839,7 +3839,7 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
   hud(U){ const g=G; if(!this.ON||!g||!g.spec)return; const S=g.spec; if(!(S.ph==='fight'||S.ph==='in'||S.ph==='out'))return; const men=S.men||[];
     const rc=men.filter(m=>m.team==='recon'&&!m.wia&&!m.on).length, sg=men.filter(m=>m.team==='sog'&&!m.wia&&!m.on).length, sp=enemies.reduce((n,e)=>n+(e.spot>0&&!e.dead?1:0),0);
     const T=S.ph==='fight'?Math.max(0,Math.ceil(S.fT-(S.useWall?(performance.now()-S.wall)/1000:S.t))):0;
-    const s=S.ph==='in'?'SPEC-OPS INBOUND':S.ph==='out'?'SPEC-OPS EXTRACTING':'RECON '+rc+' · SOG '+sg+(sp?' · SPOTTED '+sp:'')+' · '+fmt(T);
+    const s=S.ph==='in'?'RECON TEAM INBOUND':S.ph==='out'?'RECON TEAM EXTRACTING':'RECON '+rc+' · SOG '+sg+(sp?' · SPOTTED '+sp:'')+' · '+fmt(T);
     txt(s,W/2,laneT(13*U,Math.max(H*.205,exTop(U)+(exStack||0)+14*U)),13*U,S.ph==='fight'?'#9be37a':'#ffe58a','center')   /* rc8a: RECON/SOG line in the lane, below the commander bar */;
     if(S.ph==='fight'&&window.ABILITY_ICONS){ const al=r=>men.some(m=>m.role===r&&!m.wia&&!m.on), I=[['callForFire',al('rto')&&!(S.cff&&S.cff.done)],['sniperOverwatch',al('m14')],['enemyMark',sp>0],['claymoreAmbush',al('oz')&&!S.clay],['silentKill',al('oz')]];
       const sz=U>=1.2?24:16, gap=sz+6, x0=W/2-(I.length-1)*gap/2, y0=H*.205+12*U+sz/2; for(let i=0;i<I.length;i++){ ctx.globalAlpha=I[i][1]?1:.35; ABILITY_ICONS.draw(ctx,I[i][0],Math.round(x0+i*gap),Math.round(y0),sz) } ctx.globalAlpha=1 } } };
@@ -8231,7 +8231,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   ctx.fillStyle='rgba(255,255,255,.2)'; ctx.fillRect(bx,by,bw*Math.max(0,p.hp)/p.maxHp,bh*.35); txt(`HP ${Math.ceil(p.hp)}/${p.maxHp}`,bx+bw/2,by+bh-4*U,13*U,'#fff','center') }
   // timer / kills
   txt(fmt(g.t),W/2,56*U+oy,28*U,'#f6f0cc','center');
-  if(!CAPTURE)txt('BODY COUNT '+g.kills,bx,by+bh+17*U,15*U,'#f0e6a8','left');   /* ?capture=1: no kill counter */
+  if(!CAPTURE)txt('ENEMY STOPPED '+g.kills,bx,by+bh+17*U,15*U,'#f0e6a8','left');   /* ?capture=1: no kill counter */
   LANE.y=exTop(U)+(exStack||0)+6*U; LANE.U=U;   /* rc8 one top lane: everything below the timer / commander bar / firebase lines / Gunny card stacks, nothing overlaps */
   if(OB.lowhp&&p.hp>0&&p.hp/p.maxHp<.3)obLowTag(bx+bw+8*U,by,bh,U);
   drawSigLine(U,oy);   /* permanent line under the timer + MARINES count */
