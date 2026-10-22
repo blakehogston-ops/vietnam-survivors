@@ -22,14 +22,16 @@ ok(A.distOk,'A objective distance finite');
 ok(A.log.some(e=>e.ev==='done'),'A success moment (done) logged');
 ok(A.banners.some(t=>/THEY ARE SAFE/.test(t)),'A success banner shown');
 ok(A.retTarget,'A return target = firebase');
-ok(A.log.some(e=>e.ev==='reward'&&e.xp>0)&&A.banners.some(t=>/BACK INSIDE THE WIRE · \+\d+ XP/.test(t)),'A reward shown on return');
-ok(A.out.some(o=>/completed/.test(o.res)),'A end-screen record (completed)');
+ok(A.log.some(e=>e.ev==='reward'&&e.xp>0)&&A.banners.some(t=>/BACK INSIDE THE WIRE · \+\d+ XP · TRIBUTE: /.test(t)),'A reward shown on return');
+ok(A.out.some(o=>/^completed$/.test(o.res)),'A end-screen record (completed)');
 ok(!A.errs.length,'A no page errors '+A.errs.slice(0,2).join(' | '));
 // B) forced fail: 1 s go timer (deterministic), mission expires with a clear fail moment
 const B=await run('&build=done&moht=1&mohd=600',202,200);
 ok(B.log.some(e=>e.ev==='expired'),'B fail moment (expired) logged');
 ok(B.banners.some(t=>/MISSION FAILED/.test(t)),'B fail banner shown');
 ok(B.out.some(o=>/not reached/.test(o.res)),'B end-screen record (failed)');
+ok(B.radio.includes('Doc, this is Two-Six. Too late. Get back inside the wire. Out.'),'B expired radio line (HAA text)');
+ok(B.radio.some(t=>t==='Firebase, Golf Two-Six. A squad is cut off and pinned down. Need someone out there. Over.'||/^Firebase, Golf Two-Six\. Marine down/.test(t)),'B call radio line (HAA text)');
 ok(!B.errs.length,'B no page errors');
 // C) no firebase built: no MoH call at all (no time fallback)
 const C=await run('&botfb=0',303,240);
