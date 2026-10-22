@@ -14,7 +14,7 @@ const SEEDS=(process.env.SEEDS||'1071,1362,1556').split(',');
     const ex=m.G.ex; m.BOTF.move=(ex&&ex.pad&&ex.ph>=3&&!ex.evac)?()=>{ const p=m.G.p,dx=ex.pad.x-p.x,dy=ex.pad.y-p.y,d=Math.hypot(dx,dy); return d<14?[0,0]:[dx/d,dy/d] }:null;
     if(SHOT&&ex&&ex.call&&ex.call.st==='wait'){ m.BOTF.move=()=>[1,0] }   /* off the pad so the prompt shows */
     m.step(1/60); const c=ex&&ex.call;
-    if(c&&c.st==='wait'&&r.waitT==null){ r.waitT=+m.G.t.toFixed(2); if(SHOT){ for(let j=0;j<20;j++)m.step(1/60); m.render(); r.shot=true; break } }
+    if(c&&c.st==='wait'&&r.waitT==null){ r.waitT=+m.G.t.toFixed(2); if(SHOT){ m.G.p.x+=260; m.BOTF.move=()=>[0,0]; for(let j=0;j<20;j++)m.step(1/60); m.render(); r.shot=true; r.prompt=!(m.G.ex.popped); break } }
     if(ex&&ex.popped&&r.popT==null&&r.waitT!=null)r.popT=+m.G.t.toFixed(2);
     if(ex&&ex.evac)break }
    const rl=(DBG.runLog()||[]).slice(-1)[0]||{}; r.res=rl.result||(m.G.ex&&m.G.ex.evac?'evac':m.stateX); r.t=+m.G.t.toFixed(1); return r },[CALL,!!process.env.SHOT]);

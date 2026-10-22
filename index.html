@@ -226,7 +226,7 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
 #quitAsk h3{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(20px,3vw,28px);letter-spacing:.12em;margin:0 0 6px;text-transform:uppercase}#quitAsk p{font-size:14px;color:#c9c3a0;margin:0 0 8px}   /* rc8.1: UI scale max(1, innerHeight/1080) */
 
 /* rc8.1 Pass 1 (UX P1-1): desktop UI text >= 18px at 1080p (the UI already scales up above 1080p); cards get more width so 18px fits */
-@media (pointer:fine) and (min-height:700px){ .foot,#luHint,.card .lv,.card .key,#fsHint,#abil span,#abilNm,.sub,#luHelp,#sigBtn span,#sigask .who,.tag b,.tag i,.padKeys,#overDed,.vols{font-size:18px!important} .card .ds{font-size:18px!important;line-height:1.3!important} .card{width:300px!important} }
+@media (pointer:fine) and (min-height:700px){ .foot,#luHint,.card .lv,.card .key,#fsHint,#abil span,#abilNm,.sub,#luHelp,#sigBtn span,#sigask .who,.tag b,.tag i,.padKeys,#overDed,.vols,.htBody,.help.padhelp,.help.padhelp b,#medHud,#medHud button,#medHud span,#medHud b,#medHud i,#p3toast,#p3toast *,#n2x{font-size:18px!important}   /* rc8.1 QA: 18px floor at 1280x720 (tools/textfloor.js) */ .card .ds{font-size:18px!important;line-height:1.3!important} .card{width:300px!important} }
 </style>
 </head>
 <body>
@@ -1319,6 +1319,9 @@ const DRES=window.DRES={cap:1, a:0, n:0, tick(dt){ if(!COARSE.matches||state!=='
 /* rc7 hudmobile (Blake: pop-ups crowd the phone screen). ?hudmobile=1/0, else auto on touch or < 900 px wide. Desktop layout unchanged.
    <=2 floating labels (duplicates merged xN), toasts + Gunny in a compact edge lane, smaller/faster banners, short hint text, RTO tooltip on tap.
    Smoke Y/N, INCOMING and low-HP prompts keep their full size. */
+/* rc8.1 QA: 18 css px canvas text floor on desktop (1280x720 audit, tools/textfloor.js). Any main-canvas string whose on-screen size is 6-18 css px
+   (world labels scaled by zoom, fixed 12-15 px HUD fonts) is drawn at 18 css px; <6 px decal text (claymore lettering) is art and left alone. Mobile HUD keeps its own scale. ?txtfloor=0 off (debug). */
+(function(){ if(/[?&]txtfloor=0\b/.test(location.search))return; const fl=n=>{ const o=ctx[n]; ctx[n]=function(s,x,y,w){ try{ if(!(window.HUDM&&HUDM.on)){ const f0=this.font, m=/(\d+(?:\.\d+)?)px/.exec(f0); if(m){ const t=this.getTransform(), k=Math.hypot(t.a,t.b)/(DPR||1), e=+m[1]*k; if(e>=6&&e<17.95&&k>0){ this.font=f0.replace(m[0],(18/k).toFixed(2)+'px'); try{ return w===undefined?o.call(this,s,x,y):o.call(this,s,x,y,w) } finally{ this.font=f0 } } } } }catch(e){} return w===undefined?o.call(this,s,x,y):o.call(this,s,x,y,w) } }; fl('fillText'); fl('strokeText') })();
 const HUDM=window.HUDM={P:(location.search.match(/[?&]hudmobile=([01])/)||[])[1], on:false,
   set(){ this.on=this.P==='1'?true:this.P==='0'?false:!window.lcoHost&&(COARSE.matches||innerWidth<900);   /* rc8 Deck: never auto-on in the Electron/Steam host (Deck has a touch screen) */ document.body&&document.body.classList.toggle('hudm',this.on); window.DECKTXT&&DECKTXT.upd() },
   SH:[[/SMOKE ON DOC'S BELT/,'SMOKE'],[/GET ON THE PAD (\d+m) TO CALL THE BIRD/,'TO PAD $1'],[/CALL THE BIRD FROM/,'CALL AT'],[/CALL THE BIRD WHEN READY · BIRD 1:15 OUT/,'CALL BIRD'],[/ON THE PAD · CALL THE BIRD WHEN READY/,'ON PAD · CALL BIRD'],
@@ -7500,7 +7503,7 @@ function padNight(tt,cx,cy){ const g=G, ex=g&&g.ex; if(!ex||g.demo||state!=='pla
   ctx.translate(sx,sy); ctx.scale(1,.78); ctx.lineWidth=Math.max(3,5*zoom); ctx.shadowColor=wait?'#ffcf5a':'#fff6a0'; ctx.shadowBlur=18; ctx.strokeStyle=on?'#9be37a':wait?'#ffcf5a':'#fff6a0';
   if(!on){ ctx.setLineDash([16*zoom,10*zoom]); ctx.lineDashOffset=-tt*24 } ctx.beginPath(); ctx.arc(0,0,R*pul,0,TAU); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
   ctx.save(); ctx.globalAlpha=k*(Math.floor(tt*2)%2?1:.45); ctx.fillStyle=wait?'#ffcf5a':'#fff6a0'; ctx.beginPath(); ctx.arc(sx,sy-R*.78-10*DPR,5*DPR,0,TAU); ctx.fill(); ctx.restore();
-  if(!on){ ctx.save(); ctx.globalAlpha=Math.max(.85,k); txt('PICKUP PAD',sx,sy+R*.78+18*DPR,Math.max(txtMin(),14*DPR),wait?'#ffe58a':'#fff6a0','center'); ctx.restore() }
+  if(!on&&!wait){ ctx.save(); ctx.globalAlpha=Math.max(.85,k); txt('PICKUP PAD',sx,sy+R*.78+18*DPR,Math.max(txtMin(),14*DPR),wait?'#ffe58a':'#fff6a0','center'); ctx.restore() }
   if(wait&&!on){ const key=PAD.on?PAD.pn('X').split(' ')[0].toUpperCase():COARSE.matches?'POP SMOKE':'G'; const t='BIRD WANTS SMOKE · STAND IN THE PAD RING · IT POPS BY ITSELF ('+(COARSE.matches&&!PAD.on?'or tap ':'or ')+key+')';
     const fs=Math.max(txtMin(),18*DPR); ctx.save(); ctx.font='bold '+fs+'px "Courier New",monospace'; const w=Math.min(W-16,ctx.measureText(t).width+fs*1.4), y=H*.7; ctx.fillStyle='rgba(8,10,8,.85)'; ctx.fillRect(W/2-w/2,y-fs*.95,w,fs*1.9); ctx.strokeStyle='#ffcf5a'; ctx.lineWidth=2; ctx.strokeRect(W/2-w/2+1,y-fs*.95+1,w-2,fs*1.9-2); ctx.restore();
     txt(t,W/2,y,Math.min(fs,(W-40)/Math.max(10,t.length*.62)),'#ffe58a','center') } }
