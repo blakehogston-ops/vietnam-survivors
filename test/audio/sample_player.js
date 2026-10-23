@@ -149,10 +149,10 @@
     sting_evac:         { cat: 'sting',     prio: 5, gain: 0.5481 },   // evac fallback (music missing): acoustic C major
     sting_over:         { cat: 'sting',     prio: 5, gain: 0.53 },   // game-over fallback (music missing): acoustic chords -2 st
     // 2026-10-20 (samples/build_radio_oct20.py; new sources PENDING LEGAL)
-    rto_down_sting:     { cat: 'sting',     prio: 5, gain: 0.213 },   // RTO killed: low brass D minor + static cut to dead air
+    rto_down_sting:     { cat: 'sting',     prio: 5, gain: 0.38 } ,   // RTO killed: low brass D minor + static cut to dead air
     radio_key_in:       { cat: 'radio',     prio: 4, gain: 0.57 },   // faint handset key click + squelch open/hiss (radioLine)
     radio_key_out:      { cat: 'radio',     prio: 4, gain: 0.7575 },   // release: short FM static rush, then silence; no roger beep (PRC-25) (radioLine)
-    radio_static_bed_loop: { cat: 'radio',  prio: 4, gain: 0.316, loop: true },   // PRC-25-style hiss bed (radioLine plays it ~-12 dB under the voice)
+    radio_static_bed_loop: { cat: 'radio',  prio: 4, gain: 0.201, loop: true },   // PRC-25-style hiss bed (radioLine plays it ~-12 dB under the voice)
     bandage_dressing:   { cat: 'foley',     prio: 2, gain: 0.1592, vary: true },   // battle dressing: wrapper tear + cloth rip + press
     // Footsteps: all 12 clips are loudness-matched in build_samples.py; these per-surface trims put every surface ~6 dB
     // under the M16 single-shot average (whole-clip RMS, measured by samples/measure_levels.py).

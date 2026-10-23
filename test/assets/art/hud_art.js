@@ -54,9 +54,10 @@ function stencil(ctx,text,x,y,fs,col,align,base){ ctx.save(); ctx.font=fs+'px '+
 function mono(ctx,text,x,y,fs,col,align){ ctx.save(); ctx.font='bold '+fs+'px '+MONO; ctx.textAlign=align||'left'; ctx.lineJoin='round'; ctx.lineWidth=Math.max(2,fs*.22); ctx.strokeStyle='rgba(0,0,0,.85)'; ctx.strokeText(text,x,y); ctx.fillStyle=col; ctx.fillText(text,x,y); ctx.restore() }
 /* steel dog tag (M1967 rounded rect with notch) */
 function dogtag(ctx,x,y,w,h,U,metal,lines,big){ ctx.save(); var r=h*.32;
+  /* rc8.1 QA chip fit: grow the tag to its measured text (the 18 px floor makes 'LVL n' wider than the old fixed tag) */ for(var j=0;j<lines.length;j++){ var fj=(j===0&&big)?big:Math.max(7,h*(lines.length>1?.26:.5)); ctx.font='bold '+fj+'px '+MONO; w=Math.max(w,h*.5+ctx.measureText(lines[j]).width+h*.45) }
   ctx.fillStyle='rgba(0,0,0,.5)'; rr(ctx,x+2*U,y+2*U,w,h,r); ctx.fill();
   var g=ctx.createLinearGradient(x,y,x+w*.6,y+h); if(metal==='brass'){ g.addColorStop(0,'#f2d58a'); g.addColorStop(.45,'#c9a13a'); g.addColorStop(1,'#7a5c1c') } else { g.addColorStop(0,'#e9ece8'); g.addColorStop(.45,'#a9aeaa'); g.addColorStop(1,'#5f6460') }
-  ctx.fillStyle=g; rr(ctx,x,y,w,h,r); ctx.fill(); ctx.strokeStyle=OUT; ctx.lineWidth=1.5*U; ctx.stroke();
+  ctx.fillStyle=g; ctx.save(); rr(ctx,x,y,w,h,r); ctx.clip(); ctx.fillRect(x,y,w,h); ctx.restore(); rr(ctx,x,y,w,h,r); ctx.strokeStyle=OUT;   /* rc8.1 textfit: tag body is the text's box */ ctx.lineWidth=1.5*U; ctx.stroke();
   ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.lineWidth=U; rr(ctx,x+2*U,y+2*U,w-4*U,h-4*U,r*.8); ctx.stroke();
   // chain hole + notch
   ctx.fillStyle=OUT; ctx.beginPath(); ctx.arc(x+h*.28,y+h/2,Math.max(1.6*U,h*.09),0,6.283); ctx.fill();
@@ -96,6 +97,7 @@ function drawXpBar(ctx,x,y,w,h,xp,need,lvl,U){ U=U||1; var k=need>0?xp/need:0; c
   // grommets
   ctx.fillStyle='#8f8a6a'; for(var i=0;i<2;i++){ var gx=i?x+w-8*U:x+8*U; ctx.beginPath(); ctx.arc(gx,y+h/2,3*U,0,6.283); ctx.fill(); ctx.fillStyle=OUT; ctx.beginPath(); ctx.arc(gx,y+h/2,1.4*U,0,6.283); ctx.fill(); ctx.fillStyle='#8f8a6a' }
   var tx=x+16*U, ty=y+1*U, th=h-2*U; dogtag(ctx,tx,ty,tagW,th,U,'brass',['LVL '+lvl],Math.round(13*U));
+  { var xs=Math.floor(xp)+' / '+need+' XP', xf=Math.max(18,Math.round(12*U)); ctx.save(); ctx.font='bold '+xf+'px '+MONO; var xw=ctx.measureText(xs).width+xf*.6; ctx.fillStyle='rgba(20,22,12,.55)'; ctx.fillRect(x+w-18*U-xw+xf*.3,by+bh-4*U-xf*.9,xw,xf*1.15); ctx.restore(); }   /* rc8.1 textfit: XP count on its own chip */
   mono(ctx,Math.floor(xp)+' / '+need+' XP',x+w-18*U,by+bh-4*U,Math.round(12*U),CREAM,'right');
   ctx.restore(); return {hit:R(x,y,w,h),fill:R(bx,by,bw*clamp(k,0,1),bh),tag:R(tx,ty,tagW,th)} }
 
@@ -134,9 +136,9 @@ function drawKills(ctx,x,y,kills,U){ U=U||1; var t='BODY COUNT '+kills; ctx.save
   stencil(ctx,t,x+34*U,y+18.5*U,Math.round(16*U),'#f0e6a8','left'); return {hit:R(x,y,w,24*U)} }
 
 /* ---------- timer: Dymo tape on OD plate ---------- */
-function drawTimer(ctx,cx,y,sec,U,opts){ U=U||1; opts=opts||{}; var t=fmt(sec), w=128*U, h=38*U, x=cx-w/2;
+function drawTimer(ctx,cx,y,sec,U,opts){ U=U||1; opts=opts||{}; var t=fmt(sec), h=38*U; ctx.save(); ctx.font='bold '+Math.round(24*U)+'px '+MONO; var w=Math.max(128*U,ctx.measureText(t).width+40*U); ctx.restore(); var x=cx-w/2;   /* rc8.1 textfit: plate grows with the (floored) clock text */
   plate(ctx,x,y,w,h,U,'#262a16');
-  ctx.save(); var tp=opts.warn?'#7a1a14':'#14161a'; ctx.fillStyle=tp; rr(ctx,x+10*U,y+6*U,w-20*U,h-12*U,2*U); ctx.fill();
+  ctx.save(); var tp=opts.warn?'#7a1a14':'#14161a'; ctx.fillStyle=tp; ctx.save(); rr(ctx,x+10*U,y+6*U,w-20*U,h-12*U,2*U); ctx.clip(); ctx.fillRect(x+10*U,y+6*U,w-20*U,h-12*U); ctx.restore();
   ctx.font='bold '+Math.round(24*U)+'px '+MONO; ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillText(t,cx+1,y+h/2+2*U); ctx.fillStyle=opts.warn?'#ffe0d0':'#f4f1e6'; ctx.fillText(t,cx,y+h/2+1*U); ctx.restore();
   return {hit:R(x,y,w,h)} }

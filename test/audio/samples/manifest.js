@@ -203,8 +203,25 @@
         // menu_theme (2026-10-20): Semper Fidelis (Sousa, 1888), United States Marine Band 2016, Wikimedia Commons, U.S. gov work, PUBLIC DOMAIN.
         // Replaces Zapatista (Content ID HIGH; music_menu_theme.* kept unused, DO NOT SHIP). One repeated strain 56.00-112.51 s, -14.0 LUFS.
         menu_theme: { file: 'music_menu_march', group: 'music', loop: true, loopStart: 0, loopEnd: 56.510, m4aOffsetSec: 0.046440, gain: 1 },
-        scene_opening: { file: 'music_easter_valkyries', group: 'music', loop: false, scene: 'opening', dur: 76.000, m4aOffsetSec: 0.046440, gain: 1, returnTo: 'combat', returnXf: 2.5 },   // Ride of the Valkyries, Edison 1921 (PD) - opening insertion ONLY
-        menu_intro: { file: 'music_menu_intro', group: 'music', loop: false, sting: true, dur: 14.500, finalHitSec: 12.150, m4aOffsetSec: 0.046440, gain: 1, next: 'menu_theme' }  // When Johnny Comes Marching Home, U.S. Navy Band Brass Quartet (Wikimedia Commons, U.S. gov work, PD). playMenu() plays it, then the loop
+        scene_opening: { file: 'music_valkyries_short', group: 'music', loop: false, scene: 'opening', dur: 12.000, m4aOffsetSec: 0, gain: 1 },   // Ride of the Valkyries, Edison 1921 (PD) - 12 s clip as the helo comes in for air-support cover (Blake, Oct 22); assets/music_ai.js crossfades into the state's Jungle Dread track at the end. The 76 s music_easter_valkyries.* is kept, off the load list
+        menu_intro: { file: 'music_menu_intro', group: 'music', loop: false, sting: true, dur: 14.500, finalHitSec: 12.150, m4aOffsetSec: 0.046440, gain: 1, next: 'menu_theme' },  // When Johnny Comes Marching Home, U.S. Navy Band Brass Quartet (Wikimedia Commons, U.S. gov work, PD). playMenu() plays it, then the loop
+        // ---- Jungle Dread AI score (rc8.1, Blake's pick Oct 21; /workspace/sound_pack/music_ai/README.md). FILL-IN · AI MUSIC: ElevenLabs Starter,
+        // Legal PASS under the Indie conditions, PENDING the Steam AI-music disclosure sentence. Files in audio/music_ai/ (MUSX sets base 'audio/music/').
+        // Loops are sample-continuous start->end (no loop metadata, m4a has no priming offset). Gain lifts the ~-16.1 LUFS masters to ~-14.0, the old music's level.
+        // assets/music_ai.js maps the game's slots onto these (aliases) unless ?music=old.
+        ai_menu:   { file: '../music_ai/jungle_dread_menu',   group: 'music', loop: true, loopStart: 0, loopEnd: 71.000, m4aOffsetSec: 0, gain: 1.274 },
+        ai_full:   { file: '../music_ai/jungle_dread_full',   group: 'music', loop: true, loopStart: 0, loopEnd: 144.500, m4aOffsetSec: 0, gain: 1.288 },
+        ai_combat: { file: '../music_ai/jungle_dread_combat', group: 'music', loop: true, loopStart: 0, loopEnd: 98.000, m4aOffsetSec: 0, gain: 1.259, intensity: true, tier: 1, bpm: 105, phraseSec: 9.143 },
+        ai_final:  { file: '../music_ai/jungle_final_wave',   group: 'music', loop: true, loopStart: 0, loopEnd: 118.000, m4aOffsetSec: 0, gain: 1.274 },
+        ai_over:   { file: '../music_ai/cue_game_over',       group: 'music', loop: false, dur: 7.661, m4aOffsetSec: 0, gain: 1.334, returnTo: 'ai_menu', returnAtSec: 6.2, returnXf: 1.8 },
+        // second exploration loop (alternates with ai_full); wide dynamics (LRA 15): gain 1.20 keeps its loud swells ~level with ai_full's (S p90 -10.9 vs -11.6 net)
+        ai_river:   { file: '../music_ai/jungle_river',   group: 'music', loop: true, loopStart: 0, loopEnd: 115.000, m4aOffsetSec: 0, gain: 1.200 },
+        // end credits, plays once (no loop): after the win Hymn ends, or while the credits panel is open from the menu
+        ai_credits: { file: '../music_ai/jungle_credits', group: 'music', loop: false, dur: 145.906, m4aOffsetSec: 0, gain: 1.274 },
+        // one-shot cues, played by assets/music_ai.js on the music bus (never through playMusic, so they never replace the loop)
+        ai_cue_wave:    { file: '../music_ai/cue_wave_start',         group: 'music', cue: true, loop: false, dur: 6.588, m4aOffsetSec: 0, gain: 1.247 },
+        ai_cue_levelup: { file: '../music_ai/cue_level_up',           group: 'music', cue: true, loop: false, dur: 4.668, m4aOffsetSec: 0, gain: 1.288 },
+        ai_cue_landing: { file: '../music_ai/cue_extraction_landing', group: 'music', cue: true, loop: false, dur: 6.747, m4aOffsetSec: 0, gain: 1.303 }
       },
       combatTiers: ['combat', 'combat_2', 'combat_3', 'combat_4', 'combat_5'],   // playMusic('combat') plays the current tier
       // combat_4_alt: CANDIDATE only (Rock Oco, Ə, CC BY 4.0; human-made). NOT a track: Blake keeps combat_4 for now. To swap: point combat_4.file at
