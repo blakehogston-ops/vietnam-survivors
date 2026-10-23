@@ -109,3 +109,198 @@ Per Lead (MERGE_NOTE_RC8_SOURCING_OCT20 rev 2). Files were recopied fresh from s
 | rto_down_sting | audio/samples/{ogg,m4a}/rto_down_sting_1.* | VSCO 2 CE low brass D minor (CC0) + pdsounds static cut + LukaCafuka key/release (existing sound_pack file, not recreated) | OPEN - Legal check before Steam |
 | radio_static_bed_loop | audio/samples/{ogg,m4a}/radio_static_bed_loop_1.* | pdsounds STE-011 hiss bed, 6.0 s loop (existing sound_pack file, not recreated) | OPEN - broadcast-bleed ear check + Legal check before Steam |
 Levels unchanged: sample_player gains 0.213 (sting) / 0.316 (radio bed).
+
+### FILL_IN_AUDIO: AI MUSIC - Jungle Dread score (rc8.1, Blake's pick Oct 21-22) - 10 files, ALL FILL-IN
+Source: ElevenLabs Starter, /workspace/sound_pack/music_ai (README.md). Legal PASS under the Indie conditions, PENDING the Steam AI-music disclosure sentence. Code: assets/music_ai.js (slot aliases + selection + cues), tracks ai_* in audio/samples/manifest.js, files audio/music_ai/{ogg,m4a}. Gains lift ~-16 LUFS to ~-14 LUFS (old music level); music bus unchanged. Old score removed from the load list (files kept in audio/music/); ?music=old = debug opt-in back to it. Marines' Hymn (win) and the Valkyries opening are unchanged.
+
+| Manifest key | File | Use | Status |
+|---|---|---|---|
+| ai_menu | audio/music_ai/jungle_dread_menu.{ogg,m4a} | menu + briefing loop | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_full | audio/music_ai/jungle_dread_full.{ogg,m4a} | exploration / pre-wave loop (alternates with river) | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_river | audio/music_ai/jungle_river.{ogg,m4a} | exploration / pre-wave loop #2 | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_combat | audio/music_ai/jungle_dread_combat.{ogg,m4a} | wave combat loop | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_final | audio/music_ai/jungle_final_wave.{ogg,m4a} | final wave = extraction (bird inbound / on the pad) loop | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_over | audio/music_ai/cue_game_over.{ogg,m4a} | game over, then ai_menu | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_cue_wave | audio/music_ai/cue_wave_start.{ogg,m4a} | wave start cue | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_cue_levelup | audio/music_ai/cue_level_up.{ogg,m4a} | level-up cue (cut to 1.9 s, ducks music -6 dB) | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_cue_landing | audio/music_ai/cue_extraction_landing.{ogg,m4a} | bird touchdown cue | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+| ai_credits | audio/music_ai/jungle_credits.{ogg,m4a} | once after the win Hymn / credits panel open | FILL-IN · AI MUSIC (Starter, Indie conditions, pending the Steam AI-music disclosure sentence) |
+
+### FILL_IN_AUDIO: AI VO (rc8.1, Blake approved Oct 21) - 171 lines, ALL FILL-IN, PENDING LEGAL + Steam AI-content disclosure
+Source: ElevenLabs Starter (paid), /workspace/sound_pack/vo_ai (HANDOFF_FOR_LEAD.md, FILL_IN_AUDIO_VO.md has voice ids + credits). Code: assets/vo_ai.js (table built by tools/build_vo_ai.py).
+Files: audio/vo_ai/{ogg,m4a}/ (in-person, SamplePlayer.play) and audio/vo_ai/dry/{ogg,m4a}/ (radio, SamplePlayer.radioLine only; the baked-radio ogg/ takes are NOT shipped, so the radio FX is never doubled). Gain 1.0, special bus (RMS -24, -31 net).
+Friends-build only (build tier): HO-K01, HO-K02 (Loc, Vietnamese, UNVERIFIED). A public/Steam build sets window.LCO_BUILD_TIER='public' (or ?tier=public; auto when the Steam client is running in the desktop host) and they are neither loaded nor played. ?vo=0 = all AI VO off.
+
+| Line ID | File | Path | Tier | Status |
+|---|---|---|---|---|
+| brief2_01 | brief2_01 | play | all | FILL-IN · PENDING LEGAL |
+| brief2_02 | brief2_02 | play | all | FILL-IN · PENDING LEGAL |
+| brief2_03 | brief2_03 | play | all | FILL-IN · PENDING LEGAL |
+| brief2_04 | brief2_04 | play | all | FILL-IN · PENDING LEGAL |
+| ins2_01 | ins2_01 | play | all | FILL-IN · PENDING LEGAL |
+| ins2_02 | ins2_02 | play | all | FILL-IN · PENDING LEGAL |
+| LT-F01 | vo_lt_f01 | play | all | FILL-IN · PENDING LEGAL |
+| LT-F02 | vo_lt_f02 | play | all | FILL-IN · PENDING LEGAL |
+| LT-F03 | vo_lt_f03 | play | all | FILL-IN · PENDING LEGAL |
+| LT-F04 | vo_lt_f04 | play | all | FILL-IN · PENDING LEGAL |
+| LT-S01 | vo_lt_s01 | play | all | FILL-IN · PENDING LEGAL |
+| LT-S02 | vo_lt_s02 | play | all | FILL-IN · PENDING LEGAL |
+| LT-S03 | vo_lt_s03 | play | all | FILL-IN · PENDING LEGAL |
+| LT-S04 | vo_lt_s04 | play | all | FILL-IN · PENDING LEGAL |
+| LT-A01 | vo_lt_a01 | play | all | FILL-IN · PENDING LEGAL |
+| LT-A02 | vo_lt_a02 | play | all | FILL-IN · PENDING LEGAL |
+| LT-A03 | vo_lt_a03 | play | all | FILL-IN · PENDING LEGAL |
+| LT-A04 | vo_lt_a04 | play | all | FILL-IN · PENDING LEGAL |
+| LT-M01 | vo_lt_m01 | play | all | FILL-IN · PENDING LEGAL |
+| LT-M02 | vo_lt_m02 | play | all | FILL-IN · PENDING LEGAL |
+| LT-M03 | vo_lt_m03 | play | all | FILL-IN · PENDING LEGAL |
+| LT-M04 | vo_lt_m04 | play | all | FILL-IN · PENDING LEGAL |
+| LT-R01 | vo_lt_r01 | play | all | FILL-IN · PENDING LEGAL |
+| LT-R02 | vo_lt_r02 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| LT-R03 | vo_lt_r03 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| LT-R04 | vo_lt_r04 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| LT-G01 | vo_lt_g01 | play | all | FILL-IN · PENDING LEGAL |
+| LT-G02 | vo_lt_g02 | play | all | FILL-IN · PENDING LEGAL |
+| LT-G03 | vo_lt_g03 | play | all | FILL-IN · PENDING LEGAL |
+| LT-G04 | vo_lt_g04 | play | all | FILL-IN · PENDING LEGAL |
+| LT-H01 | vo_lt_h01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-S01 | vo_ho_s01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-S02 | vo_ho_s02 | play | all | FILL-IN · PENDING LEGAL |
+| HO-S03 | vo_ho_s03 | play | all | FILL-IN · PENDING LEGAL |
+| HO-F01 | vo_ho_f01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-C01 | vo_ho_c01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-C02 | vo_ho_c02 | play | all | FILL-IN · PENDING LEGAL |
+| HO-C03 | vo_ho_c03 | play | all | FILL-IN · PENDING LEGAL |
+| HO-L01 | vo_ho_l01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-L02 | vo_ho_l02 | play | all | FILL-IN · PENDING LEGAL |
+| HO-L03 | vo_ho_l03 | play | all | FILL-IN · PENDING LEGAL |
+| HO-P01 | vo_ho_p01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-F02 | vo_ho_f02 | play | all | FILL-IN · PENDING LEGAL |
+| HO-U01 | vo_ho_u01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-W01 | vo_ho_w01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-W02 | vo_ho_w02 | play | all | FILL-IN · PENDING LEGAL |
+| HO-Z01 | vo_ho_z01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-Y01 | vo_ho_y01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-Y02 | vo_ho_y02 | play | all | FILL-IN · PENDING LEGAL |
+| HO-X01 | vo_ho_x01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-T01 | vo_ho_t01 | play | all | FILL-IN · PENDING LEGAL |
+| HO-T03 | vo_ho_t03 | play | all | FILL-IN · PENDING LEGAL |
+| HO-T02 | vo_ho_t02 | play | all | FILL-IN · PENDING LEGAL |
+| BK_RADIO_OUT | vo_bk_radio_out | play | all | FILL-IN · PENDING LEGAL |
+| BK_RADIO_OUT-alt | vo_bk_radio_out_alt | play | all | FILL-IN · PENDING LEGAL |
+| HO-M01 | vo_ho_m01 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| HO-M02 | vo_ho_m02 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| HO-K01 | vo_ho_k01 | play | FRIENDS ONLY | FILL-IN · PENDING LEGAL |
+| HO-K02 | vo_ho_k02 | play | FRIENDS ONLY | FILL-IN · PENDING LEGAL |
+| OF-L01 | vo_of_l01 | play | all | FILL-IN · PENDING LEGAL |
+| OF-L02 | vo_of_l02 | play | all | FILL-IN · PENDING LEGAL |
+| OF-L03 | vo_of_l03 | play | all | FILL-IN · PENDING LEGAL |
+| OF-L04 | vo_of_l04 | play | all | FILL-IN · PENDING LEGAL |
+| OF-M03 | vo_of_m03 | play | all | FILL-IN · PENDING LEGAL |
+| OF-A01 | vo_of_a01 | play | all | FILL-IN · PENDING LEGAL |
+| OF-A02 | vo_of_a02 | play | all | FILL-IN · PENDING LEGAL |
+| OF-D01 | vo_of_d01 | play | all | FILL-IN · PENDING LEGAL |
+| OF-Q01 | vo_of_q01 | play | all | FILL-IN · PENDING LEGAL |
+| SK-B01 | vo_sk_b01 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| SK-F01 | vo_sk_f01 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| SK-F02 | vo_sk_f02 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| SK-E01 | vo_sk_e01 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| SK-E02 | vo_sk_e02 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| SK-E03 | vo_sk_e03 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| MV_CALL_1a | vo_mv_call_1a | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| MV_CALL_1b | vo_mv_call_1b | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| MV_CALL_1c | vo_mv_call_1c | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| FB_BUILT_1 | vo_fb_built_1 | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| DT_MAIL_A | vo_dt_mail_a | play | all | FILL-IN · PENDING LEGAL |
+| DT_MAIL_B | vo_dt_mail_b | play | all | FILL-IN · PENDING LEGAL |
+| DT_FOOD_A | vo_dt_food_a | play | all | FILL-IN · PENDING LEGAL |
+| DT_FOOD_B | vo_dt_food_b | play | all | FILL-IN · PENDING LEGAL |
+| DT_CARDS_A | vo_dt_cards_a | play | all | FILL-IN · PENDING LEGAL |
+| DT_CARDS_B | vo_dt_cards_b | play | all | FILL-IN · PENDING LEGAL |
+| DT_WEATHER_1 | vo_dt_weather_1 | play | all | FILL-IN · PENDING LEGAL |
+| DT_HEAT_1 | vo_dt_heat_1 | play | all | FILL-IN · PENDING LEGAL |
+| DT_SLEEP_1 | vo_dt_sleep_1 | play | all | FILL-IN · PENDING LEGAL |
+| DT_SHORT_1 | vo_dt_short_1 | play | all | FILL-IN · PENDING LEGAL |
+| DT_MUSIC_1 | vo_dt_music_1 | play | all | FILL-IN · PENDING LEGAL |
+| DT_HOME_1 | vo_dt_home_1 | play | all | FILL-IN · PENDING LEGAL |
+| DT_HOME_2 | vo_dt_home_2 | play | all | FILL-IN · PENDING LEGAL |
+| DT_DOC_1 | vo_dt_doc_1 | play | all | FILL-IN · PENDING LEGAL |
+| DT_LOST_1 | vo_dt_lost_1 | play | all | FILL-IN · PENDING LEGAL |
+| DT_ALERT_1 | vo_dt_alert_1 | play | all | FILL-IN · PENDING LEGAL |
+| CR_PICKUP_1 | vo_cr_pickup_1 | play | all | FILL-IN · PENDING LEGAL |
+| CR_PICKUP_2 | vo_cr_pickup_2 | play | all | FILL-IN · PENDING LEGAL |
+| CR_ARRIVE_1 | vo_cr_arrive_1 | play | all | FILL-IN · PENDING LEGAL |
+| CR_WOUNDED_1 | vo_cr_wounded_1 | play | all | FILL-IN · PENDING LEGAL |
+| CR_WOUNDED_2 | vo_cr_wounded_2 | play | all | FILL-IN · PENDING LEGAL |
+| MV_INBOUND_1 | vo_mv_inbound_1 | play | all | FILL-IN · PENDING LEGAL |
+| MV_LOAD_1 | vo_mv_load_1 | play | all | FILL-IN · PENDING LEGAL |
+| MV_LIFT_1 | vo_mv_lift_1 | play | all | FILL-IN · PENDING LEGAL |
+| G00 | vo_gunny_smoke_out | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| G01-V | vo_gunny_roger_violet | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| G01-Y | vo_gunny_roger_yellow | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| G01-G | vo_gunny_roger_green | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| G04 | vo_gunny_pullback | play | all | FILL-IN · PENDING LEGAL |
+| G05 | vo_gunny_hotlz | play | all | FILL-IN · PENDING LEGAL |
+| G06 | vo_gunny_bird_deck | play | all | FILL-IN · PENDING LEGAL |
+| G07 | vo_gunny_ten_seconds | play | all | FILL-IN · PENDING LEGAL |
+| G08 | vo_gunny_get_on_pad | play | all | FILL-IN · PENDING LEGAL |
+| G09 | vo_gunny_five_mikes | play | all | FILL-IN · PENDING LEGAL |
+| G10 | vo_gunny_cmdr_smoke | play | all | FILL-IN · PENDING LEGAL |
+| G11 | vo_gunny_mirror | play | all | FILL-IN · PENDING LEGAL |
+| G12 | vo_gunny_pad_marked | play | all | FILL-IN · PENDING LEGAL |
+| G14 | vo_gunny_zis3 | play | all | FILL-IN · PENDING LEGAL |
+| G15 | vo_gunny_lull_1 | play | all | FILL-IN · PENDING LEGAL |
+| G16 | vo_gunny_lull_2 | play | all | FILL-IN · PENDING LEGAL |
+| G17 | vo_gunny_lull_3 | play | all | FILL-IN · PENDING LEGAL |
+| G18 | vo_gunny_lull_4 | play | all | FILL-IN · PENDING LEGAL |
+| G20 | vo_gunny_nva_officer | play | all | FILL-IN · PENDING LEGAL |
+| G21a | vo_gunny_firebase_marked | play | all | FILL-IN · PENDING LEGAL |
+| G22-east | vo_gunny_pad_dir_east | play | all | FILL-IN · PENDING LEGAL |
+| G22-southeast | vo_gunny_pad_dir_southeast | play | all | FILL-IN · PENDING LEGAL |
+| G22-south | vo_gunny_pad_dir_south | play | all | FILL-IN · PENDING LEGAL |
+| G22-southwest | vo_gunny_pad_dir_southwest | play | all | FILL-IN · PENDING LEGAL |
+| G22-west | vo_gunny_pad_dir_west | play | all | FILL-IN · PENDING LEGAL |
+| G22-northwest | vo_gunny_pad_dir_northwest | play | all | FILL-IN · PENDING LEGAL |
+| G22-north | vo_gunny_pad_dir_north | play | all | FILL-IN · PENDING LEGAL |
+| G22-northeast | vo_gunny_pad_dir_northeast | play | all | FILL-IN · PENDING LEGAL |
+| G22-10 | vo_gunny_pad_dist_10 | play | all | FILL-IN · PENDING LEGAL |
+| G22-20 | vo_gunny_pad_dist_20 | play | all | FILL-IN · PENDING LEGAL |
+| G22-30 | vo_gunny_pad_dist_30 | play | all | FILL-IN · PENDING LEGAL |
+| G22-40 | vo_gunny_pad_dist_40 | play | all | FILL-IN · PENDING LEGAL |
+| G22-50 | vo_gunny_pad_dist_50 | play | all | FILL-IN · PENDING LEGAL |
+| G22-60 | vo_gunny_pad_dist_60 | play | all | FILL-IN · PENDING LEGAL |
+| G23 | vo_gunny_bird_auto | play | all | FILL-IN · PENDING LEGAL |
+| G24 | vo_gunny_bird_called | play | all | FILL-IN · PENDING LEGAL |
+| N01 | vo_bark_nva_01 | play | all | FILL-IN · PENDING LEGAL |
+| N02 | vo_bark_nva_02 | play | all | FILL-IN · PENDING LEGAL |
+| N03 | vo_bark_nva_03 | play | all | FILL-IN · PENDING LEGAL |
+| N04 | vo_bark_nva_04 | play | all | FILL-IN · PENDING LEGAL |
+| N05 | vo_bark_nva_05 | play | all | FILL-IN · PENDING LEGAL |
+| N06 | vo_bark_nva_06 | play | all | FILL-IN · PENDING LEGAL |
+| N07 | vo_bark_nva_07 | play | all | FILL-IN · PENDING LEGAL |
+| N08 | vo_bark_nva_08 | play | all | FILL-IN · PENDING LEGAL |
+| D01 | vo_doc_smoke_out | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| D02 | vo_doc_roger_violet | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| D03 | vo_doc_roger_yellow | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| D04 | vo_doc_roger_green | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| D05 | vo_doc_negative_smoke | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| D06 | vo_doc_mirror | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| D07 | vo_doc_flare | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| D09 | vo_doc_roger_out | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| D08 | vo_doc_say_again | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| R01 | vo_fac_mark | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| R02 | vo_rto_clearedhot | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P17-V | vo_pilot_see_violet_over | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P17-Y | vo_pilot_see_yellow_over | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P17-G | vo_pilot_see_green_over | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P04 | vo_pilot_inbound | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P05 | vo_pilot_inhot | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P06 | vo_pilot_winchester | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P07 | vo_pilot_wilco_setdown | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P13 | vo_pilot_short_final | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P14 | vo_pilot_waveoff_hot | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P15 | vo_pilot_taking_fire | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P16 | vo_pilot_one_smoke | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P09 | vo_pilot_wilco_holding | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P10 | vo_spooky_inhot | dry/ radioLine | all | FILL-IN · PENDING LEGAL |
+| P11 | vo_spooky_winchester | dry/ radioLine | all | FILL-IN · PENDING LEGAL |

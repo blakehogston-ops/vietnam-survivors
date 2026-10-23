@@ -59,7 +59,7 @@ function writeSave(o) {
 function createWindow() {
   Menu.setApplicationMenu(null);
   win = new BrowserWindow({
-    width: 1280, height: 720, minWidth: 640, minHeight: 400, backgroundColor: '#07100a', title: require('./title.json').title,
+    width: 1280, height: 720, minWidth: 640, minHeight: 400, backgroundColor: '#07100a', title: require('./title.json').title, fullscreenable: true,
     icon: path.join(__dirname, 'build', 'icon.png'), autoHideMenuBar: true, show: !TEST,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true, devTools: !app.isPackaged, backgroundThrottling: false },
   });
@@ -67,7 +67,7 @@ function createWindow() {
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', (e) => e.preventDefault());
   win.webContents.on('before-input-event', (e, input) => {
-    if (input.type === 'keyDown' && input.key === 'F11') { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }
+    if (input.type === 'keyDown' && (input.key === 'F11' || (process.platform === 'darwin' && input.control && input.meta && input.code === 'KeyF'))) { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }
     if (input.type === 'keyDown' && input.key === 'Enter' && input.alt) { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }
   });
   return win;

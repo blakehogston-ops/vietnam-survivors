@@ -27,7 +27,7 @@ const S={w:0,h:0,low:false,hour:12,rain:0,haze:1,t:0,g:null,gk:'',
   L:[],nL:0, F:[],D:[],R:[],P:[],
   lm:null,lmx:null,ls:2, vig:null,grain:[],gp:[],sheen:null,mist:null,spr:{},flareSpr:null,chute:null,perf:{last:0,avg:0,n:0}};
 /* atmo-1.2 (perf rc8): quality tiers. Q.ls light-map scale, Q.bloom additive light sprites, Q.lights max lights fed to the map, Q.grain film grain, Q.sat saturation/veil pass, Q.dust motes, Q.shadows max flare shadows */
-const QT={high:{poolMax:160,ls:4,bloom:32,lights:160,grain:2,sat:true,dust:70,shadows:240,mistBands:3},med:{poolMax:160,ls:6,bloom:16,lights:80,grain:1,sat:true,dust:40,shadows:90,mistBands:2},low:{ls:6,bloom:10,lights:40,grain:0,sat:true,dust:20,shadows:40,mistBands:1,poolMax:160,blastGlow:true}};
+const QT={high:{poolMax:160,ls:4,bloom:32,lights:160,grain:2,sat:true,dust:70,shadows:240,mistBands:3},med:{poolMax:160,ls:6,bloom:16,lights:80,grain:1,sat:true,dust:40,shadows:90,mistBands:2},low:{ls:6,bloom:10,lights:40,grain:0,sat:true,dust:20,shadows:40,mistBands:0,poolMax:160,blastGlow:true}};
 let Q=QT.high, QN='high';
 /* rc8 perf A (Lead-approved, AD-approved): while a strike is on screen, HIGH eases to the MED light budget. setStrikeMix(f), f 0..1 (game fades it over ~0.5 s).
    bloom/lights/shadows/dust are lerped (counts ramp, no pop); light-map scale + mist bands swap at f=.5 using a pre-built second light map (no re-init, no allocation per frame). */
@@ -57,15 +57,20 @@ function grade(){ const H=((S.hour%24)+24)%24; let a=KEYS[0],b=KEYS[1];
     haze:lerp(a.haze,b.haze,t)*S.haze*(1+.6*r),sat:lerp(lerp(a.sat,b.sat,t),RAINK.sat,r)}; }
 
 /* single cached offscreen canvas holding the full grade (sky-to-ground falloff baked in); rebuilt only when quantised params change */
+/* rc8.1 retina DEBUG: ?fxoff=a,b|all skips layers (opt-in, off by default) */
+const FXO=(()=>{ try{ const m=location.search.match(/[?&]fxoff=([^&]*)/); return m?decodeURIComponent(m[1]).split(','):[] }catch(e){ return [] } })(), FXOFF=n=>FXO.includes('all')||FXO.includes(n);
+/* rc8.1: heat shimmer caused white wavy lines on Retina (Blake bisect) -> OFF by default, ?shimmer=1 debug opt-in */
+const HAZE_ON=(()=>{ try{ return !/[?&]haze=0\b/.test(location.search) }catch(e){ return true } })();   /* haze default ON; ?haze=0 off */
+const SHIM_ON=(()=>{ try{ return /[?&]shimmer=1\b/.test(location.search) }catch(e){ return false } })();
 function buildGrade(){ const G=S.cur, m=G.mul, l=(m[0]*.3+m[1]*.59+m[2]*.11), k=G.sat*.3; S.mulCss=`rgb(${lerp(m[0],l,k)|0},${lerp(m[1],l,k)|0},${lerp(m[2],l,k)|0})`;
   { const v=S.rain>0?[112,112,104]:[150,136,108]; S.veilCss=`rgba(${v[0]},${v[1]},${v[2]},${(G.sat*.22).toFixed(3)})` }
   const key=(S.rain*10|0)+'|'+S.low; if(key!==S.gk){ S.gk=key; buildScreen() } }
 /* screen composite (cached): vignette + wet sheen (rain) + film grain, 2 grain frames alternated with integer jitter */
 function buildScreen(){ const w=S.w,h=S.h; S.scr=S.scr||[]; const n=Math.max(1,Math.min(S.low?1:2,Q.grain||1));
   for(let k=0;k<n;k++){ const c=S.scr[k]&&S.scr[k].width===w+64?S.scr[k]:(S.scr[k]=mk(w+64,h+64)), x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height);
-    if(!S.low&&Q.grain>0){ x.globalAlpha=.10; for(let yy=0;yy<c.height;yy+=128)for(let xx=0;xx<c.width;xx+=128)x.drawImage(S.grain[(k*2+((xx+yy)>>7))&3],xx,yy); x.globalAlpha=1 }
-    if(S.rain>0){ x.fillStyle=`rgba(118,124,124,${(.10*S.rain).toFixed(3)})`; x.fillRect(0,0,c.width,c.height); x.globalAlpha=.7*S.rain; for(let yy=0;yy<c.height;yy+=256)for(let xx=0;xx<c.width;xx+=256)x.drawImage(S.sheen,xx,yy); x.globalAlpha=1 }
-    x.drawImage(S.vig,32,32) } S.scr.length=n }
+    if(!S.low&&Q.grain>0&&!FXOFF('grain')){ x.globalAlpha=.10; for(let yy=0;yy<c.height;yy+=128)for(let xx=0;xx<c.width;xx+=128)x.drawImage(S.grain[(k*2+((xx+yy)>>7))&3],xx,yy); x.globalAlpha=1 }
+    if(S.rain>0&&!FXOFF('sheen')){ x.fillStyle=`rgba(118,124,124,${(.10*S.rain).toFixed(3)})`; x.fillRect(0,0,c.width,c.height); x.globalAlpha=.7*S.rain; for(let yy=0;yy<c.height;yy+=256)for(let xx=0;xx<c.width;xx+=256)x.drawImage(S.sheen,xx,yy); x.globalAlpha=1 }
+    if(!FXOFF('vignette'))x.drawImage(S.vig,32,32) } S.scr.length=n }
 function init(w,h){ S.w=w|0; S.h=h|0; S.g=true; S.gk=''; S.scr=null; S.lmC=null; if(SMIX){ SMIX=0; Object.assign(QT.high,QH0) }
   S.ls=Math.max(Q.ls,S.low?6:4); S.lm=mk(Math.ceil(w/S.ls),Math.ceil(h/S.ls)); S.lmx=S.lm.getContext('2d');
   // vignette (cached, full size)
@@ -80,7 +85,7 @@ function init(w,h){ S.w=w|0; S.h=h|0; S.g=true; S.gk=''; S.scr=null; S.lmC=null;
   // mist band (soft, long, cached)
   S.mist=mk(512,64); { const x=S.mist.getContext('2d'); for(let i=0;i<26;i++){ const cx=rnd()*512, cy=24+rnd()*16, r=30+rnd()*50; for(const o of[0,-512,512]){ const g=x.createRadialGradient(cx+o,cy,0,cx+o,cy,r);
     g.addColorStop(0,'rgba(220,226,214,.20)'); g.addColorStop(1,'rgba(220,226,214,0)'); x.fillStyle=g; x.fillRect(0,0,512,64) } } }
-  { const m2=mk(1024,128),x=m2.getContext('2d'); x.drawImage(S.mist,0,0,1024,128); S.mist2=m2 }
+  { const m2=mk(1024,128),x=m2.getContext('2d'); x.drawImage(S.mist,0,0,1024,128); { const fg=x.createLinearGradient(0,0,0,128); fg.addColorStop(0,'rgba(0,0,0,0)'); fg.addColorStop(.35,'#000'); fg.addColorStop(.65,'#000'); fg.addColorStop(1,'rgba(0,0,0,0)'); x.globalCompositeOperation='destination-in'; x.fillStyle=fg; x.fillRect(0,0,1024,128); x.globalCompositeOperation='source-over' } S.mist2=m2 }   /* rc8.1 retina: the mist gradients were clipped flat at the band's top/bottom edge = faint white wavy lines (sin bob) across the screen; feather both edges */
   // heat shimmer stripe (cached wavy bright band, scrolled)
   S.shim=mk(512,20); { const x=S.shim.getContext('2d'); x.strokeStyle='rgba(255,250,225,.10)'; for(let k=0;k<3;k++){ x.lineWidth=1+k; x.beginPath(); for(let i=0;i<=512;i+=4){ const y=10+Math.sin(i/512*TAU*6+k)*3*(1+k*.3); i?x.lineTo(i,y):x.moveTo(i,y) } x.stroke() } }
   // wet sheen (diagonal specular smears)
@@ -144,16 +149,16 @@ function drawWorldOverlay(ctx,camX,camY,zoom){ const t0=performance.now(); zoom=
   // flares register their light every frame (moving light)
   for(const f of S.F) if(f.on&&f.k>0){ const R=f.R*(.8+.2*Math.min(1,f.k*1.3)); addLight(f.x,f.y+f.alt*.15,R,FLARE_COL,f.k,0) }
   // 1) ground haze bands (world-anchored, parallax drift)
-  if(G.haze>.02){ ctx.globalAlpha=clamp(G.haze,0,1); const bands=Math.min(low?2:3,Q.mistBands), mw=1024, mh=128;
-    for(let b=0;b<bands;b++){ const wy=Math.floor((camY+b*h/zoom/bands)/220)*220+60+b*37, y=sy(wy+Math.sin(S.t*.1+b)*8)|0; if(y<-mh||y>h)continue;
-      const off=(((-(camX*zoom)*(.9+b*.05)+S.t*(6+b*3))%mw)+mw)%mw|0; for(let x=off-mw;x<w;x+=mw) ctx.drawImage(S.mist2,x,y) }
+  if(G.haze>.02&&HAZE_ON&&!FXOFF('haze')){ ctx.globalAlpha=clamp(G.haze,0,1)*.55; const bands=Math.min(low?1:2,Q.mistBands|0), TW=1024*zoom, BH=Math.max(h*.9,256*zoom), span=h+BH;   /* rc8.1 haze fix (Blake: dark pulsing lines): no 220-unit grid snap, no |0 rounding, continuous parallax; very tall feathered bands (mist2 feather spans ~0.9 screen), zoom-scaled seamless tiles (mist wraps at 512), lower alpha */
+    for(let b=0;b<bands;b++){ const y=((((b*span/bands)-camY*zoom*(.35+b*.1)+Math.sin(S.t*.1+b)*6)%span)+span)%span-BH;
+      const off=((((-camX*zoom)*(.9+b*.05)+S.t*(6+b*3))%TW)+TW)%TW; for(let x=off-TW;x<w;x+=TW-1) ctx.drawImage(S.mist2,x,y,TW,BH) }
     ctx.globalAlpha=1 }
   PM('haze');
   // 2) heat shimmer by day (cheap: few horizontal strips self-offset)
-  if(!low&&G.dark<.05&&S.rain<.3&&S.hour>9&&S.hour<16){ ctx.globalCompositeOperation='screen'; ctx.globalAlpha=.8; for(let i=0;i<3;i++){ const y=(h*.5+i*h*.16+Math.sin(S.t*.4+i)*8)|0, off=-((S.t*(9+i*4)+camX*zoom*.2)%512+512)%512|0; for(let x=off;x<w;x+=512) ctx.drawImage(S.shim,x,y) } ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over' }
+  if(!low&&SHIM_ON&&!FXOFF('shimmer')&&G.dark<.05&&S.rain<.3&&S.hour>9&&S.hour<16){ ctx.globalCompositeOperation='screen'; ctx.globalAlpha=.8; for(let i=0;i<3;i++){ const y=(h*.5+i*h*.16+Math.sin(S.t*.4+i)*8)|0, off=-((S.t*(9+i*4)+camX*zoom*.2)%512+512)%512|0; for(let x=off;x<w;x+=512) ctx.drawImage(S.shim,x,y) } ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over' }
   PM('shimmer');
   // 3) dust motes (dry weather), drift with slight parallax
-  if(S.rain<.2){ ctx.fillStyle=G.dark>.3?'rgba(200,210,230,.35)':'rgba(240,226,180,.45)'; const n=Math.min(low?25:MAXD,Q.dust), tw=w+40, th=h+40;
+  if(S.rain<.2&&!FXOFF('dust')){ ctx.fillStyle=G.dark>.3?'rgba(200,210,230,.35)':'rgba(240,226,180,.45)'; const n=Math.min(low?25:MAXD,Q.dust), tw=w+40, th=h+40;
     for(let i=0;i<n;i++){ const d=S.D[i], X=((d.x*tw-camX*zoom*d.z*.3+S.t*8*d.z+Math.sin(S.t*.5+d.ph)*6)%tw+tw)%tw-20, Y=((d.y*th-camY*zoom*d.z*.3+Math.sin(S.t*.37+d.ph)*10)%th+th)%th-20; ctx.fillRect(X|0,Y|0,d.z>.8?2:1,d.z>.8?2:1) } }
   PM('dust');
   // 3b) standing water (craters, paddies, trenches): dark grey-brown pools with a cold sky sheen; ripple when raining
@@ -177,23 +182,23 @@ function drawWorldOverlay(ctx,camX,camY,zoom){ const t0=performance.now(); zoom=
     else { ctx.fillStyle='#3a3530'; ctx.fillRect(X-1|0,Y-1|0,3,3) } }
   PM('flares');
   // 6) colour grade: multiply (cached canvas) + overlay tint + slight desaturation
-  ctx.globalCompositeOperation='multiply'; ctx.fillStyle=S.mulCss; ctx.fillRect(0,0,w,h);
-  if(Q.sat&&S.hq&&!low&&G.sat>.05){ ctx.globalCompositeOperation='saturation'; ctx.globalAlpha=clamp(G.sat,0,1)*.55; ctx.fillStyle='#7f7f7f'; ctx.fillRect(0,0,w,h); ctx.globalAlpha=1 }
+  if(!FXOFF('grade')){ ctx.globalCompositeOperation='multiply'; ctx.fillStyle=S.mulCss; ctx.fillRect(0,0,w,h);
+  if(Q.sat&&S.hq&&!low&&G.sat>.05&&!FXOFF('sat')){ ctx.globalCompositeOperation='saturation'; ctx.globalAlpha=clamp(G.sat,0,1)*.55; ctx.fillStyle='#7f7f7f'; ctx.fillRect(0,0,w,h); ctx.globalAlpha=1 }
   if(Q.sat&&!S.hq&&G.sat>.05){ ctx.globalCompositeOperation='source-over'; ctx.fillStyle=S.veilCss; ctx.fillRect(0,0,w,h) }
-  ctx.globalCompositeOperation='overlay'; const o=G.ov; ctx.fillStyle=`rgba(${o[0]|0},${o[1]|0},${o[2]|0},${o[3].toFixed(3)})`; ctx.fillRect(0,0,w,h);
+  ctx.globalCompositeOperation='overlay'; const o=G.ov; ctx.fillStyle=`rgba(${o[0]|0},${o[1]|0},${o[2]|0},${o[3].toFixed(3)})`; ctx.fillRect(0,0,w,h); }
   ctx.globalCompositeOperation='source-over';
   PM('overlay');
   // 7) night light map: darkness with light holes (half/quarter res), then additive colour bloom
   const ls=S.ls, lx=S.lmx, lw=S.lm.width, lh=S.lm.height;
-  if(G.dark>.01){ lx.globalCompositeOperation='source-over'; lx.clearRect(0,0,lw,lh); const a=G.amb; lx.fillStyle=`rgba(${a[0]},${a[1]},${a[2]},${G.dark.toFixed(3)})`; lx.fillRect(0,0,lw,lh);
+  if(G.dark>.01&&!FXOFF('lightmap')){ lx.globalCompositeOperation='source-over'; lx.clearRect(0,0,lw,lh); const a=G.amb; lx.fillStyle=`rgba(${a[0]},${a[1]},${a[2]},${G.dark.toFixed(3)})`; lx.fillRect(0,0,lw,lh);
     lx.globalCompositeOperation='destination-out'; const blk=holeSpr();
     for(const l of S.L) if(l.on){ const k=l.t0>0?l.ttl/l.t0:1; if(l.i*k<.02)continue; const R=Math.min(l.r,l.c===FLARE_COL?1e9:Q.poolMax)*zoom/ls*2; const X=sx(l.x)/ls, Y=sy(l.y)/ls; if(X+R<0||Y+R<0||X-R>lw||Y-R>lh)continue; lx.globalAlpha=clamp(l.i*k,0,1); lx.drawImage(blk,X-R/2,Y-R/2,R,R) }
     lx.globalAlpha=1; lx.globalCompositeOperation='source-over'; ctx.drawImage(S.lm,0,0,w,h) }
   PM('lightmap');
   // additive warm bloom of every light (day: subtle, night: strong)
   ctx.globalCompositeOperation='lighter'; const bk=.18+G.dark*.55;
-  for(const l of S.L) if(l.on){ const k=l.t0>0?l.ttl/l.t0:1, fl=l.c===FLARE_COL; if(l.i*k*bk<.01)continue; const R=(fl?l.r*1.3:Math.min(l.r,240,Q.poolMax)*.9)*zoom, X=sx(l.x), Y=sy(l.y); if(X+R<0||Y+R<0||X-R>w||Y-R>h)continue; if(++nb>Math.min(low?12:32,Q.bloom))break; ctx.globalAlpha=clamp(l.i*k*bk*(fl?.55:1),0,1); ctx.drawImage(lightSpr(l.c),X-R/2,Y-R/2,R,R) }
-  if(Q.blastGlow){ const sp=lightSpr(PRESET.explosion[0]), D=320*zoom; for(const g of GL) if(g.on){ g.on=false; const X=sx(g.x),Y=sy(g.y); if(X+D<0||Y+D<0||X-D>w||Y-D>h)continue; ctx.globalAlpha=clamp(g.a,0,1); ctx.drawImage(sp,X-D/2,Y-D/2,D,D) } }   /* 160 px radius, HIGH explosion palette, re-registered per frame */
+  if(!FXOFF('bloom'))for(const l of S.L) if(l.on){ const k=l.t0>0?l.ttl/l.t0:1, fl=l.c===FLARE_COL; if(l.i*k*bk<.01)continue; const R=(fl?l.r*1.3:Math.min(l.r,240,Q.poolMax)*.9)*zoom, X=sx(l.x), Y=sy(l.y); if(X+R<0||Y+R<0||X-R>w||Y-R>h)continue; if(++nb>Math.min(low?12:32,Q.bloom))break; ctx.globalAlpha=clamp(l.i*k*bk*(fl?.55:1),0,1); ctx.drawImage(lightSpr(l.c),X-R/2,Y-R/2,R,R) }
+  if(Q.blastGlow&&!FXOFF('bloom')){ const sp=lightSpr(PRESET.explosion[0]), D=320*zoom; for(const g of GL) if(g.on){ g.on=false; const X=sx(g.x),Y=sy(g.y); if(X+D<0||Y+D<0||X-D>w||Y-D>h)continue; ctx.globalAlpha=clamp(g.a,0,1); ctx.drawImage(sp,X-D/2,Y-D/2,D,D) } }   /* 160 px radius, HIGH explosion palette, re-registered per frame */
   ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
   PM('bloom');
   // persistent (ttl 0) lights must be re-registered each frame by the game; clear them now
@@ -202,11 +207,11 @@ function drawWorldOverlay(ctx,camX,camY,zoom){ const t0=performance.now(); zoom=
 
 /* Screen pass: rain streaks, wet sheen, vignette, grain. Draw after drawWorldOverlay, before HUD. */
 function drawScreen(ctx){ const t0=performance.now(), w=S.w,h=S.h,low=S.low; ctx.save(); ctx.setTransform(1,0,0,1,0,0);
-  if(S.rain>0){ const n=(low?.35:1)*S.rain*MAXR|0; ctx.strokeStyle=`rgba(168,176,182,${(.16+.22*S.rain).toFixed(3)})`; ctx.lineWidth=1; ctx.beginPath();
+  if(S.rain>0&&!FXOFF('rain')){ const n=(low?.35:1)*S.rain*MAXR|0; ctx.strokeStyle=`rgba(168,176,182,${(.16+.22*S.rain).toFixed(3)})`; ctx.lineWidth=1; ctx.beginPath();
     for(let i=0;i<n;i++){ const r=S.R[i], X=r.x*w|0, Y=r.y*h|0, L=(10+14*r.l)*S.rain+6; ctx.moveTo(X,Y); ctx.lineTo(X-L*.24,Y-L) } ctx.stroke();
   }
   PM('rain');
-  { const k=(S.t*12|0)%S.scr.length, j=((S.t*24|0)*37)%32; ctx.drawImage(S.scr[k],-32+(low?0:j-16)+16,-32+(low?0:((j*7)%32)-16)+16) }
+  if(!FXOFF('screen')){ const k=(S.t*12|0)%S.scr.length, j=((S.t*24|0)*37)%32; ctx.drawImage(S.scr[k],-32,-32) }   /* rc8.1 retina: no per-frame jitter of the composite (it shook the vignette/grain 0-31 px = left-edge band stutter and crawling grain lines); centred; 2 grain frames still alternate */
   PM('grain');
   ctx.restore(); const ms=S._w+(performance.now()-t0); S.perf.last=ms; S.perf.avg=S.perf.avg*.95+ms*.05; S.perf.n++; }
 
