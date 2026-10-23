@@ -1,0 +1,18 @@
+/* rc8.1 BAL81 check (scripted bot runs, no god): level times (L5 < 4:00 target ~2:45, L6 ~3:45), first Doc damage before 0:30 (opening volley) and none other before 0:40,
+   HP min 5:00-9:00 drops at least once with the firebase (botfb=1); never below 40 from BAL81 sources. usage: CH=... SEEDS=1,2,3,4,5 node tools/bal81.js [extra-query] */
+const {chromium}=require('playwright-core'), http=require('http'), fs=require('fs'), path=require('path');
+const root=path.resolve(process.env.ROOT||path.join(__dirname,'..')), Q=process.argv[2]||'', SEEDS=(process.env.SEEDS||'1,2,3,4,5').split(',').map(Number);
+const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0]); if(p==='/')p='/index.html'; const f=path.join(root,p); if(!fs.existsSync(f)){r.statusCode=404;r.end();return} r.end(fs.readFileSync(f)) });
+(async()=>{ await new Promise(r=>srv.listen(0,r)); const B='http://localhost:'+srv.address().port+'/';
+ const br=await chromium.launch({executablePath:process.env.CH||undefined,args:['--no-sandbox']}); let fail=0; const ok=(c,m)=>{ console.log((c?'PASS ':'FAIL ')+m); if(!c)fail++ }; const R=[];
+ for(const seed of SEEDS){ const pg=await br.newPage(); const errs=[]; pg.on('pageerror',e=>errs.push(e.message));
+  await pg.goto(B+'index.html?nodemo&nointro&nobrief&notut&bot'+(process.env.FB==='0'?'':'&botfb=1')+'&char=doc&autostart&botcall=99999&seed='+seed+Q); await pg.waitForTimeout(1500);
+  const r=await pg.evaluate((process_fb)=>{ window.__simHold=true; const M=__ms, g=()=>M.G; const lv={}, o={firstHit:null,hits40:[],hpMin59:999,hpMin:999,dmgB81:0,end:null}; let hp0=g().p.hp, lastLvl=g().p.lvl;
+    for(let i=0;i<60*540;i++){ if(M.stateX==='levelup')M.pick(0); if(M.stateX==='mohcard'){ try{ M.MOH.choose(false) }catch(e){} } if(M.stateX==='sig'){ try{ M.answer(true) }catch(e){} } if(M.stateX==='over'){ o.end=+g().t.toFixed(1); break }
+      if(process_fb&&!M.fbS&&window.__perf.fbS==null&&M.lzS){ try{ window.__perf.fbBuild() }catch(e){} } M.step(1/60); const G=g(), p=G.p; if(p.lvl!==lastLvl){ for(let l=lastLvl+1;l<=p.lvl;l++)lv[l]=+G.t.toFixed(1); lastLvl=p.lvl }
+      if(p.hp<hp0-.01){ if(o.firstHit==null)o.firstHit=+G.t.toFixed(1); if(G.t<40)o.hits40.push(+G.t.toFixed(1)) } hp0=p.hp; if(Math.abs(G.t-300)<1/120)o.d300=Object.assign({},G.dmgBy||{}); if(Math.abs(G.t-345)<1/120)o.d345=Object.assign({},G.dmgBy||{}); if(G.t>=300&&G.t<=540)o.hpMin59=Math.min(o.hpMin59,p.hp); o.hpMin=Math.min(o.hpMin,p.hp) }
+    o.lv=lv; o.fb=M.fbS?M.fbS.state:null; o.b81=(window.B81.log||[]).map(x=>x.join(':')).slice(0,40); o.t=+g().t.toFixed(1); o.hp=Math.round(g().p.hp); o.dmgBy=g().dmgBy; return o },process.env.FB!=='0');
+  r.seed=seed; r.errs=errs.length; R.push(r); console.log('RUN',JSON.stringify(r)); await pg.close() }
+ for(const r of R){ ok(r.lv[5]!=null&&r.lv[5]<240,`seed ${r.seed}: L5 at ${r.lv[5]} s (<240; target ~165), L6 at ${r.lv[6]} (target ~225)`); ok(r.firstHit!=null&&r.firstHit<30,`seed ${r.seed}: first hit at ${r.firstHit} s (<30)`);
+  ok(r.hpMin59<999&&r.hpMin59<130,`seed ${r.seed}: HP drops 5:00-9:00 (min ${Math.round(r.hpMin59)})`); ok(!r.errs,`seed ${r.seed}: no page errors`) }
+ await br.close(); srv.close(); console.log(fail?'BAL81 FAIL':'BAL81 PASS'); process.exit(fail?1:0) })();

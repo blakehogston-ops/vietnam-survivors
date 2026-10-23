@@ -1,4 +1,5 @@
 // rc8.1 Pass 3 MoH flow test: trigger (built firebase only, radio line), objective (arrow target + distance), success/fail moment, return + reward shown, end-screen record.
+// (rc8.1 LPT #5: toCard budget 10 s -> 15 s, the card now opens MOH_CARD_LAG s after the radio line)
 // Usage: PORT=8787 CH=<chrome> node tools/mohflow.js   (exit 1 on any FAIL)
 const {chromium}=require('playwright-core');(async()=>{ const P=process.env.PORT||8787; const b=await chromium.launch({executablePath:process.env.CH,args:['--no-sandbox']}); let fails=0;
 /* rc8.1: event-based waits (no fixed sleeps) so a loaded box cannot change the result: the sim starts only once the run is live, key presses wait for the MoH log to change */
@@ -44,7 +45,7 @@ ok(C.gateBad===0&&(C.fbDoneT!=null||C.firstCallT==null),'C no call without a bui
  await pg.goto(`http://localhost:${P}/?nodemo&nointro&nobrief&char=doc&autostart&god&build=done&mohd=300&seed=404`); await ready(pg);
  const step=(s,mv)=>pg.evaluate(([s,mv])=>{ const m=__ms; window.__simHold=true; m.keys.KeyD=!!mv; for(let i=0;i<s*60;i++){ if(m.stateX==='levelup'){ m.pick(0); continue } if(m.stateX==='mohcard')break; m.step(1/60) } m.keys.KeyD=false; const c=m.MOH.cur; return {st:m.stateX,pend:!!(c&&c.pend),cur:!!c,t:m.G.t} },[s,mv]);
  const waitPend=async()=>{ for(let i=0;i<40;i++){ const r=await step(1,true); if(r.pend||r.st==='mohcard')return r } return null };
- const toCard=async()=>{ for(let i=0;i<20;i++){ const r=await step(.5,false); if(r.st==='mohcard')return r } return null };
+ const toCard=async()=>{ for(let i=0;i<30;i++){ const r=await step(.5,false); if(r.st==='mohcard')return r } return null };
  const log=()=>pg.evaluate(()=>__ms.G.mohLog.map(e=>e.ev));
  let r=await waitPend(); ok(r&&r.pend&&r.st==='play','D call pending while Doc walks (card NOT open) '+JSON.stringify(r));
  r=await step(3,true); ok(r.st==='play'&&r.pend,'D still no card after 3 s more walking');
