@@ -2223,12 +2223,12 @@ function buildSprites(){
   SPR.marine=makeSprites(TOP_MARINE,LEGS0,{C:'#6e8b4a',c:'#4a6233',S:'#e2b98f',E:'#24180d',U:'#58733a',u:'#3f5528',B:'#4a3a22',P:'#5f7a3c'},2);
   SPR.vc=makeSprites(TOP_VC,LEGS0,{C:'#1e140c',c:'#120c07',S:'#dbb287',E:'#24180d',U:'#3a3a40',u:'#25252a',B:'#7a6a3a',P:'#2e2e33',K:'#aab0b6'},2);
   SPR.nva=makeSprites(TOP_NVA_REGULAR,LEGS,PAL_NVA_REGULAR,2); SPR.nvaOld=makeSprites(TOP_NVA,LEGS,{C:'#d3cb9c',c:'#a39b6a',R:'#d12f26',S:'#e2b98f',E:'#24180d',U:'#a89c5c',u:'#85793f',B:'#4b3a22',P:'#978b4e',K:'#c9ced4',W:'#6b4426'},2);
-  SPR.officer=makeSprites(TOP_OFF,LEGS0,{C:'#5f6b36',c:'#3d4721',Y:'#d8352a',S:'#e2b98f',E:'#24180d',U:'#7f8a4a',u:'#5b6532',R:'#c0392b',B:'#3b2a1a',P:'#6d7640',K:'#e3e7ec',W:'#e0b43a'},3);
-  SPR.boss=makeSprites(TOP_OFF,LEGS0,{C:'#2f3b1c',c:'#1f2812',Y:'#f0c640',S:'#e2b98f',E:'#24180d',U:'#46522a',u:'#2d361a',R:'#d03a2e',B:'#1b150c',P:'#38422a',K:'#f4f6f8',W:'#f0c640'},3);
+  SPR.officer=makeSprites(TOP_OFF,LEGS0,{C:'#5f6b36',c:'#3d4721',Y:'#d8352a',S:'#e2b98f',E:'#24180d',U:'#7f8a4a',u:'#5b6532',R:'#c0392b',B:'#3b2a1a',P:'#6d7640',K:'#e3e7ec',W:'#e0b43a'},2);   /* rc8.2 scale: legacy fallback 3 -> 2 (was 51 px, 1.38x Marine) */
+  SPR.boss=makeSprites(TOP_OFF,LEGS0,{C:'#2f3b1c',c:'#1f2812',Y:'#f0c640',S:'#e2b98f',E:'#24180d',U:'#46522a',u:'#2d361a',R:'#d03a2e',B:'#1b150c',P:'#38422a',K:'#f4f6f8',W:'#f0c640'},2);
   buildSquadSprites(); buildCharSprites();
   SPR.sapper=makeSprites(TOP_SAP,LEGS0,{c:'#2a2a2a',R:'#b02020',S:'#dbb287',E:'#24180d',U:'#3a3a40',u:'#25252a',B:'#7a6a3a',P:'#2e2e33',T:'#7a5a33'},2); buildEngSprites(); buildNTankSprites();
   SPR.rpgt=makeSprites(TOP_B40,LEGS0,PAL_B40,2); SPR.rpgtOld=makeSprites(TOP_RPGT,LEGS0,{C:'#dcc880',c:'#a8924a',S:'#dbb287',E:'#24180d',U:'#3a3a40',u:'#25252a',B:'#7a6a3a',P:'#2e2e33',T:'#4d5a3a',O:'#9a9e94'},2);
-  SPR.rpg=makeSprites(TOP_RPG,LEGS0,{C:'#d3cb9c',c:'#a39b6a',R:'#d12f26',S:'#e2b98f',E:'#24180d',U:'#8f8a4d',u:'#6c6a38',B:'#3b2a1a',P:'#7d7a42',T:'#4d5a3a',O:'#9a9e94'},3);
+  SPR.rpg=makeSprites(TOP_RPG,LEGS0,{C:'#d3cb9c',c:'#a39b6a',R:'#d12f26',S:'#e2b98f',E:'#24180d',U:'#8f8a4d',u:'#6c6a38',B:'#3b2a1a',P:'#7d7a42',T:'#4d5a3a',O:'#9a9e94'},2);
 }
 
 /* ====================== ARTIST SHEET (assets/art/sheet1.js -> window.SHEET1) ======================
@@ -2247,8 +2247,8 @@ function sheetSprites(name){ if(SHEET1.useV3!==false&&SHEET1.enemySheetName){ co
   const w1=S.names&&S.names.indexOf('walk1')>=0?ix('walk1'):0, w2=S.names&&S.names.indexOf('walk2')>=0?ix('walk2'):Math.min(1,B.length-1);
   const out=[fr(w1),fr(w2)]; out.idle=fr(ix('idle')); out.ph=(S.h+3)*SHEET_SCALE_MEN; out.sheet=name; return out }
 function applySheet(){ if(!window.SHEET1||!SHEET1.sprites)return; try{
-  for(const k in SHEET_ENEMY)if(hasSheet(SHEET_ENEMY[k])){ SPR[k]=sheetSprites(SHEET_ENEMY[k]); for(const t in ET)if(ET[t].spr===k&&!ET[t].boss)ET[t].ds=1 }
-  bossScale();
+  for(const k in SHEET_ENEMY)if(hasSheet(SHEET_ENEMY[k])){ SPR[k]=sheetSprites(SHEET_ENEMY[k]); for(const t in ET)if(ET[t].spr===k&&!ET[t].boss)ET[t].ds=1.06 }   /* rc8.2 Art Director: 33 -> 35 px, within 5% of the 37 px Marines */
+  bossScale(); buildCorpses();   /* rc8.2: corpses re-baked from the current sheets (buildGore ran before applySheet and baked the legacy 3x officer/commander/RPG art) */
   for(const k in SHEET_CHAR)if(hasSheet(SHEET_CHAR[k]))CHSPR[k]=sheetSprites(SHEET_CHAR[k]);
   if(SHEET1.heroesTall&&SHEET1.HERO_ID)for(const k in CHD){ const n=SHEET1.HERO_ID[k]; if(n&&hasSheet(n))CHSPR[k]=sheetSprites(n) }   /* heroes_tall.js: the 8 heroes + Doc at 26x37 (portraits use the same art) */
   if(hasSheet('paddy')){ const P=SHEET1.sprites.paddy, B=SHEET1.bake(2).paddy, fl=B[Math.max(0,P.names.indexOf('flooded'))].n, dk=B[Math.max(0,P.names.indexOf('dike'))].n, T=256, c=TILE_P.getContext('2d'), tw=fl.width;
@@ -2261,7 +2261,7 @@ function docMkTick(dt){ const g=G,p=g.p; if(!g||g.demo)return; g.mkT=(g.mkT||0)-
   g.mkA=Math.max(0,Math.min(1,(g.mkA||0)+(g.mkOn>0?4:-3)*dt)) }
 function drawDocMk(tt){ const g=G; if(!g||g.demo||g.hide||!(g.mkA>0)||!(window.SHEET1&&(SHEET1.drawPlayerMarker||SHEET1.drawDocMarker))||g.p.hp<=0)return; ctx.save(); ctx.globalAlpha=g.mkA; (SHEET1.drawPlayerMarker?SHEET1.drawPlayerMarker(ctx,Math.round(g.p.x),Math.round(g.p.y+13),1,tt,SHEET1.HERO_ID&&SHEET1.HERO_ID[g.char]):SHEET1.drawDocMarker(ctx,Math.round(g.p.x),Math.round(g.p.y+13),1,tt)); ctx.restore() }
 /* bosses drawn ~1.2x a regular NVA man (was ~1.9x): height of the boss sprite matched to 1.2 x the NVA sprite at its draw scale */
-function bossScale(){ const man=SPR.nva&&SPR.nva[0][0][0], mh=man?man.height*(ET.nva.ds||1):34; for(const t in ET)if(ET[t].boss&&SPR[ET[t].spr]){ const bh=SPR[ET[t].spr][0][0][0].height; ET[t].ds=+(1.2*mh/bh).toFixed(3) } }
+function bossScale(){ const man=SPR.nva&&SPR.nva[0][0][0], mh=man?man.height*(ET.nva.ds||1):34; for(const t in ET)if(ET[t].boss&&SPR[ET[t].spr]){ const bh=SPR[ET[t].spr][0][0][0].height; ET[t].ds=+(1.06*mh/bh).toFixed(3) } }
 const BOSS_OUT='rgba(255,70,40,.95)';
 function bossOutline(c){ if(c._bo)return c._bo; const t=mk(c.width,c.height), x=t.getContext('2d'); x.imageSmoothingEnabled=false; x.drawImage(c,0,0); x.globalCompositeOperation='source-in'; x.fillStyle=BOSS_OUT; x.fillRect(0,0,t.width,t.height); return c._bo=t }
 function drawBossMark(e,w,h,tt){ const top=Math.round(e.y-h*.58)-4, bw=34, r=Math.max(0,e.hp/e.mhp), bx=Math.round(e.x-bw/2);
@@ -2299,14 +2299,7 @@ function buildGore(){
   GIBSPR[9]=mkp(["..PP..",".PPPP.","cccccc"],{P:'#d3cb9c',c:'#a39b6a'},2);        // pith helmet
   GIBSPR[10]=mkp(["KK.","KKK",".KK"],{K:'#2a2420'},2);                            // charred chunk
   GIBSPR[11]=mkp(["UU","UU","RR"],{U:'#58733a',R:'#5a1812'},2);                   // spare (olive)
-  // corpses: dimmed, flopped sprites over a blood pool
-  for(const k of ['marine','vc','nva','officer','boss','rpg','rpgt']){ const spr=SPR[k][0][0][0], w=spr.width,h=spr.height; CORPSE[k]=[];
-    for(let v=0;v<2;v++){ const c=mk(h+18,w+14),x=c.getContext('2d'); x.imageSmoothingEnabled=false; const cx=c.width/2,cy=c.height/2;
-      for(let yy=-w/2-5;yy<=w/2+5;yy+=2)for(let xx=-h/2-8;xx<=h/2+8;xx+=2){const d=Math.hypot(xx/(h/2+9),yy/(w/2+6))+(r()-.5)*.25; if(d<1){x.fillStyle=d<.55?'#4e140f':'#36100c';x.fillRect(Math.round(cx+xx),Math.round(cy+yy),2,2)}}
-      const t=mk(w,h),tx=t.getContext('2d'); tx.drawImage(spr,0,0); tx.globalCompositeOperation='source-atop'; tx.fillStyle='rgba(30,10,4,.34)'; tx.fillRect(0,0,w,h);
-      x.save(); x.translate(cx,cy); x.rotate(v?-Math.PI/2:Math.PI/2); x.drawImage(t,-w/2,-h/2); x.restore();
-      x.fillStyle='#5a1812'; for(let i=0;i<5;i++)x.fillRect(Math.round(cx-h/3+r()*h*.6),Math.round(cy-w/4+r()*w*.5),2,2);
-      CORPSE[k].push(c) } }
+  buildCorpses();
 }
 const BLOODC=['#5a1712','#43110d','#6e1f17','#2f0d0a'];   /* Blake Oct 20: dark, muted, realistic blood (was bright arcade red) */
 let DECAL_CAP=380;
@@ -2314,7 +2307,17 @@ let GORE=true; try{GORE=localStorage.getItem('lco_gore')!=='0'}catch(e){}
 function setGore(v,silent){ GORE=!!v; try{localStorage.setItem('lco_gore',GORE?'1':'0')}catch(e){}
   const c=document.getElementById('goreChk'),t=document.getElementById('goreTxt'),w=document.getElementById('goreSw'); if(c)c.checked=GORE; if(t)t.textContent=GORE?'ON':'OFF'; if(w)w.classList.toggle('off',!GORE);
   if(!silent&&window.onGoreChange)window.onGoreChange(GORE) }
-function addDecal(x,y,c,life,sc){ if(!GORE)return; const d={x,y,c,l:life,sc:sc||1}; if(decals.length<DECAL_CAP)decals.push(d); else {decals[decalI]=d; decalI=(decalI+1)%DECAL_CAP;} }
+function buildCorpses(){ let s=424243; const r=()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296};   /* rc8.2: own seeded rng, callable again after applySheet */
+  // corpses: dimmed, flopped sprites over a blood pool
+  for(const k of ['marine','vc','nva','officer','boss','rpg','rpgt']){ const spr=SPR[k][0][0][0], w=spr.width,h=spr.height; CORPSE[k]=[]; CORPSE[k].sheet=SPR[k].sheet||null;
+    for(let v=0;v<2;v++){ const c=mk(h+18,w+14),x=c.getContext('2d'); x.imageSmoothingEnabled=false; const cx=c.width/2,cy=c.height/2;
+      for(let yy=-w/2-5;yy<=w/2+5;yy+=2)for(let xx=-h/2-8;xx<=h/2+8;xx+=2){const d=Math.hypot(xx/(h/2+9),yy/(w/2+6))+(r()-.5)*.25; if(d<1){x.fillStyle=d<.55?'#4e140f':'#36100c';x.fillRect(Math.round(cx+xx),Math.round(cy+yy),2,2)}}
+      const t=mk(w,h),tx=t.getContext('2d'); tx.drawImage(spr,0,0); tx.globalCompositeOperation='source-atop'; tx.fillStyle='rgba(30,10,4,.34)'; tx.fillRect(0,0,w,h);
+      x.save(); x.translate(cx,cy); x.rotate(v?-Math.PI/2:Math.PI/2); x.drawImage(t,-w/2,-h/2); x.restore();
+      x.fillStyle='#5a1812'; for(let i=0;i<5;i++)x.fillRect(Math.round(cx-h/3+r()*h*.6),Math.round(cy-w/4+r()*w*.5),2,2);
+      CORPSE[k].push(c) } }
+}
+function addDecal(x,y,c,life,sc){ if(!GORE)return; const d={x,y,c,l:life,sc:sc||1}; if(decals.length<DECAL_CAP)decals.push(d); else {decals[decalI]=d; decalI=(decalI+1)%DECAL_CAP;} return d }
 function spawnDrops(x,y,dx,dy,n,spd){ if(!GORE||drops.length>360)return; const L=Math.hypot(dx,dy), dir=L>.5, base=Math.atan2(dy,dx);
   for(let i=0;i<n;i++){ const a=dir?base+(rnd()-.5)*1.5:rnd()*TAU, v=spd*(.3+rnd()*.9); const l=.3+rnd()*.35;
     drops.push({x:x+(rnd()-.5)*6,y:y+(rnd()-.5)*6,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l,ml:l,s:2+((rnd()*3)|0),c:BLOODC[(rnd()*4)|0]}) } }
@@ -2327,7 +2330,7 @@ function goreKill(e){
   else addDecal(x,y+5,SPLAT[(rnd()*6)|0],42,.8+rnd()*.5);
   if(ex){ const n=2+((rnd()*2)|0); for(let i=0;i<n;i++){const a=rnd()*TAU,d=14+rnd()*30; addDecal(x+Math.cos(a)*d,y+Math.sin(a)*d,SPLAT[(rnd()*6)|0],34,.6+rnd()*.5)} }
   // corpse left behind (explosions often leave only pieces)
-  if(CORPSE[e.sk]&&(big||rnd()<(ex?.3:.9)))addDecal(x,y+6,CORPSE[e.sk][(rnd()*2)|0],big?80:36,e.ds);
+  if(CORPSE[e.sk]&&(big||rnd()<(ex?.3:.9))){ const _cd=addDecal(x,y+6,CORPSE[e.sk][(rnd()*2)|0],big?80:36,e.ds); if(_cd){ _cd.type=e.type; _cd.drawScale=e.ds; _cd.corpse=1 } }   /* rc8.2: type/drawScale on corpse decals (QA hook) */
   // flying gibs
   let cnt=big?26:(3+(src===2?6:src===3?3:0)); if(src===3&&rnd()<.5)cnt=2; if(gibs.length>120)cnt=(cnt+1)>>1;
   const limbK=e.sk==='vc'?5:(e.sk==='officer'||e.sk==='boss')?7:6, hatK=e.sk==='vc'?-1:9;
@@ -3421,7 +3424,7 @@ function padFair(type,x,y){ const g=G, ex=g&&g.ex; if(!g||g.demo||!ex||!ex.pad||
 function spawnEnemy(type,x,y,charge){ { const r=padFair(type,x,y); if(r){ x=r[0]; y=r[1] } } if(G&&!G.demo&&(type==='vc'||type==='nva')){ G.spN=(G.spN|0)+1; if(type==='vc'){ if((G.spVC|0)+1>.25*G.spN+3)type='nva'; else G.spVC=(G.spVC|0)+1 } }   /* Blake, Oct 14: about 1 in 4 VC or fewer; khaki NVA is the main force */
   const d=ET[type]; if(enemies.length>=2300)return null; if(x===undefined){[x,y]=edgePoint(50)}
   const hm=LATEB&&G.t>360?4.27+(G.t-360)/420:G.t<480?1+G.t/110:5.36+(G.t-480)/160,   /* late-balance: HP growth past 6:00 slowed (was +1x per 160 s) */ hp=d.hp*(d.boss?1:hm);
-  const e={type,x,y,hp,mhp:hp,spd:d.spd*(.9+rnd()*.2)*(charge?1.3:1),dmg:d.dmg,r:d.r,v:d.v,kx:0,ky:0,flash:0,anim:rnd()*4,dir:0,dead:false,boss:!!d.boss,name:d.name,sk:d.spr,spr:SPR[d.spr],ds:d.ds,
+  const e={type,x,y,hp,mhp:hp,spd:d.spd*(.9+rnd()*.2)*(charge?1.3:1),dmg:d.dmg,r:d.r,v:d.v,kx:0,ky:0,flash:0,anim:rnd()*4,dir:0,dead:false,boss:!!d.boss,name:d.name,sk:d.spr,spr:SPR[d.spr],ds:d.ds,drawScale:d.ds,
     dash:0,wind:0,cdash:3+rnd()*2,tank:!!d.tank,armor:d.armor||0};
   enemies.push(e); return e }
 /* firebase call-in pacing: ~25% enemy density for the first 30 s after the call-in, then a linear ramp to full over the next 60 s */
@@ -7712,14 +7715,14 @@ function corpseVar(sk,mode){ const kk=sk+mode; if(CV[kk])return CV[kk]; const bs
   else { x.save(); x.translate(cx,cy); x.rotate(Math.PI/2); if(mode==='flat')x.scale(1.3,.38); x.drawImage(src,-w/2,-h/2); x.restore(); if(mode==='flat'||mode==='') { x.fillStyle='#c01a1a'; for(let i=0;i<5;i++)x.fillRect(Math.round(cx-h/3+Math.random()*h*.6),Math.round(cy-w/4+Math.random()*w*.5),2,2) } }
   return CV[kk]=c }
 function addHeavy(x,y,c,life,sc,nogore){ if(!GORE&&!nogore)return; const d={x,y,c,l:life,sc:sc||1}; if(decals.length<DECAL_CAP)decals.push(d); else { decals[decalI]=d; decalI=(decalI+1)%DECAL_CAP }
-  HEAVY.push(d); if(HEAVY.length>(LOWFX?70:110)){ const o=HEAVY.shift(); if(o.l>1.4)o.l=1.4 } }
+  HEAVY.push(d); if(HEAVY.length>(LOWFX?70:110)){ const o=HEAVY.shift(); if(o.l>1.4)o.l=1.4 } return d }
 function deathSnd(n){ if(G.demo)return; const now=performance.now(); while(deathSndT.length&&now-deathSndT[0]>180)deathSndT.shift(); if(deathSndT.length>=4)return; deathSndT.push(now); Snd.play(n) }
-function mkDying(e,kind,o){ if(dying.length>=60)return null; const f=e.spr[Math.floor(e.anim)&1][e.dir][0]; const d=Object.assign({x:e.x,y:e.y,z:0,vx:0,vy:0,vz:0,vr:0,rot:0,t:0,dur:.4,kind,sk:e.sk,spr:f,ds:e.ds,side:rnd()<.5?-1:1,sy:1,fin:'corpse',mode:'',tint:''},o); dying.push(d); return d }
+function mkDying(e,kind,o){ if(dying.length>=60)return null; const f=e.spr[Math.floor(e.anim)&1][e.dir][0]; const d=Object.assign({x:e.x,y:e.y,z:0,vx:0,vy:0,vz:0,vr:0,rot:0,t:0,dur:.4,kind,sk:e.sk,type:e.type,spr:f,ds:e.ds,side:rnd()<.5?-1:1,sy:1,fin:'corpse',mode:'',tint:''},o); dying.push(d); return d }
 function corpseStamp(d){ const mode=d.mode; if(mode==='char'){ addHeavy(d.x,d.y+4,SCORCH[0],40,.55,true); if(GORE)addHeavy(d.x,d.y+6,corpseVar(d.sk,'char'),50,d.ds); return }
-  if(!GORE)return; const c=mode?corpseVar(d.sk,mode):(CORPSE[d.sk]||CORPSE.vc)[(rnd()*2)|0]; addHeavy(d.x,d.y+6,c,mode==='imp'?70:38,d.ds) }
+  if(!GORE)return; const c=mode?corpseVar(d.sk,mode):(CORPSE[d.sk]||CORPSE.vc)[(rnd()*2)|0]; { const _cd=addHeavy(d.x,d.y+6,c,mode==='imp'?70:38,d.ds); if(_cd){ _cd.type=d.type||d.sk; _cd.drawScale=d.ds; _cd.corpse=1 } } }
 function scorchAt(x,y,big){ addHeavy(x+(rnd()-.5)*6,y+4,SCORCH[(rnd()*3)|0],big?70:50,big?1.1:.8+rnd()*.3,true) }
 function craterAt(x,y){ const now=G.t; for(let i=craterRec.length-1;i>=0;i--){ const r=craterRec[i]; if(now-r.t>.5){ craterRec.splice(i,1); continue } if(Math.abs(r.x-x)<46&&Math.abs(r.y-y)<46)return false } craterRec.push({x,y,t:now}); addHeavy(x,y+2,CRATER[0],95,1,true); return true }
-function simpleDeath(e,lt){ const x=e.x,y=e.y; if(lt==='expl'||lt==='fire'){ if(rnd()<.2)scorchAt(x,y,false); if(lt==='fire')return } if(!GORE)return; spawnDrops(x,y-6,e.lx||0,e.ly||0,3,110); addDecal(x,y+5,SPLAT[(rnd()*6)|0],34,.8+rnd()*.4); if(rnd()<.4)addHeavy(x,y+6,(CORPSE[e.sk]||CORPSE.vc)[(rnd()*2)|0],30,e.ds) }
+function simpleDeath(e,lt){ const x=e.x,y=e.y; if(lt==='expl'||lt==='fire'){ if(rnd()<.2)scorchAt(x,y,false); if(lt==='fire')return } if(!GORE)return; spawnDrops(x,y-6,e.lx||0,e.ly||0,3,110); addDecal(x,y+5,SPLAT[(rnd()*6)|0],34,.8+rnd()*.4); if(rnd()<.4){ const _cd=addHeavy(x,y+6,(CORPSE[e.sk]||CORPSE.vc)[(rnd()*2)|0],30,e.ds); if(_cd){ _cd.type=e.type; _cd.drawScale=e.ds; _cd.corpse=1 } } }
 function gibFan(x,y,ux,uy,n,spread,v0,v1,sk){ const limbK=sk==='vc'||sk==='sapper'?5:(sk==='officer'||sk==='boss')?7:6; const base=Math.atan2(uy,ux); for(let i=0;i<n;i++){ const a=base+(rnd()-.5)*spread, v=v0+rnd()*(v1-v0), q=rnd(); const k=q<.3?limbK:q<.42?3:q<.5?4:(rnd()*3)|0; spawnGib(x,y,Math.cos(a)*v,Math.sin(a)*v,k,1) } }
 function deathFx(e){
   const g=G; g.dthF=(g.dthF||0)+1; const x=e.x,y=e.y, lt=e.lt||'rifle';
@@ -7778,7 +7781,7 @@ function updateDying(dt){
     if(d.t>=d.dur){ finalizeDying(d); dying[i]=dying[dying.length-1]; dying.pop() } }
   for(let i=flashes.length-1;i>=0;i--){ const f=flashes[i]; f.t+=dt; if(f.t>=f.d){ flashes[i]=flashes[flashes.length-1]; flashes.pop() } } }
 function drawDying(camX,camY,tt){ const x0=camX-60,x1=camX+VW+60,y0=camY-60,y1=camY+VH+60;
-  for(let i=0;i<dying.length;i++){ const d=dying[i]; if(d.x<x0||d.x>x1||d.y<y0||d.y>y1)continue; if(d.kind==='burnv3'){ try{ SHEET1.drawBurnDeath(ctx,d.et,Math.round(d.x),Math.round(d.y+13),d.t,d.fl,1) }catch(e){} continue } let spr=d.spr; const w=spr.width*d.ds, h=spr.height*d.ds, k=d.t/d.dur;
+  for(let i=0;i<dying.length;i++){ const d=dying[i]; if(d.x<x0||d.x>x1||d.y<y0||d.y>y1)continue; if(d.kind==='burnv3'){ try{ SHEET1.drawBurnDeath(ctx,d.et,Math.round(d.x),Math.round(d.y+13),d.t,d.fl,d.ds||1) }catch(e){} continue } let spr=d.spr; const w=spr.width*d.ds, h=spr.height*d.ds, k=d.t/d.dur;
     if(d.kind==='burn')spr=tintOf(spr,k>.7?'char':((Math.floor(d.t*16)&1)?'burn':'burn2')); else if(d.tint)spr=tintOf(spr,d.tint);
     ctx.save(); if(!GORE&&d.kind!=='burn'&&d.kind!=='fly'&&k>.5)ctx.globalAlpha=Math.max(0,1-(k-.5)*2);
     ctx.fillStyle='rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(Math.round(d.x),Math.round(d.y+4),w*.35,4,0,0,TAU); ctx.fill();
@@ -8457,6 +8460,11 @@ if(DBG.t>0||DBG.bot||params.has('autostart'))startGame();
 try{ ZMON.warm() }catch(e){}
 DBG.zmon=()=>callBoat(Object.assign({hold:30,range:420,d50:20,d60:12,cd:60},{}),true);
 window.__perf={fbBuild(){ if(typeof lzS==="undefined"||!lzS)return 0; beginFirebase(); fbS.state="done"; fbS.prog=1; fbS.doneAt=G.t; G.p.x=fbS.x+40; G.p.y=fbS.y+170; return 1 },get fbS(){return typeof fbS!=="undefined"?fbS:null},get AMT(){return typeof AMT!=="undefined"?AMT:null},get LQ(){return LQ},get strikes(){return strikes},get fires(){return fires},get parts(){return parts},get flashes(){return flashes},get blasts(){return blasts},get CURW(){return CURW},get G(){return G},get ATM(){return ATM},napalmDrop,burst};   /* wt-perf perfgate hook */
+/* rc8.2 enemy-scale QA hook (see /workspace/qa/enemy_scale/HOOKS.md): read-only views, no gameplay effect */
+window.__lco=Object.assign(window.__lco||{},{ get enemyScaleRef(){ const o={}; for(const t in ET)o[t]=ET[t].ds; return o }, marineH:37,
+  sprSheet(){ const o={}; for(const t in ET){ const k=ET[t].spr; o[t]=SPR[k]?(SPR[k].sheet||'LEGACY'):null } return o },
+  corpseSheet(){ const o={}; for(const k in CORPSE)o[k]=CORPSE[k].sheet||'LEGACY'; return o },
+  get enemies(){ return enemies }, get corpses(){ return decals.filter(d=>d&&d.corpse) }, spawn:(t,x,y)=>spawnEnemy(t,x,y), kill:e=>killEnemy(e) });
 window.__ms={setDmgSrc:v=>{dmgSrc=v},hurtPlayer:(d,s)=>hurtPlayer(d,s),gunny:(...a)=>gunny(...a),hurtMember:(m,d)=>hurtMember(m,d),spawn:(t,x,y)=>spawnEnemy(t,x,y),get genChoices(){return genChoices},get ZIS(){return ZIS},get JG(){return JG},get P3(){return P3},get ACH(){return ACH},get gameOver(){return gameOver},get openCharSel(){return openCharSel},get N2(){return N2},get EXc(){return EX},get Q46(){ return {startGame,coyH,coy,INTRO,G,state,sel:v=>{SEL=v}} },get SAMP(){return SAMP},get Snd(){return Snd},get MOH(){return MOH},get FBO(){return FBO},get URG(){return URG},get MAGS(){return MAGS},get IMP(){return IMP},get FIELD(){return FIELD},get GUNS(){return GUNS},get MEDV(){return MEDV},get CREWX(){return CREWX},useAb(){ return useAbility() },openConfirm(a){ openConfirm(a) },pick(i){ if(state==='levelup')pickChoice(i|0); return state },answer(y){ if(state==='sig'){ clearTimeout(SIGASK.q); answerSignal(!!y) } return state },get BARK(){return BARK},get KIA(){return KIA},get ZMON(){return ZMON},get PB(){return PB},get WX(){return WX},get WRK(){return WRK},get FLM(){return FLM},get MIX(){return MIX},get WFX(){return WFX},get state(){return state},get MUSX(){return MUSX},get RiverS(){return RiverS},get HoverS(){return HoverS},get RMUS(){return RMUS},get RotorS(){return RotorS},get SeaKnightS(){return SeaKnightS},INP,joy,keys,setState(s){state=s},clearInput,inputWatchdog,decoyPlan,decoyCareer,newCall,popSmoke,answerCall,callTarget,mkEx,planPad,startInbound,get Rotor(){return Rotor},get Combat(){return Combat},enemiesRef:()=>enemies,get bodies(){return bodies},get coyList(){return coy},q15Alive:()=>q15Alive(),EXS:()=>EX,get lastHit(){return G&&G.lastHit},get hs(){return G&&G.hs},get coy(){return coy},get coyH(){return coyH},get medevac(){return medevac},COY,MEDEVAC,coyAlive,callCompany,callMedevac,COYSPR,get LOWFX(){return LOWFX},MED,get medpacks(){return medpacks},get ftexts(){return ftexts},ribCheck,serviceCard,ribRackHTML,ribFanfare,deathFact,charNick,spawnSeaKnight,get fbC(){return fbC},RIBBON_RACK_ORDER,RIB_ORDER,LAST_BIRD_OUT_BADGE,lboAboard,migrateRib,CHSPR,SQSPR,SPR,ART,RIBBONS,MEDAL_OF_HONOR,runXpGain,runXpGainOld,TIER_XP,Snd,BVOX,get BR(){return BR},BRIEF_LINES,cdRate,airCap,dbgAirCd,refuelRun,TANKER,AIR_CDR_CAP,BriefSnd,render,hudSig,get exStack(){return exStack},get ex(){return G&&G.ex},get sigs(){return sigs},popSignal,confirmSignal,dropSig,lzOk,pickLz,EX,exScore,get exMsg(){return exMsg},updateExtraction,gameOver,get stateX(){return state},SIGC,get tanks2(){return tanks},get gems(){return gems},spawnEnemy,hurtEnemy,explode,setTag(t){DTAG=t},setCrush(h){crushHd=h},setGore,dying,HEAVY,flashes,deathFx,get DTAGget(){return DTAG},tintOf,corpseVar,get bubbles(){return bubbles},PHRASES,BUBSPR,assaultCry,HANLINES,BOTF,DBG,step(dt){ update(dt) },get crates(){return crates},evoReady,doReroll,toggleBan,dropCrate,dustoffRevive,get banMode(){return banMode},EVOS,get lzS(){return lzS},get fbS(){return fbS},AMT,fbAidPos,fbHootchPos,fbPadPos,fbOnWounded,FBHOOK,fbLine,fbBanterSlots,fbCrit,fbRto,fbCpMan,fbCaller,FB2,FBS_:()=>FBS,FBW_:()=>FBW,FB_CLEAR,fbLayout,TERRm:()=>TERR,mkEng,get engs(){return engs},get strs(){return strs},get chgs(){return chgs},get fbH(){return fbH},spawnLz,beginFirebase,plantCharge,spawnNTank,fbSpawnRing,hurtStruct,get BR(){return BR},startBrief,briefNext,updateIntro,updateIntroH,updatePatrol,get INTRO(){return INTRO},get introH(){return introH},skipIntro:()=>skipIntro(true),startIntro,get bullets(){return bullets},get grenades(){return grenades},get enemies(){return enemies},useAbility,get G(){return G},get pat(){return pat},get knives(){return knives},CHD,CHS,get SEL(){return SEL},selectChar,openCharSel,chTier,awardRun,saveChars,kcBoost,openLevelUp,get crashes(){return crashes},hurtHuey,trooperTarget,get eprojs2(){return eprojs},get squad(){return squad},get ins(){return ins},hurtMember,callSquad,SQR,SQROLES,hurtTank,destroyTank,callTank,get Music(){return Music},get Combat(){return Combat},get Amb(){return Amb},Snd,get pits(){return pits},get air(){return air},get tanks(){return tanks},get mshells(){return mshells},get hbars(){return hbars},get hshells(){return hshells},get boats(){return boats},get hueys(){return hueys},get vtr(){return vtr},get tunnels(){return tunnels},ITEMS,spawnEnemy,get bubbles(){return bubbles},get drops(){return drops},get gibs(){return gibs},get decals(){return decals},get mines(){return mines},get fires(){return fires},get strikes(){return strikes},get eprojs(){return eprojs},SPR,get state(){return state},get G(){return G},get enemies(){return enemies},perf,startGame,keys,pick:pickChoice,get choices(){return choices}};
 requestAnimationFrame(frame);
 
