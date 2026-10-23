@@ -2247,7 +2247,7 @@ function sheetSprites(name){ if(SHEET1.useV3!==false&&SHEET1.enemySheetName){ co
   const w1=S.names&&S.names.indexOf('walk1')>=0?ix('walk1'):0, w2=S.names&&S.names.indexOf('walk2')>=0?ix('walk2'):Math.min(1,B.length-1);
   const out=[fr(w1),fr(w2)]; out.idle=fr(ix('idle')); out.ph=(S.h+3)*SHEET_SCALE_MEN; out.sheet=name; return out }
 function applySheet(){ if(!window.SHEET1||!SHEET1.sprites)return; try{
-  for(const k in SHEET_ENEMY)if(hasSheet(SHEET_ENEMY[k])){ SPR[k]=sheetSprites(SHEET_ENEMY[k]); for(const t in ET)if(ET[t].spr===k&&!ET[t].boss)ET[t].ds=1.06 }   /* rc8.2 Art Director: 33 -> 35 px, within 5% of the 37 px Marines */
+  for(const k in SHEET_ENEMY){ const nm=SHEET_ENEMY[k], v3=SHEET1.useV3!==false&&SHEET1.enemySheetName?SHEET1.enemySheetName(nm):null; if(hasSheet(nm)||(v3&&hasSheet(v3))){ SPR[k]=sheetSprites(nm);   /* rc8.2: officer/boss/rpg/rpgt/sapper exist only as *V3 sheets (no base sheet1 name), so hasSheet(nm) skipped them and they stayed on the legacy 3x makeSprites art */ for(const t in ET)if(ET[t].spr===k&&!ET[t].boss)ET[t].ds=1.06 } }   /* rc8.2 Art Director: 33 -> 35 px, within 5% of the 37 px Marines */
   bossScale(); buildCorpses();   /* rc8.2: corpses re-baked from the current sheets (buildGore ran before applySheet and baked the legacy 3x officer/commander/RPG art) */
   for(const k in SHEET_CHAR)if(hasSheet(SHEET_CHAR[k]))CHSPR[k]=sheetSprites(SHEET_CHAR[k]);
   if(SHEET1.heroesTall&&SHEET1.HERO_ID)for(const k in CHD){ const n=SHEET1.HERO_ID[k]; if(n&&hasSheet(n))CHSPR[k]=sheetSprites(n) }   /* heroes_tall.js: the 8 heroes + Doc at 26x37 (portraits use the same art) */
