@@ -37,7 +37,7 @@ button.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #1d2f14}
 button.btn.alt{background:#6b5a2f;font-size:clamp(14px,3vw,20px);padding:8px 22px}
 .help{max-width:560px;font-size:clamp(12px,2.4vw,14px);line-height:1.6;color:#d4d8b5;margin-top:18px;background:rgba(0,0,0,.28);padding:10px 16px;border:1px solid #3a4f2c;border-radius:4px}
 .help b{color:#e8c860}
-.help.howto{max-width:min(820px,94vw);max-height:min(48vh,460px);overflow:auto;overscroll-behavior:contain}   /* rc8.1 Junior #3: HOW TO PLAY fits (scrolls) at 1920x1080 */
+.help.howto{max-width:min(900px,96vw);box-sizing:border-box;overflow:visible}.htH{font-weight:bold;color:#e8c860;text-align:center;margin-bottom:4px}.htGrid{display:grid;grid-template-columns:max-content minmax(0,1fr);column-gap:16px;row-gap:0;text-align:left;font-size:18px!important;line-height:1.2}.htGrid b{white-space:nowrap}.htGrid>*{min-width:0}   /* rc8.1 UI: HOW TO PLAY = 2 columns of key/action pairs, 18px, no scroll at 1280x720 .. 1920x1080 */
 .srcard{margin:10px auto 4px;padding:8px 12px;max-width:min(420px,92vw);background:rgba(20,18,10,.55);border:2px solid #8a7a3a;border-radius:6px;text-align:left}.srh{font:bold 12px 'Courier New',monospace;letter-spacing:.16em;color:#e8c860}.srn{font:bold clamp(14px,3.4vw,17px) Impact,sans-serif;letter-spacing:.06em;color:#f1ecd0;margin:2px 0 5px}.srbar{height:9px;background:#2a2820;border:1px solid #6a5f33;border-radius:5px;overflow:hidden}.srbar i{display:block;height:100%;width:0;background:linear-gradient(#e8c860,#b8902a);transition:width 1.4s ease-out}.srx{font-size:12px;color:#e8dfae;margin-top:4px;line-height:1.3}.srstrip{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;align-items:center}.srstrip img{image-rendering:pixelated}.srd{margin-top:7px;font-style:italic;font-size:12px;color:#c9bb7a;text-align:center;letter-spacing:.05em}
 .tribute{margin-top:12px;color:#e8c860;font-style:italic;letter-spacing:.08em;font-size:clamp(12px,2.4vw,13px);text-align:center;opacity:.92}
 .foot{margin-top:14px;font-size:12px;color:#8a9770;letter-spacing:.1em}
@@ -196,6 +196,18 @@ body.hudm #rtoHud{max-width:40px;overflow:hidden;white-space:nowrap}body.hudm #r
   #tkrRing::after{font-size:12px!important;line-height:16px}
 }
 /* rc8 Deck 2) menu / charsel / level-up fit 1280x800 with no page scroll (two-column grid; Credits stays a collapsed <details>) */
+@media (min-width:1000px) and (min-height:821px){   /* rc8.1 UI: same two-column menu at 1920x1080 so HOW TO PLAY + Controller fit without scrolling */
+  #menu.show{display:grid!important;grid-template-columns:minmax(360px,560px) minmax(420px,640px);grid-auto-rows:min-content;column-gap:28px;row-gap:0;align-content:center;justify-content:center;overflow:hidden;padding-top:8px;padding-bottom:8px}
+  #menu>*{grid-column:1;margin-top:0!important;margin-bottom:0}
+  #menu .bstamp{grid-column:1/-1;grid-row:1}#menu #demoBadge{grid-column:1/-1;grid-row:1}
+  #menu h1{grid-column:1/-1;grid-row:2;zoom:.62;margin:0 auto!important}
+  #menu .sartP{grid-column:1;grid-row:3;margin:0 0 4px!important}
+  #menu #btnStart{grid-row:4}#menu #btnBrief{grid-row:5}#menu #btnTut{grid-row:6}
+  #menu .btn{margin:3px auto!important}
+  #menu .howto{grid-column:2;grid-row:3/span 2;align-self:start;line-height:1.35;margin:4px 0!important}#menu .padhelp{grid-column:2;grid-row:5/span 2;align-self:start;margin:2px 0!important}#menu #best{grid-column:2;grid-row:7}
+  #menu .tribute,#menu .foot:not(#best){grid-column:1/-1;margin:2px 0 0!important}#menu .tribute{grid-row:8}#menu .foot:not(#best){grid-row:9}
+  #menu details.credits{grid-column:1/-1;grid-row:10;margin-top:2px!important}#menu details.credits[open] .crbody{max-height:120px}
+  }
 @media (min-width:1000px) and (max-height:820px){
   #menu.show{display:grid!important;grid-template-columns:minmax(360px,560px) minmax(420px,640px);grid-auto-rows:min-content;column-gap:28px;row-gap:0;align-content:center;justify-content:center;overflow:hidden;padding-top:8px;padding-bottom:8px}
   #menu>*{grid-column:1;margin-top:0!important;margin-bottom:0}
@@ -227,6 +239,9 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
 #quitAsk h3{font-family:Impact,"Arial Black",sans-serif;font-size:clamp(20px,3vw,28px);letter-spacing:.12em;margin:0 0 6px;text-transform:uppercase}#quitAsk p{font-size:14px;color:#c9c3a0;margin:0 0 8px}   /* rc8.1: UI scale max(1, innerHeight/1080) */
 
 /* rc8.1 Pass 1 (UX P1-1): desktop UI text >= 18px at 1080p (the UI already scales up above 1080p); cards get more width so 18px fits */
+@media (min-width:1000px){ #menu.show{grid-template-columns:minmax(340px,520px) minmax(560px,720px)!important} #menu .howto{max-width:none!important;width:100%} #menu .padhelp{max-width:none!important;width:100%;box-sizing:border-box;line-height:1.3!important} body:not(.padon) #menu .padhelp .padKeys{display:none} #menu.show>.htCol{grid-column:2!important;grid-row:3!important;align-self:start;display:flex;flex-direction:column;gap:2px} #menu.show .htCol>*{margin:0!important} #menu.show #btnStart{grid-row:4!important} #menu.show #btnBrief,#menu.show #btnTut{grid-column:2!important;grid-row:4!important;align-self:center} #menu.show #best{grid-column:1!important;grid-row:6!important} #menu.show h1{zoom:.42!important} body.padon #menu.show h1{zoom:.36!important} #menu.show .tribute{grid-column:1!important;grid-row:8!important;align-self:center} #menu.show .foot:not(#best){grid-column:2!important;grid-row:8!important;align-self:center} #menu.show .padhelp{padding-top:3px!important;padding-bottom:3px!important;line-height:1.15!important} body.padon #menu .padPre{display:none} }   /* rc8.1 UI: wider right column; the Controller panel lists the pad keys only when a pad is connected */
+@media (min-height:700px){ #menu .help,#menu .help *{font-size:18px!important} }
+@media (min-height:700px){ #over #stats,#over #stats *,#over #overSvc *,#over .tribute,#over .srh,#over .srx,#over .srd,#over .srn,#over #medSub,#over .foot,#over .ocsm,#over .card .nm,#over .card .ds,#over #overDed,#over #rank,#over small,#over p,#over span{font-size:18px!important} }   /* rc8.1 EP: end-screen 18px floor without the (pointer:fine) gate - on Deck/touch/headless the rc8 12px belt-and-braces block won and the card rendered 12-13px */
 @media (pointer:fine) and (min-height:700px){ .foot,#luHint,.card .lv,.card .key,#fsHint,#abil span,#abilNm,.sub,#luHelp,#sigBtn span,#sigask .who,.tag b,.tag i,.padKeys,#overDed,.vols,.htBody,.help.padhelp,.help.padhelp b,#medHud,#medHud button,#medHud span,#medHud b,#medHud i,#p3toast,#p3toast *,#n2x,.tribute,.srh,.srx,.srd,.srn,#medSub{font-size:18px!important}   /* rc8.1 QA: 18px floor at 1280x720 (tools/textfloor.js) */ #medHud{flex-wrap:wrap;max-width:min(32vw,420px)} #rtoHud{order:-1;flex-basis:100%;white-space:normal;line-height:1.2;box-sizing:border-box}   /* rc8.1 QA chip fit: RADIOMAN line gets its own row above the med buttons (it ran under the call button) */ .card .ds{font-size:18px!important;line-height:1.3!important} .card{width:300px!important} }
 </style>
 </head>
@@ -249,19 +264,8 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label><label class="goresw qSw" title="Graphics quality. HIGH = everything on (high-end PC); MED and LOW scale effects down. Saved."><span>QUALITY</span><select class="qSel" style="font:inherit;background:#1a1712;color:#e8dcc0;border:1px solid #8a2a22;border-radius:8px;padding:2px 6px"><option value="low">LOW</option><option value="med">MED</option><option value="high">HIGH</option></select></label>
   <label class="goresw rfSw" title="Fewer and slower flashes: no white flash in the intro, steady low-HP border, steady flares and strobes. Follows your system Reduce motion setting until you change it."><span>REDUCE FLASHING</span><input type="checkbox" class="rfChk"><i></i><b class="rfTxt">OFF</b></label>
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
-  <div class="help howto"><pre class="htBody" style="text-align:left;display:inline-block;margin:0;font:inherit;white-space:pre;max-width:100%;overflow-x:auto">HOW TO PLAY
-Move ........... WASD / Arrow keys (stick or drag on touch)
-Shooting ....... automatic. Stay alive, keep your Marines alive
-Special ........ SPACE
-Patch Doc ...... H        Patch a Marine ... Q
-Call the bird .. X (on the PAD circle)
-Pop smoke ...... automatic on the PAD when the bird asks (G / pad X pops it at once)
-Confirm smoke .. Y / Enter = it's ours   N / Esc = not ours
-Bunker ......... E (step in for cover, you can still shoot)
-Call engineers . hold F at a firebase call point
-Level-up ....... 1 / 2 / 3 pick   R reroll   B banish
-Pause .......... Esc / P     Mute ... M</pre></div>
-  <div class="help padhelp"><b>Controller</b> (Xbox / PlayStation / Steam Deck, plug in and press any button): <span class="padKeys"></span><span class="padNone">not connected</span></div>
+  <div class="htCol"><div class="help howto"><div class="htT htH">HOW TO PLAY</div><div class="htBody htGrid"><b>Move</b><span>WASD / arrows (stick or drag on touch)</span><b>Shooting</b><span>automatic: keep Doc and your Marines alive</span><b>Special</b><span>SPACE</span><b>Patch</b><span>H Doc · Q a Marine</span><b>Call the bird</b><span>X on the PAD circle</span><b>Pop smoke</b><span>automatic on the PAD (G / pad X: at once)</span><b>Confirm smoke</b><span>Y / Enter ours · N / Esc not ours</span><b>Bunker</b><span>E: step in for cover, still shoot</span><b>Engineers</b><span>hold F at a firebase call point</span><b>Level-up</b><span>1 / 2 / 3 pick · R reroll · B banish</span><b>Pause</b><span>Esc / P · Mute M</span></div></div>
+  <div class="help padhelp"><b>Controller</b><span class="padPre"> (Xbox / PlayStation / Steam Deck, plug in and press any button)</span>: <span class="padKeys"></span><span class="padNone">not connected</span></div></div>
   <div class="foot" id="best"></div>
   <div class="tribute">✦ For the Marines, Navy corpsmen, and all who served alongside them in Quang Tri, 1968. ✦</div>
   <div class="foot">A stylized arcade tribute to the Marines who served in Vietnam.<br><b style="color:#d65a4a">Mature: stylized violence</b> — stylized pixel blood &amp; gore.</div>
@@ -6263,7 +6267,7 @@ function drawIntroOverlay1(){ const I=INTRO, t=I.t; ctx.setTransform(1,0,0,1,0,0
     const f2=Math.max(12,dh2/22); ctx.font=`bold ${f2}px "Courier New",monospace`; ctx.lineWidth=f2/4; ctx.strokeText('QUANG TRI, 1968',W/2,H*.4+f1*.7); ctx.fillStyle='#e8c860'; ctx.fillText('QUANG TRI, 1968',W/2,H*.4+f1*.7); ctx.globalAlpha=1 }
   if(I.flash>0&&I.ph===2){ ctx.fillStyle=`rgba(255,255,255,${RFX?Math.min(.4,I.flash*.4):Math.min(1,I.flash)})`; ctx.fillRect(0,0,W,H) }   /* reduce flashing: capped .4 */
   if(I.ph===1&&t>8.2){ ctx.fillStyle=RFX?`rgba(0,0,0,${Math.min(1,(t-8.2)/.4)})`:`rgba(255,255,255,${Math.min(1,(t-8.2)/.4)})`; ctx.fillRect(0,0,W,H) }   /* reduce flashing: slow fade to black instead of white */
-  if(Math.floor(performance.now()/500)%2===0||I.t<1){ ctx.font=`bold ${Math.max(12*DPR,H/40)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.85)'; ctx.strokeStyle='#000'; ctx.lineWidth=3; const m=(INTRO.skipArm&&performance.now()-INTRO.skipArm<3000)?'PRESS AGAIN TO SKIP ▶':'PRESS ANY KEY / TAP TWICE TO SKIP ▶'; ctx.strokeText(m,W-14,H-14); ctx.fillText(m,W-14,H-14) } }
+  if(Math.floor(performance.now()/500)%2===0||I.t<1){ ctx.font=`bold ${Math.max(12*DPR,H/40)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.85)'; ctx.strokeStyle='#000'; ctx.lineWidth=3; const m=skipMsg(INTRO.skipArm)+' ▶'; ctx.strokeText(m,W-14,H-14); ctx.fillText(m,W-14,H-14) } }
 ['keydown','pointerdown','touchstart'].forEach(ev=>window.addEventListener(ev,e=>{ if(state==='intro'&&INTRO&&INTRO.t>.35&&!(ev==='keydown'&&e.repeat)){ if(ev==='keydown'&&(e.code==='KeyM'||e.metaKey))return; skipIntro() } },{passive:true}));
 
 /* ====================== LAUNCH BRIEFING: Col Harold "Hal" Mercer (fictional), early-90s chunky low-res cutscene ====================== */
@@ -6512,9 +6516,12 @@ function drawBrief2(){ const B=BR2; ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle
   b2Portrait(bx+8*U,y+7*U,pw,ph,L.port); if(L.with)b2Portrait(bx+bw-8*U-pw,y+7*U,pw,ph,L.with);
   ctx.textAlign='left'; ctx.textBaseline='alphabetic'; ctx.fillStyle='#e8c030'; ctx.fillText(L.who,bx+pw+16*U,y+16*U);
   ctx.fillStyle='#f6f6e6'; const shown=L.t.slice(0,Math.floor(B.typed)); let idx=0; lines.forEach((ln,i)=>{ ctx.fillText(shown.slice(idx,Math.min(idx+ln.length,shown.length)),bx+pw+16*U,y+(32+i*15)*U); idx+=ln.length+1 });
-  ctx.font=`${Math.max(10,fs*.8)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.75)'; ctx.fillText((INTRO&&INTRO.skipArm&&performance.now()-INTRO.skipArm<3000)?'PRESS AGAIN TO SKIP':'PRESS TWICE TO SKIP',W-14,H-14);
+  ctx.font=`${Math.max(10,fs*.8)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.75)'; ctx.fillText(skipMsg(B.skipArm),W-14,H-14);
   ctx.textAlign='left'; ctx.fillStyle='rgba(232,200,96,.8)'; ctx.fillText('NORTH OF QUANG TRI · 1968',ox+14,oy+dh-14) }
-['keydown','pointerdown','touchstart'].forEach(ev=>window.addEventListener(ev,e=>{ if(state!=='brief2'||!BR2||BR2.t<.3)return; if(ev==='keydown'&&(e.repeat||e.code==='KeyM'||e.metaKey))return; endBrief2() },{passive:true}));
+['keydown','pointerdown','touchstart'].forEach(ev=>window.addEventListener(ev,e=>{ if(state!=='brief2'||!BR2||BR2.t<.3)return; if(ev==='keydown'&&(e.repeat||e.code==='KeyM'||e.metaKey))return; brief2Skip() },{passive:true}));
+/* rc8.1 EP: briefing skip = two presses within 3 s, like the intro; the first press shows 'Press again to skip' (pad button name on a controller) */
+function brief2Skip(){ if(!BR2)return; if(/[?&]skip1=1\b/.test(location.search)){ endBrief2(); return } const n=performance.now(); if(BR2.skipArm&&n-BR2.skipArm<300)return; if(BR2.skipArm&&n-BR2.skipArm<3000){ endBrief2(); return } BR2.skipArm=n }
+function skipMsg(arm){ const pad=typeof PAD!=='undefined'&&PAD.on, k=pad?PAD.pn('A').split(' ')[0]:''; return (arm&&performance.now()-arm<3000)?(pad?'Press '+k+' again to skip':'Press again to skip'):(pad?'Press '+k+' twice to skip':'Press any key twice to skip') }
 if(INTRO2){ try{ $('btnBrief').style.display='none' }catch(e){} }   /* Mercer briefing is not reachable unless ?ltbrief=0 */
 if(DBG.bot){ window.__ms_ub2=dt=>updateBrief2(dt); window.__ms_i2c=()=>intro2Contact(); window.__ms_br2=()=>BR2 }   /* test hooks, ?bot only */
 /* the HUD (and G.banner) is not drawn during state 'intro', so the ramp line gets its own caption, same style as the briefing box */
@@ -7934,11 +7941,12 @@ const ACH=[
   {id:'squad_alive8',name:'Keep Them Together',desc:'Have eight Marines alive at the ten-minute mark.',live:1,cond:c=>c.t>=600&&c.t<605&&c.alive>=8}];
 /* rc8.1 EP: never lose a level. Held level-ups get the (one, batched) card at the next calm play via the per-frame gate; if the run ends first they are listed here. p.lvl already counts them (addXp raises lvl immediately), so the level record includes them. */
 function LU_UNCL(g){ const n=g.pending|0; g.luUncl=n; if(n<=0)return ''; const k=Math.min(BAL81.PROMO_CAP,n), bank=n-k; g.promo={n:k,done:0,bank,xp:0}; if(bank>0)promoBank(g,bank);   /* rc8.1 EP/GDUX #3: held level-ups -> up to 3 CLAIM FIELD PROMOTION cards (Enter / pad A); extras banked silently as service XP */
-  let h='<div id="promoBox" class="luuncl" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:8px auto">'; for(let i=0;i<k;i++)h+=`<button type="button" class="card promo${i===0?' hi':''}" data-i="${i}" style="min-height:0;padding:8px 12px;width:auto"><div class="nm">CLAIM FIELD PROMOTION</div><div class="ds">+${BAL81.PROMO_XP} service XP · Enter / A</div></button>`; return h+'</div>' }
+  let h='<div id="promoBox" class="luuncl" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:8px auto">'; h+=`<button type="button" class="card promo hi" data-i="0" style="min-height:0;padding:8px 12px;width:auto">${promoLbl(k)}</button>`; return h+'</div>' }   /* rc8.1 EP: ONE button with the count; each press claims the next promotion */
+function promoLbl(left){ return `<div class="nm">CLAIM FIELD PROMOTION${left>1?' ×'+left:''}</div><div class="ds">+${BAL81.PROMO_XP} service XP each · Enter / A</div>` }
 function promoBank(g,n){ try{ if(!g||g.demo||g.dbg||!g.char||DBG.t>0)return; CHS=loadChars(); const c=CHS[g.char]; if(!c)return; c.xp+=n*BAL81.PROMO_XP; saveChars(); if(g.promo)g.promo.xp+=n*BAL81.PROMO_XP }catch(e){} }
-function promoClaim(){ const g=G, P=g&&g.promo; if(state!=='over'||!P||P.done>=P.n)return false; const b=document.querySelector('#promoBox .promo[data-i="'+P.done+'"]'); promoBank(g,1); P.done++; if(b){ b.disabled=true; b.classList.remove('hi'); b.innerHTML='<div class="nm">PROMOTION CLAIMED</div><div class="ds">+'+BAL81.PROMO_XP+' service XP</div>' } const nx=document.querySelector('#promoBox .promo[data-i="'+P.done+'"]'); if(nx)nx.classList.add('hi'); try{ Snd.play('pickup') }catch(e){} return true }
+function promoClaim(){ const g=G, P=g&&g.promo; if(state!=='over'||!P||P.done>=P.n)return false; const b=document.querySelector('#promoBox .promo'); promoBank(g,1); P.done++; if(b){ const left=P.n-P.done; if(left>0)b.innerHTML=promoLbl(left); else { b.disabled=true; b.classList.remove('hi'); b.innerHTML='<div class="nm">'+(P.n>1?P.n+' PROMOTIONS CLAIMED':'PROMOTION CLAIMED')+'</div><div class="ds">+'+(P.n*BAL81.PROMO_XP)+' service XP</div>' } } try{ Snd.play('pickup') }catch(e){} return true }
 document.addEventListener('keydown',e=>{ if(state==='over'&&(e.key==='Enter'||e.code==='Space')&&G&&G.promo&&G.promo.done<G.promo.n&&performance.now()-overAt>OVER_LOCK){ e.preventDefault(); e.stopImmediatePropagation(); promoClaim() } },true);
-document.addEventListener('click',e=>{ const b=e.target&&e.target.closest&&e.target.closest('#promoBox .promo'); if(b&&!b.disabled&&G&&G.promo&&+b.dataset.i===G.promo.done){ e.stopPropagation(); promoClaim() } },true);
+document.addEventListener('click',e=>{ const b=e.target&&e.target.closest&&e.target.closest('#promoBox .promo'); if(b&&!b.disabled&&G&&G.promo&&G.promo.done<G.promo.n){ e.stopPropagation(); promoClaim() } },true);
 /* rc8.1 EP roster: THE FIFTEEN = Doc + 14 (DESIGN_QUANG_TRI.md). Every man of the squad, with a status, on win AND loss cards */
 function squadRoster(g){ const nm=j=>(j===13&&g.char!=='doc'&&CORP.ON)?'HM3 Fontaine':Q15.names[j], L=[]; const add=n=>{ if(n&&!L.includes(n))L.push(n) };
   if(g.q15)for(let j=0;j<Q15.names.length;j++)add(nm(j)); for(const m of coy)if(m&&m.nm&&m.comp&&m.comp.q15)add(m.nm); return L }
@@ -8045,7 +8053,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
     if(on){ this.id=(g&&g.id)||''; this.ps=/054c|playstation|dualshock|dualsense|sony|wireless controller/i.test(this.id)&&!/xbox|microsoft|045e/i.test(this.id);
       const ab=$('abilKey'); if(ab){ ab._k=ab.textContent; ab.textContent=this.pn('A').split(' ')[0] }
       const sg=document.querySelector('#sigBtn span'); if(sg){ sg._k=sg.textContent; sg.textContent=this.pn('X').split(' ')[0] }
-      document.querySelectorAll('.padKeys').forEach(e=>{ e.textContent=this.keysText() });
+      document.querySelectorAll('.padKeys').forEach(e=>padKeysFill(e,this.keysText()));
       this.toast(`🎮 Controller connected · ${this.pn('A')}: special   ${this.pn('ST')}: pause`,5000) }
     else { const ab=$('abilKey'); if(ab&&ab._k)ab.textContent=ab._k; const sg=document.querySelector('#sigBtn span'); if(sg&&sg._k)sg.textContent=sg._k; this.mx=this.my=0; this.prev=[]; this.setHl(null); document.body.classList.remove('padmode');
       if(state==='play'){ pauseGame(); this.toast('🎮 Controller disconnected · game paused',6000) } else this.toast('🎮 Controller disconnected',3000) } },
@@ -8100,7 +8108,8 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
 ['pointerdown','keydown'].forEach(ev=>window.addEventListener(ev,()=>{ document.body.classList.remove('padmode') },true));
 window.addEventListener('gamepadconnected',e=>{ if(!PAD.on){ const g=PAD.pick(); if(g)PAD.setOn(true,g) } });
 window.addEventListener('gamepaddisconnected',e=>{ if(PAD.on&&!PAD.pick())PAD.setOn(false) });
-document.querySelectorAll('.padKeys').forEach(e=>{ e.textContent=PAD.keysText() });
+function padKeysFill(e,t){ if(!e.closest('.htCol')||typeof PAD==='undefined'){ e.textContent=t; return } const n=k=>PAD.pn(k); e.textContent=`${n('A')} special · ${n('X')} bird / smoke · hold ${n('RB')} engineers · ${n('Y')} bunker · ${n('B')} patch self · tap ${n('RB')} patch Marine · ${n('ST')} pause` }   /* rc8.1 UI: short pad list on the title menu so it fits 1280x720 (full list stays in pause / tutorial) */
+document.querySelectorAll('.padKeys').forEach(e=>padKeysFill(e,PAD.keysText()));
 DBG.pad={ info(){ return {on:PAD.on,id:PAD.id,ps:PAD.ps,mx:+PAD.mx.toFixed(2),my:+PAD.my.toFixed(2),state,uses:PAD.uses,last:PAD.last,luI:PAD.luI,hl:PAD.hl&&(PAD.hl.id||PAD.hl.className),padmode:document.body.classList.contains('padmode'),medTap:PAD.medTap,rbHold:PAD.rbHold(),fbHeld:(()=>{ try{ return fbHeld() }catch(e){ return null } })()} },
   connect(id){ const v=PAD.virt=PAD.virt||{on:false,pad:{connected:true,id:id||'Xbox 360 Controller (STANDARD GAMEPAD Vendor: 045e Product: 028e)',index:0,mapping:'standard',axes:[0,0,0,0],buttons:Array.from({length:17},()=>({pressed:false,value:0}))}}; if(id)v.pad.id=id; v.on=true },
   disconnect(){ if(PAD.virt)PAD.virt.on=false },
