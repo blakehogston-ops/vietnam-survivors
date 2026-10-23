@@ -97,6 +97,7 @@ function drawXpBar(ctx,x,y,w,h,xp,need,lvl,U){ U=U||1; var k=need>0?xp/need:0; c
   // grommets
   ctx.fillStyle='#8f8a6a'; for(var i=0;i<2;i++){ var gx=i?x+w-8*U:x+8*U; ctx.beginPath(); ctx.arc(gx,y+h/2,3*U,0,6.283); ctx.fill(); ctx.fillStyle=OUT; ctx.beginPath(); ctx.arc(gx,y+h/2,1.4*U,0,6.283); ctx.fill(); ctx.fillStyle='#8f8a6a' }
   var tx=x+16*U, ty=y+1*U, th=h-2*U; dogtag(ctx,tx,ty,tagW,th,U,'brass',['LVL '+lvl],Math.round(13*U));
+  { var xs=Math.floor(xp)+' / '+need+' XP', xf=Math.max(18,Math.round(12*U)); ctx.save(); ctx.font='bold '+xf+'px '+MONO; var xw=ctx.measureText(xs).width+xf*.6; ctx.fillStyle='rgba(20,22,12,.55)'; ctx.fillRect(x+w-18*U-xw+xf*.3,by+bh-4*U-xf*.9,xw,xf*1.15); ctx.restore(); }   /* rc8.1 textfit: XP count on its own chip */
   mono(ctx,Math.floor(xp)+' / '+need+' XP',x+w-18*U,by+bh-4*U,Math.round(12*U),CREAM,'right');
   ctx.restore(); return {hit:R(x,y,w,h),fill:R(bx,by,bw*clamp(k,0,1),bh),tag:R(tx,ty,tagW,th)} }
 

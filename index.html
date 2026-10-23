@@ -2886,7 +2886,7 @@ function drawTank(t){ const K=TANKK[t.k];
   ctx.restore();
   drawTankBar(t) }
 function drawTankBar(t){ const x=Math.round(t.x), y=Math.round(t.y)-38;
-  if(t.dead){ if(t.rs>1.2)txt('ARMOR RESPAWN '+Math.ceil(t.rs)+'s',x,y+6,11,'#ffb070','center'); return }
+  if(t.dead){ if(t.rs>1.2)txtChip('ARMOR RESPAWN '+Math.ceil(t.rs)+'s',x,y+6,11,'#ffb070'); return }
   const r=Math.max(0,t.hp/t.mhp), w=48; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(x-w/2-1,y-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(x-w/2,y,w,5);
   ctx.fillStyle=r>.55?'#6fd04a':r>.28?'#f2b134':'#e03a2a'; ctx.fillRect(x-w/2,y,Math.round(w*r),5); ctx.fillStyle='rgba(255,255,255,.25)'; ctx.fillRect(x-w/2,y,Math.round(w*r),1) }
 function updateGore(dt){
@@ -5334,8 +5334,8 @@ const OFFI={ON:OFF_ON, cmd:null, tgt:null, sT:0, oT:0, cd:{focus:0,sup:0,law:0,f
   hud(U,camX,camY){ if(!this.on())return; const fs=Math.max(16*DPR,16*U); ctx.save(); ctx.setTransform(1,0,0,1,0,0);
     const sx=x=>(x-camX)*zoom, sy=y=>(y-camY)*zoom, c=this.cmd;
     if(c&&c.hp>0){ const x=sx(c.x), y=sy(c.y)-34*zoom; if(!(this.chev>0)||((performance.now()/120)|0)%2===0){ ctx.fillStyle='#ffe58a'; ctx.strokeStyle='#0b140c'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(x-7*U,y+5*U); ctx.lineTo(x,y-3*U); ctx.lineTo(x+7*U,y+5*U); ctx.lineTo(x+7*U,y+9*U); ctx.lineTo(x,y+1*U); ctx.lineTo(x-7*U,y+9*U); ctx.closePath(); ctx.stroke(); ctx.fill() }
-      txt(OFF_RKN[c.rank]||'',x,y-6*U,Math.max(12*DPR,11*U),'#ffe58a','center') }
-    const lt=this.ltHit&&coy.find(m=>m.isLt&&m.hp>0); if(lt){ const x=sx(lt.x), y=sy(lt.y)-50*zoom; ctx.fillStyle='rgba(120,20,10,.85)'; ctx.fillRect(x-38*U,y-11*U,76*U,18*U); txt('LT DOWN',x,y+3*U,Math.max(13*DPR,12*U),'#fff','center') }
+      if(OFF_RKN[c.rank])txtChip(OFF_RKN[c.rank],x,y-6*U,Math.max(12*DPR,11*U),'#ffe58a') }
+    const lt=this.ltHit&&coy.find(m=>m.isLt&&m.hp>0); if(lt){ const x=sx(lt.x), y=sy(lt.y)-50*zoom; ctx.fillStyle='rgba(120,20,10,.85)'; ctx.fillRect(x-38*U,y-11*U,76*U,18*U); txtChip('LT DOWN',x,y+3*U,Math.max(13*DPR,12*U),'#fff') }
     if(this.mark&&!this.mark.e.dead&&G.t<this.mark.t){ const e=this.mark.e, x=sx(e.x), y=sy(e.y); ctx.strokeStyle='#ff6a4a'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,16*zoom,0,TAU); ctx.moveTo(x-22*zoom,y); ctx.lineTo(x+22*zoom,y); ctx.moveTo(x,y-22*zoom); ctx.lineTo(x,y+22*zoom); ctx.stroke() }
     if(this.toast){ const k=Math.min(1,this.toast.t*2); ctx.globalAlpha=k; ctx.font=`bold ${fs}px "Courier New",monospace`; const w=ctx.measureText(this.toast.s).width+20*U; const y=laneT(fs*1.3,HUDM.on?exTop(U)+(exStack||0)+60*U:Math.max(H*.17,110*U));   /* rc8a: officer toast (COMMAND · SGT PETTAWAY) takes a lane slot */ ctx.fillStyle='rgba(12,14,10,.7)'; ctx.fillRect(W/2-w/2,y-fs,w,fs*1.5); txt(this.toast.s,W/2,y+fs*.2,fs,'#ffe58a','center') }
     ctx.restore() } };
@@ -7041,13 +7041,13 @@ function drawStruct(s,tt){ const x=Math.round(s.x),y=Math.round(s.y), a=s.b<1?.4
 let WCAM={x:0,y:0}; function wClamp(x,str,size){ try{ ctx.font=`bold ${Math.max(size,txtMin())}px "Courier New",monospace`; const w=ctx.measureText(str).width/2+8; return Math.max(WCAM.x+w,Math.min(WCAM.x+VW-w,x)) }catch(e){ return x } }   /* rc8.1 3b: world labels stay inside the screen edges */
 function fbSiteC(){ const l=lzS; return l?{x:Math.round(l.x),y:Math.round(l.y)}:null }   /* rc8.1: one shared world centre for ring, label, arrow and the HOLD F hit test */
 function fbSiteTop(camX,camY,tt){ WCAM.x=camX; WCAM.y=camY; const c=fbSiteC(); if(!c)return; const l=lzS; if(c.x<camX-90||c.x>camX+VW+90||c.y<camY-90||c.y>camY+VH+90)return; fbRing(c.x,c.y,l.hold,tt);
-  txt('FIREBASE SITE',wClamp(c.x,'FIREBASE SITE',Math.round(13*PADL())),c.y-84,Math.round(13*PADL()),'#ffe58a','center'); if(l.hold>0)txt('CALLING '+Math.round(l.hold*100)+'%',c.x,c.y+52,Math.round(12*PADL()),'#9be37a','center'); else if(!FBPADHIDE||!padActiveNear(c.x,c.y))txt(fbCallText(),wClamp(c.x,fbCallText(),Math.round(12*PADL())),c.y+52,Math.round(12*PADL()),'#ffe58a','center') }
+  txtChip('FIREBASE SITE',wClamp(c.x,'FIREBASE SITE',Math.round(13*PADL())),c.y-84,Math.round(13*PADL()),'#ffe58a'); if(l.hold>0)txtChip('CALLING '+Math.round(l.hold*100)+'%',c.x,c.y+52,Math.round(12*PADL()),'#9be37a'); else if(!FBPADHIDE||!padActiveNear(c.x,c.y))txtChip(fbCallText(),wClamp(c.x,fbCallText(),Math.round(12*PADL())),c.y+52,Math.round(12*PADL()),'#ffe58a') }
 function drawFirebase(camX,camY,tt){ WCAM.x=camX; WCAM.y=camY; const x0=camX-90,x1=camX+VW+90,y0=camY-90,y1=camY+VH+90, f=fbS;
   if(lzS){ const l=lzS, x=Math.round(l.x), y=Math.round(l.y); if(x>x0&&x<x1&&y>y0&&y<y1){ ctx.fillStyle='rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x,y+6,34,12,0,0,TAU); ctx.fill();   /* ring on the ground: the call point */
       ctx.fillStyle='#4a4b42'; ctx.fillRect(x-6,y-10,12,14); ctx.fillStyle='#2e2e28'; ctx.fillRect(x-4,y-8,8,3); ctx.fillStyle='#9aa0a6'; ctx.fillRect(x+4,y-40,1,32); ctx.fillStyle=(Math.floor(tt*2)%2)?'#ff4a3a':'#6a1a12'; ctx.fillRect(x+3,y-42,3,3);
       for(let k=0;k<4;k++){ const q=((tt*.8+k*.25)%1); ctx.globalAlpha=(1-q)*.6; ctx.fillStyle=k&1?'#ffe040':'#f2c820'; ctx.fillRect(Math.round(x-14+Math.sin(q*6+k)*6),Math.round(y-12-q*70),6+q*8,6+q*8) } ctx.globalAlpha=1;
       /* ring + label: fbSiteTop() after the canopy */ } }
-  if(f){ if(f.state==='stalled'||f.state==='inbound'){ const x=Math.round(f.x),y=Math.round(f.y); if(f.state==='stalled'){ txt(fbCallText(),wClamp(x,fbCallText(),12),y-100,12,'#ff8a6a','center'); fbRing(x,y,f.hold,tt) } }
+  if(f){ if(f.state==='stalled'||f.state==='inbound'){ const x=Math.round(f.x),y=Math.round(f.y); if(f.state==='stalled'){ txtChip(fbCallText(),wClamp(x,fbCallText(),12),y-100,12,'#ff8a6a'); fbRing(x,y,f.hold,tt) } }
     // build zone outline + ghost footprints of what is still to be built
     if(f.state!=='done'){ const x=Math.round(f.x),y=Math.round(f.y); ctx.save(); ctx.strokeStyle='rgba(255,229,138,.55)'; ctx.lineWidth=2; ctx.setLineDash([9,7]); ctx.lineDashOffset=-tt*8; ctx.beginPath(); ctx.rect(x-FBS-18,y-FBS-18,2*FBS+36,2*FBS+36); ctx.stroke(); ctx.setLineDash([]);
       const cur=f.st.findIndex(v=>v==null);
@@ -7124,7 +7124,7 @@ function drawCrateHud(U){ const g=G,p=g.p; if(!crates.length)return; if(g.ex&&g.
   ctx.setTransform(1,0,0,1,0,0);
   for(const c of crates){ const dx=c.x-p.x,dy=c.y-p.y; if(Math.abs(dx)<VW/2-30&&Math.abs(dy)<VH/2-30)continue; const a=Math.atan2(dy,dx);
     const [ex,ey]=edgeArrow(a,U);
-    ctx.save(); ctx.translate(ex,ey); ctx.rotate(a); ctx.fillStyle='#d8352a'; ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(15*U,0); ctx.lineTo(-8*U,-9*U); ctx.lineTo(-8*U,9*U); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore(); txt('CRATE',ex,ey-14*U,10*U,'#ffe58a','center') } }
+    ctx.save(); ctx.translate(ex,ey); ctx.rotate(a); ctx.fillStyle='#d8352a'; ctx.strokeStyle='#000'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(15*U,0); ctx.lineTo(-8*U,-9*U); ctx.lineTo(-8*U,9*U); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.restore(); txtChip('CRATE',ex,ey-14*U,10*U,'#ffe58a') } }
 /* Dustoff: one revive per run */
 function dustoffRevive(){ const g=G,p=g.p; g.dustUsed=true; p.hp=p.maxHp; p.invul=6; g.dw5=[]; for(const e of enemies){ if(!e.dead&&!e.boss&&Math.hypot(e.x-p.x,e.y-p.y)<220){ const a=Math.atan2(e.y-p.y,e.x-p.x); e.x=p.x+Math.cos(a)*240; e.y=p.y+Math.sin(a)*240 } }   /* RC3 (Gamer): full heal, 6 s invulnerable, burst window cleared, close enemies shoved back */ g.dust={t:0,rot:0};
   explode(p.x,p.y,300,260,520); burst(p.x,p.y,40,260,.9,6,['#d8d0b0','#bdb596','#ffd54a'],true); g.banner={text:'EMERGENCY MEDEVAC! CH-46 ON STATION',t:3,col:'#9be37a'}; Snd.play('radio'); Snd.play('level'); g.shake=Math.max(g.shake,10) }
@@ -7567,14 +7567,14 @@ function drawSigIcon(c,x,y,r,it,tt){ c.fillStyle='#1b1b18'; c.fillRect(x-r*.5,y-
 function drawExGround(tt){ const g=G,ex=g.ex; if(!ex)return;
   const can=(s)=>{ ctx.fillStyle='rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(s.x,s.y+2,10,4,0,0,TAU); ctx.fill() };
   if(ex.sig&&ex.popped)can(ex.sig); if(ex.charlie)can(ex.charlie);
-  if(ex.ph===0&&ex.pre&&N2.XC&&G.t>=N2.XMIN){ const lz=ex.pre, R=EX.PAD_R, on=N2.atPad(G); ctx.save(); ctx.translate(lz.x,lz.y+2); ctx.scale(1,.78); ctx.lineWidth=7; ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.beginPath(); ctx.arc(0,0,R+2,0,TAU); ctx.stroke(); if(!(OB.pad&&on)){ ctx.setLineDash([14,10]); ctx.lineDashOffset=-tt*20 } ctx.strokeStyle=on?'#9be37a':'#fff6a0'; ctx.lineWidth=on&&OB.pad?5:4; ctx.beginPath(); ctx.arc(0,0,R,0,TAU); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); if(OB.pad&&on)obPadCheck(lz.x,lz.y,R); ctx.save(); ctx.font='bold 12px "Courier New",monospace'; ctx.textAlign='center'; ctx.fillStyle='#000'; ctx.fillText('PICKUP PAD',lz.x+1,lz.y+5); ctx.fillStyle='#fff6a0'; ctx.fillText('PICKUP PAD',lz.x,lz.y+4); ctx.restore() }   /* rc6b: pre-marked pad for the first call */
+  if(ex.ph===0&&ex.pre&&N2.XC&&G.t>=N2.XMIN){ const lz=ex.pre, R=EX.PAD_R, on=N2.atPad(G); ctx.save(); ctx.translate(lz.x,lz.y+2); ctx.scale(1,.78); ctx.lineWidth=7; ctx.strokeStyle='rgba(0,0,0,.55)'; ctx.beginPath(); ctx.arc(0,0,R+2,0,TAU); ctx.stroke(); if(!(OB.pad&&on)){ ctx.setLineDash([14,10]); ctx.lineDashOffset=-tt*20 } ctx.strokeStyle=on?'#9be37a':'#fff6a0'; ctx.lineWidth=on&&OB.pad?5:4; ctx.beginPath(); ctx.arc(0,0,R,0,TAU); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); if(OB.pad&&on)obPadCheck(lz.x,lz.y,R); txtChip('PICKUP PAD',lz.x,lz.y+4,12,'#fff6a0') }   /* rc6b: pre-marked pad for the first call */
   if(ex.pad&&ex.padShown&&(ex.ph>=3||ex.padPlan)&&ex.ph<=7){ const lz=ex.pad, R=EX.PAD_R, c=SIGC[ex.padCol==='white'?'yellow':ex.padCol];
     ctx.save(); ctx.globalAlpha=.4; ctx.fillStyle='#8f7a4e'; ctx.beginPath(); ctx.ellipse(lz.x,lz.y+4,R+20,(R+20)*.7,0,0,TAU); ctx.fill(); ctx.restore();
     const pulse=1+.05*Math.sin(tt*5); ctx.save(); ctx.translate(lz.x,lz.y+2); ctx.scale(1,.78); ctx.lineWidth=6; ctx.strokeStyle='rgba(0,0,0,.5)'; ctx.beginPath(); ctx.arc(0,0,R*pulse+2,0,TAU); ctx.stroke();
     const onP=OB.pad&&onPad(g.p.x,g.p.y)&&g.p.hp>0; if(!onP){ ctx.setLineDash([14,10]); ctx.lineDashOffset=-tt*20 } ctx.strokeStyle=ex.ph===3&&!ex.padShown?'#fff':'#f2e8c0'; ctx.lineWidth=onP?5:4; ctx.beginPath(); ctx.arc(0,0,R*pulse,0,TAU); ctx.stroke(); ctx.setLineDash([]);   /* rc8: dashed off the pad, solid + check on it */
     if(ex.board>0){ ctx.strokeStyle='#9be37a'; ctx.lineWidth=8; ctx.beginPath(); ctx.arc(0,0,R*pulse-9,-Math.PI/2,-Math.PI/2+TAU*Math.min(1,ex.board/EX.BOARD_T)); ctx.stroke() }
     ctx.fillStyle='rgba(255,255,255,.6)'; ctx.fillRect(-14,-14,5,28); ctx.fillRect(9,-14,5,28); ctx.fillRect(-14,-3,28,6); ctx.restore(); if(onP)obPadCheck(lz.x,lz.y,R);
-    if(ex.ph===3)txt('PICKUP PAD · BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+Math.min(15,G.pullEx||0)-G.t))),lz.x,lz.y+R*.78+18,Math.round(12*PADL()),'#f2e8c0','center'); else if(ex.ph===4&&ex.call&&ex.call.st==='wait')txt('STAND HERE: POP SMOKE',lz.x,lz.y+R*.78+18,Math.round(13*PADL()),'#ffe58a','center') } }
+    if(ex.ph===3)txtChip('PICKUP PAD · BIRD IN '+fmt(Math.ceil(Math.max(0,ex.landT+Math.min(15,G.pullEx||0)-G.t))),lz.x,lz.y+R*.78+18,Math.round(12*PADL()),'#f2e8c0'); else if(ex.ph===4&&ex.call&&ex.call.st==='wait')txt('STAND HERE: POP SMOKE',lz.x,lz.y+R*.78+18,Math.round(13*PADL()),'#ffe58a','center') } }
 /* rc8.1 QA night (EP): the pad and the bird's smoke request must read in the dark. Drawn in screen space after ATM, so the night grade never dims it.
    Beacon: glowing ring + strobe + PAD label, strength grows with darkness (always on while the bird wants smoke). Prompt: boxed line with the live key/pad glyph. */
 function padNight(tt,cx,cy){ const g=G, ex=g&&g.ex; if(!ex||g.demo||state!=='play')return; let P=null;
@@ -7587,7 +7587,7 @@ function padNight(tt,cx,cy){ const g=G, ex=g&&g.ex; if(!ex||g.demo||state!=='pla
   if(!on){ ctx.setLineDash([16*zoom,10*zoom]); ctx.lineDashOffset=-tt*24 } ctx.beginPath(); ctx.arc(0,0,R*pul,0,TAU); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
   ctx.save(); ctx.globalAlpha=k*(Math.floor(tt*2)%2?1:.45); ctx.fillStyle=wait?'#ffcf5a':'#fff6a0'; ctx.beginPath(); ctx.arc(sx,sy-R*.78-10*DPR,5*DPR,0,TAU); ctx.fill(); ctx.restore();
   if(on&&OB.pad&&dk>.05)obPadCheck(sx,sy,R);   /* the ON PAD chip again over the night grade */
-  if(!on&&!wait){ ctx.save(); ctx.globalAlpha=Math.max(.85,k); txt('PICKUP PAD',sx,sy+R*.78+18*DPR,Math.max(txtMin(),14*DPR),wait?'#ffe58a':'#fff6a0','center'); ctx.restore() }
+  if(!on&&!wait){ ctx.save(); ctx.globalAlpha=Math.max(.85,k); txtChip('PICKUP PAD',sx,sy+R*.78+18*DPR,Math.max(txtMin(),14*DPR),wait?'#ffe58a':'#fff6a0'); ctx.restore() }
   if((wait&&!on)||popd||(wait&&on)){ const key=PAD.on?PAD.pn('X').split(' ')[0].toUpperCase():COARSE.matches?'POP SMOKE':'G'; const t=(wait&&!on)?'BIRD WANTS SMOKE · STAND IN THE PAD RING · IT POPS BY ITSELF ('+(COARSE.matches&&!PAD.on?'or tap ':'or ')+key+')':'BIRD WANTS SMOKE · ON THE PAD · SMOKE POPPING';
     const fs=Math.max(txtMin(),18*DPR); ctx.save(); ctx.font='bold '+fs+'px "Courier New",monospace'; const w=Math.min(W-16,ctx.measureText(t).width+fs*1.4), y=H*.7; ctx.fillStyle='rgba(8,10,8,.85)'; ctx.fillRect(W/2-w/2,y-fs*.95,w,fs*1.9); ctx.strokeStyle='#ffcf5a'; ctx.lineWidth=2; ctx.strokeRect(W/2-w/2+1,y-fs*.95+1,w-2,fs*1.9-2); ctx.restore();
     txt(t,W/2,y,Math.min(fs,(W-40)/Math.max(10,t.length*.62)),'#ffe58a','center') } }
@@ -7597,7 +7597,7 @@ function drawExAir(tt){ const g=G,ex=g.ex; if(!ex)return;
   const fade=ex.ph>=6?Math.max(0,1-ex.t/(EX.LIFT+1)):1;
   const s=ex.sig; if(s&&ex.popped){ drawSigFx(s.x,s.y,'smoke',s.col,tt,fade) } else if(false&&s&&!(ex.ph>=3&&!ex.wrong)){ if(!s.land){ ctx.fillStyle='#2b2f2a'; ctx.fillRect(Math.round(s.x-3),Math.round(s.y-s.z-6),6,9) } else drawSigFx(s.x,s.y,s.kind,s.col,tt,1) }
   if(ex.charlie)drawSigFx(ex.charlie.x,ex.charlie.y,'smoke',ex.charlie.col,tt+.37,1);
-  if(ex.call&&ex.call.st==='ask'&&state==='sig'){ const T=callTarget(); if(T){ const by=T.y+16+Math.abs(Math.sin(tt*5))*10; ctx.save(); ctx.fillStyle='#fff6a0'; ctx.strokeStyle='#000'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(T.x,by); ctx.lineTo(T.x-24,by+44); ctx.lineTo(T.x+24,by+44); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.font='bold 17px monospace'; const lw=ctx.measureText('BIRD SEES THIS ONE').width+14; ctx.fillStyle='rgba(0,0,0,.8)'; ctx.fillRect(T.x-lw/2,by+50,lw,24); ctx.restore(); txt('BIRD SEES THIS ONE',T.x,by+68,17,'#fff6a0','center')   /* RC5 (Gamer): bigger and brighter, pointing UP at the canister from below so the top-anchored dialog never covers it; overlay dim 50% */ } }
+  if(ex.call&&ex.call.st==='ask'&&state==='sig'){ const T=callTarget(); if(T){ const by=T.y+16+Math.abs(Math.sin(tt*5))*10; ctx.save(); ctx.fillStyle='#fff6a0'; ctx.strokeStyle='#000'; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(T.x,by); ctx.lineTo(T.x-24,by+44); ctx.lineTo(T.x+24,by+44); ctx.closePath(); ctx.stroke(); ctx.fill(); ctx.font='bold 17px monospace'; const lw=ctx.measureText('BIRD SEES THIS ONE').width+14; ctx.fillStyle='rgba(0,0,0,.8)'; ctx.fillRect(T.x-lw/2,by+50,lw,24); ctx.restore(); txtChip('BIRD SEES THIS ONE',T.x,by+68,17,'#fff6a0')   /* RC5 (Gamer): bigger and brighter, pointing UP at the canister from below so the top-anchored dialog never covers it; overlay dim 50% */ } }
   if(ex.huey&&ex.ph>=4)drawExHuey(ex.huey,tt) }
 /* RC3 (QA colour-blind): smoke colours also differ in brightness + pattern (protanopia / greyscale): yellow = bright core, violet = dark hatching, green = plain */
 function cbMark(col,x,y,tt,fade){ return;   /* rc8 AD: no patterns painted on the smoke itself; the pattern is in the chip (smokeTag) */
@@ -8161,6 +8161,7 @@ cv.addEventListener('contextmenu',e=>e.preventDefault());
 /* rc7.1 mobile: LZ / PAD world labels 1.5x on HUDM (desktop 1x) */
 function PADL(){ return HUDM.on?1.5:1 }
 function txtMin(){ return (HUDM&&HUDM.on)?12*(DPR||1):Math.max(18,18*H/1080) }   /* a11y P1: 18 px floor on desktop (was 12 px at 720p), 12*DPR on the mobile HUD (was 0) */   /* rc8.1 Pass 3: in-canvas text >= ~18 css px at 1080p (desktop) */
+function txtChip(s,x,y,size,col,a){ const cs=Math.max(size,txtMin()); ctx.save(); ctx.font='bold '+cs+'px "Courier New",monospace'; const cw=ctx.measureText(s).width+cs*.8; ctx.fillStyle='rgba(8,14,9,'+(a==null?.55:a)+')'; ctx.fillRect(x-cw/2,y-cs*.92,cw,cs*1.2); ctx.restore(); txt(s,x,y,size,col,'center') }   /* rc8.1 textfit: centered label on a chip sized to its (floored) text */
 let CLAYD=null; function clayDecal(){ if(CLAYD)return CLAYD; const c=document.createElement('canvas'), x=c.getContext('2d'); x.font='bold 24px monospace'; const w=Math.ceil(x.measureText('FRONT TOWARD ENEMY').width)+2; c.width=w; c.height=32; x.font='bold 24px monospace'; x.fillStyle='#e8e2b0'; x.fillText('FRONT TOWARD ENEMY',1,24); return CLAYD=c }
 function txt(s,x,y,size,col,align,stroke){size=Math.max(size,txtMin());ctx.font=`bold ${size}px "Courier New",monospace`;ctx.textAlign=align||'left';ctx.lineWidth=Math.max(2,size/6);ctx.strokeStyle=stroke||'#0b140c';ctx.lineJoin='round';ctx.strokeText(s,x,y);ctx.fillStyle=col||'#f1ecd0';ctx.fillText(s,x,y)}
 const GEMC=['#4fb4ff','#5be07a','#ff5a5a'];
@@ -8398,7 +8399,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.
   if(OB.lowhp&&p.hp>0&&p.hp/p.maxHp<=.3)obLowTag(bx+bw+8*U,by,bh,U);
   drawSigLine(U,oy);   /* permanent line under the timer + MARINES count */
   // boss bar
-  if(g.boss&&!g.boss.dead){ const bw2=Math.min(460*U,W*.6),bx2=W/2-bw2/2,by2=PY; ctx.fillStyle='#0b140c'; const bh2=Math.max(16*U,txtMin()+6); ctx.fillRect(bx2-3,by2-3,bw2+6,bh2+6); ctx.fillStyle='#3a1210'; ctx.fillRect(bx2,by2,bw2,bh2); ctx.fillStyle='#d83a2a'; ctx.beginPath(); ctx.rect(bx2,by2,bw2*Math.max(0,g.boss.hp/g.boss.mhp),bh2); ctx.fill(); txt(g.boss.name.toUpperCase(),W/2,by2+bh2*.8,12*U,'#fff','center')   /* rc8.1 textfit: the name sits on the full bar, the HP fill is a path (not a chip) */   /* rc8.1 QA chip fit: bar tall enough for the 18 px name */ }
+  if(g.boss&&!g.boss.dead){ const bw2=Math.min(460*U,W*.6),bx2=W/2-bw2/2,by2=PY; ctx.fillStyle='#0b140c'; const bh2=Math.max(16*U,txtMin()+6); ctx.fillRect(bx2-3,by2-3,bw2+6,bh2+6); ctx.fillStyle='#3a1210'; ctx.fillRect(bx2,by2,bw2,bh2); ctx.fillStyle='#d83a2a'; ctx.beginPath(); ctx.rect(bx2,by2,bw2*Math.max(0,g.boss.hp/g.boss.mhp),bh2); ctx.fill(); txtChip(g.boss.name.toUpperCase(),W/2,by2+bh2*.8,12*U,'#fff',.35)   /* rc8.1 textfit: the name sits on the full bar, the HP fill is a path (not a chip) */   /* rc8.1 QA chip fit: bar tall enough for the 18 px name */ }
   // weapons list
   const sz=30*U; let ix=12*U+ox,iy=H-44*U-ob; const ixMax=W-orr-(COARSE.matches?190*DPR:60*DPR);
   const row=(id,l)=>{ ctx.fillStyle='rgba(10,20,12,.7)'; if(ix+sz>ixMax&&ix>12*U+ox+sz){ ix=12*U+ox; iy-=sz+16*U } ctx.fillRect(ix-2,iy-2,sz+4,sz+4+8*U); ctx.save(); ctx.translate(ix,iy); drawIcon(ctx,id,sz); ctx.restore(); txt('L'+l,ix+sz/2,iy+sz+9*U,10*U,'#e8c860','center'); ix+=sz+8*U };
