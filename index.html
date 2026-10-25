@@ -8476,7 +8476,7 @@ const EXW={B40:1.0,CHARGE:2.0};   /* manifest lead times (s); read from SAMPLE_M
 /* ===== MIX (Blake Oct 14: "a soup of sounds"): priority buses into the existing limiter.
    player 0 dB (never culled, prio 9) > special -1 dB (briefly ducks the rest) > squad -7 dB > enemy -11 dB (+ distance falloff, per-slot voice caps) > ambience -14 dB; music -9 dB vs player.
    Specials duck squad/enemy/ambience -6 dB, music -4 dB, player -1.5 dB for ~1.4 s. Callers tag squad / enemy sounds with MIX.as('squad'|'enemy', fn, dist). ===== */
-const MIX={DB:{player:0,special:-7,squad:-4,enemy:3,amb:-10,rot:-8,mus:-14},   /* Sound Helper mix pass, Oct 14 night */
+const MIX={DB:{player:0,special:-7,squad:-4,enemy:3,amb:-10,rot:-8,mus:-6},   /* Sound Helper mix pass, Oct 14 night */
   DUCK:{player:-1.5,squad:-6,enemy:-6,amb:-6,rot:-6,mus:-7},   /* rc8a (AD): music -7 under specials */
  DUCK_T:1.4,
   CAP:{enemy:{ak47:3,ak47_burst:2,sks:2,rpd_burst:2,b40_launch:2,mortar_launch:2,cannon:2},squad:{m16_single:3,m16_burst:2,m60_burst:2,shotgun_shot:1,bolt_rifle_shot:1,m79_launch:2,pbr_50cal_burst:2},_:4},
