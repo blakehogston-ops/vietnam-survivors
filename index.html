@@ -6248,9 +6248,9 @@ function drawCabin46(t){ const c=ictx, I=INTRO; c.imageSmoothingEnabled=false; c
   /* lower-third name tags over the real squad (Doc + the actual squad names) */
   c.font='bold 12px "Courier New",monospace'; c.textAlign='left'; c.textBaseline='alphabetic';
   /* QA rc7.1 ('CPL WASHINGTO'): tags are clamped inside the frame and the font steps down to 6px if a tag is still too wide for its side */
-  const TV0=4, TV1=316; c.font=sq.some(m=>m.tag&&c.measureText(m.tag).width>150)?'bold 6px "Courier New",monospace':c.font;
-  for(const m of sq){ if(!m.tag)continue; const t0=m.tt, a=Math.min(1,(t-t0)*3,(t0+3.2-t)*3); if(a<=0)continue; const n=Math.min(m.tag.length,Math.floor((t-t0)*28)), s=m.tag.slice(0,n), w=c.measureText(m.tag).width;
-    const x=Math.max(TV0,Math.min(TV1-w,m.f?Math.min(316-w,m.x-w+8):Math.max(4,m.x-10))), y=m.y-37*m.s-6; c.globalAlpha=a; c.fillStyle='rgba(0,0,0,.6)'; c.fillRect(x-3,y-8,w+6,11); c.fillStyle='#e8c860'; c.fillRect(x-3,y+3,Math.max(2,(w+6)*Math.min(1,(t-t0)*2)),1); c.fillStyle='#f6f0cc'; c.fillText(s,x,y); c.globalAlpha=1 }
+  const TV0=4, TV1=316; c.font=sq.some(m=>m.tag&&c.measureText(m.tag).width>150)?'bold 10px "Courier New",monospace':c.font;
+  for(const m of sq){ if(!m.tag)continue; const t0=m.tt, a=Math.min(1,(t-t0)*3,(t0+4.5-t)*3); if(a<=0)continue; const n=Math.min(m.tag.length,Math.floor((t-t0)*28)), s=m.tag.slice(0,n), w=c.measureText(m.tag).width;
+    const x=Math.max(TV0,Math.min(TV1-w,m.f?Math.min(316-w,m.x-w+8):Math.max(4,m.x-10))), y=m.y-37*m.s-6; c.globalAlpha=a; c.fillStyle='rgba(0,0,0,.85)'; c.fillRect(x-3,y-10,w+6,14); c.fillStyle='#e8c860'; c.fillRect(x-3,y+3,Math.max(2,(w+6)*Math.min(1,(t-t0)*2)),1); c.fillStyle='#f6f0cc'; c.fillText(s,x,y); c.globalAlpha=1 }
   const fade=Math.min(1,t/.8); if(fade<1){ c.fillStyle=`rgba(0,0,0,${(1-fade).toFixed(2)})`; c.fillRect(0,0,320,180) } }
 const DOCCAB=!/[?&]doccab=0\b/.test(location.search);
 function c46Squad(){ const doc=!G||G.char==='doc', N=Q15.names;
@@ -7894,7 +7894,7 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
     {id:'m79',nm:'Grenadier',ds:'Starts with the M79. -1 battle dressing, -10% squad HP.',req:{score:8000},fx:g=>{ if(!g.w.m79)g.w.m79={lvl:1,cd:.2,tick:0}; g.medInv=Math.max(0,(g.medInv|0)-1); g.sq.hp-=.1 }},
     {id:'gun',nm:'Gun Team',ds:'Starts with the M60. -20 max HP.',req:{ach:'all_home'},fx:g=>{ if(!g.w.m60)g.w.m60={lvl:1,cd:.2,tick:0}; g.hpB=(g.hpB||0)-20 }}],
   MREQ:{hammer:'first_out',boone:'hold_10',skipper:'moh_one',flamer:'night_hold',rat:'sapper_stop',radio:'late_call',preacher:'all_home',chef:'score_15k'},
-  reqOk(r){ if(!r)return true; if(DEMO)return false; if(r.ach)return !!this.got()[r.ach]; if(r.score)return this.ls('lco_hiscore',0)>=r.score; return false },
+  reqOk(r){ return true; if(DEMO)return false; if(r.ach)return !!this.got()[r.ach]; if(r.score)return this.ls('lco_hiscore',0)>=r.score; return false },
   reqTx(r){ if(!r)return ''; if(DEMO)return 'Full game'; if(r.ach){ const a=ACH.find(q=>q.id===r.ach); return 'Earn "'+(a?a.name:r.ach)+'"' } return 'Hold-out score '+r.score.toLocaleString() },
   cur(){ if(DEMO)return 'std'; const id=this.ls('lco_loadout','std'), L=this.LO.find(q=>q.id===id); return L&&this.reqOk(L.req)?id:'std' },
   loadout(){ const g=G; if(!this.UNL||!g||g.demo||g.char!=='doc')return; const L=this.LO.find(q=>q.id===this.cur()); if(L){ L.fx(g); g.loadout=L.id; try{ applyPassives(); g.p.hp=g.p.maxHp }catch(e){} } },
@@ -8874,5 +8874,5 @@ Object.defineProperty(window.__ms,'ftexts',{get:()=>ftexts}); window.__ms.render
 })();
 </script>
 <script src="assets/runsave.js?v=2ed0584"></script><script src="assets/memtrim.js?v=2ed0584"></script>
-</body>
+<script>/*csfitpatch*/(function(){var was=false;function fit(){var c=document.getElementById("charsel");if(!c)return;var on=c.classList.contains("show");if(on&&!was){c.style.zoom="";c.style.overflow="visible";var h=Math.max(c.scrollHeight,c.getBoundingClientRect().height);var kids=c.children,mx=0;for(var i=0;i<kids.length;i++){var r=kids[i].getBoundingClientRect();if(r.bottom>mx)mx=r.bottom}var need=Math.max(h,mx+16);var s=Math.min(1,(innerHeight-8)/need);if(s<1)c.style.zoom=String(s);c.style.overflow="";}if(!on&&was)c.style.zoom="";was=on}setInterval(fit,150);addEventListener("resize",function(){was=false})})();</script></body>
 </html>
