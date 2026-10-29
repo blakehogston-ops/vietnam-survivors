@@ -4146,10 +4146,12 @@ const W=[ // mag: signed; the rest GAME VALUES (PENDING HAA/MHR)
 ];
 const IF={ '60mm':{tel:1.3,rad:48,dmg:80}, '82mm':{tel:1.6,rad:64,dmg:100}, '122mm':{tel:2.0,rad:84,dmg:120}, '130mm':{tel:2.4,rad:100,dmg:140} };   /* PLACEHOLDER indirect-fire types until the MHR per-map table */
 /* M26 frag (M61 = the M26 with the safety clip). Rulings: M26 family, 2-4 frags + 1 smoke per man, no M67. n=3 per man GAME VALUE, PENDING HAA/MHR. Fuse/range/radius/damage = GAME VALUES. Smoke (green/yellow/violet, never red) is carried and shown only - no smoke throw yet. */
+/* Suppression GAME VALUES, PENDING GD/UX: open-ground decay waits SUP.hold s after the last near miss/hit, so rounds ~2 s apart stack instead of draining to 0 between them. Cover always drains at once. */
+const SUP={hold:2.5, decayOpen:.18, decayCover:.9};
 const FRAG={n:3, max:4, fuse:4, fly:.65, rmin:50, rmax:230, rad:96, dmg:160, key:'KeyC', pad:'L3'};
 const P2=window.P2={on:true, FRAG, W, IF, sel:0, aim:0, mx:null, my:null, padAim:null,
  opt:{shake:flag('p2shake',true), blur:flag('p2blur',true), muffle:flag('p2muffle',true), jam:flag('p2jam',true)}, auto:flag('p2auto',false),
- reset(g){ this.g=g; this.sel=0; this.reload=null; this.sw=0; this.cd=0; this.pop=null; this.jam=null; this.sup=0; this.semiLatch=false; this.picks=[]; this.thr=[]; this.hits=[]; this.deaths=[]; this.expo=null; this.dead=false; this.applied={}; this.wave={ph:'build',t:0,n:0}; this.nextThr=8; this.note=null; this.frags=FRAG.n; this.smoke=1; this.nades=[]; this.fragLog={thrown:0,blocked:0,hits:0,booms:0};
+ reset(g){ this.g=g; this.sel=0; this.reload=null; this.sw=0; this.cd=0; this.pop=null; this.jam=null; this.sup=0; this.supAt=-99; this.semiLatch=false; this.picks=[]; this.thr=[]; this.hits=[]; this.deaths=[]; this.expo=null; this.dead=false; this.applied={}; this.wave={ph:'build',t:0,n:0}; this.nextThr=8; this.note=null; this.frags=FRAG.n; this.smoke=1; this.nades=[]; this.fragLog={thrown:0,blocked:0,hits:0,booms:0};
    this.st=W.map(w=>w.mags?{mag:w.mag,pouch:Array(w.mags).fill(w.mag),semi:true}:{mag:w.mag,res:w.res}); this.log={shots:{},reloads:0,tac:0,dry:0,picked:0,blocked:0,jams:0,topups:0,lethal:0} },
  lv(k){ return (G&&G.ps&&G.ps[k])|0 }, locked(i){ return !!(W[i].lock&&!this.lv(W[i].lock)) },
  res(i){ const s=this.st[i]; return s.pouch?s.pouch.reduce((a,b)=>a+b,0):s.res },
@@ -4198,7 +4200,7 @@ const P2=window.P2={on:true, FRAG, W, IF, sel:0, aim:0, mx:null, my:null, padAim
    else if(k==='mg'){ const a=o.a!=null?o.a:rnd()*TAU, L=700; const sx=p.x-Math.cos(a)*L/2, sy=p.y-Math.sin(a)*L/2; this.thr.push({k,sx,sy,ex:sx+Math.cos(a)*L,ey:sy+Math.sin(a)*L,t:0,tel:1.2,dur:1.2,dmg:70,hitDone:false}) }
    else if(k==='sniper'){ const a=rnd()*TAU; this.thr.push({k,x:p.x+Math.cos(a)*420,y:p.y+Math.sin(a)*420,t:0,tel:1.6,dmg:90}) } },
  lethalHit(src,dmg,tel,lead){ const g=G,p=g.p, cov=this.inCover(p.x,p.y); this.hits.push({t:+g.t.toFixed(2),src,tel,lead:+lead.toFixed(2),cover:cov}); if(DBG.god||p.invul>0)return; this.log.lethal++;
-   const d=Math.round(dmg*(cov?.3:1)); if(!this.expo)this.expo={t:g.t,cover:cov}; this.lastSrc={src,tell:lead>=.6,t:g.t}; this.sup=Math.min(1,this.sup+.5*this.supMul());
+   const d=Math.round(dmg*(cov?.3:1)); if(!this.expo)this.expo={t:g.t,cover:cov}; this.lastSrc={src,tell:lead>=.6,t:g.t}; this.sup=Math.min(1,this.sup+.5*this.supMul()); this.supAt=g.t;
    g.lastHit={src,dmg:d,t:g.t}; p.hp-=d; p.invul=.3; p.hurtT=.18; g.hurt=.5; if(this.opt.shake)g.shake=Math.max(g.shake,9); try{Snd.play('hurt')}catch(e){}
    if(p.hp<=0){ if((g.ps.dustoff|0)&&!g.dustUsed)dustoffRevive(); else { p.hp=0; gameOver() } } },
  supMul(){ return 1-.15*this.lv('p2sup') },
@@ -4207,7 +4209,7 @@ const P2=window.P2={on:true, FRAG, W, IF, sel:0, aim:0, mx:null, my:null, padAim
    else if(q.k==='mg'){ const inLane=()=>{ const vx=q.ex-q.sx,vy=q.ey-q.sy,L2=vx*vx+vy*vy, u=Math.max(0,Math.min(1,((p.x-q.sx)*vx+(p.y-q.sy)*vy)/L2)); return Math.hypot(q.sx+vx*u-p.x,q.sy+vy*u-p.y) };
      if(q.t>=q.tel){ const d=inLane(); if(d<20&&!q.hitDone){ q.hitDone=true; this.lethalHit('p2:mg',q.dmg,q.tel,q.t) } else if(d<90)this.nearMiss(dt*1.6) } if(q.t>=q.tel+q.dur)this.thr.splice(i,1) }
    else if(q.k==='sniper'){ if(q.t>=q.tel){ if(!this.inCover(p.x,p.y))this.lethalHit('p2:sniper',q.dmg,q.tel,q.t); else this.nearMiss(.4); this.thr.splice(i,1) } } } },
- nearMiss(v){ if(!this.inCover(G.p.x,G.p.y))this.sup=Math.min(1,this.sup+v*this.supMul()) },
+ nearMiss(v){ if(!this.inCover(G.p.x,G.p.y)){ this.sup=Math.min(1,this.sup+v*this.supMul()); this.supAt=G.t } },
  director(dt){ const g=G, w=this.wave; w.t+=dt; const D={build:40,spike:15,lull:12};   /* wave curve: build -> spike -> 10-15 s lull (GAME VALUES) */
    if(w.t>=D[w.ph]){ w.t=0; w.ph=w.ph==='build'?'spike':w.ph==='spike'?'lull':'build'; if(w.ph==='lull'){ w.n++; this.topUp(); if(this.frags<FRAG.n){ this.frags++; this.say('Frag resupplied','#9fe07a') } } if(w.ph==='spike')this.say('INCOMING!','#ff8a6a') }
    if(this.noDirector||g.t<20)return; this.nextThr-=dt; if(this.nextThr>0||w.ph==='lull')return; this.nextThr=w.ph==='spike'?2.2+rnd()*1.5:7+rnd()*5;
@@ -4227,8 +4229,8 @@ const P2=window.P2={on:true, FRAG, W, IF, sel:0, aim:0, mx:null, my:null, padAim
    const w=this.cur(), autoW=w.modes?!this.st[this.sel].semi:!!w.cdA;
    if(want&&this.sw<=0&&this.cd<=0){ if(this.reload)this.log.blocked++; else if(autoW||!this.semiLatch||bot){ this.shoot(); this.semiLatch=true } }
    // suppression: fills in the open under fire (near misses), drains fast in cover
-   const p=g.p, cov=this.inCover(p.x,p.y); this.sup=Math.max(0,this.sup-dt*(cov?.9:.18)); if(cov&&this.expo&&!this.expo.cover)this.expo.cover=true;
-   if(eprojs.length&&!cov)for(const q of eprojs){ if(Math.hypot(q.x-p.x,q.y-p.y)<90){ this.sup=Math.min(1,this.sup+dt*.6*this.supMul()); break } }
+   const p=g.p, cov=this.inCover(p.x,p.y); if(cov||g.t-(this.supAt??-99)>=SUP.hold)this.sup=Math.max(0,this.sup-dt*(cov?SUP.decayCover:SUP.decayOpen)); if(cov&&this.expo&&!this.expo.cover)this.expo.cover=true;
+   if(eprojs.length&&!cov)for(const q of eprojs){ if(Math.hypot(q.x-p.x,q.y-p.y)<90){ this.sup=Math.min(1,this.sup+dt*.6*this.supMul()); this.supAt=g.t; break } }
    this.director(dt); this.tickThreats(dt); this.tickNades(dt);
    if(p.hp<=0&&!this.dead)this.recDeath();
    for(let i=this.picks.length-1;i>=0;i--){ const k=this.picks[i]; k.t-=dt; if(k.t<=0){this.picks.splice(i,1);continue} if(Math.hypot(k.x-p.x,k.y-p.y)<24){ this.give(k.k); this.picks.splice(i,1) } }
@@ -4278,7 +4280,7 @@ const H={ autoBullets:()=>bullets.filter(x=>P2HAND[x.wid]).length, weapon:()=>P2
   swap:i=>P2.select(i), select:i=>P2.select(i), reload:()=>P2.startReload(), toggleMode:()=>P2.toggleMode(), hold:v=>{P2.fireHeld=!!v; P2.mouseDown=!!v}, setAuto:v=>{P2.auto=!!v; try{localStorage.setItem('lco_p2auto',v?'1':'0')}catch(e){}}, botFire:v=>{P2.botFire=v;P2.botAim=v},
   setAmmo:(i,mag,res)=>{ const s=P2.st[i]; if(mag!=null)s.mag=mag; if(res!=null){ if(s.pouch){ const w=W[i]; s.pouch=Array(Math.floor(res/w.mag)).fill(w.mag); if(res%w.mag)s.pouch.push(res%w.mag) } else s.res=res } }, setPouch:(i,arr)=>{ P2.st[i].pouch=arr.slice() }, topUp:()=>P2.topUp(),
   spawnPickup:(k,dx,dy)=>P2.spawnPickup(k,G.p.x+(dx||0),G.p.y+(dy||0)), forceJam:()=>{ P2.jam={t:G.t,clr:0}; P2.log.jams++; P2.beep('dry'); P2.say('Jam!','#ff6a5a') }, unlock:(k,l)=>{ G.ps[k]=l==null?1:l },
-  threat:(k,dx,dy,o)=>P2.threat(k,G.p.x+(dx||0),G.p.y+(dy||0),o), director:on=>{ P2.noDirector=!on }, suppression:()=>+P2.sup.toFixed(3), setSup:v=>{P2.sup=v}, inCover:()=>P2.inCover(G.p.x,G.p.y), wave:()=>({...P2.wave}), opt:()=>({...P2.opt}),
+  threat:(k,dx,dy,o)=>P2.threat(k,G.p.x+(dx||0),G.p.y+(dy||0),o), director:on=>{ P2.noDirector=!on }, suppression:()=>+P2.sup.toFixed(3), setSup:v=>{P2.sup=v}, supInfo:()=>({sup:+P2.sup.toFixed(3),supAt:P2.supAt,t:G.t,steadyLv:P2.lv('p2sup'),mul:P2.supMul(),...SUP}), enemies:()=>enemies, spawnDummy:(x,y)=>{ const e=spawnEnemy('nva',x,y); if(!e)return null; Object.assign(e,{x,y,hp:999,mhp:999,spd:0,vx:0,vy:0,p2:1}); return e }, inCover:()=>P2.inCover(G.p.x,G.p.y), wave:()=>({...P2.wave}), opt:()=>({...P2.opt}),
   cardPool:()=>Object.keys(ITEMS).filter(k=>/^p2/.test(k)&&ITEMS[k].req&&ITEMS[k].req()), lethalHits:()=>P2.hits.slice(), deaths:()=>P2.deaths.slice(),
   metrics:()=>{ const D=P2.deaths, tl=D.filter(d=>d.tell).length, o=D.filter(d=>d.ttd!=null&&!d.cover).map(d=>d.ttd), cv_=D.filter(d=>d.ttd!=null&&d.cover).map(d=>d.ttd), av=a=>a.length?+(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):null; const H_=P2.hits, tel=H_.filter(h=>h.lead>=h.tel-1e-6).length;
     return {deaths:D.length, deathWithTellRate:D.length?+(tl/D.length).toFixed(2):null, ttdOpen:av(o), ttdCover:av(cv_), lethalHits:H_.length, telegraphedHits:tel, telegraphRate:H_.length?+(tel/H_.length).toFixed(2):null, causes:D.map(d=>({cause:d.cause,tell:d.tell,cover:d.cover}))} },
