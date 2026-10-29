@@ -264,6 +264,7 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
   <button type="button" class="btn" id="btnStart">Start Patrol</button>
   <button type="button" class="btn alt" id="btnBrief">Replay Briefing</button>
   <button type="button" class="btn alt" id="btnTut">Quick Tutorial</button>
+  <button type="button" class="btn alt" id="btnFR">Field Reports</button>
   <label class="goresw" id="goreSw" title="Blood, gibs and corpses. OFF = enemies just poof into dust."><span>GORE</span><input type="checkbox" id="goreChk" checked><i></i><b id="goreTxt">ON</b></label>
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label><label class="goresw qSw" title="Graphics quality. HIGH = everything on (high-end PC); MED and LOW scale effects down. Saved."><span>QUALITY</span><select class="qSel" style="font:inherit;background:#1a1712;color:#e8dcc0;border:1px solid #8a2a22;border-radius:8px;padding:2px 6px"><option value="low">LOW</option><option value="med">MED</option><option value="high">HIGH</option></select></label>
   <label class="goresw rfSw" title="Fewer and slower flashes: no white flash in the intro, steady low-HP border, steady flares and strobes. Follows your system Reduce motion setting until you change it."><span>REDUCE FLASHING</span><input type="checkbox" class="rfChk"><i></i><b class="rfTxt">OFF</b></label>
@@ -7870,7 +7871,44 @@ function drawFlashes(camX,camY){ if(!flashes.length)return; ctx.save(); ctx.glob
   const SFB=window.VFX_FLAME&&VFX_FLAME.drawGlow?VFX_FLAME:null; /* flame rc8.1: blast flash = shared glow sprite (napalm-sheet palette) */ for(const f of flashes){ const k=f.t/f.d, r=f.r*(.75+.35*k), a=k<.15?k/.15:Math.max(0,1-(k-.15)/.85); if(SFB){ SFB.drawGlow(ctx,f.x,f.y-r*.3-8,r*1.1,r*.9,a*.85); continue }   /* the fire itself is the explosions.js shared fireball; this stays the light flash */ ctx.globalAlpha=a*.9; ctx.drawImage(FIREBALL,Math.round(f.x-r),Math.round(f.y-r*.8-8),r*2,r*1.6) } ctx.restore() }
 
 /* ====================== game flow ====================== */
-function startGame(){ if(!chOpen(SEL)){ if($('charsel').classList.contains('show'))return; SEL='doc' } try{document.activeElement&&document.activeElement.blur()}catch(e){} if(!navigator.userActivation||navigator.userActivation.hasBeenActive){Snd.init(); Snd.resume();} newGame(false); state='play'; ['menu','charsel','over','pause','levelup','sigask'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='flex'; if(!(DBG.t>0||DBG.nointro)){ if(INTRO2&&!DBG.nobrief)startBrief2(); else startIntro() } }   /* rc8.1: ?nobrief also skips brief2 */
+/* rc8.2 Field Reports player (EP ruling: Khe Sanh is not at launch, so Field Report 01 plays ONCE before the player's first mission on any map; skippable; replays from
+   the main-menu 'Field Reports' entry, never from MoH). Seen flag: localStorage lco_fr_seen. ?fieldReports=0 disables it entirely (no auto-play, no menu entry).
+   Skip = the intro/briefing idiom: two presses within 3 s (key, click/tap or any pad button), first press shows skipMsg(). Game music is ducked while it plays.
+   After playback or a skip the <video> is fully unloaded: pause, removeAttribute('src'), load(), element removed, object URLs revoked. QA: __lco.fieldReport() */
+const FR={ON:params.get('fieldReports')!=='0', SRC:'assets/video/field_report_scotland.webm', KEY:'lco_fr_seen', el:null, wrap:null, hint:null, open:false, why:'', skipArm:0, t0:0,
+  urls:[], then:null, plays:0, skips:0, ends:0, errors:0, unloads:0, last:null, mus:null, DUCK:.12,
+  seen(){ try{ return !!localStorage.getItem(this.KEY) }catch(e){ return false } },
+  mark(){ try{ localStorage.setItem(this.KEY,String(Date.now())) }catch(e){} },
+  want(){ return this.ON&&!this.open&&!this.tried&&!this.seen()&&!DBG.bot&&!(DBG.t>0) },
+  duck(on){ try{ const g=Snd.mbus&&Snd.mbus.gain, c=Snd.ctx; if(!g||!c)return; const v=Snd.vol&&isFinite(Snd.vol.mus)?Snd.vol.mus:g.value; g.cancelScheduledValues(c.currentTime); g.setTargetAtTime(on?v*this.DUCK:v,c.currentTime,on?.08:.25); this.mus=on?v:null }catch(e){} },
+  play(why,then){ if(!this.ON||this.open)return false; this.why=why||'menu'; if(this.why==='first')this.tried=true; this.then=then||null; this.open=true; this.skipArm=0; this.t0=performance.now(); this.plays++;
+    try{ Snd.init(); Snd.resume() }catch(e){}
+    const w=document.createElement('div'); w.id='frWrap'; w.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;z-index:9999;background:#000;display:flex;align-items:center;justify-content:center;cursor:pointer';
+    const v=document.createElement('video'); v.id='frVideo'; v.setAttribute('playsinline',''); v.preload='auto'; v.style.cssText='max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;pointer-events:none';
+    try{ v.volume=Math.max(.15,Math.min(1,(Snd.vol&&isFinite(Snd.vol.sfx)?Snd.vol.sfx:1))) }catch(e){}
+    const h=document.createElement('div'); h.id='frHint'; h.style.cssText='position:absolute;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));font:13px "Courier New",monospace;color:rgba(255,255,255,.8);pointer-events:none';
+    h.textContent=skipMsg(0); w.appendChild(v); w.appendChild(h); document.body.appendChild(w); this.el=v; this.wrap=w; this.hint=h;
+    v.addEventListener('ended',()=>{ this.ends++; this.close('ended') });
+    v.addEventListener('error',()=>{ this.errors++; this.close('error') });
+    v.src=this.SRC; this.duck(true); const pr=v.play(); if(pr&&pr.catch)pr.catch(()=>{ if(!this.open||this.el!==v)return; v.muted=true; v.play().catch(()=>{ this.errors++; this.close('blocked') }) });
+    this._hT=setInterval(()=>{ if(this.hint)this.hint.textContent=skipMsg(this.skipArm) },250); return true },
+  skip(){ if(!this.open)return; const n=performance.now(); if(n-this.t0<300)return;
+    if(!/[?&]skip1=1\b/.test(location.search)){ if(this.skipArm&&n-this.skipArm<300)return; if(!(this.skipArm&&n-this.skipArm<3000)){ this.skipArm=n; if(this.hint)this.hint.textContent=skipMsg(n); return } }
+    this.skips++; this.close('skip') },
+  unload(){ const v=this.el; if(v){ try{ v.pause() }catch(e){} try{ v.removeAttribute('src'); v.load() }catch(e){} try{ v.remove() }catch(e){} }
+    if(this.wrap){ try{ this.wrap.remove() }catch(e){} } for(const u of this.urls){ try{ URL.revokeObjectURL(u) }catch(e){} } this.urls.length=0;
+    this.el=this.wrap=this.hint=null; clearInterval(this._hT); this._hT=0; this.unloads++ },
+  close(how){ if(!this.open)return; const t=this.el?+this.el.currentTime||0:0; this.unload(); this.open=false; this.duck(false);
+    if(how==='ended'||how==='skip')this.mark(); this.last={how,why:this.why,t:+t.toFixed(2),at:Date.now()}; const f=this.then; this.then=null; if(f)setTimeout(f,0) },
+  state(){ const v=this.el; return {enabled:this.ON,seen:this.seen(),playing:this.open,why:this.open?this.why:null,src:this.SRC,t:v?+v.currentTime||0:null,dur:v&&isFinite(v.duration)?v.duration:null,
+    paused:v?v.paused:null,muted:v?v.muted:null,skipArmed:!!(this.skipArm&&performance.now()-this.skipArm<3000),musicDucked:this.mus!=null,plays:this.plays,skips:this.skips,ends:this.ends,errors:this.errors,unloads:this.unloads,
+    last:this.last,videos:document.querySelectorAll('video').length,frNodes:document.querySelectorAll('#frWrap,#frVideo').length,objectURLs:this.urls.length,domNodes:document.getElementsByTagName('*').length} } };
+['keydown','pointerdown','touchstart','mousedown','click','keyup'].forEach(ev=>window.addEventListener(ev,e=>{ if(!FR.open)return; e.stopImmediatePropagation(); if(ev==='click'||ev==='keyup'||ev==='mousedown')return;
+  if(ev==='keydown'&&(e.repeat||e.code==='KeyM'||e.metaKey))return; FR.skip() },{capture:true,passive:true}));
+if(!FR.ON){ try{ $('btnFR').style.display='none' }catch(e){} }
+$('btnFR').onclick=()=>{ if(state==='menu'&&!$('charsel').classList.contains('show'))FR.play('menu',()=>{ try{ $('btnFR').focus() }catch(e){} }) };
+window.__lco=Object.assign(window.__lco||{},{ fieldReport:()=>FR.state() });
+function startGame(){ if(FR.want()){ FR.play('first',startGame); return } if(!chOpen(SEL)){ if($('charsel').classList.contains('show'))return; SEL='doc' } try{document.activeElement&&document.activeElement.blur()}catch(e){} if(!navigator.userActivation||navigator.userActivation.hasBeenActive){Snd.init(); Snd.resume();} newGame(false); state='play'; ['menu','charsel','over','pause','levelup','sigask'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='flex'; if(!(DBG.t>0||DBG.nointro)){ if(INTRO2&&!DBG.nobrief)startBrief2(); else startIntro() } }   /* rc8.1: ?nobrief also skips brief2 */
 /* rc8.1 Pass 1 (drop-to-title, Junior Play Tester): returning to the menu is only allowed from paused (via the Quit confirm), over, charsel, brief or menu. A stray click/Enter/Space on a focused hidden button (btnQuit/btnMenu) or a stale timer mid-run used to drop to title with no end screen. Blocked calls are logged (window.__menuBlock, localStorage lco_menublock). */
 /* rc8.1 JPT blocker (real page navigation mid-run, no error): no code path in the game navigates (audited: no form, no reload/assign/replace, only target=_blank links and the ?v= new-build button). Diagnostics so the next one names its cause:
    - beforeunload while a run is active -> localStorage lco_unload {state,t,ae} (fires for user/page navigations: reload, address bar, link). No prompt.
@@ -8153,6 +8191,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
   def(root){ const q=root.id==='menu'?'btnStart':root.id==='pause'?'btnResume':root.id==='over'?'btnRestart':root.id==='charsel'?'btnCsGo':root.id==='sigask'?'btnSigOk':null; return q?$(q):this.items(root)[0] },
   act(k,dx,dy){ this.uses++; this.last=k||('dir'+dx+','+dy); document.body.classList.add('padmode'); const st=state;
     if(!['play'].includes(st)){ try{ Snd.init(); Snd.resume() }catch(e){} }
+    if(typeof FR!=='undefined'&&FR.open){ if(k)FR.skip(); return }   /* rc8.2 Field Reports: any pad button = skip press */
     if(k==='SE'){ window.__fs&&__fs.toggle(); document.body.classList.add('padmode'); return }   /* same handler as the F key (also the Steam host) */
     if(st==='intro'){ if(k)skipIntro(); return }
     if(st==='brief'){ if(k==='A')briefNext(); else if(k==='ST'||k==='B')endBrief(); return }
