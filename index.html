@@ -6655,6 +6655,9 @@ function b2Rotor(c,x,y,t,ph){ /* slow idle rotor: dark blur disc (~.45), sagging
   c.beginPath(); c.ellipse(x,y+1.5,40,12.5,0,0,TAU); c.fill();   /* disc sits a touch low at the rim = blade droop at idle */
   for(let k=0;k<3;k++){ const a=t*2.4+ph+k*2.094; c.strokeStyle='rgba(16,18,14,.55)'; c.lineWidth=1.6; c.beginPath(); c.ellipse(x,y+1.5,38,11.5,0,a,a+.55); c.stroke(); c.strokeStyle='rgba(16,18,14,.25)'; c.lineWidth=1; c.beginPath(); c.ellipse(x,y+1.5,30,9,0,a-.1,a+.35); c.stroke() }
   c.fillStyle='#1c1e16'; c.fillRect(x-1,y-1,3,3); c.restore() }
+/* briefing ramp walkers: man k steps off at B2W.t0+k*B2W.gap, walks once (u 0->1 over 1/B2W.rate s), then holds at the bottom of the ramp, fully visible. null = still aboard. */
+const B2W={t0:.6,gap:1.6,rate:.16};
+function b2Walkers(t,rp){ const out=[]; for(let k=0;k<2;k++){ const e=t-B2W.t0-k*B2W.gap; if(e<0){ out.push(null); continue } const u=Math.min(1,e*B2W.rate), x=rp[0]-6-u*44, y=rp[1]+4+u*14+k*3; out.push({k,u,x,y,a:Math.min(1,e/.25),fr:u<1?1+(Math.floor(t*6+k)&1):0}) } return out }
 function drawBrief2Scene(t){ const c=b2c; c.setTransform(1,0,0,1,0,0); c.imageSmoothingEnabled=false; if(!B2BG)B2BG=b2Ground(); c.drawImage(B2BG,0,0);
   /* soft dawn ground mist low over the treeline, drifting */
   for(let k=0;k<3;k++){ const yy=54+k*5, dx=(t*(2+k)+k*60)%320; const g=c.createLinearGradient(0,yy-6,0,yy+6); g.addColorStop(0,'rgba(222,212,196,0)'); g.addColorStop(.5,`rgba(222,212,196,${.22-k*.05})`); g.addColorStop(1,'rgba(222,212,196,0)'); c.fillStyle=g;
@@ -6673,8 +6676,8 @@ function drawBrief2Scene(t){ const c=b2c; c.setTransform(1,0,0,1,0,0); c.imageSm
               [124,152,'radio',null] ];
   const all=[];
   for(const m of men){ const fl=m[0]>LX; b2Shadow(c,null,m[0],m[1]); all.push({y:m[1],f:()=>S.drawMarine(c,m[2],0,m[0],m[1],1,fl,false,m[3]==null?undefined:m[3])}) }
-  /* 1-2 men walking off the ramp toward the platoon, looping */
-  if(ramp&&ramp.ramp){ const [rx,ry]=ramp.ramp; for(let k=0;k<2;k++){ const u=((t*.16+k*.5)%1), x=rx-6-u*44, y=ry+4+u*14+k*3, fr=1+(Math.floor(t*6+k)&1); b2Shadow(c,null,x,y); all.push({y,f:()=>{ c.globalAlpha=Math.min(1,u*6); S.drawMarine(c,'rifle',fr,Math.round(x),Math.round(y),1,true,false,k?2:0); c.globalAlpha=1 }}) } }
+  /* 2 men walk off the ramp toward the platoon ONCE, then stand (Blake 10/28: the old (t*.16+k*.5)%1 loop wrapped u to 0 every 6.25 s = alpha 0, they vanished and the walk-out replayed) */
+  if(ramp&&ramp.ramp){ for(const w of b2Walkers(t,ramp.ramp)){ if(!w)continue; const {x,y,fr,a,k}=w; b2Shadow(c,null,x,y); all.push({y,f:()=>{ c.globalAlpha=a; S.drawMarine(c,'rifle',fr,Math.round(x),Math.round(y),1,true,false,k?2:0); c.globalAlpha=1 }}) } }
   b2Shadow(c,null,LX,LY); b2Shadow(c,null,176,160);
   all.push({y:LY,f:()=>{ const hp=S.drawMarine(c,'leader',0,LX,LY,1,false,false); /* plain rig head, no glasses; map in a plastic cover */ const hx=Math.round((hp&&hp.x)||LX+4), hy=Math.round((hp&&hp.y)||LY-16); c.fillStyle='#cfc49a'; c.fillRect(hx-1,hy-3,7,5); c.fillStyle='#7f9064'; c.fillRect(hx,hy-2,3,2); c.fillStyle='rgba(255,255,255,.35)'; c.fillRect(hx-1,hy-3,7,1) }});
   all.push({y:160,f:()=>{ c.strokeStyle='rgba(255,214,64,.9)'; c.lineWidth=1.4; c.beginPath(); c.ellipse(176,160,11,3.6,0,0,TAU); c.stroke(); S.drawHero(c,'doc','treat',176,160,1,true,false) }});
@@ -6702,6 +6705,7 @@ function drawBrief2(){ const B=BR2; ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle
 function brief2Skip(){ if(!BR2)return; if(/[?&]skip1=1\b/.test(location.search)){ endBrief2(); return } const n=performance.now(); if(BR2.skipArm&&n-BR2.skipArm<300)return; if(BR2.skipArm&&n-BR2.skipArm<3000){ endBrief2(); return } BR2.skipArm=n }
 function skipMsg(arm){ const pad=typeof PAD!=='undefined'&&PAD.on, k=pad?PAD.pn('A').split(' ')[0]:''; return (arm&&performance.now()-arm<3000)?(pad?'Press '+k+' again to skip':'Press again to skip'):(pad?'Press '+k+' twice to skip':'Press any key twice to skip') }
 if(INTRO2){ try{ $('btnBrief').style.display='none' }catch(e){} }   /* Mercer briefing is not reachable unless ?ltbrief=0 */
+window.__b2w={walkers:b2Walkers,B2W,lines:()=>BRIEF2_LINES,cps:B2CPS,hold:B2HOLD,scene:t=>drawBrief2Scene(t)};   /* test hook (qa/intro_walkout.js): read-only */
 if(DBG.bot){ window.__ms_ub2=dt=>updateBrief2(dt); window.__ms_i2c=()=>intro2Contact(); window.__ms_br2=()=>BR2 }   /* test hooks, ?bot only */
 /* the HUD (and G.banner) is not drawn during state 'intro', so the ramp line gets its own caption, same style as the briefing box */
 function drawIns2Cap(){ const I=INTRO; if(!I||!I.quiet||I.ph!==2||I.cap0==null)return; const e=I.t2-I.cap0; if(e<0||e>3.4)return; const a=Math.min(1,e*4,(3.4-e)*3);
