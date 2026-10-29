@@ -1284,7 +1284,7 @@ if(window.JUNGLE_ON)document.write('<script src="assets/art/jungle_v3_lite.js?v=
 <script>if(!/[?&]terrain=0\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=b0d9bb8"><\/script>')</script>
 <script>if(!/[?&]fb2=0\b/.test(location.search))document.write('<script src="assets/art/fb2_rc8.js?v=b0d9bb8"><\/script>')</script>
 <script>if(!/[?&]fb2=0\b/.test(location.search))document.write('<script src="assets/art/fb_props_rc8.js?v=b0d9bb8"><\/script>')</script>
-<script src="assets/art/vehicles.js?v=b0d9bb8"></script><script src="assets/art/ch46_v2.js?v=b0d9bb8"></script><script src="assets/art/dressing_pickups.js?v=b0d9bb8"></script><script src="assets/art/tanks_v2.js?v=b0d9bb8"></script><script src="assets/art/amtrac_support.js?v=b0d9bb8"></script><script src="assets/art/vehicles_v3.js?v=b0d9bb8"></script><script src="assets/vfx/muzzle_flash.js"></script>
+<script src="assets/art/vehicles.js?v=b0d9bb8"></script><script src="assets/art/ch46_v2.js?v=b0d9bb8"></script><script src="assets/art/ch46_native.js?v=b0d9bb8"></script><script src="assets/art/dressing_pickups.js?v=b0d9bb8"></script><script src="assets/art/tanks_v2.js?v=b0d9bb8"></script><script src="assets/art/amtrac_support.js?v=b0d9bb8"></script><script src="assets/art/vehicles_v3.js?v=b0d9bb8"></script><script src="assets/vfx/muzzle_flash.js"></script>
 <script src="assets/vfx/rockets.js"></script><script src="assets/vfx/rotor_wash.js?v=b0d9bb8.3.1"></script>
 <script src="assets/vfx/vehicle_hits.js"></script>
 <script src="assets/ui/settings_art.js"></script>
@@ -5598,8 +5598,8 @@ const Q15_BAN={squad:1,company:1,medevac:1};
    and the Marines walk off the ramp to the ch46_v2 exit points, then fan out. ?ch46ins=0 restores the three-Huey insertion. */
 const CH46INS=true;
 const C46_HD=-Math.PI*3/4, C46XC={};   /* rc8.2 pass 5 (AD): NW heading shows the open ramp */
-function c46X(hd){ const k=SHEET1&&SHEET1.heading8?SHEET1.heading8(hd):0; if(C46XC[k])return C46XC[k]; try{ const c=mk(2,2).getContext('2d'), r=SHEET1.drawSeaKnight(c,{x:0,y:0,heading:hd,t:0,state:'rampDown'}); if(r&&r.ramp&&r.exit&&r.exit.length)return (C46XC[k]={ramp:r.ramp,exit:r.exit}) }catch(e){} return C46X }
-const C46_NATIVE_DIR=null;   /* one-line swap: native CH-46 v1.1 (3D Render Artist, pending AD) e.g. 'assets/art/ch46_native/' with ch46_<E|SE|S|SW|W|NW|N|NE>.png, v4.1 layout (248x202, pivot 124,125) */
+function c46X(hd){ const k=SHEET1&&SHEET1.heading8?SHEET1.heading8(hd):0; if(C46XC[k])return C46XC[k]; try{ const c=mk(2,2).getContext('2d'), r=SHEET1.drawSeaKnight(c,{x:0,y:0,heading:hd,t:0,state:'rampDown'}); if(r&&r.ramp&&r.exit&&r.exit.length){ const v={ramp:r.ramp,exit:r.exit}; if(r.native||!(SHEET1.ch46Native&&SHEET1.ch46Native.on&&typeof document!=='undefined'&&!window.__headless))C46XC[k]=v; return v } }catch(e){} return C46X }
+const C46_NATIVE_DIR='assets/art/ch46_native_v1_2/'; try{ if(SHEET1.ch46Native)SHEET1.ch46Native.dir=C46_NATIVE_DIR }catch(e){}   /* one-line swap: native CH-46 v1.1 (3D Render Artist, pending AD) e.g. 'assets/art/ch46_native/' with ch46_<E|SE|S|SW|W|NW|N|NE>.png, v4.1 layout (248x202, pivot 124,125) */
 const C46_ORDER=[1,2,3,4,5,6,0,7,8,9,10,11,12,13], C46_DOC_AFTER=7;   /* rc8.2 HAA_SEQUENCE: fire-team leader (Cpl Washington) first off, squad leader (Sgt Pettaway) mid-stick, Doc right with him */   /* rc7.1 Vet: no Huey insertion, ?ch46ins=0 retired */
 const C46X=(()=>{ try{ if(!window.SHEET1||!SHEET1.drawSeaKnight)return null; const c=mk(2,2).getContext('2d'), r=SHEET1.drawSeaKnight(c,{x:0,y:0,heading:0,t:0,state:'rampDown'}); return r&&r.ramp&&r.exit&&r.exit.length?r:null }catch(e){ return null } })();
 function insertCH46(){ const g=G,p=g.p, S={hp:Q15.hp,dm:1}, X=c46X(C46_HD);
@@ -5630,7 +5630,7 @@ function ch46Tick(h,dt){ const g=G,p=g.p, X=c46X(h.hd); h.t+=dt; h.rot+=dt*34; S
     if(Math.hypot(h.x-p.x,h.y-p.y)>Math.hypot(VW,VH)/2+400)return true }
   if(h.z<24&&h.ph<4||h.ph===4&&h.z<30){ if(!LOWFX_ON()&&rnd()<dt*24){ const b=rnd()*TAU; addPart(h.x+Math.cos(b)*22,h.y+8+Math.sin(b)*8,Math.cos(b)*90,Math.sin(b)*45,.6,3+rnd()*3,rnd()<.5?'#a8946a':'#8a7a52',false,2) } }
   return false }
-function drawCH46Ins(h){ if(C46_NATIVE_DIR){ const H8=['E','SE','S','SW','W','NW','N','NE'], k=SHEET1.heading8(h.hd), im=c46Nat(C46_NATIVE_DIR+'ch46_'+H8[k]+'.png'); if(im){ const K=SHEET1.CH46_TRUE||2.2, sm=ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled=true; ctx.drawImage(im,Math.round(h.x-124*K),Math.round(h.y-h.z-125*K),Math.round(248*K),Math.round(202*K)); ctx.imageSmoothingEnabled=sm; return } } try{ SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt:h.z,heading:h.hd,t:(h.rot||0)/34,scale:1,state:h.st,damage:0,wash:!window.VFX_ROTORWASH}) }catch(e){ drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) } }
+function drawCH46Ins(h){ try{ SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt:h.z,heading:h.hd,t:(h.rot||0)/34,scale:1,state:h.ph===2?'rampDown':h.st,rampK:h.ph===2?Math.min(1,h.t2/.75):undefined,damage:0,wash:!window.VFX_ROTORWASH})   /* native v1.2: ramp-lowering frames during the .75 s after touchdown */ }catch(e){ drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) } }
 function insertFifteen(){ if(CH46INS&&C46X)return insertCH46(); const g=G,p=g.p, a0=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+170, S={hp:Q15.hp,dm:1};
   const comp={t0:g.t,n:0,alive:0,half:null,few:null,end:null,id:g.cs.comps.length,q15:true}; g.cs.comps.push(comp); let base=0;
   for(let k=0;k<3;k++){ const a=a0+k*TAU/3, nn=Q15.sizes[k]; comp.n+=nn;
@@ -6064,18 +6064,19 @@ function finishIntro(){ for(const m of coy){ if(m.state==='peri'){ m.state='ok';
 /* perimeter geometry: centre straight back from the rear ramp (the bird faces east, ramp aft = west); threat axis = west, toward the treeline */
 const LZ_THREAT=Math.PI, LZ_RX=172, LZ_RY=124;   /* threat axis = west (thick jungle edge); ring ~2.9 Marine widths apart for 12 men */
 function lzCentre(h){ const X=c46X(h.hd), ax=X.ramp[0], ay=X.ramp[1], d=Math.hypot(ax,ay)||1; return {x:h.lx+ax*.55-ay/d*64,y:h.ly+ay*.55+ax/d*64} }   /* rc8.2 pass 6: abeam the bird, clear of the aft rotor disc, still inside the ring */   /* Pettaway + RTO + Doc: inside the ring beside the ramp tip */
-window.__lzk=()=>{ try{ return {n:coy.filter(m=>m.ps).length,k:coy.filter(m=>m.ps&&m.lzPose==='kneel').length,cap:INTRO&&INTRO.cap0!=null} }catch(e){ return null } };
+window.__lzk=()=>{ try{ return {n:coy.filter(m=>m.ps).length,k:coy.filter(m=>m.ps&&m.lzPose==='kneel').length,cap:INTRO&&INTRO.cap0!=null,stuck:coy.filter(m=>m.ps&&m.lzPose!=='kneel').map(m=>({st:m.state,pose:m.lzPose,x:m.x|0,y:m.y|0,ps:m.ps}))} }catch(e){ return null } };
 function lzAllKneel(){ const L=typeof coy!=='undefined'?coy:[]; let n=0; for(const m of L){ if(!m.ps||m.dead)continue; n++; if(m.lzPose!=='kneel')return false } return true }
 function lzRingPt(h,a){ const L=G.lzDeco||{x:h.lx,y:h.ly}; return {x:L.x+Math.cos(a)*LZ_RX,y:L.y+10+Math.sin(a)*LZ_RY} }
 function lzSpot(h,j,role){ const nm=Q15.names[j]||'', C=lzCentre(h);
   if(/Pettaway/.test(nm))return {x:C.x-10,y:C.y+4,a:LZ_THREAT,c:1};
   if(j===12)return {x:C.x+12,y:C.y-6,a:LZ_THREAT-.5,c:1};   /* Cpl Yazzie = radioman */
   const X=c46X(h.hd), aA=Math.atan2(X.ramp[1],X.ramp[0]);
-  let a; if(role==='m60'&&!h.m60a){ h.m60a=1; a=LZ_THREAT } else { const k=(h.pk=(h.pk||0)+1); a=LZ_THREAT+k*(TAU/12)+(ihash(j*13)-.5)*.22 }   /* M60 on the threat axis, the rest around 360 */
+  let a; if(!h.ringA){ const dd=x=>Math.abs(((x-aA+Math.PI*3)%TAU)-Math.PI); h.ringA=[]; for(let k=1;k<12;k++)h.ringA.push(LZ_THREAT+k*(TAU/12)+(ihash(k*13)-.5)*.22); h.ringA.sort((p,q)=>dd(q)-dd(p)) }   /* pass 6b: first men off take the far side of the ring, the last men the spots nearest the ramp, so everyone is kneeling quickly */
+  if(role==='m60'&&!h.m60a){ h.m60a=1; a=LZ_THREAT } else a=h.ringA.length?h.ringA.shift():LZ_THREAT+(ihash(j)-.5)   /* M60 on the threat axis, the rest around 360 */
   const P=lzRingPt(h,a); return {x:P.x,y:P.y,a,aA,ring:1} }
 const LZPOSE={}; for(const [k,f] of [['ramp','1_ramp_low_ready_v2_1_1x.png'],['run','2_crouch_run_v2_1_1x.png'],['kneel','3_kneel_perimeter_v2_1_1x.png']]){ try{ const im=new Image(); im.src='assets/art/intro_lz/'+f; LZPOSE[k]=im }catch(e){} }
 function lzGround(x,y){ try{ if(riverAt(x,y))return 'water'; if(paddyCell(Math.floor(x/RT),Math.floor(y/RT)))return 'paddy'; const L=G.lzDeco; if(L&&((x-L.x)/230)**2+((y-L.y-10)/120)**2<.9)return 'laterite' }catch(e){} return 'grass' }   /* rotor wash ground = the real terrain under the bird */
-function c46WashArgs(){ const h=c46Bird(), R=window.VFX_ROTORWASH; if(!h||!R)return null; const L=G.lzDeco||{x:h.lx,y:h.ly};
+function c46WashArgs(){ const h=c46Bird(), R=window.VFX_ROTORWASH; if(!h||!R)return null; const wp=(SHEET1.ch46Native&&SHEET1.ch46Native.washPt)?SHEET1.ch46Native.washPt(SHEET1.heading8(h.hd)):[-5.3,0], L={x:h.lx+wp[0],y:h.ly+wp[1]};   /* ground point midway between the native hubs */
   if(h.spool!=null){ const tk=h.t-h.spool; if(tk>5||(R.takeoffIntensity&&R.takeoffIntensity(tk)<.01))return null; return {h,x:L.x-5.3,y:L.y,t:0,o:{takeoff:tk,depart:h.hd},alt:R.takeoffAlt?R.takeoffAlt(tk):0} }
   const t=h.tdAt!=null?h.t-h.tdAt:-Math.max(0,h.z)/10-(h.ph===0?Math.hypot(h.lx-h.x,h.ly-h.y)/300:0); return {h,x:L.x-5.3,y:L.y,t,o:undefined,alt:0} }
 function c46Late(h){ const a=c46WashArgs(); return !!(a&&a.o&&a.alt>2) }
@@ -6111,7 +6112,6 @@ function lzDecoDraw(){ const L=G&&G.lzDeco; if(!L)return; if(!L.c){ const W2=110
     for(let yy=0;yy<H2;yy+=4)for(let xx=0;xx<W2;xx+=4){ if(pd(xx+2,yy+2)){ x.clearRect(xx,yy,4,4); continue } let dmin=99; for(const r of [6,12,20,28])for(const [dx,dy] of [[r,0],[-r,0],[0,r],[0,-r]])if(dmin>r&&pd(xx+2+dx,yy+2+dy))dmin=r; if(dmin>28)continue;
       const hv=ihash(xx*7+yy*13); x.clearRect(xx,yy,4,4); x.fillStyle=dmin<=6?(hv<.5?'#6f5a3c':'#7d6845'):(hv<.33?'#3f5626':hv<.66?'#566d30':'#6f7d3e'); x.fillRect(xx,yy,4,4) }
     L.c=c } ctx.drawImage(L.c,L.ox,L.oy) }
-const C46NAT={}; function c46Nat(src){ if(C46NAT[src]===undefined){ C46NAT[src]=null; const im=new Image(); im.onload=()=>{C46NAT[src]=im}; im.src=src } return C46NAT[src] }
 function c46Bird(){ return CH46INS&&coyH.find(h=>h.ch46) }
 function startLanding(){ const p=G.p; if(c46Bird()){ INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH=null; const h=c46Bird(); h.x=h.lx-820; h.y=h.ly-90; h.z=60; return } INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH={x:p.x-640,y:p.y-8,z:70,hd:0,rot:0,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,out:0}; }
 function updateIntroH(dt){ const h=introH; if(!h)return; const p=G.p; h.t+=dt; h.rot+=dt*34;

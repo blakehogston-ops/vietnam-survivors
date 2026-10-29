@@ -54,3 +54,11 @@
 | audio/brief_01..08.mp3 status | Voice audio | Blake | see row 1 | No | Row 1 "PENDING: recording does not exist yet" is stale: master log (vietnam-survivors) has OWNER-RECORDED, verified 2026-10-20, commit 29fbe67. Logged 2026-10-22 |
 | assets/art/intro_lz/{1_ramp_low_ready,2_crouch_run,3_kneel_perimeter}_v2_1_1x.png | Sprites | Character Artist (in-house, original pixel art, AD-cleared 10/28) | in-house | No | Intro LZ Marine poses (rc8.2 intro redo), from /workspace/artist-assets/rc82/intro_lz/ |
 | assets/vfx/rotor_wash.js (v1.3.2) | VFX code | VFX Artist (in-house, own code, no third-party art; AD-cleared 10/28) | in-house | No | CH-46 rotor wash for the intro LZ, from /workspace/staging/rc8.2-artist-vfx/rotor_wash/ |
+
+<!-- rc8.2: CH-46D native v1.2 (assets/art/ch46_native_v1_2/, ch46_native.js), AD-cleared Oct 29 2026. Entry below is the artist's LICENSES_entry.md verbatim (written for v1.1; v1.2 = v1.1 + readability darkening, same sources). -->
+## CH-46D Sea Knight native v1.1 (rc8.2, ch46_native_v1_1/)
+- Model: 100% own procedural Blender modelling (ch46_hi.py lineage -> ch46_native_v1_1.py), 3D Render Artist, Last Chopper Out. No third-party meshes, textures, fonts beyond Blender's built-in default font (Bfont, GPL-compatible font exception / Blender-bundled).
+- Render: own, Blender 5.2.2 Cycles on the studio Mac, Oct 29 2026; post (shadow, outline, 2D rotor discs) by own script ch46_native_v1_1_post.py.
+- Environment: Poly Haven "kloofendal_48d_partly_cloudy_puresky" HDRI, CC0 (lighting only, not visible in sprites); Poly Haven "green_metal_rust" textures (diff/rough/nor 2k), CC0, used for hull roughness/normal wear. Both are third-party CC0, so "no third-party assets" is NOT accurate; credit Poly Haven (CC0, no attribution required).
+- Markings: own ("ET" HMM-262, modex 12, MARINES, star-and-bar); no real BuNo; no red cross.
+- Licence for the output: own work, released to the project as CC0 / project-owned.
