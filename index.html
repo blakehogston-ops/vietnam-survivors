@@ -3384,7 +3384,7 @@ function useMed(mate){ const g=G; if(g&&!g.demo&&state==='play'&&!(g.medInv>0)){
 function DRESS_SND(){ try{ if(SAMP.ready()&&SamplePlayer.hasSample('bandage_dressing')){ MIX.as('special',()=>SamplePlayer.bandage({vol:.9})); return } }catch(e){} Snd.play('heal') }   /* battle-dressing foley (sound_pack Oct 20, Legal PASS); synth heal as fallback */
 function medDrop(e){ const g=G, m=g.med; if(!m||g.demo||e.type!=='nva')return; m.dry++; if(g.t<m.nextT||medpacks.length>=MED.cap)return;
   if(rnd()<MED.chance||m.dry>=MED.pity){ m.dry=0; m.nextT=g.t+MED.gap; m.drops++; medpacks.push({x:e.x,y:e.y,life:MED.life,pull:false,sp:0}); if(Math.hypot(e.x-g.p.x,e.y-g.p.y)<720)Snd.cue('medpackDrop') } }
-function killEnemy(e){ e.dead=true; G.kills++; medDrop(e);
+function killEnemy(e){ if(P2ON&&window.P2)P2.drop(e); e.dead=true; G.kills++; medDrop(e);
   const x=e.x,y=e.y; if(e.tank)tankWreck(e); else if(e.boss)goreKill(e); else if(e.n2s&&N2.sapDie(e)){} else deathFx(e); if(!GORE&&e.boss)burst(x,y,e.boss?20:6,e.boss?140:80,.4,e.boss?5:3,['#d8d0b0','#9a9a8a','#bdb596'],false);
   if(e.boss)(SAMP.boom('boss')||Snd.play('boom')); else if(!e.tank&&G.demo)Snd.play('kill');
   if(e.boss){ { const rb=G.rb; if(rb){ rb.bossK++; if(allyCount()>=4)rb.ssK++ } } if(G.blog){ const bl=G.blog.filter(q=>q.t1===null); if(bl.length)bl[0].t1=G.t } G.shake=Math.max(G.shake,22); G.boss=null; G.banner={text:e.name.toUpperCase()+' DEFEATED!',t:3,col:'#9be37a'};
@@ -3979,7 +3979,7 @@ function update(dt){
   if(g.t>=g.nextBoss&&!g.exHold&&!(g.q15&&g.ex&&g.t>=EX.PAD_T-30)&&!(fbS&&fbS.age<90)){   /* Stage 1: no boss once the pad is about to be marked - the hold is the siege */spawnBoss();g.nextBoss=Math.max(g.nextBoss+180,g.t+60)}
   if(g.t>=g.nextRpgT&&!g.demo&&!(fbS&&fbS.age<90)){ let n=0; for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(e.type==='rpgt'&&!e.dead)n++ }
     const cap=PACE.mass(g)?Math.min(4,2+Math.floor((g.t-240)/240)):Math.min(2,1+Math.floor((g.t-EX.PAD_T)/120));   /* early levels: at most 1-2 B-40 teams, from ~75 s into the pad hold */ if(n<cap){ const e0=spawnEnemy('rpgt'); if(e0){ e0.cdash=2.5+rnd()*2; if(g.t>=720&&rnd()<.5){ e0.rpg7=true; if(!g.rpg7Seen){ g.rpg7Seen=true; g.banner={text:'RPG-7 ISSUED! FASTER ROCKETS',t:3,col:'#ff8a4a'} } } g.nextRpgT=g.t+14+rnd()*8; if(!g.rpgSeen){ g.rpgSeen=true; g.banner={text:'B-40 ROCKET TROOPERS! WATCH YOUR ARMOR & BIRDS',t:3,col:'#ff9a5a'} } } } else g.nextRpgT=g.t+5 }
-  CURW=''; updateWeapons(dt); CURW='';
+  CURW=''; updateWeapons(dt); CURW=''; if(P2ON&&window.P2)P2.tick(dt);
   // enemies
   const far=Math.hypot(VW,VH)/2+260;
   for(let i=0;i<n;i++){ const e=enemies[i]; if(e.dead)continue; if(e.zc){ e.kx=e.ky=0; e.x=e.zc.x+e.zox; e.y=e.zc.y+e.zoy; if(e.flash>0)e.flash-=dt; continue }   /* rc7 ZiS-3 crew stay on the gun */
@@ -4125,9 +4125,10 @@ const FACEW={m16:1,m60:1,shotgun:1,grease:1,m1903:1,knives:1,m79:1,claymore:1}; 
 function faceK(p,k,range){ const ts=nearestK(p.x,p.y,k,range); if(!FACEAIM||!ts.length)return ts; const a=G.fa||0; let best=null,bd=range*range;
   for(const e of enemies){ if(e.dead)continue; const dx=e.x-p.x,dy=e.y-p.y,d2=dx*dx+dy*dy; if(d2>=bd)continue; let da=Math.atan2(dy,dx)-a; da=Math.abs(Math.atan2(Math.sin(da),Math.cos(da))); if(da<=AIMCONE+Math.atan2(e.r||8,Math.sqrt(d2)||1)){bd=d2;best=e} }
   const o=best?{x:best.x,y:best.y}:{x:p.x+Math.cos(a)*range*.6,y:p.y+Math.sin(a)*range*.6}; return ts.map(()=>o) }
+const P2ON=/[?&]p2(=1)?(&|$)/.test(location.search), P2HAND={m16:1,m60:1,m79:1,grease:1,shotgun:1,m1903:1};   /* proto/p2-combat: ?p2=1 manual fire; absent or ?p2=0 = baseline */
 function updateWeapons(dt){
   const g=G,p=g.p; if(g.rfCd>0)g.rfCd=Math.max(0,g.rfCd-dt); if(g.rfRun){ g.rfRun.t+=dt; if(g.rfRun.t>=g.rfRun.dur)g.rfRun=null }
-  for(const id in g.w){ CURW=id; RTO_T=null; const w=g.w[id]; let s=ITEMS[id].stats(w.lvl); const kc=g.ps.kc135|0; if(kc&&KCIDS[id])s=kcBoost(id,s,kc);
+  for(const id in g.w){ if(P2ON&&P2HAND[id])continue;   /* proto/p2-combat: the held weapon is fired by assets/p2combat.js */ CURW=id; RTO_T=null; const w=g.w[id]; let s=ITEMS[id].stats(w.lvl); const kc=g.ps.kc135|0; if(kc&&KCIDS[id])s=kcBoost(id,s,kc);
     if(FACEAIM&&FACEW[id])s=Object.assign({},s,{cd:s.cd*FACE_CD});
     if(id==='m16'&&g.sidearm)s=Object.assign({},s,{dmg:Math.max(4,Math.round(s.dmg*.55)),cd:s.cd*1.5,shots:1,pierce:1});   // Hogston: M1911A1 sidearm only
     if(w.lvl>=7&&!ITEMS[id].evo){ const bb=w.lvl>=8?1.14:1.07; for(const kk of ['dmg','d50','d60','rkdmg','fdmg'])if(s[kk])s[kk]*=bb }
@@ -8077,6 +8078,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
     if(k==='SE'){ window.__fs&&__fs.toggle(); document.body.classList.add('padmode'); return }   /* same handler as the F key (also the Steam host) */
     if(st==='intro'){ if(k)skipIntro(); return }
     if(st==='brief'){ if(k==='A')briefNext(); else if(k==='ST'||k==='B')endBrief(); return }
+    if(st==='play'&&P2ON&&window.P2&&P2.padKey(k))return;
     if(st==='play'){ if(k==='A'||k==='LT'||k==='RT')useAbility(); else if(k==='X'){ G.xPressT=G.t; const ex=G.ex; if(ex&&ex.ph<3)N2.press(); else popSignal() } else if(k==='Y')PB.toggle();   /* rc8.1: pad X calls the bird before the call (same as key X), pops smoke after (same as G); hold X = engineers via fbHeld */ else if(k==='B')useMed(false); else if(k==='RB')this.rbT=performance.now(); else if(k==='LB'||k==='R3'){ Snd.init(); Snd.resume(); Snd.setMuted(!Snd.muted) } else if(k==='ST')pauseGame(); return }
     if(st==='sig'){ if(!sigAskReady())return;   /* a pad press edge after the dialog opened is always a fresh press */ if(k==='A')answerSignal(true); else if(k==='B')answerSignal(false); return }
     if(st==='levelup'){ const n=choices.length; if(!k){ if(dx||dy)this.luI=Math.max(0,Math.min(n-1,this.luI+(dx||dy))) } else if(k==='LB')this.luI=Math.max(0,this.luI-1); else if(k==='RB')this.luI=Math.min(n-1,this.luI+1);
@@ -8155,7 +8157,7 @@ function inputWatchdog(){ if(state!==INP.st){ const prev=INP.st; INP.st=state; i
   if(!joy.on)return; const now=performance.now();
   if(joy.pt==='touch'){ if(INP.touches.size){ INP.lastNoTouch=0; return } if(!INP.lastNoTouch)INP.lastNoTouch=now; else if(now-INP.lastNoTouch>250){ INP.lastNoTouch=0; releaseJoy('watchdog: no touch down') } }
   else if(joy.pt==='mouse'&&!INP.mouseDown)releaseJoy('watchdog: no mouse button down') }
-cv.addEventListener('pointerdown',e=>{ if(state!=='play')return; if(joy.on&&e.pointerId!==joy.id){ if(joy.pt==='touch'&&joy.tid!=null&&INP.touches.has(joy.tid))return; releaseJoy('stale stick replaced') }   /* a live stick keeps its finger; a stale one is taken over */
+cv.addEventListener('pointerdown',e=>{ if(state!=='play')return; if(P2ON&&e.pointerType==='mouse')return;   /* p2: left mouse = fire, not the drag stick */ if(joy.on&&e.pointerId!==joy.id){ if(joy.pt==='touch'&&joy.tid!=null&&INP.touches.has(joy.tid))return; releaseJoy('stale stick replaced') }   /* a live stick keeps its finger; a stale one is taken over */
   joy.on=true;joy.id=e.pointerId;joy.pt=e.pointerType||'mouse';joy.tid=null;joy.ox=e.clientX;joy.oy=e.clientY;joy.x=0;joy.y=0; INP.lastNoTouch=0; if(joy.pt==='mouse')INP.mouseDown=true; try{cv.setPointerCapture(e.pointerId)}catch(_){} });
 cv.addEventListener('pointermove',e=>{ if(!joy.on||e.pointerId!==joy.id)return; if(e.pointerType==='mouse'&&e.buttons===0){ releaseJoy('pointermove with no button'); return } const R=55,dx=e.clientX-joy.ox,dy=e.clientY-joy.oy,d=Math.hypot(dx,dy); const k=d>R?R/d:1; joy.x=dx*k/R; joy.y=dy*k/R; if(d>R*1.6){joy.ox+=dx/d*(d-R*1.6);joy.oy+=dy/d*(d-R*1.6)} });
 const endJoy=e=>{ if(e.pointerId===joy.id)releaseJoy(e.type) };
@@ -8874,6 +8876,6 @@ Object.defineProperty(window.__ms,'ftexts',{get:()=>ftexts}); window.__ms.render
 })();
 })();
 </script>
-<script src="assets/runsave.js?v=092bce1"></script><script src="assets/memtrim.js?v=092bce1"></script>
+<script>if(/[?&]p2(=1)?(&|$)/.test(location.search))document.write('<script src="assets/p2combat.js?v=p2a"><\/script>')</script><script src="assets/runsave.js?v=092bce1"></script><script src="assets/memtrim.js?v=092bce1"></script>
 <script>/*csfitpatch*/(function(){var was=false;function fit(){var c=document.getElementById("charsel");if(!c)return;var on=c.classList.contains("show");if(on&&!was){c.style.zoom="";c.style.overflow="visible";var h=Math.max(c.scrollHeight,c.getBoundingClientRect().height);var kids=c.children,mx=0;for(var i=0;i<kids.length;i++){var r=kids[i].getBoundingClientRect();if(r.bottom>mx)mx=r.bottom}var need=Math.max(h,mx+16);var s=Math.min(1,(innerHeight-8)/need);if(s<1)c.style.zoom=String(s);c.style.overflow="";}if(!on&&was)c.style.zoom="";was=on}setInterval(fit,150);addEventListener("resize",function(){was=false})})();</script><script>/*menumusicpatch*/(function(){var n=0,iv=setInterval(function(){n++;try{if(typeof Snd!=="undefined"&&Snd.init){Snd.init();Snd.resume&&Snd.resume();if(Snd.ctx&&Snd.ctx.state==="running"&&n>4)clearInterval(iv)}}catch(e){}if(n>60)clearInterval(iv)},500)})();</script></body>
 </html>
