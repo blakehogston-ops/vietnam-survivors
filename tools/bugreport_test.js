@@ -33,6 +33,9 @@ const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0
   T('persistent confirmation shown',!!r.msg&&/saved/.test(r.msg));
   const keys=['v','ts','build','platform','mission','map','seed','difficulty','char','loadout','tags','note','log','shot'];
   T('payload shape v1',p.v===1&&keys.every(k=>k in p)&&p.build&&'sha' in p.build&&['win','mac','web'].includes(p.platform)&&typeof p.seed==='number'&&p.tags[0]==='stuck'&&p.note==='Doc stuck on the ramp',JSON.stringify(keys.filter(k=>!(k in p))));
+  T('mission/difficulty from read-only getters',p.mission===(await pg.evaluate(()=>__lcoBug.mission()))&&/ · Extraction$/.test(p.mission||'')&&p.difficulty==='Normal',JSON.stringify({m:p.mission,d:p.difficulty}));
+  { const ro=await pg.evaluate(()=>{ const k=Object.keys(localStorage).sort().join(); __lcoBug.mission(); __lcoBug.difficulty(); return k===Object.keys(localStorage).sort().join() }); T('getters write no saved state',ro) }
+  { const p2=await mk('nodemo&nointro&nobrief&bot&autostart&bugreport=1&diff=hard&map=cam_lo_river'); const r2=await p2.evaluate(()=>({m:__lcoBug.mission(),d:__lcoBug.difficulty(),b:__bugrep.build('x',[],{})})); T('?diff=hard&map=cam_lo_river -> Hard, cam_lo_river · Extraction',r2.d==='Hard'&&r2.m==='cam_lo_river · Extraction'&&r2.b.difficulty==='Hard'&&r2.b.mission===r2.m,JSON.stringify({m:r2.m,d:r2.d})); await p2.close() }
   T('shot is 640px JPEG data URL',await pg.evaluate(s=>new Promise(res=>{ if(!s||!s.startsWith('data:image/jpeg'))return res(false); const i=new Image(); i.onload=()=>res(i.width===640); i.onerror=()=>res(false); i.src=s }),p.shot));
   const sz=json.length; T('payload size < 300 KB',sz<300000,(sz/1024).toFixed(1)+' KB'); T('log <= 200 lines',Array.isArray(p.log)&&p.log.length<=200);
   T('paths scrubbed / no user names',!/blake|Users|home\//i.test(JSON.stringify(p.log))&&p.log.some(l=>/index\.html/.test(l)),JSON.stringify(p.log.filter(l=>/index|bugreport/.test(l))));

@@ -6,7 +6,7 @@ const BUGREPORT_ENDPOINT=null;            /* never hardcode: real URL lives in l
 const QK='lco_bugq', QMAX=20, NMAX=1000, LOGN=200;
 const PRESETS=['crash','stuck','visual','audio','controls'];
 const LS={ get(k,d){ try{ const v=localStorage.getItem(k); return v==null?d:v }catch(e){ return d } }, set(k,v){ try{ localStorage.setItem(k,v); return true }catch(e){ return false } } };
-const H=()=>window.__lcoBug||null, ST=()=>{ try{ return H().state() }catch(e){ return '' } }, GG=()=>{ try{ return H().G() }catch(e){ return null } };
+const H=()=>window.__lcoBug||null, HG=k=>{ try{ const f=H()&&H()[k]; return typeof f==='function'?(f()||null):null }catch(e){ return null } }, ST=()=>{ try{ return H().state() }catch(e){ return '' } }, GG=()=>{ try{ return H().G() }catch(e){ return null } };
 const HO=()=>window.vsHost||window.lcoHost||null;
 function cfg(){ let c={}; try{ c=JSON.parse(LS.get('lco_bug_cfg','{}'))||{} }catch(e){} try{ const h=HO(); if(h&&typeof h.bugConfig==='function'){ const x=h.bugConfig(); if(x&&typeof x==='object')c=Object.assign({},c,x) } }catch(e){}
   let url=(typeof c.url==='string'&&/^https:\/\//i.test(c.url))?c.url:(BUGREPORT_ENDPOINT||null); if(url&&/^https:\/\/([^\/]*\.)?(discord(app)?\.com)(?=[\/:?#]|$)/i.test(url))url=null;   /* legal: no Discord webhooks */ const key=typeof c.key==='string'&&c.key?c.key:null; return {url,key} }
@@ -36,7 +36,7 @@ function build(note,tags,inc){ inc=inc||{}; let g=null; try{ const x=GG(); g=(x&
   let seed=null; try{ seed=window.__lco&&__lco.seed?__lco.seed():null }catch(e){}
   let sha=null; try{ sha=H().build }catch(e){}
   return { v:1, ts:new Date().toISOString(), build:{sha,host:inc.sys&&hb!=null?scrub(hb):null}, platform:inc.sys?plat():null,
-    mission:g&&(g.mission||g.missionId)||null, map:(window.__lco&&__lco.mapId)||(g&&g.mapId)||null, seed, difficulty:g&&(g.diff||g.difficulty)||null, char:g&&g.char||null,
+    mission:g?HG('mission'):null, map:(window.__lco&&__lco.mapId)||(g&&g.mapId)||null, seed, difficulty:g?HG('difficulty'):null, char:g&&g.char||null,
     loadout:loadout(g), tags:tags||[], note:scrub(note).slice(0,NMAX), log:inc.logs?LOG.slice(-LOGN):null, shot:inc.shot?(inc.shotData!==undefined?inc.shotData:shot()):null } }   /* v1 never carries a Steam ID or any account id */
 /* ---- queue + send (never throws) ---- */
 function q(){ try{ const a=JSON.parse(LS.get(QK,'[]')); return Array.isArray(a)?a:[] }catch(e){ return [] } }

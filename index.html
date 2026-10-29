@@ -9182,7 +9182,7 @@ Object.defineProperty(window.__ms,'ftexts',{get:()=>ftexts}); window.__ms.render
   ['touchstart','touchend','pointerdown','pointerup','click','keydown'].forEach(ev=>window.addEventListener(ev,unlock,{passive:true,capture:true}));
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&Snd.ctx&&Snd.ctx.state!=='running')Snd.ctx.resume(); });
 })();
-if(new URLSearchParams(location.search).get('bugreport')==='1')window.__lcoBug={ pause:()=>pauseGame(), resume:()=>resumeGame(), state:()=>state, G:()=>G, PAD, build:BUILD.id };   /* rc8.2 bug reporter hooks (Blake builds, ?bugreport=1 exact key only; flag off = not defined) */
+if(new URLSearchParams(location.search).get('bugreport')==='1')window.__lcoBug={ pause:()=>pauseGame(), resume:()=>resumeGame(), state:()=>state, G:()=>G, PAD, build:BUILD.id, mission:()=>{ try{ if(!G||G.demo)return null; const m=(window.__lco&&window.__lco.mapId)||G.mapId||'default'; return m+' · Extraction' }catch(e){ return null } }, difficulty:()=>EXQ==='easy'?'Easy':EXQ==='hard'?'Hard':'Normal' };   /* rc8.2 EP: read-only getters, no saved state. No per-run mission name exists in the game (one mode: the EXTRACTION MISSION), so mission = mapId + mode name; difficulty = ?diff= (EXQ) label */   /* rc8.2 bug reporter hooks (Blake builds, ?bugreport=1 exact key only; flag off = not defined) */
 })();
 </script>
 <script src="assets/runsave.js?v=491cea2"></script><script src="assets/memtrim.js?v=491cea2"></script>
