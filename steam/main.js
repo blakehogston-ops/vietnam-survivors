@@ -69,6 +69,14 @@ const MIG = migrate();
 const steam = require('./steam');
 const MAP = require('./steam/lco_steam_config.json');
 const TEST = process.env.LCO_TEST === '1';
+/* Build tier (Legal Oct 28): 'public' (Steam/store: unlock-all OFF, Loc/vi VO files not packaged) | 'friends' | 'test' (Blake's standard build: unlock-all ON).
+   Source: package.json "lcoTier" (written by electron-builder: public = package.json build config, friends/test = builder.friends.js extraMetadata).
+   Unpackaged runs (electron .) default to 'test'; LCO_BUILD_TIER env overrides only when unpackaged or LCO_TEST=1. Unknown/missing in a packaged app -> 'public'. */
+const TIERS = ['public', 'friends', 'test'];
+const BUILD_TIER = (() => { let t = null; try { t = require('./package.json').lcoTier; } catch (e) {}
+  const env = process.env.LCO_BUILD_TIER; if (env && (!app.isPackaged || TEST)) t = env;
+  if (!t && !app.isPackaged) t = 'test'; return TIERS.includes(t) ? t : 'public'; })();
+module.exports.BUILD_TIER = BUILD_TIER;
 const STEAM_APP_ID = +(process.env.LCO_APPID || 480);   // PLACEHOLDER 480 (Spacewar). Replace with the real App ID (also steam_appid.txt).
 let win = null;
 
@@ -123,7 +131,8 @@ function createWindow() {
     autoHideMenuBar: true, show: !TEST, fullscreen: true, fullscreenable: true,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: false, devTools: !app.isPackaged, backgroundThrottling: false, autoplayPolicy: "no-user-gesture-required" },
   });
-  win.loadURL('app://game/index.html?tier=public&jungle=1&all=1&doconly=0' + (TEST ? '&nobrief=1&notut=1' : ''));
+  // Legal Oct 28: unlock-all only in friends/test builds. BUILD_TIER is the single setting (package.json "lcoTier", set at packaging).
+  win.loadURL('app://game/index.html?tier=public&jungle=1&doconly=0&lcotier=' + BUILD_TIER + (BUILD_TIER !== 'public' ? '&all=1' : '') + (TEST ? '&nobrief=1&notut=1' : ''));
   win.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:/.test(url)) require('electron').shell.openExternal(url); return { action: 'deny' }; });
   win.webContents.on('will-navigate', (e) => e.preventDefault());
   win.webContents.on('before-input-event', (e, i) => {
@@ -137,6 +146,7 @@ ipcMain.on('save:write', (e, keys) => { if (keys && typeof keys === 'object') wr
 ipcMain.on('steam:unlock', (e, id) => { if (typeof id === 'string' && /^[a-z0-9_]{1,40}$/i.test(id)) unlockGame(id); });
 ipcMain.on('steam:status', (e) => { e.returnValue = { available: steam.available(), status: steam.getStatus(), deck: steam.isDeck(), migration: MIG }; });
 ipcMain.on('fs:set', (e, b) => { if (win) win.setFullScreen(!!b); });
+ipcMain.on('tier:get', (e) => { e.returnValue = BUILD_TIER; });
 ipcMain.on('app:quit', () => app.quit());
 
 app.whenReady().then(async () => {
@@ -144,6 +154,6 @@ app.whenReady().then(async () => {
   console.log('[lco] file-origin migration', await migrateFileOrigin());
   console.log('[lco] userData', NEW_DIR, 'migration', MIG, 'steam', steam.init(STEAM_APP_ID));
   createWindow();
-  if (TEST) require('./smoke')(win, saveFile, unlocked);
+  if (TEST) { try { require('./smoke')(win, saveFile, unlocked); } catch (e) { console.error('[smoke] not packaged in this tier:', e.message); } }   // public packages exclude smoke.js
 });
 app.on('window-all-closed', () => { if (!MIGRATING) app.quit(); });

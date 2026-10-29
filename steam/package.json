@@ -13,7 +13,10 @@
     "dist:win": "electron-builder --win zip --x64",
     "dist:linux": "electron-builder --linux dir --x64",
     "dist:mac": "electron-builder --mac",
-    "dist:win:installer": "electron-builder --win nsis --x64"
+    "dist:win:installer": "electron-builder --win nsis --x64",
+    "dist:friends:mac": "electron-builder -c builder.friends.js --mac",
+    "dist:friends:win": "electron-builder -c builder.friends.js --win zip --x64",
+    "dist:friends:linux": "electron-builder -c builder.friends.js --linux dir --x64"
   },
   "dependencies": {
     "steamworks.js": "^0.4.0"
@@ -35,9 +38,12 @@
       "main.js",
       "preload.js",
       "steam.js",
+      "steam/lco_steam_config.json",
       "game/**",
       "build/icon.png",
-      "package.json"
+      "package.json",
+      "!**/smoke*.js",
+      "!game/audio/vo_ai/**/vo_ho_k0[12].*"
     ],
     "asarUnpack": [
       "node_modules/steamworks.js/**"
@@ -77,6 +83,9 @@
       ],
       "category": "Game",
       "icon": "build/icon.png"
+    },
+    "extraMetadata": {
+      "lcoTier": "public"
     }
   },
   "type": "commonjs"

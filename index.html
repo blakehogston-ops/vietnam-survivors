@@ -447,6 +447,12 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
 </div>
 
 <script>window.LCO_BUILD_TIER='public';</script>
+<script>/* Legal Oct 28: unlock-all gate. LCO_TIER = build tier for unlocks (separate from LCO_BUILD_TIER, which stays 'public' = Loc/vi VO off, as in Blake's Mac app).
+   Electron: ?lcotier= from steam/main.js (package "lcoTier"). Browser: ?lcotier= if given, else 'test' on localhost/127.0.0.1 and /next/, else 'public'.
+   ON in friends/test, OFF in public. QA override: ?unlock=0 forces OFF everywhere (?unlock=1 forces ON only outside the Electron host). */
+(function(){ var q=new URLSearchParams(location.search), t=q.get('lcotier');
+  if(!/^(public|friends|test)$/.test(t||'')) t=(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||/\/next\//.test(location.pathname))?'test':'public';
+  window.LCO_TIER=t; window.LCO_UNLOCK=q.get('unlock')==='0'?false:(t!=='public'||(q.get('unlock')==='1'&&location.protocol!=='app:')); })();</script>
 <script>/* save-key migration (rename Last Bird Out -> Last Chopper Out): once per browser profile, copy every old lbo2_/lbo2demo_ key to the
    new lco_/lcodemo_ prefix when the new key is not already set. Old keys are kept (never deleted) so a rollback still finds them. ?lcomig=0 skips it. */
 (function(){ try{ if(/[?&]lcomig=0\b/.test(location.search))return; const L=localStorage; if(L.getItem('lco_migrated'))return; let n=0;
@@ -5773,9 +5779,9 @@ if(params.get('char'))SEL=params.get('char')===LEGID?'flamer':params.get('char')
 /* Stage 1: on a fresh save Doc is the only open record; every other record opens the first time Doc comes home (lco_open). */
 function chOpenSave(id){ if(id==='doc')return true; try{ return localStorage.getItem('lco_open')==='1' }catch(e){ return false } }
 /* ?all (tester build): every Marine selectable for this session only; nothing is written to the lco_ save and the run is a debug run */
-const ALLU=params.has('all')&&!DEMO;
+const ALLU=params.has('all')&&!DEMO&&window.LCO_UNLOCK!==false;   /* Legal Oct 28: ?unlock=0 / public tier turns ?all off */
 /* Blake Oct 15: every character unlocked on /next/ (investor build). Unlock code untouched: set UNLOCK_ALL=false (or ?unlockall=0) to re-enable the gates. Not a debug run (no g.dbg). */
-const UNLOCK_ALL=params.get('unlockall')==='0'?false:(/\/next\//.test(location.pathname)||params.get('unlockall')==='1'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname));
+const UNLOCK_ALL=(params.get('unlockall')==='0'||!window.LCO_UNLOCK)?false:(/\/next\//.test(location.pathname)||params.get('unlockall')==='1'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname));
 /* Blake Oct 15 7:20 PM: Doc only for now (most developed). ?all still opens all for testing. */
 const DOC_ONLY=params.get('doconly')!=='0';
 function chOpen(id){ if(DEMO)return id==='doc'; if(DOC_ONLY&&!ALLU)return id==='doc'; return ALLU||UNLOCK_ALL||chOpenSave(id) }
@@ -7895,7 +7901,7 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
     {id:'m79',nm:'Grenadier',ds:'Starts with the M79. -1 battle dressing, -10% squad HP.',req:{score:8000},fx:g=>{ if(!g.w.m79)g.w.m79={lvl:1,cd:.2,tick:0}; g.medInv=Math.max(0,(g.medInv|0)-1); g.sq.hp-=.1 }},
     {id:'gun',nm:'Gun Team',ds:'Starts with the M60. -20 max HP.',req:{ach:'all_home'},fx:g=>{ if(!g.w.m60)g.w.m60={lvl:1,cd:.2,tick:0}; g.hpB=(g.hpB||0)-20 }}],
   MREQ:{hammer:'first_out',boone:'hold_10',skipper:'moh_one',flamer:'night_hold',rat:'sapper_stop',radio:'late_call',preacher:'all_home',chef:'score_15k'},
-  reqOk(r){ return true; if(DEMO)return false; if(r.ach)return !!this.got()[r.ach]; if(r.score)return this.ls('lco_hiscore',0)>=r.score; return false },
+  reqOk(r){ if(window.LCO_UNLOCK&&!DEMO)return true; if(DEMO)return false; if(r.ach)return !!this.got()[r.ach]; if(r.score)return this.ls('lco_hiscore',0)>=r.score; return false },
   reqTx(r){ if(!r)return ''; if(DEMO)return 'Full game'; if(r.ach){ const a=ACH.find(q=>q.id===r.ach); return 'Earn "'+(a?a.name:r.ach)+'"' } return 'Hold-out score '+r.score.toLocaleString() },
   cur(){ if(DEMO)return 'std'; const id=this.ls('lco_loadout','std'), L=this.LO.find(q=>q.id===id); return L&&this.reqOk(L.req)?id:'std' },
   loadout(){ const g=G; if(!this.UNL||!g||g.demo||g.char!=='doc')return; const L=this.LO.find(q=>q.id===this.cur()); if(L){ L.fx(g); g.loadout=L.id; try{ applyPassives(); g.p.hp=g.p.maxHp }catch(e){} } },
