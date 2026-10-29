@@ -4334,7 +4334,7 @@ window.__lco=Object.assign(window.__lco||{},{p2:H});
 })();
 function updateWeapons(dt){
   const g=G,p=g.p; if(g.rfCd>0)g.rfCd=Math.max(0,g.rfCd-dt); if(g.rfRun){ g.rfRun.t+=dt; if(g.rfRun.t>=g.rfRun.dur)g.rfRun=null }
-  for(const id in g.w){ if(P2ON&&P2HAND[id])continue;   /* proto/p2-combat: the held weapon is fired by assets/p2combat.js */ CURW=id; RTO_T=null; const w=g.w[id]; let s=ITEMS[id].stats(w.lvl); const kc=g.ps.kc135|0; if(kc&&KCIDS[id])s=kcBoost(id,s,kc);
+  for(const id in g.w){ if(P2ON&&P2HAND[id])continue; if(LO_SMALL[id]&&id!==LO.fid()&&LO.act())continue;   /* rc8.2 loadout (?loadout=1): only the selected gun fires */   /* proto/p2-combat: the held weapon is fired by assets/p2combat.js */ CURW=id; RTO_T=null; const w=g.w[id]; let s=ITEMS[id].stats(w.lvl); const kc=g.ps.kc135|0; if(kc&&KCIDS[id])s=kcBoost(id,s,kc);
     if(FACEAIM&&FACEW[id])s=Object.assign({},s,{cd:s.cd*FACE_CD});
     if(id==='m16'&&g.sidearm)s=Object.assign({},s,{dmg:Math.max(4,Math.round(s.dmg*.55)),cd:s.cd*1.5,shots:1,pierce:1});   // Hogston: M1911A1 sidearm only
     if(w.lvl>=7&&!ITEMS[id].evo){ const bb=w.lvl>=8?1.14:1.07; for(const kk of ['dmg','d50','d60','rkdmg','fdmg'])if(s[kk])s[kk]*=bb }
@@ -4562,7 +4562,7 @@ const TEACH={ON:!/[?&]teach=0\b/.test(location.search),seen:(()=>{ try{ return J
     const c=this.cur; if(c){ c.t+=dt; const ok=c.id==='move'?(g.dSpd||0)>20&&c.t>2:c.id==='hold'?false:false; if(ok)c.t=Math.max(c.t,7.6); if(c.t>=8){ this.mark(c.id); this.log.push([c.id,+g.t.toFixed(1)]); this.cur=null; this.gap=2 } return }
     if((this.gap-=dt)>0||!this.q.length)return; const pri=['bird','pad','padhold','board','move','dodge','fb','hold','bunker','fbwhy','med','xp'];   /* rc8.1 QA r81p3: Move is the first tip on a fresh profile (xp used to outrank it and the 8 s chain never reached move) */ this.q.sort((a,b)=>pri.indexOf(a)-pri.indexOf(b));
     let id=this.q.shift(); if(id==='bunker'&&fbHoldBusy()){ this.q.push(id); return } this.cur={id,t:0}; if(id==='move'){ this.mark('move'); this.log.push(['move',+g.t.toFixed(1)]) } },   /* rc8.1 QA r81p3: Move is recorded when it first shows (radio/level-up cards pause its 8 s, so it never finished on an idle fresh profile) */
-  txt(id){ if(!PAD.on)return this.L[id]; const n=k=>PAD.pn(k).split(' ')[0]; const P={move:'Move: left stick. Doc fires on his own.',med:'Tap '+n('RB')+': patch up a Marine. '+n('B')+': patch yourself.',fb:'Firebase: hold '+n('RB')+' to call the engineers.',bunker:'Firebase up. '+n('Y')+' near a bunker to take cover.',bird:'Call the bird (your chopper): stand in the PICKUP PAD ring, press '+n('X')+'.',pad:'When the bird asks for smoke, stand on the pad: it pops by itself (or press '+n('X')+').',dodge:'Keep moving! '+n('Y')+' = bunker'}; return P[id]||this.L[id] },   /* rc8.1 EP (b): pad players get pad buttons (PAD.pn, same names as keysText) */
+  txt(id){ if(!PAD.on)return this.L[id]; const n=k=>PAD.pn(k).split(' ')[0]; const P={move:'Move: left stick. Doc fires on his own.',med:'Tap '+n('RB')+': patch up a Marine. '+n('B')+': patch yourself.',fb:'Firebase: hold '+n('RB')+' to call the engineers.',bunker:'Firebase up. '+(LO.act()?LO.bunkerKey().replace(/^h/,'H'):n('Y'))+' near a bunker to take cover.',bird:'Call the bird (your chopper): stand in the PICKUP PAD ring, press '+n('X')+'.',pad:'When the bird asks for smoke, stand on the pad: it pops by itself (or press '+n('X')+').',dodge:'Keep moving! '+(LO.act()?LO.bunkerKey():n('Y'))+' = bunker'}; return P[id]||this.L[id] },   /* rc8.1 EP (b): pad players get pad buttons (PAD.pn, same names as keysText) */
   hud(U){ const c=this.cur; if(!c||this.block(c.id)||!G||G.demo)return; if(!HUDB.take()){ c.t=Math.max(0,c.t-1/60); return } const a=Math.min(1,c.t*4,(8-c.t)*2); ctx.save(); ctx.globalAlpha=Math.max(0,a); txt(this.txt(c.id)||'',W/2,H*.79,Math.max(18*U,txtMin()),'#ffe58a','center'); ctx.restore() } };
 /* rc8.1 Lead Playtester #8: within 30 m of the pickup pad its ring is redrawn ABOVE the sandbags/structures with a pulsing fill and a big down-arrow marker */
 function padTop(tt){ const g=G, ex=g&&g.ex, p=g&&g.p; if(!ex||g.demo||!p)return; let lz=null; if(ex.pad&&ex.padShown&&ex.ph>=3&&ex.ph<=5)lz=ex.pad; else if(ex.ph===0&&ex.pre&&N2.XC&&g.t>=N2.XMIN)lz=ex.pre; if(!lz)return;
@@ -5293,7 +5293,7 @@ function curLvl(id){const it=ITEMS[id]; return it.kind==='w'?(G.w[id]?G.w[id].lv
 function genChoices(excl,n){
   excl=excl||[]; n=n||3; const out=[];
   if(n===3&&!excl.length){ const ev=evoReady(); if(ev.length)out.push(ev[0]) }
-  const pool=[]; for(const id in ITEMS){const it=ITEMS[id]; if(it.kind==='r'||(G.q15&&Q15_BAN[id])||G.banned[id]||excl.indexOf(id)>=0||out.indexOf(id)>=0)continue; if(it.req&&!it.req())continue; const l=curLvl(id); if(l<it.max)pool.push({id,w:(l===0?1.5:1)*(AIRCALL[id]&&!G.demo?AIRW:1)})}   /* rc7 #8: air-strike cards come up more often (x AIRW, ?airw=1 = old) */
+  const pool=[]; for(const id in ITEMS){const it=ITEMS[id]; if(it.kind==='r'||(LO.act()&&LO_SMALL[id])||(G.q15&&Q15_BAN[id])||G.banned[id]||excl.indexOf(id)>=0||out.indexOf(id)>=0)continue; if(it.req&&!it.req())continue; const l=curLvl(id); if(l<it.max)pool.push({id,w:(l===0?1.5:1)*(AIRCALL[id]&&!G.demo?AIRW:1)})}   /* rc7 #8: air-strike cards come up more often (x AIRW, ?airw=1 = old) */
   while(out.length<n&&pool.length){let tot=0;pool.forEach(o=>tot+=o.w); let r=rnd()*tot,i=0; for(;i<pool.length;i++){r-=pool[i].w;if(r<=0)break} i=Math.min(i,pool.length-1); out.push(pool[i].id); pool.splice(i,1)}
   if(!out.length)out.push('ration'); return out }
 function cardInfo(id){const it=ITEMS[id],l=curLvl(id); let line; if(it.kind==='w')line=it.desc(it.stats(l+1)); else if(it.kind==='p')line=it.desc(l+1); else line=it.desc(); return {lvl:l,line}}
@@ -8351,6 +8351,108 @@ window.addEventListener('pagehide',()=>{ clearInput('pagehide'); pauseGame() });
    Menus:   stick / D-pad move the highlight (left/right also changes sliders), A press, B back; Start begins a patrol; character select: stick/D-pad/LB/RB change man, A deploy, B back
    Briefing: A next line, Start or B skip. Game over: A continue, B main menu. Pause: Start or B resume. Intro: any button skips.
    QA hook: DBG.pad.press('A'), DBG.pad.axes(x,y), DBG.pad.connect()/disconnect(), DBG.pad.info(); or mock navigator.getGamepads.  */
+/* ===== rc8.2 SLICE 1: pre-mission loadout (GD/UX /workspace/design/rc82_loadout.md + a11y pass). OPT-IN: ?loadout=1 (or localStorage lco_loadout='1').
+   Flag absent = default game unchanged (LO.act() is false everywhere). Doc only (HAA: M1911A1 always + none or M16A1). Small-arm cards are out of the pool;
+   only the selected gun fires (the .45 rides on the existing Doc m16 slot via g.sidearm, the Hogston M1911A1 stats). Swap: 1/2, mouse wheel (option), pad Y.
+   Bunker: keyboard E, pad LB hold (0.4 s). Bindings are fixed here (LO.BIND) so they can register with lco_binds later. Bots / ?nointro / ?t= / Resume skip the screen. */
+const LO_ON=(()=>{ const m=location.search.match(/[?&]loadout=([01])\b/); if(m)return m[1]==='1'; try{ return localStorage.getItem('lco_loadout')==='1' }catch(e){ return false } })();
+const LO_SMALL={m16:1,m60:1,m79:1,m1903:1,grease:1,knives:1,shotgun:1};
+const LO=window.LO={ON:LO_ON, BIND:{prim:['Digit1'],side:['Digit2'],wheel:true,padSwap:'Y',padBunker:'LB',bunkerHold:400,keyBunker:'KeyE'},
+  SLOTS:[
+   {k:'prim',nm:'Primary',opts:[{id:'none',nm:'None',tag:'—',wt:0,wl:'None · hands free',info:'Corpsmen often carried only the .45. Hands free for treating.'},{id:'m16',nm:'M16A1',tag:'M16',wt:1,wl:'Light · no move penalty',info:'5.56mm rifle. Fires where you face.'}]},
+   {k:'side',nm:'Sidearm',fixed:1,opts:[{id:'m1911',nm:'M1911A1',tag:'.45',wt:1,wl:'Light · always carried',info:'.45 pistol. Always carried by Doc. No fire-mode switch.'}]},
+   {k:'thr',nm:'Throwable',opts:[{id:'frag',nm:'M26 frag',tag:'M26',wt:1,wl:'Light',info:'Fragmentation grenade.'},{id:'smoke',nm:'M18 smoke',tag:'M18',wt:1,wl:'Light',info:'Green, yellow or violet. Red is reserved for enemy and danger.'}]},
+   {k:'gear',nm:'Gear',opts:[{id:'unit1',nm:'Unit One bag',tag:'U1',wt:1,wl:'Light',info:'Corpsman\'s medical bag.'},{id:'mags',nm:'Extra magazines',tag:'MAG',wt:1,wl:'Light',lock:1,info:'More M16A1 magazines.'},{id:'etool',nm:'Entrenching tool',tag:'E-T',wt:1,wl:'Light',lock:2,info:'Faster dig-in.'},{id:'canteen',nm:'Extra canteen',tag:'H2O',wt:1,wl:'Light',lock:3,info:'More stamina.'}]}],
+  REC:{prim:'m16',side:'m1911',thr:'frag',gear:'unit1'},
+  done(){ try{ return +localStorage.getItem('lco_missions_done')||0 }catch(e){ return 0 } },
+  locked(o){ return !!(o.lock&&this.done()<o.lock) },
+  last(){ let v=null; try{ v=JSON.parse(localStorage.getItem('lco_loadout_last')||'null') }catch(e){} const o=Object.assign({},this.REC,v||{}); for(const s of this.SLOTS){ const op=s.opts.find(x=>x.id===o[s.k]); if(!op||this.locked(op))o[s.k]=this.REC[s.k] } return o },
+  act(){ return LO_ON&&!!G&&G.char==='doc'&&!G.demo },
+  wheelOn(){ try{ return localStorage.getItem('lco_lo_wheel')!=='0' }catch(e){ return true } },
+  need(){ return LO_ON&&SEL==='doc'&&!(DBG.bot||DBG.nointro||DBG.t>0||/[?&]lo_skip=1\b/.test(location.search)) },
+  apply(pick){ if(!this.act())return; const p=Object.assign({},pick||this.last()); G.lo={prim:p.prim,side:'m1911',thr:p.thr,gear:p.gear,sel:p.prim==='none'?'m1911':'m16',v:2};
+    for(const id in G.w)if(LO_SMALL[id]&&id!=='m16')delete G.w[id]; if(!G.w.m16)G.w.m16={lvl:1,cd:.2,tick:0}; this.sync() },
+  migrate(){ if(this.act()&&!G.lo){ G.lo={prim:G.w.m16?'m16':'none',side:'m1911',thr:'frag',gear:'unit1',sel:G.sidearm?'m1911':'m16',v:2,mig:1}; if(G.lo.prim==='none'&&!G.w.m16)G.w.m16={lvl:1,cd:.2,tick:0} } },
+  sync(){ if(G&&G.lo)G.sidearm=G.lo.sel==='m1911' },
+  sel(id){ if(!this.act()||state!=='play')return; this.migrate(); const L=G.lo; if(id==='m16'&&L.prim==='none'){ G.banner={text:'NO LONG GUN IN THIS LOADOUT · .45 ONLY',t:1.6,col:'#ffe58a'}; return } if(L.sel===id)return; L.sel=id; this.sync(); this.hudT=1.2; try{ Snd.play('pickup') }catch(e){} },
+  swap(){ if(!this.act())return; this.migrate(); this.sel(G.lo.sel==='m16'?'m1911':'m16') },
+  fid(){ return 'm16' },
+  /* ---- pad LB hold = bunker (only while LO.act()) ---- */
+  lbT:0, lbF:false,
+  padTick(held){ if(!this.lbT)return; if(!held){ this.lbT=0; this.lbF=false; return } if(!this.lbF&&performance.now()-this.lbT>=this.BIND.bunkerHold&&state==='play'){ this.lbF=true; PB.toggle() } },
+  bunkerKey(){ return (typeof PAD!=='undefined'&&PAD.on)?'hold '+PAD.pn(this.BIND.padBunker).split(' ')[0]:'E' },
+  swapKey(){ return (typeof PAD!=='undefined'&&PAD.on)?PAD.pn(this.BIND.padSwap).split(' ')[0]:'1/2'+(this.wheelOn()?' or wheel':'') },
+  /* ---- HUD: icon card (text placeholder) + weapon name ---- */
+  hud(){ let el=this.hel; if(!el){ el=this.hel=document.createElement('div'); el.id='loHud'; el.setAttribute('role','status'); document.body.appendChild(el) }
+    const on=this.act()&&state==='play'; el.style.display=on?'flex':'none'; if(!on)return; this.migrate(); this.sync();
+    const L=G.lo, s=L.sel==='m16'?{tag:'M16',nm:'M16A1'}:{tag:'.45',nm:'M1911A1'}, k=s.tag+'|'+s.nm+'|'+this.swapKey()+'|'+L.prim;
+    if(k!==this.hk){ this.hk=k; el.innerHTML='<span class="loIc">'+s.tag+'</span><span class="loNm">'+s.nm+'</span>'+(L.prim==='none'?'<span class="loSw">No long gun</span>':'<span class="loSw">Swap: '+this.swapKey()+'</span>') } },
+  /* ---- the screen ---- */
+  css(){ if(this._css)return; this._css=1; const s=document.createElement('style'); s.textContent=
+   '#loadout{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(10,15,9,.96);color:#f6f0cc;font:18px/1.35 "Trebuchet MS",Arial,sans-serif;padding:16px}'+
+   '#loadout.show{display:flex}#loadout h2{font:bold 30px Impact,"Arial Black",sans-serif;letter-spacing:.1em;margin:0}#loadout .loSub{font-size:18px;color:#e8e2c2;margin:0}'+
+   '#loadout .loRow{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:1240px}'+
+   '#loadout .loSlot{width:272px;min-height:250px;background:#18210f;border:3px solid #55603f;border-radius:6px;padding:10px 12px;cursor:pointer;position:relative;box-sizing:border-box}'+
+   '#loadout .loSlot.f{outline:4px solid #ffe58a;outline-offset:2px;border-color:#ffe58a}#loadout .loSlot.f::before{content:"\\25B6";position:absolute;left:-26px;top:10px;color:#ffe58a;font-size:20px}'+
+   '#loadout .loK{font-size:18px;color:#e8e2c2;text-transform:uppercase;letter-spacing:.08em}#loadout .loIc{display:inline-block;min-width:52px;padding:4px 6px;margin-right:8px;border:2px solid #f6f0cc;border-radius:4px;font:bold 18px monospace;text-align:center;background:#0c120a;color:#f6f0cc}'+
+   '#loadout .loOpt{display:flex;align-items:center;margin:6px 0;padding:4px;border:2px solid transparent;border-radius:4px;font-size:18px}#loadout .loOpt.on{border-color:#f6f0cc;background:#24301a}#loadout .loOpt.on::after{content:" \\2713 PICKED";font-size:18px;margin-left:auto;padding-left:6px}'+
+   '#loadout .loOpt.lk{color:#d8d2b4}#loadout .loLk{font-size:18px;color:#d8d2b4}#loadout .loW{margin-top:8px;font-size:18px}#loadout .loBar{height:10px;background:#0c120a;border:2px solid #cfc8a8;margin-top:4px}#loadout .loBar i{display:block;height:100%;background:#cfc8a8}'+
+   '#loadout .loInfo{font-size:18px;color:#e8e2c2;margin-top:6px;display:none}#loadout.info .loInfo{display:block}'+
+   '#loadout .loBtns{display:flex;gap:12px}#loadout .loBtns button{font:bold 20px Impact,"Arial Black",sans-serif;letter-spacing:.08em;padding:10px 22px;background:#4a6b2f;color:#f6f0cc;border:3px solid #1d2f14;border-radius:4px;cursor:pointer;min-height:48px}'+
+   '#loadout .loBtns button:focus-visible,#loadout .loAsk button.f{outline:4px solid #ffe58a;outline-offset:2px}#loadout .loHelp{font-size:18px;color:#e8e2c2}'+
+   '#loadout .loAsk{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(6,9,5,.88)}#loadout .loAsk.show{display:flex}#loadout .loAsk>div{background:#18210f;border:3px solid #f6f0cc;padding:20px 26px;text-align:center;font-size:20px}'+
+   '#loadout .loAsk button{font:bold 20px Impact,"Arial Black",sans-serif;margin:12px 8px 0;padding:8px 22px;background:#4a6b2f;color:#f6f0cc;border:3px solid #1d2f14;min-height:48px;cursor:pointer}'+
+   '#loHud{position:fixed;left:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:5;display:none;align-items:center;gap:8px;padding:6px 10px;background:rgba(10,14,8,.85);border:2px solid #55603f;border-radius:6px;color:#f6f0cc;font:bold 18px monospace;pointer-events:none}'+
+   '#loHud .loIc{padding:2px 6px;border:2px solid #f6f0cc;border-radius:4px}#loHud .loSw{font-weight:normal;color:#e8e2c2}';
+   document.head.appendChild(s) },
+  build(){ this.css(); let el=document.getElementById('loadout'); if(el)return el; el=document.createElement('div'); el.id='loadout'; el.setAttribute('role','dialog'); el.setAttribute('aria-label','Loadout');
+    el.innerHTML='<h2>DOC\'S LOADOUT</h2><p class="loSub">Pick what Doc carries. No timer. The squad keeps its own weapons.</p><div class="loRow"></div><div class="loBtns"><button type="button" id="loRec">RECOMMENDED</button><button type="button" id="loInfoB">INFO</button><button type="button" id="loGo">DEPLOY</button></div><div class="loHelp"></div>'+
+     '<div class="loAsk"><div>Back to the briefing?<br><button type="button" id="loYes">YES</button><button type="button" id="loNo">NO</button></div></div>';
+    document.body.appendChild(el);
+    el.querySelector('#loRec').onclick=()=>{ this.pick=Object.assign({},this.REC); this.draw() };
+    el.querySelector('#loInfoB').onclick=()=>{ el.classList.toggle('info') };
+    el.querySelector('#loGo').onclick=()=>this.deploy();
+    el.querySelector('#loYes').onclick=()=>this.back(true); el.querySelector('#loNo').onclick=()=>this.back(false);
+    return el },
+  draw(){ const el=this.build(), row=el.querySelector('.loRow'); row.innerHTML='';
+    this.SLOTS.forEach((s,i)=>{ const d=document.createElement('div'); d.className='loSlot'+(i===this.fi?' f':''); d.tabIndex=-1; const cur=s.opts.find(o=>o.id===this.pick[s.k])||s.opts[0];
+      d.innerHTML='<div class="loK">'+(i+1)+' · '+s.nm+(s.fixed?' (fixed)':'')+'</div>'+s.opts.map(o=>{ const lk=this.locked(o); return '<div class="loOpt'+(o.id===cur.id?' on':'')+(lk?' lk':'')+'" data-id="'+o.id+'"><span class="loIc">'+(lk?'\uD83D\uDD12':o.tag)+'</span><span>'+o.nm+(lk?'<br><span class="loLk">Unlocks after '+o.lock+' mission'+(o.lock>1?'s':'')+'</span>':'')+'</span></div>' }).join('')+
+        '<div class="loW">Weight: '+cur.wl+'</div><div class="loBar" aria-hidden="true"><i style="width:'+(cur.wt*25)+'%"></i></div><div class="loInfo">'+cur.info+'</div>';
+      d.addEventListener('click',e=>{ this.fi=i; const o=e.target.closest('.loOpt'); if(o)this.choose(s,o.dataset.id); else this.cycle(1); this.draw() });
+      row.appendChild(d) });
+    el.querySelector('.loHelp').textContent=(typeof PAD!=='undefined'&&PAD.on)?'Stick/D-pad move · '+PAD.pn('A').split(' ')[0]+' change · '+PAD.pn('X').split(' ')[0]+' recommended · '+PAD.pn('Y').split(' ')[0]+' info · '+PAD.pn('ST').split(' ')[0]+' deploy · '+PAD.pn('B').split(' ')[0]+' back':'Arrows or 1-4 choose a slot · Enter change · R recommended · I info · Space deploy · Esc back' },
+  choose(s,id){ if(s.fixed)return; const o=s.opts.find(x=>x.id===id); if(!o||this.locked(o))return; this.pick[s.k]=id },
+  cycle(d){ const s=this.SLOTS[this.fi]; if(s.fixed)return; const av=s.opts.filter(o=>!this.locked(o)); if(av.length<2)return; let i=av.findIndex(o=>o.id===this.pick[s.k]); i=(i+d+av.length)%av.length; this.pick[s.k]=av[i].id },
+  open(cont){ this.cont=cont; this.pick=this.last(); this.fi=0; this.prev=state; state='loadout'; const el=this.build(); el.classList.remove('info'); el.querySelector('.loAsk').classList.remove('show'); this.draw(); el.classList.add('show'); window.__loOpen={at:Date.now()} },
+  ask(on){ const a=this.build().querySelector('.loAsk'); a.classList.toggle('show',on); this.askY=false; this.askDraw() },
+  askDraw(){ const el=this.build(); el.querySelector('#loYes').classList.toggle('f',!!this.askY); el.querySelector('#loNo').classList.toggle('f',!this.askY) },
+  asking(){ return this.build().querySelector('.loAsk').classList.contains('show') },
+  back(yes){ this.ask(false); if(!yes)return; this.cont=null; this.build().classList.remove('show'); if(typeof startBrief2==='function'&&typeof INTRO2!=='undefined'&&INTRO2)startBrief2(); else toMenu() },
+  deploy(){ try{ localStorage.setItem('lco_loadout_last',JSON.stringify(this.pick)) }catch(e){} this.build().classList.remove('show'); this.apply(this.pick); window.__loDeploy=Object.assign({at:Date.now()},this.pick); const c=this.cont; this.cont=null; if(c)c() },
+  key(e){ if(state!=='loadout')return; e.preventDefault(); e.stopImmediatePropagation(); if(e.repeat)return; const c=e.code;
+    if(this.asking()){ if(c==='KeyY')this.back(true); else if(c==='KeyN'||c==='Escape'||c==='Backspace')this.back(false); else if(c==='ArrowLeft'||c==='ArrowRight'||c==='Tab'){ this.askY=!this.askY; this.askDraw() } else if(c==='Enter'||c==='Space'||c==='NumpadEnter')this.back(!!this.askY); return }
+    const n={Digit1:0,Digit2:1,Digit3:2,Digit4:3}[c];
+    if(n!==undefined)this.fi=n; else if(c==='ArrowRight'||c==='KeyD')this.fi=Math.min(3,this.fi+1); else if(c==='ArrowLeft'||c==='KeyA')this.fi=Math.max(0,this.fi-1);
+    else if(c==='ArrowDown'||c==='KeyS'||c==='Enter'||c==='NumpadEnter')this.cycle(1); else if(c==='ArrowUp'||c==='KeyW')this.cycle(-1);
+    else if(c==='KeyR')this.pick=Object.assign({},this.REC); else if(c==='KeyI'){ this.build().classList.toggle('info'); return } else if(c==='Space'){ this.deploy(); return } else if(c==='Escape'||c==='Backspace'){ this.ask(true); return } else return;
+    this.draw() },
+  pad(k,dx,dy){ if(this.asking()){ if(k==='A')this.back(!!this.askY); else if(k==='B')this.back(false); else if(!k&&dx){ this.askY=!this.askY; this.askDraw() } return }
+    if(!k){ if(dx)this.fi=Math.max(0,Math.min(3,this.fi+dx)); else if(dy)this.cycle(dy); this.draw(); return }
+    if(k==='A')this.cycle(1); else if(k==='X')this.pick=Object.assign({},this.REC); else if(k==='Y'){ this.build().classList.toggle('info'); return } else if(k==='ST'){ this.deploy(); return } else if(k==='B'){ this.ask(true); return } else return; this.draw() },
+  options(){ const P=document.getElementById('pause'); if(!P||document.getElementById('loWheel'))return; const l=document.createElement('label'); l.className='goresw'; l.title='Mouse wheel swaps between the M16A1 and the .45';
+    l.innerHTML='<span>WHEEL SWAPS WEAPON</span><input type="checkbox" id="loWheel"><i></i><b class="loWheelTxt"></b>'; const anchor=P.querySelector('.lowSw'); if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(l,anchor); else P.appendChild(l);
+    const c=l.querySelector('input'), t=l.querySelector('b'), set=()=>{ c.checked=this.wheelOn(); t.textContent=c.checked?'ON':'OFF' }; set();
+    c.addEventListener('change',()=>{ try{ localStorage.setItem('lco_lo_wheel',c.checked?'1':'0') }catch(e){} set(); c.blur() }); c.addEventListener('keydown',e=>e.stopPropagation()) }
+};
+if(LO_ON){
+  const _si=startIntro; startIntro=function(q){ if(LO.need()&&!LO.cont&&state!=='loadout'){ LO.open(()=>_si(q)); return } return _si(q) };
+  const _ng=newGame; newGame=function(d){ const r=_ng(d); try{ LO.apply() }catch(e){ console.warn('[LCO] loadout apply',e&&e.message) } return r };
+  window.addEventListener('keydown',e=>LO.key(e),true);
+  document.addEventListener('keydown',e=>{ if(state!=='play'||e.repeat||!LO.act())return; if(LO.BIND.prim.includes(e.code))LO.sel('m16'); else if(LO.BIND.side.includes(e.code))LO.sel('m1911') });
+  let wT=0; addEventListener('wheel',e=>{ if(state!=='play'||!LO.act()||!LO.wheelOn())return; const n=performance.now(); if(n-wT<150)return; wT=n; LO.swap() },{passive:true});
+  setInterval(()=>{ try{ LO.hud() }catch(e){} },150);
+  if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>LO.options()); else setTimeout(()=>LO.options(),0);
+}
 const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk:'',luI:0,virt:null,hintT:0,rumbleAt:0,uses:0,last:'',
   BTN:{A:0,B:1,X:2,Y:3,LB:4,RB:5,LT:6,RT:7,SE:8,ST:9,L3:10,R3:11,UP:12,DOWN:13,LEFT:14,RIGHT:15},
   pn(k){ const x=this.ps?{A:'✕ Cross',B:'○ Circle',X:'□ Square',Y:'△ Triangle',LB:'L1',RB:'R1',LT:'L2',RT:'R2',SE:'Create',ST:'Options'}:{A:'A',B:'B',X:'X',Y:'Y',LB:'LB',RB:'RB',LT:'LT',RT:'RT',SE:'Select',ST:'Start'}; return x[k]||k },
@@ -8358,7 +8460,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
   pick(){ for(const g of this.pads()){ if(g&&g.connected&&g.buttons&&g.buttons.length>=10)return g } return null },
   toast(t,ms){ const h=$('padHint'); if(!h)return; h.textContent=t; h.classList.add('show'); clearTimeout(this.hintT); this.hintT=setTimeout(()=>h.classList.remove('show'),ms||5000) },
   rbT:0, medTap:0, rbHold(){ return !!(this.rbT&&this.prev[this.BTN.RB]&&performance.now()-this.rbT>=600) },
-  keysText(){ const n=k=>this.pn(k); return `Controller: left stick / D-pad move · ${n('A')} special · ${n('X')} call the bird / pop smoke · hold ${n('RB')} call engineers (firebase ring) · ${n('Y')} enter/leave bunker · ${n('B')} patch self · tap ${n('RB')} patch Marine · ${n('A')}/${n('B')} confirm/negative the smoke · ${n('LB')} mute · ${n('ST')} pause · ${n('SE')} fullscreen · Level-up: stick/D-pad/${n('LB')}/${n('RB')} highlight, ${n('A')} choose, ${n('X')} reroll, ${n('Y')} banish · Menus: D-pad/stick + ${n('A')}, ${n('B')} back` },
+  keysText(){ const n=k=>this.pn(k); return `Controller: left stick / D-pad move · ${n('A')} special · ${n('X')} call the bird / pop smoke · hold ${n('RB')} call engineers (firebase ring) · ${LO_ON?'hold '+n('LB')+' enter/leave bunker · '+n('Y')+' swap M16A1/.45':n('Y')+' enter/leave bunker'} · ${n('B')} patch self · tap ${n('RB')} patch Marine · ${n('A')}/${n('B')} confirm/negative the smoke · ${LO_ON?n('R3'):n('LB')} mute · ${n('ST')} pause · ${n('SE')} fullscreen · Level-up: stick/D-pad/${n('LB')}/${n('RB')} highlight, ${n('A')} choose, ${n('X')} reroll, ${n('Y')} banish · Menus: D-pad/stick + ${n('A')}, ${n('B')} back` },
   setOn(on,g){ if(on===this.on)return; this.on=on; document.body.classList.toggle('padon',on);
     if(on){ this.id=(g&&g.id)||''; this.ps=/054c|playstation|dualshock|dualsense|sony|wireless controller/i.test(this.id)&&!/xbox|microsoft|045e/i.test(this.id);
       const ab=$('abilKey'); if(ab){ ab._k=ab.textContent; ab.textContent=this.pn('A').split(' ')[0] }
@@ -8377,10 +8479,11 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
     if(!['play'].includes(st)){ try{ Snd.init(); Snd.resume() }catch(e){} }
     if(typeof FR!=='undefined'&&FR.open){ if(k)FR.skip(); return }   /* rc8.2 Field Reports: any pad button = skip press */
     if(k==='SE'){ window.__fs&&__fs.toggle(); document.body.classList.add('padmode'); return }   /* same handler as the F key (also the Steam host) */
+    if(st==='loadout'){ LO.pad(k,dx||0,dy||0); return }   /* rc8.2 loadout screen (?loadout=1 only) */
     if(st==='intro'){ if(k)skipIntro(); return }
     if(st==='brief'){ if(k==='A')briefNext(); else if(k==='ST'||k==='B')endBrief(); return }
     if(st==='play'&&P2ON&&window.P2&&P2.padKey(k))return;
-    if(st==='play'){ if(k==='A'||k==='LT'||k==='RT')useAbility(); else if(k==='X'){ G.xPressT=G.t; const ex=G.ex; if(ex&&ex.ph<3)N2.press(); else popSignal() } else if(k==='Y')PB.toggle();   /* rc8.1: pad X calls the bird before the call (same as key X), pops smoke after (same as G); hold X = engineers via fbHeld */ else if(k==='B')useMed(false); else if(k==='RB')this.rbT=performance.now(); else if(k==='LB'||k==='R3'){ Snd.init(); Snd.resume(); Snd.setMuted(!Snd.muted) } else if(k==='ST')pauseGame(); return }
+    if(st==='play'){ if(k==='A'||k==='LT'||k==='RT')useAbility(); else if(k==='X'){ G.xPressT=G.t; const ex=G.ex; if(ex&&ex.ph<3)N2.press(); else popSignal() } else if(k==='Y'){ if(LO.act())LO.swap(); else PB.toggle() }   /* rc8.2 ?loadout=1: Y swaps M16A1/.45, bunker = hold LB */ /* rc8.1: pad X calls the bird before the call (same as key X), pops smoke after (same as G); hold X = engineers via fbHeld */ else if(k==='B')useMed(false); else if(k==='RB')this.rbT=performance.now(); else if(k==='LB'&&LO.act()){ LO.lbT=performance.now(); LO.lbF=false } else if(k==='LB'||k==='R3'){ Snd.init(); Snd.resume(); Snd.setMuted(!Snd.muted) } else if(k==='ST')pauseGame(); return }
     if(st==='sig'){ if(!sigAskReady())return;   /* a pad press edge after the dialog opened is always a fresh press */ if(k==='A')answerSignal(true); else if(k==='B')answerSignal(false); return }
     if(st==='levelup'){ const n=choices.length; if(!k){ if(dx||dy)this.luI=Math.max(0,Math.min(n-1,this.luI+(dx||dy))) } else if(k==='LB')this.luI=Math.max(0,this.luI-1); else if(k==='RB')this.luI=Math.min(n-1,this.luI+1);
       else if(k==='A')pickChoice(Math.min(this.luI,n-1)); else if(k==='X')doReroll(); else if(k==='Y')toggleBan(); else if(k==='B'&&banMode)toggleBan(); return }
@@ -8405,6 +8508,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
     if(b(14))ax=-1; else if(b(15))ax=1; if(b(12))ay=-1; else if(b(13))ay=1; this.mx=ax; this.my=ay;
     this.fkSync(); const names=Object.keys(this.BTN).slice(0,12), now=performance.now();
     for(const k of names){ const i=this.BTN[k], d=b(i); if(d&&!this.prev[i])this.act(k); this.prev[i]=d }
+    if(LO.lbT)LO.padTick(this.prev[this.BTN.LB]);   /* rc8.2 ?loadout=1: LB hold = bunker */
     if(this.rbT&&!this.prev[this.BTN.RB]){ if(performance.now()-this.rbT<600&&state==='play'){ this.medTap++; useMed(true) } this.rbT=0 }   /* rc8.1: RB tap (<0.6 s) = patch Marine on release; RB hold = HOLD F engineers */
     const dx=(b(15)||raw[0]>.6)?1:(b(14)||raw[0]<-.6)?-1:0, dy=(b(13)||raw[1]>.6)?1:(b(12)||raw[1]<-.6)?-1:0, dk=dx+','+dy;
     if(dx||dy){ if(dk!==this.navDir){ this.navDir=dk; this.navT=now+380; if(state!=='play')this.act(null,dx,dy) } else if(now>this.navT){ this.navT=now+130; if(state!=='play')this.act(null,dx,dy) } } else this.navDir='';
@@ -8420,7 +8524,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
 ['pointerdown','keydown'].forEach(ev=>window.addEventListener(ev,()=>{ document.body.classList.remove('padmode') },true));
 window.addEventListener('gamepadconnected',e=>{ if(!PAD.on){ const g=PAD.pick(); if(g)PAD.setOn(true,g) } });
 window.addEventListener('gamepaddisconnected',e=>{ if(PAD.on&&!PAD.pick())PAD.setOn(false) });
-function padKeysFill(e,t){ if(!e.closest('.htCol')||typeof PAD==='undefined'){ e.textContent=t; return } const n=k=>PAD.pn(k); e.textContent=`${n('A')} special · ${n('X')} bird / smoke · hold ${n('RB')} engineers · ${n('Y')} bunker · ${n('B')} patch self · tap ${n('RB')} patch Marine · ${n('ST')} pause` }   /* rc8.1 UI: short pad list on the title menu so it fits 1280x720 (full list stays in pause / tutorial) */
+function padKeysFill(e,t){ if(!e.closest('.htCol')||typeof PAD==='undefined'){ e.textContent=t; return } const n=k=>PAD.pn(k); e.textContent=`${n('A')} special · ${n('X')} bird / smoke · hold ${n('RB')} engineers · ${LO_ON?'hold '+n('LB')+' bunker · '+n('Y')+' swap':n('Y')+' bunker'} · ${n('B')} patch self · tap ${n('RB')} patch Marine · ${n('ST')} pause` }   /* rc8.1 UI: short pad list on the title menu so it fits 1280x720 (full list stays in pause / tutorial) */
 document.querySelectorAll('.padKeys').forEach(e=>padKeysFill(e,PAD.keysText()));
 DBG.pad={ info(){ return {on:PAD.on,id:PAD.id,ps:PAD.ps,mx:+PAD.mx.toFixed(2),my:+PAD.my.toFixed(2),state,uses:PAD.uses,last:PAD.last,luI:PAD.luI,hl:PAD.hl&&(PAD.hl.id||PAD.hl.className),padmode:document.body.classList.contains('padmode'),medTap:PAD.medTap,rbHold:PAD.rbHold(),fbHeld:(()=>{ try{ return fbHeld() }catch(e){ return null } })()} },
   connect(id){ const v=PAD.virt=PAD.virt||{on:false,pad:{connected:true,id:id||'Xbox 360 Controller (STANDARD GAMEPAD Vendor: 045e Product: 028e)',index:0,mapping:'standard',axes:[0,0,0,0],buttons:Array.from({length:17},()=>({pressed:false,value:0}))}}; if(id)v.pad.id=id; v.on=true },
