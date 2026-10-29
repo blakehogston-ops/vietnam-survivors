@@ -8392,7 +8392,7 @@ const LO=window.LO={ON:LO_ON, BIND:{prim:['Digit1'],side:['Digit2'],wheel:true,p
   bunkerKey(){ return (typeof PAD!=='undefined'&&PAD.on)?'hold '+PAD.pn(this.BIND.padBunker).split(' ')[0]:'E' },
   swapKey(){ return (typeof PAD!=='undefined'&&PAD.on)?PAD.pn(this.BIND.padSwap).split(' ')[0]:'1/2'+(this.wheelOn()?' or wheel':'') },
   /* ---- HUD: icon card (text placeholder) + weapon name ---- */
-  hud(){ let el=this.hel; if(!el){ el=this.hel=document.createElement('div'); el.id='loHud'; el.setAttribute('role','status'); document.body.appendChild(el) }
+  hud(){ this.css();   /* rc8.2 QA: css() was only called from build(), so bot/?nointro/Resume rendered #loHud at 16 px; css() is idempotent */ let el=this.hel; if(!el){ el=this.hel=document.createElement('div'); el.id='loHud'; el.setAttribute('role','status'); document.body.appendChild(el) }
     const on=this.act()&&state==='play'; el.style.display=on?'flex':'none'; if(!on)return; this.migrate(); this.sync();
     const L=G.lo, s=L.sel!=='m1911'&&this.PRIM[L.sel]?this.PRIM[L.sel]:{tag:'.45',nm:'M1911A1'}, k=s.tag+'|'+s.nm+'|'+this.swapKey()+'|'+L.prim;
     if(k!==this.hk){ this.hk=k; el.innerHTML='<span class="loIc">'+s.tag+'</span><span class="loNm">'+s.nm+'</span>'+(L.prim==='none'?'<span class="loSw">No long gun</span>':'<span class="loSw">Swap: '+this.swapKey()+'</span>') } },
