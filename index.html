@@ -6514,7 +6514,7 @@ function b2Bird(t){ /* {x,y,alt,st,wash} */ const L=B2T.land, off=b2LastOff()+.3
   if(t<off){ const sh=t<L+.5?1-(t-L)/.5:0; return {x:0,y:0,alt:0,st:t>L+.25?'rampDown':'landed',wash:Math.max(.45,1-(t-L)/3)+sh*.0} }
   const e=t-off, alt=e*e*26+e*12; return {x:-e*e*60,y:-e*e*60,alt,st:alt>14?'flying':'hover',wash:Math.max(0,1-alt/90)*(e<1.2?1.1:1),gone:alt>400} }
 let B2BG=null, B2FX={t:-1,p:[],ring:0}, B2GR=null;
-const B2X0=-560,B2Y0=-420,B2WW=1300,B2WH=900;
+const B2X0=-700,B2Y0=-460,B2WW=1600,B2WH=1000;   /* covers the widest framing (z .5 at cx 220) with no edge */
 function b2Ground(){ const c=mk(B2WW,B2WH), x=c.getContext('2d'); x.translate(-B2X0,-B2Y0);
   /* grass/scrub base: olive + dry patches */ x.fillStyle='#55693a'; x.fillRect(B2X0,B2Y0,B2WW,B2WH);
   for(let i=0;i<9000;i++){ const px=B2X0+ihash(i)*B2WW, py=B2Y0+ihash(i+5e4)*B2WH, v=ihash(i+9e4); x.fillStyle=v<.4?'rgba(34,50,22,.32)':v<.8?'rgba(96,116,58,.28)':'rgba(70,90,40,.3)'; x.beginPath(); x.ellipse(px,py,3+v*7,2+v*4,0,0,TAU); x.fill() }   /* soft blotches, no straw streaks */
