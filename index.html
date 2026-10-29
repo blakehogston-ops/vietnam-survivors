@@ -446,6 +446,7 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
   <div id="overSvc"></div>
 </div>
 
+<script>window.LCO_BUILD_TIER='public';</script>
 <script>/* save-key migration (rename Last Bird Out -> Last Chopper Out): once per browser profile, copy every old lbo2_/lbo2demo_ key to the
    new lco_/lcodemo_ prefix when the new key is not already set. Old keys are kept (never deleted) so a rollback still finds them. ?lcomig=0 skips it. */
 (function(){ try{ if(/[?&]lcomig=0\b/.test(location.search))return; const L=localStorage; if(L.getItem('lco_migrated'))return; let n=0;
@@ -8874,5 +8875,5 @@ Object.defineProperty(window.__ms,'ftexts',{get:()=>ftexts}); window.__ms.render
 })();
 </script>
 <script src="assets/runsave.js?v=2ed0584"></script><script src="assets/memtrim.js?v=2ed0584"></script>
-<script>/*csfitpatch*/(function(){var was=false;function fit(){var c=document.getElementById("charsel");if(!c)return;var on=c.classList.contains("show");if(on&&!was){c.style.zoom="";c.style.overflow="visible";var h=Math.max(c.scrollHeight,c.getBoundingClientRect().height);var kids=c.children,mx=0;for(var i=0;i<kids.length;i++){var r=kids[i].getBoundingClientRect();if(r.bottom>mx)mx=r.bottom}var need=Math.max(h,mx+16);var s=Math.min(1,(innerHeight-8)/need);if(s<1)c.style.zoom=String(s);c.style.overflow="";}if(!on&&was)c.style.zoom="";was=on}setInterval(fit,150);addEventListener("resize",function(){was=false})})();</script></body>
+<script>/*csfitpatch*/(function(){var was=false;function fit(){var c=document.getElementById("charsel");if(!c)return;var on=c.classList.contains("show");if(on&&!was){c.style.zoom="";c.style.overflow="visible";var h=Math.max(c.scrollHeight,c.getBoundingClientRect().height);var kids=c.children,mx=0;for(var i=0;i<kids.length;i++){var r=kids[i].getBoundingClientRect();if(r.bottom>mx)mx=r.bottom}var need=Math.max(h,mx+16);var s=Math.min(1,(innerHeight-8)/need);if(s<1)c.style.zoom=String(s);c.style.overflow="";}if(!on&&was)c.style.zoom="";was=on}setInterval(fit,150);addEventListener("resize",function(){was=false})})();</script><script>/*menumusicpatch*/(function(){var n=0,iv=setInterval(function(){n++;try{if(typeof Snd!=="undefined"&&Snd.init){Snd.init();Snd.resume&&Snd.resume();if(Snd.ctx&&Snd.ctx.state==="running"&&n>4)clearInterval(iv)}}catch(e){}if(n>60)clearInterval(iv)},500)})();</script></body>
 </html>
