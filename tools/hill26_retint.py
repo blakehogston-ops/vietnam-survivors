@@ -9,9 +9,12 @@ P=json.load(open('assets/art/hill_slope_v2_6/palette_hill_slope_v2_6.json')); L=
 h=lambda s:np.array([int(s[i:i+2],16) for i in (1,3,5)],float)
 hx=lambda a:'#%02x%02x%02x'%tuple(int(v) for v in a)
 mean=lambda ks:np.mean([h(P[k]) for k in ks],0)
+# AD 11:14 (option 2): 861A jungle softened toward an olive-brown near the grass value so the 144 px hash blocks blend (no new drawing)
+JUNGLE_MIX=float(__import__('os').environ.get('JUNGLE_MIX','0.6'))
+JUNGLE_T=mean(['jungle_v0','jungle_v1','jungle_v2','jungle_v3'])*(1-JUNGLE_MIX)+mean(['grass_v0','grass_v1','grass_v2','grass_v3'])*JUNGLE_MIX
 FAM={'gGrass':(mean(['grass_v0','grass_v1','grass_v2','grass_v3']),['gGrass','eGrass','eGrassLip']),
      'gGrassDry':(h(P['grass_straw_mid']),['gGrassDry','eGrassDryLip']),
-     'gJungle':(mean(['jungle_v0','jungle_v1','jungle_v2','jungle_v3']),['gJungle','eJungle','eJungleLip']),
+     'gJungle':(JUNGLE_T,['gJungle','eJungle','eJungleLip']),
      'gDirt':(mean(['laterite_v0','laterite_v1','laterite_v2','laterite_v3']),['gDirt','eDirt','eDirtLip'])}
 FLOOR=3.25
 # gate.sh also scores the item4 helmet ramp H1-H5 (measure_helmet.py FIG); hold all of them at the floor too
