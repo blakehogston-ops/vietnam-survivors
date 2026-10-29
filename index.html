@@ -5638,7 +5638,8 @@ function ch46Tick(h,dt){ const g=G,p=g.p, X=c46X(h.hd); h.t+=dt; h.rot+=dt*34; S
     if(Math.hypot(h.x-p.x,h.y-p.y)>Math.hypot(VW,VH)/2+400)return true }
   if(h.z<24&&h.ph<4||h.ph===4&&h.z<30){ if(!LOWFX_ON()&&rnd()<dt*24){ const b=rnd()*TAU; addPart(h.x+Math.cos(b)*22,h.y+8+Math.sin(b)*8,Math.cos(b)*90,Math.sin(b)*45,.6,3+rnd()*3,rnd()<.5?'#a8946a':'#8a7a52',false,2) } }
   return false }
-function drawCH46Ins(h){ try{ SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt:h.z,heading:h.hd,t:(h.rot||0)/34,scale:1,state:h.ph===2?'rampDown':h.st,rampK:h.ph===2?Math.min(1,h.t2/.75):undefined,damage:0,wash:!window.VFX_ROTORWASH})   /* native v1.2: ramp-lowering frames during the .75 s after touchdown */ }catch(e){ drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) } }
+function drawCH46Ins(h){ const dk=h.spool!=null?(q=>q*q*(3-2*q))(Math.min(1,Math.max(0,(h.t-h.spool)/1.5))):0;   /* AD v6b(b): caption-time departure eases ~20 px right + 20 px higher so hull + shadow clear the NW ring */
+  try{ SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x+20*dk),y:Math.round(h.y),alt:h.z+20*dk,heading:h.hd,t:(h.rot||0)/34,scale:1,state:h.ph===2?'rampDown':h.st,rampK:h.ph===2?Math.min(1,h.t2/.75):undefined,damage:0,wash:!window.VFX_ROTORWASH})   /* native v1.2: ramp-lowering frames during the .75 s after touchdown */ }catch(e){ drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) } }
 function insertFifteen(){ if(CH46INS&&C46X)return insertCH46(); const g=G,p=g.p, a0=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+170, S={hp:Q15.hp,dm:1};
   const comp={t0:g.t,n:0,alive:0,half:null,few:null,end:null,id:g.cs.comps.length,q15:true}; g.cs.comps.push(comp); let base=0;
   for(let k=0;k<3;k++){ const a=a0+k*TAU/3, nn=Q15.sizes[k]; comp.n+=nn;
