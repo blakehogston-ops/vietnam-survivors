@@ -3692,7 +3692,9 @@ const PLT={on:!/[?&]plt=0/.test(location.search),
     const a=F.c>0?F.ca:F.a, cs=Math.cos(a), sn=Math.sin(a); let fx=o[0]*(F.c>0?.8:1)-k*28, sy=o[1]*(r==='point'||r==='rear'||r==='rto'?1:side)*(1+k*.3);
     if(r==='rear'&&F.c>0)fx=-80;   /* rear guard keeps watching the back */
     const j=m.jit||(m.jit=[(rnd()-.5)*18,(rnd()-.5)*18,.88+rnd()*.24]);
-    return [p.x+cs*fx-sn*sy+j[0], p.y+sn*fx+cs*sy+j[1]] },
+    let X=p.x+cs*fx-sn*sy+j[0], Y=p.y+sn*fx+cs*sy+j[1];
+    if(!riverAt(p.x,p.y))for(let i=0;i<8&&(riverAt(X,Y)||needCross(p.x,p.y,X,Y));i++){ X=p.x+(X-p.x)*.7; Y=p.y+(Y-p.y)*.7 }   /* a slot in the river or across it from Doc pulls back to Doc's bank (else rvSteer sends the man to a bridge 600+ px off-screen: intro sniper slot vs the LZ river) */
+    return [X,Y] },
   move(m,sx,sy,d,dt,toPad){ const g=G, p=g.p, w=rvSteer(m,sx,sy,'m'); let tx=sx,ty=sy; if(w){ tx=w[0]; ty=w[1] } let dx=tx-m.x, dy=ty-m.y, dd=Math.hypot(dx,dy)||1;
     const j=m.jit||[0,0,1], F=g.plf||{c:0}; m.pz=(m.pz||0)-dt;
     if(!toPad&&m.tg&&!w&&d<70&&m.pz<=0&&rnd()<dt*.5)m.pz=.6+rnd()*.6;   /* brief pause to shoot */
