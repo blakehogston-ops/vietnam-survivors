@@ -16,10 +16,17 @@ FAM={'gGrass':(mean(['grass_v0','grass_v1','grass_v2','grass_v3']),['gGrass','eG
 FLOOR=3.25
 # gate.sh also scores the item4 helmet ramp H1-H5 (measure_helmet.py FIG); hold all of them at the floor too
 ds.FIG.update({'H1':((0xec,0xe6,0xbc),.5),'H2':((0xdc,0xd5,0xa2),.5),'H3':((0xc6,0xbf,0x88),.5),'H4':((0xa8,0xa2,0x6e),.5),'H5':((0x86,0x80,0x5a),.5)})
-def ok(c): return min(float(ds.score(c[None],f)[0]) for f in ds.FIG)>=FLOOR+0.005
+# in game every ground tile is overlaid by terrain_v2 fTint (macro tint, 6 translucent colours): hold the floor for the plain colour AND under each tint
+TINT=[((0x10,0x18,0x0a),a/255) for a in (0x0c,0x1c,0x2e)]+[((0xf0,0xe8,0xc0),a/255) for a in (0x0a,0x16,0x22)]
+import itertools
+J=np.array(list(itertools.product((-1,0,1),repeat=3)))
+def variants(c):   # plain + under each single fTint stamp, +-1 per channel for canvas (premultiplied) alpha rounding
+    o=[c]+[np.round(c*(1-a)+np.array(t)*a) for t,a in TINT]
+    return [np.clip(v+d,0,255) for v in o for d in J]
+def ok(c): return all(float(ds.score(v[None],f)[0])>=FLOOR+0.005 for v in variants(c) for f in ds.FIG)
 def fix(c):
     if ok(c): return c
-    for s in range(1,200):
+    for s in range(1,400):
         for k in (1-s/400,1+s/400):
             n=np.clip(np.round(c*k),0,255)
             if ok(n): return n
