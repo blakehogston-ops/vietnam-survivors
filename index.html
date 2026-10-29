@@ -5589,13 +5589,13 @@ const CORP={ON:!/[?&]corp=0\b/.test(location.search),T:4,CD:20,FRAC:.5,
     if(!best){ m.hcd=1; return } m.htg=best; m.ht=0; best.healBy=m; let cv=null,cd=1e9; for(const q of coy){ if(q===m||q===best||q.hp<=0||q.state!=='ok'||q.cov)continue; const d=Math.hypot(q.x-best.x,q.y-best.y); if(d<cd){cd=d;cv=q} } if(cv)cv.cov=best } };
 const INB_DM=(q=>isFinite(q)&&q>0?q:1.15)(parseFloat(new URLSearchParams(location.search).get('inbdm')));   /* RC4 balance: damage x during the bird-inbound phase (?inbdm=1 = rc3) */
 const HOME_CAP=12;   /* RC5 (QA): at most 12 Marines + Doc brought home: late company reinforcements stop landing once the pad is called */
-const Q15={HPM:2.2,names:['Sgt Savage','Cpl Washington','LCpl Ortiz','LCpl Brennan','PFC Jackson','PFC Delgado','PFC Murphy','PFC Haskins','LCpl Turner','PFC Romero','Pvt Lindqvist','PFC Banks','Cpl Yazzie','HM3 Fontaine'],   /* rc8.1: slot 13 is HM3 Fontaine everywhere (corpsman when the hero is not Doc) - one canonical name for the end cards */
+const Q15={HPM:2.2,names:['Sgt Pettaway','Cpl Washington','LCpl Ortiz','LCpl Brennan','PFC Jackson','PFC Delgado','PFC Murphy','PFC Haskins','LCpl Turner','PFC Romero','Pvt Lindqvist','PFC Banks','Cpl Yazzie','HM3 Fontaine'],   /* rc8.1: slot 13 is HM3 Fontaine everywhere (corpsman when the hero is not Doc) - one canonical name for the end cards */
   roles:['rifle','m60','rifle','m79','m14','rifle','rifle','m60','rifle','m14','rifle','m79','rifle','rifle'],sizes:[4,5,5],hp:80};
 const Q15_BAN={squad:1,company:1,medevac:1};
 /* CH-46 insertion (feature/next item 1): the whole squad (Doc + 14) comes in on ONE CH-46D Sea Knight (a CH-46 seats ~17 troops), lands, drops the ramp,
    and the Marines walk off the ramp to the ch46_v2 exit points, then fan out. ?ch46ins=0 restores the three-Huey insertion. */
 const CH46INS=true;
-const C46_ORDER=[1,2,3,4,5,6,0,7,8,9,10,11,12,13], C46_DOC_AFTER=7;   /* rc8.2 HAA_SEQUENCE: fire-team leader (Cpl Washington) first off, squad leader (Sgt Savage) mid-stick, Doc right with him */   /* rc7.1 Vet: no Huey insertion, ?ch46ins=0 retired */
+const C46_ORDER=[1,2,3,4,5,6,0,7,8,9,10,11,12,13], C46_DOC_AFTER=7;   /* rc8.2 HAA_SEQUENCE: fire-team leader (Cpl Washington) first off, squad leader (Sgt Pettaway) mid-stick, Doc right with him */   /* rc7.1 Vet: no Huey insertion, ?ch46ins=0 retired */
 const C46X=(()=>{ try{ if(!window.SHEET1||!SHEET1.drawSeaKnight)return null; const c=mk(2,2).getContext('2d'), r=SHEET1.drawSeaKnight(c,{x:0,y:0,heading:0,t:0,state:'rampDown'}); return r&&r.ramp&&r.exit&&r.exit.length?r:null }catch(e){ return null } })();
 function insertCH46(){ const g=G,p=g.p, S={hp:Q15.hp,dm:1}, X=C46X;
   const comp={t0:g.t,n:Q15.names.length,alive:0,half:null,few:null,end:null,id:g.cs.comps.length,q15:true}; g.cs.comps.push(comp);
