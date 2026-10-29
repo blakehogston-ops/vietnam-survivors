@@ -1323,6 +1323,7 @@ try{ if(DEMO)document.documentElement.classList.add('demo') }catch(e){}
 const BOTF={move:null,pick:null}; window.BOTF=BOTF;
 const DBG={dbgAirCd:()=>window.dbgAirCd&&window.dbgAirCd(), t:+params.get('t')||0, god:params.has('god'), bot:params.has('bot'), nodemo:params.has('nodemo'), nointro:params.has('nointro'), nobrief:params.has('nobrief'), fps:params.has('fps')};
 window.DBG=DBG;   /* QA/debug switches from the console: DBG.bot=true, DBG.god=true, DBG.fps=true (see README 'Debug & QA switches') */
+let ZB=1; const ICAM={z:1,t:0};   /* rc8.2 #22 GD/UX: intro landing pull-out (zoom multiplier), eased back to play zoom as Doc steps off */
 let W=800,H=600,zoom=1,VW=800,VH=600,UI=1,DPR=1,SA={t:0,r:0,b:0,l:0},PY=70;
 const COARSE=matchMedia('(pointer:coarse)');
 const SAEL=document.createElement('div'); SAEL.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)'; document.documentElement.appendChild(SAEL);
@@ -1348,7 +1349,7 @@ function resize(){
   const dpr=COARSE.matches?Math.min(window.devicePixelRatio||1,DRES.cap):((window.devicePixelRatio||1)>=1.75?2:Math.min(window.devicePixelRatio||1,1.5));   /* rc8.1 retina: desktop dpr2 got a 1.5x store upscaled 1.333x by the browser = faint wavy resample lines; use an integer 2x store there */   /* phones: 1.25x backing store, 1.0 if DRES steps down (fps gate) */
   W=cv.width=Math.max(320,Math.floor(innerWidth*dpr)); H=cv.height=Math.max(240,Math.floor(innerHeight*dpr));
   const KS=Math.max(1,H/1080);   /* rc8.1 scaling: above 1080 px tall, keep the 1080p view (world + canvas HUD scale with height); 1280x800 / 1080p / 2560x1080 unchanged */
-  zoom=Math.max(.5,Math.min(1.7,Math.min(W/KS,H/KS)/700))*KS; VW=W/zoom; VH=H/zoom;
+  zoom=Math.max(.5,Math.min(1.7,Math.min(W/KS,H/KS)/700))*KS; ZB=zoom; zoom=ZB*ICAM.z; VW=W/zoom; VH=H/zoom;
   UI=Math.max(.8,Math.min(2.2,Math.min(W/KS,H/KS)/620))*KS; DPR=W/innerWidth;
   document.documentElement.style.setProperty('--uis',String(Math.max(1,innerHeight/1080)));   /* DOM HUD, banners, menus */
   { const cs=getComputedStyle(SAEL); SA={t:parseFloat(cs.paddingTop)||0,r:parseFloat(cs.paddingRight)||0,b:parseFloat(cs.paddingBottom)||0,l:parseFloat(cs.paddingLeft)||0} }
@@ -5763,9 +5764,9 @@ function ch46Tick(h,dt){ const g=G,p=g.p, X=C46X; h.t+=dt; h.rot+=dt*34; SeaKnig
   if(h.ph===0){ const dx=h.lx-h.x, dy=h.ly-h.y, d=Math.hypot(dx,dy)||1, sp=Math.min(380,50+d*1.1); h.x+=dx/d*Math.min(d,sp*dt); h.y+=dy/d*Math.min(d,sp*dt);
     h.z+=((d<420?14:60)-h.z)*Math.min(1,dt*1.6); h.st=h.z>30?'flying':'hover'; if(d<3){ h.ph=1; h.x=h.lx; h.y=h.ly } }
   else if(h.ph===1){ h.z=Math.max(0,h.z-dt*(6+h.z*.9)); h.st=h.z>.5?'hover':'landed'; if(h.z<=0){ h.ph=2; h.t2=0; burst(h.x,h.y+6,16,90,.6,3,['#a8946a','#8a7a52'],false) } }
-  else if(h.ph===2){ h.t2+=dt; h.st='landed'; if(h.t2>.55){ h.ph=3; h.t2=0; h.st='rampDown'; Snd.play('thud'); if(h.comp&&h.comp.q15)try{ if(window.SamplePlayer&&SamplePlayer.musicEvent)SamplePlayer.musicEvent('ramp_down') }catch(e){} } }
+  else if(h.ph===2){ h.t2+=dt; h.st='landed'; if(h.t2>.55){ h.ph=3; h.t2=0; h.st='rampDown'; ILOG('ramp_down',{z:h.z}); Snd.play('thud'); if(h.comp&&h.comp.q15)try{ if(window.SamplePlayer&&SamplePlayer.musicEvent)SamplePlayer.musicEvent('ramp_down') }catch(e){} } }
   else if(h.ph===3){ h.t2+=dt; h.st='rampDown'; const rx=h.x+X.ramp[0], ry=h.y+X.ramp[1];
-    if(state==='intro'&&g.hide&&!h.docOut&&h.t2>.35){ h.docOut=1; if(INTRO&&INTRO.quiet){ INTRO.cap0=INTRO.t2; try{ if(!(window.VOAI&&VOAI.byId('ins2_01')))Snd.play('radio') }catch(e){} } g.hide=false; g.docWalk={x0:rx,y0:ry,x1:p.x,y1:p.y,t:0}; p.x=rx; p.y=ry }
+    if(state==='intro'&&g.hide&&!h.docOut&&(h.di>=Math.min(6,h.left)||h.di>=h.left)){ h.docOut=1; ILOG('doc_ramp',{t2:+h.t2.toFixed(2),after:h.di}); if(INTRO&&INTRO.quiet){ INTRO.cap0=INTRO.t2; try{ if(!(window.VOAI&&VOAI.byId('ins2_01')))Snd.play('radio') }catch(e){} } g.hide=false; g.docWalk={x0:rx,y0:ry,x1:p.x,y1:p.y,t:0}; p.x=rx; p.y=ry }
     if(h.di<h.left){ h.dT-=dt; if(h.dT<=0&&h.t2>.75){ if(coyAlive()<COY.cap){ const j=h.base+h.di, sl=coyFreeSlot(), role=(j===13&&g.char!=='doc'&&CORP.ON)?'corps':Q15.roles[j], hp0=(h.s.hp+Math.min(60,g.t/10))*(1+g.sq.hp)*Q15.HPM, e=X.exit[h.di%X.exit.length], sp=1+Math.floor(h.di/X.exit.length);
           coy.push({role,nm:role==='corps'?'HM3 Fontaine':Q15.names[j],slot:sl,cv:h.di&3,coy:true,pat:true,comp:h.comp,state:'ramp',rt:0,hx:rx,hy:ry,lx:h.x+e[0]-sp*14+(rnd()-.5)*10,ly:h.y+e[1]+((h.di&1)?1:-1)*sp*9,x:rx,y:ry,rz:0,hp:hp0,mhp:hp0,dm:h.s.dm*(1+g.sq.dm),face:-1,anim:rnd()*4,mv:true,cd:.4+rnd()*.5,tg:null,tgT:rnd()*.3,mf:0,hf:0,inv:0,aim:Math.PI,ph:rnd()*TAU,born:g.t});
           h.comp.alive++; h.comp.dr=(h.comp.dr||0)+1; g.cs.dropped++; if(h.comp.alive>g.cs.peak)g.cs.peak=h.comp.alive }
@@ -6193,13 +6194,14 @@ const IT1=8.6, IT2=4.3;
 const IBURSTS=[{t:1.7,n:9,side:1},{t:3.6,n:14,side:1},{t:5.2,n:8,side:1},{t:7.3,n:11,side:1}];
 function ihash(i){ let h=Math.imul(i|0,0x27d4eb2d)^0x165667b1; h=Math.imul(h^(h>>>15),0x85ebca6b); return ((h^(h>>>13))>>>0)/4294967296 }
 function inoise(x,sc){ const i=Math.floor(x/sc), f=x/sc-i; return ihash(i)*(1-f)+ihash(i+1)*f }
-function startIntro(quiet){ BriefSnd.stop(); INTRO={t:0,ph:1,t2:0,boom:0,flash:0,shots:[],si:0,sm:[],brass:[],tr:[],gf:[0,0],rf:0,rt:1.2,sk:0,smT:0,quiet:!!quiet};   /* quiet = ?intro2 routine insert: no door-gun bursts / tracers / boom in the cabin */
+function startIntro(quiet){ window.__introLog=[]; BriefSnd.stop(); INTRO={t:0,ph:1,t2:0,boom:0,flash:0,shots:[],si:0,sm:[],brass:[],tr:[],gf:[0,0],rf:0,rt:1.2,sk:0,smT:0,quiet:!!quiet};   /* quiet = ?intro2 routine insert: no door-gun bursts / tracers / boom in the cabin */
   if(!quiet)for(const b of IBURSTS)for(let i=0;i<b.n;i++)INTRO.shots.push({t:b.t+i*.092,side:b.side,k:i});
   state='intro'; G.hide=true; for(const m of pat)m.hid=true; introH=null; try{ if(window.SamplePlayer&&SamplePlayer.musicEvent)SamplePlayer.musicEvent('opening_in') }catch(e){}   /* rc8a (AD merge note §2): Valkyries scene on the opening insertion only */
   ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none';
   if(!Snd.muted&&Snd.ctx)IntroSnd.start() }
 function skipIntro(force){ if(state!=='intro')return; if(!force&&!/[?&]skip1=1\b/.test(location.search)){ const n=performance.now(); if(INTRO.skipArm&&n-INTRO.skipArm<300)return; if(!(INTRO.skipArm&&n-INTRO.skipArm<3000)){ INTRO.skipArm=n; return } }   /* rc8.1 Junior #2: two presses within 3 s skip the intro (the first press arms: 'PRESS AGAIN TO SKIP') */ IntroSnd.stop(true); introH=null; finishIntro() }
-function finishIntro(){ const q2=!!(INTRO&&INTRO.quiet); IntroSnd.stop(false); { const w=G.docWalk; if(w){ G.p.x=w.x1; G.p.y=w.y1; G.docWalk=null } } state='play'; last=performance.now(); G.hide=false; for(const m of pat){ m.hid=false } INTRO=null; $('topbtns').style.display='flex'; G.banner={text:'LZ HOTEL · MOVE OUT, MARINE',t:2.4,col:'#ffe58a'}; if(q2)intro2Contact() }
+function ILOG(ev,o){ try{ (window.__introLog=window.__introLog||[]).push(Object.assign({ev,state},o||{})) }catch(e){} }
+function finishIntro(){ const q2=!!(INTRO&&INTRO.quiet); ILOG('input_unlock',{t2:INTRO?+INTRO.t2.toFixed(2):null}); IntroSnd.stop(false); { const w=G.docWalk; if(w){ G.p.x=w.x1; G.p.y=w.y1; G.docWalk=null } } state='play'; last=performance.now(); G.hide=false; for(const m of pat){ m.hid=false } INTRO=null; $('topbtns').style.display='flex'; G.banner={text:'LZ HOTEL · MOVE OUT, MARINE',t:2.4,col:'#ffe58a'}; if(q2)intro2Contact() }
 function c46Bird(){ return CH46INS&&coyH.find(h=>h.ch46) }
 function startLanding(){ const p=G.p; if(c46Bird()){ INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH=null; const h=c46Bird(); h.x=h.lx-820; h.y=h.ly-90; h.z=60; return } INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH={x:p.x-640,y:p.y-8,z:70,hd:0,rot:0,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,out:0}; }
 function updateIntroH(dt){ const h=introH; if(!h)return; const p=G.p; h.t+=dt; h.rot+=dt*34;
@@ -6218,7 +6220,7 @@ function updateIntro(dt){ const I=INTRO; if(!I)return; I.t+=dt;
     if(t>=IT1)startLanding() }
   else { I.t2+=dt; if(I.flash>0)I.flash-=dt*3; const t2=I.t2, p=G.p;
     updateIntroH(dt);
-    const b46=c46Bird(); if(b46||G.docWalk){ updateCompany(dt); const w=G.docWalk; if(w){ w.t+=dt; const k=Math.min(1,w.t/.9); p.x=w.x0+(w.x1-w.x0)*k; p.y=w.y0+(w.y1-w.y0)*k; p.anim=(p.anim||0)+dt*9; if(k>=1)G.docWalk=null } }
+    const b46=c46Bird(); if(b46||G.docWalk){ updateCompany(dt); const w=G.docWalk; if(w){ w.t+=dt; const k=Math.min(1,w.t/.9); p.x=w.x0+(w.x1-w.x0)*k; p.y=w.y0+(w.y1-w.y0)*k; p.anim=(p.anim||0)+dt*9; if(k>=1){ G.docWalk=null; if(!INTRO.docLZ){ INTRO.docLZ=t2; ILOG('doc_feet_lz',{t2:+t2.toFixed(2)}) } } } }
     // marines hop out one by one once the Huey is down
     if(introH&&introH.land){ const since=introH.t-introH.land;
       if(G.hide&&since>.35){ G.hide=false; burst(p.x,p.y+8,10,70,.5,3,['#a8946a','#8a7a52'],false); Snd.play('thud') }
@@ -6226,7 +6228,8 @@ function updateIntro(dt){ const I=INTRO; if(!I)return; I.t+=dt;
     for(let i=parts.length-1;i>=0;i--){ const q=parts[i]; q.l-=dt; if(q.l<=0){if(PPOOL.length<1024)PPOOL.push(q);parts[i]=parts[parts.length-1];parts.pop();continue} const dr=Math.max(0,1-q.d*dt); q.vx*=dr;q.vy*=dr;q.x+=q.vx*dt;q.y+=q.vy*dt }
     updatePatrol(dt);
     if(G.banner){ G.banner.t-=dt; if(G.banner.t<=0)G.banner=null } mapTick(dt);
-    if(c46Bird()||INTRO.c46){ INTRO.c46=1; const h=c46Bird(); if(!h||h.ph>=4&&h.endT>2.3||t2>16)finishIntro() } else if(t2>=IT2||(introH&&introH.land&&introH.t>introH.land+2.7)){ finishIntro() } } }
+    if(c46Bird()||INTRO.c46){ INTRO.c46=1; const h=c46Bird(); if(INTRO.docLZ&&h&&h.di>=h.left&&!INTRO.holdT){ INTRO.holdT=t2; ILOG('input_hold',{t2:+t2.toFixed(2)}) }   /* rc8.2: input locked until Doc's feet are on the LZ and the stick is off the ramp, then a visible .8 s hold before MOVE */
+      if(INTRO.holdT&&t2-INTRO.holdT>=.8||!h||h.ph>=4&&h.endT>2.3||t2>16)finishIntro() } else if(t2>=IT2||(introH&&introH.land&&introH.t>introH.land+2.7)){ finishIntro() } } }
 /* ---- cargo bay (interior view): olive-drab cabin, both doors open on bright scrolling jungle ---- */
 const OD_CAMO=['#5e7640','#3c4f28','#7d9158'];
 function drawOutside(c,t,dir){
@@ -6657,11 +6660,11 @@ function drawBrief2Scene(t){ const c=b2c; c.setTransform(1,0,0,1,0,0); c.imageSm
   for(let k=0;k<3;k++){ const yy=54+k*5, dx=(t*(2+k)+k*60)%320; const g=c.createLinearGradient(0,yy-6,0,yy+6); g.addColorStop(0,'rgba(222,212,196,0)'); g.addColorStop(.5,`rgba(222,212,196,${.22-k*.05})`); g.addColorStop(1,'rgba(222,212,196,0)'); c.fillStyle=g;
     for(let i=-1;i<4;i++){ const cx=i*110+dx; c.beginPath(); c.ellipse(cx,yy,70,5,0,0,TAU); c.fill() } }
   const S=window.SHEET1; let ramp=null;
-  if(S&&S.drawSeaKnight){ try{ const BX=250,BY=96, r=S.drawSeaKnight(c,{x:BX,y:BY,heading:0,state:'rampDown',t,scale:1,rotor:false,wash:false}); ramp=r;
-      const hull=c.getImageData(BX+1,BY-1,1,1).data, hc=`rgb(${hull[0]},${hull[1]},${hull[2]})`;
+  if(S&&S.drawSeaKnight){ try{ const V41=(S.CH46_TRUE||1)>1, BX=V41?290:250,BY=V41?92:96, r=S.drawSeaKnight(c,{x:BX,y:BY,heading:0,state:'rampDown',t,scale:1,rotor:false,wash:false}); ramp=r;
+      if(!V41){ const hull=c.getImageData(BX+1,BY-1,1,1).data, hc=`rgb(${hull[0]},${hull[1]},${hull[2]})`;
       /* star-and-bar stays (correct US insignia, Art Director + Vet) */
       /* aft MARINES lettering is unreadable at 1x: leave it out (Art Director) */ c.fillStyle=hc; c.fillRect(BX-38,BY-6,38,4);
-      b2Rotor(c,r.hubs[1][0],r.hubs[1][1],t,0); b2Rotor(c,r.hubs[0][0],r.hubs[0][1],t,1.1) }catch(e){} }
+      b2Rotor(c,r.hubs[1][0],r.hubs[1][1],t,0); b2Rotor(c,r.hubs[0][0],r.hubs[0][1],t,1.1) } }catch(e){} }
   if(!S||!S.drawMarine||!S.drawHero)return;
   const LX=150, LY=150;   /* the Lt; men left of him face right, men right of him face left (flip) */
   /* fireteam clusters of 3-4, staggered; [x,y,role,coyLook] */
@@ -8376,7 +8379,9 @@ const ATM={ON:!!window.VFX_ATMO&&!/[?&]atmo=0\b/.test(location.search),NIGHT_MAX
     this.dT-=adt; if(this.dT<=0){ this.dT=.12; for(const t of tanks.concat(enemies.filter(e=>e.tank&&!e.dead))){ if(t.dead)continue; if(t._ax!==undefined&&Math.abs(t.x-t._ax)+Math.abs(t.y-t._ay)>2&&t.x>x0&&t.x<x1&&t.y>y0&&t.y<y1)A.addDust(t.x+(Math.random()-.5)*16,t.y+8,1); t._ax=t.x; t._ay=t.y } }
     const U=this.U; U.length=0; if(p&&p.hp>0)U.push({x:p.x,y:p.y,h:28}); for(const q of coy){ if(U.length>=(low?60:240))break; if(q.hp>0&&!q.hid&&q.x>x0&&q.x<x1&&q.y>y0&&q.y<y1)U.push({x:q.x,y:q.y,h:26}) } for(const e of enemies){ if(U.length>=(low?60:240))break; if(!e.dead&&e.x>x0&&e.x<x1&&e.y>y0&&e.y<y1)U.push({x:e.x,y:e.y,h:e.tank?30:24,w:e.tank?40:undefined}) }
     A.update(adt); A.drawFlareShadows&&A.drawFlareShadows(ctx,camX,camY,zoom,U); A.drawWorldOverlay(ctx,camX,camY,zoom); A.drawScreen(ctx) } };
-function render(){ CRUMB.fr=(CRUMB.fr|0)+1; if(JG.ON&&state!=='play'&&G&&window.JUNGLE3&&JUNGLE3.pump&&(!JUNGLE3.pending||JUNGLE3.pending()>0||!JG.F.size))try{ JG.boot() }catch(e){} TERR.tick(); TERR.budget(TERR.stats().cells<6&&!TERR.staleN()?24:4);
+function icamTick(){ const n=performance.now(), dt=Math.min(.1,(n-(ICAM.t||n))/1000); ICAM.t=n; const b=state==='intro'&&typeof c46Bird==='function'&&c46Bird()&&INTRO&&!INTRO.docLZ;
+  const tz=b?Math.min(1,Math.min(W/(ZB*1150),H/(ZB*700))):1; ICAM.z+=(tz-ICAM.z)*Math.min(1,dt*(tz<ICAM.z?2.2:1.4)); if(Math.abs(ICAM.z-tz)<.002)ICAM.z=tz; zoom=ZB*ICAM.z; VW=W/zoom; VH=H/zoom }
+function render(){ CRUMB.fr=(CRUMB.fr|0)+1; try{ icamTick() }catch(e){} if(JG.ON&&state!=='play'&&G&&window.JUNGLE3&&JUNGLE3.pump&&(!JUNGLE3.pending||JUNGLE3.pending()>0||!JG.F.size))try{ JG.boot() }catch(e){} TERR.tick(); TERR.budget(TERR.stats().cells<6&&!TERR.staleN()?24:4);
   ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false; ctx.fillStyle='#2c5226'; ctx.fillRect(0,0,W,H);
   const g=G; if(!g)return; const p=g.p;
   const shx=g.shake>.3?(rnd()-.5)*g.shake:0, shy=g.shake>.3?(rnd()-.5)*g.shake:0;

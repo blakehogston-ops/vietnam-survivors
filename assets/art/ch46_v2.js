@@ -40,6 +40,50 @@
     return { muzzles: dmg === 2 ? [] : P(ref, 'muzzles', i, o.x, by, sc), hubs: hubs, ramp: (P(ref, 'ramp', i, o.x, by, sc)[0] || [o.x, o.y]), cabin: (P(ref, 'cabin', i, o.x, by, sc)[0] || null),
              exit: P(ref, 'exit', i, o.x, by, sc), state: st, damage: dmg };
   };
+
+  /* rc8.2 #22 (Blake: CH-46 tiny next to the Marines): AD-cleared v4.1 render (assets/art/ch46_v41/ch46_fix_<H>.png, 248x202, pivot 124,125, 9 px/m, rotor discs baked,
+   * no shadow) drawn at ONE true-scale factor S.CH46_TRUE (sprite px -> world px, Marines ~37 px = 6.4 px/ft): fuselage 44'10" ~ 287 px, 16'8" ~ 107 px, rotors 51' ~ 326 px.
+   * K=2.2 puts the E hull at 304 px (+6%), height ~101 px (-6%), disc ~300 px (-8%), overall ~500 px (-7%): all inside QA's +-15%.
+   * Ramp / exit / cabin anchors re-derived from the v4.1 alpha (aft-most hull pixel along the heading + 16 px ramp); hubs / muzzles / smoke = old model x OLD2V41 (hub spacing 72.5 -> 90.5 sprite px).
+   * ?ch46v41=0 = old 1x sprites at 1x (pre-#22). Old sprites are still the fallback (scaled by K*OLD2V41) until the PNGs decode, and for the burnt wreck. */
+  var V41ON = !(typeof location !== 'undefined' && /[?&]ch46v41=0\b/.test(location.search)), K41 = 2.2, OLD2V41 = 1.25, HN = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'];
+  var A41 = {"ramp": [[[-88.5, -6.0]], [[-63.8, -53.1]], [[-0.5, -82.8]], [[65.0, -51.1]], [[98.5, -1.0]], [[65.1, 32.1]], [[-0.3, 42.8]], [[-66.1, 32.1]]], "exit": [[[-114.5, -13.0], [-114.5, 1.0], [-126.5, -13.0], [-126.5, 1.0]], [[-77.3, -72.7], [-87.2, -62.8], [-85.8, -79.5], [-95.7, -69.6]], [[6.5, -103.6], [-7.5, -103.6], [6.5, -113.2], [-7.5, -113.2]], [[88.4, -60.8], [78.5, -70.7], [96.8, -67.6], [86.9, -77.5]], [[124.5, 6.0], [124.5, -8.0], [136.5, 6.0], [136.5, -8.0]], [[78.5, 51.7], [88.4, 41.8], [87.0, 58.5], [96.9, 48.6]], [[-7.3, 63.6], [6.7, 63.6], [-7.3, 73.2], [6.7, 73.2]], [[-89.4, 41.8], [-79.5, 51.7], [-97.9, 48.6], [-88.0, 58.5]]], "cabin": [[[-39.9, -12.6]], [[-28.9, -33.5]], [[-0.3, -44.5]], [[29.5, -32.4]], [[45.4, -9.9]], [[29.6, 3.4]], [[-0.1, 10.5]], [[-30.1, 3.4]]], "hull": [[-73.0, 65.0], [-77.1, 53.0], [-71.0, 34.0], [-75.0, 47.4], [-83.0, 66.0], [-48.8, 66.5], [-30.0, 60.0], [-49.5, 65.8]]};
+  S.CH46_TRUE = V41ON ? K41 : 1; S.CH46_OLD = V41ON ? K41 * OLD2V41 : 1; S.CH46_A41 = A41;
+  var IMG41 = [];
+  if (V41ON && typeof document !== 'undefined' && typeof Image !== 'undefined') HN.forEach(function (h, k) { var im = new Image(); im.src = 'assets/art/ch46_v41/ch46_fix_' + h + '.png'; IMG41[k] = im; });
+  function ok41(i) { var im = IMG41[i]; return !!(im && im.complete && im.naturalWidth > 0); }
+  function PA(arr, i, x, y, sc) { return arr[i].map(function (p) { return [x + p[0] * sc, y + p[1] * sc]; }); }
+  function ramp41(ctx, i, x, y, sc) {     /* lowered rear ramp: ~6 ft opening, a dark plank from the aft sill to the ground tip */
+    var t = A41.ramp[i][0], d = [[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]][i], n = Math.hypot(d[0], d[1]), dx = d[0] / n, dy = d[1] / n, px = -dy * 9, py = dx * 9;
+    var sx = t[0] + dx * 18, sy = t[1] + dy * 14 - 6;
+    ctx.fillStyle = '#2a2e1c'; ctx.beginPath(); ctx.moveTo(x + (sx + px) * sc, y + (sy + py) * sc); ctx.lineTo(x + (sx - px) * sc, y + (sy - py) * sc);
+    ctx.lineTo(x + (t[0] - px) * sc, y + (t[1] - py) * sc); ctx.lineTo(x + (t[0] + px) * sc, y + (t[1] + py) * sc); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#4a5030'; ctx.lineWidth = Math.max(1, sc * .8); ctx.stroke(); }
+  var drawSK0 = S.drawSeaKnight;
+  S.drawSeaKnight = function (ctx, o) {
+    if (!V41ON) return drawSK0(ctx, o);
+    var st = o.state || 'flying', dmg = o.damage | 0, sc0 = o.scale || 1, i = S.heading8(o.heading), t = o.t || 0, K = sc0 * K41, KO = K * OLD2V41;
+    if (dmg === 2 || !ok41(i)) {           /* wreck, or PNG not decoded yet (headless): old sprite path at true scale, anchors from v4.1 */
+      var r0 = drawSK0(ctx, Object.assign({}, o, { scale: KO, alt: (o.alt !== undefined ? o.alt : (st === 'flying' ? 60 : st === 'hover' ? 14 : 0)) / KO }));
+      var by0 = o.y - (dmg === 2 ? 0 : (o.alt !== undefined ? o.alt : (st === 'flying' ? 60 : st === 'hover' ? 14 : 0)));
+      r0.ramp = PA(A41.ramp, i, o.x, by0, K)[0]; r0.exit = PA(A41.exit, i, o.x, by0, K); r0.cabin = PA(A41.cabin, i, o.x, by0, K)[0]; r0.scale = K; return r0; }
+    var alt = o.alt !== undefined ? o.alt : (st === 'flying' ? 60 : st === 'hover' ? 14 : 0), ref = S.sprites[st === 'rampDown' ? 'ch46Ramp' : 'ch46Gunner'];
+    var wash = o.wash !== undefined ? o.wash : (alt <= 22 * K);
+    if (wash) S.draw(ctx, 'washEvac', Math.floor(t * 10), o.x, o.y, KO);
+    if (typeof document !== 'undefined') { ctx.globalAlpha = Math.max(0.3, 0.6 - alt / (260 * K)); ctx.fillStyle = '#10140a'; ctx.beginPath();   /* separate ground shadow (v4.1 has none baked) */
+      ctx.ellipse(o.x + 2 * K + alt * 0.6, o.y + K + alt * 0.32, 68 * K, 20 * K, 0, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1; }
+    var by = o.y - alt;
+    if (st === 'rampDown') ramp41(ctx, i, o.x, by, K);
+    var im = IMG41[i], sm = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = true; if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+    if (o.hit) ctx.filter = 'brightness(2.2)';
+    ctx.drawImage(im, Math.round(o.x - 124 * K), Math.round(by - 125 * K), Math.round(248 * K), Math.round(202 * K));
+    if (o.hit) ctx.filter = 'none'; ctx.imageSmoothingEnabled = sm;
+    var hubs = P(ref, 'hubs', i, o.x, by, KO);
+    if (dmg === 1) P(S.sprites.ch46Dmg, 'smoke', i, o.x, by, KO).forEach(function (p, k) { puff(ctx, p[0], p[1], t + k * 0.37, K, false); });
+    return { muzzles: P(ref, 'muzzles', i, o.x, by, KO), hubs: hubs, ramp: PA(A41.ramp, i, o.x, by, K)[0], cabin: PA(A41.cabin, i, o.x, by, K)[0], exit: PA(A41.exit, i, o.x, by, K), state: st, damage: dmg, scale: K };
+  };
+  var drawEB0 = S.drawEvacBird;     /* extraction / medevac / company / firebase birds go through drawEvacBird: same true-scale v4.1 art */
+  S.drawEvacBird = function (ctx, o) { if (!V41ON) return drawEB0(ctx, o); var r = S.drawSeaKnight(ctx, Object.assign({}, o, { state: 'flying' })); return { muzzles: r.muzzles, hubs: r.hubs }; };
   S.seaKnightV2 = true;
   if (typeof module !== 'undefined' && module.exports) module.exports = S;
 })(typeof self !== 'undefined' ? self : this);
