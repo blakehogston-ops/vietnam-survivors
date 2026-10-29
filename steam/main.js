@@ -32,7 +32,7 @@ async function migrateFileOrigin() {
     const n = Object.keys(old).length;
     if (n) { let cur = null; try { cur = JSON.parse(fs.readFileSync(saveFile(), 'utf8')); } catch (e) {}
       const keys = Object.assign({}, old, (cur && cur.keys) || {}); writeSave(keys); res = 'copied:' + n; }
-  } catch (e) { res = 'failed:' + e.message; }
+  } catch (e) { res = 'failed:' + redactPath(e.message); }
   MIGRATING = false;
   try { fs.writeFileSync(flag, res + '\n' + new Date().toISOString()); } catch (e) {}
   return res;
@@ -47,6 +47,8 @@ const NEW_DIR = (process.env.LCO_TEST === '1' && process.env.LCO_USERDATA) ? pat
 app.setPath('userData', NEW_DIR);
 const OLD_DIRS = ['Last Bird Out', 'last-bird-out', 'LastBirdOut', 'vietnam-survivors'].map((d) => path.join(app.getPath('appData'), d));
 
+/* bug-reporter legal fix: never log/expose the OS user name or home/AppData path (MIG reaches the renderer via steam:status) */
+function redactPath(x) { return String(x == null ? '' : x).replace(/[A-Za-z]:\\Users\\[^\\\s]+(\\AppData\\[^\\\s]+)?/gi, '<user>').replace(/\/(?:Users|home)\/[^\/\s]+(\/Library\/Application Support|\/\.config)?/g, '<user>'); }
 function migrate() {
   // first launch only: copy the old userData dir (Local Storage leveldb = lbo2_*/lco_* keys, save.json; rc8a copies lbo2_* -> lco_* itself) if the new one has no save data
   const has = (d) => fs.existsSync(path.join(d, 'Local Storage')) || fs.existsSync(path.join(d, 'lco_save_v2.json'));
@@ -59,8 +61,8 @@ function migrate() {
         const s = path.join(d, sub); if (fs.existsSync(s)) fs.cpSync(s, path.join(NEW_DIR, sub), { recursive: true });
       }
       fs.writeFileSync(path.join(NEW_DIR, 'migrated_from.txt'), d + '\n' + new Date().toISOString());
-      return 'migrated:' + d;
-    } catch (e) { return 'migrate-failed:' + e.message; }
+      return 'migrated:' + path.basename(d);
+    } catch (e) { return 'migrate-failed:' + redactPath(e.message); }
   }
   return 'nothing-to-migrate';
 }
@@ -152,7 +154,7 @@ ipcMain.on('app:quit', () => app.quit());
 app.whenReady().then(async () => {
   serveGame();
   console.log('[lco] file-origin migration', await migrateFileOrigin());
-  console.log('[lco] userData', NEW_DIR, 'migration', MIG, 'steam', steam.init(STEAM_APP_ID));
+  console.log('[lco] userData', redactPath(NEW_DIR), 'migration', MIG, 'steam', steam.init(STEAM_APP_ID));
   createWindow();
   if (TEST) { try { require('./smoke')(win, saveFile, unlocked); } catch (e) { console.error('[smoke] not packaged in this tier:', e.message); } }   // public packages exclude smoke.js
 });
