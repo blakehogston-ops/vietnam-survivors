@@ -23,4 +23,15 @@ for(const k of ['Enter','Space','Escape','click']){ let q=await mk();await q.got
   for(let i=0;i<2;i++){ if(k==='click')await q.mouse.click(640,400); else { await q.focus('#frWrap').catch(()=>{}); await q.keyboard.press(k) } await q.waitForTimeout(350) } await q.waitForTimeout(900);
   const r=await q.evaluate(()=>{const f=__lco.fieldReport(),b=document.getElementById('btnStart').getBoundingClientRect(),hit=document.elementFromPoint(b.left+b.width/2,b.top+b.height/2);return {open:f.playing,duck:f.musicDucked,plays:f.plays,nodes:f.frNodes,st:__ms.stateX,cs:document.getElementById('charsel').classList.contains('show'),start:hit&&(hit.id==='btnStart'||!!hit.closest('#btnStart'))}});
   T('menu replay skip '+k+(k==='click'?' x2':' x2')+': stays closed, music restored, Start Patrol clickable',o&&!r.open&&!r.duck&&r.plays===1&&r.nodes===0&&r.st==='menu'&&!r.cs&&r.start,JSON.stringify(r)); await q.context().close() }
+{ let q=await mk();await q.goto(B+'?nodemo&nobrief&nointro',{waitUntil:'domcontentloaded'});await q.waitForTimeout(1500);
+  await q.evaluate(()=>{window.__seen=[];['keydown','keyup','pointerdown','touchstart','mousedown'].forEach(ev=>window.addEventListener(ev,e=>__seen.push([ev,e.code||'',performance.now(),__lco.fieldReport().playing])))});
+  await q.evaluate(()=>{document.getElementById('btnStart').click();setTimeout(()=>document.getElementById('btnCsGo').click(),300)});await q.waitForTimeout(1500);
+  const o=await q.evaluate(()=>__lco.fieldReport().playing); await q.mouse.click(640,400); await q.waitForTimeout(80);
+  const leakPtr=await q.evaluate(()=>__seen.filter(x=>x[3]&&/pointer|touch|mouse/.test(x[0])).length);
+  await q.waitForTimeout(400); await q.keyboard.press('Space'); await q.waitForTimeout(350); await q.keyboard.press('Space'); await q.waitForTimeout(40); await q.keyboard.down('KeyD'); await q.waitForTimeout(150);
+  const r=await q.evaluate(()=>{const f=__lco.fieldReport();const c=f.last&&f.last.at;const d=__seen.filter(x=>x[0]==='keydown'&&x[1]==='KeyD');return {open:f.playing,how:f.last&&f.last.how,st:__ms.stateX,dSeen:d.length}});
+  await q.keyboard.up('KeyD'); const u=await q.evaluate(()=>__seen.filter(x=>x[0]==='keyup'&&x[1]==='KeyD').length);
+  T('FR01 open: pointerdown/touchstart/mousedown swallowed',o&&leakPtr===0,'leaked='+leakPtr);
+  T('FR01 skipped: KeyD pressed ~40 ms after close registers (down+up) in mission',!r.open&&r.how==='skip'&&r.st==='play'&&r.dSeen===1&&u===1,JSON.stringify(Object.assign(r,{dUp:u})));
+  await q.context().close() }
 T('0 page errors',errs.length===0,JSON.stringify(errs));await br.close();srv.close();process.exit(fails?1:0)})();

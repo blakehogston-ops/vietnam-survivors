@@ -7901,14 +7901,18 @@ const FR={ON:params.get('fieldReports')!=='0', SRC:'assets/video/field_report_sc
   unload(){ const v=this.el; if(v){ try{ v.pause() }catch(e){} try{ v.removeAttribute('src'); v.load() }catch(e){} try{ v.remove() }catch(e){} }
     if(this.wrap){ try{ this.wrap.remove() }catch(e){} } for(const u of this.urls){ try{ URL.revokeObjectURL(u) }catch(e){} } this.urls.length=0;
     this.el=this.wrap=this.hint=null; clearInterval(this._hT); this._hT=0; this.unloads++ },
-  close(how){ if(!this.open)return; this.closedAt=performance.now(); const t=this.el?+this.el.currentTime||0:0; this.unload(); this.open=false; this.duck(false);
+  close(how){ if(!this.open)return; this.closedAt=performance.now(); this.tail=(how==='skip'&&this.why!=='first'&&this.lastIn)?Object.assign({},this.lastIn):null; this.lastIn=null; const t=this.el?+this.el.currentTime||0:0; this.unload(); this.open=false; this.duck(false);
     if(how==='ended'||how==='skip')this.mark(); this.last={how,why:this.why,t:+t.toFixed(2),at:Date.now()}; const f=this.then; this.then=null; if(f)setTimeout(f,0) },
   state(){ const v=this.el; return {enabled:this.ON,trigger:this.hasKS()?this.KS:'first-mission',seen:this.seen(),playing:this.open,why:this.open?this.why:null,src:this.SRC,t:v?+v.currentTime||0:null,dur:v&&isFinite(v.duration)?v.duration:null,
     paused:v?v.paused:null,muted:v?v.muted:null,skipArmed:!!(this.skipArm&&performance.now()-this.skipArm<3000),musicDucked:this.mus!=null,plays:this.plays,skips:this.skips,ends:this.ends,errors:this.errors,unloads:this.unloads,
     last:this.last,videos:document.querySelectorAll('video').length,frNodes:document.querySelectorAll('#frWrap,#frVideo').length,objectURLs:this.urls.length,domNodes:document.getElementsByTagName('*').length} } };
-['keydown','pointerdown','touchstart','mousedown','click','keyup'].forEach(ev=>window.addEventListener(ev,e=>{ const tail=!FR.open&&FR.closedAt&&performance.now()-FR.closedAt<400&&ev!=='pointerdown'&&ev!=='touchstart'; /* QA f8fb30d: swallow the skip key's in-flight keyup/click after close */
-  if(!FR.open&&!tail)return; e.stopImmediatePropagation(); if(ev==='keydown'||ev==='keyup'||ev==='click'){ try{ e.preventDefault() }catch(_){} } if(tail||ev==='click'||ev==='keyup'||ev==='mousedown')return;
-  if(ev==='keydown'&&(e.repeat||e.code==='KeyM'||e.metaKey))return; FR.skip() },{capture:true,passive:false}));
+['keydown','keyup','pointerdown','pointerup','touchstart','touchend','mousedown','mouseup','click'].forEach(ev=>window.addEventListener(ev,e=>{
+  if(!FR.open){ const t=FR.tail; if(!t||performance.now()-FR.closedAt>=400)return;   /* QA 804e76f: after a menu-replay skip, swallow ONLY the skip key's keyup / the skip tap's up+click; nothing else, never into a mission (tail=null) */
+    const k=ev==='keyup'&&t.code&&e.code===t.code, pt=t.ptr&&(ev==='pointerup'||ev==='mouseup'||ev==='touchend'||ev==='click'); if(!k&&!pt)return;
+    e.stopImmediatePropagation(); try{ if(e.cancelable)e.preventDefault() }catch(_){} if(k)t.code=null; if(ev==='click')t.ptr=false; return }
+  e.stopImmediatePropagation(); try{ if(e.cancelable)e.preventDefault() }catch(_){}   /* open: every key/pointer/touch/mouse event is the player's */
+  if(ev==='keydown'){ if(e.repeat||e.code==='KeyM'||e.metaKey)return; FR.lastIn={code:e.code} } else if(ev==='pointerdown'||ev==='touchstart')FR.lastIn={ptr:true}; else return;
+  FR.skip() },{capture:true,passive:false}));
 if(!FR.ON){ try{ $('btnFR').style.display='none' }catch(e){} }
 $('btnFR').onclick=()=>{ if(FR.closedAt&&performance.now()-FR.closedAt<400)return; if(state==='menu'&&!$('charsel').classList.contains('show'))FR.play('menu',()=>setTimeout(()=>{ try{ if(!FR.open)$('btnFR').focus() }catch(e){} },420)) };
 window.__lco=Object.assign(window.__lco||{},{ fieldReport:(a)=>{ if(a==='play')FR.play('test'); else if(a==='skip'&&FR.open){ FR.skipArm=0; FR.t0=0; FR.skips++; FR.close('skip') } return FR.state() } });
