@@ -2804,7 +2804,7 @@ window.RIMX=null; const RIM={ON:!/[?&]unitrim=0\b/.test(location.search),A:+para
   _c:null, ctxRef(x){ if(x===undefined)return this._c; this._c=x },   /* QA (tools/contrast.js): draw target for the rim, defaults to the game canvas */
   wrap(){ const S=window.SHEET1; if(!this.ON||!S||!S.draw||S._rimW)return; const orig=S.draw, R=this; S._rimW=1;
     S.draw=function(c,name,frame,x,y,sc,flip,white){ const ua=R.on&&c===(R._c||ctx)&&!white?(R._c?R.alpha():R.ua(x,y)):0; if(ua>0){ const cx=R._c||ctx; const k=name+'|'+frame+'|'+(sc||1)+'|'+(flip?1:0)+'|'+R.col(); let o=R.M.get(k);
-        if(!o){ const W=160,H=160,t=mk(W,H),tx=t.getContext('2d'); tx.imageSmoothingEnabled=false; try{ orig.call(this,tx,name,frame,W/2,H-24,sc,flip,false) }catch(e){} o=R.dil(t,R.col()); if(R.M.size>1500)R.M.clear(); R.M.set(k,o) }
+        if(!o){ const W=160,H=160,t=mk(W,H),tx=t.getContext('2d'); tx.imageSmoothingEnabled=false; try{ orig.call(this,tx,name,frame,W/2,H-24,sc,flip,false) }catch(e){} o=R.dil(t,R.col()); t.width=t.height=0; while(R.M.size>=96){ const f=R.M.keys().next().value, fc=R.M.get(f); R.M.delete(f); if(fc){fc.width=fc.height=0} } R.M.set(k,o) } else { R.M.delete(k); R.M.set(k,o) }
         cx.save(); cx.globalAlpha*=ua; cx.drawImage(o,Math.round(x-80-2),Math.round(y-(160-24)-2)); cx.restore() }
       return orig.apply(this,arguments) } } };
 window.RIMX=RIM;
