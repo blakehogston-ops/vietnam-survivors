@@ -51,6 +51,13 @@
   S.CH46_TRUE = V41ON ? K41 : 1; S.CH46_OLD = V41ON ? K41 * OLD2V41 : 1; S.CH46_A41 = A41;
   var IMG41 = [];
   if (V41ON && typeof document !== 'undefined' && typeof Image !== 'undefined') HN.forEach(function (h, k) { var im = new Image(); im.src = 'assets/art/ch46_v41/ch46_fix_' + h + '.png'; IMG41[k] = im; });
+  /* rc8.2 Perf (MED draw 0.13 -> 0.98 ms, ~10 ms spikes): each heading frame is resampled ONCE per scale into a cached canvas (high-quality), then blitted 1:1 */
+  var PRE41 = {};
+  function pre41(i, K) { var key = i + '@' + K; if (PRE41[key] !== undefined) return PRE41[key]; if (!ok41(i) || typeof document === 'undefined') return null;
+    var w = Math.round(248 * K), h = Math.round(202 * K), c = document.createElement('canvas'); c.width = w; c.height = h; var x = c.getContext('2d'); x.imageSmoothingEnabled = true; if ('imageSmoothingQuality' in x) x.imageSmoothingQuality = 'high';
+    x.drawImage(IMG41[i], 0, 0, w, h); PRE41[key] = c; return c; }
+  S.preWarmCH46 = function () { for (var i = 0; i < 8; i++) pre41(i, K41); };
+  if (V41ON && typeof document !== 'undefined') HN.forEach(function (h, k) { if (IMG41[k]) IMG41[k].addEventListener && IMG41[k].addEventListener('load', function () { pre41(k, K41); }); });
   function ok41(i) { var im = IMG41[i]; return !!(im && im.complete && im.naturalWidth > 0); }
   function PA(arr, i, x, y, sc) { return arr[i].map(function (p) { return [x + p[0] * sc, y + p[1] * sc]; }); }
   function ramp41(ctx, i, x, y, sc) {     /* lowered rear ramp: ~6 ft opening, a dark plank from the aft sill to the ground tip */
@@ -76,7 +83,7 @@
     if (st === 'rampDown') ramp41(ctx, i, o.x, by, K);
     var im = IMG41[i], sm = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = true; if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
     if (o.hit) ctx.filter = 'brightness(2.2)';
-    ctx.drawImage(im, Math.round(o.x - 124 * K), Math.round(by - 125 * K), Math.round(248 * K), Math.round(202 * K));
+    ctx.drawImage(pre41(i, K) || im, Math.round(o.x - 124 * K), Math.round(by - 125 * K), Math.round(248 * K), Math.round(202 * K));
     if (o.hit) ctx.filter = 'none'; ctx.imageSmoothingEnabled = sm;
     var hubs = P(ref, 'hubs', i, o.x, by, KO);
     if (dmg === 1) P(S.sprites.ch46Dmg, 'smoke', i, o.x, by, KO).forEach(function (p, k) { puff(ctx, p[0], p[1], t + k * 0.37, K, false); });
