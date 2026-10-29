@@ -1,10 +1,11 @@
-/* rotor_wash.js v1.3 - VFX Artist, rc8.2 staging. CH-46 rotor-wash dust for the redone intro LZ landing (AD review of v1.0, Oct 28 2026).
+/* rotor_wash.js v1.3.1 - VFX Artist, rc8.2 staging. CH-46 rotor-wash dust for the redone intro LZ landing (AD review of v1.0, Oct 28 2026).
  * Self-contained, no dependencies. Same style as he_fireball.js: cached textures, seeded layouts, LQ/LOWFX tiers, RFX.
  * Units = px at scale 1 for the CH-46 v4.1 sprite (9 px/m, men 32 px). Defaults: rotor hubs +-SPAN 45 px (10 m), rotor radius RR 69 px (7.62 m),
  * ground ellipse squash YS 0.67 (v4.1 disc b/a). Override per call with opts {span, rr, ys}.
  *   VFX_ROTORWASH.drawUnder(ctx, x, y, t, scale, heading, ground, opts) -> radial streaks, scoured ground, grass lay ring. AFTER terrain, BEFORE the CH-46 + Marines.
  *   VFX_ROTORWASH.drawOver (ctx, x, y, t, scale, heading, ground, opts) -> rolling lip, billows, idle haze, debris/grass bits. AFTER the CH-46 + Marines.
  *   v1.3 TAKEOFF (additive): pass opts.takeoff = s since spool-up start (t is then ignored). Idle -> spool -> liftoff 1.0 s -> climb fade, gone ~5 s.
+ *   v1.3.1: from tk 1.6 s the wash blends to forward flight (ring pushed aft, plume trails, nose side thins, grass lays aft). opts.depart = departure heading (rad), default = heading arg.
  *   VFX_ROTORWASH.draw(...) = both.  VFX_ROTORWASH.intensity(t) -> 0..1 (drive shake/audio).  VFX_ROTORWASH.ground = fn(x,y) when ground is null.
  *   x,y = ground point midway between the two rotor hubs' ground points; heading = fuselage axis in radians (0 = nose right).
  *   t = seconds since touchdown (t<0 approach from -1.5 s). Timing unchanged from v1.0: peak 0-0.25 s, idle by ~3 s, steady loop after.
@@ -64,19 +65,29 @@
   function takeoffAlt(tk) { return tk <= LIFTOFF ? 0 : Math.pow(tk - LIFTOFF, 1.6) * 9; } // m, for Lead's reference only
   function burst(t) { return Math.max(0, (intensity(t) - IDLE) / (1 - IDLE)); }
   // point at angle a and radius r (px) around the stadium hull of both rotor discs; heading-rotated, y squashed
-  function hull(P, a, r) { var ca = Math.cos(a), sa = Math.sin(a), lx = ca * (r + P.span * Math.abs(ca)), ly = sa * r, ch = Math.cos(P.hd), sh = Math.sin(P.hd);
+  function wrap(d) { while (d > Math.PI) d -= 6.283185; while (d < -Math.PI) d += 6.283185; return d; }
+  // v1.3.1 forward flight: P.fw 0..1, P.aft = aft angle in the heading-relative frame. Aft side is pushed out and drifts; nose side thins (P.fa).
+  function hull(P, a, r) { P.fa = 1; if (P.fw > 0) { var dt = Math.cos(a - P.aft); P.fa = 1 - 0.85 * P.fw * Math.max(0, -dt) - 0.25 * P.fw * Math.max(0, -dt + 0.3);
+      if (P.fa < 0) P.fa = 0; var push = P.fw * P.rr * (0.35 + 0.85 * Math.max(0, dt)) + P.fw * P.fw * P.rr * 0.9 + (P.drift || 0) * P.fw; r = r + P.fw * P.rr * 0.5 * Math.max(0, dt);
+      var o0 = hull0(P, a, r); return [o0[0] + Math.cos(P.aft + P.hd) * push * P.s, o0[1] + Math.sin(P.aft + P.hd) * push * P.s * P.ys]; }
+    return hull0(P, a, r); }
+  function hull0(P, a, r) { var ca = Math.cos(a), sa = Math.sin(a), lx = ca * (r + P.span * Math.abs(ca)), ly = sa * r, ch = Math.cos(P.hd), sh = Math.sin(P.hd);
     return [P.x + (lx * ch - ly * sh) * P.s, P.y + (lx * sh + ly * ch) * P.s * P.ys]; }
   function hub(P, k) { return [P.x + Math.cos(P.hd) * P.span * k * P.s, P.y + Math.sin(P.hd) * P.span * k * P.s * P.ys]; }
   function setup(x, y, t, s, hd, g, o) { o = o || {}; if (g == null && root.VFX_ROTORWASH.ground) g = root.VFX_ROTORWASH.ground(x, y);
     var rm = !!root.RFX, tn = tier(), tt = rm ? 6 : t;
     var P = { x: x, y: y, s: s || 1, hd: hd || 0, span: o.span || SPAN, rr: o.rr || RR, ys: o.ys || YS, gk: gkey(g), rm: rm, t: tt, tn: tn, L: layout(tn), T: TIER[tn] };
     P.I = rm ? IDLE * 0.8 : intensity(tt); P.b = rm ? 0 : burst(tt); P.ex = tt < 0 ? 0 : 1 - Math.exp(-(tt + 0.12) / 0.5); P.G = GT[P.gk];
-    P.ph = rm ? 0 : tt; P.k = 1; P.bk = 1; P.dbt = tt; P.crisp = Math.min(1, Math.max(0, (tt - 0.05) / 0.25)) * Math.max(0, 1 - Math.max(0, tt - 0.9) / 0.9);
+    P.ph = rm ? 0 : tt; P.k = 1; P.bk = 1; P.dbt = tt; P.fw = 0; P.fa = 1; P.aft = 0; P.drift = 0; P.crisp = Math.min(1, Math.max(0, (tt - 0.05) / 0.25)) * Math.max(0, 1 - Math.max(0, tt - 0.9) / 0.9);
     if (o.takeoff != null) { var tk = o.takeoff, I = takeoffIntensity(tk);   // additive option; landing path above is untouched when absent
       if (rm) { P.I = IDLE * 0.8; P.k = tk > 1.6 ? Math.max(0, 1 - (tk - 1.6) / 2) : 1; }      // RFX: static idle pose, just fades out on climb
       else { P.I = Math.max(I, IDLE); P.k = Math.min(1, I / IDLE); P.b = Math.max(0, (I - IDLE) / (1 - IDLE));
         P.ex = Math.min(1, 0.55 + 0.45 * P.b + 0.25 * Math.max(0, tk - LIFTOFF)); P.ph = 8 + tk; P.crisp = 0.7 * Math.min(1, P.b * 1.4);
         P.dbt = tk - 0.55; P.bk = tk > LIFTOFF ? Math.min(1, I / 0.6) : 1; }
+      var u = Math.min(1, Math.max(0, (tk - 1.6) / 1.4)); P.fw = rm ? 0 : u * u * (3 - 2 * u);   // forward flight blend from 1.6 s
+      P.aft = wrap((o.depart != null ? o.depart : P.hd) - P.hd + Math.PI); if (P.fw > 0) { P.bk = Math.max(P.bk, 0.6 * P.fw);
+        var pl = P.fw * (tk < 2.4 ? 1 : Math.exp(-(tk - 2.4) / 1.3)); P.b = Math.max(P.b, 0.85 * pl); P.drift = Math.max(0, tk - 1.6) * P.rr * 0.35; P.k = Math.max(P.k, Math.min(1, pl * 1.5)); P.I = Math.max(P.I, IDLE);
+        P.crisp = Math.max(0, P.crisp * (1 - P.fw)); }   // drifting plume lingers past the climb fade, soft (no crisp billows)
       P.t = tk < 0 ? 8 : 8 + tk; }
     return P; }
 
@@ -89,7 +100,7 @@
     // radial streaks pushed outward from under each rotor (tapered wedges, gradient along length); idle = faint slow shimmer
     var st = P.L.streak; for (i = 0; i < st.length; i++) { var S = st[i]; c = hub(P, S.k); var len = P.rr * (0.55 + 0.75 * P.ex) * S.l, r0 = P.rr * 0.25;
       var sh = P.rm ? 0.5 : 0.5 + 0.5 * Math.sin(P.ph * 1.6 + S.ph), al = (0.42 * P.b + 0.05 * sh * (P.gk === 'lat' ? 1 : 0)) * dm * P.k; if (al < 0.01) continue;
-      var ca = Math.cos(S.a + P.hd), sa = Math.sin(S.a + P.hd), px = -sa, py = ca, w0 = r0 * S.w * P.s, w1 = len * S.w * 1.6 * P.s;
+      var sa0 = S.a + wrap(P.aft - S.a) * 0.8 * P.fw, ca = Math.cos(sa0 + P.hd), sa = Math.sin(sa0 + P.hd), px = -sa, py = ca, w0 = r0 * S.w * P.s, w1 = len * S.w * 1.6 * P.s;
       var ax = c[0] + ca * r0 * P.s, ay = c[1] + sa * r0 * P.s * P.ys, bx = c[0] + ca * len * P.s, by = c[1] + sa * len * P.s * P.ys;
       var lg = ctx.createLinearGradient(ax, ay, bx, by); lg.addColorStop(0, rgba(G.st, 0)); lg.addColorStop(0.35, rgba(G.st, al.toFixed(3))); lg.addColorStop(1, rgba(G.st, 0));
       ctx.fillStyle = lg; ctx.beginPath(); ctx.moveTo(ax + px * w0, ay + py * w0 * P.ys); ctx.lineTo(bx + px * w1, by + py * w1 * P.ys); ctx.lineTo(bx - px * w1, by - py * w1 * P.ys); ctx.lineTo(ax - px * w0, ay - py * w0 * P.ys); ctx.closePath(); ctx.fill(); }
@@ -99,9 +110,9 @@
       for (i = 0; i < bl.length; i++) { var B = bl[i], rr = P.rr * B.r; c = hull(P, B.a, rr);
         var ripple = wv ? Math.sin(B.r * 9 - P.ph * 2.4) : 0.3, pale = B.k < 0.55 * P.b;
         var al = pale ? (0.15 + 0.6 * P.b) : (0.55 + 0.25 * P.b) * (0.5 + 0.5 * ripple) * P.bk;
-        var ca2 = Math.cos(B.a), sa2 = Math.sin(B.a), lx = ca2 * (1 + Math.abs(ca2) * 0.0), dx = lx, dy = sa2 * P.ys, ln = B.l * P.s * lean * (1 + 0.15 * ripple);
+        var ba = B.a + wrap(P.aft - B.a) * P.fw, ca2 = Math.cos(ba), sa2 = Math.sin(ba), lx = ca2 * (1 + Math.abs(ca2) * 0.0), dx = lx, dy = sa2 * P.ys, ln = B.l * P.s * lean * (1 + 0.15 * ripple);
         var nx = -dy * B.cv * ln, ny = dx * B.cv * ln * P.ys;
-        ctx.globalAlpha = P.k * Math.min(0.85, al); ctx.strokeStyle = pale ? G.bl : G.bd; ctx.lineWidth = (pale ? 1.2 : 2) * P.s;
+        ctx.globalAlpha = P.k * P.fa * Math.min(0.85, al); ctx.strokeStyle = pale ? G.bl : G.bd; ctx.lineWidth = (pale ? 1.2 : 2) * P.s;
         ctx.beginPath(); ctx.moveTo(c[0], c[1]); ctx.quadraticCurveTo(c[0] + dx * ln * 0.5 + nx, c[1] + dy * ln * 0.5 + ny, c[0] + dx * ln, c[1] + dy * ln); ctx.stroke(); }
       ctx.globalAlpha = 1; }
     ctx.restore(); }
@@ -111,34 +122,34 @@
     if (b > 0.01) {
       // far haze behind the lip
       for (i = 0; i < P.L.haze.length; i++) { Q = P.L.haze[i]; r = P.rr * (0.75 + (0.15 + 1.0 * ex) * Q.d); c = hull(P, Q.a, r); sz = (26 + 26 * ex) * Q.z * P.s;
-        ctx.globalAlpha = P.k * Math.min(1, b * 0.9 * dm); ctx.drawImage(haze(gk, Q.v, gk === 'grass' ? 'roll' : 'mid'), c[0] - sz, c[1] - sz * 0.6, sz * 2, sz * 1.2); }
+        ctx.globalAlpha = P.k * P.fa * Math.min(1, b * 0.9 * dm); ctx.drawImage(haze(gk, Q.v, gk === 'grass' ? 'roll' : 'mid'), c[0] - sz, c[1] - sz * 0.6, sz * 2, sz * 1.2); }
       // rolling lip: dense band of defined billows at the outer edge (back row first so the front edge stays crisp)
       var lipR = P.rr * (0.95 + 1.0 * ex), crisp = P.crisp;
       var order = P.L.lip.slice().sort(function (p, q) { return Math.sin(p.a + P.hd) - Math.sin(q.a + P.hd); });
       for (i = 0; i < order.length; i++) { Q = order[i]; var a = Q.a + Q.sp * ex; r = lipR * Q.d * (1 + 0.035 * Math.sin(2 * a + 1.3) + 0.025 * Math.sin(5 * a + P.ph * 0.6 + Q.v)); c = hull(P, a, r); sz = (30 + 34 * ex) * Q.z * P.s;
         var al = b * dm * (0.45 + 0.35 * Q.z);
-        ctx.globalAlpha = P.k * Math.min(1, al * (1 - 0.6 * crisp)); ctx.drawImage(haze(gk, Q.v % 3, 'hi'), c[0] - sz * 1.2, c[1] - sz * 0.75, sz * 2.4, sz * 1.5);
-        if (crisp > 0.02) { ctx.globalAlpha = P.k * Math.min(1, al * crisp); ctx.drawImage(billow(gk, Q.v), c[0] - sz * 1.1, c[1] - sz * 0.85, sz * 2.2, sz * 1.45); } }
+        ctx.globalAlpha = P.k * P.fa * Math.min(1, al * (1 - 0.6 * crisp)); ctx.drawImage(haze(gk, Q.v % 3, 'hi'), c[0] - sz * 1.2, c[1] - sz * 0.75, sz * 2.4, sz * 1.5);
+        if (crisp > 0.02) { ctx.globalAlpha = P.k * P.fa * Math.min(1, al * crisp); ctx.drawImage(billow(gk, Q.v), c[0] - sz * 1.1, c[1] - sz * 0.85, sz * 2.2, sz * 1.45); } }
       // curl: lip rolling up and back - smaller billows just inside the lip, lifted a few px, lit cap
       for (i = 0; i < P.L.curl.length; i++) { Q = P.L.curl[i]; r = lipR * 0.86; c = hull(P, Q.a, r); sz = (18 + 20 * ex) * Q.z * P.s;
-        ctx.globalAlpha = P.k * Math.min(1, b * dm * 0.6); ctx.drawImage(haze(gk, Q.v % 3, 'hi'), c[0] - sz * 1.2, c[1] - sz * 0.7 - (3 + 4 * ex) * P.s, sz * 2.4, sz * 1.4); }
+        ctx.globalAlpha = P.k * P.fa * Math.min(1, b * dm * 0.6); ctx.drawImage(haze(gk, Q.v % 3, 'hi'), c[0] - sz * 1.2, c[1] - sz * 0.7 - (3 + 4 * ex) * P.s, sz * 2.4, sz * 1.4); }
     }
     // idle air: thin haze puffs drifting outward with a slow ripple (this is the steady look)
     var rl = P.L.roll, idleA = (P.rm ? 0.8 : 1 + 5 * (P.I - IDLE)) * IDLE_A * rdm;
     if (idleA > 0.001) for (i = 0; i < rl.length; i++) { Q = rl[i]; var f = P.rm ? (Q.ph * 0.7 + 0.15) : ((P.ph * Q.sp + Q.ph) % 1 + 1) % 1;
       r = P.rr * (0.95 + 0.9 * f); c = hull(P, Q.a + f * 0.25 * Q.s, r); sz = (16 + 18 * f) * Q.z * P.s;
       var rip = P.rm ? 1 : 0.7 + 0.3 * Math.sin(P.ph * 1.3 + Q.a * 3), al2 = Math.sin(Math.PI * f) * 0.3 * idleA * rip; if (al2 < 0.005) continue;
-      ctx.globalAlpha = P.k * Math.min(0.9, al2); ctx.drawImage(haze(gk, Q.v, 'roll'), c[0] - sz, c[1] - sz * 0.6, sz * 2, sz * 1.2); }
+      ctx.globalAlpha = P.k * P.fa * Math.min(0.9, al2); ctx.drawImage(haze(gk, Q.v, 'roll'), c[0] - sz, c[1] - sz * 0.6, sz * 2, sz * 1.2); }
     // debris / flying grass bits skidding outward at touchdown (none under RFX)
     if (!P.rm && P.dbt > 0 && P.dbt < 1.8) for (i = 0; i < P.L.deb.length; i++) { Q = P.L.deb[i]; var dt = P.dbt - Q.t0; if (dt <= 0 || dt > 1.3) continue;
       var d = P.rr * 0.85 + Q.v * (1 - Math.exp(-dt * 2.2)) / 2.2; c = hull(P, Q.a, d); var px = c[0], py = c[1] - Math.sin(Math.min(1, dt / 0.7) * Math.PI) * 7 * P.s;
-      ctx.globalAlpha = P.k * Math.min(1, (1.3 - dt) / 0.5) * (gk === 'mud' ? 0.6 : 0.95); ctx.fillStyle = G.bits[Q.c];
+      ctx.globalAlpha = P.k * P.fa * Math.min(1, (1.3 - dt) / 0.5) * (gk === 'mud' ? 0.6 : 0.95); ctx.fillStyle = G.bits[Q.c];
       ctx.save(); ctx.translate(px, py); ctx.rotate(Q.rot + Q.sp * dt);
       if (gk === 'grass' && Q.blade) ctx.fillRect(-Q.sz * 2.2 * P.s, -0.5 * P.s, Q.sz * 4.4 * P.s, 1.1 * P.s); else ctx.fillRect(-Q.sz * P.s, -Q.sz * 0.45 * P.s, Q.sz * 2 * P.s, Q.sz * 0.9 * P.s);
       ctx.restore(); }
     ctx.restore(); }
 
   root.VFX_ROTORWASH = { drawUnder: drawUnder, drawOver: drawOver, draw: function (ctx, x, y, t, s, hd, g, o) { drawUnder(ctx, x, y, t, s, hd, g, o); drawOver(ctx, x, y, t, s, hd, g, o); },
-    intensity: intensity, takeoffIntensity: takeoffIntensity, takeoffAlt: takeoffAlt, LIFTOFF: LIFTOFF, IDLE: IDLE, SPAN: SPAN, RR: RR, YS: YS, TIER: TIER, GT: GT, ground: null, version: '1.3' };
+    intensity: intensity, takeoffIntensity: takeoffIntensity, takeoffAlt: takeoffAlt, LIFTOFF: LIFTOFF, IDLE: IDLE, SPAN: SPAN, RR: RR, YS: YS, TIER: TIER, GT: GT, ground: null, version: '1.3.1' };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.VFX_ROTORWASH;
 })(typeof self !== 'undefined' ? self : this);

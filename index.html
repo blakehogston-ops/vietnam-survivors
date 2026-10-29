@@ -1285,7 +1285,7 @@ if(window.JUNGLE_ON)document.write('<script src="assets/art/jungle_v3_lite.js?v=
 <script>if(!/[?&]fb2=0\b/.test(location.search))document.write('<script src="assets/art/fb2_rc8.js?v=47c341b"><\/script>')</script>
 <script>if(!/[?&]fb2=0\b/.test(location.search))document.write('<script src="assets/art/fb_props_rc8.js?v=47c341b"><\/script>')</script>
 <script src="assets/art/vehicles.js?v=47c341b"></script><script src="assets/art/ch46_v2.js?v=47c341b"></script><script src="assets/art/dressing_pickups.js?v=47c341b"></script><script src="assets/art/tanks_v2.js?v=47c341b"></script><script src="assets/art/amtrac_support.js?v=47c341b"></script><script src="assets/art/vehicles_v3.js?v=47c341b"></script><script src="assets/vfx/muzzle_flash.js"></script>
-<script src="assets/vfx/rockets.js"></script><script src="assets/vfx/rotor_wash.js?v=1.3"></script>
+<script src="assets/vfx/rockets.js"></script><script src="assets/vfx/rotor_wash.js?v=1.3.1"></script>
 <script src="assets/vfx/vehicle_hits.js"></script>
 <script src="assets/ui/settings_art.js"></script>
 <script src="assets/ui/settings_skin.js"></script>
@@ -6561,7 +6561,7 @@ function drawBrief2Scene(t){ const c=b2c, S=window.SHEET1; c.setTransform(1,0,0,
   if(!B2BG)B2BG=b2Ground(); const cam=b2Cam(t), b=b2Bird(t), rp=[B2V.rx,B2V.ry], RW=window.VFX_ROTORWASH, tw=t-B2T.land;
   c.setTransform(cam.z,0,0,cam.z,320-cam.cx*cam.z+cam.sx,180-cam.cy*cam.z+cam.sy); c.drawImage(B2BG,B2X0,B2Y0);
   /* rotor wash v1.1 (VFX Artist): ground point midway between the hubs (v4.1 E: pivot.x-5.3) rotated to the NW heading; t = s since touchdown; laterite under the bird */
-  const tk=t-(b2LastOff()+.3-1.0), TK=RW&&RW.takeoffIntensity&&tk>=0, wo=TK?{takeoff:tk}:undefined;   /* v1.3 takeoff hook: spool-up 1 s (LIFTOFF) before the visible lift; x,y stay on the liftoff ground point */
+  const tk=t-(b2LastOff()+.3-1.0), TK=RW&&RW.takeoffIntensity&&tk>=0, wo=TK?{takeoff:tk,depart:Math.atan2(-1,-1)}:undefined;   /* v1.3.1: the bird departs along (-1,-1) in b2Bird = NW */   /* v1.3 takeoff hook: spool-up 1 s (LIFTOFF) before the visible lift; x,y stay on the liftoff ground point */
   const wx=-5.3*Math.cos(B2HD), wy=-5.3*Math.sin(B2HD)*.67, wa=TK?(tk<5&&RW.takeoffIntensity(tk)>=.01?1:0):1, wi=RW?(TK?RW.takeoffIntensity(tk):RW.intensity(tw))*wa:0, birdLate=TK&&RW.takeoffAlt&&RW.takeoffAlt(tk)>2;
   const wash=(fn)=>{ if(!RW||wa<=0)return; window.RFX=RFX; c.save();   /* rotor_wash.js reads window.RFX (the game's RFX is a let) */ c.globalAlpha=wa; try{ if(B2_WASH_FX)B2_WASH_FX(c,{t:tw,x:wx,y:wy,fn,opts:wo}); else RW[fn](c,wx,wy,tw,1,B2HD,'laterite',wo) }catch(e){} c.restore() };
   wash('drawUnder');
