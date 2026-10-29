@@ -2951,7 +2951,7 @@ const JG={ON:!!window.JUNGLE_ON,C:8,F:new Map(),q:[],ms:[],t:0,
   ok(){ if(window.JUNGLE3)JUNGLE3.lod=(LQ.t==='high'&&!(JSTRIKE&&(LQ.sf||0)>=.5))?0:1;   /* perf (EP: jungle always on): MED/LOW/Deck or a watchdog downshift -> light jungle LOD (no per-plant bend redraw), HIGH = full */
     return this.ON&&!!window.JUNGLE3&&!G.demo&&TERR.ready() },
   type(tx,ty){ const x=tx*48+24, y=ty*48+24, m=TERR.mat(Math.floor(x/32),Math.floor(y/32)); if(m==='W'||m==='C'||m==='K')return 'other';
-    if(fbS&&Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y))<(fbS.cl?Math.max(FBW+140,FB_CLEAR+24):FBW+140))return 'other'; const ex=G.ex, P=ex&&(ex.pad||ex.pre); if(P&&Math.hypot(x-P.x,y-P.y)<EX.PAD_R+60)return 'other';
+    if(fbS&&Math.max(Math.abs(x-fbS.x),Math.abs(y-fbS.y))<(fbS.cl?Math.max(FBW+140,FB_CLEAR+24):FBW+140))return 'other'; { const L=G.lzDeco; if(L&&((x-L.x)/250)**2+((y-L.y-10)/140)**2<1)return 'other' }   /* rc8.2: the insert LZ is a cleared spot (no jungle blades on the laterite) */ const ex=G.ex, P=ex&&(ex.pad||ex.pre); if(P&&Math.hypot(x-P.x,y-P.y)<EX.PAD_R+60)return 'other';
     const far=Math.hypot(x,y)>2600||x<-1800, h=hash2(tx*3+17,ty*5-11);
     if(m==='P')return 'paddy'; if(m==='E')return far&&h<.3?'jungle':'grass';
     if(m==='J')return far?(h<.45?'jungle':h<.75?'rubber':'teak'):(h<.6?'scrub':'hedgerow'); return h<.08?'scrub':'other' },
@@ -2965,7 +2965,7 @@ const JG={ON:!!window.JUNGLE_ON,C:8,F:new Map(),q:[],ms:[],t:0,
   each(cam,f){ for(const [cx,cy] of this.vis(cam)){ const F=this.F.get(this.key(cx,cy)); if(F)f(F) } },
   px(){ const c={width:Math.ceil(VW)+2,height:Math.ceil(VH)+2}, X=ctx; return {canvas:c,drawImage:(...a)=>X.drawImage(...a),get imageSmoothingEnabled(){return X.imageSmoothingEnabled},set imageSmoothingEnabled(v){X.imageSmoothingEnabled=v},get globalAlpha(){return X.globalAlpha},set globalAlpha(v){X.globalAlpha=v}} },
   boot(){ if(!G||!this.ok())return; const p=G.p; this.pre({x:p.x-VW/2,y:p.y-VH/2},99); if(JUNGLE3.pump)JUNGLE3.pump(50) },   /* lite: queue the first screen + pump 50 ms on the loading/intro screen */
-  update(dt,cam){ if(!this.ok())return; { const ex=G.ex, P=ex&&(ex.pad||ex.pre), k=(fbS?fbS.x+','+fbS.y+','+(fbS.cl?1:0):'-')+'|'+(P?P.x+','+P.y:'-'); if(this._fk!==k){ if(this._fk!==undefined)this.F.clear(); this._fk=k } }   /* rc8: rebake once the firebase site / clearing / pad changes, so no jungle stays inside the wire or on the pad */ this.pre(cam,1); const p=G.p, U=[]; for(const m of coy)if(m.hp>0&&!m.hid&&Math.abs(m.x-p.x)<VW&&Math.abs(m.y-p.y)<VH)U.push({x:m.x,y:m.y,moving:true});
+  update(dt,cam){ if(!this.ok())return; { const ex=G.ex, P=ex&&(ex.pad||ex.pre), k=(fbS?fbS.x+','+fbS.y+','+(fbS.cl?1:0):'-')+'|'+(P?P.x+','+P.y:'-')+'|'+(G.lzDeco?G.lzDeco.x+','+G.lzDeco.y:'-'); if(this._fk!==k){ if(this._fk!==undefined)this.F.clear(); this._fk=k } }   /* rc8: rebake once the firebase site / clearing / pad changes, so no jungle stays inside the wire or on the pad */ this.pre(cam,1); const p=G.p, U=[]; for(const m of coy)if(m.hp>0&&!m.hid&&Math.abs(m.x-p.x)<VW&&Math.abs(m.y-p.y)<VH)U.push({x:m.x,y:m.y,moving:true});
     for(let i=0;i<enemies.length&&U.length<160;i++){ const e=enemies[i]; if(!e.dead&&Math.abs(e.x-p.x)<VW/2+60&&Math.abs(e.y-p.y)<VH/2+60)U.push({x:e.x,y:e.y,moving:true}) } U.push({x:p.x,y:p.y,moving:true}); this.each(cam,F=>F.update(dt,p,U));
     if(this.PF){ const nw=performance.now(); for(const [cx,cy] of this.vis(cam,this.PF)){ const F=this.F.get(this.key(cx,cy)); if(F)F._lastDraw=nw } } },   /* jr perf: prefetched chunks keep their baked layers until they scroll in */
   layer(part,cam,zoom){ if(!this.ok()||!this.F.size)return; const P=this.px(); ctx.save(); ctx.setTransform(zoom,0,0,zoom,0,0); this.each(cam,F=>{ if(part==='ground')F.drawGround(P,1,cam.x,cam.y); else if(part==='under')F.drawUnder(P,1,cam.x,cam.y); else if(part==='over')F.drawOver(P,1,cam.x,cam.y); else F.drawCanopy(P,1,cam.x,cam.y) }); ctx.restore() },
@@ -5600,25 +5600,26 @@ const C46X=(()=>{ try{ if(!window.SHEET1||!SHEET1.drawSeaKnight)return null; con
 function insertCH46(){ const g=G,p=g.p, S={hp:Q15.hp,dm:1}, X=C46X;
   const comp={t0:g.t,n:Q15.names.length,alive:0,half:null,few:null,end:null,id:g.cs.comps.length,q15:true}; g.cs.comps.push(comp);
   const lx=p.x-X.exit[0][0]+40, ly=p.y-X.exit[0][1]-6;   /* lands just east of Doc, nose east, so the ramp (aft) opens toward him */
+  G.lzDeco={x:lx,y:ly,c:null};   /* rc8.2: cleared LZ (laterite under the bird, worn foot path, thickets) */
   coyH.push({ch46:1,x:lx-1150,y:ly-120,lx,ly,z:60,st:'flying',ph:0,t:0,t2:0,left:comp.n,base:0,di:0,dT:0,endT:0,vs:60,rot:0,hd:0,hp:1,mhp:0,hf:0,mf:[0,0],s:S,comp,k:0,a:0});
   comp.hueyAt=1e9; comp.dropAt=0 }
 function ch46Tick(h,dt){ const g=G,p=g.p, X=C46X; h.t+=dt; h.rot+=dt*34; SeaKnightS.cue(h,'in');
   if(h.ph===0){ const dx=h.lx-h.x, dy=h.ly-h.y, d=Math.hypot(dx,dy)||1, sp=Math.min(380,50+d*1.1); h.x+=dx/d*Math.min(d,sp*dt); h.y+=dy/d*Math.min(d,sp*dt);
     h.z+=((d<420?14:60)-h.z)*Math.min(1,dt*1.6); h.st=h.z>30?'flying':'hover'; if(d<3){ h.ph=1; h.x=h.lx; h.y=h.ly } }
-  else if(h.ph===1){ h.z=Math.max(0,h.z-dt*(6+h.z*.9)); h.st=h.z>.5?'hover':'landed'; if(h.z<=0){ h.ph=2; h.t2=0; burst(h.x,h.y+6,16,90,.6,3,['#a8946a','#8a7a52'],false) } }
-  else if(h.ph===2){ h.t2+=dt; h.st='landed'; if(h.t2>.55){ h.ph=3; h.t2=0; h.st='rampDown'; ILOG('ramp_down',{z:h.z}); Snd.play('thud'); if(h.comp&&h.comp.q15)try{ if(window.SamplePlayer&&SamplePlayer.musicEvent)SamplePlayer.musicEvent('ramp_down') }catch(e){} } }
+  else if(h.ph===1){ h.z=Math.max(0,h.z-dt*(6+h.z*.9)); h.st=h.z>.5?'hover':'landed'; if(h.z<=0){ h.ph=2; h.t2=0; h.tdAt=h.t; burst(h.x,h.y+6,16,90,.6,3,['#a8946a','#8a7a52'],false) } }
+  else if(h.ph===2){ h.t2+=dt; h.st='landed'; if(h.t2>.75){   /* first man moves at touchdown + 1.5 s (ramp .75 + .75) */ h.ph=3; h.t2=0; h.st='rampDown'; ILOG('ramp_down',{z:h.z}); Snd.play('thud'); if(h.comp&&h.comp.q15)try{ if(window.SamplePlayer&&SamplePlayer.musicEvent)SamplePlayer.musicEvent('ramp_down') }catch(e){} } }
   else if(h.ph===3){ h.t2+=dt; h.st='rampDown'; const rx=h.x+X.ramp[0], ry=h.y+X.ramp[1];
-    if(state==='intro'&&g.hide&&!h.docOut&&(h.di>=Math.min(C46_DOC_AFTER,h.left)||h.di>=h.left)){   /* rc8.2 HAA: Doc comes off WITH the squad leader (right behind him), never first */ h.docOut=1; ILOG('doc_ramp',{t2:+h.t2.toFixed(2),after:h.di}); if(INTRO&&INTRO.quiet){ INTRO.cap0=INTRO.t2; try{ if(!(window.VOAI&&VOAI.byId(INS2_LINE.id)))Snd.play('radio') }catch(e){} } g.hide=false; g.docWalk={x0:rx,y0:ry,x1:p.x,y1:p.y,t:0}; p.x=rx; p.y=ry }
+    if(state==='intro'&&g.hide&&!h.docOut&&(h.di>=Math.min(C46_DOC_AFTER,h.left)||h.di>=h.left)){   /* rc8.2 HAA: Doc comes off WITH the squad leader (right behind him), never first */ h.docOut=1; ILOG('doc_ramp',{t2:+h.t2.toFixed(2),after:h.di});  g.hide=false; g.docWalk={x0:rx,y0:ry,x1:p.x,y1:p.y,t:0}; p.x=rx; p.y=ry }
     if(h.di<h.left){ h.dT-=dt; if(h.dT<=0&&h.t2>.75){ if(coyAlive()<COY.cap){ const j=h.base+(C46_ORDER[h.di]!=null?C46_ORDER[h.di]:h.di), sl=coyFreeSlot(), role=(j===13&&g.char!=='doc'&&CORP.ON)?'corps':Q15.roles[j], hp0=(h.s.hp+Math.min(60,g.t/10))*(1+g.sq.hp)*Q15.HPM, e=X.exit[h.di%X.exit.length], sp=1+Math.floor(h.di/X.exit.length);
           coy.push({role,nm:role==='corps'?'HM3 Fontaine':Q15.names[j],slot:sl,cv:h.di&3,coy:true,pat:true,comp:h.comp,state:'ramp',rt:0,hx:rx,hy:ry,lx:h.x+e[0]-sp*14+(rnd()-.5)*10,ly:h.y+e[1]+((h.di&1)?1:-1)*sp*9,x:rx,y:ry,rz:0,hp:hp0,mhp:hp0,dm:h.s.dm*(1+g.sq.dm),face:-1,anim:rnd()*4,mv:true,cd:.4+rnd()*.5,tg:null,tgT:rnd()*.3,mf:0,hf:0,inv:0,aim:Math.PI,ph:rnd()*TAU,born:g.t});
           h.comp.alive++; h.comp.dr=(h.comp.dr||0)+1; g.cs.dropped++; if(h.comp.alive>g.cs.peak)g.cs.peak=h.comp.alive }
         h.di++; h.dT=.3 } }
-    else { h.endT+=dt; if(h.endT>.35){ h.ph=4;   /* rc8.2 HAA: the bird lifts as soon as the last man is off */ h.vs=30; h.st='landed'; SeaKnightS.cue(h,'out'); if(h.comp&&h.comp.q15&&!h.comp.lft&&(h.comp.lft=1))try{ if(window.SamplePlayer&&SamplePlayer.musicEvent)SamplePlayer.musicEvent('liftoff') }catch(e){} } } }
+    else { if(!h.spool){ h.spool=h.t; } h.endT+=dt; if(h.endT>1.0){ h.ph=4; if(state==='intro'&&INTRO&&INTRO.quiet&&INTRO.cap0==null){ INTRO.cap0=INTRO.t2; try{ if(!(window.VOAI&&VOAI.byId(INS2_LINE.id)))Snd.play('radio') }catch(e){} }   /* HAA: 'LZ cold' call once the perimeter is down and the bird lifts; 1.0 s spool-up (rotor wash LIFTOFF) */   /* rc8.2 HAA: the bird lifts as soon as the last man is off */ h.vs=30; h.st='landed'; SeaKnightS.cue(h,'out'); if(h.comp&&h.comp.q15&&!h.comp.lft&&(h.comp.lft=1))try{ if(window.SamplePlayer&&SamplePlayer.musicEvent)SamplePlayer.musicEvent('liftoff') }catch(e){} } } }
   else { h.endT+=dt; h.z=Math.min(70,h.z+dt*(8+h.z*.8)); h.st=h.z>30?'flying':h.z>.5?'hover':'landed'; if(h.z>10){ h.vs=Math.min(420,h.vs+200*dt); h.x+=h.vs*dt; h.y-=h.vs*.12*dt }
     if(Math.hypot(h.x-p.x,h.y-p.y)>Math.hypot(VW,VH)/2+400)return true }
   if(h.z<24&&h.ph<4||h.ph===4&&h.z<30){ if(!LOWFX_ON()&&rnd()<dt*24){ const b=rnd()*TAU; addPart(h.x+Math.cos(b)*22,h.y+8+Math.sin(b)*8,Math.cos(b)*90,Math.sin(b)*45,.6,3+rnd()*3,rnd()<.5?'#a8946a':'#8a7a52',false,2) } }
   return false }
-function drawCH46Ins(h){ try{ SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt:h.z,heading:h.hd,t:(h.rot||0)/34,scale:1,state:h.st,damage:0}) }catch(e){ drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) } }
+function drawCH46Ins(h){ try{ SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt:h.z,heading:h.hd,t:(h.rot||0)/34,scale:1,state:h.st,damage:0,wash:!window.VFX_ROTORWASH}) }catch(e){ drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) } }
 function insertFifteen(){ if(CH46INS&&C46X)return insertCH46(); const g=G,p=g.p, a0=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+170, S={hp:Q15.hp,dm:1};
   const comp={t0:g.t,n:0,alive:0,half:null,few:null,end:null,id:g.cs.comps.length,q15:true}; g.cs.comps.push(comp); let base=0;
   for(let k=0;k<3;k++){ const a=a0+k*TAU/3, nn=Q15.sizes[k]; comp.n+=nn;
@@ -6044,6 +6045,19 @@ function startIntro(quiet){ window.__introLog=[]; BriefSnd.stop(); INTRO={t:0,ph
 function skipIntro(force){ if(state!=='intro')return; if(!force&&!/[?&]skip1=1\b/.test(location.search)){ const n=performance.now(); if(INTRO.skipArm&&n-INTRO.skipArm<300)return; if(!(INTRO.skipArm&&n-INTRO.skipArm<3000)){ INTRO.skipArm=n; return } }   /* rc8.1 Junior #2: two presses within 3 s skip the intro (the first press arms: 'PRESS AGAIN TO SKIP') */ IntroSnd.stop(true); introH=null; finishIntro() }
 function ILOG(ev,o){ try{ (window.__introLog=window.__introLog||[]).push(Object.assign({ev,state},o||{})) }catch(e){} }
 function finishIntro(){ const q2=!!(INTRO&&INTRO.quiet); ILOG('input_unlock',{t2:INTRO?+INTRO.t2.toFixed(2):null}); IntroSnd.stop(false); { const w=G.docWalk; if(w){ G.p.x=w.x1; G.p.y=w.y1; G.docWalk=null } } state='play'; last=performance.now(); G.hide=false; for(const m of pat){ m.hid=false } INTRO=null; $('topbtns').style.display='flex'; G.banner={text:'LZ HOTEL · MOVE OUT, MARINE',t:2.4,col:'#ffe58a'}; if(q2)intro2Contact() }
+/* rc8.2 rotor wash v1.3.2 on the in-game insert (the one landing): ground point midway between the hubs (v4.1 E: pivot.x-5.3), t = s since touchdown, takeoff hook from the last man off */
+function c46WashArgs(){ const h=c46Bird(), R=window.VFX_ROTORWASH; if(!h||!R)return null; const L=G.lzDeco||{x:h.lx,y:h.ly};
+  if(h.spool!=null){ const tk=h.t-h.spool; if(tk>5||(R.takeoffIntensity&&R.takeoffIntensity(tk)<.01))return null; return {h,x:L.x-5.3,y:L.y,t:0,o:{takeoff:tk,depart:Math.atan2(-.12,1)},alt:R.takeoffAlt?R.takeoffAlt(tk):0} }
+  const t=h.tdAt!=null?h.t-h.tdAt:-Math.max(0,h.z)/10-(h.ph===0?Math.hypot(h.lx-h.x,h.ly-h.y)/300:0); return {h,x:L.x-5.3,y:L.y,t,o:undefined,alt:0} }
+function c46Late(h){ const a=c46WashArgs(); return !!(a&&a.o&&a.alt>2) }
+function c46Wash(fn){ const a=c46WashArgs(); if(!a)return; window.RFX=RFX; VFX_ROTORWASH[fn](ctx,a.x,a.y,a.t,1,a.h.hd||0,'laterite',a.o) }
+function lzDecoDraw(){ const L=G&&G.lzDeco; if(!L)return; if(!L.c){ const W2=1100,H2=720,c=mk(W2,H2),x=c.getContext('2d'); x.translate(W2/2,H2/2);
+    /* laterite only under the bird: ragged ellipse, darker rim */ x.beginPath(); for(let a=0;a<=72;a++){ const th=a/72*TAU, r=1+inoise(a*5,3)*.24-.12; x.lineTo(Math.cos(th)*230*r,Math.sin(th)*120*r+10) } x.closePath(); const g=x.createRadialGradient(0,10,10,0,10,240); g.addColorStop(0,'rgba(150,88,58,.95)'); g.addColorStop(.75,'rgba(134,80,56,.85)'); g.addColorStop(1,'rgba(110,70,48,.0)'); x.fillStyle=g; x.fill();
+    for(let i=0;i<900;i++){ const px=(ihash(i+7)-.5)*420, py=(ihash(i+8)-.5)*220+10; if((px/230)**2+((py-10)/120)**2>.9)continue; const v=ihash(i+9); x.fillStyle=v<.5?'rgba(70,34,20,.3)':'rgba(180,112,74,.28)'; x.fillRect(px|0,py|0,1+(v*3|0),1) }
+    /* worn foot path from the LZ edge out to the west (toward the villes) */ x.strokeStyle='rgba(120,84,54,.55)'; x.lineCap='round'; x.lineWidth=14; x.beginPath(); x.moveTo(-200,40); for(let k=1;k<=10;k++)x.lineTo(-200-k*34,40+Math.sin(k*.9)*18+k*6); x.stroke(); x.strokeStyle='rgba(150,108,70,.5)'; x.lineWidth=5; x.stroke();
+    /* thicket clusters (dense elephant grass / scrub) ringing the clearing */ for(let k=0;k<11;k++){ const th=k/11*TAU+ihash(k)*.4, rr=1.25+ihash(k+50)*.25, cx=Math.cos(th)*250*rr, cy=Math.sin(th)*140*rr+10; if(cx<-180&&Math.abs(cy-60)<60)continue;
+      for(let j=0;j<70;j++){ const bx=cx+(ihash(k*97+j)-.5)*80, by=cy+(ihash(k*89+j)-.5)*40, h=18+ihash(k*7+j)*26, ln=(ihash(k*3+j)-.5)*.9; x.strokeStyle=['#3f5626','#5d7334','#8a9450'][j%3]; x.lineWidth=1.4; x.beginPath(); x.moveTo(bx,by); x.quadraticCurveTo(bx+ln*h*.2,by-h*.75,bx+ln*h*.5,by-h); x.stroke() } }
+    L.c=c } ctx.drawImage(L.c,Math.round(L.x-L.c.width/2),Math.round(L.y-L.c.height/2)) }
 function c46Bird(){ return CH46INS&&coyH.find(h=>h.ch46) }
 function startLanding(){ const p=G.p; if(c46Bird()){ INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH=null; const h=c46Bird(); h.x=h.lx-820; h.y=h.ly-90; h.z=60; return } INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH={x:p.x-640,y:p.y-8,z:70,hd:0,rot:0,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,out:0}; }
 function updateIntroH(dt){ const h=introH; if(!h)return; const p=G.p; h.t+=dt; h.rot+=dt*34;
@@ -6465,17 +6479,16 @@ const BRIEF2_LINES=[
  {id:'cab3_04',who:'Sgt PETTAWAY',port:'sgt',t:"Mags in, muzzles down! Nobody moves till the wheels are down!"},
  {id:'lz3_01',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase()+' · RADIO',port:'lt',t:"Golf Six, this is Two-Six. LZ cold, over."}];   /* rc8.2 HAA-approved: lines 1-4 are shouted in the CABIN before touchdown (subtitles + radio blip, new ids = no old VO); nothing during the landing; the LZ call after the perimeter forms */   /* rc8.2 HAA: the one radio call, called station first; no VO yet (radio blip) */
 const INS2_LINE={id:'lz3_02',who:'RADIO · TWO-SIX',t:"Golf Six, this is Two-Six. LZ cold, over."};   /* rc8.2 HAA: the one radio call (called station first); no talking on the ramp. New id = no VO yet (old ins2_01 VO says the old line) */
-const B2CPS=34, B2HOLD=1.35, B2_MIN=19.5, B2TITLE=2.4;   /* rc8.2: the LZ scene runs to the bird clear + perimeter set before the cabin */
+const B2CPS=34, B2HOLD=1.35, B2_MIN=0, B2TITLE=2.0;   /* rc8.2: the LZ scene runs to the bird clear + perimeter set before the cabin */
 let BR2=null; const B2CV=mk(640,360), b2c=B2CV.getContext('2d');
 function startBrief2(){ BR2={t:0,page:0,lt:0,typed:0,t0:performance.now()}; state='brief2'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; ttsCancel(); b2Sting() }
 function b2Sting(){ try{ if(window.VOAI&&BR2&&VOAI.byId(BRIEF2_LINES[BR2.page].id))return }catch(e){} if(!Snd.muted){ try{Snd.play('radio')}catch(e){} } }
 function endBrief2(){ if(!BR2)return; window.__brief2Dur=(performance.now()-BR2.t0)/1000; BR2=null; try{sessionStorage.setItem('lco_briefed','1')}catch(e){} last=performance.now(); startIntro(true) }
 function b2LineT(L){ return Math.max(L.t.length/B2CPS+B2HOLD,window.VOAI&&VOAI.byId&&VOAI.byId(L.id)?VOAI.dur(L.id)+.5:0) }
-function b2CabT(){ let s=.6; for(let i=0;i<4;i++)s+=b2LineT(BRIEF2_LINES[i]); return s+B2TITLE }   /* cabin beat = 4 shouted lines + the title's own beat */
+function b2CabT(){ let s=.6; for(let i=0;i<4;i++)s+=b2LineT(BRIEF2_LINES[i]); return s+B2TITLE+.4 }   /* + .4 s dust-out */   /* cabin beat = 4 shouted lines + the title's own beat */
 function updateBrief2(dt){ const B=BR2; if(!B)return; B.t+=dt; B.lt+=dt; if(B.cabT==null)B.cabT=b2CabT(); const L=BRIEF2_LINES[B.page], lzt=B.t-B.cabT, callAt=b2LastOff()+1.6;
   if(B.page<3){ B.hide=B.t<.6; if(B.hide){ B.lt=0; return } B.typed=Math.min(L.t.length,B.lt*B2CPS); if(B.lt>=b2LineT(L)){ B.page++; B.lt=0; B.typed=0; b2Sting() } return }
-  if(B.page===3){ B.typed=Math.min(L.t.length,B.lt*B2CPS); B.hide=B.lt>=b2LineT(L); if(lzt>=callAt){ B.page=4; B.lt=0; B.typed=0; B.hide=false; b2Sting() } return }   /* nothing on screen during the landing */
-  B.typed=Math.min(L.t.length,B.lt*B2CPS); if(B.lt>=b2LineT(L)&&lzt>=B2_MIN)endBrief2() }
+  B.typed=Math.min(L.t.length,B.lt*B2CPS); B.hide=B.lt>=b2LineT(L); if(lzt>=0)endBrief2() }   /* rc8.2 pass 3: the briefing ENDS in the cabin (title beat + dust-out); the one landing is the in-game insert */
 /* briefing art (Art Director rework): approved game sprites at 1x on a 320x180 buffer, integer upscale. No hand-drawn men.
    Lt = marine rig 'leader' (plain head, no glasses, matches the squad2 portrait), Doc = heroDoc 'treat' (kneeling) + his yellow ring, RTO = marine rig 'radio' (PRC-25),
    riflemen = marine rig with the Company looks (different faces / skin tones), CH-46 = ch46_v2 rampDown with soft blur discs. */
@@ -6586,7 +6599,7 @@ let b2U=1;
 function drawBrief2(){ const B=BR2; ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
   const s0=Math.min(W/640,H/360), s=s0>=1?Math.floor(s0):s0, dw=640*s, dh=360*s, ox=Math.round((W-dw)/2), oy=Math.round((H-dh)/2); const cabT=B.cabT||b2CabT(), lzt=B.t-cabT;
   if(lzt<0){ const s1=Math.min(W/320,H/180), w1=320*s1, h1=180*s1; const sv=INTRO; INTRO=B.cabI||(B.cabI={gf:[0,0],sm:[],sq:null,brass:[],tr:[],shots:[],quiet:true}); try{ drawCabin46(B.t*IT1/cabT) }catch(e){} INTRO=sv; ctx.imageSmoothingEnabled=false; ctx.drawImage(ICV,(W-w1)/2,(H-h1)/2,w1,h1);   /* rc8.2 HAA: the shouted lines play inside the cabin, before touchdown */
-    const tt=lzt+B2TITLE; if(tt>0){ const a=Math.min(1,tt*2.5,(B2TITLE-tt)*3+.4); ctx.globalAlpha=Math.max(0,a); ctx.textAlign='center'; ctx.lineJoin='round'; ctx.strokeStyle='#000'; const f1=Math.max(22,h1/6); ctx.font=`bold ${f1}px Impact,"Arial Black",sans-serif`; ctx.lineWidth=f1/7; ctx.strokeText('LAST CHOPPER OUT',W/2,H*.42); ctx.fillStyle='#f0e6a8'; ctx.fillText('LAST CHOPPER OUT',W/2,H*.42); ctx.globalAlpha=1 }   /* title on its own beat, after the last line */
+    const tt=lzt+B2TITLE+.4; if(tt>0){ const a=Math.min(1,tt*2.5,(B2TITLE-tt)*3+.4); ctx.globalAlpha=Math.max(0,a); ctx.textAlign='center'; ctx.lineJoin='round'; ctx.strokeStyle='#000'; const f1=Math.max(22,h1/6); ctx.font=`bold ${f1}px Impact,"Arial Black",sans-serif`; ctx.lineWidth=f1/7; ctx.strokeText('LAST CHOPPER OUT',W/2,H*.42); ctx.fillStyle='#f0e6a8'; ctx.fillText('LAST CHOPPER OUT',W/2,H*.42); ctx.globalAlpha=1 }   /* title on its own beat, after the last line */
     if(lzt>-.4){ ctx.fillStyle=`rgba(122,78,50,${(Math.min(1,(lzt+.4)/.4)*(RFX?.4:1)).toFixed(3)})`;   /* reduce flashing: capped .4 */ ctx.fillRect(0,0,W,H) } }
   else { drawBrief2Scene(lzt); ctx.imageSmoothingEnabled=false; ctx.drawImage(B2CV,ox,oy,dw,dh); if(lzt<.4){ ctx.fillStyle=`rgba(122,78,50,${((1-lzt/.4)*(RFX?.4:1)).toFixed(3)})`;   /* reduce flashing: capped .4 */ ctx.fillRect(0,0,W,H) } }
   if(B.t<.6){ ctx.fillStyle=`rgba(0,0,0,${1-B.t/.6})`; ctx.fillRect(0,0,W,H) }
@@ -6604,7 +6617,7 @@ function drawBrief2(){ const B=BR2; ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle
 function brief2Skip(){ if(!BR2)return; if(/[?&]skip1=1\b/.test(location.search)){ endBrief2(); return } const n=performance.now(); if(BR2.skipArm&&n-BR2.skipArm<300)return; if(BR2.skipArm&&n-BR2.skipArm<3000){ endBrief2(); return } BR2.skipArm=n }
 function skipMsg(arm){ const pad=typeof PAD!=='undefined'&&PAD.on, k=pad?PAD.pn('A').split(' ')[0]:''; return (arm&&performance.now()-arm<3000)?(pad?'Press '+k+' again to skip':'Press again to skip'):(pad?'Press '+k+' twice to skip':'Press any key twice to skip') }
 if(INTRO2){ try{ $('btnBrief').style.display='none' }catch(e){} }   /* Mercer briefing is not reachable unless ?ltbrief=0 */
-window.__b2w={walkers:b2Walkers,B2W,lines:()=>BRIEF2_LINES,cps:B2CPS,hold:B2HOLD,scene:t=>{ drawBrief2Scene(t); return B2CV }};   /* test hook (qa/intro_walkout.js): read-only */
+window.__b2w={noLZ:true,cabT:()=>b2CabT(),walkers:b2Walkers,B2W,lines:()=>BRIEF2_LINES,cps:B2CPS,hold:B2HOLD,scene:t=>{ drawBrief2Scene(t); return B2CV }};   /* test hook (qa/intro_walkout.js): read-only */
 if(DBG.bot){ window.__ms_ub2=dt=>updateBrief2(dt); window.__ms_i2c=()=>intro2Contact(); window.__ms_br2=()=>BR2 }   /* test hooks, ?bot only */
 /* the HUD (and G.banner) is not drawn during state 'intro', so the ramp line gets its own caption, same style as the briefing box */
 function drawIns2Cap(){ const I=INTRO; if(!I||!I.quiet||I.ph!==2||I.cap0==null)return; const e=I.t2-I.cap0; if(e<0||e>3.4)return; const a=Math.min(1,e*4,(3.4-e)*3);
@@ -8285,12 +8298,12 @@ const ATM={ON:!!window.VFX_ATMO&&!/[?&]atmo=0\b/.test(location.search),NIGHT_MAX
     const U=this.U; U.length=0; if(p&&p.hp>0)U.push({x:p.x,y:p.y,h:28}); for(const q of coy){ if(U.length>=(low?60:240))break; if(q.hp>0&&!q.hid&&q.x>x0&&q.x<x1&&q.y>y0&&q.y<y1)U.push({x:q.x,y:q.y,h:26}) } for(const e of enemies){ if(U.length>=(low?60:240))break; if(!e.dead&&e.x>x0&&e.x<x1&&e.y>y0&&e.y<y1)U.push({x:e.x,y:e.y,h:e.tank?30:24,w:e.tank?40:undefined}) }
     A.update(adt); A.drawFlareShadows&&A.drawFlareShadows(ctx,camX,camY,zoom,U); A.drawWorldOverlay(ctx,camX,camY,zoom); A.drawScreen(ctx) } };
 function icamTick(){ const n=performance.now(), dt=Math.min(.1,(n-(ICAM.t||n))/1000); ICAM.t=n; const b=state==='intro'&&typeof c46Bird==='function'&&c46Bird()&&INTRO&&!INTRO.docLZ;
-  const tz=b?Math.min(1,Math.min(W/(ZB*1150),H/(ZB*700))):1; ICAM.z+=(tz-ICAM.z)*Math.min(1,dt*(tz<ICAM.z?2.2:1.4)); if(Math.abs(ICAM.z-tz)<.002)ICAM.z=tz; zoom=ZB*ICAM.z; VW=W/zoom; VH=H/zoom }
+  const hb=b?c46Bird():null, off=hb&&hb.ph>=2&&hb.ph<4, FW=off?780:1150, FH=off?470:700, tz=b?Math.min(off?1.6:1,Math.min(W/(ZB*FW),H/(ZB*FH))):1;   /* rc8.2 pass 3: approach = whole bird in frame; offload = tighter (whole hull + ramp, Marines 30+ px) */ ICAM.z+=(tz-ICAM.z)*Math.min(1,dt*(tz<ICAM.z?2.2:1.4)); if(Math.abs(ICAM.z-tz)<.002)ICAM.z=tz; { const tox=b&&hb?(hb.x+60-G.p.x)*.5:0, toy=b&&hb?(hb.y-G.p.y)*.5:0; ICAM.ox=(ICAM.ox||0)+(tox-(ICAM.ox||0))*Math.min(1,dt*1.6); ICAM.oy=(ICAM.oy||0)+(toy-(ICAM.oy||0))*Math.min(1,dt*1.6); if(!b&&Math.abs(ICAM.ox)<.5&&Math.abs(ICAM.oy)<.5){ ICAM.ox=0; ICAM.oy=0 } }   /* frame the bird + the stick, eased back onto Doc when he steps off */ zoom=ZB*ICAM.z; VW=W/zoom; VH=H/zoom }
 function render(){ CRUMB.fr=(CRUMB.fr|0)+1; try{ icamTick() }catch(e){} if(JG.ON&&state!=='play'&&G&&window.JUNGLE3&&JUNGLE3.pump&&(!JUNGLE3.pending||JUNGLE3.pending()>0||!JG.F.size))try{ JG.boot() }catch(e){} TERR.tick(); TERR.budget(TERR.stats().cells<6&&!TERR.staleN()?24:4);
   ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false; ctx.fillStyle='#2c5226'; ctx.fillRect(0,0,W,H);
   const g=G; if(!g)return; const p=g.p;
   const shx=g.shake>.3?(rnd()-.5)*g.shake:0, shy=g.shake>.3?(rnd()-.5)*g.shake:0;
-  let ic=(c=>{ if(c&&!(isFinite(c.x)&&isFinite(c.y)&&isFinite(c.rot||0))){ simGuard('impactCam',c.x+','+c.y); try{ VFX_IMPACT.reset&&VFX_IMPACT.reset() }catch(e){} return null } return c })(window.VFX_IMPACT?VFX_IMPACT.camera():null), camX=Math.round((p.x+shx+(ic?ic.x:0))*zoom)/zoom-VW/2, camY=Math.round((p.y+shy+(ic?ic.y:0))*zoom)/zoom-VH/2; if(!isFinite(camX)||!isFinite(camY)){ camX=(isFinite(p.x)?p.x:0)-VW/2; camY=(isFinite(p.y)?p.y:0)-VH/2; if(G&&(G.nanCam=(G.nanCam|0)+1)===1)console.warn('camera: non-finite position, recentred') }   /* rc7.1 EP: camera NaN guard */
+  let ic=(c=>{ if(c&&!(isFinite(c.x)&&isFinite(c.y)&&isFinite(c.rot||0))){ simGuard('impactCam',c.x+','+c.y); try{ VFX_IMPACT.reset&&VFX_IMPACT.reset() }catch(e){} return null } return c })(window.VFX_IMPACT?VFX_IMPACT.camera():null), camX=Math.round((p.x+shx+(ic?ic.x:0)+(ICAM.ox||0))*zoom)/zoom-VW/2, camY=Math.round((p.y+shy+(ic?ic.y:0)+(ICAM.oy||0))*zoom)/zoom-VH/2; if(!isFinite(camX)||!isFinite(camY)){ camX=(isFinite(p.x)?p.x:0)-VW/2; camY=(isFinite(p.y)?p.y:0)-VH/2; if(G&&(G.nanCam=(G.nanCam|0)+1)===1)console.warn('camera: non-finite position, recentred') }   /* rc7.1 EP: camera NaN guard */
   ctx.setTransform(zoom,0,0,zoom,-camX*zoom,-camY*zoom); RCAM.x=camX; RCAM.y=camY; MZW.z=zoom; MZW.cx=camX; MZW.cy=camY;
   // background
   const T=256; for(let x=Math.floor(camX/T)*T;x<camX+VW;x+=T)for(let y=Math.floor(camY/T)*T;y<camY+VH;y+=T){
@@ -8313,6 +8326,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; try{ icamTick() }catch(e){} if(JG.ON
     let dc=d.c;
     ctx.drawImage(dc,Math.round(x-d.ox),Math.round(y-d.oy)); }
   JG.layer('under',{x:camX,y:camY},zoom);
+  try{ lzDecoDraw(); c46Wash('drawUnder') }catch(e){}   /* rc8.2 intro LZ: dressing + rotor wash under the units */
   // blood decals + corpses (ground layer)
   for(let i=0;i<decals.length;i++){const d=decals[i]; if(d.l<=0)continue; const w=d.c.width*d.sc,h=d.c.height*d.sc; if(d.x<camX-w||d.x>camX+VW+w||d.y<camY-h||d.y>camY+VH+h)continue;
     const fade=d.l<5; if(fade)ctx.globalAlpha=d.l/5; ctx.drawImage(d.c,Math.round(d.x-w/2),Math.round(d.y-h/2),w,h); if(fade)ctx.globalAlpha=1 }
@@ -8439,7 +8453,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; try{ icamTick() }catch(e){} if(JG.ON
   for(let i=0;i<hueys.length;i++)drawHuey(hueys[i]);
   for(let i=0;i<ins.length;i++)drawHuey(ins[i]);
   SPEC.drawAir(); try{ OFFI.drawFac() }catch(e){} FBO.draw(); URG.draw();
-  for(let i=0;i<coyH.length;i++){ const h=coyH[i]; if(h.ch46){ drawCH46Ins(h); continue } if(h.t<0)continue; if(h.comp&&h.comp.q15)drawHuey(h); else drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) }   /* Vet: company reinforcements come by CH-46 (the fifteen keep their insertion Hueys) */
+  for(let i=0;i<coyH.length;i++){ const h=coyH[i]; if(h.ch46){ const late=c46Late(h); if(late)try{ c46Wash('drawOver') }catch(e){} drawCH46Ins(h); if(!late)try{ c46Wash('drawOver') }catch(e){} continue } if(h.t<0)continue; if(h.comp&&h.comp.q15)drawHuey(h); else drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) }   /* Vet: company reinforcements come by CH-46 (the fifteen keep their insertion Hueys) */
   drawMedevac();
   if(introH)drawHuey(introH);
   for(let i=0;i<crashes.length;i++)drawHuey(crashes[i]);
