@@ -8049,8 +8049,9 @@ const LCO_MAPS=['con_thien','cam_lo_river','route_9_lowlands','khe_sanh_861a'];
 window.__lco=Object.assign(window.__lco||{},{ setMap(id){ if(!LCO_MAPS.includes(id))return false; window.__lco.maps=LCO_MAPS.slice(); window.__lco.mapId=id; return true } });
 window.__lco.setMap(params.get('map')||window.LCO_MAP);
 { const _ng=newGame; newGame=function(d){ const r=_ng.apply(this,arguments); try{ if(window.__lco.mapId)G.mapId=window.__lco.mapId }catch(e){} return r } }
-/* rc8.2 QA: read-only run seed getter (no setter) so QA can verify ?seed=23. null before a run / in demo. */
-Object.defineProperty(window.__lco,'seed',{value:function(){ return (typeof G!=='undefined'&&G&&!G.demo&&typeof G.seed==='number')?G.seed:null },writable:false,configurable:false,enumerable:true});
+/* rc8.2 QA: read-only run seed getter (no setter) so QA can verify ?seed=23. null before a run / in demo. Title menu = null even under ?nodemo, whose
+   load-time newGame(false) builds a throwaway G with its own seed; startGame() rolls the real run seed (QA verdict_integration_89dae0f, ticket seed_title_null). */
+Object.defineProperty(window.__lco,'seed',{value:function(){ return (typeof G!=='undefined'&&G&&!G.demo&&state!=='menu'&&typeof G.seed==='number')?G.seed:null },writable:false,configurable:false,enumerable:true});
 const FR={ON:params.get('fieldReports')!=='0', SRC:'assets/video/field_report_scotland.webm', KEY:'lco_fr_seen', el:null, wrap:null, hint:null, open:false, why:'', skipArm:0, t0:0,
   urls:[], then:null, plays:0, skips:0, ends:0, errors:0, unloads:0, last:null, mus:null, DUCK:.12,
   seen(){ try{ return !!localStorage.getItem(this.KEY) }catch(e){ return false } },
