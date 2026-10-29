@@ -34,4 +34,12 @@ for(const k of ['Enter','Space','Escape','click']){ let q=await mk();await q.got
   T('FR01 open: pointerdown/touchstart/mousedown swallowed',o&&leakPtr===0,'leaked='+leakPtr);
   T('FR01 skipped: KeyD pressed ~40 ms after close registers (down+up) in mission',!r.open&&r.how==='skip'&&r.st==='play'&&r.dSeen===1&&u===1,JSON.stringify(Object.assign(r,{dUp:u})));
   await q.context().close() }
+{ let q=await mk();await q.goto(B+'?nodemo&nobrief&nointro',{waitUntil:'domcontentloaded'});await q.waitForTimeout(1500);
+  await q.click('#btnFR');await q.waitForTimeout(700);await q.focus('#frWrap').catch(()=>{});
+  await q.keyboard.press('Enter');await q.waitForTimeout(350);await q.keyboard.down('Enter');
+  for(let i=0;i<16;i++){ await q.waitForTimeout(50); await q.keyboard.down('Enter') } await q.keyboard.up('Enter'); await q.waitForTimeout(600);
+  const r=await q.evaluate(()=>{const f=__lco.fieldReport();return {open:f.playing,duck:f.musicDucked,plays:f.plays,how:f.last&&f.last.how,st:__ms.stateX,cs:document.getElementById('charsel').classList.contains('show')}});
+  T('menu replay skip, Enter held 800 ms with repeats: charsel stays closed, player closed',r.how==='skip'&&!r.open&&!r.duck&&r.plays===1&&!r.cs&&r.st==='menu',JSON.stringify(r));
+  await q.keyboard.press('Enter');await q.waitForTimeout(500);T('next fresh Enter after keyup reaches menu (tail released)',await q.evaluate(()=>document.getElementById('charsel').classList.contains('show')));
+  await q.context().close() }
 T('0 page errors',errs.length===0,JSON.stringify(errs));await br.close();srv.close();process.exit(fails?1:0)})();

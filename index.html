@@ -7907,7 +7907,9 @@ const FR={ON:params.get('fieldReports')!=='0', SRC:'assets/video/field_report_sc
     paused:v?v.paused:null,muted:v?v.muted:null,skipArmed:!!(this.skipArm&&performance.now()-this.skipArm<3000),musicDucked:this.mus!=null,plays:this.plays,skips:this.skips,ends:this.ends,errors:this.errors,unloads:this.unloads,
     last:this.last,videos:document.querySelectorAll('video').length,frNodes:document.querySelectorAll('#frWrap,#frVideo').length,objectURLs:this.urls.length,domNodes:document.getElementsByTagName('*').length} } };
 ['keydown','keyup','pointerdown','pointerup','touchstart','touchend','mousedown','mouseup','click'].forEach(ev=>window.addEventListener(ev,e=>{
-  if(!FR.open){ const t=FR.tail; if(!t||performance.now()-FR.closedAt>=400)return;   /* QA 804e76f: after a menu-replay skip, swallow ONLY the skip key's keyup / the skip tap's up+click; nothing else, never into a mission (tail=null) */
+  if(!FR.open){ const t=FR.tail; if(!t)return; const late=performance.now()-FR.closedAt>=400;   /* QA d6743f0: the skip key is held -> swallow its keydowns (incl. repeats) until its keyup, no time limit */
+    if(t.code&&(ev==='keydown'||ev==='keyup')&&e.code===t.code){ e.stopImmediatePropagation(); try{ if(e.cancelable)e.preventDefault() }catch(_){} if(ev==='keyup')t.code=null; if(!t.code&&!t.ptr)FR.tail=null; return }
+    if(late){ t.ptr=false; if(!t.code)FR.tail=null; return }   /* QA 804e76f: after a menu-replay skip, swallow ONLY the skip key's keyup / the skip tap's up+click; nothing else, never into a mission (tail=null) */
     const k=ev==='keyup'&&t.code&&e.code===t.code, pt=t.ptr&&(ev==='pointerup'||ev==='mouseup'||ev==='touchend'||ev==='click'); if(!k&&!pt)return;
     e.stopImmediatePropagation(); try{ if(e.cancelable)e.preventDefault() }catch(_){} if(k)t.code=null; if(ev==='click')t.ptr=false; return }
   e.stopImmediatePropagation(); try{ if(e.cancelable)e.preventDefault() }catch(_){}   /* open: every key/pointer/touch/mouse event is the player's */
