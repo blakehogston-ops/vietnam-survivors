@@ -49,7 +49,7 @@ const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0
    T('M18 smoke text: green/yellow/violet only, no red',/green/i.test(r.smoke)&&/yellow/i.test(r.smoke)&&/violet/i.test(r.smoke)&&!/red/i.test(r.smoke),r.smoke);
    T('no "corpsmen carried" claim, no 870',!r.bad&&!r.r870,r);
    await pg.close() }
- for(const [prim,fw,spd,nm] of [['none','m16',.15,'M1911A1'],['m16','m16',0,'M16A1'],['m14','m16',0,'M14'],['m60','m60',-.15,'M60'],['m79','m79',0,'M79'],['shotgun','shotgun',0,'Ithaca 37']]){
+ for(const [prim,fw,spd,nm] of [['none','m16',0,'M1911A1'],['m16','m16',0,'M16A1'],['m14','m16',0,'M14'],['m60','m60',-.15,'M60'],['m79','m79',0,'M79'],['shotgun','shotgun',0,'Ithaca 37']]){
    const pg=await mk('p-'+prim); await pg.goto(B+'index.html?loadout=1&nodemo&nobrief&fieldReports=0'); await pg.waitForTimeout(800);
    await pg.evaluate(p=>localStorage.setItem('lco_loadout_last',JSON.stringify({prim:p,side:'m1911',thr:'smoke',gear:'unit1'})),prim);
    await pg.goto(B+'index.html?loadout=1&nodemo&nointro&nobrief&bot&autostart'); await pg.waitForTimeout(1500);
@@ -62,5 +62,34 @@ const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0
    await pg.close() }
  { const pg=await mk('m14stats'); await pg.goto(B+'index.html?loadout=1&nodemo&nointro&nobrief&bot&autostart'); await pg.waitForTimeout(1200);
    const r=await pg.evaluate(()=>{ const s={dmg:16,cd:.55,shots:1,pierce:1}, m=LO.m14(s);   /* ITEMS.m16.stats(1) */ return {s,m} }); T('M14 = slower, harder, piercing on the M16 slot (reused ITEMS stats)',r.m.dmg>r.s.dmg&&r.m.cd>r.s.cd&&r.m.pierce>=2&&r.m.shots===1,r); await pg.close() }
+ // E rc8.2 GDUX/HAA/EP follow-up: none = 0.85x treat (no move bonus, no stacking), M14 1.7x dmg, Extra Mags needs M16A1, strings
+ { const pg=await mk('tune'); await pg.goto(B+'index.html?loadout=1&nodemo&nobrief&fieldReports=0'); await pg.waitForTimeout(800);
+   await pg.evaluate(()=>{ localStorage.setItem('lco_missions_done','5'); localStorage.setItem('lco_loadout_last',JSON.stringify({prim:'none',side:'m1911',thr:'frag',gear:'mags'})) });
+   await pg.goto(B+'index.html?loadout=1&nodemo&nointro&nobrief&bot&autostart'); await pg.waitForTimeout(1500);
+   let r=await pg.evaluate(()=>{ const g=__ms.G; const s0=g.spdB; const m1=LO.treatMul(); LO.apply({prim:'none',thr:'frag',gear:'unit1'}); LO.apply({prim:'none',thr:'frag',gear:'unit1'}); const m2=LO.treatMul(); const s1=g.spdB;
+     LO.apply({prim:'m60',thr:'frag',gear:'unit1'}); const m60=g._loSpd, tm60=LO.treatMul(); LO.apply({prim:'none',thr:'frag',gear:'unit1'});
+     return {lo:g.lo.prim,gear0:null,m1,m2,s0,s1,lospd:g._loSpd,m60,tm60,noneSpd:LO.PRIM.none.spd||0} });
+   T('none: treat 0.85x, applied twice still 0.85 (no stack)',r.m1===.85&&r.m2===.85,r);
+   T('none: no move bonus (spdB unchanged, _loSpd 0)',r.s0===r.s1&&r.lospd===0&&r.noneSpd===0,r);
+   T('M60 keeps -15% move, no treat bonus',Math.abs(r.m60+.15)<1e-9&&r.tm60===1,r);
+   r=await pg.evaluate(()=>({gear:__ms.G.lo.gear})); T('saved none+mags falls back off Extra Mags',r.gear!=='mags',r);
+   r=await pg.evaluate(()=>{ const s={dmg:16,cd:.55,shots:1,pierce:1}, m=LO.m14(s); return {dmg:m.dmg,cd:m.cd,shots:m.shots,pierce:m.pierce} });
+   T('M14 dmg 1.7x, cd 1.9x, semi (1 shot), pierce 2',r.dmg===Math.round(16*1.7)&&Math.abs(r.cd-.55*1.9)<1e-9&&r.shots===1&&r.pierce===2,r);
+   r=await pg.evaluate(()=>{ const P=LO.SLOTS[0].opts, txt=JSON.stringify(LO.SLOTS); return {none:P.find(o=>o.id==='none').info,m14:P.find(o=>o.id==='m14').info,only45:/(corpsm[ae]n|doc)[^.]{0,40}(carri\w*|had)[^.]{0,20}only[^.]{0,10}\.45|only (the )?\.45/i.test(txt)} });
+   T('none text is exactly "Hands free for treating"',r.none==='Hands free for treating',r.none);
+   T('M14 text has "Largely replaced by the M16 in Marine infantry during 1967."',r.m14.includes('Largely replaced by the M16 in Marine infantry during 1967.'),r.m14);
+   T('no string claims corpsmen/Doc carried only a .45',!r.only45,r);
+   await pg.close() }
+ { const pg=await mk('mags'); await pg.goto(B+'index.html?loadout=1&nodemo&nobrief&fieldReports=0'); await pg.waitForTimeout(800);
+   await pg.evaluate(()=>{ localStorage.setItem('lco_missions_done','5'); localStorage.removeItem('lco_loadout_last') }); await pg.reload(); await pg.waitForTimeout(1200);
+   await pg.keyboard.press('Enter'); await pg.waitForTimeout(400); await pg.evaluate(()=>{ __ms.selectChar&&__ms.selectChar('doc') }); await pg.keyboard.press('Enter'); await pg.waitForTimeout(900);
+   let r=await pg.evaluate(()=>{ const q=()=>document.querySelector('#loadout .loOpt[data-id="mags"]'); LO.pick.prim='m16'; LO.draw(); const a={lk:q().classList.contains('lk')}; LO.choose(LO.SLOTS[3],'mags'); LO.draw(); a.picked=LO.pick.gear;
+     LO.pick.prim='m14'; LO.draw(); const e=q(), t=e.querySelector('.loLk'), cs=t&&getComputedStyle(t); const b={lk:e.classList.contains('lk'),gear:LO.pick.gear,txt:t&&t.textContent,fs:cs&&parseFloat(cs.fontSize),fg:cs&&cs.color,bg:getComputedStyle(e.closest('.loSlot')).backgroundColor};
+     LO.choose(LO.SLOTS[3],'mags'); b.after=LO.pick.gear; LO.fi=3; for(let i=0;i<8;i++){ LO.cycle(1); if(LO.pick.gear==='mags')b.cyc=1 } return {a,b} });
+   const lum=c=>{ const v=c.match(/\d+(\.\d+)?/g).slice(0,3).map(x=>{x/=255; return x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4)}); return .2126*v[0]+.7152*v[1]+.0722*v[2] }, cr=r.b.fg&&r.b.bg?(Math.max(lum(r.b.fg),lum(r.b.bg))+.05)/(Math.min(lum(r.b.fg),lum(r.b.bg))+.05):0;
+   T('M16A1 primary: Extra Mags pickable',!r.a.lk&&r.a.picked==='mags',r.a);
+   T('other primary: Extra Mags locked, unpicked, not choosable or cyclable',r.b.lk&&r.b.gear!=='mags'&&r.b.after!=='mags'&&!r.b.cyc,r.b);
+   T('lock text "Needs M16A1", >= 18 px, >= 4.5:1',r.b.txt==='Needs M16A1'&&r.b.fs>=18&&cr>=4.5,{txt:r.b.txt,fs:r.b.fs,cr:+cr.toFixed(2)});
+   await pg.close() }
  T('no page errors',errs.length===0,errs.slice(0,5));
  await br.close(); srv.close(); console.log(fails?'FAILS '+fails:'ALL PASS'); process.exit(fails?1:0) })();
