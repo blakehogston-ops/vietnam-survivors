@@ -1285,7 +1285,7 @@ if(window.JUNGLE_ON)document.write('<script src="assets/art/jungle_v3_lite.js?v=
 <script>if(!/[?&]fb2=0\b/.test(location.search))document.write('<script src="assets/art/fb2_rc8.js?v=47c341b"><\/script>')</script>
 <script>if(!/[?&]fb2=0\b/.test(location.search))document.write('<script src="assets/art/fb_props_rc8.js?v=47c341b"><\/script>')</script>
 <script src="assets/art/vehicles.js?v=47c341b"></script><script src="assets/art/ch46_v2.js?v=47c341b"></script><script src="assets/art/dressing_pickups.js?v=47c341b"></script><script src="assets/art/tanks_v2.js?v=47c341b"></script><script src="assets/art/amtrac_support.js?v=47c341b"></script><script src="assets/art/vehicles_v3.js?v=47c341b"></script><script src="assets/vfx/muzzle_flash.js"></script>
-<script src="assets/vfx/rockets.js"></script>
+<script src="assets/vfx/rockets.js"></script><script src="assets/vfx/rotor_wash.js?v=1.3"></script>
 <script src="assets/vfx/vehicle_hits.js"></script>
 <script src="assets/ui/settings_art.js"></script>
 <script src="assets/ui/settings_skin.js"></script>
@@ -6036,7 +6036,7 @@ const IT1=8.6, IT2=4.3;
 const IBURSTS=[{t:1.7,n:9,side:1},{t:3.6,n:14,side:1},{t:5.2,n:8,side:1},{t:7.3,n:11,side:1}];
 function ihash(i){ let h=Math.imul(i|0,0x27d4eb2d)^0x165667b1; h=Math.imul(h^(h>>>15),0x85ebca6b); return ((h^(h>>>13))>>>0)/4294967296 }
 function inoise(x,sc){ const i=Math.floor(x/sc), f=x/sc-i; return ihash(i)*(1-f)+ihash(i+1)*f }
-function startIntro(quiet){ window.__introLog=[]; BriefSnd.stop(); INTRO={t:0,ph:1,t2:0,boom:0,flash:0,shots:[],si:0,sm:[],brass:[],tr:[],gf:[0,0],rf:0,rt:1.2,sk:0,smT:0,quiet:!!quiet};   /* quiet = ?intro2 routine insert: no door-gun bursts / tracers / boom in the cabin */
+function startIntro(quiet){ window.__introLog=[]; BriefSnd.stop(); INTRO={t:0,ph:1,t2:0,boom:0,flash:0,shots:[],si:0,sm:[],brass:[],tr:[],gf:[0,0],rf:0,rt:1.2,sk:0,smT:0,quiet:!!quiet}; if(quiet&&INTRO2){ try{ startLanding() }catch(e){} }   /* rc8.2: cabin beat now plays in brief2 before the LZ, so the in-game insert starts at the landing */   /* quiet = ?intro2 routine insert: no door-gun bursts / tracers / boom in the cabin */
   if(!quiet)for(const b of IBURSTS)for(let i=0;i<b.n;i++)INTRO.shots.push({t:b.t+i*.092,side:b.side,k:i});
   state='intro'; G.hide=true; for(const m of pat)m.hid=true; introH=null; try{ if(window.SamplePlayer&&SamplePlayer.musicEvent)SamplePlayer.musicEvent('opening_in') }catch(e){}   /* rc8a (AD merge note §2): Valkyries scene on the opening insertion only */
   ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none';
@@ -6274,7 +6274,7 @@ function c46Squad(){ const doc=!G||G.char==='doc', N=Q15.names;
   const L=[ {x:118,y:84,s:1,u:'marineRadio',a:'sitBags',f:false}, {x:110,y:94,s:1,u:'baseMarine2',a:'smoke',f:false}, {x:86,y:120,s:2,u:'marineM60',a:'sitBags',f:false},
             {x:34,y:188,s:3,u:'baseMarine3',a:'smoke',f:false,doc:doc,tt:1.0,tag:doc?"HM3 \u2018DOC\u2019 \u00b7 NAVY CORPSMAN":null} ],
         R=[ {x:202,y:84,s:1,u:'baseMarine',a:'smoke',f:true}, {x:210,y:94,s:1,u:'marineRifle',a:'sitBags',f:true}, {x:236,y:120,s:2,u:'marineRifle',a:'smoke',f:true,tt:4.4,tag:(N[1]+' \u00b7 M60 TEAM').toUpperCase()},
-            {x:290,y:188,s:3,u:'marineRifle',a:'smoke',f:true,tt:2.7,tag:(N[0]+' \u00b7 SQUAD LEADER').toUpperCase()} ];
+            {x:290,y:188,s:3,u:'marineRifle',a:'smoke',f:true,tt:2.7,tag:(N[0]+' \u00b7 PLATOON COMMANDER').toUpperCase()} ];
   const all=L.concat(R).sort((a,b)=>a.y-b.y); all.forEach((m,i)=>m.ph=i*.83); return all }
 function fl0(I){ return Math.max(I.gf[0],I.gf[1])*8 }
 /* art hook: Artist Helper's INTRO_V2 (ui/colonel_intro_v2.js) replaces ONLY this renderer; INTRO.t, the voice clip and its timing stay in the INTRO logic. */
@@ -6289,7 +6289,7 @@ function drawIntroOverlay1(){ const I=INTRO, t=I.t; ctx.setTransform(1,0,0,1,0,0
     const f1=Math.max(22,dh2/6); ctx.font=`bold ${f1}px Impact,"Arial Black",sans-serif`; ctx.lineWidth=f1/7; ctx.strokeText('LAST CHOPPER OUT',W/2,H*.4); ctx.fillStyle='#f0e6a8'; ctx.fillText('LAST CHOPPER OUT',W/2,H*.4);
     const f2=Math.max(12,dh2/22); ctx.font=`bold ${f2}px "Courier New",monospace`; ctx.lineWidth=f2/4; ctx.strokeText('QUANG TRI, 1968',W/2,H*.4+f1*.7); ctx.fillStyle='#e8c860'; ctx.fillText('QUANG TRI, 1968',W/2,H*.4+f1*.7); ctx.globalAlpha=1 }
   if(I.flash>0&&I.ph===2){ ctx.fillStyle=`rgba(122,78,50,${RFX?Math.min(.4,I.flash*.4):Math.min(1,I.flash)})`;   /* reduce flashing: capped .4 */ ctx.fillRect(0,0,W,H) }   /* rc8.2 AD: dust-out (laterite brown) fade into the LZ, no white/black frame */   /* reduce flashing: capped .4 */
-  if(I.ph===1&&t<.35){ ctx.fillStyle=`rgba(122,78,50,${(1-t/.35).toFixed(3)})`; ctx.fillRect(0,0,W,H) }
+  if(I.ph===1&&t<.35){ ctx.fillStyle=`rgba(122,78,50,${((1-t/.35)*(RFX?.4:1)).toFixed(3)})`;   /* reduce flashing: capped .4 */ ctx.fillRect(0,0,W,H) }
   if(I.ph===1&&t>8.2){ ctx.fillStyle=`rgba(122,78,50,${RFX?Math.min(.4,(t-8.2)/1):Math.min(1,(t-8.2)/.4)})`;   /* reduce flashing: slow fade capped .4 */ ctx.fillRect(0,0,W,H) }   /* rc8.2 AD: quick dust-out fade (no white flash, no black frame) */   /* reduce flashing: slow fade to black instead of white */
   if(Math.floor(performance.now()/500)%2===0||I.t<1){ ctx.font=`bold ${Math.max(12*DPR,H/40)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.85)'; ctx.strokeStyle='#000'; ctx.lineWidth=3; const m=skipMsg(INTRO.skipArm)+' ▶'; ctx.strokeText(m,W-14,H-14); ctx.fillText(m,W-14,H-14) } }
 ['keydown','pointerdown','touchstart'].forEach(ev=>window.addEventListener(ev,e=>{ if(state==='intro'&&INTRO&&INTRO.t>.35&&!(ev==='keydown'&&e.repeat)){ if(ev==='keydown'&&(e.code==='KeyM'||e.metaKey))return; skipIntro() } },{passive:true}));
@@ -6459,19 +6459,23 @@ $('btnBrief').onclick=()=>startBrief();
    Line IDs follow the brief_NN convention (audio/brief_NN.mp3): a recording dropped in later as audio/<id>.mp3 can be wired by ID. */
 const INTRO2=!/[?&]ltbrief=0\b/.test(location.search);   /* ON by default; ?ltbrief=0 = old Colonel Mercer briefing + intro (not ?intro2: ?intro2=0 already toggles Artist Helper's Colonel art) */
 const BRIEF2_LINES=[
- {id:'brief2_01',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase(),port:'lt',t:"Listen up. Platoon's running a sweep north of Quang Tri. Choppers in, check the villes, out before dark."},
- {id:'brief2_02',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase(),port:'lt',t:"S-2 says it's quiet. Don't believe it. Keep your intervals, five meters."},
- {id:'brief2_03',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase(),port:'lt',with:'doc',t:"Doc, you're with me. Stick close to the radio."},
- {id:'brief2_04',who:'Sgt PETTAWAY',port:'sgt',t:"Saddle up! Lock and load on the LZ, not before."},
- {id:'brief2_05',who:'RADIO',port:'lt',t:"Six, this is Hotel Two-One. LZ cold, over."}];   /* rc8.2 HAA: the one radio call, called station first; no VO yet (radio blip) */
-const INS2_LINE={id:'ins2_02',who:'RADIO · HOTEL TWO-ONE',t:"Six, this is Hotel Two-One. LZ cold, over."};   /* rc8.2 HAA: the one radio call (called station first); no talking on the ramp. New id = no VO yet (old ins2_01 VO says the old line) */
-const B2CPS=34, B2HOLD=1.35, B2_MIN=19.5;   /* rc8.2: the LZ scene runs to the bird clear + perimeter set before the cabin */
+ {id:'cab3_01',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase(),port:'lt',t:"Sweep north of Quang Tri. Check the villes, out before dark."},
+ {id:'cab3_02',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase(),port:'lt',t:"S-2 says it's quiet. Don't believe it. Five-meter intervals."},
+ {id:'cab3_03',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase(),port:'lt',with:'doc',t:"Doc, you're with me. Stick close to the radio."},
+ {id:'cab3_04',who:'Sgt PETTAWAY',port:'sgt',t:"Mags in, muzzles down! Nobody moves till the wheels are down!"},
+ {id:'lz3_01',who:NAMES.lt.rank+' '+NAMES.lt.last.toUpperCase()+' · RADIO',port:'lt',t:"Golf Six, this is Two-Six. LZ cold, over."}];   /* rc8.2 HAA-approved: lines 1-4 are shouted in the CABIN before touchdown (subtitles + radio blip, new ids = no old VO); nothing during the landing; the LZ call after the perimeter forms */   /* rc8.2 HAA: the one radio call, called station first; no VO yet (radio blip) */
+const INS2_LINE={id:'lz3_02',who:'RADIO · TWO-SIX',t:"Golf Six, this is Two-Six. LZ cold, over."};   /* rc8.2 HAA: the one radio call (called station first); no talking on the ramp. New id = no VO yet (old ins2_01 VO says the old line) */
+const B2CPS=34, B2HOLD=1.35, B2_MIN=19.5, B2TITLE=2.4;   /* rc8.2: the LZ scene runs to the bird clear + perimeter set before the cabin */
 let BR2=null; const B2CV=mk(640,360), b2c=B2CV.getContext('2d');
 function startBrief2(){ BR2={t:0,page:0,lt:0,typed:0,t0:performance.now()}; state='brief2'; ['menu','charsel','over','pause','levelup'].forEach(i=>$(i).classList.remove('show')); $('topbtns').style.display='none'; ttsCancel(); b2Sting() }
 function b2Sting(){ try{ if(window.VOAI&&BR2&&VOAI.byId(BRIEF2_LINES[BR2.page].id))return }catch(e){} if(!Snd.muted){ try{Snd.play('radio')}catch(e){} } }
 function endBrief2(){ if(!BR2)return; window.__brief2Dur=(performance.now()-BR2.t0)/1000; BR2=null; try{sessionStorage.setItem('lco_briefed','1')}catch(e){} last=performance.now(); startIntro(true) }
-function updateBrief2(dt){ const B=BR2; if(!B)return; B.t+=dt; B.lt+=dt; const L=BRIEF2_LINES[B.page]; B.typed=Math.min(L.t.length,B.lt*B2CPS);
-  if(B.lt>=Math.max(L.t.length/B2CPS+B2HOLD,window.VOAI?VOAI.dur(L.id)+.5:0)){ if(B.page>=BRIEF2_LINES.length-1){ if(B.t<B2_MIN)return; endBrief2(); return } B.page++; B.lt=0; B.typed=0; b2Sting() } }
+function b2LineT(L){ return Math.max(L.t.length/B2CPS+B2HOLD,window.VOAI&&VOAI.byId&&VOAI.byId(L.id)?VOAI.dur(L.id)+.5:0) }
+function b2CabT(){ let s=.6; for(let i=0;i<4;i++)s+=b2LineT(BRIEF2_LINES[i]); return s+B2TITLE }   /* cabin beat = 4 shouted lines + the title's own beat */
+function updateBrief2(dt){ const B=BR2; if(!B)return; B.t+=dt; B.lt+=dt; if(B.cabT==null)B.cabT=b2CabT(); const L=BRIEF2_LINES[B.page], lzt=B.t-B.cabT, callAt=b2LastOff()+1.6;
+  if(B.page<3){ B.hide=B.t<.6; if(B.hide){ B.lt=0; return } B.typed=Math.min(L.t.length,B.lt*B2CPS); if(B.lt>=b2LineT(L)){ B.page++; B.lt=0; B.typed=0; b2Sting() } return }
+  if(B.page===3){ B.typed=Math.min(L.t.length,B.lt*B2CPS); B.hide=B.lt>=b2LineT(L); if(lzt>=callAt){ B.page=4; B.lt=0; B.typed=0; B.hide=false; b2Sting() } return }   /* nothing on screen during the landing */
+  B.typed=Math.min(L.t.length,B.lt*B2CPS); if(B.lt>=b2LineT(L)&&lzt>=B2_MIN)endBrief2() }
 /* briefing art (Art Director rework): approved game sprites at 1x on a 320x180 buffer, integer upscale. No hand-drawn men.
    Lt = marine rig 'leader' (plain head, no glasses, matches the squad2 portrait), Doc = heroDoc 'treat' (kneeling) + his yellow ring, RTO = marine rig 'radio' (PRC-25),
    riflemen = marine rig with the Company looks (different faces / skin tones), CH-46 = ch46_v2 rampDown with soft blur discs. */
@@ -6486,7 +6490,7 @@ const B2PORT={}; for(const [k,f] of [['lt','platoon_lieutenant_portrait_112x128.
      B2_POSE_DIR  : Character Artist poses (1_ramp_port_arms_1x.png, 2_crouch_run_1x.png, 3_kneel_perimeter_1x.png, feet-anchored); null = existing rig frames (walk / cover / coverFire)
      B2_WASH_FX   : VFX Artist rotor-wash hook, function(ctx,{t,wash,x,y,alt}) drawn under the bird; null = built-in red-brown dust ring (HE v1.3 palette) */
 const B2_CH46_DIR=null, B2_POSE_DIR='assets/art/intro_lz/';   /* AD-cleared Character Artist v2.1 poses */ let B2_WASH_FX=null;
-const B2T={land:3.4,signal:3.9,go:4.2,gap:.95,walk:.8};   /* timeline (s): touchdown, crew chief thumbs-up, first man moves, stick interval, ramp walk */
+const B2T={land:3.4,signal:4.3,go:4.9,gap:.95,walk:.8};   /* go = touchdown + 1.5 s (rotor wash v1.1: no walkout before the burst settles) */   /* timeline (s): touchdown, crew chief thumbs-up, first man moves, stick interval, ramp walk */
 const B2HD=-Math.PI*3/4;   /* nose NW: the rear ramp opens toward the camera (SE), away from the treeline/threat to the north */
 const B2STICK=[ /* exit order (HAA), [role, coyLook, perimeter angle (rad, 0 = east, -PI/2 = north/treeline), radius] */
   ['point',0,-1.15,74],['rifle',1,-0.35,82],['rifle',2,0.5,70],['m79',null,1.25,78],['rifle',3,2.05,72],['m60',null,-1.62,88],
@@ -6513,7 +6517,7 @@ let B2BG=null, B2FX={t:-1,p:[],ring:0}, B2GR=null;
 const B2X0=-560,B2Y0=-420,B2WW=1300,B2WH=900;
 function b2Ground(){ const c=mk(B2WW,B2WH), x=c.getContext('2d'); x.translate(-B2X0,-B2Y0);
   /* grass/scrub base: olive + dry patches */ x.fillStyle='#55693a'; x.fillRect(B2X0,B2Y0,B2WW,B2WH);
-  for(let i=0;i<9000;i++){ const px=B2X0+ihash(i)*B2WW, py=B2Y0+ihash(i+5e4)*B2WH, v=ihash(i+9e4); x.fillStyle=v<.35?'rgba(38,56,26,.5)':v<.7?'rgba(122,132,72,.35)':'rgba(150,132,84,.28)'; x.fillRect(px|0,py|0,2+(v*4|0),1+(v*2|0)) }
+  for(let i=0;i<9000;i++){ const px=B2X0+ihash(i)*B2WW, py=B2Y0+ihash(i+5e4)*B2WH, v=ihash(i+9e4); x.fillStyle=v<.4?'rgba(34,50,22,.32)':v<.8?'rgba(96,116,58,.28)':'rgba(70,90,40,.3)'; x.beginPath(); x.ellipse(px,py,3+v*7,2+v*4,0,0,TAU); x.fill() }   /* soft blotches, no straw streaks */
   /* laterite only under the bird: ragged ellipse, darker wet rim */
   x.save(); x.beginPath(); for(let a=0;a<=64;a++){ const th=a/64*TAU, r=1+inoise(a*5,3)*.22-.11; x.lineTo(Math.cos(th)*190*r+10,Math.sin(th)*120*r+20) } x.closePath(); x.clip();
   const g=x.createRadialGradient(10,20,10,10,20,200); g.addColorStop(0,'#94573a'); g.addColorStop(.7,'#86503a'); g.addColorStop(1,'#6e4630'); x.fillStyle=g; x.fillRect(-220,-120,460,300);
@@ -6527,17 +6531,17 @@ function b2Ground(){ const c=mk(B2WW,B2WH), x=c.getContext('2d'); x.translate(-B
   const S=window.SHEET1; x.fillStyle='#1f3320'; for(let i=0;i<B2WW;i+=2){ const hh=60+inoise(i,40)*50+inoise(i*3,9)*14; x.fillRect(B2X0+i,B2Y0,2,hh) }
   if(S&&S.sprites&&S.sprites.tTreeline)for(let i=0;i<B2WW;i+=32){ const yy=B2Y0+56+inoise(i,40)*50; try{ S.draw(x,'tTreeline','treesS',B2X0+i+16,yy+32,1) }catch(e){} }
   return c }
-function b2Grass(){ const a=[]; for(let i=0;i<620;i++){ const x=B2X0+40+ihash(i+1e3)*(B2WW-80), y=B2Y0+120+ihash(i+2e3)*(B2WH-160), q=Math.hypot((x-10)/190,(y-20)/120); if(q<1.05)continue; if(y>250+(x-B2X0)*.43&&x<-150)continue;
-    const tall=q>1.6||ihash(i+3e3)<.3; a.push({x,y,h:tall?22+ihash(i+4e3)*20:8+ihash(i+4e3)*8,n:3+(ihash(i+5e3)*3|0),c:ihash(i+6e3)<.5?'#7d8a48':'#a49a5a',ph:ihash(i)*TAU}) } return a.sort((p,q)=>p.y-q.y) }
-function b2Wash(c,t,b,dt){ const F=B2FX; if(t<F.t||F.t<0){ F.p.length=0; F.ring=0 } F.t=t; const w=b.gone?0:b.wash, gx=b.x, gy=b.y;
-  if(B2_WASH_FX){ try{ B2_WASH_FX(c,{t,wash:w,x:gx,y:gy,alt:b.alt}); return }catch(e){} }
-  const n=Math.min(40,(RFX?40:110)*w*dt+(Math.random()<((RFX?40:110)*w*dt)%1?1:0)); for(let i=0;i<n;i++){ const a=Math.random()*TAU, r=50+Math.random()*90, v=60+Math.random()*120, deb=Math.random()<.12;
-    F.p.push({x:gx+Math.cos(a)*r,y:gy+Math.sin(a)*r*.62,vx:Math.cos(a)*v,vy:Math.sin(a)*v*.62,l:deb?.9:1.3+Math.random()*.9,l0:0,s:deb?1.5:4+Math.random()*5,c:deb?'#2a1d12':['#8a4a2e','#a0603c','#6e3a24','#b07850'][(Math.random()*4)|0],deb}) }
-  for(let i=F.p.length-1;i>=0;i--){ const q=F.p[i]; q.l0+=dt; if(q.l0>=q.l){ F.p.splice(i,1); continue } const dr=Math.max(0,1-1.4*dt); q.vx*=dr; q.vy*=dr; q.x+=q.vx*dt; q.y+=q.vy*dt; const k=q.l0/q.l, s=q.s*(1+k*1.6);
-    c.fillStyle=q.c; c.globalAlpha=(q.deb?.9:.34)*(1-k); if(q.deb)c.fillRect(q.x|0,q.y|0,2,1); else { c.beginPath(); c.ellipse(q.x,q.y,s,s*.62,0,0,TAU); c.fill() } } c.globalAlpha=1;
-  const re=t-B2T.land; if(re>0&&re<1.4){ const k=re/1.4; c.strokeStyle=`rgba(150,92,58,${(.5*(1-k)).toFixed(3)})`; c.lineWidth=10*(1-k)+2; c.beginPath(); c.ellipse(0,8,60+k*170,(60+k*170)*.6,0,0,TAU); c.stroke() } }
-function b2DrawGrass(c,t,b){ if(!B2GR)B2GR=b2Grass(); const w=b.gone?0:b.wash; for(const g of B2GR){ const dx=g.x-b.x, dy=g.y-b.y, d=Math.hypot(dx,dy)||1, f=w*Math.max(0,1-d/360), bend=Math.min(1,f*1.4)*(.75+.25*Math.sin(t*14+g.ph)), sway=Math.sin(t*1.3+g.ph)*.12;
-    c.strokeStyle=g.c; c.lineWidth=1; c.beginPath(); for(let k=0;k<g.n;k++){ const ox=(k-g.n/2)*2, lx=dx/d*bend*g.h*.9+sway*g.h*.3+(k-g.n/2)*1.2, ly=-g.h*(1-bend*.75)+dy/d*bend*g.h*.4; c.moveTo(g.x+ox,g.y); c.lineTo(g.x+ox+lx,g.y+ly) } c.stroke() } }
+function b2Grass(){ /* elephant grass (Imperata/Saccharum, 2-3 m: 40-60 px vs a 37 px Marine) in clumps outside the cleared LZ; short scrub at the edge */
+  const a=[]; for(let i=0;i<520;i++){ const x=B2X0+30+ihash(i+1e3)*(B2WW-60), y=B2Y0+150+ihash(i+2e3)*(B2WH-180), q=Math.hypot((x-10)/190,(y-20)/120); if(q<1.08)continue; if(y>250+(x-B2X0)*.43&&x<-150)continue;
+    const tall=q>1.45&&ihash(i+3e3)>.15, n=tall?9+(ihash(i+5e3)*6|0):5, bl=[]; for(let k=0;k<n;k++)bl.push({ox:(ihash(i*31+k)-.5)*10,lean:(ihash(i*17+k)-.5)*1.1,h:(tall?38+ihash(i+4e3)*22:12+ihash(i+4e3)*8)*(.7+ihash(i*7+k)*.3),c:k%3});
+    a.push({x,y,bl,ph:ihash(i)*TAU,tall}) } return a.sort((p,q)=>p.y-q.y) }
+function b2DrawGrass(c,t,b,wi){ if(!B2GR)B2GR=b2Grass(); const COL=['#4f6630','#6f8440','#9aa45a'], TIP='#c8c27a';
+  for(const g of B2GR){ const dx=g.x-b.x, dy=g.y-b.y, d=Math.hypot(dx,dy)||1, f=wi*Math.max(0,1-d/420), push=f*(.8+.2*Math.sin(t*11+g.ph)), sw=Math.sin(t*1.1+g.ph)*.18, ux=dx/d, uy=dy/d;
+    c.fillStyle='rgba(22,32,14,.35)'; c.beginPath(); c.ellipse(g.x+3,g.y,g.tall?9:5,2.4,0,0,TAU); c.fill();
+    for(let pass=0;pass<3;pass++){ c.strokeStyle=COL[pass]; c.lineWidth=pass===2?1:1.4; c.beginPath();
+      for(const bl of g.bl){ if(bl.c!==pass)continue; const bx=g.x+bl.ox, by=g.y, h=bl.h, lx=(bl.lean+sw)*h*.45+ux*push*h*.95, ly=uy*push*h*.35, tx=bx+lx, ty=by-h*(1-push*.55)+ly;   /* arching blade: rises then droops at the tip, laid away from the rotors */
+        c.moveTo(bx,by); c.quadraticCurveTo(bx+lx*.2,by-h*.75*(1-push*.4),tx,ty) } c.stroke() }
+    if(g.tall){ c.fillStyle=TIP; for(let k=0;k<g.bl.length;k+=3){ const bl=g.bl[k], h=bl.h; c.fillRect(Math.round(g.x+bl.ox+(bl.lean+sw)*h*.45+ux*push*h*.95),Math.round(g.y-h*(1-push*.55)+uy*push*h*.35)-1,1,2) } }   /* pale plume tips */ } }
 function b2Pose(c,S,role,coy,pose,x,y,fl,t,ph){ /* returns nothing; draws the man + a black M16A1 at low port / shouldered */
   const P={ramp:'1_ramp_low_ready_v2_1_1x.png',run:'2_crouch_run_v2_1_1x.png',kneel:'3_kneel_perimeter_v2_1_1x.png'}, im=B2_POSE_DIR&&role!=='doc'&&!(role==='leader'&&pose==='kneel')?b2img('p'+pose,B2_POSE_DIR+P[pose]):null;
   if(im){ c.save(); if(fl){ c.translate(x,0); c.scale(-1,1); c.drawImage(im,-im.width/2,y-im.height) } else c.drawImage(im,x-im.width/2,y-im.height); c.restore(); return }
@@ -6548,39 +6552,45 @@ function b2Pose(c,S,role,coy,pose,x,y,fl,t,ph){ /* returns nothing; draws the ma
   const fr=pose==='run'?'cover':(role==='leader'?'idle':'coverFire'); let r=null; try{ r=S.drawCover?S.drawCover(c,nm,fr,xx,yy,1,fl):null }catch(e){} if(!r){ S.draw(c,nm,fr,xx,yy,1,fl); r={x:xx+d*4,y:yy-12,mx:xx+d*16,my:yy-12} }
   if(role==='leader'){ S.draw(c,nm,'idle',xx,yy,1,fl); c.fillStyle='#4a5a30'; c.fillRect(xx+d*4-(d<0?8:0),yy-27,8,2); return }   /* squad leader: arm out, pointing the move-off direction */
   c.strokeStyle='#141414'; c.lineWidth=2; c.beginPath(); if(pose==='run'){ c.moveTo(r.x-d*4,r.y-2); c.lineTo(r.x+d*10,r.y+4) } else { c.moveTo(r.x-d*3,r.y); c.lineTo(r.mx,r.my) } c.stroke() }
-function b2Cam(t){ /* wide + slightly high on approach, slow eased push-in on the offload, pull back to the perimeter */
-  const k1=b2E((t-B2T.go)/5.5), k2=b2E((t-b2LastOff()-.4)/3.2); let z=b2L(.56,.92,k1), cx=b2L(90,150,k1), cy=b2L(-60,60,k1); z=b2L(z,.66,k2); cx=b2L(cx,170,k2); cy=b2L(cy,70,k2);
-  if(t<B2T.land){ cx=b2L(170,90,b2E(t/B2T.land)); }
-  let sx=0, sy=0; const s=t-B2T.land; if(!RFX&&s>0&&s<.35){ const a=2.4*(1-s/.35); sx=Math.sin(t*90)*a; sy=Math.cos(t*77)*a }
+function b2Cam(t){ /* wide + slightly high on approach, eased push-in that keeps the WHOLE CH-46 (rotor tips, x -275..275, y -280..170 around the touchdown point) in frame, then pull back to the perimeter */
+  const k1=b2E((t-B2T.go+.8)/5.5), k2=b2E((t-b2LastOff()-.4)/3.2); let z=b2L(.5,.63,k1), cx=b2L(150,40,k1), cy=b2L(-70,-10,k1); z=b2L(z,.72,k2); cx=b2L(cx,200,k2); cy=b2L(cy,110,k2);
+  if(t<B2T.land){ const k=b2E(t/B2T.land); cx=b2L(220,150,k); cy=-70 }
+  let sx=0, sy=0; const s=t-B2T.land; if(!RFX&&s>0&&s<.6&&window.VFX_ROTORWASH){ const a=3.2*Math.max(0,VFX_ROTORWASH.intensity(s)-.6)/.4; sx=Math.sin(t*90)*a; sy=Math.cos(t*77)*a }   /* touchdown shake driven by the wash intensity */
   return {z,cx,cy,sx,sy} }
 function drawBrief2Scene(t){ const c=b2c, S=window.SHEET1; c.setTransform(1,0,0,1,0,0); c.imageSmoothingEnabled=false; c.fillStyle='#55693a'; c.fillRect(0,0,640,360);
-  if(!B2BG)B2BG=b2Ground(); const dt=Math.max(0,Math.min(.1,t-(B2FX.t<0?t:B2FX.t))), cam=b2Cam(t), b=b2Bird(t), rp=[B2V.rx,B2V.ry];
+  if(!B2BG)B2BG=b2Ground(); const cam=b2Cam(t), b=b2Bird(t), rp=[B2V.rx,B2V.ry], RW=window.VFX_ROTORWASH, tw=t-B2T.land;
   c.setTransform(cam.z,0,0,cam.z,320-cam.cx*cam.z+cam.sx,180-cam.cy*cam.z+cam.sy); c.drawImage(B2BG,B2X0,B2Y0);
-  b2Wash(c,t,b,dt);
-  const all=[];
-  /* yellow smoke marker downwind (wind east), thrown by the point team before the insert */
-  if(S&&S.sprites&&S.sprites.smokeYellow){ all.push({y:-30,f:()=>{ try{ S.draw(c,'smokeYellow',Math.floor(t*6)%6,330,-30,1.5) }catch(e){} for(let k=0;k<6;k++){ const q=((t*.35+k/6)%1); c.fillStyle=`rgba(226,204,92,${(.4*(1-q)).toFixed(3)})`; c.beginPath(); c.ellipse(330+q*90+Math.sin(q*6+k)*6,-60-q*40,8+q*22,6+q*14,0,0,TAU); c.fill() } }}) }
-  /* the stick */
-  if(S&&S.drawMarine&&S.drawHero)for(let i=0;i<B2STICK.length;i++){ const e=t-b2Start(i); if(e<0)continue; const p=b2Path(i,e,rp), m=B2STICK[i]; all.push({y:p.y,f:()=>{ c.fillStyle='rgba(20,12,6,.35)'; c.beginPath(); c.ellipse(p.x+4,p.y,8,2.4,0,0,TAU); c.fill(); b2Pose(c,S,m[0],m[1],p.pose,p.x,p.y,p.flip,t,i) }}) }
-  /* crew chief at the ramp hinge: arm signal at touchdown, then stays aboard */
-  if(S&&S.draw&&t>B2T.land+.2&&t<b2LastOff()+.3){ const x=Math.round(rp[0]-16), y=Math.round(rp[1]-20); all.push({y,f:()=>{ S.draw(c,'marineRifle',0,x,y,1,false); if(t>B2T.signal-.2&&t<B2T.go+.6){ c.fillStyle='#4a5a30'; c.fillRect(x+5,y-36,3,10); c.fillStyle='#c89a74'; c.fillRect(x+5,y-39,3,3) } }}) }
-  /* the bird (baked v4.1 shadow only); native render swaps in via B2_CH46_DIR */
-  if(!b.gone)all.push({y:20,f:()=>{ const H8=['E','SE','S','SW','W','NW','N','NE'], im=B2_CH46_DIR?b2img('bird',B2_CH46_DIR+'ch46_NW.png'):null, K=B2V.K;
+  /* rotor wash v1.1 (VFX Artist): ground point midway between the hubs (v4.1 E: pivot.x-5.3) rotated to the NW heading; t = s since touchdown; laterite under the bird */
+  const tk=t-(b2LastOff()+.3-1.0), TK=RW&&RW.takeoffIntensity&&tk>=0, wo=TK?{takeoff:tk}:undefined;   /* v1.3 takeoff hook: spool-up 1 s (LIFTOFF) before the visible lift; x,y stay on the liftoff ground point */
+  const wx=-5.3*Math.cos(B2HD), wy=-5.3*Math.sin(B2HD)*.67, wa=TK?(tk<5&&RW.takeoffIntensity(tk)>=.01?1:0):1, wi=RW?(TK?RW.takeoffIntensity(tk):RW.intensity(tw))*wa:0, birdLate=TK&&RW.takeoffAlt&&RW.takeoffAlt(tk)>2;
+  const wash=(fn)=>{ if(!RW||wa<=0)return; window.RFX=RFX; c.save();   /* rotor_wash.js reads window.RFX (the game's RFX is a let) */ c.globalAlpha=wa; try{ if(B2_WASH_FX)B2_WASH_FX(c,{t:tw,x:wx,y:wy,fn,opts:wo}); else RW[fn](c,wx,wy,tw,1,B2HD,'laterite',wo) }catch(e){} c.restore() };
+  wash('drawUnder');
+  b2DrawGrass(c,t,b,wi);
+  /* the bird (baked v4.1 shadow + discs, wash:false); native render swaps in via B2_CH46_DIR */
+  const drawBird=()=>{ if(!b.gone){ const im=B2_CH46_DIR?b2img('bird',B2_CH46_DIR+'ch46_NW.png'):null, K=B2V.K;
     if(im){ const sm=c.imageSmoothingEnabled; c.imageSmoothingEnabled=true; c.drawImage(im,Math.round(b.x-124*K),Math.round(b.y-b.alt-125*K),Math.round(248*K),Math.round(202*K)); c.imageSmoothingEnabled=sm }
-    else if(S&&S.drawSeaKnight){ try{ S.drawSeaKnight(c,{x:Math.round(b.x),y:Math.round(b.y),alt:b.alt,heading:B2HD,t,scale:1,state:b.st,wash:false}) }catch(e){} } }});
+    else if(S&&S.drawSeaKnight){ try{ S.drawSeaKnight(c,{x:Math.round(b.x),y:Math.round(b.y),alt:b.alt,heading:B2HD,t,scale:1,state:b.st,wash:false}) }catch(e){} } } };
+  if(!birdLate)drawBird();   /* on the ground: terrain > drawUnder > CH-46 > Marines > drawOver */
+  const all=[];
+  if(S&&S.sprites&&S.sprites.smokeYellow){ all.push({y:-30,f:()=>{ try{ S.draw(c,'smokeYellow',Math.floor(t*6)%6,330,-30,1.5) }catch(e){} for(let k=0;k<6;k++){ const q=((t*.35+k/6)%1); c.fillStyle=`rgba(226,204,92,${(.4*(1-q)).toFixed(3)})`; c.beginPath(); c.ellipse(330+q*90+Math.sin(q*6+k)*6,-60-q*40,8+q*22,6+q*14,0,0,TAU); c.fill() } }}) }
+  if(S&&S.drawMarine&&S.drawHero)for(let i=0;i<B2STICK.length;i++){ const e=t-b2Start(i); if(e<0)continue; const p=b2Path(i,e,rp), m=B2STICK[i]; all.push({y:p.y,f:()=>{ c.fillStyle='rgba(20,12,6,.35)'; c.beginPath(); c.ellipse(p.x+4,p.y,8,2.4,0,0,TAU); c.fill(); b2Pose(c,S,m[0],m[1],p.pose,p.x,p.y,p.flip,t,i) }}) }
+  if(S&&S.draw&&t>B2T.land+.2&&t<b2LastOff()+.3){ const x=Math.round(rp[0]-16), y=Math.round(rp[1]-20); all.push({y,f:()=>{ S.draw(c,'marineRifle',0,x,y,1,false); if(t>B2T.signal-.2&&t<B2T.go+.4){ c.fillStyle='#4a5a30'; c.fillRect(x+5,y-36,3,10); c.fillStyle='#c89a74'; c.fillRect(x+5,y-39,3,3) } }}) }   /* crew chief: arm signal, nobody moves before it */
   all.sort((p,q)=>p.y-q.y).forEach(o=>{ try{o.f()}catch(e){} });
-  b2DrawGrass(c,t,b);
+  wash('drawOver'); if(birdLate)drawBird();   /* airborne > 2 m: the bird draws over the wash */
   c.setTransform(1,0,0,1,0,0); const lg=c.createLinearGradient(640,0,0,0); lg.addColorStop(0,'rgba(255,190,120,.08)'); lg.addColorStop(1,'rgba(60,70,100,.10)'); c.fillStyle=lg; c.fillRect(0,0,640,360) }
-
-/* dialogue box framed like the Gunny radio box: black frame, silver bevel, navy panel, silver-stroked portrait, gold name plate */
 function b2Portrait(x,y,pw,ph,k){ const im=B2PORT[k]; ctx.fillStyle='#1c2414'; ctx.fillRect(x,y,pw,ph);
   if(k==='doc'&&!(im&&im.complete&&im.naturalWidth)){ const S=window.SHEET1; if(S&&S.drawHero){ const sc=Math.max(1,Math.floor(pw/16)); ctx.save(); ctx.beginPath(); ctx.rect(x,y,pw,ph); ctx.clip(); ctx.imageSmoothingEnabled=false; S.drawHero(ctx,'doc','idle',Math.round(x+pw/2),Math.round(y+37*sc-2*sc),sc,false,false);   /* head-and-shoulders crop of his game sprite, integer scale */ ctx.restore() } }
   else if(im&&im.complete&&im.naturalWidth){ ctx.imageSmoothingEnabled=true; ctx.drawImage(im,x,y,pw,ph); ctx.imageSmoothingEnabled=false }
   ctx.strokeStyle='#c8c8c8'; ctx.lineWidth=1.5*b2U; ctx.strokeRect(x,y,pw,ph) }
 let b2U=1;
 function drawBrief2(){ const B=BR2; ctx.setTransform(1,0,0,1,0,0); ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
-  const s0=Math.min(W/640,H/360), s=s0>=1?Math.floor(s0):s0, dw=640*s, dh=360*s, ox=Math.round((W-dw)/2), oy=Math.round((H-dh)/2); drawBrief2Scene(B.t); ctx.imageSmoothingEnabled=false; ctx.drawImage(B2CV,ox,oy,dw,dh);
-  if(B.t<.8){ ctx.fillStyle=`rgba(0,0,0,${1-B.t/.8})`; ctx.fillRect(0,0,W,H) }
+  const s0=Math.min(W/640,H/360), s=s0>=1?Math.floor(s0):s0, dw=640*s, dh=360*s, ox=Math.round((W-dw)/2), oy=Math.round((H-dh)/2); const cabT=B.cabT||b2CabT(), lzt=B.t-cabT;
+  if(lzt<0){ const s1=Math.min(W/320,H/180), w1=320*s1, h1=180*s1; const sv=INTRO; INTRO=B.cabI||(B.cabI={gf:[0,0],sm:[],sq:null,brass:[],tr:[],shots:[],quiet:true}); try{ drawCabin46(B.t*IT1/cabT) }catch(e){} INTRO=sv; ctx.imageSmoothingEnabled=false; ctx.drawImage(ICV,(W-w1)/2,(H-h1)/2,w1,h1);   /* rc8.2 HAA: the shouted lines play inside the cabin, before touchdown */
+    const tt=lzt+B2TITLE; if(tt>0){ const a=Math.min(1,tt*2.5,(B2TITLE-tt)*3+.4); ctx.globalAlpha=Math.max(0,a); ctx.textAlign='center'; ctx.lineJoin='round'; ctx.strokeStyle='#000'; const f1=Math.max(22,h1/6); ctx.font=`bold ${f1}px Impact,"Arial Black",sans-serif`; ctx.lineWidth=f1/7; ctx.strokeText('LAST CHOPPER OUT',W/2,H*.42); ctx.fillStyle='#f0e6a8'; ctx.fillText('LAST CHOPPER OUT',W/2,H*.42); ctx.globalAlpha=1 }   /* title on its own beat, after the last line */
+    if(lzt>-.4){ ctx.fillStyle=`rgba(122,78,50,${(Math.min(1,(lzt+.4)/.4)*(RFX?.4:1)).toFixed(3)})`;   /* reduce flashing: capped .4 */ ctx.fillRect(0,0,W,H) } }
+  else { drawBrief2Scene(lzt); ctx.imageSmoothingEnabled=false; ctx.drawImage(B2CV,ox,oy,dw,dh); if(lzt<.4){ ctx.fillStyle=`rgba(122,78,50,${((1-lzt/.4)*(RFX?.4:1)).toFixed(3)})`;   /* reduce flashing: capped .4 */ ctx.fillRect(0,0,W,H) } }
+  if(B.t<.6){ ctx.fillStyle=`rgba(0,0,0,${1-B.t/.6})`; ctx.fillRect(0,0,W,H) }
+  if(B.hide){ ctx.font=`${Math.max(10,12)}px "Courier New",monospace`; ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,.75)'; ctx.fillText(skipMsg(B.skipArm),W-14,H-14); return }
   const L=BRIEF2_LINES[B.page]; const U=b2U=Math.max(1,Math.min(W/640,H/360)*1.15), fs=12*U, pw=34*U, ph=38*U, bw=Math.min(W-16*U,430*U), bx=W/2-bw/2; let y=0;
   ctx.font=`bold ${fs}px "Courier New",monospace`; const extra=L.with?pw+10*U:0, lines=wrapText(ctx,L.t,bw-pw-26*U-extra), bh=Math.max(ph+14*U,(26+lines.length*15)*U); y=Math.min(H,oy+dh)-bh-12*U;   /* rc8.2 AD: dialogue box at the bottom, never over the bird's markings */
   ctx.fillStyle='#000'; ctx.fillRect(bx-2,y-2,bw+4,bh+4); ctx.fillStyle='#c8c8c8'; ctx.fillRect(bx-1,y-1,bw+2,bh+2); ctx.fillStyle='#101830'; ctx.fillRect(bx+2,y+2,bw-4,bh-4);
