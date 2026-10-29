@@ -70,7 +70,7 @@
     var alt = o.alt !== undefined ? o.alt : (st === 'flying' ? 60 : st === 'hover' ? 14 : 0), ref = S.sprites[st === 'rampDown' ? 'ch46Ramp' : 'ch46Gunner'];
     var wash = o.wash !== undefined ? o.wash : (alt <= 22 * K);
     if (wash) S.draw(ctx, 'washEvac', Math.floor(t * 10), o.x, o.y, KO);
-    if (typeof document !== 'undefined') { ctx.globalAlpha = Math.max(0.3, 0.6 - alt / (260 * K)); ctx.fillStyle = '#10140a'; ctx.beginPath();   /* separate ground shadow (v4.1 has none baked) */
+    if (typeof document !== 'undefined' && !V41ON) { ctx.globalAlpha = Math.max(0.3, 0.6 - alt / (260 * K)); ctx.fillStyle = '#10140a'; ctx.beginPath();   /* drawn ground shadow only for old sprites; v4.1 keeps its baked top-left shadow (AD 10/28) */
       ctx.ellipse(o.x + 2 * K + alt * 0.6, o.y + K + alt * 0.32, 68 * K, 20 * K, 0, 0, 6.283); ctx.fill(); ctx.globalAlpha = 1; }
     var by = o.y - alt;
     if (st === 'rampDown') ramp41(ctx, i, o.x, by, K);
