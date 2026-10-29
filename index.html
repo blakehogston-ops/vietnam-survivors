@@ -8361,6 +8361,11 @@ window.addEventListener('pagehide',()=>{ clearInput('pagehide'); pauseGame() });
    only the selected gun fires (the .45 rides on the existing Doc m16 slot via g.sidearm, the Hogston M1911A1 stats). Swap: 1/2, mouse wheel (option), pad Y.
    Bunker: keyboard E, pad LB hold (0.4 s). Bindings are fixed here (LO.BIND) so they can register with lco_binds later. Bots / ?nointro / ?t= / Resume skip the screen. */
 const LO_ON=(()=>{ const m=location.search.match(/[?&]loadout=([01])\b/); if(m)return m[1]==='1'; try{ return localStorage.getItem('lco_loadout')==='1' }catch(e){ return false } })();
+/* rc8.2 loadout icons v2.3.3 (AD/HAA/MHR set, artist-assets/rc82/loadout_icons; licences in ASSET_LICENSE_LOG.md). OPT-IN: ?loicons=1 (with ?loadout=1); off = the text tags as before.
+   64 px painted icon on the loadout screen, 32 px in the HUD chip; the option name text stays beside it (icon is decorative, alt=""). */
+const LO_ICONS=/[?&]loicons=1\b/.test(location.search), LO_ICDIR='assets/ui/loadout_icons/';
+const LO_ICON={none:'gun_none',m16:'gun_m16a1',m14:'gun_m14',m60:'gun_m60',m79:'gun_m79',shotgun:'gun_ithaca37',m1911:'gun_m1911a1',frag:'nade_m26',smoke:'nade_m18_green',unit1:'gear_unit_one',mags:'gear_mag20',etool:'gear_etool',canteen:'gear_canteen'};
+const loIcon=(id,px)=>LO_ICON[id]?LO_ICDIR+LO_ICON[id]+'_'+px+'.png':null;
 const LO_SMALL={m16:1,m60:1,m79:1,m1903:1,grease:1,knives:1,shotgun:1};
 const LO=window.LO={ON:LO_ON, BIND:{prim:['Digit1'],side:['Digit2'],wheel:true,padSwap:'Y',padBunker:'LB',bunkerHold:400,keyBunker:'KeyE'},
   SLOTS:[
@@ -8398,8 +8403,8 @@ const LO=window.LO={ON:LO_ON, BIND:{prim:['Digit1'],side:['Digit2'],wheel:true,p
   /* ---- HUD: icon card (text placeholder) + weapon name ---- */
   hud(){ this.css();   /* rc8.2 QA: css() was only called from build(), so bot/?nointro/Resume rendered #loHud at 16 px; css() is idempotent */ let el=this.hel; if(!el){ el=this.hel=document.createElement('div'); el.id='loHud'; el.setAttribute('role','status'); document.body.appendChild(el) }
     const on=this.act()&&state==='play'; el.style.display=on?'flex':'none'; if(!on)return; this.migrate(); this.sync();
-    const L=G.lo, s=L.sel!=='m1911'&&this.PRIM[L.sel]?this.PRIM[L.sel]:{tag:'.45',nm:'M1911A1'}, k=s.tag+'|'+s.nm+'|'+this.swapKey()+'|'+L.prim;
-    if(k!==this.hk){ this.hk=k; el.innerHTML='<span class="loIc">'+s.tag+'</span><span class="loNm">'+s.nm+'</span>'+(L.prim==='none'?'<span class="loSw">No long gun</span>':'<span class="loSw">Swap: '+this.swapKey()+'</span>') } },
+    const L=G.lo, sid=L.sel!=='m1911'&&this.PRIM[L.sel]?L.sel:'m1911', s=sid!=='m1911'?this.PRIM[L.sel]:{tag:'.45',nm:'M1911A1'}, k=s.tag+'|'+s.nm+'|'+this.swapKey()+'|'+L.prim;
+    if(k!==this.hk){ this.hk=k; el.innerHTML=(LO_ICONS&&loIcon(sid,32)?'<img class="loImg" src="'+loIcon(sid,32)+'" width="32" height="32" alt="">':'<span class="loIc">'+s.tag+'</span>')+'<span class="loNm">'+s.nm+'</span>'+(L.prim==='none'?'<span class="loSw">No long gun</span>':'<span class="loSw">Swap: '+this.swapKey()+'</span>') } },
   /* ---- the screen ---- */
   css(){ if(this._css)return; this._css=1; const s=document.createElement('style'); s.textContent=
    '#loadout{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(10,15,9,.96);color:#f6f0cc;font:18px/1.35 "Trebuchet MS",Arial,sans-serif;padding:16px}'+
@@ -8416,7 +8421,8 @@ const LO=window.LO={ON:LO_ON, BIND:{prim:['Digit1'],side:['Digit2'],wheel:true,p
    '#loadout .loAsk{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(6,9,5,.88)}#loadout .loAsk.show{display:flex}#loadout .loAsk>div{background:#18210f;border:3px solid #f6f0cc;padding:20px 26px;text-align:center;font-size:20px}'+
    '#loadout .loAsk button{font:bold 20px Impact,"Arial Black",sans-serif;margin:12px 8px 0;padding:8px 22px;background:#4a6b2f;color:#f6f0cc;border:3px solid #1d2f14;min-height:48px;cursor:pointer}'+
    '#loHud{position:fixed;left:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:5;display:none;align-items:center;gap:8px;padding:6px 10px;background:rgba(10,14,8,.85);border:2px solid #55603f;border-radius:6px;color:#f6f0cc;font:bold 18px monospace;pointer-events:none}'+
-   '#loHud .loIc{padding:2px 6px;border:2px solid #f6f0cc;border-radius:4px}#loHud .loSw{font-weight:normal;color:#e8e2c2}';
+   '#loHud .loIc{padding:2px 6px;border:2px solid #f6f0cc;border-radius:4px}#loHud .loSw{font-weight:normal;color:#e8e2c2}'+
+   (LO_ICONS?'#loadout .loImg{width:64px;height:64px;flex:none;margin-right:8px;background:#0c120a;border:2px solid #55603f;border-radius:4px;image-rendering:auto}#loadout .loImg.lk{opacity:.45;filter:grayscale(.6)}#loadout .loOpt .loImg+.loIc{display:none}#loadout .loOpt .loImg.lk+.loIc{display:inline-block;min-width:0;margin-left:-4px}#loHud .loImg{width:32px;height:32px;flex:none}':'');   /* rc8.2 ?loicons=1 */
    document.head.appendChild(s) },
   build(){ this.css(); let el=document.getElementById('loadout'); if(el)return el; el=document.createElement('div'); el.id='loadout'; el.setAttribute('role','dialog'); el.setAttribute('aria-label','Loadout');
     el.innerHTML='<h2>DOC\'S LOADOUT</h2><p class="loSub">Pick what Doc carries. No timer. The squad keeps its own weapons.</p><div class="loRow"></div><div class="loBtns"><button type="button" id="loRec">RECOMMENDED</button><button type="button" id="loInfoB">INFO</button><button type="button" id="loGo">DEPLOY</button></div><div class="loHelp"></div>'+
@@ -8429,7 +8435,7 @@ const LO=window.LO={ON:LO_ON, BIND:{prim:['Digit1'],side:['Digit2'],wheel:true,p
     return el },
   draw(){ const el=this.build(), row=el.querySelector('.loRow'); row.innerHTML=''; { const go=this.SLOTS[3].opts.find(x=>x.id===this.pick.gear); if(go&&this.locked(go))this.pick.gear=this.REC.gear }   /* primary changed off the M16A1 -> Extra Mags drops back to the Unit One bag */
     this.SLOTS.forEach((s,i)=>{ const d=document.createElement('div'); d.className='loSlot'+(i===this.fi?' f':''); d.tabIndex=-1; const cur=s.opts.find(o=>o.id===this.pick[s.k])||s.opts[0];
-      d.innerHTML='<div class="loK">'+(i+1)+' · '+s.nm+(s.fixed?' (fixed)':'')+'</div>'+s.opts.map(o=>{ const lk=this.locked(o); return '<div class="loOpt'+(o.id===cur.id?' on':'')+(lk?' lk':'')+'" data-id="'+o.id+'"><span class="loIc">'+(lk?'\uD83D\uDD12':o.tag)+'</span><span>'+o.nm+(lk?'<br><span class="loLk">'+(this.needLk(o)?'Needs M16A1':'Unlocks after '+o.lock+' mission'+(o.lock>1?'s':''))+'</span>':'')+'</span></div>' }).join('')+
+      d.innerHTML='<div class="loK">'+(i+1)+' · '+s.nm+(s.fixed?' (fixed)':'')+'</div>'+s.opts.map(o=>{ const lk=this.locked(o); return '<div class="loOpt'+(o.id===cur.id?' on':'')+(lk?' lk':'')+'" data-id="'+o.id+'">'+(LO_ICONS&&loIcon(o.id,64)?'<img class="loImg'+(lk?' lk':'')+'" src="'+loIcon(o.id,64)+'" width="64" height="64" alt="" draggable="false">':'')+'<span class="loIc">'+(lk?'\uD83D\uDD12':o.tag)+'</span><span>'+o.nm+(lk?'<br><span class="loLk">'+(this.needLk(o)?'Needs M16A1':'Unlocks after '+o.lock+' mission'+(o.lock>1?'s':''))+'</span>':'')+'</span></div>' }).join('')+
         '<div class="loW">Weight: '+cur.wl+'</div><div class="loBar" aria-hidden="true"><i style="width:'+(cur.wt*25)+'%"></i></div><div class="loInfo">'+cur.info+'</div>';
       d.addEventListener('click',e=>{ this.fi=i; const o=e.target.closest('.loOpt'); if(o)this.choose(s,o.dataset.id); else this.cycle(1); this.draw() });
       row.appendChild(d) });
