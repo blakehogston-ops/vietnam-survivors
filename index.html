@@ -6257,8 +6257,9 @@ function drawCabin46(t){ const c=ictx, I=INTRO; c.imageSmoothingEnabled=false; c
   c.font='bold 12px "Courier New",monospace'; c.textAlign='left'; c.textBaseline='alphabetic';
   /* QA rc7.1 ('CPL WASHINGTO'): tags are clamped inside the frame and the font steps down to 6px if a tag is still too wide for its side */
   const TV0=4, TV1=316; c.font=sq.some(m=>m.tag&&c.measureText(m.tag).width>150)?'bold 10px "Courier New",monospace':c.font;
+  const TPL=[];   /* rc8.2: tags on screen at the same time stack (move up 16 px) instead of overlapping */
   for(const m of sq){ if(!m.tag)continue; const t0=m.tt, a=Math.min(1,(t-t0)*3,(t0+4.5-t)*3); if(a<=0)continue; const n=Math.min(m.tag.length,Math.floor((t-t0)*28)), s=m.tag.slice(0,n), w=c.measureText(m.tag).width;
-    const x=Math.max(TV0,Math.min(TV1-w,m.f?Math.min(316-w,m.x-w+8):Math.max(4,m.x-10))), y=m.y-37*m.s-6; c.globalAlpha=a; c.fillStyle='rgba(0,0,0,.85)'; c.fillRect(x-3,y-10,w+6,14); c.fillStyle='#e8c860'; c.fillRect(x-3,y+3,Math.max(2,(w+6)*Math.min(1,(t-t0)*2)),1); c.fillStyle='#f6f0cc'; c.fillText(s,x,y); c.globalAlpha=1 }
+    const x=Math.max(TV0,Math.min(TV1-w,m.f?Math.min(316-w,m.x-w+8):Math.max(4,m.x-10))); let y=m.y-37*m.s-6; for(let g=0;g<12&&TPL.some(r=>x-3<r[0]+r[2]&&r[0]<x+w+3&&y-10<r[1]+14&&r[1]<y+4);g++)y-=16; if(y<12)y=12; TPL.push([x-3,y-10,w+6,14]); c.globalAlpha=a; c.fillStyle='rgba(0,0,0,.85)'; c.fillRect(x-3,y-10,w+6,14); c.fillStyle='#e8c860'; c.fillRect(x-3,y+3,Math.max(2,(w+6)*Math.min(1,(t-t0)*2)),1); c.fillStyle='#f6f0cc'; c.fillText(s,x,y); c.globalAlpha=1 }
   const fade=Math.min(1,t/.8); if(fade<1){ c.fillStyle=`rgba(0,0,0,${(1-fade).toFixed(2)})`; c.fillRect(0,0,320,180) } }
 const DOCCAB=!/[?&]doccab=0\b/.test(location.search);
 function c46Squad(){ const doc=!G||G.char==='doc', N=Q15.names;
@@ -6492,8 +6493,8 @@ function b2Rotor(c,x,y,t,ph){ /* slow idle rotor: dark blur disc (~.45), sagging
   for(let k=0;k<3;k++){ const a=t*2.4+ph+k*2.094; c.strokeStyle='rgba(16,18,14,.55)'; c.lineWidth=1.6; c.beginPath(); c.ellipse(x,y+1.5,38,11.5,0,a,a+.55); c.stroke(); c.strokeStyle='rgba(16,18,14,.25)'; c.lineWidth=1; c.beginPath(); c.ellipse(x,y+1.5,30,9,0,a-.1,a+.35); c.stroke() }
   c.fillStyle='#1c1e16'; c.fillRect(x-1,y-1,3,3); c.restore() }
 /* briefing ramp walkers: man k steps off at B2W.t0+k*B2W.gap, walks once (u 0->1 over 1/B2W.rate s), then holds at the bottom of the ramp, fully visible. null = still aboard. */
-const B2W={t0:.6,gap:1.6,rate:.16};
-function b2Walkers(t,rp){ const out=[]; for(let k=0;k<2;k++){ const e=t-B2W.t0-k*B2W.gap; if(e<0){ out.push(null); continue } const u=Math.min(1,e*B2W.rate), x=rp[0]-6-u*44, y=rp[1]+4+u*14+k*3; out.push({k,u,x,y,a:Math.min(1,e/.25),fr:u<1?1+(Math.floor(t*6+k)&1):0}) } return out }
+const B2W={t0:.6,gap:1.6,rate:.16,fan:14};   /* fan: each later man ends fan px further out (left + down) so the two never stand on top of each other */
+function b2Walkers(t,rp){ const out=[]; for(let k=0;k<2;k++){ const e=t-B2W.t0-k*B2W.gap; if(e<0){ out.push(null); continue } const u=Math.min(1,e*B2W.rate), x=rp[0]-6-u*(44+k*B2W.fan), y=rp[1]+4+u*(14+k*B2W.fan*.6)+k*3; out.push({k,u,x,y,a:Math.min(1,e/.25),fr:u<1?1+(Math.floor(t*6+k)&1):0}) } return out }
 function drawBrief2Scene(t){ const c=b2c; c.setTransform(1,0,0,1,0,0); c.imageSmoothingEnabled=false; if(!B2BG)B2BG=b2Ground(); c.drawImage(B2BG,0,0);
   /* soft dawn ground mist low over the treeline, drifting */
   for(let k=0;k<3;k++){ const yy=54+k*5, dx=(t*(2+k)+k*60)%320; const g=c.createLinearGradient(0,yy-6,0,yy+6); g.addColorStop(0,'rgba(222,212,196,0)'); g.addColorStop(.5,`rgba(222,212,196,${.22-k*.05})`); g.addColorStop(1,'rgba(222,212,196,0)'); c.fillStyle=g;
