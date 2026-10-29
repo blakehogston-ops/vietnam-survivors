@@ -1,5 +1,6 @@
+/* rc8.2 slice 1 loadout: fake standard gamepad -> Y swap, LB hold bunker, pad keys text, screen pad nav. Run inside a slot.sh slot. */
 const {chromium}=require('/usr/local/lib/pnpm/5/.pnpm/playwright-core@1.59.1/node_modules/playwright-core'), http=require('http'), fs=require('fs'), path=require('path');
-const root=process.argv[2]||'/workspace/wt-rc82-loadout'; const MIME={'.html':'text/html','.js':'text/javascript','.png':'image/png','.json':'application/json'};
+const root=process.argv[2]||path.resolve(__dirname,'..'); const MIME={'.html':'text/html','.js':'text/javascript','.png':'image/png','.json':'application/json'};
 const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0]); if(p==='/')p='/index.html'; const f=path.join(root,p); if(!f.startsWith(root)||!fs.existsSync(f)||fs.statSync(f).isDirectory()){r.statusCode=404;r.end();return} r.setHeader('Content-Type',MIME[path.extname(f)]||'application/octet-stream'); fs.createReadStream(f).pipe(r) });
 const FAKE=`(()=>{ const btn=()=>Array.from({length:17},()=>({pressed:false,value:0})); window.__gp={id:'Xbox Wireless Controller (STANDARD GAMEPAD)',index:0,connected:true,mapping:'standard',axes:[0,0,0,0],buttons:btn(),timestamp:0};
   window.__press=(i,on)=>{ __gp.buttons[i]={pressed:on,value:on?1:0} }; Object.defineProperty(navigator,'getGamepads',{value:()=>[window.__gp]}) })()`;

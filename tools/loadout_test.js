@@ -1,3 +1,4 @@
+/* rc8.2 slice 1 loadout (?loadout=1) headless checks: default path unchanged, screen + a11y, swap, pool, HUD, runsave v2. Run inside a slot.sh slot. */
 const {chromium}=require('/usr/local/lib/pnpm/5/.pnpm/playwright-core@1.59.1/node_modules/playwright-core'), http=require('http'), fs=require('fs'), path=require('path');
 const root=path.resolve(__dirname,'..'); const MIME={'.html':'text/html','.js':'text/javascript','.png':'image/png','.json':'application/json','.ogg':'audio/ogg','.mp3':'audio/mpeg','.m4a':'audio/mp4','.css':'text/css','.woff2':'font/woff2'};
 const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0]); if(p==='/')p='/index.html'; const f=path.join(root,p); if(!f.startsWith(root)||!fs.existsSync(f)||fs.statSync(f).isDirectory()){r.statusCode=404;r.end();return} r.setHeader('Content-Type',MIME[path.extname(f)]||'application/octet-stream'); fs.createReadStream(f).pipe(r) });
