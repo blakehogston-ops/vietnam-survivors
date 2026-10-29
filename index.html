@@ -3245,6 +3245,9 @@ const ITEMS={
     blurb:'KC-135A Stratotanker, flying boom: the tankers kept the B-52s and fighter-bombers on the line. Your air support (Arc Light, strafing, napalm) is back on station sooner and flies extra bombs and passes. The USAF crew chief keeps them flying.',
     desc:l=>`Air-support cooldown -${l*7}% · Arc Light +${l*2} bombs${l>=2?' · strafing +'+((l>=2)+(l>=4))+' pass'+(l>=4?'es':''):''}`},
   helmet:{kind:'p',name:'M1 Steel Helmet',max:5,blurb:'Armor: take less damage from hits.',desc:l=>`Damage taken -${l*8}%`},
+  p2rof:{kind:'p',name:'Trigger Discipline',max:5,req:()=>P2ON,blurb:'Proto p2: your held weapon cycles faster.',desc:l=>`Fire rate +${l*8}%`},   /* proto/p2-combat cards: numbers are GAME VALUES, PENDING HAA/MHR */
+  p2rl:{kind:'p',name:'Speed Reload',max:5,req:()=>P2ON,blurb:'Proto p2: faster magazine and belt changes.',desc:l=>`Reload time -${l*10}%`},
+  p2mag:{kind:'p',name:'Extra Magazines',max:5,req:()=>P2ON,blurb:'Proto p2: more loaded rounds per weapon.',desc:l=>`Magazine size +${l*10}% (PENDING HAA: conflicts with signed 20-rd M16)`},
   flak:{kind:'p',name:'Flak Jacket',max:5,blurb:'Extra protection: more max health.',desc:l=>`Max HP ${100+20*l}`},
   boots:{kind:'p',name:'Jungle Boots',max:5,blurb:'Move faster through the bush.',desc:l=>`Move speed +${l*10}%`},
   magnet:{kind:'p',name:'Ammo Pouch',max:5,blurb:'Wider reach for picking up XP.',desc:l=>`Pickup radius ${80+l*38}`},
