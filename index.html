@@ -8711,7 +8711,7 @@ function render(){ BIRDQ.length=0; BIRDQ.f=0; CRUMB.fr=(CRUMB.fr|0)+1; try{ icam
   ctx.fillStyle='rgba(255,255,255,.2)'; ctx.fillRect(bx,by,bw*Math.max(0,p.hp)/p.maxHp,bh*.35); txt(`HP ${Math.ceil(p.hp)}/${p.maxHp}`,bx+bw/2,by+bh-4*U,13*U,'#fff','center') }
   // timer / kills
   { const cs=Math.max(28*U,txtMin()); ctx.font='bold '+cs+'px "Courier New",monospace'; const cw=ctx.measureText(fmt(g.t)).width+cs*.8; ctx.fillStyle='rgba(8,14,9,.55)'; ctx.fillRect(W/2-cw/2,56*U+oy-cs*.92,cw,cs*1.2) } txt(fmt(g.t),W/2,56*U+oy,28*U,'#f6f0cc','center');   /* rc8.1 textfit: the mission clock on its own chip */
-  if(!CAPTURE)txt('ENEMY STOPPED '+g.kills,bx,by+bh+17*U,15*U,'#f0e6a8','left');   /* ?capture=1: no kill counter */
+  if(!CAPTURE){ const ks='ENEMY STOPPED '+g.kills, kf=Math.max(15*U,txtMin()); ctx.font='bold '+kf+'px "Courier New",monospace'; const kw=ctx.measureText(ks).width, kp=kf*.3, ky=by+bh+17*U; ctx.fillStyle='rgba(8,14,9,.55)'; ctx.fillRect(bx-kp,ky-kf*.92,kw+2*kp,kf*1.2); txt(ks,bx,ky,15*U,'#f0e6a8','left') }   /* rc8.2 textfit: kill counter on its own chip sized to the measured text (>= txtMin floor, never shrunk), so it can't spill out of whatever box was drawn under it */   /* ?capture=1: no kill counter */
   LANE.y=exTop(U)+(exStack||0)+6*U; LANE.U=U;   /* rc8 one top lane: everything below the timer / commander bar / firebase lines / Gunny card stacks, nothing overlaps */
   if(OB.lowhp&&p.hp>0&&p.hp/p.maxHp<=.3)obLowTag(bx+bw+8*U,by,bh,U);
   drawSigLine(U,oy);   /* permanent line under the timer + MARINES count */
