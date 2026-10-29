@@ -91,5 +91,9 @@ const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0
    T('other primary: Extra Mags locked, unpicked, not choosable or cyclable',r.b.lk&&r.b.gear!=='mags'&&r.b.after!=='mags'&&!r.b.cyc,r.b);
    T('lock text "Needs M16A1", >= 18 px, >= 4.5:1',r.b.txt==='Needs M16A1'&&r.b.fs>=18&&cr>=4.5,{txt:r.b.txt,fs:r.b.fs,cr:+cr.toFixed(2)});
    await pg.close() }
+ { const pg=await mk('names'); await pg.goto(B+'index.html?loadout=1&nodemo&nobrief&fieldReports=0'); await pg.waitForTimeout(800);
+   await pg.keyboard.press('Enter'); await pg.waitForTimeout(400); await pg.evaluate(()=>{ __ms.selectChar&&__ms.selectChar('doc') }); await pg.keyboard.press('Enter'); await pg.waitForTimeout(900);
+   const r=await pg.evaluate(()=>{ const nm=LO.SLOTS.flatMap(s=>s.opts.map(o=>o.nm)).concat(Object.values(LO.PRIM).map(p=>p.nm)); LO.pick.prim='m14'; LO.draw(); const vis=[...document.querySelectorAll('#loadout .loOpt')].map(e=>e.textContent); return {nm,vis,m14:LO.SLOTS[0].opts.find(o=>o.id==='m14').nm} });
+   T('M14 label is just "M14"; no visible weapon name contains (rare)',r.m14==='M14'&&!r.nm.concat(r.vis).some(t=>/\(rare\)/i.test(t)),r); await pg.close() }
  T('no page errors',errs.length===0,errs.slice(0,5));
  await br.close(); srv.close(); console.log(fails?'FAILS '+fails:'ALL PASS'); process.exit(fails?1:0) })();
