@@ -8043,10 +8043,12 @@ function drawFlashes(camX,camY){ if(!flashes.length)return; ctx.save(); ctx.glob
    the main-menu 'Field Reports' entry only). Seen flag: localStorage lco_fr_seen. ?fieldReports=0 disables it entirely (no auto-play, no menu entry).
    Skip = the intro/briefing idiom: two presses within 3 s (key, click/tap or any pad button), first press shows skipMsg(). Game music is ducked while it plays.
    After playback or a skip the <video> is fully unloaded: pause, removeAttribute('src'), load(), element removed, object URLs revoked. QA: __lco.fieldReport() */
-/* rc8.2 K-Q map wiring (Field Reports 861A trigger): list map ids + set __lco.mapId (and G.mapId) from ?map= / window.LCO_MAP before startGame(). feel-atmo not merged here, so ids are listed directly (swap to Object.keys(WXMAP) on merge). Unknown/none -> 'quangtri' (same default as feel-atmo FA.init). */
+/* rc8.2 K-Q map wiring (Field Reports 861A trigger): list map ids + set __lco.mapId (and G.mapId) from ?map= / window.LCO_MAP before startGame(). feel-atmo not merged here, so ids are listed directly (swap to Object.keys(WXMAP) on merge). Unknown/none -> nothing set (FR fallback). */
 const LCO_MAPS=['con_thien','cam_lo_river','route_9_lowlands','khe_sanh_861a'];
-(function(){ const q=params.get('map')||window.LCO_MAP; window.__lco=Object.assign(window.__lco||{},{maps:LCO_MAPS.slice(),mapId:LCO_MAPS.includes(q)?q:'quangtri'}) })();
-{ const _ng=newGame; newGame=function(d){ const r=_ng.apply(this,arguments); try{ G.mapId=window.__lco.mapId }catch(e){} return r } }
+/* follow-up: maps listed ONLY when a map is actually chosen (?map= / LCO_MAP / __lco.setMap from a future picker); a normal launch leaves __lco.maps unset so FR keeps its first-mission fallback */
+window.__lco=Object.assign(window.__lco||{},{ setMap(id){ if(!LCO_MAPS.includes(id))return false; window.__lco.maps=LCO_MAPS.slice(); window.__lco.mapId=id; return true } });
+window.__lco.setMap(params.get('map')||window.LCO_MAP);
+{ const _ng=newGame; newGame=function(d){ const r=_ng.apply(this,arguments); try{ if(window.__lco.mapId)G.mapId=window.__lco.mapId }catch(e){} return r } }
 const FR={ON:params.get('fieldReports')!=='0', SRC:'assets/video/field_report_scotland.webm', KEY:'lco_fr_seen', el:null, wrap:null, hint:null, open:false, why:'', skipArm:0, t0:0,
   urls:[], then:null, plays:0, skips:0, ends:0, errors:0, unloads:0, last:null, mus:null, DUCK:.12,
   seen(){ try{ return !!localStorage.getItem(this.KEY) }catch(e){ return false } },
