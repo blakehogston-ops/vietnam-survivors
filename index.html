@@ -3245,7 +3245,7 @@ const ITEMS={
     blurb:'KC-135A Stratotanker, flying boom: the tankers kept the B-52s and fighter-bombers on the line. Your air support (Arc Light, strafing, napalm) is back on station sooner and flies extra bombs and passes. The USAF crew chief keeps them flying.',
     desc:l=>`Air-support cooldown -${l*7}% · Arc Light +${l*2} bombs${l>=2?' · strafing +'+((l>=2)+(l>=4))+' pass'+(l>=4?'es':''):''}`},
   helmet:{kind:'p',name:'M1 Steel Helmet',max:5,blurb:'Armor: take less damage from hits.',desc:l=>`Damage taken -${l*8}%`},
-  p2mags:{kind:'p',name:'Extra Magazines Carried',max:5,req:()=>P2ON,blurb:'Proto p2: +2 M16 mags and +1 pistol mag carried.',desc:l=>`+${2*l} M16 / +${l} M1911 mags`},   /* proto/p2-combat cards: GAME VALUES, PENDING HAA/MHR. Fire rate stays fixed per weapon. Taped mags OUT until MHR verifies. */
+  p2mags:{kind:'p',name:'Extra Magazines Carried',max:5,req:()=>P2ON,blurb:'Proto p2: +1 M16 mag carried per pick (max 14 M16 mags).',desc:l=>`+${l} M16 mag${l>1?'s':''} (cap 14)`},   /* proto/p2-combat cards: GAME VALUES, PENDING HAA/MHR. Fire rate stays fixed per weapon. Taped mags OUT until MHR verifies. */
   p2rl:{kind:'p',name:'Speed Reload',max:5,req:()=>P2ON,blurb:'Proto p2: faster magazine and belt changes.',desc:l=>`Reload time -${l*10}%`},
   p2acc:{kind:'p',name:'Marksmanship',max:5,req:()=>P2ON,blurb:'Proto p2: tighter spread and recoil control.',desc:l=>`Spread and kick -${l*12}%`},
   p2sup:{kind:'p',name:'Steady Under Fire',max:5,req:()=>P2ON,blurb:'Proto p2: suppression builds slower.',desc:l=>`Suppression -${l*15}%`},
@@ -4217,7 +4217,7 @@ const P2=window.P2={on:true, FRAG, W, IF, sel:0, aim:0, mx:null, my:null, padAim
  // ---- per-frame ----
  tick(dt){ const g=G; if(!g||g.demo)return; if(this.g!==g)this.reset(g); this.pollPad();
    // cards: extra mags carried / resupply priority applied once per level
-   const em=this.lv('p2mags'); if((this.applied.m|0)<em){ const n=em-(this.applied.m|0); this.st[0].pouch.push(...Array(2*n).fill(20)); this.st[1].pouch.push(...Array(n).fill(7)); this.applied.m=em }
+   const em=this.lv('p2mags'); if((this.applied.m|0)<em){ const n=em-(this.applied.m|0); const have=this.st[0].pouch.length+1, add=Math.max(0,Math.min(n,14-have)); this.st[0].pouch.push(...Array(add).fill(20)); this.applied.m=em }
    if(this.sel>=0&&this.locked(this.sel))this.sel=0;
    for(const e of enemies){ if(e.p2||e.dead)continue; e.p2=1; if(/^(vc|nva|sapper)$/.test(e.type)&&!e.boss){ const cap=Math.round(this.dmgOf(W[0])*1.6); if(e.hp>cap){ e.hp=e.mhp=cap } } }   /* swarm fodder: 1-2 rifle hits */
    if(this.sw>0)this.sw-=dt; if(this.cd>0)this.cd-=dt;
