@@ -4336,6 +4336,7 @@ function updateWeapons(dt){
   const g=G,p=g.p; if(g.rfCd>0)g.rfCd=Math.max(0,g.rfCd-dt); if(g.rfRun){ g.rfRun.t+=dt; if(g.rfRun.t>=g.rfRun.dur)g.rfRun=null }
   for(const id in g.w){ if(P2ON&&P2HAND[id])continue; if(LO_SMALL[id]&&id!==LO.fid()&&LO.act())continue;   /* rc8.2 loadout (?loadout=1): only the selected gun fires */   /* proto/p2-combat: the held weapon is fired by assets/p2combat.js */ CURW=id; RTO_T=null; const w=g.w[id]; let s=ITEMS[id].stats(w.lvl); const kc=g.ps.kc135|0; if(kc&&KCIDS[id])s=kcBoost(id,s,kc);
     if(FACEAIM&&FACEW[id])s=Object.assign({},s,{cd:s.cd*FACE_CD});
+    if(id==='m16'&&!g.sidearm&&g.lo&&g.lo.prim==='m14'&&LO.act())s=LO.m14(s);   /* rc8.2 ?loadout=1: M14 on the m16 slot */
     if(id==='m16'&&g.sidearm)s=Object.assign({},s,{dmg:Math.max(4,Math.round(s.dmg*.55)),cd:s.cd*1.5,shots:1,pierce:1});   // Hogston: M1911A1 sidearm only
     if(w.lvl>=7&&!ITEMS[id].evo){ const bb=w.lvl>=8?1.14:1.07; for(const kk of ['dmg','d50','d60','rkdmg','fdmg'])if(s[kk])s[kk]*=bb }
     if(id==='flame'){
@@ -8359,9 +8360,9 @@ const LO_ON=(()=>{ const m=location.search.match(/[?&]loadout=([01])\b/); if(m)r
 const LO_SMALL={m16:1,m60:1,m79:1,m1903:1,grease:1,knives:1,shotgun:1};
 const LO=window.LO={ON:LO_ON, BIND:{prim:['Digit1'],side:['Digit2'],wheel:true,padSwap:'Y',padBunker:'LB',bunkerHold:400,keyBunker:'KeyE'},
   SLOTS:[
-   {k:'prim',nm:'Primary',opts:[{id:'none',nm:'None',tag:'—',wt:0,wl:'None · hands free',info:'Corpsmen often carried only the .45. Hands free for treating.'},{id:'m16',nm:'M16A1',tag:'M16',wt:1,wl:'Light · no move penalty',info:'5.56mm rifle. Fires where you face.'}]},
+   {k:'prim',nm:'Primary',opts:[{id:'none',nm:'None',tag:'—',wt:0,wl:'None · hands free',info:'Doc carries the .45 only. Hands free for treating. +15% move.'},{id:'m16',nm:'M16A1',tag:'M16',wt:1,wl:'Light · no move penalty',info:'5.56mm rifle. Fires where you face. The only gun with a semi/auto switch.'},{id:'m14',nm:'M14 (rare)',tag:'M14',wt:2,wl:'Medium · no move penalty',info:'7.62mm rifle, semi-auto only. Rare in Marine rifle companies by 1968. Slower, harder hits that punch through.'},{id:'m60',nm:'M60',tag:'M60',wt:4,wl:'Heavy · -15% move, slower swap',info:'7.62mm belt-fed machine gun. Fires automatic only.'},{id:'m79',nm:'M79',tag:'M79',wt:2,wl:'Medium · no move penalty',info:'40mm grenade launcher. Single shot, break-open; rounds burst in an area.'},{id:'shotgun',nm:'Ithaca 37',tag:'I37',wt:2,wl:'Medium · no move penalty',info:'12-gauge pump shotgun. One shell per pump, short range.'}]},
    {k:'side',nm:'Sidearm',fixed:1,opts:[{id:'m1911',nm:'M1911A1',tag:'.45',wt:1,wl:'Light · always carried',info:'.45 pistol. Always carried by Doc. No fire-mode switch.'}]},
-   {k:'thr',nm:'Throwable',opts:[{id:'frag',nm:'M26 frag',tag:'M26',wt:1,wl:'Light',info:'Fragmentation grenade.'},{id:'smoke',nm:'M18 smoke',tag:'M18',wt:1,wl:'Light',info:'Green, yellow or violet. Red is reserved for enemy and danger.'}]},
+   {k:'thr',nm:'Throwable',opts:[{id:'frag',nm:'M26 frag',tag:'M26',wt:1,wl:'Light',info:'Fragmentation grenade.'},{id:'smoke',nm:'M18 smoke',tag:'M18',wt:1,wl:'Light',info:'Smoke grenade. Green, yellow or violet.'}]},
    {k:'gear',nm:'Gear',opts:[{id:'unit1',nm:'Unit One bag',tag:'U1',wt:1,wl:'Light',info:'Corpsman\'s medical bag.'},{id:'mags',nm:'Extra magazines',tag:'MAG',wt:1,wl:'Light',lock:1,info:'More M16A1 magazines.'},{id:'etool',nm:'Entrenching tool',tag:'E-T',wt:1,wl:'Light',lock:2,info:'Faster dig-in.'},{id:'canteen',nm:'Extra canteen',tag:'H2O',wt:1,wl:'Light',lock:3,info:'More stamina.'}]}],
   REC:{prim:'m16',side:'m1911',thr:'frag',gear:'unit1'},
   done(){ try{ return +localStorage.getItem('lco_missions_done')||0 }catch(e){ return 0 } },
@@ -8370,13 +8371,17 @@ const LO=window.LO={ON:LO_ON, BIND:{prim:['Digit1'],side:['Digit2'],wheel:true,p
   act(){ return LO_ON&&!!G&&G.char==='doc'&&!G.demo },
   wheelOn(){ try{ return localStorage.getItem('lco_lo_wheel')!=='0' }catch(e){ return true } },
   need(){ return LO_ON&&SEL==='doc'&&!(DBG.bot||DBG.nointro||DBG.t>0||/[?&]lo_skip=1\b/.test(location.search)) },
-  apply(pick){ if(!this.act())return; const p=Object.assign({},pick||this.last()); G.lo={prim:p.prim,side:'m1911',thr:p.thr,gear:p.gear,sel:p.prim==='none'?'m1911':'m16',v:2};
-    for(const id in G.w)if(LO_SMALL[id]&&id!=='m16')delete G.w[id]; if(!G.w.m16)G.w.m16={lvl:1,cd:.2,tick:0}; this.sync() },
+  apply(pick){ if(!this.act())return; const p=Object.assign({},pick||this.last()); if(!this.PRIM[p.prim])p.prim=this.REC.prim; G.lo={prim:p.prim,side:'m1911',thr:p.thr==='smoke'?'smoke':'frag',gear:p.gear,sel:p.prim==='none'?'m1911':p.prim,v:2,swT:0};
+    const fw=this.PRIM[p.prim].w; for(const id in G.w)if(LO_SMALL[id]&&id!=='m16'&&id!==fw)delete G.w[id]; if(!G.w.m16)G.w.m16={lvl:1,cd:.2,tick:0}; if(fw&&!G.w[fw])G.w[fw]={lvl:1,cd:.2,tick:0};
+    const dv=this.PRIM[p.prim].spd||0; G.spdB=(G.spdB||0)-(G._loSpd||0)+dv; G._loSpd=dv; this.sync() },
+  /* primary pool (Blake Oct 29: none/M16A1/M14 rare/M60/M79/Ithaca 37). w = the ITEMS weapon that fires it; the M14 rides on the m16 slot with M14 stats (like the .45). */
+  PRIM:{none:{w:null,spd:.15,nm:'None',tag:'—'},m16:{w:'m16',nm:'M16A1',tag:'M16'},m14:{w:'m16',nm:'M14',tag:'M14'},m60:{w:'m60',spd:-.15,sw:.9,nm:'M60',tag:'M60'},m79:{w:'m79',nm:'M79',tag:'M79'},shotgun:{w:'shotgun',nm:'Ithaca 37',tag:'I37'}},
+  m14(s){ return Object.assign({},s,{dmg:Math.round(s.dmg*1.9),cd:s.cd*1.9,shots:1,pierce:Math.max(2,s.pierce)}) },
   migrate(){ if(this.act()&&!G.lo){ G.lo={prim:G.w.m16?'m16':'none',side:'m1911',thr:'frag',gear:'unit1',sel:G.sidearm?'m1911':'m16',v:2,mig:1}; if(G.lo.prim==='none'&&!G.w.m16)G.w.m16={lvl:1,cd:.2,tick:0} } },
   sync(){ if(G&&G.lo)G.sidearm=G.lo.sel==='m1911' },
-  sel(id){ if(!this.act()||state!=='play')return; this.migrate(); const L=G.lo; if(id==='m16'&&L.prim==='none'){ G.banner={text:'NO LONG GUN IN THIS LOADOUT · .45 ONLY',t:1.6,col:'#ffe58a'}; return } if(L.sel===id)return; L.sel=id; this.sync(); this.hudT=1.2; try{ Snd.play('pickup') }catch(e){} },
-  swap(){ if(!this.act())return; this.migrate(); this.sel(G.lo.sel==='m16'?'m1911':'m16') },
-  fid(){ return 'm16' },
+  sel(id){ if(!this.act()||state!=='play')return; this.migrate(); const L=G.lo; if(id==='prim')id=L.prim; if(id==='none'){ G.banner={text:'NO LONG GUN IN THIS LOADOUT · .45 ONLY',t:1.6,col:'#ffe58a'}; return } if(L.sel===id)return; L.sel=id; const sw=(this.PRIM[L.prim]||{}).sw||0; L.swT=sw?G.t+sw:0; this.sync(); this.hudT=1.2; try{ Snd.play('pickup') }catch(e){} },
+  swap(){ if(!this.act())return; this.migrate(); this.sel(G.lo.sel==='m1911'?'prim':'m1911') },
+  fid(){ const L=G&&G.lo; if(!L)return 'm16'; if(L.swT&&G.t<L.swT)return null; if(L.sel==='m1911')return 'm16'; return (this.PRIM[L.prim]||{}).w||'m16' },
   /* ---- pad LB hold = bunker (only while LO.act()) ---- */
   lbT:0, lbF:false,
   padTick(held){ if(!this.lbT)return; if(!held){ this.lbT=0; this.lbF=false; return } if(!this.lbF&&performance.now()-this.lbT>=this.BIND.bunkerHold&&state==='play'){ this.lbF=true; PB.toggle() } },
@@ -8385,7 +8390,7 @@ const LO=window.LO={ON:LO_ON, BIND:{prim:['Digit1'],side:['Digit2'],wheel:true,p
   /* ---- HUD: icon card (text placeholder) + weapon name ---- */
   hud(){ let el=this.hel; if(!el){ el=this.hel=document.createElement('div'); el.id='loHud'; el.setAttribute('role','status'); document.body.appendChild(el) }
     const on=this.act()&&state==='play'; el.style.display=on?'flex':'none'; if(!on)return; this.migrate(); this.sync();
-    const L=G.lo, s=L.sel==='m16'?{tag:'M16',nm:'M16A1'}:{tag:'.45',nm:'M1911A1'}, k=s.tag+'|'+s.nm+'|'+this.swapKey()+'|'+L.prim;
+    const L=G.lo, s=L.sel!=='m1911'&&this.PRIM[L.sel]?this.PRIM[L.sel]:{tag:'.45',nm:'M1911A1'}, k=s.tag+'|'+s.nm+'|'+this.swapKey()+'|'+L.prim;
     if(k!==this.hk){ this.hk=k; el.innerHTML='<span class="loIc">'+s.tag+'</span><span class="loNm">'+s.nm+'</span>'+(L.prim==='none'?'<span class="loSw">No long gun</span>':'<span class="loSw">Swap: '+this.swapKey()+'</span>') } },
   /* ---- the screen ---- */
   css(){ if(this._css)return; this._css=1; const s=document.createElement('style'); s.textContent=
@@ -8439,7 +8444,7 @@ const LO=window.LO={ON:LO_ON, BIND:{prim:['Digit1'],side:['Digit2'],wheel:true,p
   pad(k,dx,dy){ if(this.asking()){ if(k==='A')this.back(!!this.askY); else if(k==='B')this.back(false); else if(!k&&dx){ this.askY=!this.askY; this.askDraw() } return }
     if(!k){ if(dx)this.fi=Math.max(0,Math.min(3,this.fi+dx)); else if(dy)this.cycle(dy); this.draw(); return }
     if(k==='A')this.cycle(1); else if(k==='X')this.pick=Object.assign({},this.REC); else if(k==='Y'){ this.build().classList.toggle('info'); return } else if(k==='ST'){ this.deploy(); return } else if(k==='B'){ this.ask(true); return } else return; this.draw() },
-  options(){ const P=document.getElementById('pause'); if(!P||document.getElementById('loWheel'))return; const l=document.createElement('label'); l.className='goresw'; l.title='Mouse wheel swaps between the M16A1 and the .45';
+  options(){ const P=document.getElementById('pause'); if(!P||document.getElementById('loWheel'))return; const l=document.createElement('label'); l.className='goresw'; l.title='Mouse wheel swaps between your primary and the .45';
     l.innerHTML='<span>WHEEL SWAPS WEAPON</span><input type="checkbox" id="loWheel"><i></i><b class="loWheelTxt"></b>'; const anchor=P.querySelector('.lowSw'); if(anchor&&anchor.parentNode)anchor.parentNode.insertBefore(l,anchor); else P.appendChild(l);
     const c=l.querySelector('input'), t=l.querySelector('b'), set=()=>{ c.checked=this.wheelOn(); t.textContent=c.checked?'ON':'OFF' }; set();
     c.addEventListener('change',()=>{ try{ localStorage.setItem('lco_lo_wheel',c.checked?'1':'0') }catch(e){} set(); c.blur() }); c.addEventListener('keydown',e=>e.stopPropagation()) }
@@ -8448,7 +8453,7 @@ if(LO_ON){
   const _si=startIntro; startIntro=function(q){ if(LO.need()&&!LO.cont&&state!=='loadout'){ LO.open(()=>_si(q)); return } return _si(q) };
   const _ng=newGame; newGame=function(d){ const r=_ng(d); try{ LO.apply() }catch(e){ console.warn('[LCO] loadout apply',e&&e.message) } return r };
   window.addEventListener('keydown',e=>LO.key(e),true);
-  document.addEventListener('keydown',e=>{ if(state!=='play'||e.repeat||!LO.act())return; if(LO.BIND.prim.includes(e.code))LO.sel('m16'); else if(LO.BIND.side.includes(e.code))LO.sel('m1911') });
+  document.addEventListener('keydown',e=>{ if(state!=='play'||e.repeat||!LO.act())return; if(LO.BIND.prim.includes(e.code))LO.sel('prim'); else if(LO.BIND.side.includes(e.code))LO.sel('m1911') });
   let wT=0; addEventListener('wheel',e=>{ if(state!=='play'||!LO.act()||!LO.wheelOn())return; const n=performance.now(); if(n-wT<150)return; wT=n; LO.swap() },{passive:true});
   setInterval(()=>{ try{ LO.hud() }catch(e){} },150);
   if(document.readyState==='loading')addEventListener('DOMContentLoaded',()=>LO.options()); else setTimeout(()=>LO.options(),0);
@@ -8460,7 +8465,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
   pick(){ for(const g of this.pads()){ if(g&&g.connected&&g.buttons&&g.buttons.length>=10)return g } return null },
   toast(t,ms){ const h=$('padHint'); if(!h)return; h.textContent=t; h.classList.add('show'); clearTimeout(this.hintT); this.hintT=setTimeout(()=>h.classList.remove('show'),ms||5000) },
   rbT:0, medTap:0, rbHold(){ return !!(this.rbT&&this.prev[this.BTN.RB]&&performance.now()-this.rbT>=600) },
-  keysText(){ const n=k=>this.pn(k); return `Controller: left stick / D-pad move · ${n('A')} special · ${n('X')} call the bird / pop smoke · hold ${n('RB')} call engineers (firebase ring) · ${LO_ON?'hold '+n('LB')+' enter/leave bunker · '+n('Y')+' swap M16A1/.45':n('Y')+' enter/leave bunker'} · ${n('B')} patch self · tap ${n('RB')} patch Marine · ${n('A')}/${n('B')} confirm/negative the smoke · ${LO_ON?n('R3'):n('LB')} mute · ${n('ST')} pause · ${n('SE')} fullscreen · Level-up: stick/D-pad/${n('LB')}/${n('RB')} highlight, ${n('A')} choose, ${n('X')} reroll, ${n('Y')} banish · Menus: D-pad/stick + ${n('A')}, ${n('B')} back` },
+  keysText(){ const n=k=>this.pn(k); return `Controller: left stick / D-pad move · ${n('A')} special · ${n('X')} call the bird / pop smoke · hold ${n('RB')} call engineers (firebase ring) · ${LO_ON?'hold '+n('LB')+' enter/leave bunker · '+n('Y')+' swap primary/.45':n('Y')+' enter/leave bunker'} · ${n('B')} patch self · tap ${n('RB')} patch Marine · ${n('A')}/${n('B')} confirm/negative the smoke · ${LO_ON?n('R3'):n('LB')} mute · ${n('ST')} pause · ${n('SE')} fullscreen · Level-up: stick/D-pad/${n('LB')}/${n('RB')} highlight, ${n('A')} choose, ${n('X')} reroll, ${n('Y')} banish · Menus: D-pad/stick + ${n('A')}, ${n('B')} back` },
   setOn(on,g){ if(on===this.on)return; this.on=on; document.body.classList.toggle('padon',on);
     if(on){ this.id=(g&&g.id)||''; this.ps=/054c|playstation|dualshock|dualsense|sony|wireless controller/i.test(this.id)&&!/xbox|microsoft|045e/i.test(this.id);
       const ab=$('abilKey'); if(ab){ ab._k=ab.textContent; ab.textContent=this.pn('A').split(' ')[0] }

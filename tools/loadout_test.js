@@ -25,7 +25,7 @@ const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0
    await pg.keyboard.press('Escape'); await pg.waitForTimeout(100); r=await pg.evaluate(()=>({ask:LO.asking(),st:__ms.stateX})); T('Esc asks to confirm',r.ask&&r.st==='loadout',r);
    await pg.keyboard.press('Enter'); await pg.waitForTimeout(100); r=await pg.evaluate(()=>({ask:LO.asking(),st:__ms.stateX})); T('Enter on default NO keeps the screen',!r.ask&&r.st==='loadout',r);
    const lk=await pg.evaluate(()=>document.querySelectorAll('#loadout .loOpt.lk .loLk').length); T('locked gear show lock + Unlocks after N',lk===3,lk);
-   await pg.keyboard.press('ArrowDown'); await pg.waitForTimeout(80); await pg.keyboard.press('Space'); await pg.waitForTimeout(600);
+   await pg.keyboard.press('ArrowUp'); await pg.waitForTimeout(80); await pg.keyboard.press('Space'); await pg.waitForTimeout(600);
    r=await pg.evaluate(()=>({st:__ms.stateX,lo:__ms.G.lo,sa:__ms.G.sidearm,last:localStorage.getItem('lco_loadout_last')})); T('Deploy -> intro with primary None, .45 selected',r.st!=='loadout'&&r.lo&&r.lo.prim==='none'&&r.lo.sel==='m1911'&&r.sa===true,r);
    await pg.close() }
  // C bots skip, swap, pool, HUD
@@ -42,5 +42,25 @@ const srv=http.createServer((q,r)=>{ let p=decodeURIComponent(q.url.split('?')[0
    T('30 s sim with a stray M60 runs; HUD shows icon+text; wheel option exists',r.d==='flex'&&/\.45\s*M1911A1/.test(r.h)&&r.opt,r);
    r=await pg.evaluate(()=>{ const ok=window.LO.ON; return {v:JSON.parse(localStorage.getItem('lco_runsave')||'{}').v||null, tip:TEACH&&TEACH.txt?null:null} }); console.log('runsave v (if saved yet):',r.v);
    await pg.close() }
+ // D full primary pool (Blake Oct 29): none/M16A1/M14/M60/M79/Ithaca 37
+ { const pg=await mk('pool'); await pg.goto(B+'index.html?loadout=1&nodemo&nointro&nobrief&bot&autostart'); await pg.waitForTimeout(1500);
+   let r=await pg.evaluate(()=>{ const P=LO.SLOTS[0].opts.map(o=>o.id), T=LO.SLOTS[2].opts.find(o=>o.id==='smoke'); const txt=JSON.stringify(LO.SLOTS)+((document.getElementById('loHud')||{}).textContent||''); return {P,smoke:T.info,bad:/(corpsm[ae]n|doc)[^.]{0,30}carri\w*[^.]{0,20}(m16|m14|m60|m79|ithaca|shotgun|rifle|machine gun|launcher)|(m16|m14|m60|m79|ithaca|shotgun|rifle|machine gun|launcher)[^.]{0,30}carried by (doc|corpsm)/i.test(txt),r870:/870/.test(JSON.stringify(LO.SLOTS))} });
+   T('primary pool is none/m16/m14/m60/m79/Ithaca 37',JSON.stringify(r.P)==='["none","m16","m14","m60","m79","shotgun"]',r.P);
+   T('M18 smoke text: green/yellow/violet only, no red',/green/i.test(r.smoke)&&/yellow/i.test(r.smoke)&&/violet/i.test(r.smoke)&&!/red/i.test(r.smoke),r.smoke);
+   T('no "corpsmen carried" claim, no 870',!r.bad&&!r.r870,r);
+   await pg.close() }
+ for(const [prim,fw,spd,nm] of [['none','m16',.15,'M1911A1'],['m16','m16',0,'M16A1'],['m14','m16',0,'M14'],['m60','m60',-.15,'M60'],['m79','m79',0,'M79'],['shotgun','shotgun',0,'Ithaca 37']]){
+   const pg=await mk('p-'+prim); await pg.goto(B+'index.html?loadout=1&nodemo&nobrief&fieldReports=0'); await pg.waitForTimeout(800);
+   await pg.evaluate(p=>localStorage.setItem('lco_loadout_last',JSON.stringify({prim:p,side:'m1911',thr:'smoke',gear:'unit1'})),prim);
+   await pg.goto(B+'index.html?loadout=1&nodemo&nointro&nobrief&bot&autostart'); await pg.waitForTimeout(1500);
+   let r=await pg.evaluate(()=>{ const g=__ms.G, L=g.lo, ws=Object.keys(g.w).filter(k=>({m16:1,m60:1,m79:1,m1903:1,grease:1,knives:1,shotgun:1})[k]); return {prim:L.prim,sel:L.sel,fid:LO.fid(),ws,spd:g._loSpd||0,sa:g.sidearm,thr:L.thr} });
+   T(prim+': applied, selected gun = '+fw+', move '+spd,r.prim===prim&&r.fid===fw&&Math.abs(r.spd-spd)<1e-9&&r.thr==='smoke'&&(prim==='none'?r.sa&&r.sel==='m1911':!r.sa&&r.sel===prim)&&r.ws.every(k=>k==='m16'||k===fw),r);
+   r=await pg.evaluate(()=>{ for(let i=0;i<60*10&&__ms.stateX==='play';i++)__ms.step(1/60); const h=document.getElementById('loHud'); return {h:h&&h.textContent,t:Math.round(__ms.G.t)} });
+   T(prim+': 10 s sim runs, HUD names '+nm,r.h&&r.h.includes(nm),r);
+   if(prim!=='none'){ r=await pg.evaluate(()=>{ const g=__ms.G; __ms.stateX; LO.swap(); const a={sel:g.lo.sel,sa:g.sidearm,fid:LO.fid()}; g.t+=1; const b=LO.fid(); LO.swap(); return {a,b,back:g.lo.sel} });
+     const exp=prim==='m60'?null:'m16'; T(prim+': swap to .45'+(prim==='m60'?' (M60 slower swap: nothing fires for 0.9 s)':''),r.a.sel==='m1911'&&r.a.sa&&r.a.fid===exp&&r.b==='m16'&&r.back===prim,r) }
+   await pg.close() }
+ { const pg=await mk('m14stats'); await pg.goto(B+'index.html?loadout=1&nodemo&nointro&nobrief&bot&autostart'); await pg.waitForTimeout(1200);
+   const r=await pg.evaluate(()=>{ const s={dmg:16,cd:.55,shots:1,pierce:1}, m=LO.m14(s);   /* ITEMS.m16.stats(1) */ return {s,m} }); T('M14 = slower, harder, piercing on the M16 slot (reused ITEMS stats)',r.m.dmg>r.s.dmg&&r.m.cd>r.s.cd&&r.m.pierce>=2&&r.m.shots===1,r); await pg.close() }
  T('no page errors',errs.length===0,errs.slice(0,5));
  await br.close(); srv.close(); console.log(fails?'FAILS '+fails:'ALL PASS'); process.exit(fails?1:0) })();
