@@ -3013,7 +3013,7 @@ const JG={ON:!!window.JUNGLE_ON,C:8,F:new Map(),q:[],ms:[],t:0,
   PF:/[?&]jperf=0\b/.test(location.search)?0:(LOWFX?90:300), MED:()=>LQ.t==='med'&&!LOWFX, pf(){ return this.PF&&this.MED()?Math.min(this.PF,96):this.PF },   /* pe mem rc8.2 #1: MED ring 96 px (HIGH 300 / LOW 90 unchanged) */   /* LOW: 90 px ring -> ~20 chunk floor for the cap */   /* jr perf: queue chunks up to 300 px beyond the view so they are baked (incl. flattened plant layers) before they scroll in */
   drop(k){ const F=this.F.get(k); this.F.delete(k); try{ if(F&&JUNGLE3.dispose)JUNGLE3.dispose(F) }catch(e){} },   /* pe mem rc8.2 #1: zero canvases on drop */
   pre(cam,budget){ if(!this.ok())return; const med=this.MED(), PFn=med?Math.max(this.pf(),160):this.pf(), v=this.vis(cam,PFn).sort((a,b)=>{ const S=48*this.C, X=cam.x+VW/2, Y=cam.y+VH/2; return Math.hypot((a[0]+.5)*S-X,(a[1]+.5)*S-Y)-Math.hypot((b[0]+.5)*S-X,(b[1]+.5)*S-Y) });
-    const CAP=+(params.get('jcap')||(LOWFX?20:med?24:40)), S=48*this.C, p=G.p; let n=0;
+    const CAP=+(params.get('jcap')||(LOWFX?20:med?22:40)), S=48*this.C, p=G.p; let n=0;
     if(!med){ for(const [cx,cy] of v){ if(this.F.has(this.key(cx,cy)))continue; if(n>=budget)break; this.bake(cx,cy); n++ }
       /* perf: LRU-ish cap (?jcap=N; 40 desktop / 20 LOW): evict farthest chunks outside view+prefetch ring (HIGH/LOW unchanged) */
       if(this.F.size>CAP){ const keep=new Set(v.map(([x,y])=>this.key(x,y))), d=[]; for(const [k] of this.F){ if(keep.has(k))continue; const [a,b]=k.split(',').map(Number); d.push([Math.hypot((a+.5)*S-p.x,(b+.5)*S-p.y),k]) } d.sort((x,y)=>y[0]-x[0]); for(let q=0;q<d.length&&this.F.size>CAP;q++)this.drop(d[q][1]) } return }
