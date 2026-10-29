@@ -1282,6 +1282,7 @@ window.JUNGLE_ON=(function(){ const q=location.search; if(/[?&]jungle=0\b/.test(
   if(/[?&]fxoff=[^&]*\b(jungle|all)\b/.test(q))return false; const touch=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window)||(navigator.maxTouchPoints>0); let lv=null; try{ lv=localStorage.getItem('lco_lowfx')||localStorage.getItem('lbo2_lowfx') }catch(e){}
   const m=q.match(/[?&]lowfx=([^&]*)/), low=m?m[1]!=='0':lv==='1'; let lq=null; try{ lq=(q.match(/[?&]q=(low|med|high)\b/)||[])[1]||localStorage.getItem('lco_quality') }catch(e){} return !touch&&!low&&lq!=='low' })();   /* rc8.1 Pass 2 perf: LOW quality = no jungle (as documented above; LOW was +16% vs rc7) */
 if(window.JUNGLE_ON)document.write('<script src="assets/art/jungle_v3_lite.js?v=491cea2"><\/script>')</script>
+<script src="assets/art/hill_slope.js?v=491cea2"></script>
 <script>if(!/[?&]terrain=0\b/.test(location.search))document.write('<script src="assets/art/terrain_v2.js?v=491cea2"><\/script>')</script>
 <script>if(!/[?&]fb2=0\b/.test(location.search))document.write('<script src="assets/art/fb2_rc8.js?v=491cea2"><\/script>')</script>
 <script>if(!/[?&]fb2=0\b/.test(location.search))document.write('<script src="assets/art/fb_props_rc8.js?v=491cea2"><\/script>')</script>
@@ -8049,7 +8050,7 @@ const LCO_MAPS=['con_thien','cam_lo_river','route_9_lowlands','khe_sanh_861a'];
 /* follow-up: maps listed ONLY when a map is actually chosen (?map= / LCO_MAP / __lco.setMap from a future picker); a normal launch leaves __lco.maps unset so FR keeps its first-mission fallback */
 window.__lco=Object.assign(window.__lco||{},{ setMap(id){ if(!LCO_MAPS.includes(id))return false; window.__lco.maps=LCO_MAPS.slice(); window.__lco.mapId=id; return true } });
 window.__lco.setMap(params.get('map')||window.LCO_MAP);
-{ const _ng=newGame; newGame=function(d){ const r=_ng.apply(this,arguments); try{ if(window.__lco.mapId)G.mapId=window.__lco.mapId }catch(e){} return r } }
+{ const _ng=newGame; newGame=function(d){ const r=_ng.apply(this,arguments); try{ if(window.__lco.mapId)G.mapId=window.__lco.mapId }catch(e){} try{ if(window.LCO_HILL_SLOPE&&LCO_HILL_SLOPE.apply){ const was=LCO_HILL_SLOPE.active(); if(LCO_HILL_SLOPE.apply(G.mapId)!==was&&typeof TERR!=='undefined')TERR.inval() } }catch(e){} /* rc8.2 hill v2.6: 861A retint */ return r } }
 /* rc8.2 QA: read-only run seed getter (no setter) so QA can verify ?seed=23. null before a run / in demo. Title menu = null even under ?nodemo, whose
    load-time newGame(false) builds a throwaway G with its own seed; startGame() rolls the real run seed (QA verdict_integration_89dae0f, ticket seed_title_null). */
 Object.defineProperty(window.__lco,'seed',{value:function(){ return (typeof G!=='undefined'&&G&&!G.demo&&state!=='menu'&&typeof G.seed==='number')?G.seed:null },writable:false,configurable:false,enumerable:true});

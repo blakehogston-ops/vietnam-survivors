@@ -1,0 +1,8 @@
+- Doc lowest: 3.25 (#8f6146). FAIL: none. BORDERLINE: none
+- NVA lowest: 3.25 (#8f6146). FAIL: none. BORDERLINE: none
+- H1 lowest: 3.77 (#6e786a). FAIL: none. BORDERLINE: none
+- H2 lowest: 3.61 (#777448). FAIL: none. BORDERLINE: none
+- H3 lowest: 3.42 (#7c6d52). FAIL: none. BORDERLINE: none
+- H4 lowest: 3.25 (#8f6146). FAIL: none. BORDERLINE: none
+- H5 lowest: 3.25 (#8f6146). FAIL: none. BORDERLINE: none
+GATE: PASS (>=3.2)
