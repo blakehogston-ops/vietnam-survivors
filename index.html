@@ -2506,7 +2506,15 @@ function drawBoat(b){ if(b.zip&&ZMON.ok())return ZMON.draw(b); if(VEH()&&SHEET1.
   if(b.f50>0){ ctx.fillStyle='#fff3a0'; ctx.beginPath(); ctx.arc(15,-2.2,3.4,0,TAU); ctx.arc(15,2.2,3.4,0,TAU); ctx.fill() } ctx.restore();
   ctx.save(); ctx.translate(-18,0); ctx.rotate(b.tb-b.hd); ctx.fillStyle='#111'; ctx.fillRect(0,-1,9,2); if(b.f60>0){ ctx.fillStyle='#ffd26a'; ctx.beginPath(); ctx.arc(11,0,3,0,TAU); ctx.fill() } ctx.restore();
   ctx.restore() }
-function drawCH46(h){ if(VEH()&&SHEET1.drawSeaKnight&&!/[?&]ch46v2=0/.test(location.search)){ const alt=h.z===undefined?34:h.z; let r=null; try{ r=SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt,heading:h.hd||0,t:(h.rot||0)/34,scale:1,state:alt>30?'flying':alt>3?'hover':'landed',damage:h.mhp&&h.hp<h.mhp*.4?1:0,hit:h.hf>0}) }catch(e){ r=null }
+/* rc8.2 AD v6b(a): gameplay CH-46s are deferred and drawn at full alpha after every world overlay (smoke, dust, pad rings), so nothing fades or
+ * tints them; a separate ground shadow (darker, offset down-right: sun top-left) goes under, and Marines/Doc underneath get a light outline on top. */
+const BIRDQ=[]; function drawCH46(h){ if(!BIRDQ.f){ BIRDQ.push(h); return } drawCH46b(h) }
+function flushBirds(){ if(!BIRDQ.length)return; BIRDQ.f=1; try{ for(const h of BIRDQ){ ctx.save(); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over'; ctx.filter='none';
+    const alt=h.z===undefined?34:h.z, x=Math.round(h.x), y=Math.round(h.y), ga=Math.max(.25,.62-alt/240); ctx.fillStyle=`rgba(8,10,4,${ga.toFixed(3)})`; ctx.beginPath(); ctx.ellipse(x+14+alt*.6,y+16+alt*.32,128,38,0,0,TAU); ctx.fill();   /* ground shadow ~35% darker than the baked one, down-right */
+    drawCH46b(h);
+    if(alt<40){ const L=[G.p].concat(typeof coy!=='undefined'?coy:[]); ctx.lineWidth=1.5; for(const m of L){ if(!m||m.dead||m.hid)continue; const dx=m.x-x, dy=m.y-(y-alt); if(Math.abs(dx)>230||dy<-200||dy>120)continue; ctx.strokeStyle=m===G.p?'rgba(255,246,190,.85)':'rgba(220,232,190,.7)'; ctx.beginPath(); ctx.ellipse(m.x,m.y+12,7,3,0,0,TAU); ctx.moveTo(m.x-5,m.y+10); ctx.lineTo(m.x-5,m.y-6); ctx.arc(m.x,m.y-6,5,Math.PI,0); ctx.lineTo(m.x+5,m.y+10); ctx.stroke() } }   /* outline of the men under the hull */
+    ctx.restore() } }catch(e){} BIRDQ.length=0; BIRDQ.f=0 }
+function drawCH46b(h){ if(VEH()&&SHEET1.drawSeaKnight&&!/[?&]ch46v2=0/.test(location.search)){ const alt=h.z===undefined?34:h.z; let r=null; try{ r=SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt,heading:h.hd||0,t:(h.rot||0)/34,scale:1,state:alt>30?'flying':alt>3?'hover':'landed',damage:h.mhp&&h.hp<h.mhp*.4?1:0,hit:h.hf>0}) }catch(e){ r=null }
     if(r){ h.muz=r.muzzles; const x=Math.round(h.x), y=Math.round(h.y-alt); if(h.mhp&&!h.crash){ const rr=Math.max(0,h.hp/h.mhp), w=48, bx=x-w/2, by=y-62; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(bx-1,by-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(bx,by,w,5); ctx.fillStyle=rr>.55?'#6fd04a':rr>.28?'#f2b134':'#e03a2a'; ctx.fillRect(bx,by,w*rr,5) } return } }   /* Artist Helper ch46_v2 (same model/scale as vehicles.js ch46); falls through to drawEvacBird */
   if(VEH()&&SHEET1.drawEvacBird){ const alt=h.z===undefined?34:h.z, r=SHEET1.drawEvacBird(ctx,{x:Math.round(h.x),y:Math.round(h.y),alt,heading:h.hd||0,t:(h.rot||0)/34,scale:1}); h.muz=r&&r.muzzles; const x=Math.round(h.x), y=Math.round(h.y-alt);
     if(h.hf>0){ ctx.fillStyle='rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(x,y-4,34,14,0,0,TAU); ctx.fill() }
@@ -8260,7 +8268,7 @@ const ATM={ON:!!window.VFX_ATMO&&!/[?&]atmo=0\b/.test(location.search),NIGHT_MAX
     A.update(adt); A.drawFlareShadows&&A.drawFlareShadows(ctx,camX,camY,zoom,U); A.drawWorldOverlay(ctx,camX,camY,zoom); A.drawScreen(ctx) } };
 function icamTick(){ const n=performance.now(), dt=Math.min(.1,(n-(ICAM.t||n))/1000); ICAM.t=n; const b=state==='intro'&&typeof c46Bird==='function'&&!!c46Bird()&&!!INTRO;
   const hb=b?c46Bird():null, off=hb&&hb.ph>=2, FW=off?720:1150, FH=off?470:700, zmin=32/(37*SHEET_SCALE_MEN*ZB), tz=b?Math.max(off?zmin:0,Math.min(off?1.6:1,Math.min(W/(ZB*FW),H/(ZB*FH)))):1;   /* offload + departure: ring framed, Marines >= 32 px on screen */   /* rc8.2 pass 3: approach = whole bird in frame; offload = tighter (whole hull + ramp, Marines 30+ px) */ ICAM.z+=(tz-ICAM.z)*Math.min(1,dt*(tz<ICAM.z?2.2:1.4)); if(Math.abs(ICAM.z-tz)<.002)ICAM.z=tz; { const tox=b&&hb?((off&&G.lzDeco?G.lzDeco.x:hb.x)-G.p.x)*(off?1:.5):0, toy=b&&hb?((off&&G.lzDeco?G.lzDeco.y+10:hb.y)-G.p.y)*(off?1:.5):0; ICAM.ox=(ICAM.ox||0)+(tox-(ICAM.ox||0))*Math.min(1,dt*1.6); ICAM.oy=(ICAM.oy||0)+(toy-(ICAM.oy||0))*Math.min(1,dt*1.6); if(!b&&Math.abs(ICAM.ox)<.5&&Math.abs(ICAM.oy)<.5){ ICAM.ox=0; ICAM.oy=0 } }   /* frame the bird + the stick, eased back onto Doc when he steps off */ zoom=ZB*ICAM.z; VW=W/zoom; VH=H/zoom }
-function render(){ CRUMB.fr=(CRUMB.fr|0)+1; try{ icamTick() }catch(e){} if(JG.ON&&state!=='play'&&G&&window.JUNGLE3&&JUNGLE3.pump&&(!JUNGLE3.pending||JUNGLE3.pending()>0||!JG.F.size))try{ JG.boot() }catch(e){} TERR.tick(); TERR.budget(TERR.stats().cells<6&&!TERR.staleN()?24:4);
+function render(){ BIRDQ.length=0; BIRDQ.f=0; CRUMB.fr=(CRUMB.fr|0)+1; try{ icamTick() }catch(e){} if(JG.ON&&state!=='play'&&G&&window.JUNGLE3&&JUNGLE3.pump&&(!JUNGLE3.pending||JUNGLE3.pending()>0||!JG.F.size))try{ JG.boot() }catch(e){} TERR.tick(); TERR.budget(TERR.stats().cells<6&&!TERR.staleN()?24:4);
   ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false; ctx.fillStyle='#2c5226'; ctx.fillRect(0,0,W,H);
   const g=G; if(!g)return; const p=g.p;
   const shx=g.shake>.3?(rnd()-.5)*g.shake:0, shy=g.shake>.3?(rnd()-.5)*g.shake:0;
@@ -8434,6 +8442,7 @@ function render(){ CRUMB.fr=(CRUMB.fr|0)+1; try{ icamTick() }catch(e){} if(JG.ON
     ctx.save(); ctx.translate(q.jx,q.jy-64); ctx.rotate(a); jetShape(1.25,true); ctx.restore() }
   // small hp bar over player
   if(p.hp<p.maxHp){ ctx.fillStyle='#000a'; ctx.fillRect(p.x-16,p.y+20,32,5); ctx.fillStyle=p.hp/p.maxHp>.3?'#5bd05b':'#e64a3a'; ctx.fillRect(p.x-15,p.y+21,30*p.hp/p.maxHp,3) }
+  flushBirds();
   // ---- screen space HUD ----
   ctx.setTransform(1,0,0,1,0,0);
   if(!g.demo){ try{ const sn=performance.now(), sdt=Math.min(.1,(sn-(render.sT||sn))/1000); render.sT=sn; strikeMixTick(sdt,camX,camY,W/zoom,H/zoom) }catch(e){} }
