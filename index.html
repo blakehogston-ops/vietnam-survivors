@@ -449,10 +449,11 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
 <script>window.LCO_BUILD_TIER='public';</script>
 <script>/* Legal Oct 28: unlock-all gate. LCO_TIER = build tier for unlocks (separate from LCO_BUILD_TIER, which stays 'public' = Loc/vi VO off, as in Blake's Mac app).
    Electron: ?lcotier= from steam/main.js (package "lcoTier"). Browser: ?lcotier= if given, else 'test' on localhost/127.0.0.1 and /next/, else 'public'.
-   ON in friends/test, OFF in public. QA override: ?unlock=0 forces OFF everywhere (?unlock=1 forces ON only outside the Electron host). */
-(function(){ var q=new URLSearchParams(location.search), t=q.get('lcotier');
-  if(!/^(public|friends|test)$/.test(t||'')) t=(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||/\/next\//.test(location.pathname))?'test':'public';
-  window.LCO_TIER=t; window.LCO_UNLOCK=q.get('unlock')==='0'?false:(t!=='public'||(q.get('unlock')==='1'&&location.protocol!=='app:')); })();</script>
+   ON in friends/test, OFF in public. QA override: ?unlock=0 forces OFF everywhere (?unlock=1 forces ON only on localhost or /next/). */
+(function(){ var q=new URLSearchParams(location.search), t=q.get('lcotier'), dev=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||/\/next\//.test(location.pathname), host=location.protocol==='app:';
+  /* web hole closed (Oct 28): on any other web host ?lcotier= is ignored and the tier is always public; only the Electron host (app://) and localhost or /next/ read it */
+  if(!host&&!dev) t='public'; else if(!/^(public|friends|test)$/.test(t||'')) t=dev?'test':'public';
+  window.LCO_TIER=t; window.LCO_UNLOCK=q.get('unlock')==='0'?false:(t!=='public'||(q.get('unlock')==='1'&&dev)); })();</script>
 <script>/* save-key migration (rename Last Bird Out -> Last Chopper Out): once per browser profile, copy every old lbo2_/lbo2demo_ key to the
    new lco_/lcodemo_ prefix when the new key is not already set. Old keys are kept (never deleted) so a rollback still finds them. ?lcomig=0 skips it. */
 (function(){ try{ if(/[?&]lcomig=0\b/.test(location.search))return; const L=localStorage; if(L.getItem('lco_migrated'))return; let n=0;
