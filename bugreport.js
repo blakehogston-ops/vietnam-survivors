@@ -30,7 +30,7 @@ function padText(){ return 'hold '+BIND.pad.map(padName).join(' + ')+' '+BIND.ho
 function keyText(){ return BIND.key.replace(/^Key/,'') }
 /* ---- payload ---- */
 function plat(){ const u=navigator.userAgent||'', h=HO(); if(!h&&!/electron/i.test(u))return 'web'; return /Mac/i.test(navigator.platform||u)?'mac':/Win/i.test(navigator.platform||u)?'win':'web' }
-function loadout(g){ try{ const L=g&&g.lo; if(L&&typeof L==='object')return {primary:L.primary||null,throwable:L.throwable||null,gear:L.gear||null}; if(g&&g.loadout)return {primary:String(g.loadout),throwable:null,gear:null} }catch(e){} return null }
+function loadout(g){ try{ const L=g&&g.lo; if(L&&typeof L==='object')return {primary:L.prim||L.primary||null,throwable:L.thr||L.throwable||null,gear:L.gear||null}; if(g&&g.loadout)return {primary:String(g.loadout),throwable:null,gear:null} }catch(e){} return null }
 function shot(){ try{ const c=document.getElementById('c'); if(!c||!c.width)return null; const w=640, h=Math.max(1,Math.round(c.height*w/c.width)), o=document.createElement('canvas'); o.width=w; o.height=h; o.getContext('2d').drawImage(c,0,0,w,h); return o.toDataURL('image/jpeg',.6) }catch(e){ return null } }
 function build(note,tags,inc){ inc=inc||{}; let g=null; try{ const x=GG(); g=(x&&!x.demo)?x:null }catch(e){} let hb=null; try{ const h=HO(); hb=h&&h.build?(typeof h.build==='function'?h.build():h.build):null }catch(e){}
   let seed=null; try{ seed=window.__lco&&__lco.seed?__lco.seed():null }catch(e){}
