@@ -510,7 +510,6 @@
   }
   // edge piece composited at runtime: each quadrant shows the texture VARIANT of the tile it lies over, cut by the mask
   // sprite (M.edgeMask[type], frame m<k>), then the dark lip (M.edgeLip[type]) on top. Cached per (type, mask, variants, scale).
-  M.clearEdgeCache = function () { ecache = {}; };   // rc8.2 hill v2.6: sprite legends swapped per map -> drop composited edges
   M.edgeCanvas = function (type, m, v, sc) {
     var key = type + '|' + m + '|' + v.join('') + '|' + sc; if (ecache[key] !== undefined) return ecache[key];
     var c = mkc(T * sc, T * sc); if (!c) return (ecache[key] = null);

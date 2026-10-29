@@ -11,6 +11,24 @@
      restores the untouched originals. ?hill26=0: LCO_HILL_SLOPE is null, nothing is ever swapped. */
   var H = window.LCO_HILL_SLOPE; if (!H) return;
   var orig = null, on = false;
+  /* terrain_v2.js stays byte-identical to 89dae0f (QA protect): its edge cache is private, so on first apply we swap in the same
+     edgeCanvas body (public API only: MAP_TERRAIN2.tile/edgeMask/edgeLip + SHEET1.draw) with a cache we can drop on a legend swap. */
+  var ecache = {}, hooked = false;
+  function edgeHook() {
+    var M = window.MAP_TERRAIN2, S = window.SHEET1; if (hooked || !M || !M.edgeCanvas || !S) return; hooked = true;
+    var T = M.tile;
+    function mkc(w, h) { if (typeof document !== 'undefined' && document.createElement) { var c = document.createElement('canvas'); c.width = w; c.height = h; return c; } return typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : null; }
+    M.edgeCanvas = function (type, m, v, sc) {
+      var key = type + '|' + m + '|' + v.join('') + '|' + sc; if (ecache[key] !== undefined) return ecache[key];
+      var c = mkc(T * sc, T * sc); if (!c) return (ecache[key] = null);
+      var x = c.getContext('2d'), h = T / 2 * sc, off = [[-h, -h], [h, -h], [-h, h], [h, h]], clip = [[0, 0], [h, 0], [0, h], [h, h]];
+      x.imageSmoothingEnabled = false;
+      for (var q = 0; q < 4; q++) { x.save(); x.beginPath(); x.rect(clip[q][0], clip[q][1], h, h); x.clip(); S.draw(x, type, 'v' + v[q], off[q][0], off[q][1], sc); x.restore(); }
+      x.globalCompositeOperation = 'destination-in'; S.draw(x, M.edgeMask[type], 'm' + m, 0, 0, sc);
+      x.globalCompositeOperation = 'source-over'; S.draw(x, M.edgeLip[type], 'm' + m, 0, 0, sc);
+      return (ecache[key] = c);
+    };
+  }
   H.apply = function (mapId, S) {
     S = S || window.SHEET1; if (!S || !S.sprites) return false;
     if (!orig) { orig = {}; for (var n in H.retint) if (S.sprites[n]) orig[n] = S.sprites[n]; }
@@ -18,7 +36,7 @@
     var add = {};
     for (var k in orig) add[k] = want ? Object.assign({}, orig[k], { legend: Object.assign({}, orig[k].legend, H.retint[k]) }) : orig[k];
     S.add(add); on = want;
-    var M = window.MAP_TERRAIN2; if (M && M.clearEdgeCache) M.clearEdgeCache();
+    edgeHook(); ecache = {};   /* composited edges were baked from the old legends */
     return on;
   };
   H.active = function () { return on; };
