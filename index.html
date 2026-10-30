@@ -3356,7 +3356,7 @@ function newGame(demo){ N2.reset(); try{ ATM.reset() }catch(e){}
   }
   G.nextLz=demo?9e9:(DBG.t>0?t0+4:t0+100); G.lzN=0; G.fbN=0; G.inFb=false; G.ex=mkEx(); G.sig=[]; G.exHold=false; G.fbLog=[];
   G.seed=seed; G.q15=!demo; G.rl={seed,firstDeath:null}; G.lastHit=null; G.hs={}; G.luN=0; bodies=[];
-  applyChar(demo); if(!demo){ P3.runAch=[]; P3.loadout(); insertFifteen() }
+  applyChar(demo); if(!demo){ P3.runAch=[]; P3.runRe=[]; P3.tg=null; P3.loadout(); insertFifteen() }
 }
 const XPK=(()=>{ const v=parseFloat(new URLSearchParams(location.search).get('xpk')); return isFinite(v)?v:3.2 })();   /* Gamer Oct 15: ~5 level-ups a run (was 8). ?xpk= tunes */
 /* ===== BAL81: rc8.1 balance tunables (Game Design & UX Advisor starting numbers; Lead Playtester early-1852f7a #3/#4/opening ramp). ?bal81=0 = all off (rc8.1 balance as of 1852f7a). =====
@@ -8198,11 +8198,11 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
   onOver(win,why){ const g=G; if(!g||g.demo)return; const c=this.ctx(g,{win,why}); let html='';
     if(this.SC){ this.css(); const s=this.score(c); c.score=s.tot; const rank=this.post(c,s); const best=this.ls('lco_hiscore',0); if(s.tot>best)this.ss('lco_hiscore',s.tot); html=this.endHtml(c,s,rank) }
     if(this.ACH)this.check(c); squad2Check();
-    if(this.ACH&&ENDACH){ this.css(); const ra=this.runAch||[]; html+='<div class="p3sc" id="p3runAch"><div class="row"><b>ACHIEVEMENTS THIS RUN'+(DEMO?' · DEMO':'')+'</b><span>'+ra.length+'</span></div>'+(ra.length?ra.map(a=>'<div class="row"><span>&#9733; '+a.name+'</span><span style="opacity:.7">'+a.desc+'</span></div>').join(''):'<div class="row"><span style="opacity:.7">none this time</span></div>')+'</div>' }   /* rc6 Gamer #9 (?endach=0) */
+    if(this.ACH&&ENDACH){ this.css(); const ra=this.runAch||[]; html+='<div class="p3sc" id="p3runAch"><div class="row"><b>ACHIEVEMENTS THIS RUN'+(DEMO?' · DEMO':'')+'</b><span>'+ra.length+'</span></div>'+(ra.length?ra.map(a=>'<div class="row"><span>&#9733; '+a.name+'</span><span style="opacity:.7">'+a.desc+'</span></div>').join(''):'<div class="row"><span style="opacity:.7">'+((this.runRe||[]).length?'no new ones':'none this time')+'</span></div>')+((this.runRe||[]).length?'<div class="row"><span style="opacity:.7">Earned again: '+this.runRe.map(a=>a.name).join(', ')+'</span></div>':'')+'</div>' }   /* rc8.3: count = the same per-run list the toasts use (P3.runAch) */   /* rc6 Gamer #9 (?endach=0) */
     if(html){ $('stats').insertAdjacentHTML('beforeend',html); const b=$('p3lbBtn'); if(b)b.onclick=()=>{ const x=$('p3lbBox'); x.style.display=x.style.display==='none'?'block':'none' } } },
   /* ---- (b) achievements ---- */
   got(){ return this.ls('lco_ach',{}) },
-  unlock(a){ const m=this.got(); if(m[a.id])return false; m[a.id]=Date.now(); this.ss('lco_ach',m); (this.runAch||(this.runAch=[])).push(a); this.toast(a); this.steam(a.id); return true },
+  unlock(a){ const m=this.got(); const re=this.runRe||(this.runRe=[]); if(m[a.id]){ if(!re.some(x=>x.id===a.id)&&!(this.runAch||[]).some(x=>x.id===a.id))re.push(a); return false }   /* rc8.3: earned again this run (already unlocked on this save) - listed on the card, no toast */ m[a.id]=Date.now(); this.ss('lco_ach',m); (this.runAch||(this.runAch=[])).push(a); this.toast(a); this.steam(a.id); return true },
   steam(id){ if(DEMO)return; try{ const sw=window.steamworks; if(sw){ if(sw.achievement&&sw.achievement.activate)sw.achievement.activate(id); else if(sw.activateAchievement)sw.activateAchievement(id); return } const gw=window.greenworks; if(gw&&gw.activateAchievement)gw.activateAchievement(id,()=>{},()=>{}) }catch(e){} },
   toast(a){ if(NOHUD||CAPTURE)return; (this.tq||(this.tq=[])).push(a); this.pump() },
   pump(){ const w=$('p3toast'); if(this.tq.length&&toastBlocked()){ clearTimeout(this._pt); this._pt=setTimeout(()=>this.pump(),500); return } if(!this.tq.length||(w&&w.children.length>=1))return; this.show(this.tq.shift()); setTimeout(()=>this.pump(),900) },
@@ -8210,7 +8210,7 @@ const P3={SC:P3F('score'),ACH:P3F('ach'),UNL:P3F('unlocks'),
     d.innerHTML=`<i>ACHIEVEMENT UNLOCKED${DEMO?' · DEMO':''}</i><b>${a.name}</b>${a.desc}`; w.appendChild(d); requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('on'))); try{ Snd.play('chime') }catch(e){}
     setTimeout(()=>{ d.classList.remove('on'); setTimeout(()=>{ d.remove(); this.pump() },400) },HUDM.on?2600:4200) },
   check(c){ if(!this.ACH)return; for(const a of ACH){ try{ if((a.live||c.end)&&a.cond(c,this))this.unlock(a) }catch(e){} } },
-  tick(dt){ if(!this.ACH)return; const g=G; if(!g||g.demo||!g.char||state!=='play')return; this.tt=(this.tt||0)+dt; if(this.tt<2)return; this.tt=0; this.check(this.ctx(g,null)) },
+  tick(dt){ if(!this.ACH)return; const g=G; if(!g||g.demo||!g.char||(state!=='play'&&state!=='levelup'))return; if(this.tg==null||g.t<this.tg)this.tg=g.t; if(g.t-this.tg<2)return; this.tg=g.t; this.check(this.ctx(g,null)) },   /* rc8.3: evaluated on game time (G.t), not on accumulated frame dt, so idle / slow-frame runs check on the same clock as the toasts */
   /* ---- (c) loadouts (Doc) + Marines unlock display ---- */
   LO:[{id:'std',nm:'Standard',ds:'M16A1, 2 battle dressings. No trade-offs.',req:null,fx:g=>{}},
     {id:'kit',nm:"Corpsman's Kit",ds:'+2 battle dressings, -10% damage.',req:{ach:'first_out'},fx:g=>{ g.medInv=(g.medInv|0)+2; g.cdm*=.9 }},
