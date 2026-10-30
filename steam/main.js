@@ -45,6 +45,14 @@ const APP_NAME = 'Last Chopper Out';
 app.setName(APP_NAME);
 const NEW_DIR = (process.env.LCO_TEST === '1' && process.env.LCO_USERDATA) ? path.resolve(process.env.LCO_USERDATA) : path.join(app.getPath('appData'), APP_NAME);   // rc8.2: tests get an isolated profile (stale lco_sq2 from a prior smoke replayed all 8 Marines)
 app.setPath('userData', NEW_DIR);
+/* rc8.3 crash log: renderer/GPU/child process exits are appended to userData/lco_crash.log (plus Chromium --enable-logging to userData/chrome_debug.log) */
+const CRASH_LOG = () => path.join(NEW_DIR, 'lco_crash.log');
+function crashLog(kind, d) { try { fs.mkdirSync(NEW_DIR, { recursive: true }); fs.appendFileSync(CRASH_LOG(), new Date().toISOString() + ' ' + kind + ' ' + JSON.stringify(d || {}) + '\n'); } catch (e) {} }
+try { app.commandLine.appendSwitch('enable-logging', 'file'); app.commandLine.appendSwitch('log-file', path.join(NEW_DIR, 'chrome_debug.log')); } catch (e) {}
+app.on('render-process-gone', (e, wc, d) => crashLog('render-process-gone', d));
+app.on('child-process-gone', (e, d) => crashLog('child-process-gone', d));
+app.on('gpu-info-update', () => { if (app.__gpuLogged) return; app.__gpuLogged = 1; app.getGPUInfo('basic').then((g) => crashLog('gpu-info', { dev: (g.gpuDevice || []).map((x) => ({ v: x.vendorId, d: x.deviceId, active: x.active, drv: x.driverVersion })), feat: app.getGPUFeatureStatus() })).catch(() => {}); });
+process.on('uncaughtException', (err) => crashLog('main-uncaught', { m: String(err && err.stack || err) }));
 const OLD_DIRS = ['Last Bird Out', 'last-bird-out', 'LastBirdOut', 'vietnam-survivors'].map((d) => path.join(app.getPath('appData'), d));
 
 /* bug-reporter legal fix: never log/expose the OS user name or home/AppData path (MIG reaches the renderer via steam:status) */

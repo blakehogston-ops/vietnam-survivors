@@ -174,7 +174,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 .howto{line-height:1.7}
 @media (max-width:600px){#menu .bstamp{display:none}}
 #kb{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}#kb.on{display:block}
-#kb i{position:absolute;inset:-6%;background:center/cover no-repeat;opacity:0;transition:opacity 2.5s ease;filter:sepia(.25) contrast(1.05)}#kb i.show{opacity:.30}
+#kb i{position:absolute;inset:-6%;background:center/cover no-repeat;opacity:0;transition:opacity 2.5s ease;filter:sepia(.25) contrast(1.05) brightness(1.3)}   /* rc8.3: menu photos ~1/3 brighter (Blake), still under the .8 overlay tint */#kb i.show{opacity:.40}
 #kb i.go{animation:kbz 16s linear forwards}@keyframes kbz{from{transform:scale(1) translate(0,0)}to{transform:scale(1.12) translate(-2%,-1.5%)}}
 #menu>*:not(#kb){position:relative;z-index:1}
 .ockia{color:#bdb79f;font:12px 'Courier New',monospace;margin:2px 0 6px}.ochon{color:#f0d890;font-size:13px;margin:4px 0 8px;letter-spacing:.04em}.hrib{display:inline-block;width:22px;height:7px;vertical-align:middle;background:linear-gradient(90deg,#4f8fc8 0 40%,#fff 40% 46%,#4f8fc8 46% 54%,#fff 54% 60%,#4f8fc8 60%);border:1px solid #1a1c12}
@@ -9257,7 +9257,7 @@ const Bf={cd:2,
 };
 /* ---- intro rock (original riff, A minor, 126 BPM) + door-gun bursts, scheduled once at intro start ---- */
 const IntroSnd={bus:null,gbus:null,rot:null,wind:null,
-  start(){ const c=Snd.ctx; if(!c||c.state!=='running'||Snd.muted)return; this.stop(true); Combat.init(); Amb.kill(c.currentTime,.05);
+  start(){ const c=Snd.ctx; if(c&&c.state!=='running'&&!Snd.muted){ ILOG('introsnd_wait',{st:c.state}); try{ c.resume().then(()=>{ if(state==='intro'&&c.state==='running'&&!this.rot)this.start() }).catch(()=>{}) }catch(e){} return }   /* rc8.3: ride-in was silent - the context was still resuming when the intro began, so the rotor bed never started; start it as soon as resume() resolves */ if(!c||Snd.muted)return; this.stop(true); Combat.init(); Amb.kill(c.currentTime,.05);
     const now=c.currentTime, t0=now+.06, b=60/126, e=b/2, RT=6.0;   // riff fades out by RT (title card), rotor takes over
     // --- transistor-radio riff: bandpassed + crunchy, low level, underneath the rotor ---
     this.bus=c.createGain(); this.bus.gain.setValueAtTime(.0001,now); this.bus.gain.linearRampToValueAtTime(.9,t0+.5); this.bus.gain.setValueAtTime(.9,t0+3.6); this.bus.gain.linearRampToValueAtTime(.0001,t0+RT);
@@ -9316,5 +9316,27 @@ if(new URLSearchParams(location.search).get('bugreport')==='1')window.__lcoBug={
 })();
 </script>
 <script src="assets/runsave.js?v=491cea2"></script><script src="assets/memtrim.js?v=491cea2"></script>
-<script>/*csfitpatch*/(function(){var was=false;function fit(){var c=document.getElementById("charsel");if(!c)return;var on=c.classList.contains("show");if(on&&!was){c.style.zoom="";c.style.overflow="visible";var h=Math.max(c.scrollHeight,c.getBoundingClientRect().height);var kids=c.children,mx=0;for(var i=0;i<kids.length;i++){var r=kids[i].getBoundingClientRect();if(r.bottom>mx)mx=r.bottom}var need=Math.max(h,mx+16);var s=Math.min(1,(innerHeight-8)/need);if(s<1)c.style.zoom=String(s);c.style.overflow="";}if(!on&&was)c.style.zoom="";was=on}setInterval(fit,150);addEventListener("resize",function(){was=false})})();</script><script>/*menumusicpatch*/(function(){var n=0,iv=setInterval(function(){n++;try{if(typeof Snd!=="undefined"&&Snd.init){Snd.init();Snd.resume&&Snd.resume();if(Snd.ctx&&Snd.ctx.state==="running"&&n>4)clearInterval(iv)}}catch(e){}if(n>60)clearInterval(iv)},500)})();</script><script>/*bugreport loader: ?bugreport=1 only, exact key; flag off = nothing added*/(function(){try{if(new URLSearchParams(location.search).get("bugreport")!=="1")return;var s=document.createElement("script");s.src="bugreport.js"+(typeof AV!=="undefined"?AV:"");document.body.appendChild(s)}catch(e){}})();</script></body>
+<script>/*csfitpatch*/(function(){var was=false;function fit(){var c=document.getElementById("charsel");if(!c)return;var on=c.classList.contains("show");if(on&&!was){c.style.zoom="";c.style.overflow="visible";var h=Math.max(c.scrollHeight,c.getBoundingClientRect().height);var kids=c.children,mx=0;for(var i=0;i<kids.length;i++){var r=kids[i].getBoundingClientRect();if(r.bottom>mx)mx=r.bottom}var need=Math.max(h,mx+16);var s=Math.min(1,(innerHeight-8)/need);if(s<1)c.style.zoom=String(s);c.style.overflow="";}if(!on&&was)c.style.zoom="";was=on}setInterval(fit,150);addEventListener("resize",function(){was=false})})();</script><script>/*menumusicpatch*/(function(){var n=0,iv=setInterval(function(){n++;try{if(typeof Snd!=="undefined"&&Snd.init){Snd.init();Snd.resume&&Snd.resume();if(Snd.ctx&&Snd.ctx.state==="running"&&n>4)clearInterval(iv)}}catch(e){}if(n>60)clearInterval(iv)},500)})();</script><script>/*bugreport loader: ?bugreport=1 only, exact key; flag off = nothing added*/(function(){try{if(new URLSearchParams(location.search).get("bugreport")!=="1")return;var s=document.createElement("script");s.src="bugreport.js"+(typeof AV!=="undefined"?AV:"");document.body.appendChild(s)}catch(e){}})();</script><script>/* rc8.3 menu-fit: if the main menu / end card is taller or wider than the viewport (e.g. 1280x720 CSS at 150% Windows scaling), scale the whole overlay down to fit (design height ~720). Canvas untouched. */
+(function(){
+  const IDS=['menu','over'], PAD=6;
+  function fit(el){
+    el.style.transform='';el.style.transformOrigin='';el.style.width='';el.style.height='';el.style.right='';el.style.bottom='';
+    if(!el.classList.contains('show'))return;
+    const vw=innerWidth,vh=innerHeight; let t=1e9,b=-1e9,l=1e9,r=-1e9;
+    for(const c of el.children){ const p=getComputedStyle(c).position; if(p==='fixed'||p==='absolute')continue; const q=c.getBoundingClientRect(); if(!q.width&&!q.height)continue; t=Math.min(t,q.top);b=Math.max(b,q.bottom);l=Math.min(l,q.left);r=Math.max(r,q.right) }
+    if(t>1e8)return;
+    const h=b-t+2*PAD, w=r-l+2*PAD;
+    if(h<=vh&&w<=vw&&t>=0&&b<=vh)return;
+    const s=Math.max(.4,Math.min(1,vh/h,vw/w));
+    if(s>=.999)return;
+    el.style.transformOrigin='0 0';el.style.transform='scale('+s+')';el.style.right='auto';el.style.bottom='auto';el.style.width=(vw/s)+'px';el.style.height=(vh/s)+'px';el.scrollTop=0;
+  }
+  let raf=0; function all(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>IDS.forEach(i=>{const e=document.getElementById(i); if(e)fit(e)})) }
+  window.MENUFIT=all;
+  function init(){ const mo=new MutationObserver(all); IDS.forEach(i=>{const e=document.getElementById(i); if(e){mo.observe(e,{attributes:true,attributeFilter:['class']}); e.addEventListener('toggle',all,true)}}); mo.observe(document.body,{attributes:true,attributeFilter:['class']}); all(); setTimeout(all,300); setTimeout(all,1500); if(document.fonts)document.fonts.ready.then(all) }
+  addEventListener('resize',all); if(window.visualViewport)visualViewport.addEventListener('resize',all);
+  if(document.readyState==='loading')addEventListener('DOMContentLoaded',init); else init();
+})();</script>
+
+</body>
 </html>
