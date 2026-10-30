@@ -3460,7 +3460,7 @@ function hurtPlayer(dmg,src){ const p=G.p; if(p.invul>0||G.demo||DBG.god)return;
   G.lastHit={src,dmg,t:G.t}; (G.hs||(G.hs={}))[src]=(G.hs[src]||0)+dmg;
   p.hp-=dmg; p.invul=.45; p.hurtT=.18; G.hurt=.5; G.shake=Math.max(G.shake,9); Snd.play('hurt');
   spawnDrops(p.x,p.y-6,0,0,12,130); if(rnd()<.6)addDecal(p.x+(rnd()-.5)*16,p.y+8,SPLAT[(rnd()*5)|0],30,.8);
-  if(p.hp<=0){ if((G.ps.dustoff|0)&&!G.dustUsed)dustoffRevive(); else { p.hp=0; gameOver() } } }
+  lastStandTick(); if(p.hp<=0){ if((G.ps.dustoff|0)&&!G.dustUsed)dustoffRevive(); else { p.hp=0; gameOver() } } }
 let EXIMP=0;   /* set while a real impact clip already covers this explosion (M79 / mortar / 105) */
 function explode(x,y,rad,dmg,kb,vol){ rad*=1+.08*(G.ps.demo|0); if(window.VFX_ATMO)try{ VFX_ATMO.addLight(x,y,'explosion') }catch(e){} if(window.VFX_EXPLOSIONS&&XFX.length<24&&!(G&&G.demo&&XFX.length>8)){ try{ XFX.push({ty:VFX_EXPLOSIONS.forRadius(rad),x,y,t0:G.t}) }catch(e){} } WFX.hit(x,y,rad>=40?'big':'heavy'); if(rad>=40)addCrater(x,y,rad); if(window.VFX_IMPACT&&!(G&&G.demo)){ try{ const n=rad>=90?10:rad>=40?6:3; VFX_IMPACT.debris('dirt',x,y,n,Math.min(1.6,.5+rad/80)); if(rad>=40)VFX_IMPACT.debris('clod',x,y,n>>1,Math.min(1.4,.4+rad/90)); if(IMPLAT&&!LQLOW()&&rad>=40&&VFX_IMPACT.eruption)VFX_IMPACT.eruption(x,y,Math.min(1.6,rad/70),{ground:IGR(x,y),burst:1.3}); VFX_IMPACT.kick(Math.atan2(G.p.y-y,G.p.x-x),rad>=90?'mortar':'m79',{intensity:Math.max(0,1-Math.hypot(G.p.x-x,G.p.y-y)/500)}) }catch(e){} }
   dmgSrc=2;
@@ -3627,7 +3627,17 @@ document.addEventListener('keydown',e=>{ if(!e.repeat&&e.code==='KeyX'&&G){ G.xP
 /* ===== PACE (Blake Oct 14: "most levels in the beginning are more firefights"): early levels are contacts with small NVA/VC fire teams and lulls between them;
    the old continuous swarm + surges only from PACE.MASS_LV (and scripted big pushes). ===== */
 const EARLY=!/[?&]early=0\b/.test(location.search);
-const QAHP=Math.max(0,Math.min(100,+params.get('qahp')||0));
+/* rc8.3 QA hooks, dev/QA tier only: never on ?lcotier=public (or any public web host) and never in the Electron/Steam app (app://).
+   ?qahp=N start the run at N HP · ?qadie=SEC Doc goes down at SEC game seconds · ?storm=1 thunderstorm at 0:08 · ?laststand=1 drop to the last-stand threshold at 0:10.
+   Any hook in use is shown in the build stamp (QA HOOKS) so shots can't pass for real balance. */
+const QAOK=window.LCO_TIER!=='public'&&location.protocol!=='app:';
+const QAH={hp:QAOK&&params.has('qahp')?Math.max(1,+params.get('qahp')||1):0, die:QAOK&&params.has('qadie')?Math.max(0,+params.get('qadie')||0):-1, storm:QAOK&&params.get('storm')==='1', ls:QAOK&&params.get('laststand')==='1'};
+QAH.any=!!(QAH.hp||QAH.die>=0||QAH.storm||QAH.ls); window.__qah=QAH;
+const QAHP=0;   /* rc8.3: the old ?qahp=% hold (ungated) is replaced by QAH.hp above */
+function qaTick(){ const g=G; if(!QAH.any||!g||g.demo||!g.p||state!=='play')return; const p=g.p;
+  if(QAH.hp&&!g.qaHp){ g.qaHp=1; p.hp=Math.min(p.maxHp,QAH.hp) }
+  if(QAH.ls&&!g.qaLs&&g.t>=10){ g.qaLs=1; if(p.hp>p.maxHp*.2)p.hp=Math.max(1,Math.floor(p.maxHp*.2)); lastStandTick() }
+  if(QAH.die>=0&&!g.qaDie&&g.t>=QAH.die&&p.hp>0){ g.qaDie=1; p.hp=0; G.lastHit={src:'QA ?qadie',dmg:0,t:g.t}; gameOver() } }
 const FTSTACK=!/[?&]ftstack=0\b/.test(location.search);
 const DGSUP=!/[?&]dgsup=0\b/.test(location.search);
 const PADLANE=!/[?&]padlane=0\b/.test(location.search);
@@ -4003,7 +4013,13 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){ if(!isFini
   if(FACEAIM&&!/[?&]botface=0/.test(location.search)&&(G.botTimer%1.6)<.35){ const t=nearestK(p.x,p.y,1,420)[0]; if(t){ const dx=t.x-p.x,dy=t.y-p.y,d=Math.hypot(dx,dy)||1; x=dx/d*.6; y=dy/d*.6 } }   /* facing fire: like a player, the bot turns into the nearest enemy for a beat every 1.6 s */
   const l=Math.hypot(x,y); if(l>1){x/=l;y/=l} return [x,y]; }
 
+/* rc8.3 last stand (blind #2 #4: Doc went LOW HP straight to death with no beat): fires once per run on the HP threshold alone (<=20% max HP, alive),
+   banner + 1.5 s of 40% slow-mo. No damage/heal numbers change. ?laststand=0 off. */
+const LSTAND_ON=!/[?&]laststand=0\b/.test(location.search);
+function lastStandTick(){ const g=G; if(!LSTAND_ON||!g||g.demo||g.lsDone||!g.p||!(g.p.hp>0)||g.p.hp>g.p.maxHp*.2)return; g.lsDone=1; g.lsT=1.5; g.lsAt=+g.t.toFixed(1); g.banner={text:'LAST STAND · DOC IS HIT BAD · GET TO COVER',t:3,col:'#ff5a48'}; try{ Snd.play('boss') }catch(e){} }
 function update(dt){
+  if(G&&G.lsT>0){ G.lsT-=dt; dt*=.4 }
+  qaTick();
   if(G.xPend){ G.xPend=0; try{ const ex=G.ex; if(ex&&ex.ph<3)N2.press() }catch(e){} }
   if(window.VFX_IMPACT)try{ VFX_IMPACT.update(dt) }catch(e){}
   N2.tick(dt); EFIGHT.tick(); P3.tick(dt); if(QAHP&&G.p.hp>G.p.maxHp*QAHP/100)G.p.hp=G.p.maxHp*QAHP/100;   /* QA only: ?qahp=N holds Doc at N% HP (screenshots of the low-HP vignette) */
@@ -4253,7 +4269,7 @@ const P2=window.P2={on:true, FRAG, W, IF, sel:0, aim:0, mx:null, my:null, padAim
  lethalHit(src,dmg,tel,lead){ const g=G,p=g.p, cov=this.inCover(p.x,p.y); this.hits.push({t:+g.t.toFixed(2),src,tel,lead:+lead.toFixed(2),cover:cov}); if(DBG.god||p.invul>0)return; this.log.lethal++;
    const d=Math.round(dmg*(cov?.3:1)); if(!this.expo)this.expo={t:g.t,cover:cov}; this.lastSrc={src,tell:lead>=.6,t:g.t}; this.sup=Math.min(1,this.sup+.5*this.supMul()); this.supAt=g.t;
    g.lastHit={src,dmg:d,t:g.t}; p.hp-=d; p.invul=.3; p.hurtT=.18; g.hurt=.5; if(this.opt.shake)g.shake=Math.max(g.shake,9); try{Snd.play('hurt')}catch(e){}
-   if(p.hp<=0){ if((g.ps.dustoff|0)&&!g.dustUsed)dustoffRevive(); else { p.hp=0; gameOver() } } },
+   lastStandTick(); if(p.hp<=0){ if((g.ps.dustoff|0)&&!g.dustUsed)dustoffRevive(); else { p.hp=0; gameOver() } } },
  supMul(){ return 1-.15*this.lv('p2sup') },
  tickThreats(dt){ const g=G,p=g.p; for(let i=this.thr.length-1;i>=0;i--){ const q=this.thr[i]; q.t+=dt;
    if(IF[q.k]){ if(q.t>=q.tel){ const d=Math.hypot(p.x-q.x,p.y-q.y); if(d<q.rad)this.lethalHit('p2:'+q.k,q.dmg*(d<q.rad*.35?1:.7),q.tel,q.t); else if(d<q.rad*2.4)this.nearMiss(.3); try{ blasts&&blasts.push({x:q.x,y:q.y,r:q.rad,t:0,d:.4}) }catch(e){} this.thr.splice(i,1) } }
@@ -4504,7 +4520,7 @@ const WRK={L:[],CAP:150,ON:!/[?&]wrecks=0\b/.test(location.search),
    so enemies stay readable. Sound: SamplePlayer.weather/thunder/rainRoof (inside a player bunker the outdoor rain ducks 12 dB). ?wx=0 off, ?wx=rain|fog|storm forces one. */
 const WX={ON:!/[?&]wx=0\b/.test(location.search),k:null,a:0,T:0,dur:0,at:0,R:[],fl:0,nt:0,roof:false,snd:null,
   reset(){ this.k=null; this.a=0; this.fl=0; this.roof=false; try{ if(SAMP.ready()){ SamplePlayer.weather('off',{fade:.5}); SamplePlayer.rainRoof(false,{fade:.3}) } }catch(e){}
-    const f=(location.search.match(/[?&]wx=(rain|fog|storm)\b/)||[])[1]; this.force=f||null; this.at=f?8:90+Math.random()*120; },
+    const f=(location.search.match(/[?&]wx=(rain|fog|storm)\b/)||[])[1]||(QAH.storm?'storm':null); this.force=f||null; this.at=f?8:90+Math.random()*120; },
   start(){ const g=G, r=Math.random(), lo=COARSE.matches||document.body.classList.contains('low'); let k=this.force||(r<.4?'rain':r<.7?'fog':'storm'); if(k==='fog'&&lo&&!this.force)k='rain';   /* phones: the full-screen fog blit costs ~15 fps, so they get rain instead */ this.k=k; this.T=0; this.dur=this.force?1e9:70+Math.random()*50; this.heavy=k==='storm'||(k==='rain'&&Math.random()<.4);
     (g.wxLog||(g.wxLog=[])).push({k,t:+g.t.toFixed(1)}); if(!this.R.length)for(let i=0;i<90;i++)this.R.push({x:Math.random(),y:Math.random(),v:.8+Math.random()*.5}); this.nt=6+Math.random()*8 },
   snd(on){ try{ if(!SAMP.ready()||!SamplePlayer.weather)return; MIX.as('amb',()=>SamplePlayer.weather(on&&this.k!=='fog'?(this.heavy?'heavy':'light'):'off',{fade:4})) }catch(e){} },
@@ -8569,7 +8585,7 @@ DBG.pad={ info(){ return {on:PAD.on,id:PAD.id,ps:PAD.ps,mx:+PAD.mx.toFixed(2),my
   axes(x,y){ this.connect(); PAD.virt.pad.axes[0]=x; PAD.virt.pad.axes[1]=y } };
 requestAnimationFrame(()=>PAD.frame());
 /* build stamp text on main menu + pause screen, and a stale-page check: GitHub Pages caches the page ~10 min, so on load we ask the server (HEAD, no-store) whether index.html is newer than the copy we are running */
-document.querySelectorAll('.bstamp').forEach(e=>{ e.textContent='BUILD '+(BUILD.tag?BUILD.tag+' · ':'')+BUILD.id+' · '+BUILD.date+(DEMO?' · DEMO':'') });
+document.querySelectorAll('.bstamp').forEach(e=>{ e.textContent='BUILD '+(BUILD.tag?BUILD.tag+' · ':'')+BUILD.id+' · '+BUILD.date+(DEMO?' · DEMO':'')+(QAH.any?' · QA HOOKS':'') });
   if(DEMO){ try{ const h=document.querySelector('#menu h1'); if(h&&!document.getElementById('demoBadge')){ const d=document.createElement('div'); d.id='demoBadge'; d.textContent='DEMO'; d.title='Steam demo build: Doc only, about 12 minutes'; d.style.cssText='display:inline-block;margin:-4px auto 6px;padding:3px 14px;font:bold 15px "Courier New",monospace;letter-spacing:6px;color:#10180c;background:#ffe58a;border:2px solid #6a5418;border-radius:3px;box-shadow:0 3px 0 #0008'; h.insertAdjacentElement('afterend',d) } }catch(e){} }   /* Gamer rc6 #1: DEMO is visible from the menu */ if(ALLU)document.querySelectorAll('.bstamp').forEach(e=>{ const t=document.createElement('span'); t.className='alltag'; t.textContent=' · ALL UNLOCKED (test)'; t.style.color='#e8b04a'; e.appendChild(t) }); try{ console.info('Last Chopper Out build',BUILD.id,BUILD.date) }catch(e){}
 function checkNewBuild(){ if(location.protocol==='file:'||!window.fetch)return Promise.resolve(false);
   return fetch(location.pathname,{method:'HEAD',cache:'no-store'}).then(r=>{ const lm=Date.parse(r.headers.get('last-modified')||''), mine=Date.parse(document.lastModified); const stale=!!(lm&&mine&&lm>mine+2000); if(stale)$('newBuild').classList.add('show'); return stale }).catch(()=>false) }
