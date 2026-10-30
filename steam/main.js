@@ -42,6 +42,7 @@ const fs = require('fs');
 
 /* ---- identity + save path (was 'vietnam-survivors' / 'Last Bird Out') ---- */
 const APP_NAME = 'Last Chopper Out';
+const LCO_TEST_WIN = process.argv.includes('--lco-test');   /* rc8.3: --lco-test labels the window 'LCO TEST' */
 app.setName(APP_NAME);
 const NEW_DIR = (process.env.LCO_TEST === '1' && process.env.LCO_USERDATA) ? path.resolve(process.env.LCO_USERDATA) : path.join(app.getPath('appData'), APP_NAME);   // rc8.2: tests get an isolated profile (stale lco_sq2 from a prior smoke replayed all 8 Marines)
 app.setPath('userData', NEW_DIR);
@@ -145,6 +146,7 @@ function createWindow() {
   });
   // Legal Oct 28: unlock-all only in friends/test builds. BUILD_TIER is the single setting (package.json "lcoTier", set at packaging).
   win.loadURL('app://game/index.html?tier=public&jungle=1&doconly=0&lcotier=' + BUILD_TIER + (BUILD_TIER !== 'public' ? '&all=1' : '') + (TEST ? '&nobrief=1&notut=1' : ''));
+  if (LCO_TEST_WIN) { const T = '[LCO TEST] ' + APP_NAME + ' (test instance - safe to close)'; win.setTitle(T); win.on('page-title-updated', (e) => { e.preventDefault(); win.setTitle(T); }); win.webContents.on('did-finish-load', () => { try { win.webContents.executeJavaScript('document.title=' + JSON.stringify(T)); } catch (e) {} }); }   /* rc8.3 rule: test launches on Blake's PCs are labelled */
   win.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:/.test(url)) require('electron').shell.openExternal(url); return { action: 'deny' }; });
   win.webContents.on('will-navigate', (e) => e.preventDefault());
   win.webContents.on('before-input-event', (e, i) => {
