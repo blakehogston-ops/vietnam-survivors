@@ -2330,6 +2330,12 @@ function buildCorpses(){ let s=424243; const r=()=>{s=(Math.imul(s,1664525)+1013
       x.fillStyle='#5a1812'; for(let i=0;i<5;i++)x.fillRect(Math.round(cx-h/3+r()*h*.6),Math.round(cy-w/4+r()*w*.5),2,2);
       CORPSE[k].push(c) } }
 }
+/* rc8.3 perf (blind #2 fps halving after ~2:10): decals are drawn from a cache of pre-scaled bitmaps (scale quantised to 1/16), expired
+   decals are compacted out once a second so the ring buffer holds live ones only, and the decal cap follows quality (HIGH 380 / MED 240 / LOW 90). ?decsc=0 = old scaled blits. */
+const DECSC_ON=!/[?&]decsc=0\b/.test(location.search), DECSCM=new WeakMap();
+function DECSC(d){ if(!DECSC_ON||!d.c||!d.c.width)return null; const q=Math.max(1,Math.round(d.sc*16)); let m=DECSCM.get(d.c); if(!m){ m={}; DECSCM.set(d.c,m) } let c=m[q]; if(c)return c;
+  const w=Math.max(1,Math.round(d.c.width*q/16)), h=Math.max(1,Math.round(d.c.height*q/16)); c=document.createElement('canvas'); c.width=w; c.height=h; const x=c.getContext('2d'); x.imageSmoothingEnabled=false; x.drawImage(d.c,0,0,w,h); m[q]=c; return c }
+let decCompT=0; function decCompact(dt){ decCompT+=dt; if(decCompT<1)return; decCompT=0; let j=0; for(let i=0;i<decals.length;i++){ const d=decals[i]; if(d&&d.l>0)decals[j++]=d } if(j<decals.length){ decals.length=j; decalI=0 } const cap=LOWFX?90:(window.LCO_QUALITY&&LCO_QUALITY.t==='med')?240:380; if(cap!==DECAL_CAP){ DECAL_CAP=cap; if(decals.length>cap)decals.splice(0,decals.length-cap); decalI=0 } }
 function addDecal(x,y,c,life,sc){ if(!GORE)return; const d={x,y,c,l:life,sc:sc||1}; if(decals.length<DECAL_CAP)decals.push(d); else {decals[decalI]=d; decalI=(decalI+1)%DECAL_CAP;} return d }
 function spawnDrops(x,y,dx,dy,n,spd){ if(!GORE||drops.length>360)return; const L=Math.hypot(dx,dy), dir=L>.5, base=Math.atan2(dy,dx);
   for(let i=0;i<n;i++){ const a=dir?base+(rnd()-.5)*1.5:rnd()*TAU, v=spd*(.3+rnd()*.9); const l=.3+rnd()*.35;
@@ -2934,7 +2940,7 @@ function drawTankBar(t){ const x=Math.round(t.x), y=Math.round(t.y)-38;
   const r=Math.max(0,t.hp/t.mhp), w=48; ctx.fillStyle='rgba(0,0,0,.7)'; ctx.fillRect(x-w/2-1,y-1,w+2,7); ctx.fillStyle='#2a2a22'; ctx.fillRect(x-w/2,y,w,5);
   ctx.fillStyle=r>.55?'#6fd04a':r>.28?'#f2b134':'#e03a2a'; ctx.fillRect(x-w/2,y,Math.round(w*r),5); ctx.fillStyle='rgba(255,255,255,.25)'; ctx.fillRect(x-w/2,y,Math.round(w*r),1) }
 function updateGore(dt){
-  for(let i=decals.length-1;i>=0;i--)decals[i].l-=dt;
+  for(let i=decals.length-1;i>=0;i--)decals[i].l-=dt; decCompact(dt);
   for(let i=drops.length-1;i>=0;i--){const q=drops[i]; q.l-=dt; if(q.l<=0){ if(rnd()<.1&&decals.length<DECAL_CAP)addDecal(q.x,q.y,SPLAT[8+((rnd()*2)|0)],26,.8); drops[i]=drops[drops.length-1];drops.pop();continue}
     const dr=Math.max(0,1-5*dt); q.vx*=dr;q.vy*=dr;q.x+=q.vx*dt;q.y+=q.vy*dt}
   for(let i=gibs.length-1;i>=0;i--){const g=gibs[i]; g.x+=g.vx*dt;g.y+=g.vy*dt;g.z+=g.vz*dt;g.vz-=720*dt;g.rot+=g.vr*dt;
@@ -3394,6 +3400,8 @@ function strikeMixTick(dt,camX,camY,VW,VH){ if(!SMIX_ON)return; let on=false; fo
   try{ window.VFX_ATMO&&VFX_ATMO.setStrikeMix&&VFX_ATMO.setStrikeMix(LQ.t==='high'?LQ.sf:0) }catch(e){}
   const F=window.VFX_FLAME; if(F&&F.CAPS&&F.CAPS.high&&F.CAPS.med){ const H=F.CAPS.high, M=F.CAPS.med; if(!SFH)SFH=Object.assign({},H); const k=LQ.t==='high'?LQ.sf:0;
     for(const q of ['t','e','seg','budget'])H[q]=Math.round(SFH[q]+(M[q]-SFH[q])*k) } }
+/* rc8.3 perf: HIGH drops to MED (once, not saved) when the median real frame time stays above 25 ms for 3 s of play, even with a saved HIGH; ?q= forces skip it */
+const FTW={a:[],n:0,hits:0,on:!params.get('q')};window.__ftw=FTW; function ftTick(dt){ if(!FTW.on||state!=='play'||!G||G.demo||!(dt>0)||dt>.25)return; FTW.a[FTW.n++%180]=dt*1000; if(FTW.n<180||FTW.n%30)return; const s=FTW.a.slice().sort((x,y)=>x-y), p50=s[90]; FTW.hits=p50>25?FTW.hits+1:0; if(FTW.hits>=6&&LQ.t==='high'){ LQ.set('med'); FTW.on=false; FTW.dropAt=G.t; console.info('LCO quality auto-drop HIGH->MED, p50 '+p50.toFixed(1)+' ms') } }
 function pcapTick(rt){ const c=LQ.c; if(LQ.auto&&state==='play'){ LQ.slow=rt>22?LQ.slow+1:Math.max(0,LQ.slow-2); if(LQ.slow>120&&LQ.t!=='low'){ LQ.slow=0; LQ.set(LQ.t==='high'?'med':'low') } }
   if(!PCAPON)return; PCAP=rt>14?Math.max(c.pmin,PCAP-40):Math.min(c.pcap,PCAP+4) }
 /* perf: per-fire glow = one cached sprite per radius (outer #ff6a1a @.45 + inner #ffc23a @.5 baked; drawn at the fire's intensity alpha) instead of 2 ellipse path fills.
@@ -8674,7 +8682,7 @@ function render(){ BIRDQ.length=0; BIRDQ.f=0; CRUMB.fr=(CRUMB.fr|0)+1; try{ icam
   try{ lzDecoDraw(); c46Wash('drawUnder') }catch(e){}   /* rc8.2 intro LZ: dressing + rotor wash under the units */
   // blood decals + corpses (ground layer)
   for(let i=0;i<decals.length;i++){const d=decals[i]; if(d.l<=0)continue; const w=d.c.width*d.sc,h=d.c.height*d.sc; if(d.x<camX-w||d.x>camX+VW+w||d.y<camY-h||d.y>camY+VH+h)continue;
-    const fade=d.l<5; if(fade)ctx.globalAlpha=d.l/5; ctx.drawImage(d.c,Math.round(d.x-w/2),Math.round(d.y-h/2),w,h); if(fade)ctx.globalAlpha=1 }
+    const fade=d.l<5; if(fade)ctx.globalAlpha=d.l/5; const sc=DECSC(d); if(sc)ctx.drawImage(sc,Math.round(d.x-sc.width/2),Math.round(d.y-sc.height/2)); else ctx.drawImage(d.c,Math.round(d.x-w/2),Math.round(d.y-h/2),w,h); if(fade)ctx.globalAlpha=1 }   /* rc8.3 perf: pre-scaled decal bitmaps (scaled blits of 380 decals/corpses were the late-run render cost) */
   for(const b of bodies){ if(b.gone||b.x<camX-40||b.x>camX+VW+40||b.y<camY-40||b.y>camY+VH+40)continue; const spr=COYSPR[b.cv]&&COYSPR[b.cv][0][0][0]; if(!spr)continue; ctx.save(); ctx.translate(Math.round(b.x),Math.round(b.y+6)); ctx.rotate(b.r*Math.PI/2); ctx.globalAlpha=.92; ctx.drawImage(spr,-Math.round(spr.width/2),-Math.round(spr.height*.6)); ctx.restore() }   /* fallen Marines (never removed) */
   // punji pits (ground layer)
   for(let i=0;i<pits.length;i++){ const q=pits[i]; if(q.x<camX-30||q.x>camX+VW+30||q.y<camY-30||q.y>camY+VH+30)continue; drawPit(q,0) }
@@ -8885,7 +8893,7 @@ function simWatch(){ const g=G; if(!g||!g.p)return; const p=g.p;
   if(!isFinite(g.shake)){ simGuard('shake',g.shake); g.shake=0 }   /* the camera is built from p + shake each render */
   if(state==='play'){ if(g.t===SIMG.t){ if(++SIMG.still===120){ simGuard('stall','quiet='+g.quiet); if(g.quiet>0)g.quiet=0 } } else SIMG.still=0 } SIMG.t=g.t }
 function frame(now){
-  let dt=(now-last)/1000; if(!isFinite(dt)){ simGuard('dt',dt); dt=0 } last=now; fpsTick(dt); window.DRES&&window.DRES.tick(dt); try{ inputWatchdog() }catch(e){} if(window.__simHold){ requestAnimationFrame(frame); return } if(dt<0)dt=0;
+  let dt=(now-last)/1000; if(!isFinite(dt)){ simGuard('dt',dt); dt=0 } last=now; fpsTick(dt); ftTick(dt); window.DRES&&window.DRES.tick(dt); try{ inputWatchdog() }catch(e){} if(window.__simHold){ requestAnimationFrame(frame); return } if(dt<0)dt=0;
   /* real time: a slow frame runs several <=50 ms steps (up to 0.2 s per frame), so the game clock keeps pace on slow machines instead of running at half speed */
   if(state==='play'||(state==='menu'&&G&&G.demo)){ let rem=Math.min(dt,.2); while(rem>1e-6){ const st=Math.min(.05,rem); try{ update(st) }catch(e){ simGuard('update',String(e&&e.message||e)); if(!SIMG.thrown){ SIMG.thrown=1; console.error(e) } } rem-=st; if(state!=='play'&&!(state==='menu'&&G&&G.demo))break } } else { if(dt>.05)dt=.05; }
   try{ simWatch() }catch(e){}
