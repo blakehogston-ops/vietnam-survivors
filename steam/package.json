@@ -62,7 +62,9 @@
       "!STEAM_CHECKLIST.md",
       "!**/tools/**",
       "!**/qa/**",
-      "!**/proof/**"
+      "!**/proof/**",
+      "!**/steam_appid.txt",
+      "!**/steam_appid.txt.*"
     ],
     "asarUnpack": [
       "node_modules/steamworks.js/**"

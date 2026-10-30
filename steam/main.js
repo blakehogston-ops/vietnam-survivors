@@ -46,10 +46,10 @@ const LCO_TEST_WIN = process.argv.includes('--lco-test');   /* rc8.3: --lco-test
 app.setName(APP_NAME);
 const NEW_DIR = (process.env.LCO_TEST === '1' && process.env.LCO_USERDATA) ? path.resolve(process.env.LCO_USERDATA) : path.join(app.getPath('appData'), APP_NAME);   // rc8.2: tests get an isolated profile (stale lco_sq2 from a prior smoke replayed all 8 Marines)
 app.setPath('userData', NEW_DIR);
-/* rc8.3 crash log: renderer/GPU/child process exits are appended to userData/lco_crash.log (plus Chromium --enable-logging to userData/chrome_debug.log) */
+/* rc8.3 crash log: renderer/GPU/child process exits are appended to userData/lco_crash.log (Chromium --enable-logging to userData/chrome_debug.log only with --lco-test or LCO_TEST=1) */
 const CRASH_LOG = () => path.join(NEW_DIR, 'lco_crash.log');
-function crashLog(kind, d) { try { fs.mkdirSync(NEW_DIR, { recursive: true }); fs.appendFileSync(CRASH_LOG(), new Date().toISOString() + ' ' + kind + ' ' + JSON.stringify(d || {}) + '\n'); } catch (e) {} }
-try { app.commandLine.appendSwitch('enable-logging', 'file'); app.commandLine.appendSwitch('log-file', path.join(NEW_DIR, 'chrome_debug.log')); } catch (e) {}
+function crashLog(kind, d) { try { fs.mkdirSync(NEW_DIR, { recursive: true }); let ln = new Date().toISOString() + ' ' + String(kind).slice(0, 64) + ' ' + JSON.stringify(d || {}); if (ln.length > 2000) ln = ln.slice(0, 1990) + ' [trunc]'; const f = CRASH_LOG(); try { if (fs.statSync(f).size > 1048576) fs.renameSync(f, f + '.1'); } catch (e) {} fs.appendFileSync(f, ln + '\n'); } catch (e) {} }   /* rc8.3 SBE: entries capped ~2 KB, rotate at ~1 MB keeping one .1 */
+if (process.argv.includes('--lco-test') || process.env.LCO_TEST === '1') try { app.commandLine.appendSwitch('enable-logging', 'file'); app.commandLine.appendSwitch('log-file', path.join(NEW_DIR, 'chrome_debug.log')); } catch (e) {}
 app.on('render-process-gone', (e, wc, d) => { crashLog('render-process-gone', { reason: d && d.reason, exitCode: d && d.exitCode, main: !!(win && wc === win.webContents), url: (() => { try { return wc.getURL().slice(0, 80); } catch (er) { return ''; } })() }); if (d && d.reason !== 'clean-exit' && win && !win.isDestroyed() && wc === win.webContents) { const n = (app.__rpgN = (app.__rpgN || 0) + 1); if (n <= 3) setTimeout(() => { try { crashLog('renderer-reload', { n }); win.webContents.reload(); } catch (er) { crashLog('renderer-reload-fail', { m: String(er) }); } }, 500); } });   /* rc8.3: reload the game instead of leaving a dead window (max 3) */
 ipcMain.on('crash:log', (e, k, d) => crashLog('renderer-' + k, d));
 app.on('web-contents-created', (e, wc) => { wc.on('unresponsive', () => crashLog('unresponsive', {})); wc.on('responsive', () => crashLog('responsive', {})); });
