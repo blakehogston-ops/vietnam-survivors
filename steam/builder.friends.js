@@ -6,7 +6,7 @@
 const base = require('./package.json').build;
 const tier = process.env.LCO_PKG_TIER === 'test' ? 'test' : 'friends';
 module.exports = Object.assign({}, base, {
-  files: base.files.filter((f) => !f.startsWith('!')).concat(['smoke.js']),
+  files: base.files.filter((f) => f !== '!**/smoke*.js' && !f.startsWith('!game/audio/vo_ai/')).concat(['smoke.js']),   // rc8.2: only smoke.js + Loc VO come back; DO-NOT-SHIP/dev excludes stay
   extraMetadata: { lcoTier: tier },
   directories: Object.assign({}, base.directories, { output: 'dist-' + tier }),
 });
