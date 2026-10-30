@@ -36,4 +36,4 @@ ipcRenderer.on('save:flush', () => flush(true));
 let steamOn = false; try { steamOn = ipcRenderer.sendSync('steam:status').available; } catch (e) {}
 const ach = { activate: (id) => { if (typeof id === 'string') ipcRenderer.send('steam:unlock', id); setTimeout(() => flush(true), 50); return true; } };
 contextBridge.exposeInMainWorld('steamworks', { achievement: ach, available: steamOn });
-contextBridge.exposeInMainWorld('lcoHost', { platform: process.platform, electron: true, steam: () => ipcRenderer.sendSync('steam:status'), quit: () => ipcRenderer.send('app:quit'), setFullscreen: (b) => ipcRenderer.send('fs:set', !!b) });
+contextBridge.exposeInMainWorld('lcoHost', { platform: process.platform, electron: true, steam: () => ipcRenderer.sendSync('steam:status'), quit: () => ipcRenderer.send('app:quit'), log: (k, d) => { try { ipcRenderer.send('crash:log', String(k), JSON.parse(JSON.stringify(d || {}))); } catch (e) {} }, setFullscreen: (b) => ipcRenderer.send('fs:set', !!b) });

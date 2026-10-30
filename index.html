@@ -1306,6 +1306,13 @@ const BUILD={id:'491cea2',date:'2026-10-29 01:23 ET',tag:''}, AV='?v='+BUILD.id;
 'use strict';
 /* ====================== setup ====================== */
 const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+/* rc8.3 crash logging: renderer errors, rejections and canvas context loss go to userData/lco_crash.log via lcoHost.log (Electron); context restore rebakes the terrain cache */
+const CRLOG=(k,d)=>{ try{ if(window.lcoHost&&lcoHost.log)lcoHost.log(k,Object.assign({st:typeof state!=='undefined'?state:null,t:(typeof G!=='undefined'&&G)?Math.round(G.t):null,mem:performance.memory?Math.round(performance.memory.usedJSHeapSize/1048576):null},d||{})) }catch(e){} };
+window.__crlog=CRLOG;
+addEventListener('error',e=>CRLOG('js-error',{m:String(e.message||e).slice(0,300),f:(e.filename||'').split('/').pop(),l:e.lineno,c:e.colno,s:String(e.error&&e.error.stack||'').slice(0,800)}));
+addEventListener('unhandledrejection',e=>CRLOG('unhandled-rejection',{m:String(e.reason&&(e.reason.stack||e.reason.message)||e.reason).slice(0,800)}));
+cv.addEventListener('contextlost',e=>{ CRLOG('canvas-contextlost',{w:cv.width,h:cv.height}) });
+cv.addEventListener('contextrestored',()=>{ CRLOG('canvas-contextrestored',{}); try{ TERR.inval() }catch(e){} try{ resize() }catch(e){} });
 /* rc8 ?nohud (store screenshots): no DOM or canvas HUD, no achievement toasts, no dedication / seed / build text on the end card. World + gameplay unchanged. */
 const CAPTURE=window.CAPTURE=/[?&]capture=1\b/.test(location.search); if(CAPTURE){ const f=()=>document.body.classList.add('capture'); if(document.body)f(); else addEventListener('DOMContentLoaded',f) }   /* rc8 ?capture=1: trailer/screenshot mode; gameplay unchanged */
 const NOHUD=window.NOHUD=/[?&]nohud(=1)?(&|$)/.test(location.search); if(NOHUD){ const f=()=>document.body.classList.add('nohud'); if(document.body)f(); else addEventListener('DOMContentLoaded',f) }
@@ -3053,7 +3060,7 @@ const TERR=(()=>{ let B=null, ok=false; const cache=new Map(), stale=new Map(); 
     const out=[]; for(let f=0;f<(hasW?3:1);f++){ const cv=mk(RT,RT), c=cv.getContext('2d'); c.imageSmoothingEnabled=false;
       for(let j=0;j<8;j++)for(let i=0;i<8;i++)tile(c,cx*8+i,cy*8+j,i*32,j*32,'water'+f,M); out.push(cv) } return out }
   function freeV(v){ if(v)for(const c of v){ c.width=0; c.height=0 } } function dropStale(){ for(const v of stale.values())freeV(v); stale.clear() }
-  function get(cx,cy){ const k=cx+','+cy+':'+gen; let v=cache.get(k); if(v){ cache.delete(k); cache.set(k,v); return v } const sk=cx+','+cy; if(bakesLeft<=0)return stale.get(sk)||null; bakesLeft--; v=bake(cx,cy); cache.set(k,v); if(stale.has(sk)){ freeV(stale.get(sk)); stale.delete(sk) } while(cache.size>90){ const k0=cache.keys().next().value, old=cache.get(k0); cache.delete(k0); if(old)for(const c of old){ c.width=0; c.height=0 } }   /* free the evicted chunk's backing store now, not at the next GC (GPU memory) */ return v }
+  function get(cx,cy){ const k=cx+','+cy+':'+gen; let v=cache.get(k); if(v){ cache.delete(k); cache.set(k,v); return v } const sk=cx+','+cy; if(bakesLeft<=0)return stale.get(sk)||null; bakesLeft--; v=bake(cx,cy); cache.set(k,v); if(stale.has(sk)){ freeV(stale.get(sk)); stale.delete(sk) } while(stale.size&&cache.size+stale.size>48){ const s0=stale.keys().next().value; freeV(stale.get(s0)); stale.delete(s0) }   /* rc8.3 crash #3: stale + live chunks capped at 48 so an inval() during play can't double the terrain cache */ while(cache.size>90){ const k0=cache.keys().next().value, old=cache.get(k0); cache.delete(k0); if(old)for(const c of old){ c.width=0; c.height=0 } }   /* free the evicted chunk's backing store now, not at the next GC (GPU memory) */ return v }
   return { ready:art, inval(){ gen++; dropStale(); if(state==='play'){ for(const [k,v] of cache)stale.set(k.slice(0,k.lastIndexOf(':')),v); staleT=performance.now() } else for(const v of cache.values())freeV(v); cache.clear() }, staleN:()=>stale.size, tick(){ if(stale.size&&performance.now()-staleT>3000)dropStale() }, get, frame:fr, mat, landing, budget(n){ bakesLeft=n }, stats:()=>({cells:cache.size,gen}) } })();
 /* flow: current direction per river, speed rises where the channel narrows; foam at banks and bridge piles, debris drifts downstream */
 function rivFlow(h,i){ const d=hash2(i*31+(h?3:9),77)<.5?-1:1; return d }
@@ -8626,7 +8633,7 @@ const ATM={ON:!!window.VFX_ATMO&&!/[?&]atmo=0\b/.test(location.search),NIGHT_MAX
     if(T<300)return 12+4.5*T/300; if(T<390)return 16.5+2.5*(T-300)/90; if(T<480)return 19+1.5*(T-390)/90; return Math.min(this.NIGHT_MAX,20.5+(T-480)/120) },
   night(){ return this.ON&&!!G&&this.hourAt(G.t)>=19.5 },
   weak(){ const n=navigator.hardwareConcurrency||8, m=navigator.deviceMemory||8; return COARSE.matches||n<=4||m<=4 },
-  gpu(){ if(this._gpu!==undefined)return this._gpu; let ok=false; try{ const c=document.createElement('canvas'), gl=c.getContext('webgl'); if(gl){ const d=gl.getExtension('WEBGL_debug_renderer_info'), r=String(d?gl.getParameter(d.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)); ok=!/swiftshader|llvmpipe|software|basic render/i.test(r) } }catch(e){} return this._gpu=ok },
+  gpu(){ if(this._gpu!==undefined)return this._gpu; let ok=false; try{ const c=document.createElement('canvas'), gl=c.getContext('webgl'); if(gl){ const d=gl.getExtension('WEBGL_debug_renderer_info'), r=String(d?gl.getParameter(d.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)); ok=!/swiftshader|llvmpipe|software|basic render/i.test(r); try{ window.__lcoGPU=r; const lc=gl.getExtension('WEBGL_lose_context'); if(lc)lc.loseContext() }catch(e){} c.width=c.height=0 } }catch(e){}   /* rc8.3 crash #4: release the probe context */ return this._gpu=ok },
   reset(){ this.h=-1; this.rn=-1; this.cad=null; this.mor=0; this.how=0; if(this.ON)try{ VFX_ATMO.clearPuddles(); VFX_ATMO.setFlareCadence({on:false}) }catch(e){} },
   /* player support at night: illumination rounds mixed into the fire missions */
   support(id,x,y){ if(!this.night())return; try{ if(id==='mortar'&&(++this.mor%3)===1)VFX_ATMO.addFlare(x,y-40,'mortar81'); else if(id==='howitzer'&&(++this.how%2)===1)VFX_ATMO.addFlare(x,y-60,'arty155'); else if(id==='spooky')VFX_ATMO.addFlare(x,y-80,'mk24') }catch(e){} },
