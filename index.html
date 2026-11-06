@@ -8935,28 +8935,62 @@ const Cutaway={ DEFS:{}, cur:null, last:null, log:[], SKIP_MS:250, FADE_MS:280, 
     let why=null;
     if(!d.draw)why='unknown'; else if(!CUTON)why='off'; else if(this.cur)why='busy'; else if(state!=='play'||!G||G.demo)why='state:'+state; else if(window.__simHold)why='simhold';   /* a harness stepping the sim itself (textfloor/bots) holds the frame loop, so Cutaway.tick would never end the shot */
     if(why){ this.log.push({id:d.id,ran:false,why}); this.last={id:d.id,ran:false,why,skipped:false}; try{ onEnd&&onEnd({id:d.id,immediate:true,why,skipped:false}) }catch(e){ console.error(e) } return false }
+    const vid=this.makeVideo(d);
     const audio=this.audio(d);
     const dur=Math.max(this.MIN_MS,Math.min(d.maxMs||this.MAX_MS,+d.durMs||3000)), now=performance.now();
-    this.cur={id:d.id,def:d,dur,t0:now,heldAt:now,end:now+dur,skipAt:0,skipped:false,prev:state,gT:G.t,onEnd,audio,loading:true,pressed:this.padMask()};
+    this.cur={id:d.id,def:d,dur,t0:now,heldAt:now,end:now+dur,skipAt:0,skipped:false,prev:state,gT:G.t,onEnd,audio,video:vid&&vid.el,videoUI:vid,loading:true,pressed:this.padMask()};
     state='cutaway'; try{ clearInput('cutaway') }catch(e){} this.log.push({id:d.id,ran:true}); return true },
   audio(d){ const r={key:d.audioKey,ok:false,handle:null};
     const start=()=>{ const c=this.cur; if(!c||c.audio!==r||c.skipped)return;
       try{ const SP=window.SamplePlayer; if(SAMP.on&&SP&&SP.hasSample(d.audioKey)){
-        r.handle=SP.play(d.audioKey,{vol:1,bus:'special',vary:false}); r.ok=!!r.handle;
+        const off=d.audioOffset||0, sec=d.audioSec!=null?+d.audioSec:((+d.durMs||0)/1000||undefined);
+        r.handle=SP.play(d.audioKey,{vol:1,bus:'special',vary:false,offset:off,maxDur:sec}); r.ok=!!r.handle;
         if(r.handle&&SP.duckMusic)SP.duckMusic('cutaway:'+d.id,-12,{attack:.08,until:r.handle.end,release:.4});
       } }catch(e){ console.warn('[cutaway] audio',e) }
-      c.t0=performance.now(); c.dur=Math.max(c.dur,r.handle?(r.handle.end-r.handle.start)*1000:0); c.end=c.t0+c.dur; c.loading=false;
+      try{ if(c.video){ c.video.muted=true; const pr=c.video.play(); if(pr&&pr.catch)pr.catch(()=>{ if(!this.cur||this.cur.video!==c.video||c.skipped)return; c.video.muted=true; c.video.play().catch(()=>{}) }) } }catch(e){}
+      if(c.videoUI&&c.videoUI.wrap)c.videoUI.wrap.style.opacity='1';
+      c.t0=performance.now();
+      const audioMs=r.handle?(r.handle.end-r.handle.start)*1000:0;
+      c.dur=Math.max(c.dur,audioMs); if(d.maxMs)c.dur=Math.min(c.dur,d.maxMs);
+      c.end=c.t0+c.dur; c.loading=false;
     };
-    // Start after cur is installed. A cold first call waits paused for the real mix, not a silent 30-second stub.
-    Promise.resolve().then(()=>ArcLightAudio.load()).then(start,e=>{ console.warn('[cutaway] load failed',e); start() });
+    // Start after cur is installed. Wait for the mix and, when present, the cinematic so picture and chatter begin together.
+    const ready=()=>{ const c=this.cur; return (c&&c.videoUI&&c.videoUI.ready)?c.videoUI.ready:Promise.resolve() };
+    Promise.resolve().then(()=>Promise.all([ArcLightAudio.load(),ready()])).then(start,e=>{ console.warn('[cutaway] load failed',e); start() });
     return r },
+  makeVideo(d){ if(!d||!d.videoSrc||typeof document==='undefined'||!document.createElement)return null;
+    const wrap=document.createElement('div'); wrap.id='cutawayVideoWrap';
+    wrap.style.cssText='position:fixed;inset:0;z-index:8000;background:#000;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0';
+    const v=document.createElement('video'); v.id='cutawayVideo';
+    v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline',''); v.setAttribute('muted','');
+    v.muted=true; v.defaultMuted=true; v.preload='auto'; v.playsInline=true; v.setAttribute('disablepictureinpicture','');
+    v.style.cssText='max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;pointer-events:none';
+    const hint=document.createElement('div'); hint.id='cutawayVideoHint';
+    hint.style.cssText='position:absolute;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));font:13px "Courier New",monospace;color:rgba(232,220,192,.8);pointer-events:none';
+    wrap.appendChild(v); wrap.appendChild(hint); try{ document.body.appendChild(wrap) }catch(e){}
+    try{ v.src=(v.canPlayType('video/webm')?d.videoSrc:d.videoSrc.replace(/\.webm$/,'.mp4')) }catch(e){ v.src=d.videoSrc }
+    let done=false, tid=0; const ready=new Promise(res=>{ const fin=()=>{ if(done)return; done=true; try{ if(tid)clearTimeout(tid) }catch(e){} res() };
+      try{ v.addEventListener('canplay',fin); v.addEventListener('canplaythrough',fin); v.addEventListener('error',fin) }catch(e){}
+      if(v.readyState>=3)Promise.resolve().then(fin);
+      try{ tid=setTimeout(fin,3000) }catch(e){}
+    });
+    v.addEventListener('ended',()=>{ const c=this.cur; if(!c||c.video!==v||c.loading||c.skipped)return; c.end=Math.min(c.end,performance.now()) });
+    return {el:v,wrap,hint,ready} },
+  unloadVideo(c){ if(!c)return; const v=c.video, ui=c.videoUI;
+    if(v){ try{ v.pause() }catch(e){} try{ v.removeAttribute('src'); v.load() }catch(e){} try{ v.remove() }catch(e){} }
+    if(ui&&ui.wrap){ try{ ui.wrap.remove() }catch(e){} }
+    c.video=null; c.videoUI=null },
   padMask(){ try{ const g=PAD.pick(); return g?[!!(g.buttons[0]&&g.buttons[0].pressed),!!(g.buttons[9]&&g.buttons[9].pressed)]:[false,false] }catch(e){ return [false,false] } },
   skip(src){ const c=this.cur; if(!c||c.skipAt)return false; const now=performance.now(); if(now-c.t0<this.SKIP_MS)return false; c.loading=false; c.skipped=true; c.skipSrc=src||'api'; c.skipAt=now; c.end=Math.min(c.end,now+this.FADE_MS); return true },
   tick(){ const c=this.cur; if(!c)return; const now=performance.now();
     const pm=this.padMask(); if((pm[0]&&!c.pressed[0])||(pm[1]&&!c.pressed[1]))this.skip('pad'); c.pressed=pm;   /* edge only: a pad button held into the shot never skips it */
+    if(c.videoUI){ const t=now-c.t0, F=this.FADE_MS, out=c.end-now;
+      if(c.videoUI.hint)c.videoUI.hint.textContent=(!c.loading&&t>this.SKIP_MS)?'ANY KEY · SKIP':'';
+      if(c.videoUI.wrap&&!c.loading){ const fade=c.skipped?Math.max(0,out)/F:Math.min(1,t/F,Math.max(0,out)/F); c.videoUI.wrap.style.opacity=String(Math.max(0,Math.min(1,fade))) } }
     if(!c.loading&&now>=c.end)this.finish() },
   finish(){ const c=this.cur; if(!c)return; this.cur=null; const ms=performance.now()-c.heldAt;
     if(c.audio){ try{ c.audio.handle&&c.audio.handle.stop(.08); const SP=window.SamplePlayer; SP&&SP.unduckMusic&&SP.unduckMusic('cutaway:'+c.id,{release:.4}) }catch(e){} }
+    try{ this.unloadVideo(c) }catch(e){}
     if(state==='cutaway')state=c.prev; try{ clearInput('cutaway end') }catch(e){}
     try{ const S=G&&G.spec; if(S){ if(S.wall)S.wall+=ms; if(S.musW0)S.musW0+=ms } }catch(e){}   /* wall-clock spec-ops timer does not run during the shot */
     this.last={id:c.id,ran:true,skipped:c.skipped,skipSrc:c.skipSrc||null,ms:Math.round(ms),gT:c.gT};
@@ -8990,7 +9024,7 @@ const ARCLIGHT_ART={ img:null,
       Cutaway.last_b52=this.drawB52(c,x,y,s) }
     c.fillStyle='#101409'; c.beginPath(); c.moveTo(0,h); for(let x=0;x<=w;x+=w/48){ c.lineTo(x,hz-(Math.sin(x*.031)*.5+Math.sin(x*.007+1)*.7+ihash((x|0)+77)*.6)*26*k) } c.lineTo(w,h); c.closePath(); c.fill();   /* treeline */
     if(shotT>26){ const fl=Cutaway.flash(Math.min(.8,(shotT-26)*.3)); c.fillStyle=`rgba(255,200,130,${fl*.5})`; c.fillRect(0,hz-60*k,w,h-hz+60*k) } } };
-Cutaway.register({id:'arclight',durMs:30000,maxMs:30000,audioKey:'arclight_cutaway_30s_v4',audioSec:30,caption:'ARC LIGHT · B-52D',draw:(c,t,w,h)=>ARCLIGHT_ART.draw(c,t,w,h)});
+Cutaway.register({id:'arclight',durMs:16100,maxMs:16100,audioKey:'arclight_cutaway_30s_v4',audioOffset:9.95,audioSec:16.1,videoSrc:'assets/video/arclight_v3_12h_final_v5.webm',caption:'ARC LIGHT · B-52D',draw:(c,t,w,h)=>{ c.fillStyle='#0b0e08'; c.fillRect(0,0,w,h) }});
 
 // Full designed voices (final v4), radio/intercom FX and music are already baked into this mix.
 const ArcLightAudio={promise:null,loaded:false,

@@ -12,10 +12,11 @@ function setup({off=false,hold=false,cold=false}={}){
   let time=1000,plays=0,stops=0,radio=0,rumble=0,resolve;
   const listeners={},storage={},S={slots:{},hasSample:()=>true,
     load:()=>cold?new Promise(r=>{resolve=r}):Promise.resolve({loaded:['arclight_cutaway_30s_v4']}),
-    play:(key,o)=>{assert.equal(key,'arclight_cutaway_30s_v4');assert.equal(o.vary,false);assert.equal(o.bus,'special');plays++;return {start:0,end:30,stop(){stops++}}},duckMusic(){},unduckMusic(){}};
-  const box={console,Promise,performance:{now:()=>time},location:{search:''},document:{querySelectorAll:()=>[]},
+    play:(key,o)=>{assert.equal(key,'arclight_cutaway_30s_v4');assert.equal(o.vary,false);assert.equal(o.bus,'special');assert.ok(Math.abs((o.offset||0)-9.95)<1e-6);assert.ok(Math.abs((o.maxDur||0)-16.1)<1e-6);plays++;return {start:0,end:o.maxDur,stop(){stops++}}},duckMusic(){},unduckMusic(){}};
+  function mockEl(tag){ return {tagName:String(tag).toUpperCase(),style:{cssText:''},childNodes:[],setAttribute(){},removeAttribute(){},addEventListener(){},removeEventListener(){},appendChild(c){this.childNodes.push(c);return c},remove(){this.removed=true},play(){this.paused=false;return Promise.resolve()},pause(){this.paused=true},load(){},canPlayType(t){return String(t).includes('webm')?'probably':''},muted:true,defaultMuted:true,preload:'auto',playsInline:true,src:'',paused:true,videoWidth:1920,videoHeight:1080,readyState:4,currentTime:0,duration:16.1} }
+  const box={console,Promise,performance:{now:()=>time},location:{search:''},document:{querySelectorAll:()=>[],createElement:mockEl,body:{appendChild(n){this.last=n;return n},removeChild(){}}},
     localStorage:{getItem:()=>off?'0':null,setItem:(k,v)=>{storage[k]=v}},
-    setInterval:()=>1,clearInterval(){},clearInput(){},PAD:{pick:()=>null},RFX:false,
+    setTimeout:(fn,ms)=>setTimeout(fn,ms),clearTimeout:(id)=>clearTimeout(id),setInterval:()=>1,clearInterval(){},clearInput(){},PAD:{pick:()=>null},RFX:false,
     SamplePlayer:S,__simHold:hold,state:'play',G:null,Snd:{play(){radio++},airPlay(){rumble++}},SAMP:{on:true,air(){rumble++;return true}},
     P2ON:false,LO_SMALL:{},FACEAIM:false,SPECW:{arclight:1,boxmission:1},AIRCALL:{arclight:1,boxmission:1},AIR_FX_MAX:10,
     RTO:{on:()=>false},RTO_T:null,CURW:'',TAU:Math.PI*2,rnd:()=>.5,cdRate:()=>1,enemyInView:()=>true,clump:()=>[100,200],refuelRun(){},annc(){},air:[],strikes:[],
@@ -24,20 +25,23 @@ function setup({off=false,hold=false,cold=false}={}){
   box.window=box;vm.createContext(box);vm.runInContext(controller+'\n'+weapons+'\n'+update,box);
   const C=box.Cutaway;
   function fresh(ids=['arclight']){box.state='play';box.air=[];box.G={t:20,p:{x:0,y:0,hp:100},w:Object.fromEntries(ids.map(id=>[id,{lvl:1,cd:0}])),ps:{},spec:{wall:1,musW0:1}}}
-  fresh();return {box,C,listeners,storage,fresh,advance:n=>{time+=n;C.tick()},settle:async()=>{for(let i=0;i<8;i++)await Promise.resolve()},counts:()=>({plays,stops,radio,rumble}),resolve:()=>resolve({loaded:['arclight_cutaway_30s_v4']})};
+  fresh();return {box,C,listeners,storage,fresh,advance:n=>{time+=n;C.tick()},settle:async()=>{for(let i=0;i<16;i++)await Promise.resolve()},counts:()=>({plays,stops,radio,rumble}),resolve:()=>resolve({loaded:['arclight_cutaway_30s_v4']})};
 }
 (async()=>{
   ok(scripts===77,'all 77 inline scripts parse');
   const a=setup();a.box.updateWeapons(.016);
   ok(a.C.cur&&a.box.state==='cutaway'&&a.box.air.length===0,'first B-52 call pauses before any existing air effects spawn');
-  ok(a.C.DEFS.arclight.durMs===30000&&a.C.DEFS.arclight.maxMs===30000&&a.C.MAX_MS===4000,'Arc Light allows 30000ms; default clamp remains 4000ms');
-  await a.settle();ok(a.counts().plays===1&&a.C.cur.audio.ok,'full mix plays once on special bus without pitch variation');
+  ok(a.C.DEFS.arclight.durMs===16100&&a.C.DEFS.arclight.maxMs===16100&&a.C.MAX_MS===4000,'Arc Light allows 16100ms; default clamp remains 4000ms');
+  ok(a.C.DEFS.arclight.audioOffset===9.95&&a.C.DEFS.arclight.audioSec===16.1&&a.C.DEFS.arclight.videoSrc==='assets/video/arclight_v3_12h_final_v5.webm','trailer picture and bomber-section chatter offsets are registered');
+  await a.settle();ok(a.counts().plays===1&&a.C.cur.audio.ok,'designed bomber chatter plays once on special bus from mix offset 9.95');
+  ok(a.C.cur.video&&/arclight_v3_12h_final_v5/.test(a.C.cur.video.src),'muted cinematic overlay uses the trailer v5 file');
+  ok(!/draw:\(c,t,w,h\)=>ARCLIGHT_ART\.draw/.test(html),'drawn B-52 stand-in is not the first-activation picture');
   a.advance(3201);ok(a.C.cur&&a.box.air.length===0,'not cut off by old 3200ms debug duration');
   const g=a.box.G;a.box.update(.05);ok(g.t===20&&g.p.hp===100,'simulation update guard keeps game time and HP frozen during cutaway');
-  a.advance(26798);ok(a.C.cur&&a.box.air.length===0,'no bombs/effects through 29.999 seconds');
+  a.advance(12898);ok(a.C.cur&&a.box.air.length===0,'no bombs/effects through 16.099 seconds');
   a.advance(1);ok(!a.C.cur&&a.box.state==='play'&&a.box.air.length===1,'natural full end resumes and invokes existing B-52 effect exactly once');
   ok(a.box.air[0].wid==='arclight'&&a.box.air[0].kind===3&&a.box.air[0].delay===2.6&&a.box.air[0].s.n===12,'deferred strike preserves weapon id, bomb count and original 2.6s effect delay');
-  ok(a.counts().stops===1&&g.spec.wall===30001,'audio stopped cleanly and spec-op wall timer offsets full pause');
+  ok(a.counts().stops===1&&g.spec.wall===16101,'audio stopped cleanly and spec-op wall timer offsets full pause');
   a.box.G.w.arclight.cd=0;a.box.updateWeapons(.016);ok(a.box.air.length===2&&a.counts().plays===1&&!a.C.cur,'second base call fires instantly, no repeated sequence');
   a.box.G.w={boxmission:{lvl:1,cd:0}};a.box.updateWeapons(.016);
   ok(a.box.air.length===5&&a.counts().plays===1&&!a.C.cur&&Object.keys(g.cutSeen).join()==='arclight','Box Mission shares base seen-flag and spawns three existing runs immediately');
@@ -50,13 +54,13 @@ function setup({off=false,hold=false,cold=false}={}){
   c.C.setEnabled(true);ok(c.storage.lco_cutaways==='1','menu/pause option persists through existing localStorage key');
   const d=setup({hold:true});d.box.updateWeapons(.016);ok(!d.C.cur&&d.box.air.length===1&&d.C.last.why==='simhold','__simHold harness bypass fires immediately without waiting for frames');
   const e=setup({cold:true});e.box.updateWeapons(.016);await e.settle();e.advance(5000);ok(e.C.cur.loading&&e.box.air.length===0,'cold audio load holds simulation and effect');
-  e.resolve();await e.settle();e.advance(29999);ok(e.C.cur&&e.box.air.length===0,'cold load receives full 30 seconds after playback begins');e.advance(1);
-  ok(e.box.air.length===1&&e.box.G.spec.wall===35001,'cold-load pause plus playback both offset spec-op wall clock');
+  e.resolve();await e.settle();e.advance(16099);ok(e.C.cur&&e.box.air.length===0,'cold load receives full 16.10 seconds after playback begins');e.advance(1);
+  ok(e.box.air.length===1&&e.box.G.spec.wall===21101,'cold-load pause plus playback both offset spec-op wall clock');
   const f=setup({cold:true});f.box.updateWeapons(.016);await f.settle();f.advance(251);
   for(const fn of f.listeners.pointerdown)fn({cancelable:true,preventDefault(){},stopImmediatePropagation(){}});f.advance(280);f.resolve();await f.settle();
   ok(f.box.air.length===1&&f.counts().plays===0&&!f.C.cur,'tap skip during loading fires once and prevents late asynchronous audio');
   const h=setup();h.fresh(['arclight','boxmission']);h.box.updateWeapons(.016);await h.settle();ok(h.C.log.length===1&&h.box.G.w.boxmission.cd===0,'simultaneously ready base/evolution stop weapon iteration at first cutaway');
-  h.advance(30000);h.box.updateWeapons(.016);ok(h.counts().plays===1&&h.box.air.length===4,'simultaneous readiness yields one sequence, then both original effects');
+  h.advance(16100);h.box.updateWeapons(.016);ok(h.counts().plays===1&&h.box.air.length===4,'simultaneous readiness yields one sequence, then both original effects');
   ok(/if\(state==='cutaway'\)Cutaway.tick\(\)/.test(html)&&/if\(state==='cutaway'\)Cutaway.draw\(\)/.test(html),'real frame loop ticks and draws cutaway');
   ok(/if\(state==='cutaway'\)\{ this.mx=this.my=0;/.test(html),'gamepad gameplay input swallowed while cutaway owns skip');
   console.log(`RESULT ${checks} checks passed`);
