@@ -3808,8 +3808,8 @@ function spawnBoss(){ (G.blog=G.blog||[]).push({n:G.bossN,t0:G.t,t1:null}); cons
 /* ===== SPEC (Blake Oct 14): one spec-ops reinforcement event per run (?sog=0 off, ?sog=at:SECONDS to move it).
    At the same moment (1) a PBR runs up the nearest river and drops a 6-man Marine recon team (3rd Reconnaissance Battalion) on the bank,
    and (2) an H-34 (Kingbee) inserts a 6-man SOG-style team on land: 3 Americans plus 2 Montagnards and 1 Nung,
-   all full team members, sterile kit (no insignia, no real names). They fight a short break-out (~47 s, ends on the reinforcements sting's final hit)
-   and extract the way they came: recon back to the PBR, SOG back to the Huey. Wounded men are carried out, never left (no hero deaths).
+   all full team members, sterile kit (no insignia, no real names). They stay and fight with you until they go down (no timed extract).
+   Insertion craft leave after drop-off (PBR after a short beach, Kingbee after touchdown). Downed men stay on the ground.
    Gear (Vietnam Vet): recon = M16A1s, one M79, PRC-25 RTO, M14 marksman, utilities, boonies, face paint.
    SOG = CAR-15/XM177E2, sawed-off M79, Swedish K (m/45), suppressed .22 (High Standard), M2 carbines; tiger stripes.
    Abilities (grounded, one-shot or slow): recon PRC-25 call for fire (one 6-round artillery mission, never danger-close on Doc),
@@ -3872,7 +3872,7 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     /* boat */
     const b=S.boat; if(b){ b.f50=Math.max(0,b.f50-dt); if(b.hf>0)b.hf-=dt;
       if(b.ph===0){ const d=b.tu-b.u, st=Math.sign(d)*Math.min(Math.abs(d),210*dt); b.u+=st; const q=riverPos(b.r,b.u); b.x=q.x; b.y=q.y; b.hd=q.hd+(b.dir<0?Math.PI:0); if(Math.abs(b.tu-b.u)<2){ b.ph=1; b.x=b.B.wx; b.y=b.B.wy; this.land('recon'); this.sfx('pbrManeuver','beach','pbr_beach','squad',Math.hypot(b.x-G.p.x,b.y-G.p.y)) } }
-      else if(b.ph===1){ b.c50-=dt; if(b.c50<=0){ b.c50=.5; const t=nearestK(b.x,b.y,1,460)[0]; if(t&&bullets.length<560){ const a=Math.atan2(t.y-b.y,t.x-b.x); b.ta=a; addBullet(b.x+Math.cos(a)*16,b.y+Math.sin(a)*16,a+(rnd()-.5)*.06,740,9,2,.6,3.4,'#fff0a0'); b.f50=.05; if(rnd()<.5)MIX.as('squad',()=>Snd.play('m2'),Math.hypot(b.x-p.x,b.y-p.y)) } } }
+      else if(b.ph===1){ b.stay=(b.stay||0)+dt; if(S.ph!=='out'&&b.stay>2.4){ b.ph=2; this.sfx('pbrManeuver','depart','pbr_depart','squad',Math.hypot(b.x-G.p.x,b.y-G.p.y)) } else { b.c50-=dt; if(b.c50<=0){ b.c50=.5; const t=nearestK(b.x,b.y,1,460)[0]; if(t&&bullets.length<560){ const a=Math.atan2(t.y-b.y,t.x-b.x); b.ta=a; addBullet(b.x+Math.cos(a)*16,b.y+Math.sin(a)*16,a+(rnd()-.5)*.06,740,9,2,.6,3.4,'#fff0a0'); b.f50=.05; if(rnd()<.5)MIX.as('squad',()=>Snd.play('m2'),Math.hypot(b.x-p.x,b.y-p.y)) } } } }
       else if(b.ph===2){ b.u-= b.dir*190*dt; const q=riverPos(b.r,b.u); b.x=q.x; b.y=q.y; b.hd=q.hd+(b.dir<0?0:Math.PI); if(Math.abs(b.u-b.tu)>1100)S.boat=null } }
     /* helos */
     for(const key of ['helo','helo2']){ const h=S[key]; if(!h)continue; h.rot+=dt*34; h.t+=dt; const L=key==='helo'?S.lz:h.lz;
@@ -3882,15 +3882,15 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
       else if(h.ph===4){ /* waiting on the LZ for the team */ } }
     /* team */
     const men=S.men||[]; const fight=S.ph==='fight', T=fight?(S.useWall?(performance.now()-S.wall)/1000:S.t):0;
-    if(fight&&T>=S.fT){ S.ph='out';   /* rc7.1: no banner - the SPEC-OPS status line already says EXTRACTING (was shown twice) */ g.specLog.push({ev:'extract',t:+g.t.toFixed(1)}); if(S.helo&&S.helo.ph===6){ S.helo.ph=3 } if(S.helo2&&S.helo2.ph===6)S.helo2.ph=3 }
+    /* Blake Nov 6 2026: no timed extract — MACV-SOG and recon stay until they go down */
     /* abilities */
     if(fight){ this.abil(S,dt,T) }
     for(const m of men){ if(m.on)continue; if(m.hf>0)m.hf-=dt; if(m.mf>0)m.mf-=dt;
       let tx,ty; const home=m.team==='recon'?(S.boat?{x:S.boat.B.bx,y:S.boat.B.by}:S.helo2?S.helo2.lz:S.lz):S.lz;
-      if(S.ph==='out'){ tx=home.x; ty=home.y } else { const lead=men.find(q=>q.team===m.team&&!q.wia&&(q.role==='tl'||q.role==='oz'))||m; const ax=(p.x*.55+home.x*.45), ay=(p.y*.55+home.y*.45); tx=(m===lead?ax:lead.x)+m.ox*(m===lead?0:1); ty=(m===lead?ay:lead.y)+m.oy*(m===lead?0:1) }
-      const dx=tx-m.x, dy=ty-m.y, d=Math.hypot(dx,dy); const sp=(m.wia?70:S.ph==='out'?150:110);
-      if(d>(S.ph==='out'?6:16)){ const k=Math.min(d,sp*dt)/d; rvMove(m,dx*k,dy*k,'m'); m.mv=true; m.anim+=dt*9; m.face=dx>=0?1:-1 } else m.mv=false;
-      if(S.ph==='out'&&d<=10){ const ok=m.team==='recon'?(S.boat?S.boat.ph===1:(S.helo2&&S.helo2.ph===4)):(S.helo&&S.helo.ph===4); if(ok)m.on=true }
+      if(S.ph==='out'){ tx=home.x; ty=home.y } else { tx=p.x+m.ox; ty=p.y+m.oy }   /* stay with Doc, not the drop LZ */
+      const dx=tx-m.x, dy=ty-m.y, d=Math.hypot(dx,dy); const sp=(m.wia?70:150);
+      if(!(m.wia&&S.ph!=='out')){ if(d>(S.ph==='out'?6:16)){ const k=Math.min(d,sp*dt)/d; rvMove(m,dx*k,dy*k,'m'); m.mv=true; m.anim+=dt*9; m.face=dx>=0?1:-1 } else m.mv=false;
+      if(S.ph==='out'&&d<=10){ const ok=m.team==='recon'?(S.boat?S.boat.ph===1:(S.helo2&&S.helo2.ph===4)):(S.helo&&S.helo.ph===4); if(ok)m.on=true } } else m.mv=false;
       /* contact damage (halved: they move as a team and break contact) */
       if(!m.wia){ for(let j=0;j<enemies.length;j++){ const e=enemies[j]; if(e.dead)continue; const ex2=e.x-m.x, ey=e.y-m.y, rr=e.r+8; if(ex2*ex2+ey*ey<rr*rr){ m.hp-=e.dmg*.5*dt*2; m.hf=.1; if(m.hp<=0){ m.hp=0; m.wia=true; g.specLog.push({ev:'wia',t:+g.t.toFixed(1),team:m.team}); } break } } }
       if(m.wia||(!fight&&S.ph!=='out'))continue; if(G.pullT>0)continue; let W=this.WP[m.wp]; m.cd-=dt; if(m.cd>0)continue; if(m.side&&nearestK(m.x,m.y,1,this.WP[m.side].rng)[0])W=this.WP[m.side];   /* one-zero: suppressed .22 up close */
@@ -3900,6 +3900,7 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
       if(W.gl){ explode(t.x+(rnd()-.5)*14,t.y+(rnd()-.5)*14,W.gl,W.dmg,160,.5); if(Math.hypot(m.x-p.x,m.y-p.y)<420&&rnd()<.6){ if(!this.shot(W,m))MIX.as('squad',()=>SAMP.m79(SAMP.tail())) } }
       else { const n=W.burst||1; for(let k=0;k<n;k++){ if(bullets.length<560)addBullet(mx,my,a+(rnd()-.5)*(W.burst?.12:.05),720,W.dmg,W.pierce||1,.62,3,W.silent?'#8a8a7a':'#ffd46a') } if(!W.silent){ m.mf=.06; if(Math.hypot(m.x-p.x,m.y-p.y)<420&&rnd()<.4&&!this.shot(W,m))MIX.as('squad',()=>Snd.play(W.snd),Math.hypot(m.x-p.x,m.y-p.y)) } else if(Math.hypot(m.x-p.x,m.y-p.y)<260&&rnd()<.5)this.shot(W,m,.6) }
       CURW='' }
+    if(fight&&men.length&&men.every(m=>m.wia||m.on)){ S.ph='done'; g.specLog.push({ev:'done',t:+g.t.toFixed(1),wia:men.filter(m=>m.wia).length}) }
     /* everyone aboard: leave */
     if(S.ph==='out'&&men.length&&men.every(m=>m.on)){ if(S.boat&&S.boat.ph===1){ S.boat.ph=2; this.sfx('pbrManeuver','depart','pbr_depart','squad',Math.hypot(S.boat.x-G.p.x,S.boat.y-G.p.y)) } if(S.helo&&S.helo.ph===4){ S.helo.ph=5; this.sfx('h34','liftoff','h34_liftoff','squad',Math.hypot(S.helo.x-G.p.x,S.helo.y-G.p.y)) } if(S.helo2&&S.helo2.ph===4)S.helo2.ph=5 }
     if(S.ph==='out'){ for(const m of men){ if(!m.on)continue } if(men.every(m=>m.on)&&!S.boat&&!S.helo&&!S.helo2){ S.ph='done'; g.specLog.push({ev:'done',t:+g.t.toFixed(1),wia:men.filter(m=>m.wia).length}) } }
@@ -3950,8 +3951,7 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
   landing(b){ if(!b.B)return; if(b.lt===undefined)b.lt=TERR.landing(b.B.wx,b.B.wy,b.B.bx,b.B.by); const L=b.lt; if(L)for(const q of L)ctx.drawImage(q.im,q.x,q.y) },
   hud(U){ const g=G; if(!this.ON||!g||!g.spec||!HUDB.take())return; const S=g.spec; if(!(S.ph==='fight'||S.ph==='in'||S.ph==='out'))return; const men=S.men||[];
     const rc=men.filter(m=>m.team==='recon'&&!m.wia&&!m.on).length, sg=men.filter(m=>m.team==='sog'&&!m.wia&&!m.on).length, sp=enemies.reduce((n,e)=>n+(e.spot>0&&!e.dead?1:0),0);
-    const T=S.ph==='fight'?Math.max(0,Math.ceil(S.fT-(S.useWall?(performance.now()-S.wall)/1000:S.t))):0;
-    const s=S.ph==='in'?'RECON TEAM INBOUND':S.ph==='out'?'RECON TEAM EXTRACTING':'FRIENDLY RECON TEAMS WITH YOU: '+(rc+sg)+' MEN'+(sp?' · '+sp+' ENEMY MARKED FOR YOU':'')+' · LEAVING IN '+fmt(T);
+    const s=S.ph==='in'?'RECON TEAM INBOUND':S.ph==='out'?'RECON TEAM EXTRACTING':'FRIENDLY RECON TEAMS WITH YOU: '+(rc+sg)+' MEN'+(sp?' · '+sp+' ENEMY MARKED FOR YOU':'');
     txt(s,W/2,laneT(13*U,Math.max(H*.205,exTop(U)+(exStack||0)+14*U)),13*U,S.ph==='fight'?'#9be37a':'#ffe58a','center')   /* rc8a: RECON/SOG line in the lane, below the commander bar */;
     if(S.ph==='fight'&&window.ABILITY_ICONS){ const al=r=>men.some(m=>m.role===r&&!m.wia&&!m.on), I=[['callForFire',al('rto')&&!(S.cff&&S.cff.done)],['sniperOverwatch',al('m14')],['enemyMark',sp>0],['claymoreAmbush',al('oz')&&!S.clay],['silentKill',al('oz')]];
       const sz=U>=1.2?24:16, gap=sz+6, x0=W/2-(I.length-1)*gap/2, y0=H*.205+12*U+sz/2; for(let i=0;i<I.length;i++){ ctx.globalAlpha=I[i][1]?1:.35; ABILITY_ICONS.draw(ctx,I[i][0],Math.round(x0+i*gap),Math.round(y0),sz) } ctx.globalAlpha=1 } } };
