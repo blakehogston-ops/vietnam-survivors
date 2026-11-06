@@ -268,6 +268,7 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
   <button type="button" class="btn alt" id="btnFRB">Bonus: Documentary</button>
   <label class="goresw" id="goreSw" title="Blood, gibs and corpses. OFF = enemies just poof into dust."><span>GORE</span><input type="checkbox" id="goreChk" checked><i></i><b id="goreTxt">ON</b></label>
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label><label class="goresw qSw" title="Graphics quality. HIGH = everything on (high-end PC); MED and LOW scale effects down. Saved."><span>QUALITY</span><select class="qSel" style="font:inherit;background:#1a1712;color:#e8dcc0;border:1px solid #8a2a22;border-radius:8px;padding:2px 6px"><option value="low">LOW</option><option value="med">MED</option><option value="high">HIGH</option></select></label>
+  <label class="goresw cutSw" title="First B-52 call plays the full sequence with the game paused. Any key skips. OFF fires at once."><span>POWER-UP CUTAWAYS</span><input type="checkbox" class="cutChk"><i></i><b class="cutTxt">ON</b></label>
   <label class="goresw rfSw" title="Fewer and slower flashes: no white flash in the intro, steady low-HP border, steady flares and strobes. Follows your system Reduce motion setting until you change it."><span>REDUCE FLASHING</span><input type="checkbox" class="rfChk"><i></i><b class="rfTxt">OFF</b></label>
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
   <div class="htCol"><div class="help howto"><div class="htT htH">HOW TO PLAY</div><div class="htBody htGrid"><b>Move</b><span>WASD / arrows (stick or drag on touch)</span><b>Shooting</b><span>automatic: keep Doc and your Marines alive</span><b>Special</b><span>SPACE</span><b>Patch</b><span>H Doc · Q a Marine</span><b>Call the bird</b><span>X on the PAD circle</span><b>Pop smoke</b><span>automatic on the PAD (G / pad X: at once)</span><b>Confirm smoke</b><span>Y / Enter ours · N / Esc not ours</span><b>Bunker</b><span>E: step in for cover, still shoot</span><b>Engineers</b><span>hold F at a firebase call point</span><b>Level-up</b><span>1 / 2 / 3 pick · R reroll · B banish</span><b>Pause</b><span>Esc / P · Mute M</span></div></div>
@@ -374,6 +375,7 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
   <button type="button" class="btn alt" id="btnQuit">Quit to menu</button>
   <div class="padKeys padPause"></div>
   <label class="goresw lowSw" title="Fewer particles, decals and enemies for slower devices (phones). ON by default on touch devices."><span>LOW EFFECTS</span><input type="checkbox" class="lowChk"><i></i><b class="lowTxt">OFF</b></label><label class="goresw qSw" title="Graphics quality. HIGH = everything on (high-end PC); MED and LOW scale effects down. Saved."><span>QUALITY</span><select class="qSel" style="font:inherit;background:#1a1712;color:#e8dcc0;border:1px solid #8a2a22;border-radius:8px;padding:2px 6px"><option value="low">LOW</option><option value="med">MED</option><option value="high">HIGH</option></select></label>
+  <label class="goresw cutSw" title="First B-52 call plays the full sequence with the game paused. Any key skips. OFF fires at once."><span>POWER-UP CUTAWAYS</span><input type="checkbox" class="cutChk"><i></i><b class="cutTxt">ON</b></label>
   <label class="goresw rfSw" title="Fewer and slower flashes: no white flash in the intro, steady low-HP border, steady flares and strobes. Follows your system Reduce motion setting until you change it."><span>REDUCE FLASHING</span><input type="checkbox" class="rfChk"><i></i><b class="rfTxt">OFF</b></label>
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
   <details class="credits"><summary>Credits &amp; audio licences</summary><div class="crbody">
@@ -4018,6 +4020,7 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){ if(!isFini
 const LSTAND_ON=!/[?&]laststand=0\b/.test(location.search);
 function lastStandTick(){ const g=G; if(!LSTAND_ON||!g||g.demo||g.lsDone||!g.p||!(g.p.hp>0)||g.p.hp>g.p.maxHp*.2)return; g.lsDone=1; g.lsT=1.5; g.lsAt=+g.t.toFixed(1); g.banner={text:'LAST STAND · DOC IS HIT BAD · GET TO COVER',t:3,col:'#ff5a48'}; try{ Snd.play('boss') }catch(e){} }
 function update(dt){
+  if(state==='cutaway')return;
   if(G&&G.lsT>0){ G.lsT-=dt; dt*=.4 }
   qaTick();
   if(G.xPend){ G.xPend=0; try{ const ex=G.ex; if(ex&&ex.ph<3)N2.press() }catch(e){} }
@@ -4052,7 +4055,7 @@ function update(dt){
   if(g.t>=g.nextBoss&&!g.exHold&&!(g.q15&&g.ex&&g.t>=EX.PAD_T-30)&&!(fbS&&fbS.age<90)){   /* Stage 1: no boss once the pad is about to be marked - the hold is the siege */spawnBoss();g.nextBoss=Math.max(g.nextBoss+180,g.t+60)}
   if(g.t>=g.nextRpgT&&!g.demo&&!(fbS&&fbS.age<90)){ let n=0; for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(e.type==='rpgt'&&!e.dead)n++ }
     const cap=PACE.mass(g)?Math.min(4,2+Math.floor((g.t-240)/240)):Math.min(2,1+Math.floor((g.t-EX.PAD_T)/120));   /* early levels: at most 1-2 B-40 teams, from ~75 s into the pad hold */ if(n<cap){ const e0=spawnEnemy('rpgt'); if(e0){ e0.cdash=2.5+rnd()*2; if(g.t>=720&&rnd()<.5){ e0.rpg7=true; if(!g.rpg7Seen){ g.rpg7Seen=true; g.banner={text:'RPG-7 ISSUED! FASTER ROCKETS',t:3,col:'#ff8a4a'} } } g.nextRpgT=g.t+14+rnd()*8; if(!g.rpgSeen){ g.rpgSeen=true; g.banner={text:'B-40 ROCKET TROOPERS! WATCH YOUR ARMOR & BIRDS',t:3,col:'#ff9a5a'} } } } else g.nextRpgT=g.t+5 }
-  CURW=''; updateWeapons(dt); CURW=''; if(P2ON&&window.P2)P2.tick(dt);
+  CURW=''; updateWeapons(dt); CURW=''; if(state==='cutaway')return; if(P2ON&&window.P2)P2.tick(dt);
   // enemies
   const far=Math.hypot(VW,VH)/2+260;
   for(let i=0;i<n;i++){ const e=enemies[i]; if(e.dead)continue; if(e.zc){ e.kx=e.ky=0; e.x=e.zc.x+e.zox; e.y=e.zc.y+e.zoy; if(e.flash>0)e.flash-=dt; continue }   /* rc7 ZiS-3 crew stay on the gun */
@@ -4442,8 +4445,9 @@ function updateWeapons(dt){
     else if(id==='spooky'){ if(!g.spk){ g.spk={t:0,hold:s.hold,ang:rnd()*TAU,tx:p.x,ty:p.y,s,acc:0,snd:0,R:s.R,fire:false}; ATM.support('spooky',p.x,p.y); annc('spooky','spooky',{text:'AC-47 SPOOKY ON STATION!',t:2.4,col:'#ff6a5a'}); Snd.play('radio'); if(!SAMP.air('spooky'))Snd.airPlay('airspooky'); Amb.support(s.hold+2) } w.cd+=s.cd+s.hold; refuelRun(id,w); RTO_T=null; }
     else if(id==='arclight'||id==='boxmission'){
       const nB=Math.min(s.n,id==='boxmission'?24:40), lines=s.lines||1, c0=clump(430,150,12)||[p.x+Math.cos(g.t)*170,p.y+Math.sin(g.t)*170], a=rnd()*TAU, len=(nB-1)*64, nx=-Math.sin(a), ny=Math.cos(a), gap=2*(s.rad+s.lat)*.95;
-      for(let i=0;i<lines;i++){ const off=(i-(lines-1)/2)*gap; air.push({wid:CURW,kind:3,nokc:i>0,cx:c0[0]+nx*off,cy:c0[1]+ny*off,a,len,w:s.rad+s.lat,t:-i*.15,delay:2.6,speed:(len+1000)/3.0,s:Object.assign({},s,{n:nB}),mk:['#ff4a3a','#ffb0a0'],go:false}) }
-      annc(id,id,{text:id==='boxmission'?'ARC LIGHT: BOX MISSION! 3x B-52D':'ARC LIGHT! B-52 INBOUND',t:2.2,col:'#ff9a6a'}); Snd.play('radio'); if(!SAMP.air('arc'))Snd.airPlay('airarc'); w.cd+=s.cd; refuelRun(id,w); RTO_T=null; }
+      cutOnce('arclight',()=>{
+      for(let i=0;i<lines;i++){ const off=(i-(lines-1)/2)*gap; air.push({wid:id,kind:3,nokc:i>0,cx:c0[0]+nx*off,cy:c0[1]+ny*off,a,len,w:s.rad+s.lat,t:-i*.15,delay:2.6,speed:(len+1000)/3.0,s:Object.assign({},s,{n:nB}),mk:['#ff4a3a','#ffb0a0'],go:false}) }
+      annc(id,id,{text:id==='boxmission'?'ARC LIGHT: BOX MISSION! 3x B-52D':'ARC LIGHT! B-52 INBOUND',t:2.2,col:'#ff9a6a'}); Snd.play('radio'); if(!SAMP.air('arc'))Snd.airPlay('airarc'); }); w.cd+=s.cd; refuelRun(id,w); RTO_T=null; if(state==='cutaway')return; }
   }
 }
 /* M67 flame tank (Blake Oct 14 night): flame reaches ~1.6-2x the handheld M2. It never torches friendlies or the pad smoke:
@@ -8562,6 +8566,7 @@ const PAD={on:false,id:'',ps:false,mx:0,my:0,prev:[],navDir:'',navT:0,hl:null,fk
     if(k==='A'){ const el=it[cur]; if(el&&el.type!=='range')el.click(); return }
     if(k==='B'&&root.id==='pause')resumeGame() },
   frame(){ requestAnimationFrame(()=>PAD.frame()); const g=this.pick(); if(!g){ if(this.on)this.setOn(false); return } if(!this.on)this.setOn(true,g);
+    if(state==='cutaway'){ this.mx=this.my=0; for(let i=0;i<g.buttons.length;i++)this.prev[i]=!!g.buttons[i].pressed; return }
     const b=i=>!!(g.buttons[i]&&(g.buttons[i].pressed||g.buttons[i].value>.5)); let ax=g.axes[0]||0, ay=g.axes[1]||0; const raw=[ax,ay], m=Math.hypot(ax,ay), D=.2;
     if(m<D){ ax=ay=0 } else { const k=(Math.min(1,m)-D)/(1-D)/m; ax*=k; ay*=k }
     if(b(14))ax=-1; else if(b(15))ax=1; if(b(12))ay=-1; else if(b(13))ay=1; this.mx=ax; this.my=ay;
@@ -8916,13 +8921,103 @@ function simWatch(){ const g=G; if(!g||!g.p)return; const p=g.p;
   if(!isFinite(g.shake)){ simGuard('shake',g.shake); g.shake=0 }   /* the camera is built from p + shake each render */
   if(state==='play'){ if(g.t===SIMG.t){ if(++SIMG.still===120){ simGuard('stall','quiet='+g.quiet); if(g.quiet>0)g.quiet=0 } } else SIMG.still=0 } SIMG.t=g.t }
 let OVRDY=false; addEventListener('resize',()=>{ OVRDY=true });   /* rc8.3: a resize redraws the frozen end-card frame once */
+/* rc8.4: pause/skip framework ported from rc8.2/cutaway (not present in rc8.4's ancestor).
+   Only Arc Light is registered here. Default clamp stays 4s; Arc Light explicitly allows the complete 30s v4 mix. */
+let CUTON=true;
+(function(){ const q=location.search.match(/[?&]cutaways=([01])\b/); let v=null; try{v=localStorage.getItem('lco_cutaways')}catch(e){} CUTON=q?q[1]==='1':v!==null?v==='1':true })();
+function setCutOn(v,silent){ CUTON=!!v; if(!silent){ try{localStorage.setItem('lco_cutaways',CUTON?'1':'0')}catch(e){} }
+  document.querySelectorAll('.cutChk').forEach(c=>{ c.checked=CUTON }); document.querySelectorAll('.cutTxt').forEach(t=>{ t.textContent=CUTON?'ON':'OFF' }); document.querySelectorAll('.cutSw').forEach(w=>w.classList.toggle('off',!CUTON)) }
+document.querySelectorAll('.cutChk').forEach(c=>{ c.addEventListener('change',e=>{ setCutOn(e.target.checked); e.target.blur() }); c.addEventListener('keydown',e=>{ e.stopPropagation() }) }); setCutOn(CUTON,true);
+const Cutaway={ DEFS:{}, cur:null, last:null, log:[], SKIP_MS:250, FADE_MS:280, BAR:.12, MIN_MS:2000, MAX_MS:4000,
+  register(d){ if(!d||!d.id||typeof d.draw!=='function')throw new Error('Cutaway.register needs {id, draw}'); this.DEFS[d.id]=Object.assign({durMs:3000},d); return this.DEFS[d.id] },
+  get enabled(){ return CUTON }, setEnabled(v){ setCutOn(v) },
+  play(o){ o=o||{}; const d=Object.assign({},this.DEFS[o.id]||{},o); const onEnd=typeof o.onEnd==='function'?o.onEnd:(d.onEnd||null);
+    let why=null;
+    if(!d.draw)why='unknown'; else if(!CUTON)why='off'; else if(this.cur)why='busy'; else if(state!=='play'||!G||G.demo)why='state:'+state; else if(window.__simHold)why='simhold';   /* a harness stepping the sim itself (textfloor/bots) holds the frame loop, so Cutaway.tick would never end the shot */
+    if(why){ this.log.push({id:d.id,ran:false,why}); this.last={id:d.id,ran:false,why,skipped:false}; try{ onEnd&&onEnd({id:d.id,immediate:true,why,skipped:false}) }catch(e){ console.error(e) } return false }
+    const audio=this.audio(d);
+    const dur=Math.max(this.MIN_MS,Math.min(d.maxMs||this.MAX_MS,+d.durMs||3000)), now=performance.now();
+    this.cur={id:d.id,def:d,dur,t0:now,heldAt:now,end:now+dur,skipAt:0,skipped:false,prev:state,gT:G.t,onEnd,audio,loading:true,pressed:this.padMask()};
+    state='cutaway'; try{ clearInput('cutaway') }catch(e){} this.log.push({id:d.id,ran:true}); return true },
+  audio(d){ const r={key:d.audioKey,ok:false,handle:null};
+    const start=()=>{ const c=this.cur; if(!c||c.audio!==r||c.skipped)return;
+      try{ const SP=window.SamplePlayer; if(SAMP.on&&SP&&SP.hasSample(d.audioKey)){
+        r.handle=SP.play(d.audioKey,{vol:1,bus:'special',vary:false}); r.ok=!!r.handle;
+        if(r.handle&&SP.duckMusic)SP.duckMusic('cutaway:'+d.id,-12,{attack:.08,until:r.handle.end,release:.4});
+      } }catch(e){ console.warn('[cutaway] audio',e) }
+      c.t0=performance.now(); c.dur=Math.max(c.dur,r.handle?(r.handle.end-r.handle.start)*1000:0); c.end=c.t0+c.dur; c.loading=false;
+    };
+    // Start after cur is installed. A cold first call waits paused for the real mix, not a silent 30-second stub.
+    Promise.resolve().then(()=>ArcLightAudio.load()).then(start,e=>{ console.warn('[cutaway] load failed',e); start() });
+    return r },
+  padMask(){ try{ const g=PAD.pick(); return g?[!!(g.buttons[0]&&g.buttons[0].pressed),!!(g.buttons[9]&&g.buttons[9].pressed)]:[false,false] }catch(e){ return [false,false] } },
+  skip(src){ const c=this.cur; if(!c||c.skipAt)return false; const now=performance.now(); if(now-c.t0<this.SKIP_MS)return false; c.loading=false; c.skipped=true; c.skipSrc=src||'api'; c.skipAt=now; c.end=Math.min(c.end,now+this.FADE_MS); return true },
+  tick(){ const c=this.cur; if(!c)return; const now=performance.now();
+    const pm=this.padMask(); if((pm[0]&&!c.pressed[0])||(pm[1]&&!c.pressed[1]))this.skip('pad'); c.pressed=pm;   /* edge only: a pad button held into the shot never skips it */
+    if(!c.loading&&now>=c.end)this.finish() },
+  finish(){ const c=this.cur; if(!c)return; this.cur=null; const ms=performance.now()-c.heldAt;
+    if(c.audio){ try{ c.audio.handle&&c.audio.handle.stop(.08); const SP=window.SamplePlayer; SP&&SP.unduckMusic&&SP.unduckMusic('cutaway:'+c.id,{release:.4}) }catch(e){} }
+    if(state==='cutaway')state=c.prev; try{ clearInput('cutaway end') }catch(e){}
+    try{ const S=G&&G.spec; if(S){ if(S.wall)S.wall+=ms; if(S.musW0)S.musW0+=ms } }catch(e){}   /* wall-clock spec-ops timer does not run during the shot */
+    this.last={id:c.id,ran:true,skipped:c.skipped,skipSrc:c.skipSrc||null,ms:Math.round(ms),gT:c.gT};
+    try{ c.onEnd&&c.onEnd({id:c.id,immediate:false,skipped:c.skipped}) }catch(e){ console.error(e) } },
+  flash(a){ return RFX?Math.min(.4,a):a },
+  draw(){ const c=this.cur; if(!c)return; const now=performance.now(), t=Math.min(c.dur,now-c.t0), F=this.FADE_MS, out=Math.max(0,c.end-now);
+    ctx.save(); ctx.setTransform(1,0,0,1,0,0); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+    const inShot=c.loading||(t>=F/2&&out>F/2);
+    if(inShot){ try{ c.def.draw(ctx,t/1000,W,H,{cut:Cutaway,dur:c.dur/1000,u:t/c.dur}) }catch(e){ ctx.fillStyle='#0b0e08'; ctx.fillRect(0,0,W,H) } }
+    const bk=Math.min(1,t/F,out/F), bh=Math.round(H*this.BAR*bk); ctx.globalAlpha=1; ctx.fillStyle='#000'; ctx.fillRect(0,0,W,bh); ctx.fillRect(0,H-bh,W,bh);
+    if(inShot&&c.def.caption){ const fs=Math.max(20,Math.round(H*.032)); ctx.font=`bold ${fs}px "Courier New",monospace`; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillStyle='rgba(232,220,192,.92)'; ctx.fillText(c.def.caption,Math.round(W*.04),Math.round(H-bh/2)) }
+    if(inShot&&t>this.SKIP_MS){ const fs=Math.max(20,Math.round(H*.026)); ctx.font=`${fs}px "Courier New",monospace`; ctx.textAlign='right'; ctx.textBaseline='middle'; ctx.fillStyle='rgba(232,220,192,.7)'; ctx.fillText('ANY KEY · SKIP',Math.round(W*.96),Math.round(H-bh/2)) }
+    const a=t<F?1-Math.abs(t-F/2)/(F/2):out<F?1-Math.abs(out-F/2)/(F/2):0; if(a>0)dustWipe(Math.max(0,Math.min(1,a)),now/1000);
+    ctx.restore() },
+  get state(){ const c=this.cur; return { active:!!c, id:c?c.id:null, t:c?Math.round(performance.now()-c.t0):0, dur:c?c.dur:0, skipped:c?c.skipped:false, prev:c?c.prev:null,
+    gameState:state, enabled:CUTON, defs:Object.keys(this.DEFS), last:this.last, log:this.log.slice(-10), loading:!!(c&&c.loading), audio:c&&c.audio?{key:c.audio.key,ok:c.audio.ok}:null } } };
+window.Cutaway=Cutaway;
+/* skip input: capture on window so nothing else (pause, specials, tips) sees a key/click while a shot runs */
+for(const ev of ['keydown','keyup','keypress']) window.addEventListener(ev,e=>{ if(state!=='cutaway')return; e.preventDefault(); e.stopImmediatePropagation(); if(ev==='keydown'&&!e.repeat)Cutaway.skip('key') },true);
+for(const ev of ['pointerdown','mousedown','touchstart','click','pointerup','mouseup','touchend','contextmenu']) window.addEventListener(ev,e=>{ if(state!=='cutaway')return; if(e.cancelable)e.preventDefault(); e.stopImmediatePropagation(); if(ev==='pointerdown'||(ev==='touchstart'&&!window.PointerEvent))Cutaway.skip('tap') },{capture:true,passive:false});
+const ARCLIGHT_ART={ img:null,
+  drawB52(c,x,y,s){ if(this.img&&this.img.complete&&this.img.naturalWidth){ const w=this.img.naturalWidth*s,h=this.img.naturalHeight*s; c.drawImage(this.img,x-w/2,y-h/2,w,h); return 'img' }
+    const S=window.SHEET1; if(S&&S.jetsV2&&S.jetsV2.ready&&S.jetsV2.ready('b52d',0)&&S.drawAircraft){ c.save(); c.globalAlpha=1; S.drawAircraft(c,'b52d',{x,y,alt:0,heading:0,scale:s,t:0}); c.restore(); return 'jets2' }
+    c.save(); c.translate(x,y); c.scale(s*1.4,s*1.4); c.fillStyle='#1a1f17'; c.fill(planePath(3)); c.restore(); return 'shape' },
+  draw(c,t,w,h){ const shotT=t; t=Math.max(0,Math.min(3.2,(t-9.95)/4.3)); const g=c.createLinearGradient(0,0,0,h); g.addColorStop(0,'#2b3440'); g.addColorStop(.62,'#5d5a4c'); g.addColorStop(1,'#3a3426'); c.fillStyle=g; c.fillRect(0,0,w,h);
+    const k=Math.min(w,h)/720, hz=h*.74, sp=w*.11;
+    for(let i=0;shotT>=9.95&&shotT<23.48&&i<3;i++){ const x0=w*(.06+.17*i), x=x0+t*sp, y=h*(.2+.06*i), s=.55*k;   /* cell of three, flying east (nose +x) */
+      c.strokeStyle='rgba(225,225,215,.22)'; c.lineWidth=Math.max(2,5*k); c.beginPath(); c.moveTo(x-40*k,y); c.lineTo(x-w*.5,y); c.stroke();   /* contrail behind */
+      for(let b=0;b<7;b++){ const tb=shotT-22.14-b*.18; if(tb<0)continue; const bx=x0+(t-tb)*sp+tb*sp*.55, by=y+tb*tb*h*.11+tb*20*k; if(by>hz)continue; c.fillStyle='#14160f'; c.fillRect(bx-2*k,by-5*k,4*k,10*k);
+        c.strokeStyle='rgba(210,205,190,.25)'; c.lineWidth=Math.max(1,1.5*k); c.beginPath(); c.moveTo(bx,by-5*k); c.lineTo(bx-12*k,by-26*k); c.stroke() }   /* bomb trails */
+      Cutaway.last_b52=this.drawB52(c,x,y,s) }
+    c.fillStyle='#101409'; c.beginPath(); c.moveTo(0,h); for(let x=0;x<=w;x+=w/48){ c.lineTo(x,hz-(Math.sin(x*.031)*.5+Math.sin(x*.007+1)*.7+ihash((x|0)+77)*.6)*26*k) } c.lineTo(w,h); c.closePath(); c.fill();   /* treeline */
+    if(shotT>26){ const fl=Cutaway.flash(Math.min(.8,(shotT-26)*.3)); c.fillStyle=`rgba(255,200,130,${fl*.5})`; c.fillRect(0,hz-60*k,w,h-hz+60*k) } } };
+Cutaway.register({id:'arclight',durMs:30000,maxMs:30000,audioKey:'arclight_cutaway_30s_v4',audioSec:30,caption:'ARC LIGHT · B-52D',draw:(c,t,w,h)=>ARCLIGHT_ART.draw(c,t,w,h)});
+
+// Full designed voices (final v4), radio/intercom FX and music are already baked into this mix.
+const ArcLightAudio={promise:null,loaded:false,
+  load(){ const SP=window.SamplePlayer; if(!SAMP.on||!SP||!SP.load)return Promise.resolve();
+    if(this.promise)return this.promise;
+    const key='arclight_cutaway_30s_v4'; SP.slots[key]={cat:'voice',prio:6,gain:1};
+    this.promise=SP.load({base:'audio/arclight/',formats:['ogg','m4a'],slots:{[key]:{batch:3,files:[key]}}}).then(r=>{
+      if(r.error){this.promise=null;return} this.loaded=SP.hasSample(key); if(!this.loaded){this.promise=null;throw new Error('Arc Light mix unavailable')}
+    },e=>{this.promise=null;throw e}); return this.promise },
+};
+{const iv=setInterval(()=>{ if(ArcLightAudio.loaded){clearInterval(iv);return} ArcLightAudio.load().catch(e=>console.warn('[arclight]',e)) },400)}
+// Shared key for base B-52 and evolved Box Mission, reset with the run's new G object.
+function cutOnce(id,fx){ const g=G; if(!g||g.demo||!Cutaway.DEFS[id]){fx();return false}
+  g.cutSeen=g.cutSeen||{}; if(g.cutSeen[id]){fx();return false} g.cutSeen[id]=1;
+  return Cutaway.play({id,onEnd:()=>{if(G===g)fx()}}) }
+window.__lco=Object.assign(window.__lco||{},{Cutaway,ARCLIGHT_ART,cutOnce,ArcLightAudio,cutaway:(id,o)=>Cutaway.play(Object.assign({id},o||{}))});
+Object.defineProperty(window.__lco,'cutawayState',{get(){return Cutaway.state},configurable:true});
+{const q=location.search.match(/[?&]cutaway=([\w-]+)/); if(q){const iv=setInterval(()=>{if(state==='play'&&G&&!G.demo&&G.t>1){clearInterval(iv);Cutaway.play({id:q[1]})}},250)}}
+
 function frame(now){
   let dt=(now-last)/1000; if(!isFinite(dt)){ simGuard('dt',dt); dt=0 } last=now; fpsTick(dt); ftTick(dt); window.DRES&&window.DRES.tick(dt); try{ inputWatchdog() }catch(e){} if(window.__simHold){ requestAnimationFrame(frame); return } if(dt<0)dt=0;
   /* real time: a slow frame runs several <=50 ms steps (up to 0.2 s per frame), so the game clock keeps pace on slow machines instead of running at half speed */
   if(state==='play'||(state==='menu'&&G&&G.demo)){ let rem=Math.min(dt,.2); while(rem>1e-6){ const st=Math.min(.05,rem); try{ update(st) }catch(e){ simGuard('update',String(e&&e.message||e)); if(!SIMG.thrown){ SIMG.thrown=1; console.error(e) } } rem-=st; if(state!=='play'&&!(state==='menu'&&G&&G.demo))break } } else { if(dt>.05)dt=.05; }
   try{ simWatch() }catch(e){}
+  if(state==='cutaway')Cutaway.tick();
   if(state==='intro')updateIntro(dt); else if(state==='brief')updateBrief(dt); else if(state==='brief2')updateBrief2(dt);
-  hudAbil(); hudSig(); hudTanker(); hudSupport(); Snd.duckTick(); try{ SAMP.on&&SamplePlayer.musicUpdate&&SamplePlayer.musicUpdate() }catch(e){} const t0=performance.now(); if(state==='brief'&&BR){ drawBrief() } else if(state==='brief2'&&BR2){ drawBrief2() } else if(state==='intro'&&INTRO&&INTRO.ph===1){ (CAB46&&window.SHEET1&&SHEET1.drawBanter?drawCabin46:drawCargo)(INTRO.t); drawIntroOverlay() } else if(state==='over'&&!OVRDY&&performance.now()-overAt>1500&&!/[?&]overfreeze=0\b/.test(location.search)){ /* rc8.3 (blind #2 #7): death/end card holds one frozen frame, no full-scene render behind it (?overfreeze=0 off) */ } else { if(state==='over'&&performance.now()-overAt>1500)OVRDY=false; render(); if(state==='intro'&&INTRO){ drawIntroOverlay(); drawIns2Cap() } } const rt=performance.now()-t0; pcapTick(rt); perf.frames++;perf.acc+=rt;perf.worst=Math.max(perf.worst,rt);
+  hudAbil(); hudSig(); hudTanker(); hudSupport(); Snd.duckTick(); try{ SAMP.on&&SamplePlayer.musicUpdate&&SamplePlayer.musicUpdate() }catch(e){} const t0=performance.now(); if(state==='brief'&&BR){ drawBrief() } else if(state==='brief2'&&BR2){ drawBrief2() } else if(state==='intro'&&INTRO&&INTRO.ph===1){ (CAB46&&window.SHEET1&&SHEET1.drawBanter?drawCabin46:drawCargo)(INTRO.t); drawIntroOverlay() } else if(state==='over'&&!OVRDY&&performance.now()-overAt>1500&&!/[?&]overfreeze=0\b/.test(location.search)){ /* rc8.3 (blind #2 #7): death/end card holds one frozen frame, no full-scene render behind it (?overfreeze=0 off) */ } else { if(state==='over'&&performance.now()-overAt>1500)OVRDY=false; render(); if(state==='intro'&&INTRO){ drawIntroOverlay(); drawIns2Cap() } if(state==='cutaway')Cutaway.draw() } const rt=performance.now()-t0; pcapTick(rt); perf.frames++;perf.acc+=rt;perf.worst=Math.max(perf.worst,rt);
   requestAnimationFrame(frame);
 }
 buildSprites(); buildGore(); buildDeathArt(); buildExArt(); buildBubbles(); buildWorldArt(); applySheet(); Snd.setMuted(Snd.muted);
