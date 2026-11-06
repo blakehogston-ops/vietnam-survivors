@@ -333,9 +333,13 @@
       var rate = 1, gain = s.gain * (o.vol == null ? 1 : o.vol);
       if (s.vary && o.vary !== false) { rate = 1 + (rand() * 2 - 1) * 0.04; gain *= dbToGain((rand() * 2 - 1) * 1.5); }
       if (o.rate) rate *= o.rate;
-      var loop = o.loop != null ? o.loop : !!s.loop, dur = loop ? Infinity : buf.duration / rate;
+      var loop = o.loop != null ? o.loop : !!s.loop, offset = o.offset != null ? +o.offset : 0;
+      if (!(offset > 0) || offset !== offset) offset = 0;
+      if (offset > buf.duration) offset = buf.duration;
+      var dur = loop ? Infinity : Math.max(0, (buf.duration - offset) / rate);
       if (durCap && durCap < dur) dur = durCap;
-      return { rate: rate, gain: gain, loop: loop, dur: dur };
+      if (o.maxDur != null && +o.maxDur < dur) dur = +o.maxDur;
+      return { rate: rate, gain: gain, loop: loop, dur: dur, offset: offset };
     }
     function startVoice(slot, s, buf, t, o, durCap, plan) {
       plan = plan || planVoice(s, buf, o, durCap);
@@ -345,11 +349,15 @@
       var g = ctx.createGain(); g.gain.value = gain;
       src.connect(g); g.connect(o.dest && o.dest.context === ctx ? o.dest : (s.out === 'rotor' ? out.rotor : out.sfx));   // o.dest: Cues' trim node (sample-only cues)
       var loop = plan.loop, dur = plan.dur;
-      if (!loop && dur < buf.duration / rate - 1e-6) {   // choke (burst rounds, maxDur): short fade at the cap
+      var offset = plan.offset || 0;
+      if (!loop && dur < (buf.duration - offset) / rate - 1e-6) {   // choke (burst rounds, maxDur): short fade at the cap
         g.gain.setValueAtTime(gain, t + dur - 0.02); g.gain.linearRampToValueAtTime(0, t + dur);
       }
       if (loop) src.loop = true;
-      src.start(t); if (!loop) src.stop(t + dur + 0.01);
+      if (offset > 0 && !loop) src.start(t, offset, dur);
+      else if (offset > 0) src.start(t, offset);
+      else src.start(t);
+      if (!loop) src.stop(t + dur + 0.01);
       var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g, bus: o.busName || '' };
       src.onended = function () { v.dead = true; };
       voices.push(v); stats.played++;
