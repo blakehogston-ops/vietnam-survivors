@@ -1,137 +1,161 @@
 'use strict';
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
-const path = require('path');
-const fs = require('fs');
-const steam = require('./steam');
-
-/* Rename (Last Bird Out -> Last Chopper Out): pin the userData folder to the new product name, and on first launch copy an
-   old profile (save.json + Chromium Local Storage, which holds the game's localStorage keys) from any earlier app name.
-   The old folder is never deleted. A marker file stops it from running twice. */
-const APP_NAME = 'Last Chopper Out';
-const OLD_NAMES = ['Last Bird Out', 'vietnam-survivors', 'last-bird-out'];
-function migrateUserData(appData, newDir, log = () => {}) {
-  const mark = path.join(newDir, '.lco_migrated');
-  if (fs.existsSync(mark)) return 'already';
-  let from = null;
-  for (const n of OLD_NAMES) { const d = path.join(appData, n); if (d !== newDir && fs.existsSync(d) && fs.statSync(d).isDirectory()) { from = d; break; } }
-  fs.mkdirSync(newDir, { recursive: true });
-  let res = 'none';
-  if (from) {
-    for (const item of ['save.json', 'Local Storage']) {
-      const src = path.join(from, item), dst = path.join(newDir, item);
-      if (fs.existsSync(src) && !fs.existsSync(dst)) { fs.cpSync(src, dst, { recursive: true }); log('migrated ' + item + ' from ' + from); }
-    }
-    res = 'copied:' + path.basename(from);
-  }
-  fs.writeFileSync(mark, res + ' ' + new Date().toISOString());
+const { app, BrowserWindow, ipcMain, Menu, protocol, net } = require('electron');
+try{ require("electron").app.commandLine.appendSwitch("autoplay-policy","no-user-gesture-required") }catch(e){}
+const { pathToFileURL } = require('url');
+// audiofix: serve game/ from privileged app://game so fetch() works (file:// fetch fails in Electron)
+protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true } }]);
+const MIME = { '.html':'text/html', '.js':'text/javascript', '.mjs':'text/javascript', '.css':'text/css', '.json':'application/json', '.png':'image/png', '.jpg':'image/jpeg', '.jpeg':'image/jpeg', '.gif':'image/gif', '.webp':'image/webp', '.svg':'image/svg+xml', '.ico':'image/x-icon', '.mp3':'audio/mpeg', '.ogg':'audio/ogg', '.wav':'audio/wav', '.m4a':'audio/mp4', '.woff':'font/woff', '.woff2':'font/woff2', '.ttf':'font/ttf', '.txt':'text/plain', '.wasm':'application/wasm', '.mp4':'video/mp4', '.webm':'video/webm' };
+function serveGame() {
+  const root = path.resolve(__dirname, 'game');
+  protocol.handle('app', async (req) => {
+    const u = new URL(req.url);
+    if (u.host !== 'game') return new Response('not found', { status: 404 });
+    let rel; try { rel = decodeURIComponent(u.pathname); } catch (e) { return new Response('bad', { status: 400 }); }
+    const f = path.resolve(root, '.' + path.posix.normalize('/' + rel));
+    if (f !== root && !f.startsWith(root + path.sep)) return new Response('forbidden', { status: 403 });
+    try { if (!fs.statSync(f).isFile()) throw 0; } catch (e) { return new Response('not found', { status: 404 }); }
+    const r = await net.fetch(pathToFileURL(f).toString());
+    return new Response(r.body, { status: 200, headers: { 'Content-Type': MIME[path.extname(f).toLowerCase()] || 'application/octet-stream' } });
+  });
+}
+// audiofix: localStorage is per-origin; copy lco_*/lbo2_* from the old file:// origin into lco_save_v2.json once (preload restores it into app://game)
+let MIGRATING = false;
+async function migrateFileOrigin() {
+  const flag = path.join(NEW_DIR, 'appscheme_migrated.txt');
+  if (fs.existsSync(flag) || !fs.existsSync(path.join(NEW_DIR, 'Local Storage'))) return 'skip';
+  let res = 'none'; MIGRATING = true;
+  try {
+    const w = new BrowserWindow({ show: false, webPreferences: { contextIsolation: true, nodeIntegration: false } });
+    await w.loadURL('data:text/html,'); await w.loadFile(path.join(__dirname, 'game', 'index.html'), { query: { nobrief: '1', notut: '1' } }).catch(() => {});
+    const old = await w.webContents.executeJavaScript('(()=>{const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^(lco_|lbo2_)/.test(k))o[k]=localStorage.getItem(k)}return o})()');
+    w.destroy();
+    const n = Object.keys(old).length;
+    if (n) { let cur = null; try { cur = JSON.parse(fs.readFileSync(saveFile(), 'utf8')); } catch (e) {}
+      const keys = Object.assign({}, old, (cur && cur.keys) || {}); writeSave(keys); res = 'copied:' + n; }
+  } catch (e) { res = 'failed:' + redactPath(e.message); }
+  MIGRATING = false;
+  try { fs.writeFileSync(flag, res + '\n' + new Date().toISOString()); } catch (e) {}
   return res;
 }
-module.exports.migrateUserData = migrateUserData;
-if (process.versions.electron) {
-  app.setName(APP_NAME);
-  const ud = path.join(app.getPath('appData'), APP_NAME);
-  app.setPath('userData', ud);
-  try { console.log('[migrate]', migrateUserData(app.getPath('appData'), ud, console.log)); } catch (e) { console.error('[migrate] failed', e.message); }
-}
+const path = require('path');
+const fs = require('fs');
 
-const TEST = process.env.VS_TEST === '1';
-const STEAM_APP_ID = 480;                       // placeholder (Spacewar). Replace with your real App ID.
+/* ---- identity + save path (was 'vietnam-survivors' / 'Last Bird Out') ---- */
+const APP_NAME = 'Last Chopper Out';
+app.setName(APP_NAME);
+const NEW_DIR = (process.env.LCO_TEST === '1' && process.env.LCO_USERDATA) ? path.resolve(process.env.LCO_USERDATA) : path.join(app.getPath('appData'), APP_NAME);   // rc8.2: tests get an isolated profile (stale lco_sq2 from a prior smoke replayed all 8 Marines)
+app.setPath('userData', NEW_DIR);
+const OLD_DIRS = ['Last Bird Out', 'last-bird-out', 'LastBirdOut', 'vietnam-survivors'].map((d) => path.join(app.getPath('appData'), d));
+
+/* bug-reporter legal fix: never log/expose the OS user name or home/AppData path (MIG reaches the renderer via steam:status) */
+function redactPath(x) { return String(x == null ? '' : x).replace(/[A-Za-z]:\\Users\\[^\\\s]+(\\AppData\\[^\\\s]+)?/gi, '<user>').replace(/\/(?:Users|home)\/[^\/\s]+(\/Library\/Application Support|\/\.config)?/g, '<user>'); }
+function migrate() {
+  // first launch only: copy the old userData dir (Local Storage leveldb = lbo2_*/lco_* keys, save.json; rc8a copies lbo2_* -> lco_* itself) if the new one has no save data
+  const has = (d) => fs.existsSync(path.join(d, 'Local Storage')) || fs.existsSync(path.join(d, 'lco_save_v2.json'));
+  if (has(NEW_DIR)) return 'none-needed';
+  for (const d of OLD_DIRS) {
+    if (!fs.existsSync(d) || !has(d) && !fs.existsSync(path.join(d, 'save.json'))) continue;
+    try {
+      fs.mkdirSync(NEW_DIR, { recursive: true });
+      for (const sub of ['Local Storage', 'save.json', 'lco_save_v2.json']) {
+        const s = path.join(d, sub); if (fs.existsSync(s)) fs.cpSync(s, path.join(NEW_DIR, sub), { recursive: true });
+      }
+      fs.writeFileSync(path.join(NEW_DIR, 'migrated_from.txt'), d + '\n' + new Date().toISOString());
+      return 'migrated:' + path.basename(d);
+    } catch (e) { return 'migrate-failed:' + redactPath(e.message); }
+  }
+  return 'nothing-to-migrate';
+}
+const MIG = migrate();
+
+const steam = require('./steam');
+const MAP = require('./steam/lco_steam_config.json');
+const TEST = process.env.LCO_TEST === '1';
+/* Build tier (Legal Oct 28): 'public' (Steam/store: unlock-all OFF, Loc/vi VO files not packaged) | 'friends' | 'test' (Blake's standard build: unlock-all ON).
+   Source: package.json "lcoTier" (written by electron-builder: public = package.json build config, friends/test = builder.friends.js extraMetadata).
+   Unpackaged runs (electron .) default to 'test'; LCO_BUILD_TIER env overrides only when unpackaged or LCO_TEST=1. Unknown/missing in a packaged app -> 'public'. */
+const TIERS = ['public', 'friends', 'test'];
+const BUILD_TIER = (() => { let t = null; try { t = require('./package.json').lcoTier; } catch (e) {}
+  const env = process.env.LCO_BUILD_TIER; if (env && (!app.isPackaged || TEST)) t = env;
+  if (!t && !app.isPackaged) t = 'test'; return TIERS.includes(t) ? t : 'public'; })();
+module.exports.BUILD_TIER = BUILD_TIER;
+const STEAM_APP_ID = +(process.env.LCO_APPID || 480);   // PLACEHOLDER 480 (Spacewar). Replace with the real App ID (also steam_appid.txt).
 let win = null;
 
-const saveFile = () => path.join(app.getPath('userData'), 'save.json');     // single JSON file: cloud-save friendly (Steam Auto-Cloud root=userData, pattern=save.json)
+/* ---- save: lco_save_v2.json = { v:2, savedAt, keys:{ lco_*: string } } locally + Steam Remote Storage (rc8a: game keys are lco_*; rc8a has no single 'lco_save_v2' key) ---- */
+const SAVE = MAP.cloud.file;
+const saveFile = () => path.join(NEW_DIR, SAVE);
+const parse = (t) => { try { const o = JSON.parse(t); return o && o.keys ? o : null; } catch (e) { return null; } };
 function readSave() {
   let local = null, cloud = null;
-  try { local = JSON.parse(fs.readFileSync(saveFile(), 'utf8')); } catch (e) {}
-  try { const t = steam.cloudRead('save.json'); if (t) cloud = JSON.parse(t); } catch (e) {}
-  if (cloud && (!local || (cloud.savedAt || 0) > (local.savedAt || 0))) return cloud;
+  try { local = parse(fs.readFileSync(saveFile(), 'utf8')); } catch (e) {}
+  cloud = parse(steam.cloudRead(SAVE));
+  if (cloud && (!local || (cloud.savedAt || 0) > (local.savedAt || 0))) {
+    if (local) try { fs.writeFileSync(saveFile() + '.local-backup-' + local.savedAt, JSON.stringify(local)); } catch (e) {}   // conflict-safe: never lose the losing copy
+    cloud._fromCloudNewer = true; return cloud;
+  }
   return local;
 }
-function writeSave(o) {
+function writeSave(keys) {
   try {
-    o.savedAt = Date.now();
-    const text = JSON.stringify(o);
-    fs.mkdirSync(path.dirname(saveFile()), { recursive: true });
-    const tmp = saveFile() + '.tmp'; fs.writeFileSync(tmp, text); fs.renameSync(tmp, saveFile());   // atomic replace
-    steam.cloudWrite('save.json', text);
+    const o = { v: 2, savedAt: Date.now(), keys }, text = JSON.stringify(o);
+    fs.mkdirSync(NEW_DIR, { recursive: true });
+    const tmp = saveFile() + '.tmp'; fs.writeFileSync(tmp, text); fs.renameSync(tmp, saveFile());
+    steam.cloudWrite(SAVE, text);
+    checkDerived(keys);
   } catch (e) { console.error('save failed', e.message); }
+}
+/* ---- achievements ---- */
+const unlocked = new Set();
+function unlockApi(api) { if (unlocked.has(api)) return; unlocked.add(api); const ok = steam.unlock(api); if (TEST) console.log('[ach]', api, ok); }
+function unlockGame(id) {
+  const ev = MAP.squad2_marines.events[id]; if (ev) { unlockApi(ev); return; }   // rc8a squad2Check(): Marine truly unlocked/playable
+  if (/^squad2_/i.test(id)) { if (TEST) console.log('[ach] ignored unknown squad2 event', id); return; }   // never guess an API name for unknown squad2 ids
+  const api = MAP.map[id] || ('ACH_' + String(id).toUpperCase().replace(/[^A-Z0-9_]/g, '_'));
+  unlockApi(api);
+  for (const x of MAP.squad2[id] || []) unlockApi(x);
+}
+function checkDerived(keys) {   // re-sync from save (covers achievements earned while Steam was offline) + ribbons + hiscore loadout + squad2 events
+  const K = MAP.cloud.derivedKeys || {}, get = (k) => keys[k] != null ? keys[k] : keys[k.replace(/^lco_/, 'lbo2_')];   // rc8a lco_*, legacy lbo2_*
+  try { for (const id of Object.keys(JSON.parse(get(K.achievements || 'lco_ach') || '{}'))) unlockGame(id); } catch (e) {}
+  try { if ((+JSON.parse(get(K.hiscore || 'lco_hiscore') || '0')) >= 8000) MAP.squad2._hiscore_8000.forEach(unlockApi); } catch (e) {}
+  try { const ch = JSON.parse(get(K.chars || 'lco_chars') || '{}');
+    for (const c of Object.values(ch)) { const r = c && c.rib; const ids = Array.isArray(r) ? r : (r && typeof r === 'object' ? Object.keys(r).filter((k) => r[k]) : []);
+      for (const k of ids) if (MAP.ribbons[k]) unlockApi(MAP.ribbons[k]); } } catch (e) {}
+  // lco_sq2 = the game's own record of squad2_unlock_<id> events it already sent (written only together with the event): replay so an unlock while Steam was down is not lost
+  try { for (const k of Object.keys(JSON.parse(keys[K.squad2 || 'lco_sq2'] || '{}'))) { const ev = MAP.squad2_marines.events['squad2_unlock_' + k]; if (ev) unlockApi(ev); } } catch (e) {}
 }
 
 function createWindow() {
   Menu.setApplicationMenu(null);
   win = new BrowserWindow({
-    width: 1280, height: 720, minWidth: 640, minHeight: 400, backgroundColor: '#07100a', title: require('./title.json').title, fullscreenable: true,
-    icon: path.join(__dirname, 'build', 'icon.png'), autoHideMenuBar: true, show: !TEST,
-    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true, devTools: !app.isPackaged, backgroundThrottling: false },
+    width: 1280, height: 800, minWidth: 640, minHeight: 400, backgroundColor: '#07100a', title: APP_NAME,
+    autoHideMenuBar: true, show: !TEST, fullscreen: true, fullscreenable: true,
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: false, devTools: !app.isPackaged, backgroundThrottling: false, autoplayPolicy: "no-user-gesture-required" },
   });
-  win.loadFile(path.join(__dirname, 'game', 'index.html'), TEST ? { query: { nobrief: '1' } } : undefined);
-  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  // Legal Oct 28: unlock-all only in friends/test builds. BUILD_TIER is the single setting (package.json "lcoTier", set at packaging).
+  win.loadURL('app://game/index.html?tier=public&jungle=1&doconly=0&lcotier=' + BUILD_TIER + (BUILD_TIER !== 'public' ? '&all=1' : '') + (TEST ? '&nobrief=1&notut=1' : ''));
+  win.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:/.test(url)) require('electron').shell.openExternal(url); return { action: 'deny' }; });
   win.webContents.on('will-navigate', (e) => e.preventDefault());
-  win.webContents.on('before-input-event', (e, input) => {
-    if (input.type === 'keyDown' && (input.key === 'F11' || (process.platform === 'darwin' && input.control && input.meta && input.code === 'KeyF'))) { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }
-    if (input.type === 'keyDown' && input.key === 'Enter' && input.alt) { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }
+  win.webContents.on('before-input-event', (e, i) => {
+    if (i.type === 'keyDown' && (i.key === 'F11' || (i.key === 'Enter' && i.alt) || (i.key.toLowerCase() === 'f' && i.control && i.meta))) { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }
   });
-  return win;
+  win.on('close', () => { try { win.webContents.send('save:flush'); } catch (e) {} });
 }
-
+ipcMain.on('cfg:cloud', (e) => { const c = MAP.cloud; e.returnValue = { syncKeyPattern: c.syncKeyPattern, legacyRestorePattern: c.legacyRestorePattern, excludeKeys: c.excludeKeys, includeKeys: c.includeKeys || [], derived: c.derivedKeys || {} }; });
 ipcMain.on('save:load', (e) => { e.returnValue = readSave(); });
-ipcMain.on('save:write', (e, o) => { if (o && typeof o === 'object') writeSave(o); });
+ipcMain.on('save:write', (e, keys) => { if (keys && typeof keys === 'object') writeSave(keys); });
+ipcMain.on('steam:unlock', (e, id) => { if (typeof id === 'string' && /^[a-z0-9_]{1,40}$/i.test(id)) unlockGame(id); });
+ipcMain.on('steam:status', (e) => { e.returnValue = { available: steam.available(), status: steam.getStatus(), deck: steam.isDeck(), migration: MIG }; });
 ipcMain.on('fs:set', (e, b) => { if (win) win.setFullScreen(!!b); });
-ipcMain.on('fs:get', (e) => { e.returnValue = win ? win.isFullScreen() : false; });
+ipcMain.on('tier:get', (e) => { e.returnValue = BUILD_TIER; });
 ipcMain.on('app:quit', () => app.quit());
-ipcMain.on('steam:unlock', (e, name) => { if (typeof name === 'string' && /^ACH_[A-Z0-9_]+$/.test(name)) steam.unlock(name); });
-ipcMain.on('steam:sync', (e, list) => { if (Array.isArray(list)) steam.sync(list.filter((x) => typeof x === 'string')); });
-ipcMain.on('steam:status', (e) => { e.returnValue = { available: steam.available(), status: steam.getStatus() }; });
 
-app.whenReady().then(() => {
-  const st = steam.init(STEAM_APP_ID);
-  console.log('[steam]', st);
+app.whenReady().then(async () => {
+  serveGame();
+  console.log('[lco] file-origin migration', await migrateFileOrigin());
+  console.log('[lco] userData', redactPath(NEW_DIR), 'migration', MIG, 'steam', steam.init(STEAM_APP_ID));
   createWindow();
-  if (TEST) runSmokeTest();
+  if (TEST) { try { require('./smoke')(win, saveFile, unlocked); } catch (e) { console.error('[smoke] not packaged in this tier:', e.message); } }   // public packages exclude smoke.js
 });
-app.on('window-all-closed', () => app.quit());
-
-/* ---------- headless smoke test (VS_TEST=1): launches the game, plays a few seconds, checks saves & console ---------- */
-function runSmokeTest() {
-  const problems = [];
-  win.webContents.on('console-message', (e, level, msg) => { if (level >= 2) problems.push('console[' + level + ']: ' + msg); });
-  win.webContents.on('render-process-gone', (e, d) => problems.push('renderer gone: ' + d.reason));
-  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-  win.webContents.once('did-finish-load', async () => {
-    try {
-      await wait(1200);
-      const run = (js) => win.webContents.executeJavaScript(js);
-      const r = {};
-      r.host = await run('!!window.vsHost');
-      r.steamAvailable = await run('window.vsHost.steam.available()');
-      r.steamStatus = await run('window.vsHost.steam.status()');
-      r.state0 = await run('__ms.state');
-      await run("document.getElementById('btnStart').click()"); await wait(500);
-      r.charsel = await run("document.getElementById('charsel').classList.contains('show')");
-      await run("document.getElementById('btnCsGo').click()"); await wait(800);
-      for (let i = 0; i < 15; i++) { if ((await run('__ms.state')) === 'play') break; await run("window.dispatchEvent(new KeyboardEvent('keydown',{code:'Space'}))"); await wait(600); }
-      await wait(1500);
-      r.state1 = await run('__ms.state');
-      await run("__ms.G.kills=0; __ms.ach('FIRST_BLOOD'); __ms.ach('HUEY_UNLOCK')");
-      await run("__ms.SET.music=.5; __ms.SET.gore=false; __ms.SET.fullscreen=false; document.getElementById('btnPause').click()"); await wait(300);
-      r.paused = await run('__ms.state');
-      await run("document.getElementById('btnPSettings').click()"); await wait(200);
-      r.settingsShown = await run("document.getElementById('settings').classList.contains('show')");
-      await run("document.getElementById('btnSetFull').click()"); await wait(600);
-      r.fullscreen = win.isFullScreen();
-      await run("document.getElementById('btnSetFull').click()"); await wait(600);
-      r.fullscreenOff = !win.isFullScreen();
-      await run("document.getElementById('btnSetBack').click()"); await wait(200);
-      await run("document.getElementById('btnResume').click()"); await wait(1500);
-      r.state2 = await run('__ms.state');
-      r.fps = await run('new Promise(res=>{const f0=__ms.perf.frames,t0=performance.now();setTimeout(()=>res((__ms.perf.frames-f0)/((performance.now()-t0)/1000)),2000)})');
-      let saved = null; try { saved = JSON.parse(fs.readFileSync(saveFile(), 'utf8')); } catch (e) { problems.push('no save file: ' + e.message); }
-      r.save = saved && { music: saved.settings && saved.settings.music, gore: saved.settings && saved.settings.gore, ach: saved.ach && Object.keys(saved.ach) };
-      console.log('[smoke]', JSON.stringify(r));
-      const ok = r.host && r.state0 === 'menu' && r.state1 === 'play' && r.paused === 'paused' && r.settingsShown && r.state2 === 'play' && r.save && r.save.gore === false && r.save.ach && r.save.ach.includes('FIRST_BLOOD');
-      if (!ok) problems.push('assertions failed');
-    } catch (e) { problems.push('exception: ' + e.message); }
-    console.log('[smoke] problems:', JSON.stringify(problems));
-    app.exit(problems.length ? 1 : 0);
-  });
-  setTimeout(() => { console.log('[smoke] timeout'); app.exit(2); }, 60000);
-}
+app.on('window-all-closed', () => { if (!MIGRATING) app.quit(); });

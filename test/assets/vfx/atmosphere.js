@@ -234,7 +234,7 @@ function drawFlareShadows(ctx,camX,camY,zoom,units){ if(!units||!units.length)re
   if(n){ ctx.globalAlpha=clamp(a/n,.18,.42); ctx.fillStyle='#07090c'; ctx.fill() }
   ctx.restore() }
 function setQuality(t){ t=QT[t]?t:'high'; if(t===QN)return api; QN=t; Q=QT[t]; if(S.w){ const w=S.w,h=S.h; init(w,h) } return api }
-const api={addBlastGlow,setQuality,setStrikeMix,get strikeMix(){return SMIX},get quality(){return QN},QT,init,setTime,setWeather,addLight,addFlare,setFlareCadence,addPuddle,clearPuddles,rippleAt,addDust,update,drawWorldOverlay,drawScreen,drawFlareShadows,setLow,hookLowToggle,flareShadow,FLARE,
+const api={get gradeMul(){return S.mulCss},addBlastGlow,setQuality,setStrikeMix,get strikeMix(){return SMIX},get quality(){return QN},QT,init,setTime,setWeather,addLight,addFlare,setFlareCadence,addPuddle,clearPuddles,rippleAt,addDust,update,drawWorldOverlay,drawScreen,drawFlareShadows,setLow,hookLowToggle,flareShadow,FLARE,
   stats:()=>({lights:S.L.filter(l=>l.on).length,flares:S.F.filter(f=>f.on).length,rain:S.rain,low:S.low,hour:S.hour,ms:S.perf.last,avgMs:S.perf.avg}),
   _F:()=>S.F, setHQ:(b)=>{S.hq=!!b; return api},
   profile:(on)=>{PR.on=!!on; const r=PR.r; PR.r={}; return r},
