@@ -1,0 +1,123 @@
+{
+ "_note": "Game id -> Steam API name (remapped to rc8a 754606d, Oct 20 2026). Create each API name in Steamworks > Stats & Achievements (Blake). ACH/RIB tables unchanged from rc7/rc7.1 (33 + 6).",
+ "map": {
+  "boots": "ACH_BOOTS",
+  "hold_5": "ACH_HOLD_5",
+  "hold_10": "ACH_HOLD_10",
+  "hold_15": "ACH_HOLD_15",
+  "first_out": "ACH_FIRST_OUT",
+  "all_home": "ACH_ALL_HOME",
+  "ten_home": "ACH_TEN_HOME",
+  "full_home": "ACH_FULL_HOME",
+  "fallen_home": "ACH_FALLEN_HOME",
+  "early_call": "ACH_EARLY_CALL",
+  "mid_call": "ACH_MID_CALL",
+  "late_call": "ACH_LATE_CALL",
+  "later_call": "ACH_LATER_CALL",
+  "waveoff": "ACH_WAVEOFF",
+  "waveoff2": "ACH_WAVEOFF2",
+  "moh_one": "ACH_MOH_ONE",
+  "moh_two": "ACH_MOH_TWO",
+  "barrage5": "ACH_BARRAGE5",
+  "barrage10": "ACH_BARRAGE10",
+  "sapper_stop": "ACH_SAPPER_STOP",
+  "night_hold": "ACH_NIGHT_HOLD",
+  "firebase": "ACH_FIREBASE",
+  "kills_250": "ACH_KILLS_250",
+  "kills_1000": "ACH_KILLS_1000",
+  "lvl_10": "ACH_LVL_10",
+  "lvl_20": "ACH_LVL_20",
+  "score_5k": "ACH_SCORE_5K",
+  "score_15k": "ACH_SCORE_15K",
+  "score_30k": "ACH_SCORE_30K",
+  "right_smoke": "ACH_RIGHT_SMOKE",
+  "kit_out": "ACH_KIT_OUT",
+  "lean_out": "ACH_LEAN_OUT",
+  "squad_alive8": "ACH_SQUAD_ALIVE8"
+ },
+ "squad2": {
+  "_note": "Achievement -> Doc LOADOUT unlocks only (rc8a P3.LO, unchanged from rc7: kit=first_out, point=hold_10, gun=all_home, m79=lco_hiscore>=8000; selectable the moment its ach/score is earned; demo never). Marine achievements are NOT triggered by conditions or by P3.MREQ (that table is display-only); see squad2_marines.",
+  "first_out": [
+   "ACH_SQUAD2_LOADOUT_KIT"
+  ],
+  "hold_10": [
+   "ACH_SQUAD2_LOADOUT_POINT"
+  ],
+  "all_home": [
+   "ACH_SQUAD2_LOADOUT_GUN"
+  ],
+  "_hiscore_8000": [
+   "ACH_SQUAD2_LOADOUT_M79"
+  ]
+ },
+ "ribbons": {
+  "car": "ACH_RIB_CAR",
+  "ph": "ACH_RIB_PH",
+  "bs": "ACH_RIB_BS",
+  "ss": "ACH_RIB_SS",
+  "nc": "ACH_RIB_NC",
+  "lbo": "ACH_RIB_LBO"
+ },
+ "cloud": {
+  "_note": "rc8a has NO 'lco_save_v2' localStorage key. rc8a renamed every lbo2_* key to lco_* (in-game one-time copy lbo2_* -> lco_*, marker lco_migrated; demo keys lbo2demo_ -> lcodemo_). The wrapper keeps the lco_save_v2.json file approach and now syncs lco_* keys. Legacy lbo2_* keys in an older (rc7/rc7.1 wrapper) lco_save_v2.json are restored under their lco_* names by preload.js.",
+  "file": "lco_save_v2.json",
+  "syncKeyPattern": "^lco_",
+  "legacyRestorePattern": "^lbo2_",
+  "excludeKeys": [
+   "lco_crumb",
+   "lco_clean",
+   "lco_migrated",
+   "lco_lowfx",
+   "lco_quality"
+  ],
+  "_excludeWhy": "lco_crumb/lco_clean = per-session crash forensics; lco_migrated = per-machine migration marker (lets each machine run its own lbo2_->lco_ copy); lco_lowfx = per-device graphics auto-detect (Deck vs desktop). lco_quality = per-device graphics quality (rc8b key; not in rc8a, harmless).",
+  "includeKeys": [],
+  "derivedKeys": {
+   "achievements": "lco_ach",
+   "hiscore": "lco_hiscore",
+   "chars": "lco_chars",
+   "squad2": "lco_sq2",
+   "merge_max": [
+    "lco_best",
+    "lco_evacs",
+    "lco_hiscore"
+   ],
+   "merge_union": [
+    "lco_ach",
+    "lco_sq2"
+   ],
+   "flag_sticky": [
+    "lco_open"
+   ]
+  }
+ },
+ "squad2_marines": {
+  "_note": "rc8a squad2Check() (index.html ~l.5475) emits window.steamworks.achievement.activate('squad2_unlock_<id>') once per Marine, ONLY when chOpen(id) is true and not DEMO/?all/unlockall; it records the event in localStorage lco_sq2 {id:time}. These fire ONLY on that event (or on re-sync from the saved lco_sq2 record of that same event, so an unlock while Steam was offline is not lost). Unknown squad2_unlock_* ids are ignored. rc8a public build: DOC_ONLY (doconly!=0) -> chOpen() is Doc-only, so in the shipped Electron build no Marine event ever fires. With ?doconly=0, all 8 open together when lco_open='1' (set by Doc's first non-demo evac).",
+  "marines": {
+   "hammer": "Sgt Maximus 'Hammer' Savage (Machine Gunner)",
+   "boone": "PFC Josh 'Country' Johnson (Rifleman / Marksman)",
+   "skipper": "2ndLt 'Two-Six' (Platoon Commander; game id stays skipper)",
+   "flamer": "LCpl Marcus 'Lighter' Washington (Flamethrower)",
+   "rat": "Cpl Hector 'Tunnel Rat' Ramirez (Combat Engineer)",
+   "radio": "MSgt Hogston, USAF (Tanker Maintenance, attached)",
+   "preacher": "Sgt Elijah 'Preacher' Miller (Grenadier)",
+   "chef": "PFC Delbert 'Biscuit' Crumpacker (Mess Cook)"
+  },
+  "events": {
+   "squad2_unlock_hammer": "ACH_SQUAD2_HAMMER",
+   "squad2_unlock_boone": "ACH_SQUAD2_BOONE",
+   "squad2_unlock_skipper": "ACH_SQUAD2_SKIPPER",
+   "squad2_unlock_flamer": "ACH_SQUAD2_FLAMER",
+   "squad2_unlock_rat": "ACH_SQUAD2_RAT",
+   "squad2_unlock_radio": "ACH_SQUAD2_RADIO",
+   "squad2_unlock_preacher": "ACH_SQUAD2_PREACHER",
+   "squad2_unlock_chef": "ACH_SQUAD2_CHEF"
+  }
+ },
+ "_source": {
+  "rc": "lco-rc8a-754606d",
+  "BUILD.id": "754606d",
+  "BUILD.tag": "rc8a",
+  "worktreeHEAD": "9ee8988 Build stamp rc8a"
+ }
+}

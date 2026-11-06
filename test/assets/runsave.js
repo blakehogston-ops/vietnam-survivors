@@ -3,13 +3,14 @@
    On load: if lco_navcause.disc was written by THIS load (<60 s old) and the snapshot is < 30 min old, show RESUME RUN on the title.
    Otherwise the snapshot is cleared. Cleared at run end (state over) and on quit (state menu). A resumed run never records a best (G.awarded). 
    Restores: G (time, timers, wave/surge/boss counters, player+squad HP/XP/level, weapons+passives = upgrades, extraction, seed, char),
+   rc8.2 ?loadout=1: v:2 (G.lo = Doc's loadout, inside G). A v:1 snapshot resumed with the flag on is migrated by LO.migrate() (M16A1 if G.w.m16, else .45).
    firebase (lzS/fbS/fbC/engs/strs/chgs/fbH), squad, MoH (cur/q/fb/done/alertT). Not restored: live enemies/projectiles/particles (respawn from G timers). */
 (function(){ const K='lco_runsave', MAXAGE=30*60e3, EVERY=10e3; let last=0, mine=false;
   const H=()=>window.__RSH;
   function clean(o){ const seen=new WeakSet(); return JSON.stringify(o,function(k,v){ if(typeof v==='function')return undefined;
     if(v&&typeof v==='object'){ if(typeof HTMLElement!=='undefined'&&v instanceof HTMLElement)return undefined; if(typeof HTMLCanvasElement!=='undefined'&&(v instanceof HTMLCanvasElement||(typeof ImageBitmap!=='undefined'&&v instanceof ImageBitmap)))return undefined;
       if(typeof CanvasRenderingContext2D!=='undefined'&&v instanceof CanvasRenderingContext2D)return undefined; if(seen.has(v))return undefined; seen.add(v) } return v }) }
-  function save(why){ const h=H(); if(!h||!h.live())return; try{ localStorage.setItem(K,clean({v:1,at:Date.now(),why,build:window.LCO_BUILD||'',s:h.get()})); last=Date.now(); mine=true; window.__rsLast={why,at:last} }catch(e){ console.warn('[LCO] runsave failed',e&&e.message) } }
+  function save(why){ const h=H(); if(!h||!h.live())return; try{ localStorage.setItem(K,clean({v:(window.LO&&window.LO.ON)?2:1,at:Date.now(),why,build:window.LCO_BUILD||'',s:h.get()})); last=Date.now(); mine=true; window.__rsLast={why,at:last} }catch(e){ console.warn('[LCO] runsave failed',e&&e.message) } }
   function clear(){ try{ localStorage.removeItem(K) }catch(e){} mine=false }
   setInterval(()=>{ const h=H(); if(!h)return; if(h.live()){ if(Date.now()-last>=EVERY)save('tick') } else if(mine&&(h.state()==='over'||h.state()==='menu'))clear() },1000);
   document.addEventListener('visibilitychange',()=>{ if(document.hidden)save('hidden') });
