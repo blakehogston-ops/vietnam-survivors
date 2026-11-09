@@ -3352,17 +3352,20 @@ const keys={}; const joy={on:false,id:-1,ox:0,oy:0,x:0,y:0};
    until they land they are 1 too, so nothing changes. Pick: ?diff=recruit|normal|hard (?pressure=1 = hard) for this load, else lco_diff, else normal.
    The settings row is added with GDUX's copy. G.diff is logged on the run for QA. */
 const DIFF={KEYS:['recruit','normal','hard'],
-  T:{recruit:{hit:1,dmg:1,mDmg:1,ehp:1,lull:1,teams:0,quiet:1},
-     normal:{hit:1,dmg:1,mDmg:1,ehp:1,lull:1,teams:0,quiet:1},
-     hard:{hit:1,dmg:1,mDmg:1,ehp:1,lull:1,teams:0,quiet:1}},
+  T:{recruit:{hit:.8,dmg:.75,mDmg:.8,ehp:.85,lull:1.25,teams:0,quiet:1,brk:[[15,20],[15,20]],inv:4,heal:1.2,spike:.30,ground:30},
+     normal:{hit:1.25,dmg:1,mDmg:1,ehp:1.15,lull:1,teams:0,quiet:.625,brk:[[10,14],[15,20]],inv:3,heal:1,spike:.35,ground:45},
+     hard:{hit:1.5,dmg:1.25,mDmg:1.2,ehp:1.35,lull:.8,teams:1,quiet:.5,brk:[[8,12],[12,16]],inv:2,heal:.85,spike:.45,ground:60}},   /* GDUX rc84_pacing_onboarding.md §A (Nov 9) */
   B:null,
-  get k(){ const q=new URLSearchParams(location.search), d=(q.get('diff')||'').toLowerCase(); if(this.KEYS.includes(d))return d; if(q.get('pressure')==='1')return 'hard';
+  get k(){ const q=new URLSearchParams(location.search), d=(q.get('diff')||'').toLowerCase(); if(this.KEYS.includes(d))return d; if(d==='easy')return 'recruit'; if(q.get('pressure')==='1')return 'hard';
     try{ const v=localStorage.getItem('lco_diff'); if(this.KEYS.includes(v))return v }catch(e){} return 'normal' },
   set(k){ if(!this.KEYS.includes(k))return; try{ localStorage.setItem('lco_diff',k) }catch(e){} },
   apply(){ const P=PACE, E=BAL81.EARLY; if(!this.B)this.B={hit:P.SHOT_HIT,dmg:P.SHOT_DMG,mDmg:P.M_DMG,ehp:P.HPM,lull:P.LULL.slice(),hl:P.HOLD_LULL.slice(),mt:P.MAX_TEAMS,ht:P.HOLD_TEAMS,quiet:E.QUIET};
     const b=this.B, k=this.k, m=this.T[k]||this.T.normal;
     P.SHOT_HIT=b.hit*m.hit; P.SHOT_DMG=b.dmg*m.dmg; P.M_DMG=b.mDmg*m.mDmg; P.HPM=b.ehp*m.ehp; P.LULL=b.lull.map(v=>v*m.lull); P.HOLD_LULL=b.hl.map(v=>v*m.lull);
-    P.MAX_TEAMS=Math.max(1,b.mt+(m.teams|0)); P.HOLD_TEAMS=Math.max(1,b.ht+(m.teams|0)); E.QUIET=b.quiet*m.quiet; return k } };
+    P.MAX_TEAMS=Math.max(1,b.mt+(m.teams|0)); P.HOLD_TEAMS=Math.max(1,b.ht+(m.teams|0)); E.QUIET=b.quiet*m.quiet;
+    if(this.B.heal==null){ this.B.heal=MED.heal; this.B.cap=BAL81.SPIKE.CAP } MED.heal=this.B.heal*m.heal; BAL81.SPIKE.CAP=m.spike; if(typeof EX!=='undefined')EX.GROUND=m.ground; this.cur=m; return k },
+  brk(g){ const m=this.cur||this.T.normal, r=m.brk[(g&&g.t>=270)?1:0]; return r[0]+rnd()*(r[1]-r[0]) },   /* early breather (was 15+rnd*5 until 7:30): Normal 10-14 s before 4:30, 15-20 s after */
+  inv(k){ return (this.T[k]||this.T.normal).inv } };
 window.DIFF=DIFF;
 function newGame(demo){ const _dk=DIFF.apply(); N2.reset(); try{ ATM.reset() }catch(e){}
   let seed=0; if(!demo){ seed=newSeed(); seedRun(seed); try{ localStorage.setItem('lco_lastseed',String(seed)) }catch(e){} }
@@ -3372,7 +3375,7 @@ function newGame(demo){ const _dk=DIFF.apply(); N2.reset(); try{ ATM.reset() }ca
   WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); try{ TEACH.reset(); B81.reset() }catch(e){} FIELD.reset(); GUNS.reset(); MEDV.reset(); CREWX.reset(); BARK.reset(); VHX.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); OFFI.reset(); MAGS.reset(); G={diff:_dk,t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(240,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:130,maxHp:130,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
-    w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,medInv:3,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
+    w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,medInv:DIFF.inv(_dk),banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
     tankRot:0,nextRpgT:EX.PAD_T+75,rpgSeen:false,sqT:.8,sqS:null,sqL:0,fdx:0,fdy:1,nextTunnel:t0+2,nextVc:0,mortarT:0,hueyUnlocked:false,nextPit:t0+1.5,nextShout:t0+3,han:null,nextHan:(DBG.t>0?t0+6:t0+250+rnd()*120),cryQ:0,lastShout:-1,aim:0,hasTarget:false,flameAng:0,pending:0,boss:null,levelTimer:0,botTimer:0}; bannerQ(G);
   if(demo||DBG.t>0){ // give some kit for demo / debug start
     const n=Math.floor(t0/40); const ids=['m60','m79','flame','claymore','napalm','m16'];
@@ -3675,7 +3678,7 @@ const PACE={M_COVER:.85,MASS_LV:16,TEAM_MIN:5,TEAM_MAX:8,HPM:4,LULL:[9,16],HOLD_
   tick(g,dt){ const P=g.pc||(g.pc={st:'lull',t:16,teams:[],n:0,log:[]}); P.teams=P.teams.filter(T=>FT.alive(T)>0&&!T.gone);
     const hold=this.hold(g), maxT=N2.maxT(g,hold?this.HOLD_TEAMS:this.MAX_TEAMS+((g.p.lvl|0)>=8?1:0));
     if(P.st==='lull'){ P.t-=dt; if(!P.bq&&P.t<=3.2&&g.t>50&&!hold){ P.bq=1; N2.barrage(g) } if(P.t<=0){ P.st='contact'; P.ct=0; P.bq=0; this.spawnTeam(g,hold); N2.wave(g) } }
-    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=N2.lull(g,hold?this.HOLD_LULL:this.LULL); P.t=L[0]+rnd()*(L[1]-L[0]); if(EARLY&&!hold&&g.t<450)P.t=Math.max(P.t,15+rnd()*5);   /* Gamer rc6 #5: a real 15-20 s breather after every surge */ P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)}); if(LULLCUE&&!hold&&!g.demo&&g.t>45&&P.t>=9&&g.t>=(P.lcT||0)){ P.lcT=g.t+40; P.lcN=(P.lcN|0)+1; const L=['Cease fire! They\'re pulling back.','Redistribute ammo, reload, check your weapons!','Wounded to Doc! Move \'em now!','They\'re regrouping. Check your ammo.']; if(!g.banner||g.banner.t<=0)g.banner={text:'LULL · REARM · TREAT WOUNDED',t:2.4,col:'#9fe07a'}; try{ gunny(L[(P.lcN-1)%L.length],2.6,1) }catch(e){} } }   /* rc7 #7: the lull is visible - Gunny line + green HUD cue, max once per 40 s, not in the pad hold (?lullcue=0) */
+    else { P.ct+=dt; if(!P.teams.length||P.ct>55){ P.st='lull'; const L=N2.lull(g,hold?this.HOLD_LULL:this.LULL); P.t=L[0]+rnd()*(L[1]-L[0]); if(EARLY&&!hold&&g.t<450)P.t=Math.max(P.t,DIFF.brk(g));   /* Gamer rc6 #5: a real 15-20 s breather after every surge */ P.log.push({t:+g.t.toFixed(1),ev:'lull',dur:+P.t.toFixed(1)}); if(LULLCUE&&!hold&&!g.demo&&g.t>45&&P.t>=9&&g.t>=(P.lcT||0)){ P.lcT=g.t+40; P.lcN=(P.lcN|0)+1; const L=['Cease fire! They\'re pulling back.','Redistribute ammo, reload, check your weapons!','Wounded to Doc! Move \'em now!','They\'re regrouping. Check your ammo.']; if(!g.banner||g.banner.t<=0)g.banner={text:'LULL · REARM · TREAT WOUNDED',t:2.4,col:'#9fe07a'}; try{ gunny(L[(P.lcN-1)%L.length],2.6,1) }catch(e){} } }   /* rc7 #7: the lull is visible - Gunny line + green HUD cue, max once per 40 s, not in the pad hold (?lullcue=0) */
       else if(P.teams.length<maxT&&P.ct>(hold?6:18)&&P.ct-(P.lastSp||0)>N2.gap(g,hold)){ this.spawnTeam(g,hold) } }
     for(const T of P.teams)FT.tick(T,g,dt) },
   spawnTeamAt(g,x,y,a){ for(let k=0;k<8&&riverAt(x,y);k++){ x+=(rnd()-.5)*160; y+=(rnd()-.5)*160 } return this.spawnTeam(g,this.hold(g),[x,y,a]) },
@@ -6086,7 +6089,7 @@ const RIB={
 const allyCount=()=>{ let n=0; for(const m of squad)if(m.hp>0&&m.state==='ok')n++; for(const m of pat)if(m.hp>0&&m.state==='ok')n++; return n };
 function ribTrack(dt){ const g=G; if(!g||!g.rb||g.demo)return; const p=g.p, f=p.hp/p.maxHp, rb=g.rb; if(f<rb.minF)rb.minF=f; if(f<.25){ rb.dip=true; rb.rec=false } else if(rb.dip&&f>=.6)rb.rec=true;
   if(g.ex&&g.ex.popped&&!g.ex.result&&f<rb.holdMin)rb.holdMin=f }
-function ribCheck(g,id){ const rb=g.rb||{}, ex=g.ex||{}, win=!!ex.evac, hard=EXQ==='hard', c=CHS[g.char]||{};
+function ribCheck(g,id){ const rb=g.rb||{}, ex=g.ex||{}, win=!!ex.evac, hard=(g.diff||DIFF.k)==='hard', c=CHS[g.char]||{};
   switch(id){
    case 'car': return g.t>=240&&g.kills>=250;
    case 'ph': return !!(rb.dip&&rb.rec)&&g.t>=360;
@@ -7495,7 +7498,7 @@ function drawHannah(U){ const g=G,h=g.han; if(!h)return; ctx.setTransform(1,0,0,
 /* Timeline (game seconds): 3:00 boss drops SMOKE, 6:00 boss drops FLARE, 9:00 fallback MIRROR if you hold none, 10:00 LZ opens.
    Pop a signal (G / button) -> one-tap colour confirm -> Huey ETA 30 s (hot-LZ radio flavour on final) -> 45 s on the ground (~75 s hold).
    Stand within 60 px for 2 s to board = win. Dead, or the Huey lifts off empty = fail. All clocks are game-time (frozen by pause/level-up, never tied to the player). */
-const EXQ=new URLSearchParams(location.search).get('diff');
+const EXQ=({recruit:'easy',hard:'hard'})[DIFF.k]||null;   /* rc8.4: one source of truth (DIFF); EX.GROUND is re-set per run in DIFF.apply */
 /* ====================== SMOKE RULES (Oct 14, Blake) ======================
    The extract colour is assigned at the start; Gunny says it ONCE ("Our smoke is <colour>.") with the real radio squelch. Doc carries the canister
    (no pickup, no enemy loot). When the bird is inbound it calls for smoke: Doc stands on the pad circle and pops it ("Smoke out").
