@@ -271,7 +271,7 @@ body>:not(canvas):not(script){zoom:var(--uis,1)}
   <label class="goresw cutSw" title="First B-52 call plays the full sequence with the game paused. Any key skips. OFF fires at once."><span>POWER-UP CUTAWAYS</span><input type="checkbox" class="cutChk"><i></i><b class="cutTxt">ON</b></label>
   <label class="goresw rfSw" title="Fewer and slower flashes: no white flash in the intro, steady low-HP border, steady flares and strobes. Follows your system Reduce motion setting until you change it."><span>REDUCE FLASHING</span><input type="checkbox" class="rfChk"><i></i><b class="rfTxt">OFF</b></label>
   <div class="vols"><label>♪ Music <input type="range" class="volM" min="0" max="100"></label><label>🔊 SFX <input type="range" class="volS" min="0" max="100"></label></div>
-  <div class="htCol"><div class="help howto"><div class="htT htH">HOW TO PLAY</div><div class="htBody htGrid"><b>Move</b><span>WASD / arrows (stick or drag on touch)</span><b>Shooting</b><span>automatic: keep Doc and your Marines alive</span><b>Special</b><span>SPACE</span><b>Patch</b><span>H Doc · Q a Marine</span><b>Call the bird</b><span>X on the PAD circle</span><b>Pop smoke</b><span>automatic on the PAD (G / pad X: at once)</span><b>Confirm smoke</b><span>Y / Enter ours · N / Esc not ours</span><b>Bunker</b><span>E: step in for cover, still shoot</span><b>Engineers</b><span>hold F at a firebase call point</span><b>Level-up</b><span>1 / 2 / 3 pick · R reroll · B banish</span><b>Pause</b><span>Esc / P · Mute M</span></div></div>
+  <div class="htCol"><div class="help howto"><div class="htT htH">HOW TO PLAY</div><div class="htBody htGrid"><b>Move</b><span>WASD / arrows · left stick</span><b>Shooting</b><span>automatic. Keep Doc and your Marines alive</span><b>Patch</b><span>H Doc · Q a Marine · pad: B Doc · tap RB a Marine</span><b>Special</b><span>SPACE · pad A</span><b>Engineers</b><span>hold F at a firebase call point · pad: hold RB</span><b>Bunker</b><span>E: step in for cover, you can still shoot · pad: Y (hold LB with the loadout on)</span><b>Call the bird</b><span>from 5:00, stand in the PICKUP PAD ring and press X · pad X</span><b>Smoke</b><span>pops by itself on the pad (G / pad X to pop at once)</span><b>Confirm smoke</b><span>Y / Enter = ours · N / Esc = not ours · pad A / B</span><b>Level-up</b><span>1 / 2 / 3 pick · R reroll · B banish</span><b>Pause</b><span>Esc / P · pad Start · Mute M</span><!-- rc8.4 GDUX §B How To Play lines --></div></div>
   <div class="help padhelp"><b>Controller</b><span class="padPre"> (Xbox / PlayStation / Steam Deck, plug in and press any button)</span>: <span class="padKeys"></span><span class="padNone">not connected</span></div></div>
   <div class="foot" id="best"></div>
   <div class="tribute">✦ For the Marines, Navy corpsmen, and all who served alongside them in Quang Tri, 1968. ✦</div>
@@ -3351,6 +3351,26 @@ const keys={}; const joy={on:false,id:-1,ox:0,oy:0,x:0,y:0};
    existing PACE / BAL81 tunables, applied at the start of every run. Normal = 1 everywhere = today's game. Recruit and Hard numbers come from GDUX;
    until they land they are 1 too, so nothing changes. Pick: ?diff=recruit|normal|hard (?pressure=1 = hard) for this load, else lco_diff, else normal.
    The settings row is added with GDUX's copy. G.diff is logged on the run for QA. */
+/* rc8.4 GDUX §B: one banner queue in lanes, without touching the ~80 'g.banner=' writers. G.banner is an accessor:
+   L0 critical (LAST STAND, COMMANDER, INCOMING, WRONG SMOKE, NO DRESSINGS) shows at once, min 2.4 s, and is never replaced by L2;
+   L2 objective banners queue FIFO behind an L0 or an L1 card (Gunny/radio card, MoH card, smoke confirm, level-up) and drop after 8 s of waiting.
+   Teach/tips (L3) wait until all of that is clear plus 1 s. ?lanes=0 = old behaviour. */
+const BANQ={ON:!/[?&]lanes=0\b/.test(location.search), RX0:/^(LAST STAND|COMMANDER|INCOMING|WRONG SMOKE|NO DRESSINGS)/i, q:[], clr:-99, log:{pre:0,held:0,drop:0},
+  lane(v){ return v.lane!=null?v.lane:(this.RX0.test(String(v.text||''))?0:2) },
+  l1(){ try{ return state==='levelup'||state==='sig'||(typeof MOH!=='undefined'&&MOH.card>0)||!!exMsg }catch(e){ return false } },
+  busy(g){ return !!(g&&(this.q.length||(g.t-this.clr)<1)) },
+  install(g){ this.q=[]; this.clr=-99; this.log={pre:0,held:0,drop:0}; if(!this.ON)return; let cur=g.banner; delete g.banner; const Q=this;
+    Object.defineProperty(g,'banner',{configurable:true,enumerable:false,get(){ return cur },set(v){ cur=Q.set(g,cur,v) }}) },
+  set(g,cur,v){ const live=cur&&cur.t>0;
+    if(v==null){ if(cur)this.clr=g.t; return null }
+    if(v===cur)return cur; const ln=this.lane(v); v.lane=ln; v.qAt=g.t;
+    if(ln===0){ if(live&&cur.lane===2){ this.q.unshift(cur); this.log.pre++ } v.t=Math.max(+v.t||0,2.4); return v }
+    if(live&&cur.lane===0){ this.push(v); return cur }
+    if(this.l1()&&!live){ this.push(v); return cur }
+    return v },
+  push(v){ if(!this.q.some(o=>o.text===v.text)){ this.q.push(v); this.log.held++ } },
+  tick(g){ if(!this.ON||!g)return; const c=g.banner; if(c&&c.t>0)return; while(this.q.length&&g.t-this.q[0].qAt>8){ this.q.shift(); this.log.drop++ } if(this.q.length&&!this.l1()){ const v=this.q.shift(); v.qAt=g.t; g.banner=v } } };
+window.BANQ=BANQ;
 /* rc8.4 pacing (GDUX rc84_pacing_onboarding.md §1, Nov 9): bot deaths stacked at 5:00-6:30 because the enemy mix and cap ran on rampT (2x until 5:00)
    and every late system peaked together. ?pace84=0 = the old curve. */
 const P84={ON:!/[?&]pace84=0\b/.test(location.search),
@@ -4072,7 +4092,7 @@ function update(dt){
   if(G.xPend){ G.xPend=0; try{ const ex=G.ex; if(ex&&ex.ph<3)N2.press() }catch(e){} }
   if(window.VFX_IMPACT)try{ VFX_IMPACT.update(dt) }catch(e){}
   N2.tick(dt); EFIGHT.tick(); P3.tick(dt); if(QAHP&&G.p.hp>G.p.maxHp*QAHP/100)G.p.hp=G.p.maxHp*QAHP/100;   /* QA only: ?qahp=N holds Doc at N% HP (screenshots of the low-HP vignette) */
-  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); TEACH.tick(dt); B81.tick(dt); P84.tick(G); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt); FIELD.tick(dt); GUNS.tick(dt); MEDV.tick(dt); AMT.tick(dt); CREWX.tick(dt); PADRUSH(dt); IMP.tick(dt); BARK.tick(dt); if(window.VFX_MUZZLE)try{ VFX_MUZZLE.update(dt) }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.update(dt) }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.update(dt) }catch(e){}
+  CRUMB.snap(); FLM.update(dt); WX.tick(dt); AIS.tick(dt); MOH.tick(dt); TEACH.tick(dt); B81.tick(dt); P84.tick(G); if(!G._bq){ G._bq=1; BANQ.install(G) } BANQ.tick(G); FBO.tick(dt); URG.tick(dt); KIA.tick(dt); MAGS.tick(dt); FIELD.tick(dt); GUNS.tick(dt); MEDV.tick(dt); AMT.tick(dt); CREWX.tick(dt); PADRUSH(dt); IMP.tick(dt); BARK.tick(dt); if(window.VFX_MUZZLE)try{ VFX_MUZZLE.update(dt) }catch(e){} if(window.VFX_ROCKETS)try{ VFX_ROCKETS.update(dt) }catch(e){} if(window.VFX_VEHICLE_HIT&&VHX.ON)try{ VFX_VEHICLE_HIT.update(dt) }catch(e){}
   if(G.quiet>0&&!G.demo){ G.quiet-=dt; quietTick(dt); return }
   docMkTick(dt);   /* one quiet second on the smoke drop: everything holds, the canister falls */
   const g=G,p=g.p; g.t+=dt; g.dthF=0;
@@ -4628,7 +4648,7 @@ const TEACH={ON:!/[?&]teach=0\b/.test(location.search),seen:(()=>{ try{ return J
   mark(id){ let o={}; try{ o=JSON.parse(localStorage.getItem('lco_teach')||'{}')||{} }catch(e){} o[id]=1; this.seen[id]=1; try{ localStorage.setItem('lco_teach',JSON.stringify(o)) }catch(e){} },
   want(id,force){ if(!this.ON||!G||G.demo)return; if((this.seen[id]&&!force)||this.q.includes(id)||(this.cur&&this.cur.id===id))return; this.q.push(id) },
   done(id){ if(this.cur&&this.cur.id===id)this.cur.t=99; else { const i=this.q.indexOf(id); if(i>=0){ this.q.splice(i,1); this.mark(id) } } },
-  block(id){ const g=G, b=g&&g.banner; if(id==='move'&&state==='play'&&g&&g.t<20)return false; return state!=='play'||!!(b&&b.t>0)||!!exMsg },   /* rc8.1 Lead Playtester #1: the first-run Move tip is not held by the opening radio card ('Contact! Treeline...') or banners in the first 20 s (it sits low, at 79% height) */   /* text pass: any banner or dialogue card on screen holds the tip (was COMMANDER|BIRD|SMOKE banners only) */
+  block(id){ const g=G, b=g&&g.banner; if(!BANQ.ON&&id==='move'&&state==='play'&&g&&g.t<20)return false; return state!=='play'||!!(b&&b.t>0)||!!exMsg||(BANQ.ON&&(BANQ.l1()||BANQ.busy(g))) },   /* rc8.4 GDUX §B lanes: teach (L3) also waits for the MoH card, smoke confirm, queued banners and 1 s after the last one; no 'move' exemption */   /* rc8.1 Lead Playtester #1: the first-run Move tip is not held by the opening radio card ('Contact! Treeline...') or banners in the first 20 s (it sits low, at 79% height) */   /* text pass: any banner or dialogue card on screen holds the tip (was COMMANDER|BIRD|SMOKE banners only) */
   tick(dt){ if(!this.ON||!G||G.demo||state!=='play')return; const g=G, p=g.p, ex=g.ex;
     this.want('move'); if(g.kills>=1)this.want('xp'); if(g.t>14&&!fbS)this.want('fbwhy'); if(lzS||fbS)this.done('fbwhy');
     if(lzS&&!fbS&&Math.hypot(lzS.x-p.x,lzS.y-p.y)<240){ this.want('fb'); if(this.seen.fb&&!(lzS.hold>0)&&!this.stuckDone&&(this.stuckT+=dt)>20){ this.stuckDone=1; this.want('fb',1) } }
@@ -7605,7 +7625,7 @@ const TIP={seen:{},q:[],cur:null,until:0,gap:0,
     if(!this.cur&&state!=='levelup'&&!(typeof TEACH!=='undefined'&&TEACH.cur)&&live&&now>this.gap&&this.q.length){ const o=this.q.shift(); this.cur=o; this.done(o.id); const e=this.el(); e.innerHTML=o.text; e.classList.add('show'); this.until=now+6000 }
     if(this.cur&&this.cur.id==='move'&&G.p&&(this._mx===undefined?(this._mx=G.p.x,this._my=G.p.y,0):Math.hypot(G.p.x-this._mx,G.p.y-this._my)>12))this.until=Math.min(this.until,now);   /* AD: tips end ~6 s or on the related action */
     if(this.cur&&((this.cur.id==='confirm'&&state!=='sig')||(this.cur.id==='lvl'&&state!=='levelup')||(this.cur.id==='pad'&&G.ex&&G.ex.popped)||(this.cur.id==='officerT'&&G.ex&&G.ex.mark)))this.until=Math.min(this.until,now);
-    if(state==='sig')this.show('confirm','Is that YOUR smoke? <b>Y</b> / <b>Enter</b> = yes · <b>N</b> / <b>Esc</b> = no');
+    if(state==='sig'&&!(BANQ.ON&&TEACH.ON))this.show('confirm',   /* rc8.4 lanes: the smoke card's buttons already carry the keys; no tip over it */'Is that YOUR smoke? <b>Y</b> / <b>Enter</b> = yes · <b>N</b> / <b>Esc</b> = no');
     if(this.cur&&(state==='levelup'||(typeof TEACH!=='undefined'&&TEACH.cur)))this.until=Math.min(this.until,now);   /* rc8.1 3b: one prompt at a time; nothing over the cards */
     if(false)this.show('lvl',this.touch()?'Pick one upgrade: tap a card.':'Pick one upgrade: <b>1</b> / <b>2</b> / <b>3</b> or click a card.');
     if(this.cur&&this.cur.id==='move'&&(state!=='play'||(G&&G.demo)))this.until=Math.min(this.until,now);   /* rc8.1: never over the menu / attract demo */
