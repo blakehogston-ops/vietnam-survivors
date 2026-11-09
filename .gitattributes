@@ -1,0 +1,6 @@
+
+# rc8.3 SBE: no placeholder Steam App ID (480) in any export/package until Blake gives the real one
+steam_appid.txt export-ignore
+steam_appid.txt.* export-ignore
+**/steam_appid.txt export-ignore
+**/steam_appid.txt.* export-ignore

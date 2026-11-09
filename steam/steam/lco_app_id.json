@@ -1,0 +1,4 @@
+{
+ "_note": "BLAKE: replace the placeholder with the real numeric Steam App ID from Steamworks (App Admin). Non-numeric = Steam disabled, game runs standalone. Do NOT use 480 in shipping builds.",
+ "appId": "REPLACE_WITH_REAL_STEAM_APP_ID"
+}

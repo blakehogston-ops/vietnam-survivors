@@ -220,7 +220,7 @@
     while (Q.length && now() < lim) { var bi = 0;
       if (J.focus && Q.length > 1) { var bd = 1e18; for (var i = 0; i < Q.length; i++) { var F = Q[i].f, dx = (F.tx0 + F.tx1 + 1) * T / 2 - J.focus.x, dy = (F.ty0 + F.ty1 + 1) * T / 2 - J.focus.y, d = dx * dx + dy * dy + (Q[i].pri || 0); if (d < bd) { bd = d; bi = i; } } }
       var jb = Q[bi]; while (now() < lim) { if (jb.g.next().done) { Q.splice(bi, 1); jb.f._job = null; break; } } }
-    var tn = now(); for (var k = BAKED.length - 1; k >= 0; k--) { var G = BAKED[k]; if (tn - G._lastDraw > J.evictSec * 1000) { G._layers = null; G._layersQueued = false; BAKED.splice(k, 1); continue; }
+    var tn = now(); for (var k = BAKED.length - 1; k >= 0; k--) { var G = BAKED[k]; if (tn - G._lastDraw > J.evictSec * 1000) { J.freeBmps(G._layers); G._layers = null; G._layersQueued = false; BAKED.splice(k, 1); continue; }
       if (J.stripCold && G._layers && !G._stripsFreed && tn - (G._hotAt || 0) > J.stripCold * 1000 && G._layers[0].underC !== undefined) { for (var rr = 0; rr < G._layers.length; rr++) { G._layers[rr].under = null; G._layers[rr].over = null; } G._stripsFreed = true; } }
     return Q.length; };
   function autoPump() { var t = now(); if (t - lastPump > 7) J.pump(); if (J.chunkFlat) idleKick(); }
@@ -410,7 +410,8 @@
   J.stat = { flat: 0, strip: 0, plant: 0, nolayer: 0 };
   // jr perf: baked canvases are swapped for ImageBitmaps (immutable, pre-decoded: much cheaper to blit than a canvas source); same pixels
   J.useBitmap = J.chunkFlat && typeof createImageBitmap !== 'undefined' && !(typeof location !== 'undefined' && /[?&]jbmp=0\b/.test(location.search));
-  function toBmp(o, k) { if (!J.useBitmap || !o || !o[k] || typeof o[k].getContext !== 'function') return; var c = o[k]; createImageBitmap(c).then(function (b) { if (o[k] === c) o[k] = b; }, function () {}); }
+  function toBmp(o, k) { if (!J.useBitmap || !o || !o[k] || typeof o[k].getContext !== 'function') return; var c = o[k]; createImageBitmap(c).then(function (b) { if (o[k] === c && !o._freed) o[k] = b; else try { b.close(); } catch (e) {} }, function () {}); }   /* rc8.3 crash #6: a bitmap that lost the race (chunk evicted / slot replaced) is closed, not leaked */
+ J.freeBmps = function (L, d) { d = d || 0; if (!L || d > 4 || typeof L !== 'object') return; if (typeof ImageBitmap !== 'undefined' && L instanceof ImageBitmap) { try { L.close(); } catch (e) {} return; } if (typeof L.getContext === 'function') return; try { L._freed = 1; } catch (e) {} for (var q in L) { if (Object.prototype.hasOwnProperty.call(L, q)) { var v = L[q]; if (v && typeof v === 'object') J.freeBmps(v, d + 1); } } };   /* rc8.3 crash #6: close the ImageBitmaps held by an evicted chunk (canvases are left to GC; they may be shared) */
   // jr perf: all strips of a part flattened into ONE canvas per chunk (exact same pixels & order, strips never overlap units within a part)
   J.chunkFlat = !(typeof location !== 'undefined' && /[?&]jperf=0\b/.test(location.search));
 

@@ -28,7 +28,7 @@ function setup({off=false,hold=false,cold=false}={}){
   fresh();return {box,C,listeners,storage,fresh,advance:n=>{time+=n;C.tick()},settle:async()=>{for(let i=0;i<16;i++)await Promise.resolve()},counts:()=>({plays,stops,radio,rumble}),resolve:()=>resolve({loaded:['arclight_cutaway_30s_v4']})};
 }
 (async()=>{
-  ok(scripts===77,'all 77 inline scripts parse');
+  ok(scripts===78,'all 78 inline scripts parse');
   const a=setup();a.box.updateWeapons(.016);
   ok(a.C.cur&&a.box.state==='cutaway'&&a.box.air.length===0,'first B-52 call pauses before any existing air effects spawn');
   ok(a.C.DEFS.arclight.durMs===16100&&a.C.DEFS.arclight.maxMs===16100&&a.C.MAX_MS===4000,'Arc Light allows 16100ms; default clamp remains 4000ms');

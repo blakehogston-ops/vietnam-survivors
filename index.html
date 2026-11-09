@@ -174,7 +174,7 @@ body.padmode .tag.sel{outline:3px solid #ffd54a;outline-offset:2px}
 .howto{line-height:1.7}
 @media (max-width:600px){#menu .bstamp{display:none}}
 #kb{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;display:none}#kb.on{display:block}
-#kb i{position:absolute;inset:-6%;background:center/cover no-repeat;opacity:0;transition:opacity 2.5s ease;filter:sepia(.25) contrast(1.05)}#kb i.show{opacity:.30}
+#kb i{position:absolute;inset:-6%;background:center/cover no-repeat;opacity:0;transition:opacity 2.5s ease;filter:sepia(.25) contrast(1.05) brightness(1.3)}   /* rc8.3: menu photos ~1/3 brighter (Blake), still under the .8 overlay tint */#kb i.show{opacity:.40}
 #kb i.go{animation:kbz 16s linear forwards}@keyframes kbz{from{transform:scale(1) translate(0,0)}to{transform:scale(1.12) translate(-2%,-1.5%)}}
 #menu>*:not(#kb){position:relative;z-index:1}
 .ockia{color:#bdb79f;font:12px 'Courier New',monospace;margin:2px 0 6px}.ochon{color:#f0d890;font-size:13px;margin:4px 0 8px;letter-spacing:.04em}.hrib{display:inline-block;width:22px;height:7px;vertical-align:middle;background:linear-gradient(90deg,#4f8fc8 0 40%,#fff 40% 46%,#4f8fc8 46% 54%,#fff 54% 60%,#4f8fc8 60%);border:1px solid #1a1c12}
@@ -1308,6 +1308,13 @@ const BUILD={id:'8bfbae3',date:'2026-11-09 15:42 ET',tag:'rc8.4'}, AV='?v='+BUIL
 'use strict';
 /* ====================== setup ====================== */
 const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+/* rc8.3 crash logging: renderer errors, rejections and canvas context loss go to userData/lco_crash.log via lcoHost.log (Electron); context restore rebakes the terrain cache */
+const CRLOG=(k,d)=>{ try{ if(window.lcoHost&&lcoHost.log)lcoHost.log(k,Object.assign({st:typeof state!=='undefined'?state:null,t:(typeof G!=='undefined'&&G)?Math.round(G.t):null,mem:performance.memory?Math.round(performance.memory.usedJSHeapSize/1048576):null},d||{})) }catch(e){} };
+window.__crlog=CRLOG;
+addEventListener('error',e=>CRLOG('js-error',{m:String(e.message||e).slice(0,300),f:(e.filename||'').split('/').pop(),l:e.lineno,c:e.colno,s:String(e.error&&e.error.stack||'').slice(0,800)}));
+addEventListener('unhandledrejection',e=>CRLOG('unhandled-rejection',{m:String(e.reason&&(e.reason.stack||e.reason.message)||e.reason).slice(0,800)}));
+cv.addEventListener('contextlost',e=>{ CRLOG('canvas-contextlost',{w:cv.width,h:cv.height}) });
+cv.addEventListener('contextrestored',()=>{ CRLOG('canvas-contextrestored',{}); try{ TERR.inval() }catch(e){} try{ resize() }catch(e){} });
 /* rc8 ?nohud (store screenshots): no DOM or canvas HUD, no achievement toasts, no dedication / seed / build text on the end card. World + gameplay unchanged. */
 const CAPTURE=window.CAPTURE=/[?&]capture=1\b/.test(location.search); if(CAPTURE){ const f=()=>document.body.classList.add('capture'); if(document.body)f(); else addEventListener('DOMContentLoaded',f) }   /* rc8 ?capture=1: trailer/screenshot mode; gameplay unchanged */
 const NOHUD=window.NOHUD=/[?&]nohud(=1)?(&|$)/.test(location.search); if(NOHUD){ const f=()=>document.body.classList.add('nohud'); if(document.body)f(); else addEventListener('DOMContentLoaded',f) }
@@ -2812,7 +2819,7 @@ window.RIMX=null; const RIM={ON:!/[?&]unitrim=0\b/.test(location.search),A:+para
   _c:null, ctxRef(x){ if(x===undefined)return this._c; this._c=x },   /* QA (tools/contrast.js): draw target for the rim, defaults to the game canvas */
   wrap(){ const S=window.SHEET1; if(!this.ON||!S||!S.draw||S._rimW)return; const orig=S.draw, R=this; S._rimW=1;
     S.draw=function(c,name,frame,x,y,sc,flip,white){ const ua=R.on&&c===(R._c||ctx)&&!white?(R._c?R.alpha():R.ua(x,y)):0; if(ua>0){ const cx=R._c||ctx; const k=name+'|'+frame+'|'+(sc||1)+'|'+(flip?1:0)+'|'+R.col(); let o=R.M.get(k);
-        if(!o){ const W=160,H=160,t=mk(W,H),tx=t.getContext('2d'); tx.imageSmoothingEnabled=false; try{ orig.call(this,tx,name,frame,W/2,H-24,sc,flip,false) }catch(e){} o=R.dil(t,R.col()); if(R.M.size>1500)R.M.clear(); R.M.set(k,o) }
+        if(!o){ const W=160,H=160,t=mk(W,H),tx=t.getContext('2d'); tx.imageSmoothingEnabled=false; try{ orig.call(this,tx,name,frame,W/2,H-24,sc,flip,false) }catch(e){} o=R.dil(t,R.col()); t.width=t.height=0; while(R.M.size>=96){ const f=R.M.keys().next().value, fc=R.M.get(f); R.M.delete(f); if(fc){fc.width=fc.height=0} } R.M.set(k,o) } else { R.M.delete(k); R.M.set(k,o) }
         cx.save(); cx.globalAlpha*=ua; cx.drawImage(o,Math.round(x-80-2),Math.round(y-(160-24)-2)); cx.restore() }
       return orig.apply(this,arguments) } } };
 window.RIMX=RIM;
@@ -3061,7 +3068,7 @@ const TERR=(()=>{ let B=null, ok=false; const cache=new Map(), stale=new Map(); 
     const out=[]; for(let f=0;f<(hasW?3:1);f++){ const cv=mk(RT,RT), c=cv.getContext('2d'); c.imageSmoothingEnabled=false;
       for(let j=0;j<8;j++)for(let i=0;i<8;i++)tile(c,cx*8+i,cy*8+j,i*32,j*32,'water'+f,M); out.push(cv) } return out }
   function freeV(v){ if(v)for(const c of v){ c.width=0; c.height=0 } } function dropStale(){ for(const v of stale.values())freeV(v); stale.clear() }
-  function get(cx,cy){ const k=cx+','+cy+':'+gen; let v=cache.get(k); if(v){ cache.delete(k); cache.set(k,v); return v } const sk=cx+','+cy; if(bakesLeft<=0)return stale.get(sk)||null; bakesLeft--; v=bake(cx,cy); cache.set(k,v); if(stale.has(sk)){ freeV(stale.get(sk)); stale.delete(sk) } while(cache.size>90){ const k0=cache.keys().next().value, old=cache.get(k0); cache.delete(k0); if(old)for(const c of old){ c.width=0; c.height=0 } }   /* free the evicted chunk's backing store now, not at the next GC (GPU memory) */ return v }
+  function get(cx,cy){ const k=cx+','+cy+':'+gen; let v=cache.get(k); if(v){ cache.delete(k); cache.set(k,v); return v } const sk=cx+','+cy; if(bakesLeft<=0)return stale.get(sk)||null; bakesLeft--; v=bake(cx,cy); cache.set(k,v); if(stale.has(sk)){ freeV(stale.get(sk)); stale.delete(sk) } while(stale.size&&cache.size+stale.size>48){ const s0=stale.keys().next().value; freeV(stale.get(s0)); stale.delete(s0) }   /* rc8.3 crash #3: stale + live chunks capped at 48 so an inval() during play can't double the terrain cache */ while(cache.size>90){ const k0=cache.keys().next().value, old=cache.get(k0); cache.delete(k0); if(old)for(const c of old){ c.width=0; c.height=0 } }   /* free the evicted chunk's backing store now, not at the next GC (GPU memory) */ return v }
   return { ready:art, inval(){ gen++; dropStale(); if(state==='play'){ for(const [k,v] of cache)stale.set(k.slice(0,k.lastIndexOf(':')),v); staleT=performance.now() } else for(const v of cache.values())freeV(v); cache.clear() }, staleN:()=>stale.size, tick(){ if(stale.size&&performance.now()-staleT>3000)dropStale() }, get, frame:fr, mat, landing, budget(n){ bakesLeft=n }, stats:()=>({cells:cache.size,gen}) } })();
 /* flow: current direction per river, speed rises where the channel narrows; foam at banks and bridge piles, debris drifts downstream */
 function rivFlow(h,i){ const d=hash2(i*31+(h?3:9),77)<.5?-1:1; return d }
@@ -5835,8 +5842,9 @@ function insertCH46(){ const g=G,p=g.p, S={hp:Q15.hp,dm:1}, X=c46X(C46_HD);
   comp.hueyAt=1e9; comp.dropAt=0 }
 function ch46Tick(h,dt){ const g=G,p=g.p, X=c46X(h.hd); h.t+=dt; h.rot+=dt*34; SeaKnightS.cue(h,'in');
   if(h.ph===0){ const dx=h.lx-h.x, dy=h.ly-h.y, d=Math.hypot(dx,dy)||1, sp=Math.min(380,50+d*1.1); h.x+=dx/d*Math.min(d,sp*dt); h.y+=dy/d*Math.min(d,sp*dt);
+    { const vA=Math.atan2(dy,dx), q=Math.max(0,Math.min(1,(340-d)/280)), k=q*q*(3-2*q), w=((C46_HD-vA+Math.PI*3)%TAU)-Math.PI; h.hd=turnTo(h.hd,vA+w*k,(1.6+1.4*k)*dt) }   /* rc8.3 #4: nose follows the flight path, then eases (pedal turn) onto the NW landing heading over the last ~300 px */
     h.z+=((d<420?14:60)-h.z)*Math.min(1,dt*1.6); h.st=h.z>30?'flying':'hover'; if(d<3){ h.ph=1; h.x=h.lx; h.y=h.ly } }
-  else if(h.ph===1){ h.z=Math.max(0,h.z-dt*(6+h.z*.9)); h.st=h.z>.5?'hover':'landed'; if(h.z<=0){ h.ph=2; h.t2=0; h.tdAt=h.t; burst(h.x,h.y+6,16,90,.6,3,['#a8946a','#8a7a52'],false) } }
+  else if(h.ph===1){ h.hd=turnTo(h.hd,C46_HD,3*dt); h.flare=Math.max(0,Math.min(1,(h.z-1)/10))*Math.min(1,h.z/3); h.z=Math.max(0,h.z-dt*(6+h.z*.9)); if(h.z<=0){ h.hd=C46_HD; h.flare=0 } h.st=h.z>.5?'hover':'landed'; if(h.z<=0){ h.ph=2; h.t2=0; h.tdAt=h.t; burst(h.x,h.y+6,16,90,.6,3,['#a8946a','#8a7a52'],false) } }
   else if(h.ph===2){ h.t2+=dt; h.st='landed'; if(h.t2>.75){   /* first man moves at touchdown + 1.5 s (ramp .75 + .75) */ h.ph=3; h.t2=0; h.st='rampDown'; ILOG('ramp_down',{z:h.z}); Snd.play('thud'); if(h.comp&&h.comp.q15)try{ if(window.SamplePlayer&&SamplePlayer.musicEvent)SamplePlayer.musicEvent('ramp_down') }catch(e){} } }
   else if(h.ph===3){ h.t2+=dt; h.st='rampDown'; const rx=h.x+X.ramp[0], ry=h.y+X.ramp[1];
     if(state==='intro'&&g.hide&&!h.docOut&&(h.di>=Math.min(C46_DOC_AFTER,h.left)||h.di>=h.left)){   /* rc8.2 HAA: Doc comes off WITH the squad leader (right behind him), never first */ h.docOut=1; ILOG('doc_ramp',{t2:+h.t2.toFixed(2),after:h.di});  g.hide=false; { const C=lzCentre(h); g.docWalk={x0:rx,y0:ry,x1:C.x+6,y1:C.y+8,t:0} } p.x=rx; p.y=ry }
@@ -5844,7 +5852,7 @@ function ch46Tick(h,dt){ const g=G,p=g.p, X=c46X(h.hd); h.t+=dt; h.rot+=dt*34; S
           coy.push({role,nm:role==='corps'?'HM3 Fontaine':Q15.names[j],slot:sl,cv:h.di&3,coy:true,pat:true,comp:h.comp,state:'ramp',rt:0,hx:rx,hy:ry,lx:h.x+e[0]-sp*14+(rnd()-.5)*10,ly:h.y+e[1]+((h.di&1)?1:-1)*sp*9,x:rx,y:ry,rz:0,hp:hp0,mhp:hp0,dm:h.s.dm*(1+g.sq.dm),face:-1,anim:rnd()*4,mv:true,cd:.4+rnd()*.5,tg:null,tgT:rnd()*.3,mf:0,hf:0,inv:0,aim:Math.PI,ph:rnd()*TAU,born:g.t});
           if(state==='intro'){ const mm=coy[coy.length-1]; mm.ps=lzSpot(h,j,role) }
           h.comp.alive++; h.comp.dr=(h.comp.dr||0)+1; g.cs.dropped++; if(h.comp.alive>g.cs.peak)g.cs.peak=h.comp.alive }
-        h.di++; h.dT=.3 } }
+        h.di++; h.dT=.38 } }   /* rc8.3 #6: a little more spacing in the ramp file */
     else { if(!h.spool){ h.spool=h.t; } h.endT+=dt; if(h.endT>1.0){ h.ph=4;   /* HAA: 'LZ cold' call once the perimeter is down and the bird lifts; 1.0 s spool-up (rotor wash LIFTOFF) */   /* rc8.2 HAA: the bird lifts as soon as the last man is off */ h.vs=30; h.st='landed'; SeaKnightS.cue(h,'out'); if(h.comp&&h.comp.q15&&!h.comp.lft&&(h.comp.lft=1))try{ if(window.SamplePlayer&&SamplePlayer.musicEvent)SamplePlayer.musicEvent('liftoff') }catch(e){} } } }
   else { h.endT+=dt; h.z=Math.min(70,h.z+dt*(8+h.z*.8)); h.st=h.z>30?'flying':h.z>.5?'hover':'landed'; if(h.z>10){ h.vs=Math.min(420,h.vs+200*dt); h.x+=Math.cos(h.hd)*h.vs*dt; h.y+=Math.sin(h.hd)*h.vs*dt }   /* departs nose-first (NW), away from the ramp side */
     if(state==='intro'&&INTRO&&INTRO.quiet&&INTRO.cap0==null&&h.z>20&&lzAllKneel()){ INTRO.cap0=INTRO.t2; ILOG('lz_cap',{kneel:coy.filter(m=>m.ps&&m.lzPose==='kneel').length,stick:coy.filter(m=>m.ps).length}); try{ if(!(window.VOAI&&VOAI.byId(INS2_LINE.id)))Snd.play('radio') }catch(e){} }   /* LZ-cold caption once the bird is clearly airborne */
@@ -5852,7 +5860,9 @@ function ch46Tick(h,dt){ const g=G,p=g.p, X=c46X(h.hd); h.t+=dt; h.rot+=dt*34; S
   if(h.z<24&&h.ph<4||h.ph===4&&h.z<30){ if(!LOWFX_ON()&&rnd()<dt*24){ const b=rnd()*TAU; addPart(h.x+Math.cos(b)*22,h.y+8+Math.sin(b)*8,Math.cos(b)*90,Math.sin(b)*45,.6,3+rnd()*3,rnd()<.5?'#a8946a':'#8a7a52',false,2) } }
   return false }
 function drawCH46Ins(h){ const dk=h.spool!=null?(q=>q*q*(3-2*q))(Math.min(1,Math.max(0,(h.t-h.spool)/1.5))):0;   /* AD v6b(b): caption-time departure eases ~20 px right + 20 px higher so hull + shadow clear the NW ring */
-  try{ SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x+20*dk),y:Math.round(h.y),alt:h.z+20*dk,heading:h.hd,t:(h.rot||0)/34,scale:1,state:h.ph===2?'rampDown':h.st,rampK:h.ph===2?Math.min(1,h.t2/.75):undefined,damage:0,wash:!window.VFX_ROTORWASH})   /* native v1.2: ramp-lowering frames during the .75 s after touchdown */ }catch(e){ drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) } }
+  const O8=Math.PI/4; if(h.hdO==null)h.hdO=Math.round(h.hd/O8); { const df=((h.hd-h.hdO*O8+Math.PI*3)%TAU)-Math.PI; if(Math.abs(df)>Math.PI/8+.16)h.hdO=Math.round(h.hd/O8) } h.hdD=h.hdO*O8;   /* rc8.3 #4: 8-way sprite snap with hysteresis (no flicker to a side-on frame mid-turn) */
+  const fl=h.flare||0;   /* rc8.3 #4: flare - the sprites have no pitch frames, so the nose-up flare is a short tail-sink/hold (alt lag) just before touchdown */
+  try{ SHEET1.drawSeaKnight(ctx,{x:Math.round(h.x+20*dk),y:Math.round(h.y-2*fl),alt:h.z+20*dk+3*fl,heading:h.ph>=2?h.hd:h.hdD,t:(h.rot||0)/34,scale:1,state:h.ph===2?'rampDown':h.st,rampK:h.ph===2?Math.min(1,h.t2/.75):undefined,damage:0,wash:!window.VFX_ROTORWASH})   /* native v1.2: ramp-lowering frames during the .75 s after touchdown */ }catch(e){ drawCH46({x:h.x,y:h.y,z:h.z,hd:h.hd,rot:h.rot}) } }
 function insertFifteen(){ if(CH46INS&&C46X)return insertCH46(); const g=G,p=g.p, a0=rnd()*TAU, Rf=Math.hypot(VW,VH)/2+170, S={hp:Q15.hp,dm:1};
   const comp={t0:g.t,n:0,alive:0,half:null,few:null,end:null,id:g.cs.comps.length,q15:true}; g.cs.comps.push(comp); let base=0;
   for(let k=0;k<3;k++){ const a=a0+k*TAU/3, nn=Q15.sizes[k]; comp.n+=nn;
@@ -6286,7 +6296,7 @@ function finishIntro(){ for(const m of coy){ if(m.state==='peri'){ m.state='ok';
 /* perimeter geometry: centre straight back from the rear ramp (the bird faces east, ramp aft = west); threat axis = west, toward the treeline */
 const LZ_THREAT=Math.PI, LZ_RX=172, LZ_RY=124;   /* threat axis = west (thick jungle edge); ring ~2.9 Marine widths apart for 12 men */
 function lzCentre(h){ const X=c46X(h.hd), ax=X.ramp[0], ay=X.ramp[1], d=Math.hypot(ax,ay)||1; return {x:h.lx+ax*.55-ay/d*64,y:h.ly+ay*.55+ax/d*64} }   /* rc8.2 pass 6: abeam the bird, clear of the aft rotor disc, still inside the ring */   /* Pettaway + RTO + Doc: inside the ring beside the ramp tip */
-window.__lzk=()=>{ try{ return {n:coy.filter(m=>m.ps).length,k:coy.filter(m=>m.ps&&m.lzPose==='kneel').length,cap:INTRO&&INTRO.cap0!=null,stuck:coy.filter(m=>m.ps&&m.lzPose!=='kneel').map(m=>({st:m.state,pose:m.lzPose,x:m.x|0,y:m.y|0,ps:m.ps}))} }catch(e){ return null } };
+window.__c46=()=>{ const h=c46Bird(); return h?{ph:h.ph,hd:+h.hd.toFixed(3),hdD:h.hdD!=null?+h.hdD.toFixed(3):null,x:Math.round(h.x),y:Math.round(h.y),z:+h.z.toFixed(1),di:h.di,st:h.st}:null }; window.__lzk=()=>{ try{ return {n:coy.filter(m=>m.ps).length,k:coy.filter(m=>m.ps&&m.lzPose==='kneel').length,cap:INTRO&&INTRO.cap0!=null,stuck:coy.filter(m=>m.ps&&m.lzPose!=='kneel').map(m=>({st:m.state,pose:m.lzPose,x:m.x|0,y:m.y|0,ps:m.ps}))} }catch(e){ return null } };
 function lzAllKneel(){ const L=typeof coy!=='undefined'?coy:[]; let n=0; for(const m of L){ if(!m.ps||m.dead)continue; n++; if(m.lzPose!=='kneel')return false } return true }
 function lzRingPt(h,a){ const L=G.lzDeco||{x:h.lx,y:h.ly}; return {x:L.x+Math.cos(a)*LZ_RX,y:L.y+10+Math.sin(a)*LZ_RY} }
 function lzSpot(h,j,role){ const nm=Q15.names[j]||'', C=lzCentre(h);
@@ -6335,7 +6345,7 @@ function lzDecoDraw(){ const L=G&&G.lzDeco; if(!L)return; if(!L.c){ const W2=110
       const hv=ihash(xx*7+yy*13); x.clearRect(xx,yy,4,4); x.fillStyle=dmin<=6?(hv<.5?'#6f5a3c':'#7d6845'):(hv<.33?'#3f5626':hv<.66?'#566d30':'#6f7d3e'); x.fillRect(xx,yy,4,4) }
     L.c=c } ctx.drawImage(L.c,L.ox,L.oy) }
 function c46Bird(){ return CH46INS&&coyH.find(h=>h.ch46) }
-function startLanding(){ const p=G.p; if(c46Bird()){ INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH=null; const h=c46Bird(); h.x=h.lx-820; h.y=h.ly-90; h.z=60; return } INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH={x:p.x-640,y:p.y-8,z:70,hd:0,rot:0,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,out:0}; }
+function startLanding(){ const p=G.p; if(c46Bird()){ INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH=null; const h=c46Bird(); h.x=h.lx-820; h.y=h.ly-90; h.z=60; h.hd=Math.atan2(90,820); h.hdO=null; return }   /* rc8.3 #4: enters nose-first along its track */ INTRO.ph=2; INTRO.t2=0; INTRO.flash=1; introH={x:p.x-640,y:p.y-8,z:70,hd:0,rot:0,mf:[0,0],hf:0,hp:1,mhp:0,ph:0,t:0,out:0}; }
 function updateIntroH(dt){ const h=introH; if(!h)return; const p=G.p; h.t+=dt; h.rot+=dt*34;
   if(h.ph===0){ const tx=p.x-8; h.x+=(tx-h.x)*Math.min(1,dt*1.7); h.z+=(16-h.z)*Math.min(1,dt*1.3); if(Math.abs(tx-h.x)<6&&h.z<19&&!h.land){ h.land=h.t } if(h.land&&h.t>h.land+2.5)h.ph=1 }
   else { h.out+=dt; h.z+=(60*h.out+10)*dt; h.x+=(60+240*h.out)*dt; h.y-=14*dt; if(Math.hypot(h.x-p.x,h.y-p.y)>1200)introH=null }
@@ -8652,7 +8662,7 @@ const ATM={ON:!!window.VFX_ATMO&&!/[?&]atmo=0\b/.test(location.search),NIGHT_MAX
     if(T<300)return 12+4.5*T/300; if(T<390)return 16.5+2.5*(T-300)/90; if(T<480)return 19+1.5*(T-390)/90; return Math.min(this.NIGHT_MAX,20.5+(T-480)/120) },
   night(){ return this.ON&&!!G&&this.hourAt(G.t)>=19.5 },
   weak(){ const n=navigator.hardwareConcurrency||8, m=navigator.deviceMemory||8; return COARSE.matches||n<=4||m<=4 },
-  gpu(){ if(this._gpu!==undefined)return this._gpu; let ok=false; try{ const c=document.createElement('canvas'), gl=c.getContext('webgl'); if(gl){ const d=gl.getExtension('WEBGL_debug_renderer_info'), r=String(d?gl.getParameter(d.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)); ok=!/swiftshader|llvmpipe|software|basic render/i.test(r) } }catch(e){} return this._gpu=ok },
+  gpu(){ if(this._gpu!==undefined)return this._gpu; let ok=false; try{ const c=document.createElement('canvas'), gl=c.getContext('webgl'); if(gl){ const d=gl.getExtension('WEBGL_debug_renderer_info'), r=String(d?gl.getParameter(d.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)); ok=!/swiftshader|llvmpipe|software|basic render/i.test(r); try{ window.__lcoGPU=r; const lc=gl.getExtension('WEBGL_lose_context'); if(lc)lc.loseContext() }catch(e){} c.width=c.height=0 } }catch(e){}   /* rc8.3 crash #4: release the probe context */ return this._gpu=ok },
   reset(){ this.h=-1; this.rn=-1; this.cad=null; this.mor=0; this.how=0; if(this.ON)try{ VFX_ATMO.clearPuddles(); VFX_ATMO.setFlareCadence({on:false}) }catch(e){} },
   /* player support at night: illumination rounds mixed into the fire missions */
   support(id,x,y){ if(!this.night())return; try{ if(id==='mortar'&&(++this.mor%3)===1)VFX_ATMO.addFlare(x,y-40,'mortar81'); else if(id==='howitzer'&&(++this.how%2)===1)VFX_ATMO.addFlare(x,y-60,'arty155'); else if(id==='spooky')VFX_ATMO.addFlare(x,y-80,'mk24') }catch(e){} },
@@ -9418,7 +9428,7 @@ const Bf={cd:2,
 };
 /* ---- intro rock (original riff, A minor, 126 BPM) + door-gun bursts, scheduled once at intro start ---- */
 const IntroSnd={bus:null,gbus:null,rot:null,wind:null,
-  start(){ const c=Snd.ctx; if(!c||c.state!=='running'||Snd.muted)return; this.stop(true); Combat.init(); Amb.kill(c.currentTime,.05);
+  start(){ const c=Snd.ctx; if(c&&c.state!=='running'&&!Snd.muted){ ILOG('introsnd_wait',{st:c.state}); try{ c.resume().then(()=>{ if(state==='intro'&&c.state==='running'&&!this.rot)this.start() }).catch(()=>{}) }catch(e){} return }   /* rc8.3: ride-in was silent - the context was still resuming when the intro began, so the rotor bed never started; start it as soon as resume() resolves */ if(!c||Snd.muted)return; this.stop(true); Combat.init(); Amb.kill(c.currentTime,.05);
     const now=c.currentTime, t0=now+.06, b=60/126, e=b/2, RT=6.0;   // riff fades out by RT (title card), rotor takes over
     // --- transistor-radio riff: bandpassed + crunchy, low level, underneath the rotor ---
     this.bus=c.createGain(); this.bus.gain.setValueAtTime(.0001,now); this.bus.gain.linearRampToValueAtTime(.9,t0+.5); this.bus.gain.setValueAtTime(.9,t0+3.6); this.bus.gain.linearRampToValueAtTime(.0001,t0+RT);
@@ -9477,5 +9487,27 @@ if(new URLSearchParams(location.search).get('bugreport')==='1')window.__lcoBug={
 })();
 </script>
 <script src="assets/runsave.js?v=fc7fa9f"></script><script src="assets/memtrim.js?v=fc7fa9f"></script>
-<script>/*csfitpatch*/(function(){var was=false;function fit(){var c=document.getElementById("charsel");if(!c)return;var on=c.classList.contains("show");if(on&&!was){c.style.zoom="";c.style.overflow="visible";var h=Math.max(c.scrollHeight,c.getBoundingClientRect().height);var kids=c.children,mx=0;for(var i=0;i<kids.length;i++){var r=kids[i].getBoundingClientRect();if(r.bottom>mx)mx=r.bottom}var need=Math.max(h,mx+16);var s=Math.min(1,(innerHeight-8)/need);if(s<1)c.style.zoom=String(s);c.style.overflow="";}if(!on&&was)c.style.zoom="";was=on}setInterval(fit,150);addEventListener("resize",function(){was=false})})();</script><script>/*menumusicpatch*/(function(){var n=0,iv=setInterval(function(){n++;try{if(typeof Snd!=="undefined"&&Snd.init){Snd.init();Snd.resume&&Snd.resume();if(Snd.ctx&&Snd.ctx.state==="running"&&n>4)clearInterval(iv)}}catch(e){}if(n>60)clearInterval(iv)},500)})();</script><script>/*bugreport loader: ?bugreport=1 only, exact key; flag off = nothing added*/(function(){try{if(new URLSearchParams(location.search).get("bugreport")!=="1")return;var s=document.createElement("script");s.src="bugreport.js"+(typeof AV!=="undefined"?AV:"");document.body.appendChild(s)}catch(e){}})();</script></body>
+<script>/*csfitpatch*/(function(){var was=false;function fit(){var c=document.getElementById("charsel");if(!c)return;var on=c.classList.contains("show");if(on&&!was){c.style.zoom="";c.style.overflow="visible";var h=Math.max(c.scrollHeight,c.getBoundingClientRect().height);var kids=c.children,mx=0;for(var i=0;i<kids.length;i++){var r=kids[i].getBoundingClientRect();if(r.bottom>mx)mx=r.bottom}var need=Math.max(h,mx+16);var s=Math.min(1,(innerHeight-8)/need);if(s<1)c.style.zoom=String(s);c.style.overflow="";}if(!on&&was)c.style.zoom="";was=on}setInterval(fit,150);addEventListener("resize",function(){was=false})})();</script><script>/*menumusicpatch*/(function(){var n=0,iv=setInterval(function(){n++;try{if(typeof Snd!=="undefined"&&Snd.init){Snd.init();Snd.resume&&Snd.resume();if(Snd.ctx&&Snd.ctx.state==="running"&&n>4)clearInterval(iv)}}catch(e){}if(n>60)clearInterval(iv)},500)})();</script><script>/*bugreport loader: ?bugreport=1 only, exact key; flag off = nothing added*/(function(){try{if(new URLSearchParams(location.search).get("bugreport")!=="1")return;var s=document.createElement("script");s.src="bugreport.js"+(typeof AV!=="undefined"?AV:"");document.body.appendChild(s)}catch(e){}})();</script><script>/* rc8.3 menu-fit: if the main menu / end card is taller or wider than the viewport (e.g. 1280x720 CSS at 150% Windows scaling), scale the whole overlay down to fit (design height ~720). Canvas untouched. */
+(function(){
+  const IDS=['menu','over'], PAD=6;
+  function fit(el){
+    el.style.transform='';el.style.transformOrigin='';el.style.width='';el.style.height='';el.style.right='';el.style.bottom='';
+    if(!el.classList.contains('show'))return;
+    const vw=innerWidth,vh=innerHeight; let t=1e9,b=-1e9,l=1e9,r=-1e9;
+    for(const c of el.children){ const p=getComputedStyle(c).position; if(p==='fixed'||p==='absolute')continue; const q=c.getBoundingClientRect(); if(!q.width&&!q.height)continue; t=Math.min(t,q.top);b=Math.max(b,q.bottom);l=Math.min(l,q.left);r=Math.max(r,q.right) }
+    if(t>1e8)return;
+    const h=b-t+2*PAD, w=r-l+2*PAD;
+    if(h<=vh&&w<=vw&&t>=0&&b<=vh)return;
+    const s=Math.max(.4,Math.min(1,vh/h,vw/w));
+    if(s>=.999)return;
+    el.style.transformOrigin='0 0';el.style.transform='scale('+s+')';el.style.right='auto';el.style.bottom='auto';el.style.width=(vw/s)+'px';el.style.height=(vh/s)+'px';el.scrollTop=0;
+  }
+  let raf=0; function all(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>IDS.forEach(i=>{const e=document.getElementById(i); if(e)fit(e)})) }
+  window.MENUFIT=all;
+  function init(){ const mo=new MutationObserver(all); IDS.forEach(i=>{const e=document.getElementById(i); if(e){mo.observe(e,{attributes:true,attributeFilter:['class']}); e.addEventListener('toggle',all,true)}}); mo.observe(document.body,{attributes:true,attributeFilter:['class']}); all(); setTimeout(all,300); setTimeout(all,1500); if(document.fonts)document.fonts.ready.then(all) }
+  addEventListener('resize',all); if(window.visualViewport)visualViewport.addEventListener('resize',all);
+  if(document.readyState==='loading')addEventListener('DOMContentLoaded',init); else init();
+})();</script>
+
+</body>
 </html>

@@ -1,0 +1,1 @@
+Placeholder icons generated Oct 28 2026 from repo apple-touch-icon.png (180px, upscaled to 512). Art track (Art Director/HAA) to supply a 1024px master; regenerate with: python3 -c PIL (see prep.js notes).
