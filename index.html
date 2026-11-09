@@ -4018,7 +4018,11 @@ function botVec(){ const p=G.p; let x=0,y=0; for(const e of enemies){ if(!isFini
 /* rc8.3 last stand (blind #2 #4: Doc went LOW HP straight to death with no beat): fires once per run on the HP threshold alone (<=20% max HP, alive),
    banner + 1.5 s of 40% slow-mo. No damage/heal numbers change. ?laststand=0 off. */
 const LSTAND_ON=!/[?&]laststand=0\b/.test(location.search);
-function lastStandTick(){ const g=G; if(!LSTAND_ON||!g||g.demo||g.lsDone||!g.p||!(g.p.hp>0)||g.p.hp>g.p.maxHp*.2)return; g.lsDone=1; g.lsT=1.5; g.lsAt=+g.t.toFixed(1); g.banner={text:'LAST STAND · DOC IS HIT BAD · GET TO COVER',t:3,col:'#ff5a48'}; try{ Snd.play('boss') }catch(e){} }
+/* rc8.4 (EP/Blake Nov 9, top-7 #6): make sure blinds can see it in a normal run. The first hit that would kill Doc before last stand has fired leaves him at 1 HP
+   and fires it, so a big hit from above 20% can't skip it. Once per run; ?qadie and dust-off are unaffected. ?lsfloor=0 = rc8.3 rule (threshold only). */
+const LSTAND_FLOOR=!/[?&]lsfloor=0\b/.test(location.search);
+function lastStandTick(){ const g=G; if(LSTAND_ON&&LSTAND_FLOOR&&g&&!g.demo&&!g.lsDone&&g.p&&!(g.p.hp>0)&&!g.qaDie){ g.p.hp=1; g.lsFloor=1 }
+  if(!LSTAND_ON||!g||g.demo||g.lsDone||!g.p||!(g.p.hp>0)||g.p.hp>g.p.maxHp*.2)return; g.lsDone=1; g.lsT=1.5; g.lsAt=+g.t.toFixed(1); g.banner={text:'LAST STAND · DOC IS HIT BAD · GET TO COVER',t:3,col:'#ff5a48'}; try{ Snd.play('boss') }catch(e){} }
 function update(dt){
   if(state==='cutaway')return;
   if(G&&G.lsT>0){ G.lsT-=dt; dt*=.4 }
@@ -4522,10 +4526,11 @@ const WRK={L:[],CAP:150,ON:!/[?&]wrecks=0\b/.test(location.search),
 /* random weather (Blake, low priority): one event per run after 1:30 - monsoon rain (light/heavy), ground fog, or a thunderstorm (heavy rain +
    lightning + thunder). 4 s fades, screen-space only, drawn UNDER the HUD; rain streaks are a fixed pool of 90, fog is 5 soft blobs (alpha <= .22),
    so enemies stay readable. Sound: SamplePlayer.weather/thunder/rainRoof (inside a player bunker the outdoor rain ducks 12 dB). ?wx=0 off, ?wx=rain|fog|storm forces one. */
+const WX_STORM1=!/[?&]wxstorm=0\b/.test(location.search);
 const WX={ON:!/[?&]wx=0\b/.test(location.search),k:null,a:0,T:0,dur:0,at:0,R:[],fl:0,nt:0,roof:false,snd:null,
   reset(){ this.k=null; this.a=0; this.fl=0; this.roof=false; try{ if(SAMP.ready()){ SamplePlayer.weather('off',{fade:.5}); SamplePlayer.rainRoof(false,{fade:.3}) } }catch(e){}
     const f=(location.search.match(/[?&]wx=(rain|fog|storm)\b/)||[])[1]||(QAH.storm?'storm':null); this.force=f||null; this.at=f?8:90+Math.random()*120; },
-  start(){ const g=G, r=Math.random(), lo=COARSE.matches||document.body.classList.contains('low'); let k=this.force||(r<.4?'rain':r<.7?'fog':'storm'); if(k==='fog'&&lo&&!this.force)k='rain';   /* phones: the full-screen fog blit costs ~15 fps, so they get rain instead */ this.k=k; this.T=0; this.dur=this.force?1e9:70+Math.random()*50; this.heavy=k==='storm'||(k==='rain'&&Math.random()<.4);
+  start(){ const g=G, r=Math.random(), lo=COARSE.matches||document.body.classList.contains('low'); let k=this.force||(WX_STORM1&&!(g.wxLog||[]).some(w=>w.k==='storm')&&((g.wxLog||[]).length>=1||g.t>=240)?'storm':(r<.4?'rain':r<.7?'fog':'storm'));   /* rc8.4 top-7 #6: a run that lives long enough always gets one thunderstorm (2nd weather event, or the 1st if it starts after 4:00); ?wxstorm=0 = old odds */ if(k==='fog'&&lo&&!this.force)k='rain';   /* phones: the full-screen fog blit costs ~15 fps, so they get rain instead */ this.k=k; this.T=0; this.dur=this.force?1e9:70+Math.random()*50; this.heavy=k==='storm'||(k==='rain'&&Math.random()<.4);
     (g.wxLog||(g.wxLog=[])).push({k,t:+g.t.toFixed(1)}); if(!this.R.length)for(let i=0;i<90;i++)this.R.push({x:Math.random(),y:Math.random(),v:.8+Math.random()*.5}); this.nt=6+Math.random()*8 },
   snd(on){ try{ if(!SAMP.ready()||!SamplePlayer.weather)return; MIX.as('amb',()=>SamplePlayer.weather(on&&this.k!=='fog'?(this.heavy?'heavy':'light'):'off',{fade:4})) }catch(e){} },
   tick(dt){ if(!this.ON||!G||G.demo)return; const g=G;
