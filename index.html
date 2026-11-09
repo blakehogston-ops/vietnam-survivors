@@ -3347,12 +3347,29 @@ let bodies=[],knives=[],squad=[],ins=[],crashes=[],pits=[],bubbles=[],mshells=[]
 const CS=48, head=new Int32Array(4096), nextI=new Int32Array(2400); head.fill(-1);   /* rc7.1 (from jr/intro2 5109aa6, this line only): zeroed head made updateCompany walk j=0 forever under ?nodemo */
 const keys={}; const joy={on:false,id:-1,ox:0,oy:0,x:0,y:0};
 
-function newGame(demo){ N2.reset(); try{ ATM.reset() }catch(e){}
+/* rc8.4 top-7 #3 (EP/Blake Nov 9): Recruit / Normal / Hard, wired for real (the old ?pressure=1 was a dead flag). One table of multipliers on the
+   existing PACE / BAL81 tunables, applied at the start of every run. Normal = 1 everywhere = today's game. Recruit and Hard numbers come from GDUX;
+   until they land they are 1 too, so nothing changes. Pick: ?diff=recruit|normal|hard (?pressure=1 = hard) for this load, else lco_diff, else normal.
+   The settings row is added with GDUX's copy. G.diff is logged on the run for QA. */
+const DIFF={KEYS:['recruit','normal','hard'],
+  T:{recruit:{hit:1,dmg:1,mDmg:1,ehp:1,lull:1,teams:0,quiet:1},
+     normal:{hit:1,dmg:1,mDmg:1,ehp:1,lull:1,teams:0,quiet:1},
+     hard:{hit:1,dmg:1,mDmg:1,ehp:1,lull:1,teams:0,quiet:1}},
+  B:null,
+  get k(){ const q=new URLSearchParams(location.search), d=(q.get('diff')||'').toLowerCase(); if(this.KEYS.includes(d))return d; if(q.get('pressure')==='1')return 'hard';
+    try{ const v=localStorage.getItem('lco_diff'); if(this.KEYS.includes(v))return v }catch(e){} return 'normal' },
+  set(k){ if(!this.KEYS.includes(k))return; try{ localStorage.setItem('lco_diff',k) }catch(e){} },
+  apply(){ const P=PACE, E=BAL81.EARLY; if(!this.B)this.B={hit:P.SHOT_HIT,dmg:P.SHOT_DMG,mDmg:P.M_DMG,ehp:P.HPM,lull:P.LULL.slice(),hl:P.HOLD_LULL.slice(),mt:P.MAX_TEAMS,ht:P.HOLD_TEAMS,quiet:E.QUIET};
+    const b=this.B, k=this.k, m=this.T[k]||this.T.normal;
+    P.SHOT_HIT=b.hit*m.hit; P.SHOT_DMG=b.dmg*m.dmg; P.M_DMG=b.mDmg*m.mDmg; P.HPM=b.ehp*m.ehp; P.LULL=b.lull.map(v=>v*m.lull); P.HOLD_LULL=b.hl.map(v=>v*m.lull);
+    P.MAX_TEAMS=Math.max(1,b.mt+(m.teams|0)); P.HOLD_TEAMS=Math.max(1,b.ht+(m.teams|0)); E.QUIET=b.quiet*m.quiet; return k } };
+window.DIFF=DIFF;
+function newGame(demo){ const _dk=DIFF.apply(); N2.reset(); try{ ATM.reset() }catch(e){}
   let seed=0; if(!demo){ seed=newSeed(); seedRun(seed); try{ localStorage.setItem('lco_lastseed',String(seed)) }catch(e){} }
   medpacks=[];ftexts=[];sigs=[];exMsg=null;exQ=[];exStack=0;enemies=[];WRECKS.length=0;knives=[];pat=[];introH=null;crates=[];dying.length=0;flashes=[];HEAVY.length=0;craterRec.length=0;lzS=null;fbS=null;fbC=null;engs=[];strs=[];chgs=[];fbH=null;bullets=[];gems=[];parts=[];blasts=[];grenades=[];rockets=[];mines=[];fires=[];cones=[];strikes=[];eprojs=[];drops=[];gibs=[];decals=[];decalI=0;dmgSrc=0;pits=[];bubbles=[];mshells=[];hbars=[];hshells=[];boats=[];hueys=[];squad=[];coy=[];coyH=[];medevac=null;healFx.length=0;ins=[];crashes=[];vtr=[];tunnels=[];air=[];tanks=[];
   const t0=demo?150:DBG.t;
   craters=[]; try{ TERR.inval() }catch(e){}
-  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); try{ TEACH.reset(); B81.reset() }catch(e){} FIELD.reset(); GUNS.reset(); MEDV.reset(); CREWX.reset(); BARK.reset(); VHX.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); OFFI.reset(); MAGS.reset(); G={t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
+  WFX.L.length=0; FLM.reset(); WRK.reset(); WX.reset(); AIS.reset(); MOH.reset(); try{ TEACH.reset(); B81.reset() }catch(e){} FIELD.reset(); GUNS.reset(); MEDV.reset(); CREWX.reset(); BARK.reset(); VHX.reset(); FBO.reset(); MUSI.reset(); URG.reset(); KIA.reset(); OFFI.reset(); MAGS.reset(); G={diff:_dk,t:t0,kills:0,shake:0,hurt:0,muzzle:0,banner:null,demo:!!demo,seedH:(seed%9973)|0,
     spawnAcc:0,nextSurge:Math.max(30,Math.ceil((t0+1)/60)*60-30),nextBoss:Math.max(240,Math.ceil((t0+1)/180)*180),bossN:0,med:{drops:0,picked:0,healed:0,expired:0,dry:0,nextT:0,lastPick:-99},rb:{minF:1,dip:false,rec:false,bossK:0,ssK:0,holdMin:1},
     p:{x:0,y:0,hp:130,maxHp:130,lvl:1,xp:0,need:xpNeed(1),face:1,invul:0,anim:0,mv:false,hurtT:0,hpAcc:0,fx:1,fy:0},
     w:{m16:{lvl:1,cd:.2,tick:0}},ps:{helmet:0,flak:0,boots:0,magnet:0,regen:0,kc135:0,radio:0,fm:0,demo:0,dustoff:0},rerolls:2,banishes:2,medInv:3,banned:{},dustUsed:false,cs:{calls:0,dropped:0,dead:0,lifeSum:0,peak:0,maxAlive:0,alive:0,comps:[]},ms:{calls:0,healed:0,snd:0},spk:null,dust:null,surgeN:0,
