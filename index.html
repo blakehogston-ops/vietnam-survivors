@@ -3872,7 +3872,7 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     /* boat */
     const b=S.boat; if(b){ b.f50=Math.max(0,b.f50-dt); if(b.hf>0)b.hf-=dt;
       if(b.ph===0){ const d=b.tu-b.u, st=Math.sign(d)*Math.min(Math.abs(d),210*dt); b.u+=st; const q=riverPos(b.r,b.u); b.x=q.x; b.y=q.y; b.hd=q.hd+(b.dir<0?Math.PI:0); if(Math.abs(b.tu-b.u)<2){ b.ph=1; b.x=b.B.wx; b.y=b.B.wy; this.land('recon'); this.sfx('pbrManeuver','beach','pbr_beach','squad',Math.hypot(b.x-G.p.x,b.y-G.p.y)) } }
-      else if(b.ph===1){ b.stay=(b.stay||0)+dt; if(S.ph!=='out'&&b.stay>2.4){ b.ph=2; this.sfx('pbrManeuver','depart','pbr_depart','squad',Math.hypot(b.x-G.p.x,b.y-G.p.y)) } else { b.c50-=dt; if(b.c50<=0){ b.c50=.5; const t=nearestK(b.x,b.y,1,460)[0]; if(t&&bullets.length<560){ const a=Math.atan2(t.y-b.y,t.x-b.x); b.ta=a; addBullet(b.x+Math.cos(a)*16,b.y+Math.sin(a)*16,a+(rnd()-.5)*.06,740,9,2,.6,3.4,'#fff0a0'); b.f50=.05; if(rnd()<.5)MIX.as('squad',()=>Snd.play('m2'),Math.hypot(b.x-p.x,b.y-p.y)) } } } }
+      else if(b.ph===1){ b.stay=(b.stay||0)+dt; if(b.stay>2.4){ b.ph=2; this.sfx('pbrManeuver','depart','pbr_depart','squad',Math.hypot(b.x-G.p.x,b.y-G.p.y)) } else { b.c50-=dt; if(b.c50<=0){ b.c50=.5; const t=nearestK(b.x,b.y,1,460)[0]; if(t&&bullets.length<560){ const a=Math.atan2(t.y-b.y,t.x-b.x); b.ta=a; addBullet(b.x+Math.cos(a)*16,b.y+Math.sin(a)*16,a+(rnd()-.5)*.06,740,9,2,.6,3.4,'#fff0a0'); b.f50=.05; if(rnd()<.5)MIX.as('squad',()=>Snd.play('m2'),Math.hypot(b.x-p.x,b.y-p.y)) } } } }
       else if(b.ph===2){ b.u-= b.dir*190*dt; const q=riverPos(b.r,b.u); b.x=q.x; b.y=q.y; b.hd=q.hd+(b.dir<0?0:Math.PI); if(Math.abs(b.u-b.tu)>1100)S.boat=null } }
     /* helos */
     for(const key of ['helo','helo2']){ const h=S[key]; if(!h)continue; h.rot+=dt*34; h.t+=dt; const L=key==='helo'?S.lz:h.lz;
@@ -3886,14 +3886,12 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     /* abilities */
     if(fight){ this.abil(S,dt,T) }
     for(const m of men){ if(m.on)continue; if(m.hf>0)m.hf-=dt; if(m.mf>0)m.mf-=dt;
-      let tx,ty; const home=m.team==='recon'?(S.boat?{x:S.boat.B.bx,y:S.boat.B.by}:S.helo2?S.helo2.lz:S.lz):S.lz;
-      if(S.ph==='out'){ tx=home.x; ty=home.y } else { tx=p.x+m.ox; ty=p.y+m.oy }   /* stay with Doc, not the drop LZ */
-      const dx=tx-m.x, dy=ty-m.y, d=Math.hypot(dx,dy); const sp=(m.wia?70:150);
-      if(!(m.wia&&S.ph!=='out')){ if(d>(S.ph==='out'?6:16)){ const k=Math.min(d,sp*dt)/d; rvMove(m,dx*k,dy*k,'m'); m.mv=true; m.anim+=dt*9; m.face=dx>=0?1:-1 } else m.mv=false;
-      if(S.ph==='out'&&d<=10){ const ok=m.team==='recon'?(S.boat?S.boat.ph===1:(S.helo2&&S.helo2.ph===4)):(S.helo&&S.helo.ph===4); if(ok)m.on=true } } else m.mv=false;
+      const tx=p.x+m.ox, ty=p.y+m.oy;   /* stay with Doc, not the drop LZ */
+      const dx=tx-m.x, dy=ty-m.y, d=Math.hypot(dx,dy);
+      if(!m.wia){ if(d>16){ const k=Math.min(d,150*dt)/d; rvMove(m,dx*k,dy*k,'m'); m.mv=true; m.anim+=dt*9; m.face=dx>=0?1:-1 } else m.mv=false } else m.mv=false;   /* downed men stay on the ground */
       /* contact damage (halved: they move as a team and break contact) */
       if(!m.wia){ for(let j=0;j<enemies.length;j++){ const e=enemies[j]; if(e.dead)continue; const ex2=e.x-m.x, ey=e.y-m.y, rr=e.r+8; if(ex2*ex2+ey*ey<rr*rr){ m.hp-=e.dmg*.5*dt*2; m.hf=.1; if(m.hp<=0){ m.hp=0; m.wia=true; g.specLog.push({ev:'wia',t:+g.t.toFixed(1),team:m.team}); } break } } }
-      if(m.wia||(!fight&&S.ph!=='out'))continue; if(G.pullT>0)continue; let W=this.WP[m.wp]; m.cd-=dt; if(m.cd>0)continue; if(m.side&&nearestK(m.x,m.y,1,this.WP[m.side].rng)[0])W=this.WP[m.side];   /* one-zero: suppressed .22 up close */
+      if(m.wia||!fight)continue; if(G.pullT>0)continue; let W=this.WP[m.wp]; m.cd-=dt; if(m.cd>0)continue; if(m.side&&nearestK(m.x,m.y,1,this.WP[m.side].rng)[0])W=this.WP[m.side];   /* one-zero: suppressed .22 up close */
       let t=null; if(W.over){ let best=null,bs=-1; for(const e of nearestK(m.x,m.y,6,W.rng)){ const s=(e.type==='officer'||e.type==='rpg'||e.rpgT!==undefined?3:1)+Math.hypot(e.x-m.x,e.y-m.y)/400; if(s>bs){bs=s;best=e} } t=best } else t=nearestK(m.x,m.y,1,W.rng)[0];
       if(!t){ m.cd=.2; continue } const a=Math.atan2(t.y-m.y,t.x-m.x); m.aim=a; m.face=Math.cos(a)>=0?1:-1; m.cd=W.cd*(.9+rnd()*.2);
       const mx=m.x+Math.cos(a)*W.len, my=m.y+2+Math.sin(a)*W.len; CURW='spec';
@@ -3901,11 +3899,6 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
       else { const n=W.burst||1; for(let k=0;k<n;k++){ if(bullets.length<560)addBullet(mx,my,a+(rnd()-.5)*(W.burst?.12:.05),720,W.dmg,W.pierce||1,.62,3,W.silent?'#8a8a7a':'#ffd46a') } if(!W.silent){ m.mf=.06; if(Math.hypot(m.x-p.x,m.y-p.y)<420&&rnd()<.4&&!this.shot(W,m))MIX.as('squad',()=>Snd.play(W.snd),Math.hypot(m.x-p.x,m.y-p.y)) } else if(Math.hypot(m.x-p.x,m.y-p.y)<260&&rnd()<.5)this.shot(W,m,.6) }
       CURW='' }
     if(fight&&men.length&&men.every(m=>m.wia||m.on)){ S.ph='done'; g.specLog.push({ev:'done',t:+g.t.toFixed(1),wia:men.filter(m=>m.wia).length}) }
-    /* everyone aboard: leave */
-    if(S.ph==='out'&&men.length&&men.every(m=>m.on)){ if(S.boat&&S.boat.ph===1){ S.boat.ph=2; this.sfx('pbrManeuver','depart','pbr_depart','squad',Math.hypot(S.boat.x-G.p.x,S.boat.y-G.p.y)) } if(S.helo&&S.helo.ph===4){ S.helo.ph=5; this.sfx('h34','liftoff','h34_liftoff','squad',Math.hypot(S.helo.x-G.p.x,S.helo.y-G.p.y)) } if(S.helo2&&S.helo2.ph===4)S.helo2.ph=5 }
-    if(S.ph==='out'){ for(const m of men){ if(!m.on)continue } if(men.every(m=>m.on)&&!S.boat&&!S.helo&&!S.helo2){ S.ph='done'; g.specLog.push({ev:'done',t:+g.t.toFixed(1),wia:men.filter(m=>m.wia).length}) } }
-    /* safety: never strand the event (e.g. LZ unreachable) */
-    if(S.ph==='out'&&S.t>this.FIGHT+60){ for(const m of men)m.on=true; if(S.boat)S.boat.ph=2; for(const k of ['helo','helo2'])if(S[k])S[k].ph=5 }
     for(let i=0;i<enemies.length;i++){ const e=enemies[i]; if(e.spot>0)e.spot-=dt } },
   abil(S,dt,T){ const g=G,p=g.p, men=S.men;
     /* recon: stealth spotting - enemies within 520 px of a recon man are marked for 3 s */
@@ -3949,9 +3942,9 @@ const SPEC={ON:!/[?&]sog=0\b/.test(location.search),   /* ON (Oct 14, after the 
     const f=m.team==='recon'?S1.drawRecon:S1.drawSog; if(!f)return null; const r=this.ART[m.role]; return r?{f,r}:null },
   /* river landing (terrain.js tLanding) drawn over the baked bank tile where the PBR noses in */
   landing(b){ if(!b.B)return; if(b.lt===undefined)b.lt=TERR.landing(b.B.wx,b.B.wy,b.B.bx,b.B.by); const L=b.lt; if(L)for(const q of L)ctx.drawImage(q.im,q.x,q.y) },
-  hud(U){ const g=G; if(!this.ON||!g||!g.spec||!HUDB.take())return; const S=g.spec; if(!(S.ph==='fight'||S.ph==='in'||S.ph==='out'))return; const men=S.men||[];
+  hud(U){ const g=G; if(!this.ON||!g||!g.spec||!HUDB.take())return; const S=g.spec; if(!(S.ph==='fight'||S.ph==='in'))return; const men=S.men||[];
     const rc=men.filter(m=>m.team==='recon'&&!m.wia&&!m.on).length, sg=men.filter(m=>m.team==='sog'&&!m.wia&&!m.on).length, sp=enemies.reduce((n,e)=>n+(e.spot>0&&!e.dead?1:0),0);
-    const s=S.ph==='in'?'RECON TEAM INBOUND':S.ph==='out'?'RECON TEAM EXTRACTING':'FRIENDLY RECON TEAMS WITH YOU: '+(rc+sg)+' MEN'+(sp?' · '+sp+' ENEMY MARKED FOR YOU':'');
+    const s=S.ph==='in'?'RECON TEAM INBOUND':'FRIENDLY RECON TEAMS WITH YOU: '+(rc+sg)+' MEN'+(sp?' · '+sp+' ENEMY MARKED FOR YOU':'');
     txt(s,W/2,laneT(13*U,Math.max(H*.205,exTop(U)+(exStack||0)+14*U)),13*U,S.ph==='fight'?'#9be37a':'#ffe58a','center')   /* rc8a: RECON/SOG line in the lane, below the commander bar */;
     if(S.ph==='fight'&&window.ABILITY_ICONS){ const al=r=>men.some(m=>m.role===r&&!m.wia&&!m.on), I=[['callForFire',al('rto')&&!(S.cff&&S.cff.done)],['sniperOverwatch',al('m14')],['enemyMark',sp>0],['claymoreAmbush',al('oz')&&!S.clay],['silentKill',al('oz')]];
       const sz=U>=1.2?24:16, gap=sz+6, x0=W/2-(I.length-1)*gap/2, y0=H*.205+12*U+sz/2; for(let i=0;i<I.length;i++){ ctx.globalAlpha=I[i][1]?1:.35; ABILITY_ICONS.draw(ctx,I[i][0],Math.round(x0+i*gap),Math.round(y0),sz) } ctx.globalAlpha=1 } } };
@@ -9210,6 +9203,13 @@ const H34S={h:null,g:null,
   tick(){ const S=G&&!G.demo&&G.spec, hl=S&&S.helo, w=!!(hl&&(hl.ph===1||hl.ph===4)&&(state==='play'||state==='sig'||state==='levelup')&&SAMP.ready()&&SamplePlayer.hasSample('h34_hover_loop'));
     if(this.h&&(!w||this.g!==G)){ try{ this.h.stop(.8) }catch(e){} this.h=null; this.g=null }
     if(w&&!this.h){ this.g=G; try{ this.h=MIX.as('squad',()=>SamplePlayer.h34('hover',{vol:.8,fade:1})) }catch(e){ this.h=null } } } };
+/* Blake Nov 6 2026: chopper sound on the cabin ride-in (brief2, "going in"): the real CH-46 tandem-rotor loop under the shouted lines,
+   fades out as the in-game landing takes over (SeaKnightS cues the approach there). Stops on mute, skip or leaving the briefing. ?cabrotor=0 off */
+const CabS={h:null,ON:!/[?&]cabrotor=0\b/.test(location.search),
+  tick(){ const w=this.ON&&state==='brief2'&&!!BR2&&!Snd.muted&&SAMP.ready()&&SamplePlayer.hasSample('tandem_rotor_loop');
+    if(this.h&&!w){ try{ this.h.stop(state==='intro'?1.6:.4) }catch(e){} this.h=null }
+    if(w&&!this.h){ try{ this.h=SamplePlayer.evacBirdHover({vol:1,fade:1.2}); this.n=(this.n||0)+1 }catch(e){ this.h=null } } } };
+window.CabS=CabS;
 /* AUDP (rc8 sourcing, all cleared; AUD_OK kill switch): Bird Dog pass, amtrac engine loop, firebase night bed. Never touches the seeded RNG.
    Bird Dog coupling: jr/officer-of (f3fb2df) has no audio hook. AUDP.birdDog() is the public hook the officer code can call (~9 s before
    the WP marking rocket); until then AUDP.tick() polls OFFI.air / OFFI.fac (fields as on f3fb2df: air.T, air.mk, air.st, fac) and starts the
@@ -9340,7 +9340,7 @@ const Music={timer:null,gain:null,send:null,t:0,step:0,abs:0,bpm:90,on:false,las
     this.t=c.currentTime+.1; this.timer=setInterval(()=>this.tick(),25); },
   tick(){ try{
     const c=Snd.ctx; if(!c||c.state!=='running'||!this.gain)return; const now=c.currentTime, dt=Math.min(.1,Math.max(0,now-(this.ln||now))); this.ln=now;
-    try{ MUSX.tick(); RiverS.tick(); HoverS.tick(); H34S.tick(); AUDP.tick() }catch(e){}
+    try{ MUSX.tick(); RiverS.tick(); HoverS.tick(); H34S.tick(); CabS.tick(); AUDP.tick() }catch(e){}
     const playing=(state==='play'&&G&&!G.demo&&!Snd.muted), menu=false;   /* RC4 (Blake): the synth pentatonic menu tune is deleted; the menu is Semper Fidelis only */
     if(G!==this.lastG){this.lastG=G;this.pe=-9;Amb.reset();Combat.st=0}
     if(menu!==this.on){ this.on=menu; this.gain.gain.cancelScheduledValues(now); this.gain.gain.setTargetAtTime(menu?.75:0,now,menu?.4:.2); if(menu){this.t=now+.05;this.step=0;this.abs=0;this.bpm=90} }
