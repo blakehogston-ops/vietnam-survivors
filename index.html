@@ -3381,7 +3381,11 @@ const P84={ON:!/[?&]pace84=0\b/.test(location.search),
   bossOk(g){ return !this.ON||Math.abs(g.t-N2.XMIN)>=60 },
   rpgOk(g){ return !this.ON||g.rpgSeen||!this.called(g)||g.t>=g.ex.callT+30 },
   surgeAt(g){ return (this.ON&&!this.called(g))?.65:.55 },
-  tick(g){ if(!this.ON||!g||g.demo||g.p.hp<=0)return; if(!g.med45&&g.t>=270){ if(medpacks.length<MED.cap){ g.med45=1; const a=rnd()*TAU, r=80+rnd()*80; medpacks.push({x:g.p.x+Math.cos(a)*r,y:g.p.y+Math.sin(a)*r,life:MED.life,pull:false,sp:0}); if(g.med)g.med.drops++; try{ Snd.cue('medpackDrop') }catch(e){} } else if(g.t>330)g.med45=2 } } };
+  /* rc8.4 QA hook (GDUX Nov 9): evac-spans-nightfall check. G.evacQA is filled at touchdown: call/land times (s and run-clock hour),
+     night flags (light = L2809 >=19 h, game = ATM.night >=19.5 h) and the HOLD THE LZ offset (expect landT-lsAt = 30+-5 when lsWhy==='lz'). */
+  qa(g){ const ex=g.ex; if(g.evacQA||!ex||ex.callT==null||ex.landT==null||g.t<ex.landT)return; let hc=null,hl=null; try{ hc=+ATM.hourAt(ex.callT).toFixed(2); hl=+ATM.hourAt(ex.landT).toFixed(2) }catch(e){}
+    g.evacQA={callT:+ex.callT.toFixed(1),landT:+ex.landT.toFixed(1),hCall:hc,hLand:hl,lightNight:hl!=null&&hl>=19,gameNight:hl!=null&&hl>=19.5,lsWhy:g.lsWhy||null,lsAt:g.lsAt==null?null:g.lsAt,lsLead:g.lsAt==null?null:+(ex.landT-g.lsAt).toFixed(1),xin:N2.XIN,diff:g.diff} },
+  tick(g){ if(!this.ON||!g||g.demo||g.p.hp<=0)return; try{ this.qa(g) }catch(e){} if(!g.med45&&g.t>=270){ if(medpacks.length<MED.cap){ g.med45=1; const a=rnd()*TAU, r=80+rnd()*80; medpacks.push({x:g.p.x+Math.cos(a)*r,y:g.p.y+Math.sin(a)*r,life:MED.life,pull:false,sp:0}); if(g.med)g.med.drops++; try{ Snd.cue('medpackDrop') }catch(e){} } else if(g.t>330)g.med45=2 } } };
 window.P84=P84;
 const DIFF={KEYS:['recruit','normal','hard'],
   T:{recruit:{hit:.8,dmg:.75,mDmg:.8,ehp:.85,lull:1.25,teams:0,quiet:1,brk:[[15,20],[15,20]],inv:4,heal:1.2,spike:.30,ground:30},
@@ -3585,7 +3589,8 @@ const N2={SURGE:N2F('surge'),XC:N2F('xchoose'),BAR:N2F('barrage'),SAP:N2F('sappe
   TH:N2F('thunk'),CAL:N2F('mcal'),SAPT:N2F('saptime'),SV4:N2F('sapv4'),SMH:N2F('smokehud'),thrown:[],dead:[],whT:0,sapAt:0,   /* Vet item 2 fixes: tube thunk before impacts (?thunk=0), 82mm/60mm labels (?mcal=0), sappers after barrages/at night (?saptime=0), low-crawl + throw sprites (?sapv4=0), smoke colour on the HUD ~10 s (?smokehud=0) */
   V4(){ return this.SV4&&!!(window.SHEET1&&SHEET1.drawSapper) },
   night(){ return typeof ATM!=='undefined'&&ATM.night() },   /* item 4: the atmosphere's hour (night from ~7:00 on the run clock) */
-  XMIN:+params.get('xmin')||300,XIN:+params.get('xin')||75,XAUTO:DEMO?600:900,BR:58,WO_N:4,WO_MAX:2,WO_T:20,shells:[],log:{bar:0,shells:0,sap:0,satch:0,wo:0,call:null},
+  XMIN:+params.get('xmin')||300,XIN:+params.get('xin')||105,   /* rc8.4 EP ruling Nov 9 (GDUX): 75->105 s so a ~5:00 call lands after 7:00 night; ?xin=75 for the old value */
+  XAUTO:DEMO?600:900,BR:58,WO_N:4,WO_MAX:2,WO_T:20,shells:[],log:{bar:0,shells:0,sap:0,satch:0,wo:0,call:null},
   holdX(g){ const ex=g.ex; return HOLDSURGE&&!!(ex&&ex.ph>=3&&ex.ph<=5) },   /* rc6 QA fix: the pad hold has its own tuned pressure (HOLD_TEAMS/HOLD_LULL); surge escalation no longer stacks on it (?holdsurge=0 = old) */
   esc(g){ return Math.min(1,Math.max(0,(g.t-60)/600)) },   /* 0 at 1:00 -> 1 at 10:00 */
   reset(){ ZIS.reset(); this.shells.length=0; this.thrown.length=0; this.dead.length=0; this.whT=0; this.sapAt=0; this.log={bar:0,shells:0,sap:0,satch:0,wo:0,call:null}; const b=document.getElementById('n2x'); if(b)b.style.display='none' },
@@ -4721,6 +4726,7 @@ const B81={reset(){ this.e=null; this.t1=null; this.sapN=0; this.morN=0; this.ch
 window.B81=B81;
 const MOH_CARD_LAG=+(params.get('mohlag')||2);   /* s from the Golf Two-Six radio line to the MoH card */
 const MOH={ON:!/[?&]moh=0\b/.test(location.search),
+  TRIB:'In tribute to the Marines and corpsmen who went back for their wounded, Quang Tri, 1968.',
   C:{ballard:{lab:'IN HONOR OF',nm:'HM2 Donald E. Ballard',svc:'U.S. Navy',unit:'Company M, 3d Battalion, 4th Marines, 3d Marine Division',date:'16 May 1968 · Quang Tri Province',
       q:'"Observing a wounded marine, HC2c. Ballard unhesitatingly moved across the fire-swept terrain to the injured man and swiftly rendered medical assistance to his comrade."',
       task:'A Marine is down in the open. Reach him and treat him (hold 4 s).',hold:4,d:260,
@@ -4781,8 +4787,8 @@ const MOH={ON:!/[?&]moh=0\b/.test(location.search),
     if(d>140&&!padUp){ const a=Math.atan2(dy,dx), R=Math.min(W,H)*.36, ax=W/2+Math.cos(a)*R, ay=Math.min(H/2+Math.sin(a)*R,H*.86-30*U); ctx.save(); ctx.translate(ax,ay); ctx.rotate(a); ctx.fillStyle=go?'#f0d890':'#ffffff'; ctx.globalAlpha=.85+.15*Math.sin(G.t*6); ctx.beginPath(); ctx.moveTo(16*U,0); ctx.lineTo(-8*U,-10*U); ctx.lineTo(-3*U,0); ctx.lineTo(-8*U,10*U); ctx.closePath(); ctx.fill(); ctx.restore(); txt((go?'RESCUE ':'FIREBASE ')+Math.round(d/PXM)+'m',ax,ay+(ay>H/2?-18*U:24*U),12*U,go?'#f0d890':'#ffffff','center') }
     if(!(this.card>0)||this.cardWait())return; const a=Math.min(1,this.card,  (6-this.card)*3), w=Math.min(560*U,W*.9), h=(C.note?164:150)*U, x0=W/2-w/2, y0=H*.86-h-26*U; ctx.save(); ctx.globalAlpha=a*.92; ctx.fillStyle='#0d140d'; ctx.fillRect(x0,y0,w,h); ctx.strokeStyle='#8a7a40'; ctx.lineWidth=2; ctx.strokeRect(x0,y0,w,h); ctx.globalAlpha=a;
     const im=this.img(); if(im){ ctx.imageSmoothingEnabled=false; ctx.drawImage(im,x0+12*U,y0+14*U,im.width*2.4*U,im.height*2.4*U) } const tx=x0+(im?im.width*2.4*U+26*U:14*U), tw=x0+w-tx-12*U;
-    txt(C.lab,tx,y0+20*U,11*U,'#b8a868','left'); txt(C.nm,tx,y0+40*U,17*U,'#f6f0cc','left'); txt(C.svc+' · '+C.unit,tx,y0+58*U,10*U,'#c8c8b0','left'); txt(C.date,tx,y0+73*U,10*U,'#c8c8b0','left'); if(C.note)txt(C.note,tx,y0+88*U,10*U,'#c8c8b0','left');
-    ctx.font='italic '+Math.max(12,Math.round(11*U))+'px monospace'; ctx.textAlign='left'; ctx.fillStyle='#e8e2c0'; const words=C.q.split(' '); let line='', ly=y0+(C.note?108:94)*U; for(const wd of words){ if(ctx.measureText(line+wd).width>tw){ ctx.fillText(line,tx,ly); line=''; ly+=14*U } line+=wd+' ' } ctx.fillText(line,tx,ly); ctx.restore() } };
+    txt('RESCUE CALL · TRIBUTE',tx,y0+20*U,11*U,'#b8a868','left'); txt(C.svc+' · '+C.unit,tx,y0+40*U,10*U,'#c8c8b0','left'); txt(C.date,tx,y0+55*U,10*U,'#c8c8b0','left');   /* rc8.4 moh_rethink rule (GDUX Nov 9): no recipient name, note or citation quote until HAA clears exact strings */
+    ctx.font='italic '+Math.max(12,Math.round(11*U))+'px monospace'; ctx.textAlign='left'; ctx.fillStyle='#e8e2c0'; const words=MOH.TRIB.split(' '); let line='', ly=y0+76*U; for(const wd of words){ if(ctx.measureText(line+wd).width>tw){ ctx.fillText(line,tx,ly); line=''; ly+=14*U } line+=wd+' ' } ctx.fillText(line,tx,ly); ctx.restore() } };
 /* FBO (Blake): while a firebase is up, 1-2 UH-1E gunships (existing hueyGunner art) slowly orbit the base. Occasional door-gun bursts at enemies near the wire;
    hits are applied directly to the chosen target (no free bullets) and a target is skipped if any friendly is within 60 px, so there is no friendly fire.
    Phones / low effects get 1 bird. Leaves once the pad is called. Rotor: the shared distance-attenuated huey loop (RotorS). ?fbo=0 turns it off. */
