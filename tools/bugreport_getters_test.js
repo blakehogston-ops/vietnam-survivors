@@ -9,14 +9,16 @@ const src=fs.readFileSync(path.join(root,'index.html'),'utf8'), brSrc=fs.readFil
 let fails=0, n=0; const bugs=[]; const T=(nm,ok,x)=>{ n++; console.log((ok?'PASS ':'FAIL ')+nm+(x!==undefined?' :: '+JSON.stringify(x):'')); if(!ok)fails++ };
 const BUG=(nm,x)=>{ bugs.push(nm); console.log('BUG  '+nm+(x!==undefined?' :: '+JSON.stringify(x):'')) };
 // ---------- A) __lcoBug from index.html
-const line=src.split('\n').find(l=>l.startsWith("if(new URLSearchParams(location.search).get('bugreport')==='1')window.__lcoBug="));
+const line=src.split('\n').find(l=>/^if\((QAOK&&)?new URLSearchParams\(location\.search\)\.get\('bugreport'\)==='1'\)window\.__lcoBug=/.test(l));
 T('__lcoBug loader line found',!!line); if(!line)process.exit(1);
 const stmt=line.slice(0,line.indexOf('};')+2);
 T('__lcoBug gated on exact ?bugreport=1',/get\('bugreport'\)==='1'/.test(stmt));
-function lcoBug({qs='?bugreport=1',g=null,st='menu',exq=null,lco=undefined}={}){ const window={}; if(lco!==undefined)window.__lco=lco;
-  new Function('window','location','G','state','EXQ','BUILD','PAD','pauseGame','resumeGame',stmt)(window,{search:qs},g,st,exq,{id:'abc1234'},{on:false,pn:k=>k},()=>{},()=>{}); return window.__lcoBug }
+function lcoBug({qs='?bugreport=1',g=null,st='menu',exq=null,lco=undefined,qaok=true}={}){ const window={}; if(lco!==undefined)window.__lco=lco;
+  new Function('window','location','G','state','EXQ','BUILD','PAD','pauseGame','resumeGame','QAOK',stmt)(window,{search:qs},g,st,exq,{id:'abc1234'},{on:false,pn:k=>k},()=>{},()=>{},qaok); return window.__lcoBug }
 for(const q of ['','?bugreport=0','?bugreport=true','?bugreportx=1','?xbugreport=1'])T(`__lcoBug absent for "${q||'(none)'}"`,lcoBug({qs:q})===undefined);
 { const B=lcoBug(); T('__lcoBug shape: functions + build string',['pause','resume','state','G','mission','difficulty'].every(k=>typeof B[k]==='function')&&typeof B.build==='string'&&B.build==='abc1234'&&!!B.PAD,Object.keys(B)) }
+T('__lcoBug absent on public tier / app: (QAOK false)',lcoBug({qaok:false})===undefined);
+{ const g={demo:false,mapId:'m',char:'doc',lo:{prim:'m16'},p:{hp:5}}; const x=lcoBug({g}).G(); T('__lcoBug.G() is a copy, not live G',x!==g&&!('p' in x)&&x.lo!==g.lo&&x.lo.prim==='m16') }
 const run=o=>Object.assign({demo:false,char:'doc',t:5},o||{});
 T('mission(): menu G=null -> null',lcoBug().mission()===null);
 T('mission(): demo -> null',lcoBug({g:run({demo:true})}).mission()===null);
@@ -27,7 +29,7 @@ T('mission(): __lco without mapId falls back to G.mapId',lcoBug({g:run({mapId:'r
 T('mission(): returns string in run',typeof lcoBug({g:run()}).mission()==='string');
 for(const [e,l] of [[null,'Normal'],['easy','Easy'],['hard','Hard'],['normal','Normal'],['HARD','Normal'],['',"Normal"]])T(`difficulty(): EXQ=${JSON.stringify(e)} -> ${l}`,lcoBug({exq:e}).difficulty()===l);
 T('difficulty(): defined on menu too (no G needed)',lcoBug({g:null,exq:'easy'}).difficulty()==='Easy');
-{ const g=run(); const B=lcoBug({g,st:'play'}); T('state()/G() pass through',B.state()==='play'&&B.G()===g) }
+{ const g=run(); const B=lcoBug({g,st:'play'}); const x=B.G(); T('state() passes through; G() is a read-only snapshot (rc8.4 EP: no live G)',B.state()==='play'&&x!==g&&x.char===g.char&&x.demo===false) }
 T('__lcoBug has no setters (no saved state)',!/localStorage|\.set\w*\(/.test(stmt.replace(/setFullscreen/g,'')));
 // ---------- B) bugreport.js in a stub window
 function br({ls={},lcoBug:B=null,lco=undefined,host=null,throwLS=false,ua='Mozilla/5.0 (X11; Linux x86_64) Chrome/130'}={}){ const store=Object.assign({},ls);
