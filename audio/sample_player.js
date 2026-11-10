@@ -26,7 +26,7 @@
 (function (root) {
   'use strict';
 
-  var WEAPONS = { m16_single: 1, m16_burst: 1, m60_burst: 1, pbr_50cal_burst: 1, ak47: 1, ak47_burst: 1, sks: 1, rpd_burst: 1, m79_launch: 1, m79_impact: 1, b40_launch: 1, mortar_launch: 1, mortar_impact: 1, mortar_incoming: 1,
+  var WEAPONS = { m16_single: 1, m16_burst: 1, m60_burst: 1, pbr_50cal_burst: 1, m2_50cal_burst: 1, ak47: 1, ak47_burst: 1, sks: 1, rpd_burst: 1, m79_launch: 1, m79_impact: 1, b40_launch: 1, mortar_launch: 1, mortar_impact: 1, mortar_incoming: 1,
     bomb_distant: 1, flamethrower_loop: 1, flamethrower_burst: 1,
     // week of 2026-10-14: weapons + explosions (no synth fallback)
     bolt_rifle_shot: 1, bolt_rifle_bolt: 1, shotgun_shot: 1, shotgun_rack: 1, cannon: 1, cannon_76mm: 1, backblast: 1, car15_single: 1, car15_burst: 1, m79_sawed: 1, smg_m45_burst: 1, pistol22_suppressed: 1, minigun_burst: 1, strafe_20mm: 1,
@@ -66,7 +66,8 @@
                                // big night assault only; on via manifest cues.bigNightAssault.enabled
     // river map (batch 3, on for the map build). The .50 shares the 6-gunshot cap; the loops use prio 5 so gunfire
     // never steals the engine or the river bed (a stolen loop would not come back).
-    pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.241, vary: true },                 // STAND-IN .50 cal (M2 not confirmed)
+    pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.241, vary: true },                 // PBR twin .50 cal: ElevenLabs AI SFX (el29, Blake-approved Oct 29 2026)
+    m2_50cal_burst:     { cat: 'gun',       prio: 2, gain: 0.241, vary: true },                 // M2 .50 cal (corner turret, SOG M2): ElevenLabs AI SFX (el29, Blake-approved Oct 29 2026); gain as pbr_50cal_burst
     pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.1159, loop: true },   // rc8a -2 dB (was 0.146)
                     // under the Huey loop
     river_ambience_loop: { cat: 'ambience', prio: 5, gain: 0.457, loop: true },   // rc8.1 (AD): -43 net in game (file RMS -24.27, x0.457 -6.8, vol .8 -1.9, amb bus -10); 0.062 would be -60
@@ -163,7 +164,7 @@
   };
   var SURFACES = { mud: 'step_mud', boards: 'step_boards', water: 'step_water', deck: 'step_deck' };
   var FLYBYS = { jet: 'jet_flyby', skyraider: 'skyraider_flyby', ranchHand: 'ranch_hand_flyover', tandemRotor: 'tandem_rotor_flyby', huey: 'huey_flyby' };
-  var TURRETS = { corner: 'pbr_50cal_burst', mid: 'm60_burst' }, TURRET_BUILD = { corner: 'turret_corner_build', mid: 'turret_mid_build' };
+  var TURRETS = { corner: 'm2_50cal_burst', mid: 'm60_burst' }, TURRET_BUILD = { corner: 'turret_corner_build', mid: 'turret_mid_build' };
 
   function dbToGain(db) { return Math.pow(10, db / 20); }
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }

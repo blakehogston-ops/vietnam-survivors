@@ -9197,7 +9197,7 @@ const MIX={DB:{player:0,special:-7,squad:-4,enemy:3,amb:-10,rot:-8,mus:-6},   /*
   tap(){ const c=this.c; if(!c)return; for(const k in this.bus){ if(this.an[k])continue; const a=c.createAnalyser(); a.fftSize=2048; this.bus[k].connect(a); this.an[k]=a } } };
 const SAMP={on:false,real:{},st:{b40:0,b40Late:0,b40Silent:0,charge:0,chargeLate:0,chargeSilent:0,m79:0,fly:0,flyLate:0,steps:0,silentNamed:{}},
   /* game sound name -> SamplePlayer slot. Every WEAPON name is here: it plays its real clip or nothing (never a synth). */
-  MAP:{m16:'m16_single',m60:'m60_burst',vcshot:'ak47',mortar:'mortar_launch',shellwhistle:'mortar_incoming',flame:'flamethrower_burst',radio:'radio_squelch',airarc:'bomb_distant',m79:'m79_launch',m2:'pbr_50cal_burst',
+  MAP:{m16:'m16_single',m60:'m60_burst',vcshot:'ak47',mortar:'mortar_launch',shellwhistle:'mortar_incoming',flame:'flamethrower_burst',radio:'radio_squelch',airarc:'bomb_distant',m79:'m79_launch',m2:'m2_50cal_burst',
     /* placeholders that BORROW a clip (labelled): Grease Gun, M14 and M1911 use the M16 clip */
     grease:'m3a1_burst',m14:'m14_shot',m1911:'m1911_shot',carbine:'m2_carbine',   /* M3A1: Sound Helper's close stand-in (real Sten rounds pitched to ~450 rpm); placeholders PENDING LEGAL, credits held back */
     /* named slots with no clip yet: silent until Sound Helper fills them */

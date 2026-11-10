@@ -18,16 +18,17 @@
     base: 'samples/',
     formats: ['ogg', 'm4a'],
     slots: {
+      // rc8.4 (Oct 29 2026, Blake-approved): el29_* clips below are AI-tagged ElevenLabs sound effects (0 extra credits, level-matched to the clips they replace). Blake's kept real recordings are untouched.
       // group: mix-bus group (player / squad / enemy / specials / foley / radio / ambience), see README 'Mix-bus groups'; non-weapon slots have none
       // M16 = FFSL AR-15 (CC0; the areniporgen M16A1 failed the licence audit and was removed). near = primary, mid = alt.
-      m16_single:         { group: 'player', batch: 1, files: ['m16_ar15_near_1', 'm16_ar15_near_2'], alt: ['m16_ar15_mid_1', 'm16_ar15_mid_2'] },
-      m16_burst:          { group: 'player', batch: 1, files: ['m16_burst_1', 'm16_burst_2'] },   // 3 / 5 rounds spliced from the FFSL AR-15 shots;
+      m16_single:         { group: 'player', batch: 1, files: ['el29_m16_single'], alt: ['m16_ar15_mid_1', 'm16_ar15_mid_2'] },
+      m16_burst:          { group: 'player', batch: 1, files: ['el29_m16a1_burst'] },   // 3 / 5 rounds spliced from the FFSL AR-15 shots;
                                                                                 // play(..., {rounds}) re-triggers m16_single instead
       m60_burst:          { group: 'squad', batch: 1, files: ['m60_burst_1', 'm60_burst_2'] },   // FranklinRook1984 (CC0) - provenance: Legal
       // enemy rifles: Free Firearm Sound Library (CC0). ak47_burst play(..., {rounds}) re-triggers ak47 singles.
       ak47:               { group: 'enemy', batch: 1, files: ['ak47_single_1', 'ak47_single_2', 'ak47_single_3'] },
-      ak47_burst:         { group: 'enemy', batch: 1, files: ['ak47_burst_1', 'ak47_burst_2', 'ak47_burst_3', 'ak47_burst_4'] },  // 3,3,5,5 rounds
-      sks:                { group: 'enemy', batch: 1, files: ['sks_single_1', 'sks_single_2', 'sks_single_3', 'sks_single_4'] },
+      ak47_burst:         { group: 'enemy', batch: 1, files: ['el29_ak47_burst', 'ak47_burst_2', 'ak47_burst_3', 'ak47_burst_4'] },  // 3,3,5,5 rounds
+      sks:                { group: 'enemy', batch: 1, files: ['el29_sks_single', 'sks_single_2', 'sks_single_3', 'sks_single_4'] },
       rpd_burst:          { group: 'enemy', batch: 1, files: ['rpd_burst_1', 'rpd_burst_2'] },     // STAND-IN: FFSL AK-47, edited (CC0): 6 / 8 rounds, ~730 rpm, -1.5 st, distance
       // M79: launch = LeMudCrab M203/M320 STAND-IN (CC0); alt vabadus M203 / barryshamir (CC0). impact = Kostrava (CC0), edited
       m79_launch:         { group: 'player', batch: 1, files: ['m79_launch_1'], alt: ['m79_launch_alt_vabadus', 'm79_launch_alt_barryshamir'] },
@@ -53,12 +54,13 @@
       huey_flyby:         { group: 'specials', batch: 2, files: ['huey_flyby_1', 'huey_flyby_2'] },  // 1 OroborosNZ (credit), 2 Rmutt CC0
       // turret gunfire: turretFire('corner') = .50 cal STAND-IN, klangfabrik "50 CAL Machine Gun" (CC0; M2 not confirmed), 5- and
       // 7-round bursts. Moved out of the pending river batch (batch 3) into batch 2 for the base turrets; still the PBR gun later.
-      pbr_50cal_burst:    { group: 'squad', batch: 2, files: ['pbr_50cal_burst_1', 'pbr_50cal_burst_2'] },
+      m2_50cal_burst:     { group: 'squad', batch: 2, files: ['el29_m2_50cal_burst'] },   // M2 .50 cal (turret + SOG M2): ElevenLabs AI SFX, Blake-approved Oct 29 2026
+      pbr_50cal_burst:    { group: 'squad', batch: 2, files: ['el29_pbr_50cal_twin'] },
       // aircraft (Blake approved 2026-10-07), batch 2. All CC BY 3.0 (credit) except the tandem rotor (CC0).
       jet_flyby:          { group: 'specials', batch: 2, files: ['jet_flyby_1'] },            // kleanthism F-4/F-5 STAND-IN low pass (5 s)
       skyraider_flyby:    { group: 'specials', batch: 2, files: ['skyraider_flyby_1'] },      // Fight2FlyPhoto A-1H Skyraider (+ P-47D) pass (4.5 s)
       ranch_hand_flyover: { group: 'specials', batch: 2, files: ['ranch_hand_flyover_1'] },   // gezortenplotz C-130 STAND-IN for the C-123 (7 s)
-      tandem_rotor_flyby: { group: 'specials', batch: 2, files: ['tandem_rotor_flyby_1'] },   // surrey_film Chinook STAND-IN for a CH-46 (CC0); ON for the map build
+      tandem_rotor_flyby: { group: 'specials', batch: 2, files: ['el29_ch46_flyby'] },   // surrey_film Chinook STAND-IN for a CH-46 (CC0); ON for the map build
       flamethrower_loop:  { group: 'specials', batch: 2, files: ['flamethrower_loop_1'], alt: ['flamethrower_torch_loop'] },   // AslakHostaker CC0; alt torch PD
       flamethrower_burst: { group: 'specials', batch: 2, files: ['flamethrower_burst_1', 'flamethrower_burst_2'], alt: ['flamethrower_torch_burst'] },
       step_mud:           { batch: 2, files: ['step_mud_1', 'step_mud_2', 'step_mud_3', 'step_mud_4'],      // Nox_Sound mud CC0
@@ -95,12 +97,12 @@
       h34_flyby:          { group: 'specials', batch: 2, files: ['h34_flyby_1'] },      // STAND-IN H-34: Fight2FlyPhoto radial + OroborosNZ Huey chop slowed 2 st
       h34_land:           { group: 'specials', batch: 2, files: ['h34_land_1'] },
       h34_liftoff:        { group: 'specials', batch: 2, files: ['h34_liftoff_1'] },
-      h34_hover_loop:     { group: 'specials', batch: 2, files: ['h34_hover_loop_1'] },
+      h34_hover_loop:     { group: 'specials', batch: 2, files: ['el29_uh34_rotor_loop', 'el29_uh34_rotor_loop_b'] },
       radio_cff:          { group: 'radio', batch: 2, files: ['radio_cff_1'] },         // LukaCafuka (CC0, PENDING LEGAL) + pdsounds + JovianSounds, no voices
       // 2026-10-14 night: missing / placeholder sounds (build_missing_oct14.py). New 'ui' group -40 and 'hit' group -41.5 (subtle under the guns; hits fire on every bullet), 'sting' group -30.
       m3a1_burst:         { group: 'player', batch: 2, files: ['m3a1_burst_1', 'm3a1_burst_2', 'm3a1_burst_3'] },   // CLOSE STAND-IN M3A1 Grease Gun: real Sten rounds pitched -2 st, ~450 rpm. PENDING LEGAL
       m14_shot:           { group: 'squad', batch: 2, files: ['m14_shot_1', 'm14_shot_2', 'm14_shot_3'] },   // M14 (marksmen): gezortenplotz .308 (7.62x51), 3 varied edits. Legal PASS (Rijam removed, FAIL)
-      m1911_shot:         { group: 'squad', batch: 2, files: ['m1911_shot_1', 'm1911_shot_2', 'm1911_shot_3'] },   // M1911 .45 (corpsman): C-V + Carmelomike. PENDING LEGAL
+      m1911_shot:         { group: 'squad', batch: 2, files: ['el29_m1911_shot'] },   // M1911 .45 (corpsman): C-V + Carmelomike. PENDING LEGAL
       m2_carbine:         { group: 'squad', batch: 2, files: ['m2_carbine_1', 'm2_carbine_2', 'm2_carbine_3'] },   // M2 carbine single (real M1 carbine, cognito perceptu). PENDING LEGAL
       m2_carbine_burst:   { group: 'squad', batch: 2, files: ['m2_carbine_burst_1', 'm2_carbine_burst_2'] },   // M2 carbine auto, real rounds on a 80 ms beat. PENDING LEGAL
       ui_pickup:          { group: 'ui', batch: 1, files: ['ui_pickup_1', 'ui_pickup_2', 'ui_pickup_3', 'ui_pickup_4'] },   // gem / pick: dog-tag clinks. PENDING LEGAL
@@ -140,11 +142,11 @@
       backblast:          { group: 'squad', batch: 2, files: ['backblast_1', 'backblast_2'] },
       // Spooky minigun, distant/airborne: rob762x51 200 ft + 4 ft (CC0). strafe_20mm = STAND-IN, same recording -3 st (ear check)
       minigun_burst:      { group: 'specials', batch: 2, files: ['minigun_burst_1', 'minigun_burst_2'] },
-      strafe_20mm:        { group: 'specials', batch: 2, files: ['strafe_20mm_1'] },
+      strafe_20mm:        { group: 'specials', batch: 2, files: ['el29_strafe_20mm'] },
       // close HE (satchel, Huey crash, tank kill, boss, RPG impact): qubodup
       // firework (CC0), modusmogulus (CC0), juskiddink quarry (CC BY 4.0, credit), Kostrava (CC0), Baradari (CC BY 3.0, credit)
-      explosion_close:    { group: 'specials', batch: 1, files: ['explosion_close_1', 'explosion_close_2', 'explosion_close_3', 'explosion_close_4'] },
-      napalm_ignite:      { group: 'specials', batch: 2, files: ['napalm_ignite_1'] },     // samararaine bonfire whoosh (CC0)
+      explosion_close:    { group: 'specials', batch: 1, files: ['explosion_close_1', 'el29_explosion_close', 'explosion_close_3', 'explosion_close_4'] },
+      napalm_ignite:      { group: 'specials', batch: 2, files: ['el29_napalm_ignite'] },     // samararaine bonfire whoosh (CC0)
       fire_loop:          { group: 'specials', batch: 2, files: ['fire_loop_1'] },         // SGAK gasoline fire (CC0), 6 s seamless loop
 
       // ---- river map: ON for the 2026-10-14 map build. Batch 3, so batches 1 / 2 do not change; load(SAMPLE_MANIFEST)
