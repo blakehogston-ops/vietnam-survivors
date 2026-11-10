@@ -57,7 +57,7 @@
     var w = Math.round(248 * K), h = Math.round(202 * K), c = document.createElement('canvas'); c.width = w; c.height = h; var x = c.getContext('2d'); x.imageSmoothingEnabled = true; if ('imageSmoothingQuality' in x) x.imageSmoothingQuality = 'high';
     x.drawImage(IMG41[i], 0, 0, w, h); PRE41[key] = c; return c; }
   S.preWarmCH46 = function () { for (var i = 0; i < 8; i++) pre41(i, K41); };
-  if (V41ON && typeof document !== 'undefined') HN.forEach(function (h, k) { if (IMG41[k]) IMG41[k].addEventListener && IMG41[k].addEventListener('load', function () { pre41(k, K41); }); });
+  if (V41ON && typeof document !== 'undefined') HN.forEach(function (h, k) { if (IMG41[k]) IMG41[k].addEventListener && IMG41[k].addEventListener('load', function () { if (S.ch46Native && S.ch46Native.on) return; pre41(k, K41); });   /* rc8.5 mem: native v1.2 draws the bird; v4.1 pre-scale (8x 546x444 = 7.4 MB) only when the v4.1 path actually draws (lazy in pre41) */ });
   function ok41(i) { var im = IMG41[i]; return !!(im && im.complete && im.naturalWidth > 0); }
   function PA(arr, i, x, y, sc) { return arr[i].map(function (p) { return [x + p[0] * sc, y + p[1] * sc]; }); }
   function ramp41(ctx, i, x, y, sc) {     /* lowered rear ramp: ~6 ft opening, a dark plank from the aft sill to the ground tip */

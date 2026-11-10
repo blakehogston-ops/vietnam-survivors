@@ -171,7 +171,12 @@
       for (var i = 0; i < C.s; i++) { var hh = hash(seed * 31 + i * 7), p = (hh + t * 0.3) % 1, sz = (w * 0.9 + h * 0.6) * (0.7 + p * 1.2); ctx.globalAlpha = pa * o.smoke * (p < 0.25 ? p / 0.25 : 1 - (p - 0.25) / 0.75) * 0.5;
         blitT(ctx, smoke(i % 3), o.x + (hh - 0.5) * w * 0.5 + p * 12 - sz / 2, o.y - h * (0.4 + p * 2) - sz / 2, sz, sz); } ctx.globalAlpha = pa; ctx.imageSmoothingEnabled = ps; return; } return _df(ctx, o); };
   var TMP = { x: 0, y: 0, age: 0, level: 1, life: 0, t: 0, layer: 'fire', v: 0, seed: 0 };
-  function drawPatches(ctx, t, layer) { var P = F.pool || []; for (var i = 0; i < P.length; i++) { var p = P[i]; if (!p.on) continue;
+  /* rc8.4 perf (pe84): skip burn patches whose whole fire/smoke column is off the canvas (pool 96, every patch was drawn every frame). ?pe84=0 / ?pecull=0 off */
+  var PECULL = (function () { try { return !/[?&](pe84|pecull)=0\b/.test(String(root.location && root.location.search || '')); } catch (e) { return true; } })();
+  function viewOf(ctx) { if (!PECULL || !ctx || !ctx.getTransform || !ctx.canvas) return null; var m = ctx.getTransform(); if (m.b !== 0 || m.c !== 0 || !(m.a > 0) || !(m.d > 0)) return null;
+    return [-m.e / m.a, -m.f / m.d, (ctx.canvas.width - m.e) / m.a, (ctx.canvas.height - m.f) / m.d]; }
+  function drawPatches(ctx, t, layer) { var P = F.pool || [], V = viewOf(ctx); for (var i = 0; i < P.length; i++) { var p = P[i]; if (!p.on) continue;
+    if (V) { var R = (14 + 6 * Math.max(1, Math.min(5, p.level | 0 || 1))) * 4; if (p.x + R + 120 < V[0] || p.x - R - 120 > V[2] || p.y + R + 60 < V[1] || p.y - R - 320 > V[3]) continue; }   // generous: scorch 2.8R wide, smoke column rises ~250 px
     TMP.x = p.x; TMP.y = p.y; TMP.age = p.age; TMP.level = p.level; TMP.life = p.life; TMP.t = t; TMP.layer = layer; TMP.v = p.v; TMP.seed = i * 7 + 1; drawBurnPatch(ctx, TMP); } }
   function warm() { for (var f = 0; f < FR; f++) for (var h = 0; h < 3; h++) tongue(f, h); bed(0); bed(1); for (var v = 0; v < 3; v++) smoke(v); ember(); glow(); return NTX; }
   var oldWarm = F.warm;

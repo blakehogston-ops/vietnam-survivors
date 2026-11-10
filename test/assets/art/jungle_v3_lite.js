@@ -220,14 +220,27 @@
     while (Q.length && now() < lim) { var bi = 0;
       if (J.focus && Q.length > 1) { var bd = 1e18; for (var i = 0; i < Q.length; i++) { var F = Q[i].f, dx = (F.tx0 + F.tx1 + 1) * T / 2 - J.focus.x, dy = (F.ty0 + F.ty1 + 1) * T / 2 - J.focus.y, d = dx * dx + dy * dy + (Q[i].pri || 0); if (d < bd) { bd = d; bi = i; } } }
       var jb = Q[bi]; while (now() < lim) { if (jb.g.next().done) { Q.splice(bi, 1); jb.f._job = null; break; } } }
-    var tn = now(); for (var k = BAKED.length - 1; k >= 0; k--) { var G = BAKED[k]; if (tn - G._lastDraw > J.evictSec * 1000) { G._layers = null; G._layersQueued = false; BAKED.splice(k, 1); continue; }
-      if (J.stripCold && G._layers && !G._stripsFreed && tn - (G._hotAt || 0) > J.stripCold * 1000 && G._layers[0].underC !== undefined) { for (var rr = 0; rr < G._layers.length; rr++) { G._layers[rr].under = null; G._layers[rr].over = null; } G._stripsFreed = true; } }
+    var tn = now(); for (var k = BAKED.length - 1; k >= 0; k--) { var G = BAKED[k]; if (tn - G._lastDraw > J.evictSec * 1000) { J.free(G._layers); G._layers = null; G._layersQueued = false; BAKED.splice(k, 1); continue; }
+      if (J.stripCold && G._layers && !G._stripsFreed && tn - (G._hotAt || 0) > J.stripCold * 1000 && G._layers[0].underC !== undefined) { for (var rr = 0; rr < G._layers.length; rr++) { J.free(G._layers[rr].under); J.free(G._layers[rr].over); G._layers[rr].under = null; G._layers[rr].over = null; } G._stripsFreed = true; } }
     return Q.length; };
   function autoPump() { var t = now(); if (t - lastPump > 7) J.pump(); if (J.chunkFlat) idleKick(); }
   // jr perf: most bake work runs in browser idle time after the frame (requestIdleCallback), only a small slice stays in-frame
   var idleOn = false; function idleKick() { if (idleOn || !Q.length || typeof requestIdleCallback === 'undefined') return; idleOn = true;
     requestIdleCallback(function (d) { idleOn = false; var ms = Math.min(8, d.timeRemaining() - 1); if (ms > 0.5) { var lp = lastPump; J.pump(ms); lastPump = lp; } if (Q.length) idleKick(); }, { timeout: 250 }); }
   if (J.chunkFlat) J.budgetMs = 1;
+  // pe mem (rc8.2 #1): release canvas backing store explicitly. Dropping references alone left evicted layers alive until a lazy GC
+  // (Mac: 188 live 384x384 layers for 40 chunks, 580 MB canvas peak). Canvases -> 0x0, ImageBitmaps -> close(). Pixels drawn are unchanged.
+  function freeAny(v, seen) { if (!v || typeof v !== 'object' || seen.has(v)) return; seen.add(v);
+    if (typeof v.getContext === 'function') { try { v.width = 0; v.height = 0; } catch (e) {} return; }
+    if (typeof ImageBitmap !== 'undefined' && v instanceof ImageBitmap) { try { v.close(); } catch (e) {} return; }
+    if (Array.isArray(v)) { for (var i = 0; i < v.length; i++) freeAny(v[i], seen); return; }
+    if (v.c) freeAny(v.c, seen); if (v.under) freeAny(v.under, seen); if (v.over) freeAny(v.over, seen); if (v.underC) freeAny(v.underC, seen); if (v.overC) freeAny(v.overC, seen); }
+  J.free = function (v) { freeAny(v, new Set()); };
+  J.dispose = function (F) { if (!F || F._disposed) return; F._disposed = true;
+    for (var i = Q.length - 1; i >= 0; i--) if (Q[i].f === F) Q.splice(i, 1); F._job = null; F._stripJob = null;
+    var k = BAKED.indexOf(F); if (k >= 0) BAKED.splice(k, 1);
+    var seen = new Set(); freeAny(F._layers, seen); freeAny(F.paddy, seen); freeAny(F.canopy, seen);
+    F._layers = null; F._layersQueued = false; F.paddy = null; F.canopy = null; F.ready = false; };
   function enqueue(F, g, pri) { var jb = { f: F, g: g, pri: pri || 0 }; Q.push(jb); return jb; }
 
   // ---------- field ----------
@@ -410,7 +423,8 @@
   J.stat = { flat: 0, strip: 0, plant: 0, nolayer: 0 };
   // jr perf: baked canvases are swapped for ImageBitmaps (immutable, pre-decoded: much cheaper to blit than a canvas source); same pixels
   J.useBitmap = J.chunkFlat && typeof createImageBitmap !== 'undefined' && !(typeof location !== 'undefined' && /[?&]jbmp=0\b/.test(location.search));
-  function toBmp(o, k) { if (!J.useBitmap || !o || !o[k] || typeof o[k].getContext !== 'function') return; var c = o[k]; createImageBitmap(c).then(function (b) { if (o[k] === c) o[k] = b; }, function () {}); }
+  function toBmp(o, k) { if (!J.useBitmap || !o || !o[k] || typeof o[k].getContext !== 'function') return; var c = o[k]; createImageBitmap(c).then(function (b) { if (o[k] === c && c.width && !o._freed) o[k] = b; else { try { b.close(); } catch (e) {} } }, function () {}); }   /* rc8.3 crash #6 + rc8.5 mem: a bitmap that lost the race (chunk evicted/disposed, slot replaced, canvas zeroed) is closed, not leaked */
+ J.freeBmps = function (L, d) { d = d || 0; if (!L || d > 4 || typeof L !== 'object') return; if (typeof ImageBitmap !== 'undefined' && L instanceof ImageBitmap) { try { L.close(); } catch (e) {} return; } if (typeof L.getContext === 'function') return; try { L._freed = 1; } catch (e) {} for (var q in L) { if (Object.prototype.hasOwnProperty.call(L, q)) { var v = L[q]; if (v && typeof v === 'object') J.freeBmps(v, d + 1); } } };   /* rc8.3 crash #6: close the ImageBitmaps held by an evicted chunk (canvases are left to GC; they may be shared) */
   // jr perf: all strips of a part flattened into ONE canvas per chunk (exact same pixels & order, strips never overlap units within a part)
   J.chunkFlat = !(typeof location !== 'undefined' && /[?&]jperf=0\b/.test(location.search));
 

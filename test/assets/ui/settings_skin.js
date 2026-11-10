@@ -5,7 +5,8 @@
   if(/[?&]setart=0\b/.test(location.search))return;
   function ok(){ return !!window.SETTINGS_ART }
   var DPR=function(){ return Math.min(2,window.devicePixelRatio||1) };
-  function paint(el,w,h,fn){ var d=DPR(), c=document.createElement('canvas'); c.width=Math.round(w*d); c.height=Math.round(h*d); var x=c.getContext('2d'); x.scale(d,d); var r=null; try{ r=fn(x) }catch(e){} el.style.backgroundImage='url('+c.toDataURL()+')'; el.style.backgroundSize=w+'px '+h+'px'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center'; return r }
+  function paint(el,w,h,fn){ var d=DPR(), c=document.createElement('canvas'); c.width=Math.round(w*d); c.height=Math.round(h*d); var x=c.getContext('2d'); x.scale(d,d); var r=null; try{ r=fn(x) }catch(e){} el.style.backgroundImage='url('+c.toDataURL()+')'; c.width=c.height=0;   /* rc8.3 crash #7: free the temp paint canvas right away (panels repaint on every menu/pause show + resize) */
+  el.style.backgroundSize=w+'px '+h+'px'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center'; return r }
   function st(el){ return el._p?'pressed':el._f?'focus':el._h?'hover':'normal' }
   function track(el,inp,re){ el.addEventListener('pointerenter',function(){el._h=1;re()}); el.addEventListener('pointerleave',function(){el._h=0;el._p=0;re()});
     el.addEventListener('pointerdown',function(){el._p=1;re()}); addEventListener('pointerup',function(){ if(el._p){el._p=0;re()} });
