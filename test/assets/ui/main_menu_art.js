@@ -350,6 +350,8 @@ var MENU_ART={titleText:'LAST CHOPPER OUT', subtitleText:'QUANG TRI  \u00b7  3RD
   setPhoto:function(img,caption){ PHOTO=img?{img:img,caption:caption||null}:null },
   drawCaption:safe(drawCaption),
   prewarm:safe(function(w,h){ layers(w,h); heli(); grain(); for(var i=0;i<4;i++)puff(i) }),
-  clearCache:function(){ C={}; Hcache={} } };
+  clearCache:function(){ C={}; Hcache={} },
+  releaseBg:function(){ try{ var L=Hcache, keep={}; ['sky','far','mid','trees','paddy','fore','vig'].forEach(function(n){ var c=L[n]; if(c)keep[n]=c });   /* rc8.5 mem: free the 7 baked menu layers (6x 1.06W x H + vignette, ~29 MB at 1280x720) when a run starts; drawBackground re-bakes them identically on the next menu frame */
+    for(var k in C){ for(var n in keep){ if(C[k]===keep[n]){ delete C[k]; break } } } for(var n2 in keep){ try{ keep[n2].width=0; keep[n2].height=0 }catch(e){} } Hcache={} }catch(e){} } };
 if(typeof window!=='undefined')window.MENU_ART=MENU_ART; if(typeof module!=='undefined')module.exports=MENU_ART;
 })();

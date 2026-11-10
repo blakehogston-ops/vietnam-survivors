@@ -32,6 +32,20 @@
 (function (root) {
   'use strict';
   var TAU = Math.PI * 2;
+  /* rc8.4 perf (Performance Engineer, pe84): look-identical draw savings + half-res napalm smoke. ?pe84=0 = all off (old paths);
+     ?pecull=0 view culling off, ?petrim=0 trimmed soft-decal blits off, ?pensr=0 full-res napalm smoke, ?pewarm=0 no napalm texture pre-upload. */
+  var PE84 = (function () { var s = ''; try { s = String(root.location && root.location.search || ''); } catch (e) {} var all = /[?&]pe84=0\b/.test(s), f = function (k) { return !all && !new RegExp('[?&]' + k + '=0\\b').test(s); };
+    return { cull: f('pecull'), trim: f('petrim'), nsr: f('pensr'), warm: f('pewarm') }; })();
+  var VV = null;   // visible rect in drawAll's user space [x0, y0, x1, y1] (null = no culling)
+  function viewOf(ctx) { if (!PE84.cull || !ctx || !ctx.getTransform || !ctx.canvas) return null; var m = ctx.getTransform(); if (m.b !== 0 || m.c !== 0 || !(m.a > 0) || !(m.d > 0)) return null;
+    var W = ctx.canvas.width, H = ctx.canvas.height; return [-m.e / m.a - 2, -m.f / m.d - 2, (W - m.e) / m.a + 2, (H - m.f) / m.d + 2]; }
+  function off(x, y, w, h) { return VV !== null && (x > VV[2] || y > VV[3] || x + w < VV[0] || y + h < VV[1]); }   // dest rect entirely outside the canvas -> the draw writes no pixels
+  var BBS = null;   // scratch for one-time alpha bounding boxes of baked soft decals
+  function bbox(cv) { try { var w = cv.width, h = cv.height; if (!BBS) { BBS = canvas(w, h); } if (BBS.width < w) BBS.width = w; if (BBS.height < h) BBS.height = h;
+      var x = BBS.getContext('2d', { willReadFrequently: true }); x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.globalCompositeOperation = 'copy'; x.drawImage(cv, 0, 0); x.globalCompositeOperation = 'source-over';
+      var d = x.getImageData(0, 0, w, h).data, x0 = w, y0 = h, x1 = -1, y1 = -1;
+      for (var yy = 0; yy < h; yy++) { var row = yy * w * 4; for (var xx = 0; xx < w; xx++) if (d[row + xx * 4 + 3]) { if (xx < x0) x0 = xx; if (xx > x1) x1 = xx; if (yy < y0) y0 = yy; y1 = yy; } }
+      x.clearRect(0, 0, w, h); return x1 < 0 ? [0, 0, 0, 0] : [x0, y0, x1 - x0 + 1, y1 - y0 + 1]; } catch (e) { return null; } }
   /* ---------------- data: shake curves ---------------- */
   // amp in art px (screen px = amp * scale). Explosion amps match explosions.js TYPES[].shake / shakeMs (decay ~ shakeMs / 2.2).
   var SHAKE = {
@@ -283,6 +297,7 @@
         x.globalAlpha = 0.9; x.fillStyle = '#120e0a'; x.fillRect(Math.round(sx0), Math.round(sy0 - sh2), sc, sh2); x.fillStyle = r() < 0.25 ? '#a04418' : '#4a4038'; x.fillRect(Math.round(sx0), Math.round(sy0 - sh2), sc, sc);
         x.fillStyle = 'rgba(10,8,6,0.4)'; x.fillRect(Math.round(sx0 + sc), Math.round(sy0), sc * 2, sc); } x.globalAlpha = 1;
     }
+    if (PE84.trim) cv._bb = bbox(cv);   // pe84: opaque bounds, so the blit skips the fully transparent square margin (same pixels)
     SIMG[key] = cv; IMGN++; return cv;
   }
   // soft dust/smoke puff (dithered-free radial), bucketed radii so the cache stays tiny
@@ -337,11 +352,13 @@
     ctx.imageSmoothingEnabled = true;
     for (i = 0; i < UM; i++) { pu = U[i]; if (!pu.on || pu.t < 0 || !pu.nap || NAP_FIRE[pu.shd] == null) continue; k = pu.t / pu.life;
       al = pu.a * Math.min(1, pu.t * 30) * Math.pow(1 - k, 0.8); var bim = napBed((i & 3), sc), bw = pu.r * 3.2 * sc, bh = pu.r * 1.3 * sc;
+      if (off(SX(pu.x) - bw / 2, SY(pu.y) - bh * 0.6, bw, bh)) continue;
       ctx.globalAlpha = al * 0.8; ctx.drawImage(bim, SX(pu.x) - bw / 2, SY(pu.y) - bh * 0.6, bw, bh); }
     for (i = 0; i < UM; i++) { pu = U[i]; if (!pu.on || pu.t < 0 || !pu.nap || NAP_FIRE[pu.shd] == null) continue; k = pu.t / pu.life;
       al = pu.a * Math.min(1, pu.t * 30) * Math.pow(1 - k, 0.8); var heat = NAP_FIRE[pu.shd]; if (heat === 1 && k > 0.55) heat = 0;   // cools as it ages
       var fr = ((Math.floor(pu.t * 14 + pu.ph * 7) % NT_FR) + NT_FR) % NT_FR, tim = napTongue(fr, heat, sc), tw = pu.r * 2.4 * sc * (1 + 0.06 * Math.sin(pu.t * 11 + pu.ph)), th = pu.r * (2.7 + 0.5 * Math.min(1, pu.t * 2.5)) * sc * (1 + 0.08 * Math.sin(pu.t * 17 + pu.ph * 3));
       var bx = SX(pu.x), by = SY(pu.y - pu.z * 0.5) + th * 0.36;
+      if (off(bx - tw / 2, by - th, tw, th)) continue;
       ctx.globalAlpha = Math.min(1, al * 1.05);
       if (pu.fl) { ctx.save(); ctx.translate(bx, 0); ctx.scale(-1, 1); ctx.drawImage(tim, -tw / 2, by - th, tw, th); ctx.restore(); } else ctx.drawImage(tim, bx - tw / 2, by - th, tw, th);
       if (heat === 2) { ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = al * 0.18; ctx.drawImage(tim, bx - tw / 2, by - th, tw, th); ctx.globalCompositeOperation = 'source-over'; } }
@@ -431,7 +448,7 @@
     return n;
   }
   // napalm: canister tumbles in along `angle`, bursts at (x,y); fireball rolls forward along the flight path
-  function napalmDrop(x, y, angle, opts) {
+  function napalmDrop(x, y, angle, opts) { try { warmScorch(); } catch (e) {}
     opts = opts || {}; var a = angle || 0, e = slotOf(CN, CM, 0), T = opts.fall || 0.35, sp = opts.speed || 240;
     e.on = true; e.a = a; e.sp = sp; e.T = T; e.t = 0; e.tx = x; e.ty = y; e.x = x - Math.cos(a) * sp * T; e.y = y - Math.sin(a) * sp * T; e.z = opts.z || 40; e.o = opts; return e;
   }
@@ -551,20 +568,23 @@
     var sc = Math.max(1, Math.round(scale || 1)), L = layer || 'all', cx = camX || 0, cy = camY || 0;
     var pA = ctx.globalAlpha, pC = ctx.globalCompositeOperation, pS = ctx.imageSmoothingEnabled; ctx.imageSmoothingEnabled = false; ctx.globalCompositeOperation = 'source-over';
     function SX(x) { return Math.round((x - cx) * sc); } function SY(y) { return Math.round((y - cy) * sc); }
+    VV = viewOf(ctx);
     if (L !== 'debris') {   // ground decals: big & old first so fresh small stuff (brass) sits on top
       for (var pass = 5; pass >= 0; pass--) for (var d = 0; d < DM; d++) { var q = D[d]; if (!q.on || q.pri !== pass) continue;
         var im = SOFT[q.kind] ? soft(q.kind, q.v, (q.kind === 'scorch_napalm' || q.kind === 'scorch_teardrop') ? q.dir : 0, sc) : imgR(q.kind, q.v, q.dir, sc, false), fade = q.t > q.life - 6 ? Math.max(0, (q.life - q.t) / 6) : 1, fin = q.kind === 'scorch_teardrop' ? Math.min(1, q.t * 0.9) : Math.min(1, q.t * 8 + 0.3);
+        var DX = SOFT[q.kind] ? SX(q.x) - (im.width >> 1) : SX(q.x) - ((im.width / sc) >> 1) * sc, DY = SOFT[q.kind] ? SY(q.y) - (im.height >> 1) : SY(q.y) - ((im.height / sc) >> 1) * sc;
+        if (off(DX, DY, im.width, im.height)) continue;   // pe84: off-screen decal (the pool holds 320 for 90-240 s, most of them behind the camera late in a run)
         ctx.globalAlpha = (q.kind.indexOf('scorch') === 0 ? 0.9 : 1) * fade * fin;
-        if (SOFT[q.kind]) ctx.drawImage(im, SX(q.x) - (im.width >> 1), SY(q.y) - (im.height >> 1)); else ctx.drawImage(im, SX(q.x) - ((im.width / sc) >> 1) * sc, SY(q.y) - ((im.height / sc) >> 1) * sc); }
+        var bb = im._bb; if (bb) { if (bb[2] > 0) ctx.drawImage(im, bb[0], bb[1], bb[2], bb[3], DX + bb[0], DY + bb[1], bb[2], bb[3]); } else ctx.drawImage(im, DX, DY); }
       // brass glint: a 1px highlight blinks on fresh casings (top-left light)
       ctx.globalAlpha = 1; ctx.fillStyle = '#fff2b0';
       for (var g = 0; g < DM; g++) { var c2 = D[g]; if (!c2.on || c2.kind.indexOf('brass') !== 0 || c2.t > 6) continue; var gl = ((c2.t * 2.5 + c2.x * 0.37) % 2.2); if (gl < 0.16) { var GX = SX(c2.x) - sc, GY = SY(c2.y) - sc; ctx.globalAlpha = 1 - gl / 0.16; ctx.fillRect(GX, GY, sc, sc); ctx.globalAlpha *= 0.55; ctx.fillRect(GX - sc, GY, sc, sc); ctx.fillRect(GX + sc, GY, sc, sc); ctx.fillRect(GX, GY - sc, sc, sc); ctx.fillRect(GX, GY + sc, sc, sc); ctx.globalAlpha = 1; } }
     }
     if (L !== 'ground') {
       ctx.fillStyle = '#1a1c12';
-      for (var s = 0; s < BM; s++) { var p = B[s]; if (!p.on || p.z < 0.5) continue; var sh = Math.max(1, Math.round((DEB[p.kind].brass ? 1 : 2) - p.z / 60)); ctx.globalAlpha = Math.max(0.15, 0.45 - p.z / 200); ctx.fillRect(SX(p.x) - sh * sc / 2 | 0, SY(p.y) | 0, sh * sc, Math.max(1, sh >> 1) * sc); }
+      for (var s = 0; s < BM; s++) { var p = B[s]; if (!p.on || p.z < 0.5) continue; if (off(SX(p.x) - 8 * sc, SY(p.y) - 4 * sc, 16 * sc, 8 * sc)) continue; var sh = Math.max(1, Math.round((DEB[p.kind].brass ? 1 : 2) - p.z / 60)); ctx.globalAlpha = Math.max(0.15, 0.45 - p.z / 200); ctx.fillRect(SX(p.x) - sh * sc / 2 | 0, SY(p.y) | 0, sh * sc, Math.max(1, sh >> 1) * sc); }
       ctx.globalAlpha = 1;
-      for (var f = 0; f < FM; f++) { var fp = FI[f]; if (!fp.on || fp.t < 0) continue; var fk = Math.min(1, (fp.life - fp.t) / 2.5, fp.t * 4), fim = flameImg(((fp.t * 9 + fp.ph) | 0) % 3, sc);
+      for (var f = 0; f < FM; f++) { var fp = FI[f]; if (!fp.on || fp.t < 0) continue; if (off(SX(fp.x) - 40 * sc, SY(fp.y) - 50 * sc, 80 * sc, 70 * sc)) continue; var fk = Math.min(1, (fp.life - fp.t) / 2.5, fp.t * 4), fim = flameImg(((fp.t * 9 + fp.ph) | 0) % 3, sc);
         ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.35 * fk; var gim = puffImg(3, 2, sc); ctx.drawImage(gim, SX(fp.x) - (gim.width >> 1), SY(fp.y) - (gim.height >> 1)); ctx.globalCompositeOperation = 'source-over';
         ctx.globalAlpha = fk; var fsc = (fk < 0.6 ? 0.6 : 1) * (fp.sz || 1); ctx.drawImage(fim, SX(fp.x) - ((fim.width * fsc) >> 1), SY(fp.y) - Math.round(fim.height * fsc), Math.round(fim.width * fsc), Math.round(fim.height * fsc)); }
       for (var g2 = 0; g2 < GM; g2++) { var gp = GR[g2]; if (!gp.on || gp.t < 0) continue; ctx.globalAlpha = 1; ctx.fillStyle = gp.z < 8 ? '#2a2016' : ['#6c3622', '#5c4226', '#8e4a2e'][gp.c];
@@ -576,22 +596,61 @@
         if (cdir % 4 === 0) { ctx.fillStyle = '#fffbe8'; ctx.fillRect(CX - 3 * sc, CY - 3 * sc, 2 * sc, sc); ctx.globalAlpha = 0.6; ctx.fillRect(CX - 2 * sc, CY - 4 * sc, sc, 3 * sc); ctx.fillRect(CX - 4 * sc, CY - 3 * sc, 4 * sc, sc); ctx.globalAlpha = 1; } }   // sun glint when the flat side faces up
       for (var b = 0; b < BM; b++) { var e = B[b]; if (!e.on) continue; var K = DEB[e.kind], dir = K.brass ? ((e.dir + Math.floor(e.t * e.spin)) % 8 + 8) % 8 : ((e.dir + 2 * Math.floor(e.t * e.spin * 0.5)) % 8 + 8) % 8 & 6, im2 = imgR(K.s, e.v, e.rest ? e.dir : dir, sc, K.brass ? 0 : e.z < 5 ? 2 : 1);
         var ex = SX(e.x) - ((im2.width / sc) >> 1) * sc, ey = SY(e.y - e.z) - ((im2.height / sc) >> 1) * sc;
+        if (off(ex - 40 * sc, ey - 40 * sc, im2.width + 80 * sc, im2.height + 80 * sc)) continue;   // pe84 (margin covers the motion-smear ghosts)
         if (!e.rest) { var svx = e.vx, svy = e.vy - e.vz, spd = Math.sqrt(svx * svx + svy * svy); if (spd > 150) { var st = Math.min(3, spd / 40) * 0.006;   // motion smear: trailing ghosts along screen velocity
           for (var gh = 2; gh >= 1; gh--) { ctx.globalAlpha = gh === 2 ? 0.18 : 0.38; ctx.drawImage(im2, ex - Math.round(svx * st * gh) * sc, ey - Math.round(svy * st * gh) * sc); } ctx.globalAlpha = 1; } }
         ctx.drawImage(im2, ex, ey); }
       drawNapFire(ctx, SX, SY, sc);
-      for (var u = 0; u < UM; u++) { var pu = U[u]; if (!pu.on || pu.t < 0) continue; if (pu.nap && NAP_FIRE[pu.shd] != null) continue; var k = pu.t / pu.life, nsm = pu.nap && pu.shd === 6, pim = nsm ? napSmoke(bucket(pu.r), u & 3) : puffImg(bucket(pu.r), pu.shd, sc); ctx.imageSmoothingEnabled = nsm;
-        ctx.globalAlpha = pu.a * Math.min(1, pu.t * (FIRE_SHD[pu.shd] ? 60 : nsm ? 4 : 12)) * Math.pow(1 - k, FIRE_SHD[pu.shd] ? 0.8 : nsm ? 0.55 : 1.4); /* vet E2: napalm black smoke holds its density (slow fade) */ var ps = pu.r / PB[bucket(pu.r)] * (nsm ? sc : 1), pw = Math.max(2, Math.round(pim.width * ps));
-        if (pu.shd === 5 || pu.shd === 13) { ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(pim, SX(pu.x) - (pw >> 1), SY(pu.y - pu.z) - (pw >> 1), pw, pw); ctx.globalCompositeOperation = 'source-over'; }
-        else ctx.drawImage(pim, SX(pu.x) - (pw >> 1), SY(pu.y - pu.z) - (pw >> 1), pw, pw); }
+      var NB = nsbBegin(ctx);   // pe84: napalm black smoke -> half-res buffer (napalm cutaway v0.6.3 learning); null = old full-res path
+      for (var u = 0; u < UM; u++) { var pu = U[u]; if (!pu.on || pu.t < 0) continue; if (pu.nap && NAP_FIRE[pu.shd] != null) continue; var k = pu.t / pu.life, nsm = pu.nap && pu.shd === 6, pim = nsm ? napSmoke(bucket(pu.r), u & 3) : puffImg(bucket(pu.r), pu.shd, sc);
+        var pal = pu.a * Math.min(1, pu.t * (FIRE_SHD[pu.shd] ? 60 : nsm ? 4 : 12)) * Math.pow(1 - k, FIRE_SHD[pu.shd] ? 0.8 : nsm ? 0.55 : 1.4); /* vet E2: napalm black smoke holds its density (slow fade) */ var ps = pu.r / PB[bucket(pu.r)] * (nsm ? sc : 1), pw = Math.max(2, Math.round(pim.width * ps));
+        var PX = SX(pu.x) - (pw >> 1), PY = SY(pu.y - pu.z) - (pw >> 1); if (off(PX, PY, pw, pw)) continue;
+        if (NB) { if (nsm) { nsbDraw(NB, pim, PX, PY, pw, pal); continue; } if (NB.d) nsbHit(NB, ctx, PX, PY, pw); }   // a non-smoke puff over buffered smoke: composite first (keeps the draw order)
+        ctx.imageSmoothingEnabled = nsm; ctx.globalAlpha = pal;
+        if (pu.shd === 5 || pu.shd === 13) { ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(pim, PX, PY, pw, pw); ctx.globalCompositeOperation = 'source-over'; }
+        else ctx.drawImage(pim, PX, PY, pw, pw); }
+      if (NB && NB.d) nsbFlush(NB, ctx);
     }
-    ctx.globalAlpha = pA; ctx.globalCompositeOperation = pC; ctx.imageSmoothingEnabled = pS;
+    ctx.globalAlpha = pA; ctx.globalCompositeOperation = pC; ctx.imageSmoothingEnabled = pS; VV = null;
   }
+  /* pe84 half-res napalm smoke buffer. Source-over is associative, so consecutive smoke puffs composited as one layer give the same result as drawn one by one;
+     the only change is resolution (smoke textures are <= 54 px, already drawn up to ~3x enlarged with smoothing). Flushed before any other puff that overlaps it. */
+  var NSB = null;
+  function nsbBegin(ctx) { if (!PE84.nsr || !ctx || !ctx.getTransform || !ctx.canvas) return null; var m = ctx.getTransform(); if (m.b !== 0 || m.c !== 0 || !(m.a > 0) || !(m.d > 0)) return null;
+    var w = (ctx.canvas.width + 1) >> 1, h = (ctx.canvas.height + 1) >> 1;
+    if (!NSB || NSB.w !== w || NSB.h !== h) { var c = (typeof document !== 'undefined' && document.createElement) ? document.createElement('canvas') : canvas(w, h); c.width = w; c.height = h; NSB = { c: c, x: c.getContext('2d'), w: w, h: h, d: null, m: null }; }
+    NSB.m = m; NSB.d = null; var x = NSB.x; x.setTransform(m.a / 2, 0, 0, m.d / 2, m.e / 2, m.f / 2); x.imageSmoothingEnabled = true; x.globalCompositeOperation = 'source-over'; return NSB; }
+  function nsbRect(B, X, Y, w) { var m = B.m; return [(m.a * X + m.e) / 2, (m.d * Y + m.f) / 2, (m.a * (X + w) + m.e) / 2, (m.d * (Y + w) + m.f) / 2]; }
+  function nsbDraw(B, im, X, Y, w, a) { B.x.globalAlpha = a; B.x.drawImage(im, X, Y, w, w); var r = nsbRect(B, X, Y, w), d = B.d;
+    if (!d) B.d = r; else { if (r[0] < d[0]) d[0] = r[0]; if (r[1] < d[1]) d[1] = r[1]; if (r[2] > d[2]) d[2] = r[2]; if (r[3] > d[3]) d[3] = r[3]; } }
+  function nsbHit(B, ctx, X, Y, w) { var r = nsbRect(B, X, Y, w), d = B.d; if (r[0] > d[2] || r[1] > d[3] || r[2] < d[0] || r[3] < d[1]) return; nsbFlush(B, ctx); }
+  function nsbFlush(B, ctx) { var d = B.d; B.d = null; var x0 = Math.max(0, Math.floor(d[0]) - 1), y0 = Math.max(0, Math.floor(d[1]) - 1), x1 = Math.min(B.w, Math.ceil(d[2]) + 1), y1 = Math.min(B.h, Math.ceil(d[3]) + 1);
+    if (x1 <= x0 || y1 <= y0) return; ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over'; ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(B.c, x0, y0, x1 - x0, y1 - y0, x0 * 2, y0 * 2, (x1 - x0) * 2, (y1 - y0) * 2); ctx.restore();
+    var bx = B.x; bx.save(); bx.setTransform(1, 0, 0, 1, 0, 0); bx.clearRect(x0, y0, x1 - x0, y1 - y0); bx.restore(); }
+  /* pe84 prewarm (napalm cutaway v0.6.3 learning: the first-use spike is lazy bake + texture upload, not shader compile). Bakes the napalm textures in idle time,
+     then draws each cached texture once onto the game canvas clipped to 1x1 px (uploads it) before its first visible use. The game calls prewarmStep(ctx) at the
+     start of a frame, before the background fill, so the 1 px is overdrawn. */
+  var PWQ = null, PWU = [], PWD = typeof WeakSet !== 'undefined' ? new WeakSet() : null;
+  function pwQueue() { PWQ = []; var f, h, v, d, b, k;
+    for (f = 0; f < NT_FR; f++) for (h = 0; h < 3; h++) PWQ.push([napTongue, f, h]);
+    for (v = 0; v < 4; v++) { PWQ.push([napBed, v]); for (b = 0; b < PB.length; b++) PWQ.push([napSmoke, b, v]); }
+    for (k = 0; k < 2; k++) for (v = 0; v < 4; v++) PWQ.push([sheetImg, k, v, 2]);
+    if (pwHigh()) scorchQ();   // rc8.5 mem: MED/LOW bake the 48 soft scorch decals (24x 331^2 + 24x 210^2 = 14 MB) just in time at the first napalmDrop(), not at boot
+    for (d = 0; d < 8; d++) PWQ.push([imgR, 'canister', 0, d, 2, 1]);
+    for (b = 0; b < PB.length; b++) PWQ.push([puffImg, b, 13, 2]); }
+  function pwHigh() { var t = 'high'; try { t = (root.LCO_QUALITY && root.LCO_QUALITY.t) || 'high'; } catch (e) {} return t === 'high'; }
+  var SCQ = 0; function scorchQ() { if (SCQ) return; SCQ = 1; for (var v = 0; v < 3; v++) for (var d = 0; d < 8; d++) { PWQ.push([soft, 'scorch_teardrop', v, d, 2]); PWQ.push([soft, 'scorch_napalm', v, d, 2]); } }
+  function warmScorch() { if (!PE84.warm || SCQ) return; if (PWQ === null) pwQueue(); scorchQ(); pwIdle(); }   // same textures, same keys; baked in idle time during the canister fall
+  function pwBake(n) { if (!PWQ) pwQueue(); var t0 = Date.now(); while (PWQ.length && n-- > 0) { var j = PWQ.shift(); try { var im = j[0].apply(null, j.slice(1)); if (im && PWD && !PWD.has(im)) PWU.push(im); } catch (e) {} if (Date.now() - t0 > 6) break; } return PWQ.length; }
+  function pwIdle() { if (!PE84.warm || typeof requestIdleCallback === 'undefined') return; requestIdleCallback(function (dl) { while (PWQ === null || PWQ.length) { pwBake(1); if (!dl || dl.timeRemaining() < 6) break; } if (PWQ.length) pwIdle(); }, { timeout: 2000 }); }
+  function prewarmStep(ctx, n) { if (!PE84.warm || !ctx) return 0; if (PWQ === null) { pwQueue(); pwIdle(); } n = n || 8; if (PWU.length) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.beginPath(); ctx.rect(0, 0, 1, 1); ctx.clip(); ctx.globalAlpha = 1;
+      while (PWU.length && n-- > 0) { var im = PWU.shift(); try { ctx.drawImage(im, 0, 0, 1, 1); if (PWD) PWD.add(im); } catch (e) {} } ctx.restore(); } return PWQ.length + PWU.length; }
   function reset() { [SH, KK, D, B, U, GR, FI, Q, CN, SHT].forEach(function (a) { for (var i = 0; i < a.length; i++) a[i].on = false; }); stopT = 0; stopEase = 0; }
   function counts() { var c = function (a) { var n = 0; for (var i = 0; i < a.length; i++) if (a[i].on) n++; return n; }; return { shakes: c(SH), kicks: c(KK), decals: c(D), debris: c(B), puffs: c(U), grit: c(GR), fires: c(FI), queued: c(Q), canisters: c(CN), sheets: c(SHT), hitStop: Math.max(0, stopT) }; }
   var API = { SHAKE: SHAKE, KICK: KICK, HITSTOP: HITSTOP, RECIPE: RECIPE, WEAPON: WEAPON, MAXAMP: MAXAMP, sampleShake: sampleShake, shake: shake, kick: kick, hitStop: hitStop,
     timeScale: timeScale, stepDt: function (dt) { return dt * timeScale(); }, camera: camera, decal: decal, brass: brass, debris: debris, impact: impact, forRadius: forRadius,
-    update: update, drawAll: drawAll, reset: reset, counts: counts, seed: function (n) { seedV = n >>> 0; }, POOLS: { shakes: SHM, kicks: KM, decals: DM, debris: BM, puffs: UM, grit: GM, fires: FM, queued: QM, canisters: CM, sheets: SM }, warmNapalm: function () { for (var f = 0; f < NT_FR; f++) for (var h = 0; h < 3; h++) napTongue(f, h); for (var v = 0; v < 4; v++) { napBed(v); for (var b = 0; b < PB.length; b++) napSmoke(b, v); } return IMGN; }, flameSheet: flameSheet, eruption: eruption, fireline: fireline, arclightBox: arclightBox, napalmDrop: napalmDrop,
+    update: update, drawAll: drawAll, prewarmStep: prewarmStep, PE84: PE84, reset: reset, counts: counts, seed: function (n) { seedV = n >>> 0; }, POOLS: { shakes: SHM, kicks: KM, decals: DM, debris: BM, puffs: UM, grit: GM, fires: FM, queued: QM, canisters: CM, sheets: SM }, warmNapalm: function () { for (var f = 0; f < NT_FR; f++) for (var h = 0; h < 3; h++) napTongue(f, h); for (var v = 0; v < 4; v++) { napBed(v); for (var b = 0; b < PB.length; b++) napSmoke(b, v); } return IMGN; }, flameSheet: flameSheet, eruption: eruption, fireline: fireline, arclightBox: arclightBox, napalmDrop: napalmDrop,
     imageCount: function () { return IMGN; } };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.VFX_IMPACT = API;
 })(typeof self !== 'undefined' ? self : this);
