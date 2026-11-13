@@ -35,5 +35,13 @@ ipcRenderer.on('save:flush', () => flush(true));
 // 3) achievements
 let steamOn = false; try { steamOn = ipcRenderer.sendSync('steam:status').available; } catch (e) {}
 const ach = { activate: (id) => { if (typeof id === 'string') ipcRenderer.send('steam:unlock', id); setTimeout(() => flush(true), 50); return true; } };
-contextBridge.exposeInMainWorld('steamworks', { achievement: ach, available: steamOn });
-contextBridge.exposeInMainWorld('lcoHost', { platform: process.platform, electron: true, steam: () => ipcRenderer.sendSync('steam:status'), quit: () => ipcRenderer.send('app:quit'), setFullscreen: (b) => ipcRenderer.send('fs:set', !!b) });
+contextBridge.exposeInMainWorld('steamworks', { achievement: ach, activateAchievement: ach.activate, available: steamOn });
+// rc8.2 #7: same route under vsHost.steam.unlock (lowercase game ids or ACH_* names; main.js maps them via steam/lco_steam_config.json)
+contextBridge.exposeInMainWorld('vsHost', { electron: true, steam: { unlock: (id) => ach.activate(id), available: steamOn }, setFullscreen: (b) => ipcRenderer.send('fs:set', !!b),
+  build: (() => { try { return ipcRenderer.sendSync('build:info'); } catch (e) { return null; } })(), quit: () => ipcRenderer.send('app:quit') });
+// rc8.2 #37 suspend/resume (wrapper side): main.js asks for a run snapshot before the window closes; game-side snapshot = assets/runsave.js (window.__RS)
+ipcRenderer.on('run:suspend', () => { let ok = false; try { ok = !!webFrame.executeJavaScript("(()=>{try{if(window.__RSH&&window.__RSH.live()&&window.__RS){window.__RS.save('host-quit');localStorage.setItem('lco_suspended',JSON.stringify({at:Date.now()}));return 1}}catch(e){}return 0})()"); } catch (e) {}
+  setTimeout(() => { flush(true); ipcRenderer.send('run:suspended'); }, 150); });
+// on launch: a host-suspended run is offered via the game's own RESUME RUN path (runsave.js needs a fresh lco_navcause.disc). Lead spec: honour lco_suspended without the 30-min cap.
+try { const sp = J(localStorage.getItem('lco_suspended'), null); if (sp && localStorage.getItem('lco_runsave')) localStorage.setItem('lco_navcause', JSON.stringify({ disc: true, at: Date.now(), why: 'host-suspend' })); if (sp) localStorage.removeItem('lco_suspended'); } catch (e) {}
+contextBridge.exposeInMainWorld('lcoHost', { platform: process.platform, electron: true, steam: () => ipcRenderer.sendSync('steam:status'), quit: () => ipcRenderer.send('app:quit'), log: (k, d) => { try { ipcRenderer.send('crash:log', String(k), JSON.parse(JSON.stringify(d || {}))); } catch (e) {} }, setFullscreen: (b) => ipcRenderer.send('fs:set', !!b) });

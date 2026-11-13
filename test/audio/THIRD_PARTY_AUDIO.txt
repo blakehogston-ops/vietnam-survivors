@@ -1026,3 +1026,8 @@ samples/ogg + samples/m4a/tokay_gecko_1..3  (real tokay gecko, northern Laos)  L
     Source: "Mating call of a male Tokay gecko (Gekko gecko)" by Richard Ling, https://commons.wikimedia.org/wiki/File:Mating_call_of_a_male_Tokay_gecko_(Gekko_gecko).ogg
     Licence: Public domain (author's release). Edit: three cuts, HP 80 Hz, fades, level.
     sha256: 1 ogg 54e487c625ce876c80c7d5800077f421429dda6b50039351078805382d5ba27d m4a 2148464e2959a64154e3617aeedb998e54f7c82e32abcd8a4fbc3a340428c4f8; 2 ogg a7cee0b0cdc363074bdb614108de76e5fa28f774853314e75be34d85bfb45798 m4a fc95986748764f73dfa9de77187afc31a3a763a6b8eac1c501c1e3047b8c5941; 3 ogg 07b3fb8ea8780c0deaba7617c598250ad6d72a20ef593cb90566b375239e2e69 m4a f3bdb9458f12adb56149c81b8430d7f4125060aaf162e0730a76a60ae2f348f2
+
+--- 2026-11-12: rc8.5 cutaway chatter (audio/cutaways/{ogg,m4a}/cut_*_chatter, AI voice: see ASSET_LICENSE_LOG.md) ---
+audio/cutaways/ogg + audio/cutaways/m4a/cut_escort_vmo6_chatter, cut_ch46_ridein_intro_chatter, cut_ch46_ridein_exit_chatter
+    Non-AI parts only: radio key-in/out = radio_key_in_1 / radio_key_out_1 (LukaCafuka "Walkie-talkie end of transmission", Freesound #760245, CC0, Legal PASS 2026-10-20; pdsounds.org STE-011, public domain, ear check still open). Hiss is synthesized; radio_static_bed_loop not used.
+    sha256: escort ogg 03f64b20f68b6c74d827f0f7917fd553f5de27f5d0950dab6ea9d8441cb2a688 m4a d2d44035864a0b2f5cf822aa18274f01e7f1ca20ce47e8dd8c822ef968295677; ridein_intro ogg afca7c5d9e8efb2239e6baed10a5694ed291c3d881c21943e336e5ab6af0414d m4a e2d2158547284a80599e03ccb84294fcd1d00fe091527d2342ae40486b0ecfd5; ridein_exit ogg edace8a9406efe1b0ce16a4ce6632e5f5d20bc375c169c6cf613798bbf40abbe m4a 17b9f92db6ae337a1f4d47312e668df758c962becc83cae5f05efe35f182a505

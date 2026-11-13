@@ -1,8 +1,13 @@
 'use strict';
 /* Steamworks wrapper (steamworks.js). Every call is a safe no-op when Steam isn't running / the native module can't load,
-   so the game runs fine standalone. APP ID 480 = Valve's Spacewar test app: PLACEHOLDER, replace with the real App ID. */
+   so the game runs fine standalone. App ID comes from steam/lco_app_id.json (placeholder until Blake fills it in; 480 only via LCO_APPID in dev/tests). */
 let sw = null, client = null, status = 'not-initialised';
 function init(appId) {
+  // rc8.2 #7 test stub (LCO_TEST=1 + LCO_STEAM_STUB=<log file>): fake Steam client that appends every activate(api) to the log. Never active otherwise.
+  if (process.env.LCO_TEST === '1' && process.env.LCO_STEAM_STUB) { const fs = require('fs'), f = process.env.LCO_STEAM_STUB, got = new Set();
+    client = { achievement: { isActivated: (a) => got.has(a), activate: (a) => { got.add(a); fs.appendFileSync(f, a + '\n'); return true; } },
+      cloud: { isEnabledForAccount: () => false, isEnabledForApp: () => false }, utils: { isSteamRunningOnSteamDeck: () => false } };
+    status = 'ok (stub, appId ' + appId + ')'; return status; }
   try {
     sw = require('steamworks.js');
     client = sw.init(appId);

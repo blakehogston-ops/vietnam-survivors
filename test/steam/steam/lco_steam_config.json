@@ -1,5 +1,5 @@
 {
- "_note": "Game id -> Steam API name (remapped to rc8a 754606d, Oct 20 2026). Create each API name in Steamworks > Stats & Achievements (Blake). ACH/RIB tables unchanged from rc7/rc7.1 (33 + 6).",
+ "_note": "Game id -> Steam API name (remapped to rc8a 754606d, Oct 20 2026). Create each API name in Steamworks > Stats & Achievements (Blake). ACH/RIB tables unchanged from rc7/rc7.1 (33 + 6). rc8.2 #7 (Oct 28): +ACH_HUEY_UNLOCK (game id is already the API name); unmapped ids are dropped, not guessed. rc8.2 EP Oct 28: ribbon achievements (ACH_RIB_*) dropped - real medals are never rewards.",
  "map": {
   "boots": "ACH_BOOTS",
   "hold_5": "ACH_HOLD_5",
@@ -33,7 +33,8 @@
   "right_smoke": "ACH_RIGHT_SMOKE",
   "kit_out": "ACH_KIT_OUT",
   "lean_out": "ACH_LEAN_OUT",
-  "squad_alive8": "ACH_SQUAD_ALIVE8"
+  "squad_alive8": "ACH_SQUAD_ALIVE8",
+  "ACH_HUEY_UNLOCK": "ACH_HUEY_UNLOCK"
  },
  "squad2": {
   "_note": "Achievement -> Doc LOADOUT unlocks only (rc8a P3.LO, unchanged from rc7: kit=first_out, point=hold_10, gun=all_home, m79=lco_hiscore>=8000; selectable the moment its ach/score is earned; demo never). Marine achievements are NOT triggered by conditions or by P3.MREQ (that table is display-only); see squad2_marines.",
@@ -49,14 +50,6 @@
   "_hiscore_8000": [
    "ACH_SQUAD2_LOADOUT_M79"
   ]
- },
- "ribbons": {
-  "car": "ACH_RIB_CAR",
-  "ph": "ACH_RIB_PH",
-  "bs": "ACH_RIB_BS",
-  "ss": "ACH_RIB_SS",
-  "nc": "ACH_RIB_NC",
-  "lbo": "ACH_RIB_LBO"
  },
  "cloud": {
   "_note": "rc8a has NO 'lco_save_v2' localStorage key. rc8a renamed every lbo2_* key to lco_* (in-game one-time copy lbo2_* -> lco_*, marker lco_migrated; demo keys lbo2demo_ -> lcodemo_). The wrapper keeps the lco_save_v2.json file approach and now syncs lco_* keys. Legacy lbo2_* keys in an older (rc7/rc7.1 wrapper) lco_save_v2.json are restored under their lco_* names by preload.js.",
