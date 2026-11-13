@@ -1,0 +1,5 @@
+Source: icon-master-1024.png = the Art Director's WORKING master (Oct 28 2026), NOT yet approved by Blake. A hand-tuned 16/32 px version may follow.
+Generated (PIL LANCZOS): icon.png 512, icon.ico 16/24/32/48/64/128/256, icon.icns, icons/<n>x<n>.png Linux set 16-1024.
+Old placeholders (from apple-touch-icon.png) moved to ../superseded/icons-placeholder/.
+
+APPROVED: Blake approved this icon on Oct 29, 2026 at 12:48 AM ET ("App icon ok", relayed by the EP). It is locked as the rc8.2 Windows and Mac icon.

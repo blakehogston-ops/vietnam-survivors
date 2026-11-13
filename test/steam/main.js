@@ -42,9 +42,17 @@ const fs = require('fs');
 
 /* ---- identity + save path (was 'vietnam-survivors' / 'Last Bird Out') ---- */
 const APP_NAME = 'Last Chopper Out';
+const LCO_TEST_WIN = process.argv.includes('--lco-test');   /* rc8.3: --lco-test labels the window 'LCO TEST' */
 app.setName(APP_NAME);
 const NEW_DIR = (process.env.LCO_TEST === '1' && process.env.LCO_USERDATA) ? path.resolve(process.env.LCO_USERDATA) : path.join(app.getPath('appData'), APP_NAME);   // rc8.2: tests get an isolated profile (stale lco_sq2 from a prior smoke replayed all 8 Marines)
 app.setPath('userData', NEW_DIR);
+/* rc8.3 crash log: renderer/GPU/child process exits are appended to userData/lco_crash.log (Chromium --enable-logging to userData/chrome_debug.log only with --lco-test or LCO_TEST=1) */
+const CRASH_LOG = () => path.join(NEW_DIR, 'lco_crash.log');
+function crashLog(kind, d) { try { fs.mkdirSync(NEW_DIR, { recursive: true }); let ln = new Date().toISOString() + ' ' + String(kind).slice(0, 64) + ' ' + JSON.stringify(d || {}); if (ln.length > 2000) ln = ln.slice(0, 1990) + ' [trunc]'; const f = CRASH_LOG(); try { if (fs.statSync(f).size > 1048576) fs.renameSync(f, f + '.1'); } catch (e) {} fs.appendFileSync(f, ln + '\n'); } catch (e) {} }   /* rc8.3 SBE: entries capped ~2 KB, rotate at ~1 MB keeping one .1 */
+if (process.argv.includes('--lco-test') || process.env.LCO_TEST === '1') try { app.commandLine.appendSwitch('enable-logging', 'file'); app.commandLine.appendSwitch('log-file', path.join(NEW_DIR, 'chrome_debug.log')); } catch (e) {}
+app.on('render-process-gone', (e, wc, d) => { crashLog('render-process-gone', { reason: d && d.reason, exitCode: d && d.exitCode, main: !!(win && wc === win.webContents), url: (() => { try { return wc.getURL().slice(0, 80); } catch (er) { return ''; } })() }); if (d && d.reason !== 'clean-exit' && win && !win.isDestroyed() && wc === win.webContents) { const n = (app.__rpgN = (app.__rpgN || 0) + 1); if (n <= 3) setTimeout(() => { try { crashLog('renderer-reload', { n }); win.webContents.reload(); } catch (er) { crashLog('renderer-reload-fail', { m: String(er) }); } }, 500); } });   /* rc8.3: reload the game instead of leaving a dead window (max 3) */
+ipcMain.on('crash:log', (e, k, d) => crashLog('renderer-' + k, d));
+app.on('web-contents-created', (e, wc) => { wc.on('unresponsive', () => crashLog('unresponsive', {})); wc.on('responsive', () => crashLog('responsive', {})); });
 const OLD_DIRS = ['Last Bird Out', 'last-bird-out', 'LastBirdOut', 'vietnam-survivors'].map((d) => path.join(app.getPath('appData'), d));
 
 /* bug-reporter legal fix: never log/expose the OS user name or home/AppData path (MIG reaches the renderer via steam:status) */
@@ -79,7 +87,22 @@ const BUILD_TIER = (() => { let t = null; try { t = require('./package.json').lc
   const env = process.env.LCO_BUILD_TIER; if (env && (!app.isPackaged || TEST)) t = env;
   if (!t && !app.isPackaged) t = 'test'; return TIERS.includes(t) ? t : 'public'; })();
 module.exports.BUILD_TIER = BUILD_TIER;
-const STEAM_APP_ID = +(process.env.LCO_APPID || 480);   // PLACEHOLDER 480 (Spacewar). Replace with the real App ID (also steam_appid.txt).
+/* rc8.2 #25: App ID lives in steam/lco_app_id.json {"appId":"REPLACE_WITH_REAL_STEAM_APP_ID"} (BLAKE fills in). No 480 in shipping config.
+   Non-numeric placeholder -> Steam is not initialised (game runs standalone, achievements kept locally). Dev/tests may set LCO_APPID (e.g. 480) when unpackaged or LCO_TEST=1. */
+const STEAM_APP_ID = (() => { let id = null; try { id = require('./steam/lco_app_id.json').appId; } catch (e) {}
+  if (process.env.LCO_APPID && (!app.isPackaged || TEST)) id = process.env.LCO_APPID;
+  return /^[1-9][0-9]{0,9}$/.test(String(id)) ? +id : 0; })();
+/* rc8.2 #37: build id shown in-app comes from package.json version + stamp (written at packaging), never a stale hard-coded string */
+const PKG = (() => { try { return require('./package.json'); } catch (e) { return {}; } })();
+const BUILD_INFO = { version: PKG.version || '0.0.0', stamp: PKG.lcoStamp || 'dev', tier: BUILD_TIER, electron: process.versions.electron };
+/* rc8.2 #25: window mode. Default fullscreen on macOS and Steam Deck, windowed elsewhere. Overrides (highest first): --windowed / --fullscreen argv
+   (Steam launch options), then the player's last choice in userData/window.json (saved on toggle). */
+const WIN_PREF = () => path.join(NEW_DIR, 'window.json');
+function wantFullscreen(deck) {
+  const a = process.argv; if (a.includes('--windowed')) return false; if (a.includes('--fullscreen')) return true;
+  try { const o = JSON.parse(fs.readFileSync(WIN_PREF(), 'utf8')); if (typeof o.fullscreen === 'boolean') return o.fullscreen; } catch (e) {}
+  return process.platform === 'darwin' || !!deck; }
+function saveWinPref(fsOn) { try { fs.mkdirSync(NEW_DIR, { recursive: true }); fs.writeFileSync(WIN_PREF(), JSON.stringify({ fullscreen: !!fsOn })); } catch (e) {} }
 let win = null;
 
 /* ---- save: lco_save_v2.json = { v:2, savedAt, keys:{ lco_*: string } } locally + Steam Remote Storage (rc8a: game keys are lco_*; rc8a has no single 'lco_save_v2' key) ---- */
@@ -111,7 +134,9 @@ function unlockApi(api) { if (unlocked.has(api)) return; unlocked.add(api); cons
 function unlockGame(id) {
   const ev = MAP.squad2_marines.events[id]; if (ev) { unlockApi(ev); return; }   // rc8a squad2Check(): Marine truly unlocked/playable
   if (/^squad2_/i.test(id)) { if (TEST) console.log('[ach] ignored unknown squad2 event', id); return; }   // never guess an API name for unknown squad2 ids
-  const api = MAP.map[id] || ('ACH_' + String(id).toUpperCase().replace(/[^A-Z0-9_]/g, '_'));
+  // rc8.2 #7: explicit map only (steam/lco_steam_config.json "map"); ids that are already ACH_* (ACH_HUEY_UNLOCK) pass through; unknown ids are logged, never guessed
+  const api = MAP.map[id] || (/^ACH_[A-Z0-9_]+$/.test(id) ? id : null);
+  if (!api) { if (TEST) console.log('[ach] ignored unmapped id', id); return; }
   unlockApi(api);
   for (const x of MAP.squad2[id] || []) unlockApi(x);
 }
@@ -121,7 +146,7 @@ function checkDerived(keys) {   // re-sync from save (covers achievements earned
   try { if ((+JSON.parse(get(K.hiscore || 'lco_hiscore') || '0')) >= 8000) MAP.squad2._hiscore_8000.forEach(unlockApi); } catch (e) {}
   try { const ch = JSON.parse(get(K.chars || 'lco_chars') || '{}');
     for (const c of Object.values(ch)) { const r = c && c.rib; const ids = Array.isArray(r) ? r : (r && typeof r === 'object' ? Object.keys(r).filter((k) => r[k]) : []);
-      for (const k of ids) if (MAP.ribbons[k]) unlockApi(MAP.ribbons[k]); } } catch (e) {}
+      for (const k of ids) if ((MAP.ribbons || {})[k]) unlockApi(MAP.ribbons[k]); /* rc8.2 EP: no ribbon achievements (map removed) */ } } catch (e) {}
   // lco_sq2 = the game's own record of squad2_unlock_<id> events it already sent (written only together with the event): replay so an unlock while Steam was down is not lost
   try { for (const k of Object.keys(JSON.parse(keys[K.squad2 || 'lco_sq2'] || '{}'))) { const ev = MAP.squad2_marines.events['squad2_unlock_' + k]; if (ev) unlockApi(ev); } } catch (e) {}
 }
@@ -130,31 +155,37 @@ function createWindow() {
   Menu.setApplicationMenu(null);
   win = new BrowserWindow({
     width: 1280, height: 800, minWidth: 640, minHeight: 400, backgroundColor: '#07100a', title: APP_NAME,
-    autoHideMenuBar: true, show: !TEST, fullscreen: true, fullscreenable: true,
+    autoHideMenuBar: true, show: !TEST, fullscreen: TEST ? false : wantFullscreen(steam.isDeck()), fullscreenable: true,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: false, devTools: !app.isPackaged, backgroundThrottling: false, autoplayPolicy: "no-user-gesture-required" },
   });
   // Legal Oct 28: unlock-all only in friends/test builds. BUILD_TIER is the single setting (package.json "lcoTier", set at packaging).
   win.loadURL('app://game/index.html?tier=public&jungle=1&doconly=0&lcotier=' + BUILD_TIER + (BUILD_TIER !== 'public' ? '&all=1' : '') + (TEST ? '&nobrief=1&notut=1' : ''));
+  if (LCO_TEST_WIN) { const T = '[LCO TEST] ' + APP_NAME + ' (test instance - safe to close)'; win.setTitle(T); win.on('page-title-updated', (e) => { e.preventDefault(); win.setTitle(T); }); win.webContents.on('did-finish-load', () => { try { win.webContents.executeJavaScript('document.title=' + JSON.stringify(T)); } catch (e) {} }); }   /* rc8.3 rule: test launches on Blake's PCs are labelled */
   win.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:/.test(url)) require('electron').shell.openExternal(url); return { action: 'deny' }; });
   win.webContents.on('will-navigate', (e) => e.preventDefault());
   win.webContents.on('before-input-event', (e, i) => {
-    if (i.type === 'keyDown' && (i.key === 'F11' || (i.key === 'Enter' && i.alt) || (i.key.toLowerCase() === 'f' && i.control && i.meta))) { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }
+    if (i.type === 'keyDown' && (i.key === 'F11' || (i.key === 'Enter' && i.alt) || (i.key.toLowerCase() === 'f' && i.control && i.meta))) { win.setFullScreen(!win.isFullScreen()); saveWinPref(win.isFullScreen()); e.preventDefault(); }
   });
-  win.on('close', () => { try { win.webContents.send('save:flush'); } catch (e) {} });
+  // rc8.2 #37: on close, ask the page to snapshot a live run (suspend) + flush the save, then close for real (1.5 s safety timeout)
+  let closing = false;
+  win.on('close', (e) => { if (closing || TEST && process.env.LCO_NO_SUSPEND === '1') { try { win.webContents.send('save:flush'); } catch (x) {} return; }
+    e.preventDefault(); closing = true; const done = () => { try { win.close(); } catch (x) {} };
+    ipcMain.once('run:suspended', done); setTimeout(done, 1500); try { win.webContents.send('run:suspend'); } catch (x) { done(); } });
 }
 ipcMain.on('cfg:cloud', (e) => { const c = MAP.cloud; e.returnValue = { syncKeyPattern: c.syncKeyPattern, legacyRestorePattern: c.legacyRestorePattern, excludeKeys: c.excludeKeys, includeKeys: c.includeKeys || [], derived: c.derivedKeys || {} }; });
 ipcMain.on('save:load', (e) => { e.returnValue = readSave(); });
 ipcMain.on('save:write', (e, keys) => { if (keys && typeof keys === 'object') writeSave(keys); });
 ipcMain.on('steam:unlock', (e, id) => { if (typeof id === 'string' && /^[a-z0-9_]{1,40}$/i.test(id)) unlockGame(id); });
 ipcMain.on('steam:status', (e) => { e.returnValue = { available: steam.available(), status: steam.getStatus(), deck: steam.isDeck(), migration: MIG }; });
-ipcMain.on('fs:set', (e, b) => { if (win) win.setFullScreen(!!b); });
+ipcMain.on('fs:set', (e, b) => { if (win) { win.setFullScreen(!!b); saveWinPref(!!b); } });
+ipcMain.on('build:info', (e) => { e.returnValue = BUILD_INFO; });
 ipcMain.on('tier:get', (e) => { e.returnValue = BUILD_TIER; });
 ipcMain.on('app:quit', () => app.quit());
 
 app.whenReady().then(async () => {
   serveGame();
   console.log('[lco] file-origin migration', await migrateFileOrigin());
-  console.log('[lco] userData', redactPath(NEW_DIR), 'migration', MIG, 'steam', steam.init(STEAM_APP_ID));
+  console.log('[lco] userData', redactPath(NEW_DIR), 'migration', MIG, 'steam', STEAM_APP_ID ? steam.init(STEAM_APP_ID) : 'skipped: no App ID (steam/lco_app_id.json placeholder)');
   createWindow();
   if (TEST) { try { require('./smoke')(win, saveFile, unlocked); } catch (e) { console.error('[smoke] not packaged in this tier:', e.message); } }   // public packages exclude smoke.js
 });

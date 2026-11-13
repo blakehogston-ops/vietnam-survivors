@@ -9,26 +9,30 @@
   "scripts": {
     "start": "electron .",
     "start:nosandbox": "electron . --no-sandbox",
-    "test:smoke": "VS_TEST=1 xvfb-run -a electron . --no-sandbox --disable-gpu",
-    "dist:win": "electron-builder --win zip --x64",
-    "dist:linux": "electron-builder --linux dir --x64",
-    "dist:mac": "electron-builder --mac",
-    "dist:win:installer": "electron-builder --win nsis --x64",
-    "dist:friends:mac": "electron-builder -c builder.friends.js --mac",
-    "dist:friends:win": "electron-builder -c builder.friends.js --win zip --x64",
-    "dist:friends:linux": "electron-builder -c builder.friends.js --linux dir --x64"
+    "test:smoke": "LCO_TEST=1 LCO_USERDATA=$(mktemp -d /tmp/lco-smoke-ud.XXXXXX) xvfb-run -a electron . --no-sandbox --disable-gpu",
+    "dist:win": "node prep.js && electron-builder --win zip --x64 && npm run icon:win",
+    "dist:linux": "node prep.js && electron-builder --linux dir --x64",
+    "dist:mac": "node prep.js && electron-builder --mac",
+    "dist:win:installer": "node prep.js && electron-builder --win nsis --x64",
+    "dist:friends:mac": "node prep.js && electron-builder -c builder.friends.js --mac",
+    "dist:friends:win": "node prep.js && electron-builder -c builder.friends.js --win zip --x64",
+    "dist:friends:linux": "node prep.js && electron-builder -c builder.friends.js --linux dir --x64",
+    "prep": "node prep.js",
+    "test:ach": "node test/ach_map_test.js",
+    "icon:win": "wine \"$(ls ~/.cache/electron-builder/winCodeSign/*/rcedit-x64.exe | head -1)\" \"dist/win-unpacked/Last Chopper Out.exe\" --set-icon build/icon.ico --set-version-string ProductName \"Last Chopper Out\" --set-version-string FileDescription \"Last Chopper Out\" --set-file-version \"$npm_package_version\" --set-product-version \"$npm_package_version\"",
+    "audit:pkg": "node test/package_audit.js"
   },
   "dependencies": {
     "steamworks.js": "^0.4.0"
   },
   "devDependencies": {
-    "electron": "^31.0.0",
+    "electron": "^45.1.0",
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.example.lastchopperout",
+    "appId": "com.REPLACE_STUDIO.lastchopperout",
     "productName": "Last Chopper Out",
-    "copyright": "TODO",
+    "copyright": "Copyright \u00a9 2026 REPLACE_STUDIO_NAME",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -39,20 +43,32 @@
       "preload.js",
       "steam.js",
       "steam/lco_steam_config.json",
+      "steam/lco_app_id.json",
       "game/**",
       "build/icon.png",
       "package.json",
       "!**/smoke*.js",
-      "!game/audio/vo_ai/**/vo_ho_k0[12].*"
+      "!game/audio/vo_ai/**/vo_ho_k0[12].*",
+      "!game/audio/vo_genv2/**/HO-K0[12].strong_*",
+      "!**/*_preview.*",
+      "!**/menu_asian*",
+      "!**/candidates/**",
+      "!**/_rejected_audit/**",
+      "!**/*DO*NOT*SHIP*",
+      "!**/RC_SOURCE.txt",
+      "!superseded/**",
+      "!test/**",
+      "!prep.js",
+      "!builder.friends.js",
+      "!STEAM_CHECKLIST.md",
+      "!**/tools/**",
+      "!**/qa/**",
+      "!**/proof/**",
+      "!**/steam_appid.txt",
+      "!**/steam_appid.txt.*"
     ],
     "asarUnpack": [
       "node_modules/steamworks.js/**"
-    ],
-    "extraFiles": [
-      {
-        "from": "steam_appid.txt",
-        "to": "."
-      }
     ],
     "win": {
       "target": [
@@ -82,11 +98,28 @@
         "dir"
       ],
       "category": "Game",
-      "icon": "build/icon.png"
+      "icon": "build/icons"
     },
     "extraMetadata": {
       "lcoTier": "public"
+    },
+    "mac": {
+      "icon": "build/icon.icns",
+      "category": "public.app-category.games",
+      "target": [
+        {
+          "target": "zip",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "hardenedRuntime": true,
+      "identity": null
     }
   },
-  "type": "commonjs"
+  "type": "commonjs",
+  "lcoStamp": "dev",
+  "_signing_note": "Windows exe is unsigned by design: Blake signs it himself (/workspace/staging/rc8.2-signing-for-blake.md)."
 }

@@ -43,17 +43,17 @@
     jet_flyby:          { cat: 'air',       prio: 4, gain: 0.5605 },                                  // STAND-IN F-4/F-5 low pass; before the bomb
     skyraider_flyby:    { cat: 'air',       prio: 4, gain: 0.516 },                                  // A-1H (P-47D mixed in)
     ranch_hand_flyover: { cat: 'air',       prio: 4, gain: 0.617 },                                  // STAND-IN C-130 for the C-123
-    tandem_rotor_flyby: { cat: 'rotor',     prio: 5, gain: 0.7089, out: 'rotor' },                    // STAND-IN Chinook for a CH-46 (on for the map build)
+    tandem_rotor_flyby: { cat: 'rotor',     prio: 5, gain: 0.4603, out: 'rotor' },                    // STAND-IN Chinook for a CH-46 (on for the map build)
     // turret build clunks (sample-only Cues.turretCorner / turretMid, tier-2 trim 0.7 applied by the Cues wrapper)
     turret_corner_build: { cat: 'build',    prio: 2, gain: 0.208 },                                  // sandbag thud + deep ammo-box clunk
     turret_mid_build:   { cat: 'build',     prio: 2, gain: 0.163 },                                  // sandbag thud + light metal clink
-    m16_single:         { cat: 'gun',       prio: 1, gain: 2.85, vary: true, maxDur: 0.45 },
-    m16_burst:          { cat: 'gun',       prio: 1, gain: 0.3967, vary: true, maxDur: 0.45, burstOf: 'm16_single', rate: 12.5, rounds: [3, 5], maxRounds: 5 },  // 20-rd mags, 3-5 rd bursts (FFSL AR-15 rounds)
+    m16_single:         { cat: 'gun',       prio: 1, gain: 0.7548, vary: true, maxDur: 0.45 },
+    m16_burst:          { cat: 'gun',       prio: 1, gain: 0.4607, vary: true, maxDur: 0.45, burstOf: 'm16_single', rate: 12.5, rounds: [3, 5], maxRounds: 5 },  // 20-rd mags, 3-5 rd bursts (FFSL AR-15 rounds)
     m60_burst:          { cat: 'gun',       prio: 2, gain: 0.209, vary: true },
     // enemy rifles (Blake approved 2026-10-07): ~2.5 dB under Doc's M16, share the 6-gunshot cap, no synth fallback
     ak47:               { cat: 'gun',       prio: 1, gain: 0.2658, vary: true, maxDur: 0.7 },
     ak47_burst:         { cat: 'gun',       prio: 1, gain: 0.2026, vary: true, maxDur: 0.45, burstOf: 'ak47', rate: 11, rounds: [3, 5], maxRounds: 30 },  // 30-rd mag
-    sks:                { cat: 'gun',       prio: 1, gain: 0.2405, vary: true, maxDur: 0.7 },   // semi-auto, 10-rd
+    sks:                { cat: 'gun',       prio: 1, gain: 0.2066, vary: true, maxDur: 0.7 },   // semi-auto, 10-rd
     rpd_burst:          { cat: 'gun',       prio: 1, gain: 0.1521, vary: true, maxDur: 1.8 },   // enemy LMG STAND-IN: FFSL AK-47 edited, 6/8-rd belt bursts, ~730 rpm, lower, farther
     // M79 (Blake's pick 2026-10-07): launch = LeMudCrab M203/M320 STAND-IN, counts toward the 6-gunshot cap, between the
     // M60 and the mortar launch; impact = Kostrava blast, ~5 dB under the mortar impact. No synth fallback (weapon).
@@ -66,7 +66,7 @@
                                // big night assault only; on via manifest cues.bigNightAssault.enabled
     // river map (batch 3, on for the map build). The .50 shares the 6-gunshot cap; the loops use prio 5 so gunfire
     // never steals the engine or the river bed (a stolen loop would not come back).
-    pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.15, vary: true },                 // PBR twin .50 cal: ElevenLabs AI SFX (el29, Blake-approved Oct 29 2026)
+    pbr_50cal_burst:    { cat: 'gun',       prio: 2, gain: 0.1734, vary: true },                 // PBR twin .50 cal: ElevenLabs AI SFX (el29, Blake-approved Oct 29 2026)
     m2_50cal_burst:     { cat: 'gun',       prio: 2, gain: 0.35, vary: true, maxDur: 2.40 },                 // M2 .50 cal (corner turret, SOG M2): ElevenLabs AI SFX (el29, Blake-approved Oct 29 2026); gain as pbr_50cal_burst
     pbr_engine_loop:    { cat: 'engine',    prio: 5, gain: 0.1159, loop: true },   // rc8a -2 dB (was 0.146)
                     // under the Huey loop
@@ -155,7 +155,7 @@
     // 2026-10-14 night: missing / placeholder sounds (samples/build_missing_oct14.py; all new sources PENDING LEGAL)
     m3a1_burst:         { cat: 'gun',       prio: 1, gain: 0.7734, vary: true, maxDur: 1.2 },   // CLOSE STAND-IN M3A1 Grease Gun: real Sten rounds pitched -2 st, ~450 rpm
     m14_shot:           { cat: 'gun',       prio: 1, gain: 0.1818, vary: true, maxDur: 0.6 },   // M14 (marksmen): gezortenplotz .308 (7.62x51), 3 varied edits
-    m1911_shot:         { cat: 'gun',       prio: 1, gain: 0.89, vary: true, maxDur: 0.35 },   // M1911 .45 (corpsman): C-V + Carmelomike
+    m1911_shot:         { cat: 'gun',       prio: 1, gain: 0.6822, vary: true, maxDur: 0.35 },   // M1911 .45 (corpsman): C-V + Carmelomike
     m2_carbine:         { cat: 'gun',       prio: 1, gain: 0.335, vary: true, maxDur: 0.5 },   // M2 carbine single (real M1 carbine, cognito perceptu)
     m2_carbine_burst:   { cat: 'gun',       prio: 1, gain: 0.2385, vary: true, maxDur: 0.8 },   // M2 carbine auto, real rounds on a 80 ms beat
     ui_pickup:          { cat: 'ui',        prio: 0, gain: 0.354, vary: true },   // gem / pick: dog-tag clinks

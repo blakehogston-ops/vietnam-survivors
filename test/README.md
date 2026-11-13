@@ -23,7 +23,7 @@ Preview: https://blakehogston-ops.github.io/vietnam-survivors/next/ (the site ro
 - Distant UH-1 "Huey" helicopter ambience every 20-40 s (quiet, panning).
 - Punji pit traps: camouflaged, revealed as you approach. They damage and slow you; enemies fall in too.
 - VC shout phrases in pixel-font speech bubbles.
-- Support weapons (8 levels each): M29 81mm mortar team (arcing rounds, ring warning), M101 105mm howitzer (smoke marker then delayed salvo), PBR Mk II river gunboat (twin .50 cal M2s + M60s, patrols the nearest river then moves on).
+- Support weapons (8 levels each): M29 81mm mortar team (arcing rounds, ring warning), M101 105mm howitzer (smoke marker then delayed salvo), Navy River Patrol Boat (PBR) (twin .50 cal M2s + M60s, patrols the nearest river then moves on).
 - UH-1 Huey door gunners: unlocks at M60 level 6 or player level 12; circles overhead with rotor sound.
 - VC fire cosmetic tracers and muzzle flashes at the player (no damage).
 - Spider-hole tunnel hatches pop open with dust and VC emerge from them.
@@ -49,7 +49,7 @@ Preview: https://blakehogston-ops.github.io/vietnam-survivors/next/ (the site ro
   - **Evac:** stand within 60 px of the Huey (ring on the ground, door open, crew chief waving) for 2 s to board and win; arrow + timer on screen, rotor sound rises as it nears, chime when you are in range. You lose if you die or the Huey lifts off empty. Kills during the hold add to the mission score. The Huey runs on game-time clocks that ignore your HP, position and camera and freeze only for pause / level-up (tab-away auto-pauses). The LZ spot is moved off rivers, firebase walls, tunnel hatches and punji pits.
   - Radio lines use period call-signs ("Broken Arrow", "Hot LZ", "Smoke's out", "Say again", "Contact, wait out", pilots' "Winchester" / "Bingo fuel", "Get on the bird!").
   - `node tools/botrun.js --mission --runs 12` plays whole missions and prints the % of runs that reach the LZ and that evacuate.
-- Historical fixes: M50A1 Ontos, UH-1E/CH-46 Marine insertion, A-4E/F-4B/A-6A strafing runs.
+- Historical fixes: M50A1 Ontos, UH-1E/CH-46 Marine insertion, A-4E/F-4B strafing runs (F-4B with the Navy Mk 4 gun pod).
 
 ## Debug & QA switches
 All are off by default. Use them as URL flags, or from the browser console (`DBG` is a global: `DBG.bot=true`, `DBG.god=true`, `DBG.fps=true`).
