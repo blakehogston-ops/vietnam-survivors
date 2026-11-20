@@ -186,13 +186,19 @@
     e.gdy = o.groundDy != null ? o.groundDy : 13; e.brass = o.brass !== false; live++; return e;
   }
   function update(dt) { for (var i = 0; i < MAX; i++) { var p = POOL[i]; if (!p.on) continue; p.t += dt; if (p.t > p.life) { p.on = false; live--; } } }
+  /* rc9.0-a I-1 render #2: view cull. A shot whose whole footprint (flash, ground glow, smoke/haze drift, brass arc, dust; < 120 art px from the muzzle,
+     160 used) lies outside the canvas writes no pixels, so it is skipped before its ~8 state sets + draws. Each shot has its own seeded rng = the others
+     draw identically. ?mzcull=0 = old path (draw every live shot). */
+  var MZCULL = (function () { try { return !/[?&]mzcull=0\b/.test(String(root.location && root.location.search || '')); } catch (e) { return true; } })();
+  function viewOf(ctx, m0) { if (!API.CULL || !ctx || !ctx.getTransform || !ctx.canvas) return null; var m = ctx.getTransform(); if (m.b !== 0 || m.c !== 0 || !(m.a > 0) || !(m.d > 0)) return null;
+    var W = ctx.canvas.width, H = ctx.canvas.height; return [-m.e / m.a - m0, -m.f / m.d - m0, (W - m.e) / m.a + m0, (H - m.f) / m.d + m0]; }
   function drawAll(ctx, camX, camY, scale, layer) {
-    var sc = Math.max(1, Math.round(scale || 1));
-    for (var i = 0; i < MAX; i++) { var p = POOL[i]; if (!p.on) continue; var O = p.opts; O.variant = p.v; O.seed = p.seed; O.groundDy = p.gdy; O.brass = p.brass; O.layer = layer || 'all';
+    var sc = Math.max(1, Math.round(scale || 1)), V = viewOf(ctx, 160 * sc);
+    for (var i = 0; i < MAX; i++) { var p = POOL[i]; if (!p.on) continue; if (V) { var qx = (p.x - (camX || 0)) * sc, qy = (p.y - (camY || 0)) * sc; if (qx < V[0] || qy < V[1] || qx > V[2] || qy > V[3]) continue; } var O = p.opts; O.variant = p.v; O.seed = p.seed; O.groundDy = p.gdy; O.brass = p.brass; O.layer = layer || 'all';
       draw(ctx, p.type, (p.x - (camX || 0)) * sc, (p.y - (camY || 0)) * sc, p.a, p.t, sc, O); }
   }
   function reset() { for (var i = 0; i < MAX; i++) POOL[i].on = false; live = 0; }
-  var API = { TYPES: TYPES, WEAPON: WEAPON, typeOf: typeOf, draw: draw, spawn: spawn, update: update, drawAll: drawAll, reset: reset, light: light,
+  var API = { CULL: MZCULL, TYPES: TYPES, WEAPON: WEAPON, typeOf: typeOf, draw: draw, spawn: spawn, update: update, drawAll: drawAll, reset: reset, light: light,
     count: function () { return live; }, frameAt: function (w, t) { return frameAt(TYPES[typeOf(w)], t); }, grid: grid, rotGrid: rotGrid, DIRS: DIRS, POOL_SIZE: MAX,
     cacheSize: function () { return nCache; } };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.VFX_MUZZLE = API;

@@ -410,7 +410,7 @@
   Field.prototype._bakeLayers = function* () { var S = this._strips, n = (this.o.swayFrames === 1 ? 1 : 2), L = [], i, st;
     for (st = 0; st < n; st++) { var row = { under: [], over: [] }; L.push(row); for (i = 0; i < S.length; i++) { row.under.push(this._bakeStrip(S[i], 'under', st)); yield 0; row.over.push(this._bakeStrip(S[i], 'over', st)); yield 0; } }
     var bytes = 0; L.forEach(function (rw) { ['under', 'over'].forEach(function (pt) { rw[pt].forEach(function (b) { if (b) bytes += b.c.width * b.c.height * 4; }); }); }); this.layerBytes = bytes;
-    if (J.chunkFlat) for (st = 0; st < n; st++) { yield 0; L[st].underC = flat(L[st].under); toBmp(L[st].underC, 'c'); yield 0; L[st].overC = flat(L[st].over); toBmp(L[st].overC, 'c'); }
+    if (J.chunkFlat) for (st = 0; st < n; st++) { yield 0; L[st].underC = flat(L[st].under); toBmp(L[st].underC, 'c', 1); yield 0; L[st].overC = flat(L[st].over); toBmp(L[st].overC, 'c', 1); }
     this._layers = L; this._layersQueued = false; this._lastDraw = now(); BAKED.push(this); };
   Field.prototype._rebuildStrips = function* () { var S = this._strips, L = this._layers, i, st; if (!S || !L) { this._stripJob = null; return; }
     var rows = []; for (st = 0; st < L.length; st++) { var row = { under: [], over: [] }; rows.push(row); for (i = 0; i < S.length; i++) { row.under.push(this._bakeStrip(S[i], 'under', st)); row.over.push(this._bakeStrip(S[i], 'over', st)); if ((i & 3) === 3) yield 0; } }
@@ -420,13 +420,17 @@
     if (x1 < x0) return null; var c = mkc(x1 - x0, y1 - y0), g = c.getContext('2d'); g.imageSmoothingEnabled = false; for (i = 0; i < arr.length; i++) { b = arr[i]; if (b) g.drawImage(b.c, b.x - x0, b.y - y0); } return { c: c, x: x0, y: y0 }; }
   // perf LOD (J.lod=1 at MED/LOW/Deck or after a watchdog downshift, set by the game from LQ.t): bent plants draw their baked pose (flat chunk canvas), i.e. no per-plant bend redraw near units. HIGH = full.
   J.lod = 0;
+  J.srbSkip = !(typeof location !== 'undefined' && /[?&]jsrb=0\b/.test(location.search));   // rc9.0-a I-1 render #4 kill switch (?jsrb=0)
   J.stat = { flat: 0, strip: 0, plant: 0, nolayer: 0 };
   // jr perf: baked canvases are swapped for ImageBitmaps (immutable, pre-decoded: much cheaper to blit than a canvas source); same pixels
+  // rc9.0-a I-1 render: J.chunkFlat must be set BEFORE J.useBitmap reads it; it was assigned 4 lines later, so useBitmap was always undefined and
+  // the per-chunk flattened jungle layers were blitted from canvases every frame (jg_over = the biggest render section). Same pixels; ?jbmp=0 = old canvas blits.
+  J.chunkFlat = !(typeof location !== 'undefined' && /[?&]jperf=0\b/.test(location.search));
   J.useBitmap = J.chunkFlat && typeof createImageBitmap !== 'undefined' && !(typeof location !== 'undefined' && /[?&]jbmp=0\b/.test(location.search));
-  function toBmp(o, k) { if (!J.useBitmap || !o || !o[k] || typeof o[k].getContext !== 'function') return; var c = o[k]; createImageBitmap(c).then(function (b) { if (o[k] === c && c.width && !o._freed) o[k] = b; else { try { b.close(); } catch (e) {} } }, function () {}); }   /* rc8.3 crash #6 + rc8.5 mem: a bitmap that lost the race (chunk evicted/disposed, slot replaced, canvas zeroed) is closed, not leaked */
+  function toBmp(o, k, own) { if (!J.useBitmap || !o || !o[k] || typeof o[k].getContext !== 'function') return; var c = o[k]; createImageBitmap(c).then(function (b) { if (o[k] === c && c.width && !o._freed) { o[k] = b; if (own) { try { c.width = 0; c.height = 0; } catch (e) {} } } else { try { b.close(); } catch (e) {} } }, function () {}); }   /* rc8.3 crash #6 + rc8.5 mem: a bitmap that lost the race (chunk evicted/disposed, slot replaced, canvas zeroed) is closed, not leaked */
  J.freeBmps = function (L, d) { d = d || 0; if (!L || d > 4 || typeof L !== 'object') return; if (typeof ImageBitmap !== 'undefined' && L instanceof ImageBitmap) { try { L.close(); } catch (e) {} return; } if (typeof L.getContext === 'function') return; try { L._freed = 1; } catch (e) {} for (var q in L) { if (Object.prototype.hasOwnProperty.call(L, q)) { var v = L[q]; if (v && typeof v === 'object') J.freeBmps(v, d + 1); } } };   /* rc8.3 crash #6: close the ImageBitmaps held by an evicted chunk (canvases are left to GC; they may be shared) */
   // jr perf: all strips of a part flattened into ONE canvas per chunk (exact same pixels & order, strips never overlap units within a part)
-  J.chunkFlat = !(typeof location !== 'undefined' && /[?&]jperf=0\b/.test(location.search));
+  // (J.chunkFlat is now set above, next to J.useBitmap)
 
   // per-frame: dt seconds, player {x,y} world px, units [{x,y}] (incl. enemies) -> grass/bamboo bend, ripples, canopy hole
   // lite: units are pre-filtered to this field's box, and only strips that have a unit in reach or still-springing plants are touched
@@ -436,7 +440,7 @@
     var all = units || []; for (j = 0; j < all.length; j++) { u = all[j]; if (u.x > X0 && u.x < X1 && u.y > Y0 && u.y < Y1) us.push(u); }
     if (J.stripCold) { var H = J.hotPx, hot = false, hx0 = X0 - H, hx1 = X1 + H, hy0 = Y0 - H, hy1 = Y1 + H; for (j = 0; j < all.length && !hot; j++) { u = all[j]; if (u.x > hx0 && u.x < hx1 && u.y > hy0 && u.y < hy1) hot = true; }
       if (!hot && player && player.x > hx0 && player.x < hx1 && player.y > hy0 && player.y < hy1) hot = true;
-      if (hot) { this._hotAt = now(); if (this._stripsFreed && !this._stripJob && this._layers) this._stripJob = enqueue(this, this._rebuildStrips(), -1e12); } }
+      if (hot) { this._hotAt = now(); if (this._stripsFreed && !this._stripJob && this._layers && !(J.lod && J.srbSkip)) this._stripJob = enqueue(this, this._rebuildStrips(), -1e12); } }   /* rc9.0-a I-1 render #4: at J.lod=1 (MED/LOW) the per-strip canvases are never drawn (_draw always blits the flat chunk layer), so freed strips are not rebuilt while lod is on (they rebuild as before the moment lod returns to 0); same pixels; ?jsrb=0 = old rebuild */
     if (player && player.x > X0 && player.x < X1 && player.y > Y0 && player.y < Y1 && us.indexOf(player) < 0) us.push(player);
     var k = Math.min(1, (dt || 0.016) * 10), S = this._strips;
     if (S) for (var si = 0; si < S.length; si++) { var s = S[si], near = false;

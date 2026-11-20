@@ -1,0 +1,4 @@
+{
+ "_doc": "rc9.0-a RMISS VO manifest. Drop AD's mission VO pack MANIFEST.json here AS-IS (ad_scratch/rc90_mission_vo/deliver/MANIFEST.json, 27 rows) together with its files at audio/vo_ai/{ogg,m4a}/rm_*.{ogg,m4a}; the array form replaces this object. Ships EMPTY in 9.0-a (assets not in tree) = every RMISS line silent, captions only. Radio rows have FX baked: the hook plays every rm_* clip with SamplePlayer.play(), never radioLine(). Reuse: rm_o2_ack_1 -> rm_o1_ack_1 clip (alias, its copy is not fetched); FB_BUILT_1 -> rm_m1_prog_1; rm_o1_follow_1 -> vo_ai LT-G04 when vo_ai is loaded, else the pack's rm_o1_follow_1 copy.",
+ "lines": []
+}
