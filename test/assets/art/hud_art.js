@@ -19,7 +19,7 @@
      HUD_ART.drawHud(ctx,w,h,s,t,U?,safe?)                convenience: draws everything from a state object (see hud_mock.html) → layout
      HUD_ART.clearCache()
    Never throws: public calls are wrapped. */
-(function(){
+(function(){ var LCOR=(typeof window!=='undefined'&&window.__lcoR)||window;   /* rc9.1: game namespace (window on QA, private on public) */
 'use strict';
 var FONT='Impact,Haettenschweiler,"Oswald","Arial Narrow Bold","Arial Black",sans-serif';
 var MONO='"Courier New",Courier,monospace';
@@ -217,6 +217,6 @@ function safe(fn,name){ return function(){ try{ return fn.apply(null,arguments) 
 var HUD_ART={ layout:safe(layout,'layout'), drawXpBar:safe(drawXpBar,'xp'), drawHealth:safe(drawHealth,'hp'), drawAmmo:safe(drawAmmo,'ammo'), drawKills:safe(drawKills,'kills'),
   drawTimer:safe(drawTimer,'timer'), drawObjective:safe(drawObjective,'obj'), drawDamageDir:safe(drawDamageDir,'dmg'), drawToasts:safe(drawToasts,'toasts'), drawHud:safe(drawHud,'hud'),
   fmt:fmt, clearCache:function(){ C={} }, _setMaker:function(f){ MK=f } };
-if(typeof window!=='undefined')window.HUD_ART=HUD_ART;
+if(typeof window!=='undefined')LCOR.HUD_ART=HUD_ART;
 if(typeof module!=='undefined')module.exports=HUD_ART;
 })();

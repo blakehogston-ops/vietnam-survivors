@@ -137,4 +137,4 @@
     return { fwd: pts(s, 'fwd', i, o.x, o.y, sc)[0], aft: pts(s, 'aft', i, o.x, o.y, sc)[0] };
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = S;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

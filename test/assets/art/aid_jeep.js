@@ -34,4 +34,4 @@
   A.drawDust = function (ctx, x, y, t, scale) { var f = Math.floor((t || 0) / 120); if (f > 3) return false; S.draw(ctx, 'aidDust', f, x, y, scale || 1); return true; };
   root.AID_JEEP = A;
   if (typeof module !== 'undefined' && module.exports) module.exports = A;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

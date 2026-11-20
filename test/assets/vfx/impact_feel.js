@@ -458,7 +458,7 @@
     // jr rev 3 (Art Director final): sheet 2x longer (240 px) and 1.5x wider along the flight line, hot #ffe9a0 spine, strong #8a2a08 edges,
     // one brief mild additive ground bloom (~0.1 s), ~120 puffs per canister (pool 260). Drawn above bamboo/canopy by the game (debris layer).
     // perf (rc8, optional): MED/LOW/Deck tier (window.LCO_QUALITY.t) keeps every 2nd puff (~60 per canister) at 1.2x radius so the sheet still reads filled; HIGH = all ~121
-    var QT = (typeof window !== 'undefined' && window.LCO_QUALITY && window.LCO_QUALITY.t) || 'high', PK = 0, PCUT = QT !== 'high' && !(typeof location !== 'undefined' && /[?&]napcap=0\b/.test(location.search));
+    var QT = (root.LCO_QUALITY && root.LCO_QUALITY.t) || 'high', PK = 0, PCUT = QT !== 'high' && !(typeof location !== 'undefined' && /[?&]napcap=0\b/.test(location.search));
     var P = function (u, l, z, fwd, lat, vz, dl, life, r0, grow, shd, al) { if (PCUT) { if ((PK++ & 1) && PK > 1) return; r0 *= 1.2; } var pe = puff(x + ca * u - sa * l, y + sa * u + ca * l, z, ca * fwd - sa * lat, sa * fwd + ca * lat, vz, dl, life, r0, grow, shd, al); pe.nap = 1; pe.ph = rnd() * 6; pe.fl = rnd() < 0.5 ? 1 : 0; };
     var i, f, u, l, w, D = 0.36;   // D: time for the front to roll the length of the sheet
     P(L * 0.35, 0, 0, 0, 0, 0, 0, 0.12, 34, 10, 13, 0.22);   // brief ground bloom, isolated and mild
@@ -653,4 +653,4 @@
     update: update, drawAll: drawAll, prewarmStep: prewarmStep, PE84: PE84, reset: reset, counts: counts, seed: function (n) { seedV = n >>> 0; }, POOLS: { shakes: SHM, kicks: KM, decals: DM, debris: BM, puffs: UM, grit: GM, fires: FM, queued: QM, canisters: CM, sheets: SM }, warmNapalm: function () { for (var f = 0; f < NT_FR; f++) for (var h = 0; h < 3; h++) napTongue(f, h); for (var v = 0; v < 4; v++) { napBed(v); for (var b = 0; b < PB.length; b++) napSmoke(b, v); } return IMGN; }, flameSheet: flameSheet, eruption: eruption, fireline: fireline, arclightBox: arclightBox, napalmDrop: napalmDrop,
     imageCount: function () { return IMGN; } };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.VFX_IMPACT = API;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

@@ -53,4 +53,4 @@
   };
   root.FB_GROUND = G; S.FB_GROUND = G; G.load();
   if (typeof module !== 'undefined' && module.exports) module.exports = { SPR: SPR, FB_GROUND: G };
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

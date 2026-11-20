@@ -9,4 +9,4 @@ SHEET1.drawPBRSplash(ctx, {x, y, heading, t, scale, beach}) — draw at the 'bow
     S.draw(ctx, 'pbrSplash', f, o.x, o.y, o.scale || 1, Math.cos(o.heading || 0) < 0);
   };
   if (typeof module !== 'undefined') module.exports = S;
-})(typeof window !== 'undefined' ? window : globalThis);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window !== 'undefined' ? window : globalThis));

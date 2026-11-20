@@ -21,7 +21,7 @@
        → per-row draw rects sized for ≥44 px hits (does not draw)
      SETTINGS_ART.MIN_HIT (=44), clearCache(), prewarm()
    Never throws: public calls are wrapped with flat fallbacks. */
-(function(){
+(function(){ var LCOR=(typeof window!=='undefined'&&window.__lcoR)||window;   /* rc9.1: game namespace (window on QA, private on public) */
 'use strict';
 var FONT='Impact,Haettenschweiler,"Oswald","Arial Narrow Bold","Arial Black",sans-serif';
 var MONO='"Courier New",Courier,monospace';
@@ -260,8 +260,8 @@ function drawButtonLocal(ctx,x,y,w,h,label,state){
 function drawButton(ctx,x,y,w,h,label,state){
   w=Math.max(MIN_HIT*2, Math.round(w||200)); h=Math.max(MIN_HIT, Math.round(h||48));
   x=Math.round(x); y=Math.round(y); state=state||'normal';
-  if(typeof MENU_ART!=='undefined'&&MENU_ART&&typeof MENU_ART.drawButton==='function'){
-    try{ MENU_ART.drawButton(ctx,x,y,w,h,label,state==='focus'?'hover':state); if(state==='focus') focusRing(ctx,x,y,w,h); return {hit:expandHit(rect(x,y,w,h))} }catch(e){}
+  if(typeof LCOR.MENU_ART!=='undefined'&&LCOR.MENU_ART&&typeof LCOR.MENU_ART.drawButton==='function'){
+    try{ LCOR.MENU_ART.drawButton(ctx,x,y,w,h,label,state==='focus'?'hover':state); if(state==='focus') focusRing(ctx,x,y,w,h); return {hit:expandHit(rect(x,y,w,h))} }catch(e){}
   }
   return drawButtonLocal(ctx,x,y,w,h,label,state);
 }
@@ -327,6 +327,6 @@ var SETTINGS_ART={
   prewarm:safe(function(){ bakeToggle(72,48,true,'normal'); bakeToggle(72,48,false,'hover'); bakeKnob(32,'normal'); bakePanel(360,280,'SETTINGS'); bakeIcon(44,'mute','normal',false); bakeIcon(44,'pause','normal',false) }),
   clearCache:function(){ C={} }
 };
-if(typeof window!=='undefined')window.SETTINGS_ART=SETTINGS_ART;
+if(typeof window!=='undefined')LCOR.SETTINGS_ART=SETTINGS_ART;
 if(typeof module!=='undefined')module.exports=SETTINGS_ART;
 })();

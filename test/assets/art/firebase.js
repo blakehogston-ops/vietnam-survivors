@@ -122,4 +122,4 @@
     S.draw(ctx, (M.smoke[kind] || {})[colour] || kind, frame, x, y, scale || 1, flip); };
   root.MAP_FIREBASE = M;
   if (typeof module !== 'undefined' && module.exports) module.exports = M;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

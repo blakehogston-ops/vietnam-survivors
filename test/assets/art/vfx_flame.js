@@ -211,4 +211,4 @@
   root.VFX_FLAME = { drawFlame: drawFlame, spawnPatch: spawnPatch, updatePatches: updatePatches, drawPatches: drawPatches, drawBurnPatch: drawBurnPatch,
     emit: emit, drawScorch: drawScorch, clearPatches: function () { for (var i = 0; i < POOL; i++) P[i].on = false; }, stats: stats, LEVEL: LEVEL, KIND: KIND, pool: P,
     warm: function () { S(); } };
-})(typeof window !== 'undefined' ? window : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window !== 'undefined' ? window : this));

@@ -1065,4 +1065,4 @@
   SamplePlayer.TURRETS = TURRETS;
   if (typeof module !== 'undefined' && module.exports) module.exports = { SamplePlayer: SamplePlayer };
   else root.SamplePlayer = SamplePlayer;
-})(typeof window !== 'undefined' ? window : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window !== 'undefined' ? window : this));

@@ -271,4 +271,4 @@
     men.forEach(function (m) { if (m.y > o.y) man(m); });
     return { muzzle: mz, breech: br, crew: cp, smoke: pts(gs, 'smoke', i, o.x, o.y, sc)[0] };
   };
-})(typeof window !== 'undefined' ? window : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window !== 'undefined' ? window : this));

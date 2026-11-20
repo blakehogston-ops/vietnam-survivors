@@ -9,4 +9,4 @@
       f = ph < 0.8 ? 'rest' : 'g' + Math.min(3, Math.floor((ph - 0.8) / 0.05)), bob = Math.round(Math.sin((t || 0) * 2.6) * 0.6) * sc;
     S.draw(ctx, n, f, x, y - bob, sc); return {x: x, y: y - bob - (s.h / 2) * sc}; };
   S.dressingPickupsV1 = true; if (typeof module !== 'undefined' && module.exports) module.exports = S;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

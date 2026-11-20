@@ -287,4 +287,4 @@
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = { SAMPLE_MANIFEST: SAMPLE_MANIFEST };
   else root.SAMPLE_MANIFEST = SAMPLE_MANIFEST;
-})(typeof window !== 'undefined' ? window : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window !== 'undefined' ? window : this));

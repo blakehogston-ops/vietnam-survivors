@@ -1723,4 +1723,4 @@
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = SHEET1;
   else root.SHEET1 = SHEET1;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

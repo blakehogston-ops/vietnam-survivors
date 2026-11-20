@@ -93,4 +93,4 @@
   S.drawEvacBird = function (ctx, o) { if (!V41ON) return drawEB0(ctx, o); var r = S.drawSeaKnight(ctx, Object.assign({}, o, { state: 'flying' })); return { muzzles: r.muzzles, hubs: r.hubs }; };
   S.seaKnightV2 = true;
   if (typeof module !== 'undefined' && module.exports) module.exports = S;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

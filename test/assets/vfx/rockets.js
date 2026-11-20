@@ -156,4 +156,4 @@
   var API = { release: function (k) { delete acc[k]; }, TYPES: TYPES, ART: ART, drawProjectile: drawProjectile, emit: emit, impact: impact, spawnRocket: spawnRocket, update: update, drawAll: drawAll, reset: reset, counts: counts,
     cacheSize: function () { return nCache; }, POOLS: { rockets: RMAX, smoke: SMAX, booms: BMAX } };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.VFX_ROCKETS = API;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

@@ -20,4 +20,4 @@ heading as drawPBR, call it BEFORE drawPBR. Bow wave is drawn when speed >= 0.5.
     if (sp >= 0.5) S.draw(ctx, 'pbrBowWave', h + '_' + k, o.x, o.y, sc);
   };
   if (typeof module !== 'undefined') module.exports = S;
-})(typeof window !== 'undefined' ? window : globalThis);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window !== 'undefined' ? window : globalThis));

@@ -17,4 +17,4 @@
   };
   root.ABILITY_ICONS = M;
   if (typeof module !== 'undefined' && module.exports) module.exports = M;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

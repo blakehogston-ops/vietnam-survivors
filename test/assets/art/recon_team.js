@@ -1396,4 +1396,4 @@
   };
   S.reconTeam = true;
   if (typeof module !== 'undefined' && module.exports) module.exports = S;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));
