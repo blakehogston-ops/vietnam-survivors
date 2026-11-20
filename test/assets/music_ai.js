@@ -22,7 +22,9 @@
   M.list1 = function () { return ['ai_menu']; };
   M.list2 = function () { return ['scene_opening', 'ai_full', 'ai_combat', 'ai_final', 'win', 'ai_over', 'ai_river', 'ai_credits']; };   /* old score out of the load list (files stay in audio/music/) */
   M.fade = function (w) { return w === 'win' ? 0.1 : (w === 'loss' ? 0.3 : M.XF); };
-  function X() { return window.__ms || {}; }   /* the game's debug/handle object (index.html): Snd, MIX, G, enemies */
+  var H = null;   /* rc9.0 F1: the game's internal handle (index.html MSH), handed over once by attach(); window.__ms is QA-tier only now */
+  M.attach = function (h) { H = h; delete M.attach; };
+  function X() { return H || window.__ms || {}; }   /* the game's handle object (index.html): Snd, MIX, G, enemies */
   function now() { return performance.now() / 1000; }
   /* wave state, driven by the MUSI.set hook (pullback start = pre-wave break, assault / firebase wave = wave) */
   M.reset = function () { M.exT = 0; M.wave = false; M.waveAt = -1e9; M.lastLu = -1e9; M.st = null; M.ph5 = null; };

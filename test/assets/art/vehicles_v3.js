@@ -101,7 +101,7 @@
   // ------------------------------------------------------------------------------------------------------ Huey
   var oldHuey = S.drawHuey;
   S.drawHuey = function (ctx, o) {
-    var lv = level(o), v = o.variant === 'hueyGunner' ? 'hueyGunner' : 'huey';
+    var lv = level(o), v = o.variant === 'hueyGunner' ? 'hueyGunner' : (o.variant === 'hueyGunnerFB' && S.sprites.hueyGunnerFB && lv < 1) ? 'hueyGunnerFB' : 'huey';   // rc9.0-c: firebase Gunship variant (index.html FBO, no tail code); damaged -> huey path unchanged
     if (lv >= 4) { var sc = q(o.scale), i = hd(o.heading), s = S.sprites.hueyWreck; S.draw(ctx, 'hueyWreckBurnt', i, o.x, o.y, sc);
       var ff = Math.floor((o.t || 0) * 10), fp = [[o.x, o.y - 4 * sc], [o.x - 9 * sc, o.y]]; fp.forEach(function (p, k) { S.draw(ctx, 'vehFire', ff + k, p[0], p[1], sc); });
       return { muzzles: [], guns: [], rockets: [], fire: fp }; }
