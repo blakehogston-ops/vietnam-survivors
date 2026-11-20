@@ -202,4 +202,4 @@
     count: function () { return live; }, frameAt: function (w, t) { return frameAt(TYPES[typeOf(w)], t); }, grid: grid, rotGrid: rotGrid, DIRS: DIRS, POOL_SIZE: MAX,
     cacheSize: function () { return nCache; } };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.VFX_MUZZLE = API;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

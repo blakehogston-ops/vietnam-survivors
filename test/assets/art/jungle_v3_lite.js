@@ -518,4 +518,4 @@
   J.Field = Field; J._cache = C;
   root.JUNGLE3 = J;
   if (typeof module !== 'undefined' && module.exports) module.exports = J;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

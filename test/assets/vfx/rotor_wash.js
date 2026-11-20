@@ -155,4 +155,4 @@
   root.VFX_ROTORWASH = { drawUnder: drawUnder, drawOver: drawOver, draw: function (ctx, x, y, t, s, hd, g, o) { drawUnder(ctx, x, y, t, s, hd, g, o); drawOver(ctx, x, y, t, s, hd, g, o); },
     intensity: intensity, takeoffIntensity: takeoffIntensity, takeoffAlt: takeoffAlt, LIFTOFF: LIFTOFF, IDLE: IDLE, SPAN: SPAN, RR: RR, YS: YS, TIER: TIER, GT: GT, ground: null, version: '1.3.2' };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.VFX_ROTORWASH;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

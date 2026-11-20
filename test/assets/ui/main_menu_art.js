@@ -19,7 +19,7 @@
      MENU_ART.drawCaption(ctx,text,x,y,fs,'bl'|'tl') period caption strip (typewriter on manila)
      MENU_ART.clearCache()                         free all cached canvases (call on context loss)
    Never throws: every public call is wrapped; on any failure it draws a flat fallback. */
-(function(){
+(function(){ var LCOR=(typeof window!=='undefined'&&window.__lcoR)||window;   /* rc9.1: game namespace (window on QA, private on public) */
 'use strict';
 var FONT='Impact,Haettenschweiler,"Oswald","Arial Narrow Bold","Arial Black",sans-serif';
 var MONO='"Courier New",Courier,monospace';
@@ -105,7 +105,7 @@ function bakeFore(x,w,h){ var R=rng(5), base=h*.9;
   x.fillStyle='#14140e'; x.beginPath(); x.moveTo(0,h); x.lineTo(0,base-h*.02); for(var i=0;i<=w;i+=8)x.lineTo(i,base-h*.03-fbm(i/w*4,8)*h*.03); x.lineTo(w,h); x.fill();
   // sandbag wall left and right, 3 courses
   var bw=h*.055, bh=h*.026;
-  function wall(x0,x1,yb,rows){ for(var r=0;r<rows;r++){ var y=yb-r*bh*.82, off=(r%2)*bw*.5; for(var px=x0+off;px<x1;px+=bw*.96){ sandbag(x,px,y,bw,bh,clamp(1-px/w,0.15,1)) } } }
+  function wall(x0,x1,yb,rows){ for(var r=0;r<rows;r++){ var y=yb-r*bh*.82, off=(r%2)*bw*.5; for(var px=x0+off;px<x1;px+=Math.max(1,bw*.96)){ sandbag(x,px,y,bw,bh,clamp(1-px/w,0.15,1)) } } }
   wall(-bw,w*.36,base-h*.02,3); wall(w*.7,w+bw,base-h*.025,2);
   // bunker with corrugated roof and firing slit (right)
   var bx=w*.74, by=base-h*.13, bW=w*.17, bH=h*.075; x.fillStyle='#1c1a12'; x.fillRect(bx,by,bW,bH); x.fillStyle='#0a0a08'; x.fillRect(bx+bW*.2,by+bH*.35,bW*.5,bH*.18);
@@ -126,10 +126,10 @@ function bakeFore(x,w,h){ var R=rng(5), base=h*.9;
   x.strokeStyle='rgba(255,170,100,.35)'; x.lineWidth=2; x.beginPath(); x.moveTo(-24,-46); x.lineTo(-10,-48); x.stroke(); x.restore();
   // concertina wire along the berm: overlapping coils
   x.strokeStyle='rgba(40,40,36,.95)'; x.lineWidth=1;
-  for(var cx=-10;cx<w+10;cx+=h*.02){ var cy=base+h*.035+Math.sin(cx*.01)*h*.004, cr=h*.028; x.beginPath(); x.ellipse(cx,cy-cr,cr*.55,cr,.25,0,6.283); x.stroke() }
-  x.strokeStyle='rgba(255,190,130,.22)'; for(var cx2=-10;cx2<w*.5;cx2+=h*.02){ var cy2=base+h*.035+Math.sin(cx2*.01)*h*.004, cr2=h*.028; x.beginPath(); x.ellipse(cx2,cy2-cr2,cr2*.55,cr2,.25,Math.PI*1.1,Math.PI*1.5); x.stroke() }
+  for(var cx=-10;cx<w+10;cx+=Math.max(1,h*.02)){ var cy=base+h*.035+Math.sin(cx*.01)*h*.004, cr=h*.028; x.beginPath(); x.ellipse(cx,cy-cr,cr*.55,cr,.25,0,6.283); x.stroke() }
+  x.strokeStyle='rgba(255,190,130,.22)'; for(var cx2=-10;cx2<w*.5;cx2+=Math.max(1,h*.02)){ var cy2=base+h*.035+Math.sin(cx2*.01)*h*.004, cr2=h*.028; x.beginPath(); x.ellipse(cx2,cy2-cr2,cr2*.55,cr2,.25,Math.PI*1.1,Math.PI*1.5); x.stroke() }
   // engineer stakes
-  x.fillStyle='#0e0e0c'; for(var sx=h*.04;sx<w;sx+=h*.16)x.fillRect(sx,base+h*.0,2,h*.045);
+  x.fillStyle='#0e0e0c'; for(var sx=h*.04;sx<w;sx+=Math.max(1,h*.16))x.fillRect(sx,base+h*.0,2,h*.045);
   // ammo crates + 55-gal drum (right foreground)
   x.fillStyle='#1a1c12'; x.fillRect(w*.58,base-h*.03,w*.06,h*.035); x.fillRect(w*.6,base-h*.055,w*.05,h*.027); x.strokeStyle='rgba(255,170,100,.25)'; x.strokeRect(w*.58+.5,base-h*.03+.5,w*.06,h*.035); x.strokeRect(w*.6+.5,base-h*.055+.5,w*.05,h*.027);
   x.fillStyle='#101210'; x.fillRect(w*.655,base-h*.05,h*.032,h*.055); x.fillStyle='rgba(200,170,60,.35)'; x.fillRect(w*.655,base-h*.032,h*.032,h*.004);
@@ -144,7 +144,8 @@ function bakeCH46(x){ x.save(); x.scale(2,2); x.fillStyle='#16161a';
   x.beginPath(); x.arc(47,41,2.5,0,6.283); x.arc(65,41,2.5,0,6.283); x.arc(23,39,2,0,6.283); x.fill();
   x.fillStyle='rgba(255,170,100,.45)'; x.fillRect(16,14,76,1); x.fillStyle='rgba(120,150,170,.45)'; x.fillRect(10,17,7,5); x.restore() }
 var Hcache={};
-function layers(w,h){ var iw=Math.min(1600,Math.max(320,Math.round(w))), ih=Math.round(iw*h/w); if(ih>1000){ ih=1000; iw=Math.round(ih*w/h) }
+function layers(w,h){ w=+w; h=+h; if(!(w>0&&isFinite(w)))w=(typeof innerWidth!=='undefined'&&innerWidth>0)?innerWidth:1280; if(!(h>0&&isFinite(h)))h=(typeof innerHeight!=='undefined'&&innerHeight>0)?innerHeight:720;   /* rc9.1 (TAE delta §4): prewarm()/draw with no or bad size baked 0-px-high layers and the berm/wire loops below stepped by h*k = 0 forever (page froze) */
+  var iw=Math.min(1600,Math.max(320,Math.round(w))), ih=Math.round(iw*h/w); if(ih>1000){ ih=1000; iw=Math.round(ih*w/h) }
   var k=iw+'x'+ih; if(Hcache.k===k)return Hcache; var pw=Math.round(iw*1.06);
   Hcache={k:k,iw:iw,ih:ih,pw:pw,
     sky:cached('sky'+k,pw,ih,bakeSky), far:cached('far'+k,pw,ih,bakeFar), mid:cached('mid'+k,pw,ih,bakeMid), trees:cached('trees'+k,pw,ih,bakeTrees),
@@ -353,5 +354,5 @@ var MENU_ART={titleText:'LAST CHOPPER OUT', subtitleText:'QUANG TRI  \u00b7  3RD
   clearCache:function(){ C={}; Hcache={} },
   releaseBg:function(){ try{ var L=Hcache, keep={}; ['sky','far','mid','trees','paddy','fore','vig'].forEach(function(n){ var c=L[n]; if(c)keep[n]=c });   /* rc8.5 mem: free the 7 baked menu layers (6x 1.06W x H + vignette, ~29 MB at 1280x720) when a run starts; drawBackground re-bakes them identically on the next menu frame */
     for(var k in C){ for(var n in keep){ if(C[k]===keep[n]){ delete C[k]; break } } } for(var n2 in keep){ try{ keep[n2].width=0; keep[n2].height=0 }catch(e){} } Hcache={} }catch(e){} } };
-if(typeof window!=='undefined')window.MENU_ART=MENU_ART; if(typeof module!=='undefined')module.exports=MENU_ART;
+if(typeof window!=='undefined')LCOR.MENU_ART=MENU_ART; if(typeof module!=='undefined')module.exports=MENU_ART;
 })();

@@ -53,4 +53,4 @@
   if (S && S.add) { S.add(SPR); S.drawWaterImpact = draw; S.drawWaterWalk = drawWalk; }
   root.VFX_WATER = API;
   if (typeof module !== 'undefined') module.exports = API;
-})(typeof window !== 'undefined' ? window : globalThis);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window !== 'undefined' ? window : globalThis));

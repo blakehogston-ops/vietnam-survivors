@@ -213,4 +213,4 @@
   var API = { hit: hit, attachToVehicle: attachToVehicle, detach: detach, level: function (id) { var e = find(id); return e ? e.lv : 0; }, update: update, drawAll: drawAll, reset: reset, counts: counts,
     seed: function (n) { seedV = n >>> 0; }, POOLS: { particles: PM, flashes: FM, decals: DM, booms: BM, emitters: EM, fallers: XM }, imageCount: function () { var n = 0; for (var k in IMG) if (IMG[k]) n++; return n; } };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.VFX_VEHICLE_HIT = API;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

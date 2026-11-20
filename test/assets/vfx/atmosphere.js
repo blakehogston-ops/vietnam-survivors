@@ -240,4 +240,4 @@ const api={get gradeMul(){return S.mulCss},addBlastGlow,setQuality,setStrikeMix,
   profile:(on)=>{PR.on=!!on; const r=PR.r; PR.r={}; return r},
   get low(){return S.low}, PRESET, version:'atmo-1.2'};
 root.VFX_ATMO=api;
-})(typeof window!=='undefined'?window:globalThis);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window!=='undefined'?window:globalThis));

@@ -65,4 +65,4 @@
   if (S && S.add) { S.add(SPR); S.drawExplosion = draw; S.drawScorch = drawScorch; }
   root.VFX_EXPLOSIONS = API;
   if (typeof module !== 'undefined') module.exports = API;
-})(typeof window !== 'undefined' ? window : globalThis);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window !== 'undefined' ? window : globalThis));

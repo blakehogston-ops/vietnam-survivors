@@ -260,4 +260,4 @@
     S.draw(ctx, 'docMarker', Math.floor((t || 0) * (m.fps || 3)), x, y - (S.sprites.doc.h + m.headGap) * sc, sc);
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = S;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));

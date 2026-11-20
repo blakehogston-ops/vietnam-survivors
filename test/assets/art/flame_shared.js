@@ -187,4 +187,4 @@
   F.caps = function () { return CAPS[tier()]; }; F.CAPS = CAPS; F.tier = tier; F.legacyDrawBurnPatch = oldPatch; F.SHARED = 'rc8.1';
   F.sharedStats = function () { return { textures: NTX, bytes: BYTES, tier: tier(), drawn: lastDrawn }; };
   if (typeof module !== 'undefined' && module.exports) module.exports = F;
-})(typeof window !== 'undefined' ? window : (typeof self !== 'undefined' ? self : this));
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window !== 'undefined' ? window : (typeof self !== 'undefined' ? self : this)));

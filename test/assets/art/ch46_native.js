@@ -26,4 +26,4 @@
     return { muzzles: dmg === 2 ? [] : [door, door], hubs: hubs, ramp: A(M.ramp_open_tip[H], o.x, by, sc), cabin: door, exit: M.exit[H].map(function (p) { return A(p, o.x, by, sc); }), state: st, damage: dmg, scale: sc, native: true };
   };
   if (N.on) { N.preload(['NW', 'E']); setTimeout(function () { N.preload(); }, 4000); }   /* all headings shortly after boot, so gameplay never shows a v4.1 fallback frame */
-})(typeof window !== 'undefined' ? window : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window !== 'undefined' ? window : this));

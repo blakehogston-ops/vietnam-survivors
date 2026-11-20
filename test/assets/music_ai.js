@@ -11,10 +11,10 @@
      win                           -> unchanged  Marines' Hymn
    Crossfades 1.8 s. Cues (wave start, level up, extraction landing) play one at a time on the music bus AFTER the music duck, so a cue
    can duck the loop without ducking itself; they follow the music volume slider. Level-up is cut to ~1.9 s and ducks the loop -6 dB. */
-(function () {
+(function () { var LCOR=(typeof window!=='undefined'&&window.__lcoR)||window;   /* rc9.1: game namespace (window on QA, private on public) */
   var OLD = /[?&]music=old\b/.test(location.search);
-  var M = window.MusicAI = { on: false, wave: false, waveAt: -1e9, log: [], XF: 1.8 };
-  var mf = window.SAMPLE_MANIFEST, mu = mf && mf.music;
+  var M = LCOR.MusicAI = { on: false, wave: false, waveAt: -1e9, log: [], XF: 1.8 };
+  var mf = LCOR.SAMPLE_MANIFEST, mu = mf && mf.music;
   if (OLD || !mu || !mu.tracks || !mu.tracks.ai_menu) return;
   M.on = true;
   mu.aliases = Object.assign({}, mu.aliases || {}, { menu_theme: 'ai_menu', intro_riff: 'ai_full', combat: 'ai_combat', extraction: 'ai_final', loss: 'ai_over' });
@@ -36,11 +36,11 @@
   };
   function nearFoes() { try { var g = X().G, en = X().enemies, n = 0; for (var i = 0; i < en.length; i++) { var e = en[i]; if (!e.dead && Math.abs(e.x - g.p.x) < 720 && Math.abs(e.y - g.p.y) < 520) n++; } return n; } catch (e) { return 99; } }
   M.pick = function (g, ex) {
-    try { var ms = SamplePlayer.musicState && SamplePlayer.musicState();
+    try { var ms = LCOR.SamplePlayer.musicState && LCOR.SamplePlayer.musicState();
       if (ms && ms.scene) {   /* the 12 s Valkyries clip owns the music; 1.8 s before it ends the scene is released and MUSX crossfades into this state's Jungle Dread track (no wait for ramp / liftoff) */
         var sp = mu.tracks.scene_opening || {}, t = now(); if (M.scT0 == null) M.scT0 = t;
         if (t - M.scT0 < (sp.dur || 12) - M.XF) return 'combat';
-        M.scT0 = null; SamplePlayer.musicEvent('release'); try { X().MUSX.key = null; } catch (e) {} M.log.push({ t: +t.toFixed(2), scene: 'released' });
+        M.scT0 = null; LCOR.SamplePlayer.musicEvent('release'); try { X().MUSX.key = null; } catch (e) {} M.log.push({ t: +t.toFixed(2), scene: 'released' });
       } else M.scT0 = null;
     } catch (e) {}
     if (M.wave && now() - M.waveAt > 45 && nearFoes() < 4) M.wave = false;   /* a wave with no break call (firebase) ends when the area is quiet */
@@ -52,7 +52,7 @@
   M.exK = 'intro_riff'; M.exT = 0; M.exL = 0;
   M.explore = function () {
     var t = now(), dt = M.exL ? Math.min(1, t - M.exL) : 0; M.exL = t; M.exT += dt;   /* only time spent exploring counts */
-    if (M.exT >= Math.min(150, EXL[M.exK]) && SamplePlayer.hasMusic('ai_river')) { M.exK = M.exK === 'intro_riff' ? 'ai_river' : 'intro_riff'; M.exT = 0; M.log.push({ t: +t.toFixed(2), explore: M.exK }); }
+    if (M.exT >= Math.min(150, EXL[M.exK]) && LCOR.SamplePlayer.hasMusic('ai_river')) { M.exK = M.exK === 'intro_riff' ? 'ai_river' : 'intro_riff'; M.exT = 0; M.log.push({ t: +t.toFixed(2), explore: M.exK }); }
     return M.exK;
   };
   /* credits: no end-credits screen exists, so jungle_credits plays once after the win Hymn finishes (same run), or while the
@@ -93,7 +93,7 @@
     var len = d.len ? d.len + d.fo : buf[n].duration, end = t + len;
     g.gain.setValueAtTime(lvl * vol, t);
     if (d.len) { g.gain.setValueAtTime(lvl * vol, t + d.len); g.gain.linearRampToValueAtTime(0, end); s.start(t); s.stop(end + 0.02); } else s.start(t);
-    try { SamplePlayer.duckMusic && SamplePlayer.duckMusic('aicue', d.duck, { attack: 0.06, until: end - 0.2, release: 0.6 }); } catch (e) {}
+    try { LCOR.SamplePlayer.duckMusic && LCOR.SamplePlayer.duckMusic('aicue', d.duck, { attack: 0.06, until: end - 0.2, release: 0.6 }); } catch (e) {}
     cur = { n: n, s: s, g: g, end: end }; M.log.push({ t: +t.toFixed(2), cue: n, len: +len.toFixed(2) }); if (M.log.length > 100) M.log.shift();
     return true;
   };

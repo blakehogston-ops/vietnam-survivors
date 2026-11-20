@@ -10,4 +10,4 @@
     for (var p in C[n]) if (s.names.indexOf(p) < 0) { s.names.push(p); s.frames.push(C[n][p]); } }
   S.add({});
   if (typeof module !== 'undefined') module.exports = S;
-})(typeof window !== 'undefined' ? window : globalThis);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof window !== 'undefined' ? window : globalThis));

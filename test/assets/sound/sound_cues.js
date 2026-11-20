@@ -807,4 +807,4 @@
 
   if (typeof module !== 'undefined' && module.exports) module.exports = { Cues: Cues };
   else root.Cues = Cues;
-})(typeof self !== 'undefined' ? self : this);
+})((typeof window!=='undefined'&&window.__lcoR)||(typeof self !== 'undefined' ? self : this));
