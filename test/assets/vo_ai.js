@@ -48,7 +48,8 @@ function fire(L,when){ var S=P(), h=null; try{ if(L.radio){ h=S.radioLine(L.slot
   if(h){ vduck(h,L); st.fired[L.id]=(st.fired[L.id]|0)+1; (st.log||(st.log=[])).length<400&&st.log.push([L.id,L.radio?'radioLine':'play',+(performance.now()/1000).toFixed(2)]) } return h }
 /* EP 19:39: keep VO clear over combat: dip the combat buses (not specials/voice) for the clip. ?vduck=0 = off. AD level pass pending. */
 var VDK=!/[?&]vduck=0\b/.test(Q);
-function vduck(h,L){ if(!VDK)return; try{ var M=window.__ms&&__ms.MIX; if(M&&M.voDuck)M.voDuck(h.start!=null?h.start:null,len(h,L)) }catch(e){} }
+var MSH_=null;   /* rc9.0 F1: the game's internal handle (index.html MSH) via VOAI.attach(); window.__ms is QA-tier only now */
+function vduck(h,L){ if(!VDK)return; try{ var MS=MSH_||window.__ms, M=MS&&MS.MIX; if(M&&M.voDuck)M.voDuck(h.start!=null?h.start:null,len(h,L)) }catch(e){} }
 function len(h,L){ return h&&h.end!=null&&h.start!=null?(h.end-h.start):(L.dur+(L.radio?.4:0)) }
 var SPLIT='  -  Bird: ';
 var G22=/\s*Pad's off to the (east|southeast|south|southwest|west|northwest|north|northeast), (\d+) meters\.\s*$/;
@@ -81,4 +82,5 @@ function byId(id){ var L=BY[id]||BY[IDALIAS[id]]; if(!L||!ready(L))return 0; var
 function dur(id){ var L=BY[id]||BY[IDALIAS[id]]; return L&&ready(L)?L.dur+(L.radio?.4:0):0 }
 window.VOAI={TIER:TIER,LINES:BY,card:card,cardEnd:cardEnd,banner:banner,bark:bark,byId:byId,dur:dur,match:match,norm:norm,stats:function(){ return JSON.parse(JSON.stringify(st)) },
   genv2:function(){ return {on:GV2.length>0,n:GV2.length,tdef:tdef(),over:(st0.over||[]).slice(),vduck:VDK,barks:st.barks|0} }, friendsOnly:function(){ return Object.keys(BY).filter(function(k){ return BY[k].friends }) }};
+VOAI.attach=function(h){ MSH_=h; delete VOAI.attach };
 })();
