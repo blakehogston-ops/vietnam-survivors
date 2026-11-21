@@ -10,20 +10,20 @@ const clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 let rs=1234567; const rnd=()=>((rs=(rs*1103515245+12345)&0x7fffffff)/0x7fffffff);
 /* Time-of-day keys: mul = multiply tint, ov = overlay tint [r,g,b,a], dark = night darkness alpha, amb = darkness colour, haze, sat = desaturation alpha */
 const KEYS=[
- {h:0,  mul:[112,124,166], ov:[20,30,70,.16],  dark:.62, amb:[6,10,24],  haze:.10, sat:.30},
- {h:4.5,mul:[126,136,172], ov:[20,30,70,.16],  dark:.46, amb:[8,12,26],  haze:.18, sat:.30},
+ {h:0,  mul:[118,116,110], ov:[18,16,14,.12],  dark:.62, amb:[8,8,7],  haze:.10, sat:.22},   // rc9.3: night darkens by value, no blue/green wash (A11y night_readability)
+ {h:4.5,mul:[128,124,116], ov:[18,16,14,.10],  dark:.46, amb:[10,10,9], haze:.16, sat:.22},
  {h:6,  mul:[222,170,150],ov:[255,150,90,.14],dark:.12, amb:[30,18,24], haze:.55, sat:.18},   // dawn: rose-amber, heavy ground mist
  {h:8,  mul:[242,222,192],ov:[200,170,120,.10],dark:0,  amb:[0,0,0],    haze:.30, sat:.30},
  {h:13, mul:[240,212,182],ov:[196,172,124,.12],dark:0,  amb:[0,0,0],    haze:.22, sat:.34},   // day: dusty olive/tan, greens pulled down (no lime)
  {h:17, mul:[244,212,176],ov:[214,160,100,.11],dark:0,  amb:[0,0,0],    haze:.28, sat:.30},
  {h:18.6,mul:[232,186,160],ov:[230,120,70,.12],dark:.14,amb:[28,14,26], haze:.40, sat:.20},   // dusk: burnt orange into violet
- {h:20, mul:[132,136,176],ov:[30,36,80,.16], dark:.42, amb:[8,12,28],  haze:.20, sat:.28},
- {h:24, mul:[112,124,166], ov:[20,30,70,.16],  dark:.62, amb:[6,10,24],  haze:.10, sat:.30}];
+ {h:20, mul:[130,126,118],ov:[22,20,16,.10], dark:.42, amb:[10,10,9],  haze:.16, sat:.20},   // rc9.3: dusk-to-night stays warm/neutral
+ {h:24, mul:[118,116,110], ov:[18,16,14,.12],  dark:.62, amb:[8,8,7],  haze:.10, sat:.22}];
 /* monsoon target grade: low grey overcast, grey-green/brown, desaturated, darker */
 const RAINK={mul:[160,160,146],ov:[105,108,100,.16],sat:.55};
 const PHASE={dawn:6,day:12,dusk:18.6,night:23};
 const PR={on:false,t:0,ctx:null,r:{}}; function PM(n){ if(!PR.on)return; PR.ctx.getImageData(0,0,1,1); const t=performance.now(); PR.r[n]=(PR.r[n]||0)+(t-PR.t); PR.t=t }
-const S={w:0,h:0,low:false,hour:12,rain:0,haze:1,t:0,g:null,gk:'',
+const S={w:0,h:0,low:false,hour:12,rain:0,haze:1,t:0,g:null,gk:'',gamma:0,assist:false,rfx:false,
   L:[],nL:0, F:[],D:[],R:[],P:[],
   lm:null,lmx:null,ls:2, vig:null,grain:[],gp:[],sheen:null,mist:null,spr:{},flareSpr:null,chute:null,perf:{last:0,avg:0,n:0}};
 /* atmo-1.2 (perf rc8): quality tiers. Q.ls light-map scale, Q.bloom additive light sprites, Q.lights max lights fed to the map, Q.grain film grain, Q.sat saturation/veil pass, Q.dust motes, Q.shadows max flare shadows */
@@ -53,7 +53,11 @@ function grade(){ const H=((S.hour%24)+24)%24; let a=KEYS[0],b=KEYS[1];
   const t=(H-a.h)/Math.max(.001,b.h-a.h), m=a.mul.map((v,i)=>lerp(v,b.mul[i],t)), o=a.ov.map((v,i)=>lerp(v,b.ov[i],t));
   const r=S.rain; // monsoon: darker, cooler, flatter
   if(r>0){ const dk=lerp(a.dark,b.dark,t); for(let i=0;i<3;i++){ m[i]=lerp(m[i],RAINK.mul[i]*(1-dk*.5),r); o[i]=lerp(o[i],RAINK.ov[i],r*(1-dk)) } o[3]=lerp(o[3],RAINK.ov[3],r) }
-  return {mul:m.map(v=>v|0),ov:o,dark:clamp(lerp(a.dark,b.dark,t)+.12*r*(lerp(a.dark,b.dark,t)>0?1:0),0,.8),amb:a.amb.map((v,i)=>lerp(v,b.amb[i],t)|0),
+  let dark=clamp(lerp(a.dark,b.dark,t)+.12*r*(lerp(a.dark,b.dark,t)>0?1:0),0,.8);
+  const gm=clamp(S.gamma,-.2,.4);           /* slider -20% .. +40% */
+  if(gm){ const k=1+gm; for(let i=0;i<3;i++)m[i]=clamp(m[i]*k,0,255); dark=clamp(dark*(1-gm*.55),0,.85); }
+  if(S.assist&&dark>0){ dark*=.7; for(let i=0;i<3;i++)m[i]=clamp(m[i]*1.12,0,255); }   /* Night Assist: lift terrain only */
+  return {mul:m.map(v=>v|0),ov:o,dark,amb:a.amb.map((v,i)=>lerp(v,b.amb[i],t)|0),
     haze:lerp(a.haze,b.haze,t)*S.haze*(1+.6*r),sat:lerp(lerp(a.sat,b.sat,t),RAINK.sat,r)}; }
 
 /* single cached offscreen canvas holding the full grade (sky-to-ground falloff baked in); rebuilt only when quantised params change */
@@ -103,10 +107,13 @@ function lightSpr(col){ if(S.spr[col])return S.spr[col]; const c=mk(64,64), x=c.
 function holeSpr(){ if(S._hole)return S._hole; const c=mk(64,64), x=c.getContext('2d'), g=x.createRadialGradient(32,32,0,32,32,32);
   g.addColorStop(0,'rgba(0,0,0,1)'); g.addColorStop(.3,'rgba(0,0,0,.92)'); g.addColorStop(.65,'rgba(0,0,0,.45)'); g.addColorStop(.9,'rgba(0,0,0,.08)'); g.addColorStop(1,'rgba(0,0,0,0)'); x.fillStyle=g; x.fillRect(0,0,64,64); return S._hole=c }
 function setTime(v){ S.hour=typeof v==='string'?(PHASE[v]??12):+v; S.cur=grade(); if(S.g)buildGrade(); return api }
+function setGamma(g){ g=clamp(+g,-.2,.4); if(g===S.gamma)return api; S.gamma=g; S.cur=grade(); if(S.g)buildGrade(); return api }
+function setNightAssist(on){ on=!!on; if(on===S.assist)return api; S.assist=on; S.cur=grade(); if(S.g)buildGrade(); return api }
+function setRFX(on){ S.rfx=!!on; return api }
 function setWeather(o){ if(o){ if(o.rain!=null)S.rain=clamp(+o.rain,0,1); if(o.haze!=null)S.haze=clamp(+o.haze,0,2) } S.cur=grade(); if(S.g)buildGrade(); return api }
 const FLARE_COL='#f8f7ea';   /* harsh magnesium white, faint yellow, never orange */
 const PRESET={muzzle:['#ffd27a',70,1,.06],fire:['#ff8a3a',140,.85,0],explosion:['#ffb35a',260,1,.5],napalm:['#ff7a2a',320,1,0],flare:[FLARE_COL,800,1,0],rpg:['#ffc070',110,1,.12]};
-function addLight(x,y,radius,color,intensity,ttl){ if(typeof radius==='string'){ const p=PRESET[radius]||PRESET.fire; return addLight(x,y,p[1]*(color||1),p[0],p[2],intensity!=null?intensity:p[3]) }
+function addLight(x,y,radius,color,intensity,ttl){ if(typeof radius==='string'){ const p=PRESET[radius]||PRESET.fire; let I=p[2]; if(S.rfx&&(radius==='explosion'||radius==='napalm'))I*=.5; return addLight(x,y,p[1]*(color||1),p[0],I,intensity!=null?intensity:p[3]) }
   if(ttl>0&&color!==FLARE_COL){ for(let i=0;i<MAXL;i++){ const l=S.L[i]; if(l.on&&l.ttl>0&&l.c===(color||'#ffc070')&&Math.abs(l.x-x)<90&&Math.abs(l.y-y)<90){ l.i=Math.min(1.15,Math.max(l.i,intensity==null?1:intensity)+.1); if(ttl>l.ttl){ l.ttl=ttl; l.t0=Math.max(l.t0,ttl) } return l } } }   /* rc8 AD: nearby strike pools merge (no flat orange sheet over the base) */
   if(S.nOn>=Q.lights&&color!==FLARE_COL)return null; S.nOn=(S.nOn|0)+1;
   let L=null, oldest=null; for(let i=0;i<MAXL;i++){ const l=S.L[i]; if(!l.on){L=l;break} if(!oldest||l.ttl<oldest.ttl)oldest=l } L=L||oldest;
@@ -131,7 +138,7 @@ function update(dt){ dt=Math.min(.1,dt||0); S.t+=dt;
   for(const f of S.F) if(f.on){ f.t+=dt; if(f.t>f.life){f.on=false;continue} live++;
     f.cx+=f.vx*dt; f.cy+=(f.type==='mk24'?7:9)*dt;                        // chute drifts downwind and sinks slowly
     const th=f.amp*Math.sin(f.t*f.om+f.sw); f.x=f.cx+Math.sin(th)*30; f.y=f.cy+Math.cos(th)*30;   // pendulum under the canopy (30 px shroud)
-    f.th=th; const rem=f.life-f.t; f.k=f.t<1.2?f.t/1.2:rem<5?(rnd()<rem/5*.9?(.25+.75*rem/5)*(.5+rnd()*.5):0):(.94+.06*Math.sin(f.t*31)*Math.sin(f.t*13));   // ignite, steady magnesium burn, sputter out
+    f.th=th; const rem=f.life-f.t; const fade=S.rfx?Math.max(1.2,.5):1.2; f.k=f.t<fade?f.t/fade:rem<5?(S.rfx?Math.max(0,rem/5)*.94:(rnd()<rem/5*.9?(.25+.75*rem/5)*(.5+rnd()*.5):0)):(S.rfx?.94:(.94+.06*Math.sin(f.t*15.7)*Math.sin(f.t*8.8)));   // ignite (>=0.5s, RFX no pop); steady burn flicker stays under 3 Hz (15.7 rad/s ~ 2.5 Hz); RFX: no flicker
     if((f.t*6|0)!==f._tk){ f._tk=f.t*6|0; const n=f.tn%24; f.trail[n*2]=f.x; f.trail[n*2+1]=f.y; f.tn++ } }
   if(CAD.on){ if(live)CAD.next=CAD.gap[0]+rnd()*(CAD.gap[1]-CAD.gap[0]); else if((CAD.next-=dt)<=0){ addFlare(SPC.x+S.w/SPC.z*(.25+rnd()*.5),SPC.y+S.h/SPC.z*(.1+rnd()*.3),CAD.type); } }
   for(const u of S.U) if(u.on){ u.t+=dt; if(u.t>u.life){u.on=false;continue} u.x+=u.vx*dt; u.y+=u.vy*dt; u.vx*=1-dt*.4 }
@@ -234,10 +241,10 @@ function drawFlareShadows(ctx,camX,camY,zoom,units){ if(!units||!units.length)re
   if(n){ ctx.globalAlpha=clamp(a/n,.18,.42); ctx.fillStyle='#07090c'; ctx.fill() }
   ctx.restore() }
 function setQuality(t){ t=QT[t]?t:'high'; if(t===QN)return api; QN=t; Q=QT[t]; if(S.w){ const w=S.w,h=S.h; init(w,h) } return api }
-const api={get gradeMul(){return S.mulCss},addBlastGlow,setQuality,setStrikeMix,get strikeMix(){return SMIX},get quality(){return QN},QT,init,setTime,setWeather,addLight,addFlare,setFlareCadence,addPuddle,clearPuddles,rippleAt,addDust,update,drawWorldOverlay,drawScreen,drawFlareShadows,setLow,hookLowToggle,flareShadow,FLARE,
+const api={get gradeMul(){return S.mulCss},get gamma(){return S.gamma},get assist(){return S.assist},get rfx(){return S.rfx},addBlastGlow,setQuality,setStrikeMix,get strikeMix(){return SMIX},get quality(){return QN},QT,init,setTime,setGamma,setNightAssist,setRFX,setWeather,addLight,addFlare,setFlareCadence,addPuddle,clearPuddles,rippleAt,addDust,update,drawWorldOverlay,drawScreen,drawFlareShadows,setLow,hookLowToggle,flareShadow,FLARE,
   stats:()=>({lights:S.L.filter(l=>l.on).length,flares:S.F.filter(f=>f.on).length,rain:S.rain,low:S.low,hour:S.hour,ms:S.perf.last,avgMs:S.perf.avg}),
   _F:()=>S.F, setHQ:(b)=>{S.hq=!!b; return api},
   profile:(on)=>{PR.on=!!on; const r=PR.r; PR.r={}; return r},
-  get low(){return S.low}, PRESET, version:'atmo-1.2'};
+  get low(){return S.low}, PRESET, version:'atmo-1.3-rc93'};
 root.VFX_ATMO=api;
 })((typeof window!=='undefined'&&window.__lcoR)||(typeof window!=='undefined'?window:globalThis));
