@@ -70,7 +70,7 @@ All are off by default. Use them as URL flags, or from the browser console (`DBG
 Tools (`cd tools && npm i playwright-core`; they use the installed Chrome): `botrun.js` (balance/mission/firebase bot; `--fb` firebase metrics, `--q 't=480'` extra URL flags, prints per-run service XP old vs new), `botdiag.js` (diagnostic run), `fbstress.js` (firebase early-build stress test: injects N siege enemies during the first 45 s and checks the build keeps progressing).
 
 ## Balance notes (latest)
-- **Firebase footprint:** square perimeter instead of a circle. Sandbag walls on four sides at half-side 168 px (a 336 x 336 px site, 1.5x the old 112 px radius), 56-px gates in the middle of each side, turrets at the four corners and the four gate midpoints (8 total), bunker / medic tent / helipad / 106mm inside, barbed-wire square at half-side 237 px (was radius 158). Same 3 build stages, progress bar and timings.
+- **Firebase footprint:** square perimeter instead of a circle. Sandbag walls on four sides at half-side 168 px (a 336 x 336 px site, 1.5x the old 112 px radius), 56-px gates in the middle of each side, turrets at the four corners and the four gate midpoints (8 total), bunker / aid tent / helipad / 106mm inside, barbed-wire square at half-side 237 px (was radius 158). Same 3 build stages, progress bar and timings.
 - **Engineer grace:** for the first 40 s of a call-in engineers take 85 % less damage, cannot die, are not picked as targets, and do not panic or slow down under fire (protection fades out over the next 20 s). Build progress never fully stalls while any engineer lives (minimum work rate of half speed for the first 45 s, quarter speed after).
 - **Service tiers:** `TIER_XP = [350, 1000, 2200, 4000, 6500]` (was `[120, 320, 620, 1050, 1600]`). Run XP = `time/6 + kills/12 + 2 x weapon levels + 25 x maxed weapons + 25 x bosses + 150 if extracted + hold kills/12` (was kills/4, 3x levels, 40x maxed, hold kills/4). A good 12-min run is roughly 700-1000 XP, so tier 5 takes about 8-10 full runs; short runs earn proportionally little. Existing saves keep their XP; their tier is recomputed from the new table.
 
@@ -83,15 +83,13 @@ Tools (`cd tools && npm i playwright-core`; they use the installed Chrome): `bot
 - **Service-record card:** end-of-run screen shows the character, an animated XP bar to the next tier, tier-unlock text, the earned-ribbon strip (new ones outlined and described) and the dedication to the Vietnam veterans and MSgt. Hogston. With `?fps`/`?bot`/`?debug` it also prints "killed by: <source>" and damage taken per source.
 
 ## Ribbons & the Last Bird Out badge
-Six awards per character (the Last Bird Out badge, then five ribbons), shown as a rack on the character-select service record with "how to earn it" text (unearned ribbons are dimmed; the badge shows its greyed-out locked patch until earned). The Medal of Honor is never a gameplay award: its art (and the solemn bugle) is kept only for the Ballard and Taylor tribute cards. Saved `moh` awards from older builds migrate to `lbo`. Stored per character in `localStorage` (`vs_chars`), each unlocks once, and **only at the end of a patrol (death or extraction)** - quitting to the menu, skipping or closing the tab grants nothing. New awards are listed on the end-of-run screen.
+Four awards per character (the Last Bird Out badge, then three ribbons), shown as a rack on the character-select service record with "how to earn it" text (unearned ribbons are dimmed; the badge shows its greyed-out locked patch until earned). Ribbon names are invented and awarded for service, never for kill counts, and no real medal name or ribbon art is used (Blake, Nov 20; HAA_RC92_RIBBONS_SIGN.md). The ribbon art is the Art Director's invented v1 set (own original pixel art, HAA-signed; HAA_RC92_RIBBON_ART_V1_SIGN.md). Older saves keep their retired ribbon keys (`bs`/`ss`/`nc`), which are no longer read or drawn. The Medal of Honor tribute cards keep their text and draw no medal art. Saved `moh` awards from older builds migrate to `lbo`. Stored per character in `localStorage` (`vs_chars`), each unlocks once, and **only at the end of a patrol (death or extraction)** - quitting to the menu, skipping or closing the tab grants nothing. New awards are listed on the end-of-run screen.
 
 | Ribbon | Earned by |
 |---|---|
-| Combat Action Ribbon (`car`) | Survive 4:00 and defeat 250 enemies in one patrol |
-| Purple Heart (`ph`) | Fall below 25% HP, recover past 60%, and still be alive after 6:00 |
-| Bronze Star (`bs`) | 6,000 kills in one patrol, or 20 boss kills over your career with that Marine |
-| Silver Star (`ss`) | Kill 2 bosses in one patrol, each with 4+ squad Marines standing |
-| Navy Cross (`nc`) | Extracted after 2+ boss kills and 1,500+ LZ-hold kills (600+ on `?diff=hard`) |
+| Holdfast Ribbon (`holdfast`) | Hold the LZ until the last bird lifts off, 5 times with this Marine. |
+| Last Seat Ribbon (`lastseat`) | Bring 40 Marines out on the bird with this Marine. |
+| Sandbag Ribbon (`sandbag`) | Build 3 firebases in one patrol. |
 | Last Bird Out badge (`lbo`) | Extract with 12 or more of the 15 aboard, counted like the evac card's GOT ON line (the player included). Debug and `?all` runs never award it. Sound: ribbon pin, then the real Huey fly-by |
 
 Art: Artist Helper's `ribbons.js` and `last_bird_out_badge.js` (kept in `assets/artist/`, inlined in `index.html`). Stripe patterns are from the official specs cited in `assets/artist/README.md`; they still need Vietnam Vet's review (CAR left/right orientation).
