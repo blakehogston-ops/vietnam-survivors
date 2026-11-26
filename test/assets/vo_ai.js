@@ -34,7 +34,7 @@ var P=function(){ return LCOR.SamplePlayer||null };
 var st={loaded:0,failed:[],fired:{},plays:{radioLine:0,play:0},busy:0,tier:TIER,on:ON,req:0}, cur=null, curB=null;
 function load(){ var S=P(); if(!S||!S.slots||!S.load)return false; var sl={dry:{},wet:{}};
   LINES.forEach(function(L0){ var L=BY[L0[0]]; if(!allowed(L))return; S.slots[L.slot]={cat:'voice',prio:6,gain:1.0}; (L.radio?sl.dry:sl.wet)[L.slot]={batch:3,files:[L.file]} });
-  var g2={dry:{},wet:{}}; GV2.forEach(function(r){ var L=BY[r[0]]; S.slots[L.slot]={cat:'voice',prio:6,gain:1.0}; (L.radio?g2.dry:g2.wet)[L.slot]={batch:3,files:[L.file]} });
+  var g2={dry:{},wet:{}}; GV2.forEach(function(r){ var L=BY[r[0]]; if(!allowed(L))return;   /* rc9.3: friends-only gen_v2 takes (HO-K01/K02.strong) are never requested off the friends tier - the Steam/Mac package excludes them on purpose (699a61e), so this was a 404 there */ S.slots[L.slot]={cat:'voice',prio:6,gain:1.0}; (L.radio?g2.dry:g2.wet)[L.slot]={batch:3,files:[L.file]} });
   var p1=S.load({base:'audio/vo_ai/',formats:['ogg','m4a'],slots:sl.wet}), p2=S.load({base:'audio/vo_ai/dry/',formats:['ogg','m4a'],slots:sl.dry});
   var p3=GV2.length?S.load({base:'audio/vo_genv2/',formats:['ogg','m4a'],slots:g2.wet}):Promise.resolve({loaded:[],failed:[],missing:[]}), p4=GV2.length?S.load({base:'audio/vo_genv2/dry/',formats:['ogg','m4a'],slots:g2.dry}):Promise.resolve({loaded:[],failed:[],missing:[]});
   if(!p1||!p2||!p3||!p4)return false; st.req=1;
@@ -42,14 +42,15 @@ function load(){ var S=P(); if(!S||!S.slots||!S.load)return false; var sl={dry:{
   return true }
 var lt=setInterval(function(){ if(!ON||st.done){ clearInterval(lt); return } try{ if(!st.req)load() }catch(e){} },400);   /* SamplePlayer.load resolves {error} until the game's SAMP.init(): retry */
 function ready(L){ var S=P(); return ON&&allowed(L)&&S&&S.hasSample&&S.hasSample(L.slot) }
-function dest(){ try{ var S=P(), r=S.route&&S.route('voai_x',{},{bus:'special'}); return r&&r.dest||undefined }catch(e){ return undefined } }
+function dest(){ try{ var S=P(), r=S.route&&S.route('voai_x',{cat:'voice'},{bus:'special'}); return r&&r.dest||undefined }catch(e){ return undefined } }
 function fire(L,when){ var S=P(), h=null; try{ if(L.radio){ h=S.radioLine(L.slot,{when:when,vol:1,dest:dest()}); if(h)st.plays.radioLine++ }
     else { h=S.play(L.slot,{when:when,vol:1,bus:'special',vary:false}); if(h)st.plays.play++ } }catch(e){ h=null }
   if(h){ vduck(h,L); st.fired[L.id]=(st.fired[L.id]|0)+1; (st.log||(st.log=[])).length<400&&st.log.push([L.id,L.radio?'radioLine':'play',+(performance.now()/1000).toFixed(2)]) } return h }
 /* EP 19:39: keep VO clear over combat: dip the combat buses (not specials/voice) for the clip. ?vduck=0 = off. AD level pass pending. */
 var VDK=!/[?&]vduck=0\b/.test(Q);
 var MSH_=null;   /* rc9.0 F1: the game's internal handle (index.html MSH) via VOAI.attach(); window.__ms is QA-tier only now */
-function vduck(h,L){ if(!VDK)return; try{ var MS=MSH_||window.__ms, M=MS&&MS.MIX; if(M&&M.voDuck)M.voDuck(h.start!=null?h.start:null,len(h,L)) }catch(e){} }
+function vduck(h,L){ if(!VDK)return; try{ var MS=MSH_||window.__ms, M=MS&&MS.MIX, t0=h.voiceStart!=null?h.voiceStart:(h.start!=null?h.start:null), t1=h.voiceEnd!=null?h.voiceEnd:(t0!=null&&h.end!=null?h.end:null);   /* rc9.3 AD S2: one shared VO duck, radio / in-person */
+  if(M&&M.vd&&t0!=null&&t1!=null)M.vd(L.radio?'radio':'inperson',t0,t1); else if(M&&M.voDuck)M.voDuck(h.start!=null?h.start:null,len(h,L),L.radio?'radio':'inperson') }catch(e){} }
 function len(h,L){ return h&&h.end!=null&&h.start!=null?(h.end-h.start):(L.dur+(L.radio?.4:0)) }
 var SPLIT='  -  Bird: ';
 var G22=/\s*Pad's off to the (east|southeast|south|southwest|west|northwest|north|northeast), (\d+) meters\.\s*$/;
