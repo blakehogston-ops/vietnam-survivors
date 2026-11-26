@@ -100,8 +100,8 @@
     cannon_76mm:        { cat: 'gun',       prio: 3, gain: 0.0825, vary: true },                // ZiS-3 76 mm; pt76
     tandem_rotor_loop:  { cat: 'rotor',     prio: 5, gain: 0.398, out: 'rotor', loop: true },  // CH-46 evac bird hover (STAND-IN Chinook)
     backblast:          { cat: 'gun',       prio: 3, gain: 0.2918, vary: true },                // 106 mm RR / Ontos back-blast, Zuni launch
-    minigun_burst:      { cat: 'gun',       prio: 2, gain: 0.3682, vary: true },                // Spooky, distant / airborne
-    strafe_20mm:        { cat: 'gun',       prio: 2, gain: 0.3531, vary: true },                // STAND-IN: minigun -3 st (ear check)
+    minigun_burst:      { cat: 'gun',       prio: 2, gain: 0.3682, vary: true, maxDur: 0.12 }, // Spooky, distant / airborne
+    strafe_20mm:        { cat: 'gun',       prio: 2, gain: 0.3531, vary: true, maxDur: 0.12 }, // STAND-IN: minigun -3 st (ear check)
     explosion_close:    { cat: 'explosive', prio: 4, gain: 0.6279, vary: true },                // close HE, layered real recordings
     explosion_claymore: { cat: 'explosive', prio: 4, gain: 0.5665, vary: true },                // sharp crack
     napalm_ignite:      { cat: 'fire',      prio: 3, gain: 0.30, vary: true },
@@ -206,7 +206,8 @@
     var voices = [];           // { slot, cat, prio, start, end, src, g }
     var loggedSilent = {};     // weapon slot -> true once logged
     var lastStep = -1, lastVariant = {};
-    var cfg = { maxVoices: 12, maxGun: 6, maxStep: 2, stepMinGap: 0.1, voiceRefGain: 1.5,
+    var cfg = { maxVoices: 16, voReserve: 4, maxGun: 8, maxPGun: 4, maxExpl: 4, maxStep: 2,   // rc9.3 showcase (AD ad_vo_priority_duck_spec.md S1): 16 = 4 VO reserve + 12 shared (today's non-VO load); guns 8 (player 4), explosions 4
+      stepMinGap: 0.1, voiceRefGain: 1.5,
       winchesterDb: -10, winchesterAttack: 0.3, winchesterRelease: 0.8,
       smokeQuiet: 1.0, smokeMusicDb: -10, smokeSfxDb: -10, smokeAttack: 0.06, smokeResume: 0.6,
       // warning cues (manifest.cues overrides the lead times once load() has seen it)
@@ -214,7 +215,8 @@
       jetLeadMs: 3000,      // flyby('jet', { bombAt }) starts the pass this long before the bomb (manifest cues.jetFlyby overrides)
       musicCalmHz: 700, musicCalmDb: -10,   // combat calm state (same source, low-pass + quieter)
       turretDb: -2 };       // turrets sit at the base, away from Doc: same gun, 2 dB quieter (no other distance model exists)
-    var stats = { played: 0, stolen: 0, dropped: 0, silentWeapon: 0, fallbacks: 0, rateLimited: 0, loaded: 0, failed: 0 };
+    var stats = { played: 0, stolen: 0, stolenVO: 0, dropped: 0, droppedVO: 0, silentWeapon: 0, fallbacks: 0, rateLimited: 0, loaded: 0, failed: 0, droppedBy: {}, playedBy: {}, droppedCat: {}, playedCat: {} };
+    function bump(map,k){ map[k]=(map[k]||0)+1 } function notePlay(slot,cat){ stats.played++; bump(stats.playedBy,slot); bump(stats.playedCat,cat||''); } function noteDrop(slot,cat){ stats.dropped++; bump(stats.droppedBy,slot); bump(stats.droppedCat,cat||''); }
     var opts0 = {};
     var cueSpec = {};          // manifest.cues (lead times / clip lengths), set by load()
     var rand = Math.random;
@@ -330,24 +332,49 @@
     // voices whose lifetime overlaps [t0, t1): used for caps so voices scheduled in the future are counted too
     function overlapping(t0, t1, filter) { return voices.filter(function (v) { return v.start < t1 && v.end > t0 && !v.dead && (!filter || filter(v)); }); }
     function kill(v, t) {
-      v.dead = true; stats.stolen++;
+      v.dead = true; stats.stolen++; if (v.cat === 'voice') stats.stolenVO++;
       try { v.g.gain.cancelScheduledValues(t); v.g.gain.setValueAtTime(v.g.gain.value, t); v.g.gain.linearRampToValueAtTime(0, t + 0.015); v.src.stop(t + 0.02); } catch (e) { /* already stopped */ }
     }
+    // rc9.3 showcase (AD ad_vo_priority_duck_spec.md S1, EP 9:09 PM ET "VO must NEVER be stolen"): steal classes keyed on cat.
+    // voice 7 > radio 6 > cutaway 5 > explosive/air/rotor/fire/signal/weather 4 > pgun 3 > gun 2 > ambience/engine 1 > everything else 0.
+    // A new sound steals from a strictly lower class, and classes 0-3 may steal the quietest/oldest of their own class (not pgun/voice): lowest class
+    // first, then the quietest (v.lvl), then the oldest; loops go last. VO is never a steal target from another class.
+    var CLS = { voice: 7, radio: 6, cutaway: 5, explosive: 4, air: 4, rotor: 4, fire: 4, signal: 4, weather: 4, pgun: 3, ui: 3, hit: 3, foley: 3, gun: 2, ambience: 1, engine: 1 };   /* rc9.3 b2 AD re-listen: ui/hit/foley rank with pgun so confirmations aren't dropped under class-4 air */
+    function clsOf(c) { return CLS[c] != null ? CLS[c] : 0; }
+    function victim(list) {
+      return list.reduce(function (a, b) {
+        var ca = clsOf(a.cat), cb = clsOf(b.cat); if (ca !== cb) return cb < ca ? b : a;
+        var la = a.loop ? 1 : 0, lb = b.loop ? 1 : 0; if (la !== lb) return lb < la ? b : a;
+        var qa = a.lvl == null ? 1 : a.lvl, qb = b.lvl == null ? 1 : b.lvl; if (Math.abs(qa - qb) > 1e-6) return qb < qa ? b : a;
+        return b.start < a.start ? b : a;
+      });
+    }
+    function isVO(v) { return v.cat === 'voice'; }
+    function notVO(v) { return v.cat !== 'voice'; }
     function makeRoom(info, t, dur) {
-      var t1 = t + (isFinite(dur) ? dur : 3600);
-      function capCat(cat, max) {
-        var f = function (v) { return v.cat === cat; }, l = overlapping(t, t1, f);
-        while (l.length >= max) { kill(oldest(l), t); l = overlapping(t, t1, f); }
+      var t1 = t + (isFinite(dur) ? dur : 3600), c = info.cat, k = clsOf(c);
+      function cap(f, max, may) {   // may(v): which voices inside the cap this sound is allowed to steal
+        var l = overlapping(t, t1, f);
+        while (l.length >= max) { var cand = may ? l.filter(may) : l; if (!cand.length) return false; kill(victim(cand), t); l = overlapping(t, t1, f); }
+        return true;
       }
-      if (info.cat === 'gun') capCat('gun', cfg.maxGun);
-      if (info.cat === 'step') capCat('step', cfg.maxStep);
-      var all = overlapping(t, t1);
-      while (all.length >= cfg.maxVoices) {
-        var cands = all.filter(function (v) { return v.prio <= info.prio; });
+      var shared = cfg.maxVoices - cfg.voReserve;
+      if (c === 'voice') {   // the reserve first, then steal from the shared pool; a VO line is never dropped
+        var vo = overlapping(t, t1, isVO).length, nv = overlapping(t, t1, notVO);
+        while (vo + nv.length >= cfg.maxVoices && vo >= cfg.voReserve && nv.length) { kill(victim(nv), t); nv = overlapping(t, t1, notVO); }
+        return true;
+      }
+      var isGun = function (v) { return v.cat === 'gun' || v.cat === 'pgun'; };
+      if (c === 'pgun') { if (!cap(function (v) { return v.cat === 'pgun'; }, cfg.maxPGun)) return false; if (!cap(isGun, cfg.maxGun)) return false; }
+      if (c === 'gun' && !cap(isGun, cfg.maxGun, function (v) { return v.cat === 'gun'; })) return false;   // an NPC gun never steals a player gun
+      if (c === 'explosive' && !cap(function (v) { return v.cat === 'explosive'; }, cfg.maxExpl)) return false;
+      if (c === 'step' && !cap(function (v) { return v.cat === 'step'; }, cfg.maxStep)) return false;
+      var all = overlapping(t, t1, notVO);
+      while (all.length >= shared) {
+        var cands = all.filter(function (v) { return clsOf(v.cat) < k || (k <= 3 && clsOf(v.cat) === k && v.cat !== 'pgun' && v.cat !== 'voice'); });   /* rc9.3 b2 AD: classes 0-3 may steal same class, newest wins; pgun keeps its cap */
         if (!cands.length) return false;
-        var minP = Math.min.apply(null, cands.map(function (v) { return v.prio; }));
-        kill(oldest(cands.filter(function (v) { return v.prio === minP; })), t);
-        all = overlapping(t, t1);
+        kill(victim(cands), t);
+        all = overlapping(t, t1, notVO);
       }
       return true;
     }
@@ -387,16 +414,16 @@
       else if (offset > 0) src.start(t, offset);
       else src.start(t);
       if (!loop) src.stop(t + dur + 0.01);
-      var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g, bus: o.busName || '' };
+      var v = { slot: slot, cat: s.cat, prio: s.prio, start: t, end: t + dur, src: src, g: g, bus: o.busName || '', lvl: gain, loop: !!loop };
       src.onended = function () { v.dead = true; };
-      voices.push(v); stats.played++;
+      voices.push(v); notePlay(slot, s.cat);
       if (o.duckMusic && duckTargets.music) {   // 2026-10-20: play(slot, { duckMusic: -3 }) ducks the music while this voice sounds
         v.dk = 'v@' + slot + ':' + t.toFixed(3); hold(duckTargets.music, v.dk, o.duckMusic, t, cfg.voiceDuckAttack, loop ? null : t + dur, cfg.voiceDuckRelease);
       }
       return v;
     }
     function handle(v) {
-      return { slot: v.slot, start: v.start, end: v.end,
+      return { slot: v.slot, start: v.start, end: v.end, gain: v.g,   // rc9.3: gain exposed (AD S3: ride-in bed duck under the cab lines)
         stop: function (fade) { fade = fade == null ? 0.08 : fade; var t = now(); if (v.dead) return; v.dead = true;
           if (v.dk) unhold(duckTargets.music, v.dk, t, cfg.voiceDuckRelease);
           try { v.g.gain.cancelScheduledValues(t); v.g.gain.setValueAtTime(v.g.gain.value, t); v.g.gain.linearRampToValueAtTime(0, t + fade); v.src.stop(t + fade + 0.01); } catch (e) { /* ignore */ } } };
@@ -420,7 +447,7 @@
       var t = o.when != null ? Math.max(o.when, now()) : now();
       prune(Math.min(t, now()));
       /* game patch (mix buses, restored RC5.1 - lost when the rc4 pack copy overwrote this file): P.route(slot, s, o) -> { dest, vol, prio, cat, bus, cap } or { drop: true }; per-bus per-slot voice caps */
-      if (P.route && !o.routed) { var rt = P.route(slot, s, o); if (rt) { if (rt.drop) { stats.dropped++; return null; }
+      if (P.route && !o.routed) { var rt = P.route(slot, s, o); if (rt) { if (rt.drop) { noteDrop(slot, s.cat); return null; }
           if (rt.cap) { var same = overlapping(t, t + 0.05, function (v) { return v.slot === slot && v.bus === rt.bus; }); if (same.length >= rt.cap) { stats.capped = (stats.capped || 0) + 1; return null; } }
           o = Object.assign({}, o, { dest: rt.dest || o.dest, vol: (o.vol == null ? 1 : o.vol) * (rt.vol == null ? 1 : rt.vol), routed: true, busName: rt.bus });
           if (rt.prio != null || rt.cat) s = Object.assign({}, s, { prio: rt.prio != null ? rt.prio : s.prio, cat: rt.cat || s.cat }); } }
@@ -431,7 +458,7 @@
       if (!buf) return WEAPONS[slot] ? silentWeapon(slot) : fallback(slot, s, t, o);
       var plan = planVoice(s, buf, o, s.maxDur);
       if (o.warnVoice) { var wv = startVoice(slot, s, buf, t, o, s.maxDur, plan); wv.cat = 'warn'; wv.prio = 99; stats.warnVoices = (stats.warnVoices || 0) + 1; return handle(wv); }   /* game patch: warning voice outside the caps (restored RC5.1) */
-      if (!makeRoom(s, t, plan.dur)) { stats.dropped++; return null; }
+      if (!makeRoom(s, t, plan.dur)) { noteDrop(slot, s.cat); if (s.cat === 'voice') stats.droppedVO++; return null; }
       return handle(startVoice(slot, s, buf, t, o, s.maxDur, plan));
     };
     function playBurst(slot, s, t, o) {
@@ -443,7 +470,7 @@
         var ti = t + i * gap + (i ? (rand() * 2 - 1) * 0.004 : 0);
         var last = i === n - 1, b = pickBuffer(s.burstOf), cap = last ? SLOTS[s.burstOf].maxDur : gap + 0.03;
         var plan = planVoice(s, b, o, cap);
-        if (!makeRoom(s, ti, plan.dur)) { stats.dropped++; continue; }
+        if (!makeRoom(s, ti, plan.dur)) { noteDrop(slot, s.cat); continue; }
         hs.push(handle(startVoice(slot, s, b, ti, o, cap, plan)));
       }
       return hs.length ? { slot: slot, rounds: hs.length, start: t, end: hs[hs.length - 1].end, stop: function (f) { hs.forEach(function (h) { h.stop(f); }); } } : null;
@@ -504,7 +531,7 @@
       applyDuck(d, t, dur);
     }
     function unhold(d, key, t, dur) { if (!d || !(key in d.holders)) return; delete d.holders[key]; if (d.until) delete d.until[key]; applyDuck(d, t, dur); }
-    cfg.musicDuckFloorDb = -10; cfg.voiceMusicDuckDb = -7; cfg.voiceDuckAttack = 0.08; cfg.voiceDuckRelease = 0.4; cfg.gunshipMusicDuckDb = -3;
+    cfg.musicDuckFloorDb = -10; cfg.voiceMusicDuckDb = -4;   /* rc9.3 AD S2: music -4 under all VO (was -7) */ cfg.voiceDuckAttack = 0.08; cfg.voiceDuckRelease = 0.4; cfg.gunshipMusicDuckDb = -3;
     // Public duck API (2026-10-20). duckMusic(key, db, { attack, until, release }) / unduckMusic(key, { release }).
     // externalMusicDuck(db): the game reports its OWN music duck (index.html MIX specials: -4 dB on MIX.bus.mus) so the
     // two never stack past cfg.musicDuckFloorDb. voiceDuck(start, end): -7 dB under a voice line (80 ms attack, 400 ms release).
@@ -647,7 +674,7 @@
       return P.play(k.slot, Object.assign({}, o, { rate: (o.rate || 1) * k.rate }));
     };
     P.zuni = function (o) { return P.cannon('zuni', o); };
-    P.minigun = function (o) { return P.play('minigun_burst', o || {}); };          // Spooky, distant airborne burst
+    P.minigun = function (o) { o = o || {}; var t = o.when != null ? o.when : now(); if (P._mgWhen != null && t < P._mgWhen + 0.03) t = P._mgWhen + 0.03; P._mgWhen = t; return P.play('minigun_burst', Object.assign({}, o, { when: t })); };          // Spooky, distant airborne burst; rc9.3 b3a AD S4: 30 ms min retrigger gap
     P.strafe20mm = function (o) { return P.play('strafe_20mm', o || {}); };         // STAND-IN (ear check)
     // explosion(kind, o): 'claymore' -> sharp crack; 'satchel' | 'tank_kill' | 'huey_crash' | 'rpg' | 'boss' -> preferred
     // close-HE variant (random if omitted or not loaded). 'rpg' plays 2 dB lower (smaller warhead).

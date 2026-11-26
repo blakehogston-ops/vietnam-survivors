@@ -62,6 +62,8 @@ function grade(){ const H=((S.hour%24)+24)%24; let a=KEYS[0],b=KEYS[1];
 
 /* single cached offscreen canvas holding the full grade (sky-to-ground falloff baked in); rebuilt only when quantised params change */
 /* rc8.1 retina DEBUG: ?fxoff=a,b|all skips layers (opt-in, off by default) */
+/* perf rc9.3 (1f1cc9f): ?showcaselow=1 = opt-in (named apart from the 4ed0c9e ?showcase=1 flow on purpose; Lead/EP may tie them) integrated-GPU preset. Default and HIGH paths unchanged. Lowers exactly: atmosphere tier forced to 'low' (film grain off, ground-mist bands off, light pool 40, bloom sprites 10, dust 20, flare shadows 40) and the full-screen 'saturation' blend pass replaced by the existing flat veil fill (the non-GPU path). */
+const SHOWCASE=(()=>{ try{ return /[?&]showcaselow=1\b/.test(location.search) }catch(e){ return false } })();
 const FXO=(()=>{ try{ const m=location.search.match(/[?&]fxoff=([^&]*)/); return m?decodeURIComponent(m[1]).split(','):[] }catch(e){ return [] } })(), FXOFF=n=>FXO.includes('all')||FXO.includes(n);
 /* rc8.1: heat shimmer caused white wavy lines on Retina (Blake bisect) -> OFF by default, ?shimmer=1 debug opt-in */
 const HAZE_ON=(()=>{ try{ return !/[?&]haze=0\b/.test(location.search) }catch(e){ return true } })();   /* haze default ON; ?haze=0 off */
@@ -240,11 +242,11 @@ function drawFlareShadows(ctx,camX,camY,zoom,units){ if(!units||!units.length)re
     ctx.moveTo(cx+Math.cos(ang)*(L*.5+W*.3),cy+Math.sin(ang)*(L*.5+W*.3)); ctx.ellipse(cx,cy,L*.5+W*.3,W*.5,ang,0,TAU); a+=s.a; n++ }
   if(n){ ctx.globalAlpha=clamp(a/n,.18,.42); ctx.fillStyle='#07090c'; ctx.fill() }
   ctx.restore() }
-function setQuality(t){ t=QT[t]?t:'high'; if(t===QN)return api; QN=t; Q=QT[t]; if(S.w){ const w=S.w,h=S.h; init(w,h) } return api }
+function setQuality(t){ t=QT[t]?t:'high'; if(SHOWCASE)t='low'; if(t===QN)return api; QN=t; Q=QT[t]; if(S.w){ const w=S.w,h=S.h; init(w,h) } return api }
 const api={get gradeMul(){return S.mulCss},get gamma(){return S.gamma},get assist(){return S.assist},get rfx(){return S.rfx},addBlastGlow,setQuality,setStrikeMix,get strikeMix(){return SMIX},get quality(){return QN},QT,init,setTime,setGamma,setNightAssist,setRFX,setWeather,addLight,addFlare,setFlareCadence,addPuddle,clearPuddles,rippleAt,addDust,update,drawWorldOverlay,drawScreen,drawFlareShadows,setLow,hookLowToggle,flareShadow,FLARE,
   stats:()=>({lights:S.L.filter(l=>l.on).length,flares:S.F.filter(f=>f.on).length,rain:S.rain,low:S.low,hour:S.hour,ms:S.perf.last,avgMs:S.perf.avg}),
-  _F:()=>S.F, setHQ:(b)=>{S.hq=!!b; return api},
+  _F:()=>S.F, setHQ:(b)=>{S.hq=!!b&&!SHOWCASE; return api},
   profile:(on)=>{PR.on=!!on; const r=PR.r; PR.r={}; return r},
-  get low(){return S.low}, PRESET, version:'atmo-1.3-rc93'};
+  get low(){return S.low}, PRESET, showcase:SHOWCASE, version:'atmo-1.3-rc93'};
 root.VFX_ATMO=api;
 })((typeof window!=='undefined'&&window.__lcoR)||(typeof window!=='undefined'?window:globalThis));
